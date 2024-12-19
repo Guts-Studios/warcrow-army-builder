@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { Unit } from "@/types/army";
 import UnitCard from "./UnitCard";
 import { units } from "@/data/factions";
-import { Button } from "./ui/button";
-import { Minus, Save } from "lucide-react";
-import { Input } from "./ui/input";
 import { useToast } from "./ui/use-toast";
+import ListManagement from "./ListManagement";
+import SelectedUnits from "./SelectedUnits";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -26,6 +25,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
   const [listName, setListName] = useState("");
+  const [currentListName, setCurrentListName] = useState<string | null>(null);
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const { toast } = useToast();
   
@@ -92,6 +92,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
     const updatedLists = [...savedLists, newList];
     setSavedLists(updatedLists);
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+    setCurrentListName(listName);
 
     toast({
       title: "Success",
@@ -107,6 +108,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
       newQuantities[unit.id] = unit.quantity;
     });
     setQuantities(newQuantities);
+    setCurrentListName(list.name);
     
     toast({
       title: "Success",
@@ -123,7 +125,9 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* Available Units */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Available Units</h2>
+        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
+          Available Units
+        </h2>
         <div className="grid grid-cols-1 gap-4">
           {factionUnits.map((unit) => (
             <UnitCard
@@ -139,82 +143,24 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
 
       {/* Selected Units and Saved Lists */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Selected Units</h2>
+        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
+          Selected Units
+        </h2>
         
-        {/* Save List Form */}
-        <div className="flex gap-2 mb-4">
-          <Input
-            placeholder="Enter list name"
-            value={listName}
-            onChange={(e) => setListName(e.target.value)}
-            className="bg-warcrow-background text-warcrow-text"
-          />
-          <Button
-            onClick={handleSaveList}
-            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save List
-          </Button>
-        </div>
+        <ListManagement
+          listName={listName}
+          currentListName={currentListName}
+          onListNameChange={setListName}
+          onSaveList={handleSaveList}
+          onLoadList={handleLoadList}
+          savedLists={savedLists}
+          selectedFaction={selectedFaction}
+        />
 
-        {/* Saved Lists */}
-        {savedLists.length > 0 && (
-          <div className="bg-warcrow-accent rounded-lg p-4 mb-4">
-            <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Saved Lists</h3>
-            <div className="space-y-2">
-              {savedLists
-                .filter((list) => list.faction === selectedFaction)
-                .map((list) => (
-                  <div
-                    key={list.id}
-                    className="flex items-center justify-between bg-warcrow-background p-2 rounded"
-                  >
-                    <span className="text-warcrow-text">{list.name}</span>
-                    <Button
-                      onClick={() => handleLoadList(list)}
-                      variant="outline"
-                      className="text-warcrow-gold hover:text-warcrow-gold/80"
-                    >
-                      Load
-                    </Button>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Selected Units List */}
-        <div className="bg-warcrow-accent rounded-lg p-4 space-y-2">
-          {selectedUnits.map((unit) => (
-            <div
-              key={unit.id}
-              className="flex items-center justify-between bg-warcrow-background p-2 rounded"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-warcrow-text">
-                  {unit.name} x{unit.quantity}
-                </span>
-                <span className="text-warcrow-muted">
-                  ({unit.pointsCost * unit.quantity} pts)
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemove(unit.id)}
-                className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          {selectedUnits.length === 0 && (
-            <p className="text-warcrow-muted text-center py-4">
-              No units selected
-            </p>
-          )}
-        </div>
+        <SelectedUnits
+          selectedUnits={selectedUnits}
+          onRemove={handleRemove}
+        />
       </div>
 
       {/* Total Points Footer */}

@@ -1,18 +1,18 @@
-export interface Command {
-  name: string;
-  description: string;
-}
-
 export interface Unit {
   id: string;
   name: string;
-  faction: string;
   pointsCost: number;
-  availability: number;
-  commands: Command[];
+  faction: string;
+  description: string;
 }
 
-export interface Faction {
+export interface SelectedUnit extends Unit {
+  quantity: number;
+}
+
+export interface SavedList {
   id: string;
   name: string;
+  faction: string;
+  units: SelectedUnit[];
 }

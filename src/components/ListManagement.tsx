@@ -1,0 +1,81 @@
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Save } from "lucide-react";
+import { SavedList } from "@/types/army";
+
+interface ListManagementProps {
+  listName: string;
+  currentListName: string | null;
+  onListNameChange: (name: string) => void;
+  onSaveList: () => void;
+  onLoadList: (list: SavedList) => void;
+  savedLists: SavedList[];
+  selectedFaction: string;
+}
+
+const ListManagement = ({
+  listName,
+  currentListName,
+  onListNameChange,
+  onSaveList,
+  onLoadList,
+  savedLists,
+  selectedFaction,
+}: ListManagementProps) => {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex-1">
+          <p className="text-warcrow-muted mb-2">Current List:</p>
+          <p className="text-warcrow-gold font-semibold">
+            {currentListName || "New List"}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter list name"
+            value={listName}
+            onChange={(e) => onListNameChange(e.target.value)}
+            className="bg-warcrow-background text-warcrow-text"
+          />
+          <Button
+            onClick={onSaveList}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save List
+          </Button>
+        </div>
+      </div>
+
+      {savedLists.length > 0 && (
+        <div className="bg-warcrow-accent rounded-lg p-4 mb-4">
+          <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
+            Saved Lists
+          </h3>
+          <div className="space-y-2">
+            {savedLists
+              .filter((list) => list.faction === selectedFaction)
+              .map((list) => (
+                <div
+                  key={list.id}
+                  className="flex items-center justify-between bg-warcrow-background p-2 rounded"
+                >
+                  <span className="text-warcrow-text">{list.name}</span>
+                  <Button
+                    onClick={() => onLoadList(list)}
+                    variant="outline"
+                    className="text-warcrow-gold hover:text-warcrow-gold/80"
+                  >
+                    Load
+                  </Button>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ListManagement;
