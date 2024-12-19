@@ -3,7 +3,7 @@ import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 
 const Index = () => {
-  const [selectedFaction, setSelectedFaction] = useState("imperium");
+  const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
