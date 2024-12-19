@@ -66,7 +66,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                 size="icon"
                 onClick={onRemove}
                 disabled={quantity === 0}
-                className="h-8 w-8 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+                className="h-8 w-8 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
               >
                 <Minus className="h-4 w-4" />
               </Button>
@@ -78,7 +78,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                 size="icon"
                 onClick={onAdd}
                 disabled={quantity >= unit.availability}
-                className="h-8 w-8 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+                className="h-8 w-8 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
               >
                 <Plus className="h-4 w-4" />
               </Button>
