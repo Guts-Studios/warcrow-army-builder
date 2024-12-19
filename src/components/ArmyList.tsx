@@ -133,7 +133,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
       <div className="space-y-4 order-2 md:order-1">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           Available Units
