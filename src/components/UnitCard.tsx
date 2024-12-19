@@ -17,24 +17,31 @@ interface UnitCardProps {
 }
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
+  const unitType = unit.keywords.find(k => 
+    ["Infantry", "Character"].includes(k.name)
+  )?.name || "Unknown";
+
   return (
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
         <CardTitle className="text-warcrow-gold flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span>{unit.name}</span>
-            {unit.highCommand && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <BadgeCheck className="h-5 w-5 text-warcrow-gold" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>High Command</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span>{unit.name}</span>
+              {unit.highCommand && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <BadgeCheck className="h-5 w-5 text-warcrow-gold" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>High Command</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+            <span className="text-sm text-warcrow-muted">{unitType}</span>
           </div>
           <span className="text-sm">{unit.pointsCost} pts</span>
         </CardTitle>
