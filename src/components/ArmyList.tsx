@@ -72,6 +72,17 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
     });
   };
 
+  const handleNewList = () => {
+    setQuantities({});
+    setSelectedUnits([]);
+    setListName("");
+    setCurrentListName(null);
+    toast({
+      title: "New List Created",
+      description: "Started a new empty list",
+    });
+  };
+
   const handleSaveList = () => {
     if (!listName.trim()) {
       toast({
@@ -123,7 +134,6 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Available Units */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           Available Units
@@ -141,7 +151,6 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         </div>
       </div>
 
-      {/* Selected Units and Saved Lists */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           Selected Units
@@ -153,6 +162,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
           onListNameChange={setListName}
           onSaveList={handleSaveList}
           onLoadList={handleLoadList}
+          onNewList={handleNewList}
           savedLists={savedLists}
           selectedFaction={selectedFaction}
         />
@@ -163,7 +173,6 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         />
       </div>
 
-      {/* Total Points Footer */}
       <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4">
         <div className="container max-w-7xl mx-auto flex justify-between items-center">
           <span className="text-warcrow-text">Total Army Points:</span>

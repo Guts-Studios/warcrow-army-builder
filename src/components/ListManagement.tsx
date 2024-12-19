@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Save } from "lucide-react";
+import { Save, FilePlus } from "lucide-react";
 import { SavedList } from "@/types/army";
 
 interface ListManagementProps {
@@ -9,6 +9,7 @@ interface ListManagementProps {
   onListNameChange: (name: string) => void;
   onSaveList: () => void;
   onLoadList: (list: SavedList) => void;
+  onNewList: () => void;
   savedLists: SavedList[];
   selectedFaction: string;
 }
@@ -19,6 +20,7 @@ const ListManagement = ({
   onListNameChange,
   onSaveList,
   onLoadList,
+  onNewList,
   savedLists,
   selectedFaction,
 }: ListManagementProps) => {
@@ -32,6 +34,14 @@ const ListManagement = ({
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            onClick={onNewList}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+          >
+            <FilePlus className="h-4 w-4 mr-2" />
+            New List
+          </Button>
           <Input
             placeholder="Enter list name"
             value={listName}
