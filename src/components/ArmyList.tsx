@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Unit } from "@/types/army";
 import UnitCard from "./UnitCard";
 import { units } from "@/data/factions";
 import { Button } from "./ui/button";
-import { Minus } from "lucide-react";
+import { Minus, Save } from "lucide-react";
+import { Input } from "./ui/input";
+import { useToast } from "./ui/use-toast";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -13,12 +15,29 @@ interface SelectedUnit extends Unit {
   quantity: number;
 }
 
+interface SavedList {
+  id: string;
+  name: string;
+  faction: string;
+  units: SelectedUnit[];
+}
+
 const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
+  const [listName, setListName] = useState("");
+  const [savedLists, setSavedLists] = useState<SavedList[]>([]);
+  const { toast } = useToast();
   
   const factionUnits = units.filter((unit) => unit.faction === selectedFaction);
   
+  useEffect(() => {
+    const lists = localStorage.getItem("armyLists");
+    if (lists) {
+      setSavedLists(JSON.parse(lists));
+    }
+  }, []);
+
   const handleAdd = (unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
     if (!unit) return;
@@ -53,6 +72,48 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
     });
   };
 
+  const handleSaveList = () => {
+    if (!listName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a name for your list",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newList: SavedList = {
+      id: Date.now().toString(),
+      name: listName,
+      faction: selectedFaction,
+      units: selectedUnits,
+    };
+
+    const updatedLists = [...savedLists, newList];
+    setSavedLists(updatedLists);
+    localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+
+    toast({
+      title: "Success",
+      description: "Army list saved successfully",
+    });
+    setListName("");
+  };
+
+  const handleLoadList = (list: SavedList) => {
+    setSelectedUnits(list.units);
+    const newQuantities: Record<string, number> = {};
+    list.units.forEach((unit) => {
+      newQuantities[unit.id] = unit.quantity;
+    });
+    setQuantities(newQuantities);
+    
+    toast({
+      title: "Success",
+      description: `Loaded army list: ${list.name}`,
+    });
+  };
+
   const totalPoints = selectedUnits.reduce(
     (total, unit) => total + unit.pointsCost * unit.quantity,
     0
@@ -76,9 +137,54 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         </div>
       </div>
 
-      {/* Selected Units */}
+      {/* Selected Units and Saved Lists */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Selected Units</h2>
+        
+        {/* Save List Form */}
+        <div className="flex gap-2 mb-4">
+          <Input
+            placeholder="Enter list name"
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+            className="bg-warcrow-background text-warcrow-text"
+          />
+          <Button
+            onClick={handleSaveList}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save List
+          </Button>
+        </div>
+
+        {/* Saved Lists */}
+        {savedLists.length > 0 && (
+          <div className="bg-warcrow-accent rounded-lg p-4 mb-4">
+            <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Saved Lists</h3>
+            <div className="space-y-2">
+              {savedLists
+                .filter((list) => list.faction === selectedFaction)
+                .map((list) => (
+                  <div
+                    key={list.id}
+                    className="flex items-center justify-between bg-warcrow-background p-2 rounded"
+                  >
+                    <span className="text-warcrow-text">{list.name}</span>
+                    <Button
+                      onClick={() => handleLoadList(list)}
+                      variant="outline"
+                      className="text-warcrow-gold hover:text-warcrow-gold/80"
+                    >
+                      Load
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* Selected Units List */}
         <div className="bg-warcrow-accent rounded-lg p-4 space-y-2">
           {selectedUnits.map((unit) => (
             <div
