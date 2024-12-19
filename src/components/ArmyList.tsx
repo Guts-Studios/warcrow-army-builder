@@ -5,6 +5,16 @@ import { units } from "@/data/factions";
 import { useToast } from "./ui/use-toast";
 import ListManagement from "./ListManagement";
 import SelectedUnits from "./SelectedUnits";
+import { validateHighCommandAddition } from "@/utils/armyValidation";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -37,6 +47,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [currentListName, setCurrentListName] = useState<string | null>(null);
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("points-asc");
+  const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
   
   const factionUnits = units.filter((unit) => unit.faction === selectedFaction);
@@ -66,6 +77,11 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const handleAdd = (unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
     if (!unit) return;
+
+    if (!validateHighCommandAddition(selectedUnits, unit)) {
+      setShowHighCommandAlert(true);
+      return;
+    }
 
     setQuantities((prev) => ({
       ...prev,
@@ -158,74 +174,90 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
-      <div className="space-y-4 order-2 md:order-1">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-warcrow-gold">
-            Available Units
+    <>
+      <AlertDialog open={showHighCommandAlert} onOpenChange={setShowHighCommandAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>High Command Limit Reached</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your army list can only include one High Command unit.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
+        <div className="space-y-4 order-2 md:order-1">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-warcrow-gold">
+              Available Units
+            </h2>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => setSortBy(value as SortOption)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="points-asc">Points ↑</SelectItem>
+                <SelectItem value="points-desc">Points ↓</SelectItem>
+                <SelectItem value="name-asc">Name A-Z</SelectItem>
+                <SelectItem value="name-desc">Name Z-A</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {sortedUnits.map((unit) => (
+              <UnitCard
+                key={unit.id}
+                unit={unit}
+                quantity={quantities[unit.id] || 0}
+                onAdd={() => handleAdd(unit.id)}
+                onRemove={() => handleRemove(unit.id)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4 order-1 md:order-2">
+          <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
+            Selected Units
           </h2>
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as SortOption)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="points-asc">Points ↑</SelectItem>
-              <SelectItem value="points-desc">Points ↓</SelectItem>
-              <SelectItem value="name-asc">Name A-Z</SelectItem>
-              <SelectItem value="name-desc">Name Z-A</SelectItem>
-            </SelectContent>
-          </Select>
+          
+          <ListManagement
+            listName={listName}
+            currentListName={currentListName}
+            onListNameChange={setListName}
+            onSaveList={handleSaveList}
+            onLoadList={handleLoadList}
+            onNewList={handleNewList}
+            savedLists={savedLists}
+            selectedFaction={selectedFaction}
+          />
+
+          <SelectedUnits
+            selectedUnits={selectedUnits}
+            onRemove={handleRemove}
+          />
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          {sortedUnits.map((unit) => (
-            <UnitCard
-              key={unit.id}
-              unit={unit}
-              quantity={quantities[unit.id] || 0}
-              onAdd={() => handleAdd(unit.id)}
-              onRemove={() => handleRemove(unit.id)}
-            />
-          ))}
-        </div>
-      </div>
 
-      <div className="space-y-4 order-1 md:order-2">
-        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-          Selected Units
-        </h2>
-        
-        <ListManagement
-          listName={listName}
-          currentListName={currentListName}
-          onListNameChange={setListName}
-          onSaveList={handleSaveList}
-          onLoadList={handleLoadList}
-          onNewList={handleNewList}
-          savedLists={savedLists}
-          selectedFaction={selectedFaction}
-        />
-
-        <SelectedUnits
-          selectedUnits={selectedUnits}
-          onRemove={handleRemove}
-        />
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4">
-        <div className="container max-w-7xl mx-auto flex justify-between items-center">
-          <span className="text-warcrow-text">Total Army Points:</span>
-          <span className="text-warcrow-gold text-xl font-bold">
-            {selectedUnits.reduce(
-              (total, unit) => total + unit.pointsCost * unit.quantity,
-              0
-            )} pts
-          </span>
+        <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4">
+          <div className="container max-w-7xl mx-auto flex justify-between items-center">
+            <span className="text-warcrow-text">Total Army Points:</span>
+            <span className="text-warcrow-gold text-xl font-bold">
+              {selectedUnits.reduce(
+                (total, unit) => total + unit.pointsCost * unit.quantity,
+                0
+              )} pts
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
