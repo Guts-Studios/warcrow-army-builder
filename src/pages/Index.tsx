@@ -1,11 +1,24 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import FactionSelector from "@/components/FactionSelector";
+import ArmyList from "@/components/ArmyList";
 
 const Index = () => {
+  const [selectedFaction, setSelectedFaction] = useState("imperium");
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+      <div className="container max-w-7xl mx-auto py-8 px-4">
+        <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold">
+          Warcrow Army Builder
+        </h1>
+        <p className="text-center text-warcrow-muted mb-8">
+          Build and manage your Warcrow army lists
+        </p>
+        <FactionSelector
+          selectedFaction={selectedFaction}
+          onFactionChange={setSelectedFaction}
+        />
+        <ArmyList selectedFaction={selectedFaction} />
       </div>
     </div>
   );
