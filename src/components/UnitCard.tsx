@@ -22,13 +22,13 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       <CardContent>
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
-            {unit.commands.map((command, index) => (
+            {unit.keywords.map((keyword, index) => (
               <span
                 key={index}
                 className="px-2 py-1 bg-warcrow-background text-warcrow-text text-sm rounded"
-                title={command.description}
+                title={keyword.description}
               >
-                {command.name}
+                {keyword.name}
               </span>
             ))}
           </div>

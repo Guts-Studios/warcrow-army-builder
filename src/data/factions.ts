@@ -12,7 +12,7 @@ export const units: Unit[] = [
     faction: "imperium",
     pointsCost: 25,
     availability: 3,
-    commands: [
+    keywords: [
       { name: "Charge", description: "Move into combat" },
       { name: "Shoot", description: "Fire ranged weapons" },
     ],
@@ -23,7 +23,7 @@ export const units: Unit[] = [
     faction: "imperium",
     pointsCost: 40,
     availability: 2,
-    commands: [
+    keywords: [
       { name: "Deep Strike", description: "Deploy anywhere" },
       { name: "Shoot", description: "Fire ranged weapons" },
     ],
@@ -34,7 +34,7 @@ export const units: Unit[] = [
     faction: "orks",
     pointsCost: 15,
     availability: 4,
-    commands: [
+    keywords: [
       { name: "Waaagh!", description: "Charge into battle" },
       { name: "Shoot", description: "Fire crude weapons" },
     ],
@@ -45,7 +45,7 @@ export const units: Unit[] = [
     faction: "orks",
     pointsCost: 30,
     availability: 2,
-    commands: [
+    keywords: [
       { name: "Lead da Boyz", description: "Command nearby Orks" },
       { name: "Krump", description: "Powerful melee attack" },
     ],

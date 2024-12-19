@@ -1,4 +1,4 @@
-export interface Command {
+export interface Keyword {
   name: string;
   description: string;
 }
@@ -9,7 +9,7 @@ export interface Unit {
   pointsCost: number;
   faction: string;
   availability: number;
-  commands: Command[];
+  keywords: Keyword[];
 }
 
 export interface Faction {
