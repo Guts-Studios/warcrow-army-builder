@@ -5,6 +5,13 @@ import { units } from "@/data/factions";
 import { useToast } from "./ui/use-toast";
 import ListManagement from "./ListManagement";
 import SelectedUnits from "./SelectedUnits";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -21,16 +28,34 @@ interface SavedList {
   units: SelectedUnit[];
 }
 
+type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
+
 const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
   const [listName, setListName] = useState("");
   const [currentListName, setCurrentListName] = useState<string | null>(null);
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
+  const [sortBy, setSortBy] = useState<SortOption>("points-asc");
   const { toast } = useToast();
   
   const factionUnits = units.filter((unit) => unit.faction === selectedFaction);
   
+  const sortedUnits = [...factionUnits].sort((a, b) => {
+    switch (sortBy) {
+      case "points-asc":
+        return a.pointsCost - b.pointsCost;
+      case "points-desc":
+        return b.pointsCost - a.pointsCost;
+      case "name-asc":
+        return a.name.localeCompare(b.name);
+      case "name-desc":
+        return b.name.localeCompare(a.name);
+      default:
+        return 0;
+    }
+  });
+
   useEffect(() => {
     const lists = localStorage.getItem("armyLists");
     if (lists) {
@@ -135,11 +160,27 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
       <div className="space-y-4 order-2 md:order-1">
-        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-          Available Units
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-warcrow-gold">
+            Available Units
+          </h2>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="points-asc">Points ↑</SelectItem>
+              <SelectItem value="points-desc">Points ↓</SelectItem>
+              <SelectItem value="name-asc">Name A-Z</SelectItem>
+              <SelectItem value="name-desc">Name Z-A</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="grid grid-cols-1 gap-4">
-          {factionUnits.map((unit) => (
+          {sortedUnits.map((unit) => (
             <UnitCard
               key={unit.id}
               unit={unit}
@@ -177,7 +218,10 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         <div className="container max-w-7xl mx-auto flex justify-between items-center">
           <span className="text-warcrow-text">Total Army Points:</span>
           <span className="text-warcrow-gold text-xl font-bold">
-            {totalPoints} pts
+            {selectedUnits.reduce(
+              (total, unit) => total + unit.pointsCost * unit.quantity,
+              0
+            )} pts
           </span>
         </div>
       </div>
