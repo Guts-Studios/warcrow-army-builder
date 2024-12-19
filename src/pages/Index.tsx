@@ -1,3 +1,7 @@
+import { useState } from "react";
+import FactionSelector from "@/components/FactionSelector";
+import ArmyList from "@/components/ArmyList";
+
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("imperium");
 
