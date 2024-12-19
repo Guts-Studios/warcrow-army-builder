@@ -10,6 +10,7 @@ export interface Unit {
   faction: string;
   availability: number;
   keywords: Keyword[];
+  highCommand?: boolean;
 }
 
 export interface Faction {

@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Unit } from "@/types/army";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, BadgeCheck } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface UnitCardProps {
   unit: Unit;
@@ -15,7 +21,21 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
         <CardTitle className="text-warcrow-gold flex justify-between items-center">
-          <span>{unit.name}</span>
+          <div className="flex items-center gap-2">
+            <span>{unit.name}</span>
+            {unit.highCommand && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <BadgeCheck className="h-5 w-5 text-warcrow-gold" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>High Command</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <span className="text-sm">{unit.pointsCost} pts</span>
         </CardTitle>
       </CardHeader>
