@@ -134,7 +134,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-4">
+      <div className="space-y-4 order-2 md:order-1">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           Available Units
         </h2>
@@ -151,7 +151,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 order-1 md:order-2">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           Selected Units
         </h2>
