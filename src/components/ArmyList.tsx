@@ -199,14 +199,14 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
               value={sortBy}
               onValueChange={(value) => setSortBy(value as SortOption)}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px] bg-warcrow-background border-warcrow-accent text-warcrow-text hover:border-warcrow-gold focus:border-warcrow-gold">
                 <SelectValue placeholder="Sort by..." />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="points-asc">Points ↑</SelectItem>
-                <SelectItem value="points-desc">Points ↓</SelectItem>
-                <SelectItem value="name-asc">Name A-Z</SelectItem>
-                <SelectItem value="name-desc">Name Z-A</SelectItem>
+              <SelectContent className="bg-warcrow-background border-warcrow-accent">
+                <SelectItem value="points-asc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Points ↑</SelectItem>
+                <SelectItem value="points-desc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Points ↓</SelectItem>
+                <SelectItem value="name-asc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Name A-Z</SelectItem>
+                <SelectItem value="name-desc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Name Z-A</SelectItem>
               </SelectContent>
             </Select>
           </div>
