@@ -37,7 +37,7 @@ const ListManagement = ({
           <Button
             onClick={onNewList}
             variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+            className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
           >
             <FilePlus className="h-4 w-4 mr-2" />
             New List
@@ -46,7 +46,7 @@ const ListManagement = ({
             placeholder="Enter list name"
             value={listName}
             onChange={(e) => onListNameChange(e.target.value)}
-            className="bg-warcrow-background text-warcrow-text"
+            className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
           />
           <Button
             onClick={onSaveList}
@@ -75,7 +75,7 @@ const ListManagement = ({
                   <Button
                     onClick={() => onLoadList(list)}
                     variant="outline"
-                    className="text-warcrow-gold hover:text-warcrow-gold/80"
+                    className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
                   >
                     Load
                   </Button>
