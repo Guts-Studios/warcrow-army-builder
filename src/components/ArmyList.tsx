@@ -1,44 +1,18 @@
 import { useState, useEffect } from "react";
-import { Unit } from "@/types/army";
+import { Unit, SelectedUnit, SavedList, SortOption } from "@/types/army";
 import UnitCard from "./UnitCard";
 import { units } from "@/data/factions";
 import { useToast } from "./ui/use-toast";
 import ListManagement from "./ListManagement";
 import SelectedUnits from "./SelectedUnits";
 import { validateHighCommandAddition } from "@/utils/armyValidation";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import SortControls from "./army/SortControls";
+import HighCommandAlert from "./army/HighCommandAlert";
+import TotalPoints from "./army/TotalPoints";
 
 interface ArmyListProps {
   selectedFaction: string;
 }
-
-interface SelectedUnit extends Unit {
-  quantity: number;
-}
-
-interface SavedList {
-  id: string;
-  name: string;
-  faction: string;
-  units: SelectedUnit[];
-}
-
-type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
 
 const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -168,48 +142,16 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
     });
   };
 
-  const totalPoints = selectedUnits.reduce(
-    (total, unit) => total + unit.pointsCost * unit.quantity,
-    0
-  );
-
   return (
     <>
-      <AlertDialog open={showHighCommandAlert} onOpenChange={setShowHighCommandAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>High Command Limit Reached</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your army list can only include one High Command unit.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction>OK</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <HighCommandAlert 
+        open={showHighCommandAlert} 
+        onOpenChange={setShowHighCommandAlert} 
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
         <div className="space-y-4 order-2 md:order-1">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-warcrow-gold">
-              Available Units
-            </h2>
-            <Select
-              value={sortBy}
-              onValueChange={(value) => setSortBy(value as SortOption)}
-            >
-              <SelectTrigger className="w-[180px] bg-warcrow-background border-warcrow-accent text-warcrow-text hover:border-warcrow-gold focus:border-warcrow-gold">
-                <SelectValue placeholder="Sort by..." />
-              </SelectTrigger>
-              <SelectContent className="bg-warcrow-background border-warcrow-accent">
-                <SelectItem value="points-asc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Points ↑</SelectItem>
-                <SelectItem value="points-desc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Points ↓</SelectItem>
-                <SelectItem value="name-asc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Name A-Z</SelectItem>
-                <SelectItem value="name-desc" className="text-warcrow-text hover:bg-warcrow-accent focus:bg-warcrow-accent focus:text-warcrow-gold">Name Z-A</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <SortControls sortBy={sortBy} onSortChange={(value) => setSortBy(value)} />
           <div className="grid grid-cols-1 gap-4">
             {sortedUnits.map((unit) => (
               <UnitCard
@@ -244,19 +186,9 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
             onRemove={handleRemove}
           />
         </div>
-
-        <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4">
-          <div className="container max-w-7xl mx-auto flex justify-between items-center">
-            <span className="text-warcrow-text">Total Army Points:</span>
-            <span className="text-warcrow-gold text-xl font-bold">
-              {selectedUnits.reduce(
-                (total, unit) => total + unit.pointsCost * unit.quantity,
-                0
-              )} pts
-            </span>
-          </div>
-        </div>
       </div>
+
+      <TotalPoints selectedUnits={selectedUnits} />
     </>
   );
 };
