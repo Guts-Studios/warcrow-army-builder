@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Unit } from "@/types/army";
-import { Plus, Minus, BadgeCheck } from "lucide-react";
+import { Plus, Minus, BadgeCheck, Eye } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -40,6 +45,30 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                   </Tooltip>
                 </TooltipProvider>
               )}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-6 w-6 p-0.5 hover:bg-warcrow-gold/20"
+                  >
+                    <Eye className="h-4 w-4 text-warcrow-gold" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  {unit.imageUrl ? (
+                    <img 
+                      src={unit.imageUrl} 
+                      alt={unit.name} 
+                      className="w-full h-auto rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
+                      Card image coming soon
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
             </div>
             <span className="text-sm text-warcrow-muted">{unitType}</span>
           </div>
