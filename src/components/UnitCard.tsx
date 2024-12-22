@@ -58,7 +58,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                 <DialogContent className="max-w-md">
                   {unit.imageUrl ? (
                     <img 
-                      src={unit.imageUrl} 
+                      src={unit.imageUrl.toLowerCase()} 
                       alt={unit.name} 
                       className="w-full h-auto rounded-lg"
                     />
