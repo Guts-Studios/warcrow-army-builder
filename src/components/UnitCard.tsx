@@ -29,15 +29,15 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   return (
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
-        <CardTitle className="text-warcrow-gold flex justify-between items-center">
+        <CardTitle className="text-warcrow-gold flex justify-between items-center text-lg">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span>{unit.name}</span>
+              <span className="truncate max-w-[200px]">{unit.name}</span>
               {unit.highCommand && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <BadgeCheck className="h-5 w-5 text-warcrow-gold" />
+                      <BadgeCheck className="h-4 w-4 text-warcrow-gold" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>High Command</p>
@@ -55,7 +55,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                     <Eye className="h-4 w-4 text-warcrow-gold" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-md">
                   {unit.imageUrl ? (
                     <img 
                       src={unit.imageUrl} 
@@ -70,36 +70,36 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                 </DialogContent>
               </Dialog>
             </div>
-            <span className="text-sm text-warcrow-muted">{unitType}</span>
+            <span className="text-xs text-warcrow-muted">{unitType}</span>
           </div>
-          <span className="text-sm">{unit.pointsCost} pts</span>
+          <span className="text-sm whitespace-nowrap">{unit.pointsCost} pts</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1">
             {unit.keywords.map((keyword, index) => (
               <span
                 key={index}
-                className="px-2 py-1 bg-warcrow-background text-warcrow-text text-sm rounded"
+                className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded"
                 title={keyword.description}
               >
                 {keyword.name}
               </span>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={onRemove}
                 disabled={quantity === 0}
-                className="h-8 w-8 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
+                className="h-7 w-7 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3 w-3" />
               </Button>
-              <span className="text-warcrow-text min-w-[2rem] text-center">
+              <span className="text-warcrow-text min-w-[2rem] text-center text-sm">
                 {quantity}/{unit.availability}
               </span>
               <Button
@@ -107,12 +107,12 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                 size="icon"
                 onClick={onAdd}
                 disabled={quantity >= unit.availability}
-                className="h-8 w-8 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
+                className="h-7 w-7 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3 w-3" />
               </Button>
             </div>
-            <span className="text-warcrow-muted text-sm">
+            <span className="text-warcrow-muted text-xs">
               Total: {unit.pointsCost * quantity} pts
             </span>
           </div>
