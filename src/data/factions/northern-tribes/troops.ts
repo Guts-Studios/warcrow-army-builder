@@ -2,16 +2,60 @@ import { Unit } from "../../../types/army";
 
 export const northernTribesTroops: Unit[] = [
   {
-    id: "pioneers",
-    name: "Pioneers",
-    pointsCost: 110,
+    id: "battle-scarred",
+    name: "Battle-Scarred",
     faction: "northern-tribes",
+    pointsCost: 40,
+    availability: 1,
     keywords: [
       { name: "Infantry", description: "Infantry unit type" },
-      { name: "Melee", description: "Specializes in close combat" },
+      { name: "Orc", description: "Orc race" },
+      { name: "Raging", description: "Has the Raging ability" },
     ],
-    availability: 3,
     highCommand: false,
-    imageUrl: "/src/art/card/Pioneers_card.jpg"
+    imageUrl: "/src/art/card/battle_scarred_card.jpg"
+  },
+  {
+    id: "orc-hunters",
+    name: "Orc Hunters",
+    faction: "northern-tribes",
+    pointsCost: 20,
+    availability: 3,
+    keywords: [
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Orc", description: "Orc race" },
+      { name: "Raging", description: "Has the Raging ability" },
+    ],
+    highCommand: false,
+    imageUrl: "/src/art/card/orc_hunters_card.jpg"
+  },
+  {
+    id: "skin-changers",
+    name: "Skin Changers",
+    faction: "northern-tribes",
+    pointsCost: 35,
+    availability: 1,
+    keywords: [
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Varank", description: "Varank race" },
+      { name: "Fearless", description: "Has the Fearless ability" },
+    ],
+    highCommand: false,
+    imageUrl: "/src/art/card/Skin_Changers_card.jpg"
+  },
+  {
+    id: "tundra-marauders",
+    name: "Tundra Marauders",
+    faction: "northern-tribes",
+    pointsCost: 30,
+    availability: 2,
+    keywords: [
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Varank", description: "Varank race" },
+      { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
+      { name: "Scout", description: "Has scouting abilities" },
+    ],
+    highCommand: false,
+    imageUrl: "/src/art/card/Tundra_Marauders_card.jpg"
   }
 ];
