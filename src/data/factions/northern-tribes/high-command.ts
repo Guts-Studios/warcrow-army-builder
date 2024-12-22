@@ -17,7 +17,7 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: true,
     availability: 1,
-    imageUrl: "./src/art/card/ahlwardt_ice_bear_card.jpg"
+    imageUrl: "art/card/ahlwardt_ice_bear_card.jpg"
   },
   {
     id: "alborc",
@@ -36,7 +36,7 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: true,
     availability: 1,
-    imageUrl: "./src/art/card/alborc_card.jpg"
+    imageUrl: "art/card/alborc_card.jpg"
   },
   {
     id: "njord",
@@ -51,7 +51,7 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "./src/art/card/njord_the_merciless_card.jpg"
+    imageUrl: "art/card/njord_the_merciless_card.jpg"
   },
   {
     id: "new-unit-1",
@@ -64,7 +64,7 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
-    imageUrl: "./src/art/card/new_unit_1_card.jpg"
+    imageUrl: "art/card/new_unit_1_card.jpg"
   },
   {
     id: "new-unit-2",
@@ -77,6 +77,6 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: true,
     availability: 1,
-    imageUrl: "./src/art/card/new_unit_2_card.jpg"
+    imageUrl: "art/card/new_unit_2_card.jpg"
   },
 ];

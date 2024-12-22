@@ -12,7 +12,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Infantry", description: "Infantry unit type" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/agressors_card.jpg"
+    imageUrl: "art/card/agressors_card.jpg"
   },
   {
     id: "black-legion-bucklermen",
@@ -25,7 +25,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Infantry", description: "Infantry unit type" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/black_legion_bucklemen_card.jpg"
+    imageUrl: "art/card/black_legion_bucklemen_card.jpg"
   },
   {
     id: "bulwarks",
@@ -40,7 +40,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Immovable", description: "Cannot be moved" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/bulwarks_card.jpg"
+    imageUrl: "art/card/bulwarks_card.jpg"
   },
   {
     id: "pioneers",
@@ -56,6 +56,6 @@ export const hegemonyTroops: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Pioneers_card.jpg"
+    imageUrl: "art/card/Pioneers_card.jpg"
   }
 ];

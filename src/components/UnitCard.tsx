@@ -5,6 +5,7 @@ import { Plus, Minus, BadgeCheck, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -29,8 +30,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to get the correct image URL
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    // Remove leading slash and 'src/' if present
-    return url.replace(/^\/?(src\/)?/, '');
+    // Remove leading ./ and src/ if present, and ensure it starts with /
+    return '/' + url.replace(/^\.?\/?(?:src\/)?/, '');
   };
 
   return (
@@ -63,9 +64,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
+                  <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
                   {unit.imageUrl ? (
                     <img 
-                      src={getImageUrl(unit.imageUrl).toLowerCase()} 
+                      src={getImageUrl(unit.imageUrl)} 
                       alt={unit.name} 
                       className="w-full h-auto rounded-lg"
                     />
