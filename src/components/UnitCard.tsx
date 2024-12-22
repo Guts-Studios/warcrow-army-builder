@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface UnitCardProps {
   unit: Unit;
@@ -27,52 +28,63 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     ["Infantry", "Character"].includes(k.name)
   )?.name || "Unknown";
 
+  // Convert the card image URL to a portrait URL
+  const portraitUrl = unit.imageUrl?.replace('/card/', '/portrait/').replace('_card.jpg', '_portrait.jpg');
+
   return (
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
         <CardTitle className="text-warcrow-gold flex justify-between items-center text-lg">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="truncate max-w-[200px]">{unit.name}</span>
-              {unit.highCommand && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <BadgeCheck className="h-4 w-4 text-warcrow-gold" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>High Command</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="h-6 w-6 p-0.5 hover:bg-warcrow-gold/20"
-                  >
-                    <Eye className="h-4 w-4 text-warcrow-gold" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
-                  {unit.imageUrl ? (
-                    <img 
-                      src={unit.imageUrl} 
-                      alt={unit.name} 
-                      className="w-full h-auto rounded-lg"
-                    />
-                  ) : (
-                    <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
-                      Card image coming soon
-                    </div>
-                  )}
-                </DialogContent>
-              </Dialog>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={portraitUrl} alt={unit.name} />
+              <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
+                {unit.name.split(' ').map(word => word[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="truncate max-w-[200px]">{unit.name}</span>
+                {unit.highCommand && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <BadgeCheck className="h-4 w-4 text-warcrow-gold" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>High Command</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-6 w-6 p-0.5 hover:bg-warcrow-gold/20"
+                    >
+                      <Eye className="h-4 w-4 text-warcrow-gold" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
+                    {unit.imageUrl ? (
+                      <img 
+                        src={unit.imageUrl} 
+                        alt={unit.name} 
+                        className="w-full h-auto rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
+                        Card image coming soon
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <span className="text-xs text-warcrow-muted">{unitType}</span>
             </div>
-            <span className="text-xs text-warcrow-muted">{unitType}</span>
           </div>
           <span className="text-sm whitespace-nowrap">{unit.pointsCost} pts</span>
         </CardTitle>
