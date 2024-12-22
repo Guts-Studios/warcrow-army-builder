@@ -56,6 +56,6 @@ export const hegemonyTroops: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/pioneers_card.jpg"
+    imageUrl: "/src/art/card/Pioneers_card.jpg"
   }
 ];
