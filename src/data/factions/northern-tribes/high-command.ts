@@ -52,31 +52,5 @@ export const northernTribesHighCommand: Unit[] = [
     highCommand: false,
     availability: 1,
     imageUrl: "art/card/njord_the_merciless_card.jpg"
-  },
-  {
-    id: "new-unit-1",
-    name: "New Unit 1",
-    pointsCost: 45,
-    faction: "northern-tribes",
-    keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "New Keyword", description: "Description of new keyword" },
-    ],
-    highCommand: false,
-    availability: 2,
-    imageUrl: "art/card/new_unit_1_card.jpg"
-  },
-  {
-    id: "new-unit-2",
-    name: "New Unit 2",
-    pointsCost: 55,
-    faction: "northern-tribes",
-    keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "Another Keyword", description: "Description of another keyword" },
-    ],
-    highCommand: true,
-    availability: 1,
-    imageUrl: "art/card/new_unit_2_card.jpg"
-  },
+  }
 ];
