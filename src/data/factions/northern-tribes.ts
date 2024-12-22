@@ -1,20 +1,8 @@
 import { Unit } from "../../types/army";
+import { northernTribesTroops } from "./northern-tribes/troops";
 
 export const northernTribesUnits: Unit[] = [
-  // Troops
-  {
-    id: "battle-scarred",
-    name: "Battle-Scarred",
-    faction: "northern-tribes",
-    pointsCost: 40,
-    availability: 1,
-    keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Raging", description: "Has the Raging ability" },
-    ],
-    highCommand: false
-  },
+  ...northernTribesTroops,
   {
     id: "orc-hunters",
     name: "Orc Hunters",
@@ -26,7 +14,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Orc", description: "Orc race" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/orc_hunters_card.jpg"
   },
   {
     id: "skin-changers",
@@ -39,7 +28,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Varank", description: "Varank race" },
       { name: "Fearless", description: "Has the Fearless ability" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/skin_changers_card.jpg"
   },
   {
     id: "tundra-marauders",
@@ -53,9 +43,9 @@ export const northernTribesUnits: Unit[] = [
       { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
       { name: "Scout", description: "Has scouting abilities" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/tundra_marauders_card.jpg"
   },
-  // Characters
   {
     id: "contender",
     name: "Contender",
@@ -68,7 +58,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/contender_card.jpg"
   },
   {
     id: "darkmaster",
@@ -83,7 +74,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Dispel", description: "Can dispel magic" },
       { name: "Join (Hunters)", description: "Can join Hunter units" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/darkmaster_card.jpg"
   },
   {
     id: "evoker",
@@ -96,7 +88,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Orc", description: "Orc race" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/evoker_card.jpg"
   },
   {
     id: "hersir",
@@ -111,7 +104,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/hersir_card.jpg"
   },
   {
     id: "prime-warrior",
@@ -125,7 +119,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/prime_warrior_card.jpg"
   },
   {
     id: "wisemane",
@@ -139,7 +134,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/wisemane_card.jpg"
   },
   {
     id: "wrathmane",
@@ -155,9 +151,9 @@ export const northernTribesUnits: Unit[] = [
       { name: "Elite", description: "Elite unit" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
-    highCommand: true
+    highCommand: true,
+    imageUrl: "/src/art/card/wrathmane_card.jpg"
   },
-  // Named Characters
   {
     id: "ahlwardt",
     name: "Ahlwardt, Ice Bear",
@@ -173,7 +169,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Elite", description: "Elite unit" },
       { name: "Join (Skin Changers)", description: "Can join Skin Changers units" },
     ],
-    highCommand: true
+    highCommand: true,
+    imageUrl: "/src/art/card/ahlwardt_card.jpg"
   },
   {
     id: "alborc",
@@ -188,7 +185,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Join (Infantry, Orc | Infantry, Varank)", description: "Can join Infantry Orc or Infantry Varank units" },
       { name: "Elite", description: "Elite unit" },
     ],
-    highCommand: true
+    highCommand: true,
+    imageUrl: "/src/art/card/alborc_card.jpg"
   },
   {
     id: "lotta",
@@ -202,7 +200,8 @@ export const northernTribesUnits: Unit[] = [
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/lotta_card.jpg"
   },
   {
     id: "njord",
@@ -216,6 +215,7 @@ export const northernTribesUnits: Unit[] = [
       { name: "Beserker Rage", description: "Has Berserker Rage" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
-    highCommand: false
+    highCommand: false,
+    imageUrl: "/src/art/card/njord_card.jpg"
   }
 ];
