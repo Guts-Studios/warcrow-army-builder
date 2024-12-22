@@ -80,7 +80,7 @@ export const northernTribesHighCommand: Unit[] = [
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/njord_the_merciless_card.jpg"
+    imageUrl: "/src/art/card/Njord_the_merciless_card.jpg"
   },
   {
     id: "ormuk",
