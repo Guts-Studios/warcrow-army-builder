@@ -17,7 +17,7 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: true,
     availability: 1,
-    imageUrl: "/art/card/Ahlwardt_ice_bear_card.jpg" 
+    imageUrl: "/art/card/ahlwardt_ice_bear_card.jpg" 
   },
   {
     id: "alborc",
@@ -51,6 +51,6 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/card/Njord_the_merciless_card.jpg"  
+    imageUrl: "/art/card/njord_the_merciless_card.jpg"  
   }
 ];
