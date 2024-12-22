@@ -16,6 +16,5 @@ export const hegemonyCharacters: Unit[] = [
     ],
     highCommand: false,
     imageUrl: "/src/art/card/aide_card.jpg"
-  },
-  // ... Add other character units with their respective image URLs
+  }
 ];

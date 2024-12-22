@@ -16,7 +16,6 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (Bucklermen | Bulwark)", description: "Can join Bucklermen or Bulwark units" },
     ],
     highCommand: true,
-    imageUrl: "/src/art/card/Dragosla_Bjelogríc_card.jpg"
-  },
-  // ... Add other named character units with their respective image URLs
+    imageUrl: "/src/art/card/Dragosla_Bjelogríc_drago_the_anvil_card.jpg"
+  }
 ];

@@ -34,6 +34,6 @@ export const northernTribesHighCommand: Unit[] = [
       { name: "Join (Skin Changers)", description: "Can join Skin Changers units" },
     ],
     highCommand: true,
-    imageUrl: "/src/art/card/ahlwardt_card.jpg"
+    imageUrl: "/src/art/card/Ahlwardt_ice_bear_card.jpg"
   }
 ];
