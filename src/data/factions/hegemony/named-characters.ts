@@ -16,7 +16,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (Bucklermen | Bulwark)", description: "Can join Bucklermen or Bulwark units" },
     ],
     highCommand: true,
-    imageUrl: "/src/art/card/Dragosla_Bjelogríc_drago_the_anvil_card.jpg"
+    imageUrl: "/images/cards/dragoslav_bjelogric_card.jpg"
   },
   {
     id: "lady-telia",
@@ -32,7 +32,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Lady_Télia_card.jpg"
+    imageUrl: "/images/cards/lady_telia_card.jpg"
   },
   {
     id: "marhael-the-refused",
@@ -48,7 +48,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/marhael_the_refused_card.jpg"
+    imageUrl: "/images/cards/marhael_the_refused_card.jpg"
   },
   {
     id: "nadezhda-lazard",
@@ -62,7 +62,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Nadezhda_Lazard_Champion_of_Embersig_card.jpg"
+    imageUrl: "/images/cards/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   {
     id: "amelia-hellbroth",
@@ -79,7 +79,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
     highCommand: true,
-    imageUrl: "/src/art/card/amelia_hellbroth_card.jpg"
+    imageUrl: "/images/cards/amelia_hellbroth_card.jpg"
   },
   {
     id: "nayra-caladren",
@@ -97,7 +97,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/nayra_caladren_card.jpg"
+    imageUrl: "/images/cards/nayra_caladren_card.jpg"
   },
   {
     id: "naergon-caladren",
@@ -113,7 +113,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/naergon_caladren_card.jpg"
+    imageUrl: "/images/cards/naergon_caladren_card.jpg"
   },
   {
     id: "trabor-slepmund",
@@ -130,7 +130,7 @@ export const hegemonyNamedCharacters: Unit[] = [
       { name: "Join (War Rig)", description: "Can join War Rig units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/trabor_slepmund_card.jpg"
+    imageUrl: "/images/cards/trabor_slepmund_card.jpg"
   },
   {
     id: "mk-os-automata",
@@ -140,6 +140,6 @@ export const hegemonyNamedCharacters: Unit[] = [
     availability: 3,
     keywords: [],
     highCommand: false,
-    imageUrl: "/src/art/card/mk-os_automata_card.jpg"
+    imageUrl: "/images/cards/mk-os_automata_card.jpg"
   }
 ];

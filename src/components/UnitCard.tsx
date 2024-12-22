@@ -27,12 +27,6 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     ["Infantry", "Character"].includes(k.name)
   )?.name || "Unknown";
 
-  // Function to get the correct image URL
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    return url;
-  };
-
   return (
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
@@ -66,7 +60,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                   <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
                   {unit.imageUrl ? (
                     <img 
-                      src={getImageUrl(unit.imageUrl)} 
+                      src={unit.imageUrl} 
                       alt={unit.name} 
                       className="w-full h-auto rounded-lg"
                     />
