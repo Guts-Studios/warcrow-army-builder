@@ -14,7 +14,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Raging", description: "Has the Raging ability" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/contender_card.jpg"
+    imageUrl: "/art/card/contender_card.jpg"
   },
   {
     id: "darkmaster",
@@ -30,7 +30,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Join (Hunters)", description: "Can join Hunter units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/darkmaster_card.jpg"
+    imageUrl: "/art/card/darkmaster_card.jpg"
   },
   {
     id: "evoker",
@@ -44,7 +44,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/evoker_card.jpg"
+    imageUrl: "/art/card/evoker_card.jpg"
   },
   {
     id: "hersir",
@@ -60,7 +60,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Hersir_card.jpg"
+    imageUrl: "/art/card/Hersir_card.jpg"
   },
   {
     id: "prime-warrior",
@@ -75,7 +75,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Raging", description: "Has the Raging ability" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/prime_warrior_card.jpg"
+    imageUrl: "/art/card/prime_warrior_card.jpg"
   },
   {
     id: "wisemane",
@@ -90,6 +90,6 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/wisemane_card.jpg"
+    imageUrl: "/art/card/wisemane_card.jpg"
   }
 ];

@@ -15,7 +15,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/images/cards/aide_card.jpg"
+    imageUrl: "/art/card/aide_card.jpg"
   },
   {
     id: "corporal",
@@ -29,7 +29,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Join (Human, Infantry)", description: "Can join Human Infantry units" },
     ],
     highCommand: false,
-    imageUrl: "/images/cards/corporal_card.jpg"
+    imageUrl: "/art/card/corporal_card.jpg"
   },
   {
     id: "frostfire-herald",
@@ -45,7 +45,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
     ],
     highCommand: false,
-    imageUrl: "/images/cards/frostfire_herald_card.jpg"
+    imageUrl: "/art/card/frostfire_herald_card.jpg"
   },
   {
     id: "gunnery-corporal",
@@ -59,7 +59,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
     highCommand: false,
-    imageUrl: "/images/cards/Gunnery_Corporal_card.jpg"
+    imageUrl: "/art/card/Gunnery_Corporal_card.jpg"
   },
   {
     id: "hetman",
@@ -74,7 +74,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
     highCommand: true,
-    imageUrl: "/images/cards/hetman_card.jpg"
+    imageUrl: "/art/card/hetman_card.jpg"
   },
   {
     id: "war-surgeon",
@@ -88,6 +88,6 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
     highCommand: false,
-    imageUrl: "/images/cards/war_surgeon_card.jpg"
+    imageUrl: "/art/card/war_surgeon_card.jpg"
   }
 ];

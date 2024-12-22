@@ -13,7 +13,7 @@ export const northernTribesTroops: Unit[] = [
       { name: "Raging", description: "Has the Raging ability" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/battle_scarred_card.jpg"
+    imageUrl: "/art/card/battle_scarred_card.jpg"
   },
   {
     id: "orc-hunters",
@@ -27,7 +27,7 @@ export const northernTribesTroops: Unit[] = [
       { name: "Raging", description: "Has the Raging ability" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/orc_hunters_card.jpg"
+    imageUrl: "/art/card/orc_hunters_card.jpg"
   },
   {
     id: "skin-changers",
@@ -41,7 +41,7 @@ export const northernTribesTroops: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Skin_Changers_card.jpg"
+    imageUrl: "/art/card/Skin_Changers_card.jpg"
   },
   {
     id: "tundra-marauders",
@@ -56,6 +56,6 @@ export const northernTribesTroops: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
     ],
     highCommand: false,
-    imageUrl: "/src/art/card/Tundra_Marauders_card.jpg"
+    imageUrl: "/art/card/Tundra_Marauders_card.jpg"
   }
 ];
