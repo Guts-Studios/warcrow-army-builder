@@ -30,8 +30,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to get the correct image URL
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    // Remove leading ./ and src/ if present, and ensure it starts with /
-    return '/' + url.replace(/^\.?\/?(?:src\/)?/, '');
+    return url;
   };
 
   return (
