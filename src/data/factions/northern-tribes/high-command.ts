@@ -51,6 +51,6 @@ export const northernTribesHighCommand: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/card/njord_the_merciless_card.jpg"
+    imageUrl: "/art/card/Njord_the_merciless_card.jpg"
   }
 ];
