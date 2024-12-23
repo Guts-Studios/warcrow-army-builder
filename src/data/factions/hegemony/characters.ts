@@ -89,19 +89,5 @@ export const hegemonyCharacters: Unit[] = [
     ],
     highCommand: false,
     imageUrl: "/art/card/war_surgeon_card.jpg"
-  },
-  {
-    id: "nadezhda-lazard",
-    name: "Nadezhda Lazard, Champion of Embersig",
-    faction: "hegemony-of-embersig",
-    pointsCost: 30,
-    availability: 1,
-    keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Human", description: "Human race" },
-      { name: "Join (Infantry)", description: "Can join Infantry units" },
-    ],
-    highCommand: false,
-    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   }
 ];
