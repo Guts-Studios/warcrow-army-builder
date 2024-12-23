@@ -31,20 +31,28 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Convert the card image URL to a portrait URL
   const portraitUrl = unit.imageUrl?.replace('/card/', '/portrait/').replace('_card.jpg', '_portrait.jpg');
 
+  // Split name into main name and subtitle if there's a comma
+  const [mainName, subtitle] = unit.name.split(',').map(part => part.trim());
+
   return (
     <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
       <CardHeader className="pb-2">
         <CardTitle className="text-warcrow-gold flex justify-between items-center text-lg">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={portraitUrl} alt={unit.name} />
+              <AvatarImage src={portraitUrl} alt={mainName} />
               <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
-                {unit.name.split(' ').map(word => word[0]).join('')}
+                {mainName.split(' ').map(word => word[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="truncate max-w-[200px]">{unit.name}</span>
+                <div className="flex flex-col">
+                  <span className="truncate max-w-[200px]">{mainName}</span>
+                  {subtitle && (
+                    <span className="text-xs text-warcrow-muted">{subtitle}</span>
+                  )}
+                </div>
                 {unit.highCommand && (
                   <TooltipProvider>
                     <Tooltip>
