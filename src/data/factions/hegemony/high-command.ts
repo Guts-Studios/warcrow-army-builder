@@ -1,6 +1,6 @@
 import { Unit } from "../../../types/army";
 
-export const hegemonyNamedCharacters: Unit[] = [
+export const hegemonyHighCommand: Unit[] = [
   {
     id: "dragoslav-bjelogric",
     name: "Dragoslav Bjelogríc, Drago the Anvil",
