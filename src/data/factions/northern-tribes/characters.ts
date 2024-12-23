@@ -60,7 +60,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/Hersir_card.jpg"
+    imageUrl: "/art/card/hersir_card.jpg"
   },
   {
     id: "prime-warrior",
@@ -91,5 +91,33 @@ export const northernTribesCharacters: Unit[] = [
     ],
     highCommand: false,
     imageUrl: "/art/card/wisemane_card.jpg"
+  },
+  {
+    id: "lotta",
+    name: "Lotta",
+    faction: "northern-tribes",
+    pointsCost: 25,
+    availability: 1,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Orc", description: "Orc race" },
+      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
+      { name: "Raging", description: "Has the Raging ability" },
+    ],
+    highCommand: false,
+    imageUrl: "/art/card/lotta_card.jpg"
+  },
+  {
+    id: "coal",
+    name: "Coal",
+    faction: "northern-tribes",
+    pointsCost: 20,
+    availability: 1,
+    keywords: [
+      { name: "Companion", description: "Companion unit type" },
+      { name: "Join (Iriavik)", description: "Can join Iriavik" },
+    ],
+    highCommand: false,
+    imageUrl: "/art/card/coal_card.jpg"
   }
 ];
