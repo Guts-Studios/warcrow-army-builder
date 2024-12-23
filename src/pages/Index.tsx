@@ -8,8 +8,8 @@ const Index = () => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-        <div className="container max-w-7xl mx-auto py-8 px-4">
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col">
+        <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow">
           <div className="flex flex-col items-center mb-8">
             <img 
               src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
@@ -29,6 +29,18 @@ const Index = () => {
           />
           <ArmyList selectedFaction={selectedFaction} />
         </div>
+        <footer className="w-full py-4 bg-warcrow-accent">
+          <div className="container max-w-7xl mx-auto px-4">
+            <a 
+              href="https://www.patreon.com/GutzStudio" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-warcrow-gold hover:text-warcrow-gold/80 transition-colors"
+            >
+              Support us on Patreon
+            </a>
+          </div>
+        </footer>
       </div>
     </TooltipProvider>
   );
