@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Save, FilePlus } from "lucide-react";
+import { Save, FilePlus, Trash2 } from "lucide-react";
 import { SavedList } from "@/types/army";
 
 interface ListManagementProps {
@@ -24,6 +24,12 @@ const ListManagement = ({
   savedLists,
   selectedFaction,
 }: ListManagementProps) => {
+  const handleDeleteList = (listId: string) => {
+    const updatedLists = savedLists.filter((list) => list.id !== listId);
+    localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+    window.location.reload(); // Refresh to update the lists
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
@@ -72,13 +78,22 @@ const ListManagement = ({
                   className="flex items-center justify-between bg-warcrow-background p-2 rounded"
                 >
                   <span className="text-warcrow-text">{list.name}</span>
-                  <Button
-                    onClick={() => onLoadList(list)}
-                    variant="outline"
-                    className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-                  >
-                    Load
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => onLoadList(list)}
+                      variant="outline"
+                      className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+                    >
+                      Load
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteList(list.id)}
+                      variant="outline"
+                      className="bg-warcrow-background border-red-500 text-red-500 hover:bg-red-500 hover:text-warcrow-background transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
           </div>
