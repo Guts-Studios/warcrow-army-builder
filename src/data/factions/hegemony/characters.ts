@@ -59,7 +59,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/Gunnery_Corporal_card.jpg"
+    imageUrl: "/art/card/gunnery_corporal_card.jpg"
   },
   {
     id: "hetman",
