@@ -16,7 +16,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Join (Bucklermen | Bulwark)", description: "Can join Bucklermen or Bulwark units" },
     ],
     highCommand: true,
-    imageUrl: "/art/card/dragoslav_bjelogric_drago_the_anvil_card.jpg" 
+    imageUrl: "/art/card/dragoslav_bjelogric_card.jpg" 
   },
   {
     id: "lady-telia",
