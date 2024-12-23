@@ -28,7 +28,7 @@ const Landing = () => {
         </div>
       </div>
       <footer className="w-full py-4 bg-warcrow-accent">
-        <div className="container max-w-7xl mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4 text-center">
           <a 
             href="https://www.patreon.com/GutzStudio" 
             target="_blank" 
