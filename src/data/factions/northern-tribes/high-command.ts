@@ -2,6 +2,23 @@ import { Unit } from "@/types/army";
 
 export const northernTribesHighCommand: Unit[] = [
   {
+    id: "wrathmane",
+    name: "Wrathmane",
+    pointsCost: 30,
+    faction: "northern-tribes",
+    keywords: [
+      { name: "Character", description: "This unit is a character" },
+      { name: "High Command", description: "This unit is part of the High Command" },
+      { name: "Orc", description: "This unit has the Orc keyword" },
+      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
+      { name: "Elite", description: "Elite unit" },
+      { name: "Raging", description: "Has the Raging ability" },
+    ],
+    highCommand: true,
+    availability: 1,
+    imageUrl: "/art/card/wrathmane_card.jpg"
+  },
+  {
     id: "ahlwardt",
     name: "Ahlwardt, Ice Bear",
     pointsCost: 60,
@@ -10,14 +27,14 @@ export const northernTribesHighCommand: Unit[] = [
       { name: "Character", description: "This unit is a character" },
       { name: "High Command", description: "This unit is part of the High Command" },
       { name: "Varank", description: "This unit has the Varank keyword" },
-      { name: "Beserker Rage", description: "This unit has Beserker Rage" },
-      { name: "Dispel", description: "This unit can dispel magic" },
-      { name: "Elite", description: "This unit is elite" },
+      { name: "Beserker Rage", description: "Has Beserker Rage" },
+      { name: "Dispel", description: "Can dispel magic" },
+      { name: "Elite", description: "Elite unit" },
       { name: "Join (Skin Changers)", description: "Can join Skin Changers units" },
     ],
     highCommand: true,
     availability: 1,
-    imageUrl: "/art/card/ahlwardt_ice_bear_card.jpg" 
+    imageUrl: "/art/card/ahlwardt_ice_bear_card.jpg"
   },
   {
     id: "alborc",
@@ -28,7 +45,7 @@ export const northernTribesHighCommand: Unit[] = [
       { name: "Character", description: "This unit is a character" },
       { name: "High Command", description: "This unit is part of the High Command" },
       { name: "Orc", description: "This unit has the Orc keyword" },
-      { name: "Elite", description: "This unit is elite" },
+      { name: "Elite", description: "Elite unit" },
       { 
         name: "Join (Infantry, Orc | Infantry, Varank)", 
         description: "Can join Infantry Orc or Infantry Varank units" 
@@ -37,20 +54,5 @@ export const northernTribesHighCommand: Unit[] = [
     highCommand: true,
     availability: 1,
     imageUrl: "/art/card/alborc_card.jpg"
-  },
-  {
-    id: "njord",
-    name: "Njord, The Merciless",
-    pointsCost: 40,
-    faction: "northern-tribes",
-    keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "Varank", description: "This unit has the Varank keyword" },
-      { name: "Beserker Rage", description: "This unit has Beserker Rage" },
-      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
-    ],
-    highCommand: false,
-    availability: 1,
-    imageUrl: "/art/card/njord_the_merciless_card.jpg"  
   }
 ];
