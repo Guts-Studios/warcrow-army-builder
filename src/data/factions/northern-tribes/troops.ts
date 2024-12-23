@@ -41,7 +41,7 @@ export const northernTribesTroops: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/Skin_Changers_card.jpg"
+    imageUrl: "/art/card/skin_changers_card.jpg"
   },
   {
     id: "tundra-marauders",
@@ -56,6 +56,6 @@ export const northernTribesTroops: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/Tundra_Marauders_card.jpg"
+    imageUrl: "/art/card/tundra_marauders_card.jpg"
   }
 ];
