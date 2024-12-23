@@ -32,7 +32,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/lady_telia_card.jpg"
+    imageUrl: "/art/card/lady_telia_card.jpg" 
   },
   {
     id: "marhael-the-refused",
