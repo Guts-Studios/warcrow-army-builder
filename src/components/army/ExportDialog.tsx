@@ -45,7 +45,7 @@ ${selectedUnits.map(unit => `${unit.quantity}x ${unit.name} (${unit.pointsCost *
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="fixed right-4 top-4 z-10">
+        <Button variant="outline" className="fixed right-4 top-4 z-10 bg-black text-white hover:bg-black/90">
           Export to Text
         </Button>
       </DialogTrigger>
