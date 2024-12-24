@@ -17,7 +17,7 @@ const Index = () => {
               alt="Warcrow Logo" 
               className="h-24 mb-4"
             />
-            <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold">
+            <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
               Build and manage your Warcrow army lists
             </h1>
           </div>
