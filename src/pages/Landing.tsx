@@ -1,12 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col">
-      <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
+      {isMobile && (
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+          style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
+        />
+      )}
+      <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
         <div className="flex flex-col items-center mb-8">
           <img 
             src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
@@ -27,7 +35,7 @@ const Landing = () => {
           </Button>
         </div>
       </div>
-      <footer className="w-full py-4 bg-warcrow-accent">
+      <footer className="w-full py-4 bg-warcrow-accent relative z-10">
         <div className="container max-w-7xl mx-auto px-4 text-center">
           <a 
             href="https://www.patreon.com/GutzStudio" 
