@@ -182,10 +182,6 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
               savedLists={savedLists}
               selectedFaction={selectedFaction}
             />
-            <ExportDialog 
-              selectedUnits={selectedUnits}
-              listName={currentListName}
-            />
           </div>
           
           {isMobile && (
@@ -195,13 +191,13 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
             />
           )}
           
-          <h2 className="text-2xl font-bold text-warcrow-gold mb-4 hidden md:block">
-            Selected Units
-          </h2>
-          
-          <h2 className="text-2xl font-bold text-warcrow-gold mb-4 block md:hidden mt-8">
-            Selected Units
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-warcrow-gold">Selected Units</h2>
+            <ExportDialog 
+              selectedUnits={selectedUnits}
+              listName={currentListName}
+            />
+          </div>
 
           <SelectedUnits
             selectedUnits={selectedUnits}
