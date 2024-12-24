@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
@@ -22,14 +21,6 @@ const Index = () => {
           />
         )}
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
-          <Button
-            variant="ghost"
-            className="mb-4 text-warcrow-gold hover:text-warcrow-gold/80"
-            onClick={() => navigate('/')}
-          >
-            <ArrowLeft className="mr-2" />
-            Back to Home
-          </Button>
           <div className="flex flex-col items-center mb-8">
             <img 
               src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
@@ -43,6 +34,12 @@ const Index = () => {
               Build and manage your Warcrow army lists
             </p>
           </div>
+          <Button 
+            onClick={() => navigate('/')}
+            className="w-full max-w-xs mx-auto block mb-4 bg-warcrow-accent hover:bg-warcrow-accent/90 text-warcrow-gold border border-warcrow-gold"
+          >
+            Home
+          </Button>
           <FactionSelector
             selectedFaction={selectedFaction}
             onFactionChange={setSelectedFaction}
