@@ -72,11 +72,11 @@ const ListManagement = ({
           />
         </div>
 
-        <div className="w-full">
-          <p className="text-warcrow-text mb-1">Current List:</p>
-          <p className="text-warcrow-gold font-semibold">
+        <div className="flex items-center gap-2 w-full">
+          <span className="text-warcrow-text whitespace-nowrap">Current List:</span>
+          <span className="text-warcrow-gold font-semibold">
             {currentListName || "New List"}
-          </p>
+          </span>
         </div>
       </div>
 
@@ -108,17 +108,17 @@ const ListManagement = ({
             />
           </div>
 
-          <div className="w-full">
-            <p className="text-warcrow-text mb-1">Current List:</p>
-            <p className="text-warcrow-gold font-semibold">
+          <div className="flex items-center gap-2 w-full">
+            <span className="text-warcrow-text whitespace-nowrap">Current List:</span>
+            <span className="text-warcrow-gold font-semibold">
               {currentListName || "New List"}
-            </p>
+            </span>
           </div>
         </div>
       </div>
 
       {savedLists.length > 0 && (
-        <div className="bg-warcrow-accent rounded-lg p-4 mb-4 w-full">
+        <div className="bg-warcrow-accent rounded-lg p-4 w-full">
           <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
             Saved Lists
           </h3>
