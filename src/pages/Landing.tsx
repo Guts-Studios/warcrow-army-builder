@@ -1,15 +1,13 @@
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 
 const Landing = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-hidden">
       <div 
-        className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat pointer-events-none opacity-20"
+        className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20 scale-[1.5]"
         style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
       />
       <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
@@ -19,21 +17,21 @@ const Landing = () => {
             alt="Warcrow Logo" 
             className="h-24 mb-4"
           />
-          <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold">
+          <h1 className="text-4xl font-bold text-center mb-4 text-warcrow-gold">
             Warcrow Army Builder
           </h1>
-          <p className="text-center text-warcrow-muted mb-8">
+          <p className="text-center text-lg mb-8 max-w-2xl">
             Warcrow Army Builder is a free tool for creating and managing army lists for the Warcrow miniatures game, designed to make list-building quick and easy.
           </p>
-          <Button 
+          <Button
             onClick={() => navigate('/builder')}
-            className="bg-warcrow-gold hover:bg-warcrow-gold/90 text-black font-bold"
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-semibold px-8 py-4 text-lg"
           >
             Start Building
           </Button>
         </div>
       </div>
-      <footer className="w-full py-4 bg-warcrow-accent relative z-10">
+      <footer className="w-full py-4 bg-warcrow-accent relative z-20">
         <div className="container max-w-7xl mx-auto px-4 text-center">
           <a 
             href="https://www.patreon.com/GutzStudio" 

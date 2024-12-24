@@ -2,20 +2,18 @@ import { useState } from "react";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-hidden">
         <div 
-          className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20"
+          className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20 scale-[1.5]"
           style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
         />
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
@@ -26,11 +24,8 @@ const Index = () => {
               className="h-24 mb-4"
             />
             <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold">
-              Warcrow Army Builder
-            </h1>
-            <p className="text-center text-white mb-8">
               Build and manage your Warcrow army lists
-            </p>
+            </h1>
           </div>
           <Button 
             onClick={() => navigate('/')}
