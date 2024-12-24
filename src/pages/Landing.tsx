@@ -16,7 +16,7 @@ const Landing = () => {
             alt="Warcrow Logo" 
             className="h-24 mb-4 animate-fade-in"
           />
-          <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold animate-fade-in">
+          <h1 className="text-4xl font-bold text-center mb-6 text-warcrow-gold animate-fade-in">
             Welcome to Warcrow Army Builder
           </h1>
           <p className="text-lg text-warcrow-text text-center max-w-2xl animate-fade-in">
