@@ -166,10 +166,6 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
         </div>
 
         <div className="space-y-4 order-1 md:order-2">
-          <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-            Selected Units
-          </h2>
-          
           <ListManagement
             listName={listName}
             currentListName={currentListName}
@@ -180,6 +176,14 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
             savedLists={savedLists}
             selectedFaction={selectedFaction}
           />
+          
+          <h2 className="text-2xl font-bold text-warcrow-gold mb-4 hidden md:block">
+            Selected Units
+          </h2>
+          
+          <h2 className="text-2xl font-bold text-warcrow-gold mb-4 block md:hidden mt-8">
+            Selected Units
+          </h2>
 
           <SelectedUnits
             selectedUnits={selectedUnits}
