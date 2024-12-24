@@ -32,7 +32,41 @@ const ListManagement = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4">
+      {/* Desktop Layout */}
+      <div className="hidden md:flex items-center gap-2 mb-4">
+        <div className="flex-1">
+          <p className="text-warcrow-muted mb-2">Current List:</p>
+          <p className="text-warcrow-gold font-semibold">
+            {currentListName || "New List"}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={onNewList}
+            variant="outline"
+            className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          >
+            <FilePlus className="h-4 w-4 mr-2" />
+            New List
+          </Button>
+          <Input
+            placeholder="Enter list name"
+            value={listName}
+            onChange={(e) => onListNameChange(e.target.value)}
+            className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
+          />
+          <Button
+            onClick={onSaveList}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save List
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="flex flex-col gap-4 md:hidden">
         <div className="flex gap-2">
           <Input
             placeholder="Enter list name"
