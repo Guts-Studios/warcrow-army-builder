@@ -27,7 +27,7 @@ const Index = () => {
             <h1 className="text-4xl font-bold text-center mb-2 text-warcrow-gold">
               Warcrow Army Builder
             </h1>
-            <p className="text-center text-warcrow-muted mb-8">
+            <p className="text-center text-white mb-8">
               Build and manage your Warcrow army lists
             </p>
           </div>
