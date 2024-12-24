@@ -13,7 +13,6 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { useState } from "react";
-import ExportDialog from "./army/ExportDialog";
 
 interface ListManagementProps {
   listName: string;
@@ -24,7 +23,6 @@ interface ListManagementProps {
   onNewList: () => void;
   savedLists: SavedList[];
   selectedFaction: string;
-  selectedUnits: any[]; // Adjust type as necessary
 }
 
 const ListManagement = ({
@@ -36,7 +34,6 @@ const ListManagement = ({
   onNewList,
   savedLists,
   selectedFaction,
-  selectedUnits,
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
 
@@ -56,45 +53,33 @@ const ListManagement = ({
             {currentListName || "New List"}
           </p>
         </div>
-        <div className="flex flex-col gap-2 w-full max-w-md">
-          <ExportDialog
-            selectedUnits={selectedUnits}
-            listName={currentListName}
-            faction={selectedFaction}
-          />
+        <div className="flex gap-2">
           <Button
             onClick={onNewList}
             variant="outline"
-            className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+            className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
           >
             <FilePlus className="h-4 w-4 mr-2" />
             New List
           </Button>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter list name"
-              value={listName}
-              onChange={(e) => onListNameChange(e.target.value)}
-              className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
-            />
-            <Button
-              onClick={onSaveList}
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save List
-            </Button>
-          </div>
+          <Input
+            placeholder="Enter list name"
+            value={listName}
+            onChange={(e) => onListNameChange(e.target.value)}
+            className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
+          />
+          <Button
+            onClick={onSaveList}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save List
+          </Button>
         </div>
       </div>
 
       {/* Mobile Layout */}
       <div className="flex flex-col gap-4 md:hidden">
-        <ExportDialog
-          selectedUnits={selectedUnits}
-          listName={currentListName}
-          faction={selectedFaction}
-        />
         <div className="flex gap-2">
           <Input
             placeholder="Enter list name"

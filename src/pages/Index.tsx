@@ -1,26 +1,24 @@
 import { useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
-import ArmyList from "@/components/ArmyList";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import FactionSelector from "@/components/FactionSelector";
+import ArmyList from "@/components/ArmyList";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
-  const [selectedUnits, setSelectedUnits] = useState([]);
-  const [currentListName, setCurrentListName] = useState(null);
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-        <div className="container max-w-7xl mx-auto p-4 relative">
-          <div className="text-center mb-8">
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-x-hidden">
+        <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10 pt-[73px]">
+          <div className="flex flex-col items-center mb-8">
             <img 
-              src="/art/decorative-frame.png" 
+              src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
               alt="Warcrow Logo" 
-              className="mx-auto mb-4 w-48"
+              className="h-24 mb-4"
             />
-            <h1 className="text-4xl font-bold text-warcrow-gold">
-              Warcrow Army Builder
+            <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
+              Build and manage your Warcrow army lists
             </h1>
           </div>
           <div className="hidden md:block">
@@ -32,8 +30,6 @@ const Index = () => {
           <ArmyList 
             selectedFaction={selectedFaction} 
             onFactionChange={setSelectedFaction}
-            onUnitsChange={setSelectedUnits}
-            onListNameChange={setCurrentListName}
           />
         </div>
         <Toaster />
