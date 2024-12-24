@@ -14,12 +14,10 @@ const Index = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
-        {isMobile && (
-          <div 
-            className="fixed inset-0 bottom-16 z-0 bg-contain bg-center bg-no-repeat opacity-20"
-            style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
-          />
-        )}
+        <div 
+          className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20"
+          style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
+        />
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
           <div className="flex flex-col items-center mb-8">
             <img 
