@@ -31,7 +31,7 @@ const Index = () => {
               Warcrow Army Builder
             </h1>
             <p className="text-center text-white mb-8">
-              Build and manage your Warcrow army lists
+              Warcrow Army Builder is a free tool for creating and managing army lists for the Warcrow miniatures game, designed to make list-building quick and easy.
             </p>
           </div>
           <Button 
