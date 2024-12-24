@@ -47,7 +47,23 @@ const ListManagement = ({
     <div className="space-y-4">
       {/* Desktop Layout */}
       <div className="hidden md:flex flex-col gap-4">
-        <div className="flex gap-2">
+        <Button
+          onClick={onNewList}
+          variant="outline"
+          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+        >
+          <FilePlus className="h-4 w-4 mr-2" />
+          New List
+        </Button>
+
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={onSaveList}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save List
+          </Button>
           <Input
             placeholder="Enter list name"
             value={listName}
@@ -55,60 +71,28 @@ const ListManagement = ({
             className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
           />
         </div>
-        <div className="flex gap-2 items-center">
-          <Button
-            onClick={onNewList}
-            variant="outline"
-            className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-          >
-            <FilePlus className="h-4 w-4 mr-2" />
-            New List
-          </Button>
-          <div className="flex-1 ml-4 flex items-center gap-4">
-            <div>
-              <p className="text-warcrow-text mb-1">Current List:</p>
-              <p className="text-warcrow-gold font-semibold">
-                {currentListName || "New List"}
-              </p>
-            </div>
-            <Button
-              onClick={onSaveList}
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save List
-            </Button>
-          </div>
+
+        <div>
+          <p className="text-warcrow-text mb-1">Current List:</p>
+          <p className="text-warcrow-gold font-semibold">
+            {currentListName || "New List"}
+          </p>
         </div>
       </div>
 
       {/* Mobile Layout */}
       <div className="flex flex-col gap-4 md:hidden">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Enter list name"
-            value={listName}
-            onChange={(e) => onListNameChange(e.target.value)}
-            className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
-          />
-        </div>
+        <Button
+          onClick={onNewList}
+          variant="outline"
+          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors whitespace-nowrap w-full"
+        >
+          <FilePlus className="h-4 w-4 mr-2" />
+          New List
+        </Button>
 
         <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4">
-          <Button
-            onClick={onNewList}
-            variant="outline"
-            className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors whitespace-nowrap w-full"
-          >
-            <FilePlus className="h-4 w-4 mr-2" />
-            New List
-          </Button>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-warcrow-text mb-1">Current List:</p>
-              <p className="text-warcrow-gold font-semibold">
-                {currentListName || "New List"}
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
             <Button
               onClick={onSaveList}
               className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
@@ -116,6 +100,19 @@ const ListManagement = ({
               <Save className="h-4 w-4 mr-2" />
               Save List
             </Button>
+            <Input
+              placeholder="Enter list name"
+              value={listName}
+              onChange={(e) => onListNameChange(e.target.value)}
+              className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
+            />
+          </div>
+
+          <div>
+            <p className="text-warcrow-text mb-1">Current List:</p>
+            <p className="text-warcrow-gold font-semibold">
+              {currentListName || "New List"}
+            </p>
           </div>
         </div>
       </div>
