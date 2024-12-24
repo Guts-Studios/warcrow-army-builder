@@ -44,19 +44,19 @@ const ListManagement = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {/* Desktop Layout */}
-      <div className="hidden md:flex flex-col gap-4">
+      <div className="hidden md:flex flex-col gap-4 w-full">
         <Button
           onClick={onNewList}
           variant="outline"
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
         >
           <FilePlus className="h-4 w-4 mr-2" />
           New List
         </Button>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 w-full">
           <Button
             onClick={onSaveList}
             className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
@@ -68,11 +68,11 @@ const ListManagement = ({
             placeholder="Enter list name"
             value={listName}
             onChange={(e) => onListNameChange(e.target.value)}
-            className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
+            className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
           />
         </div>
 
-        <div>
+        <div className="w-full">
           <p className="text-warcrow-text mb-1">Current List:</p>
           <p className="text-warcrow-gold font-semibold">
             {currentListName || "New List"}
@@ -81,18 +81,18 @@ const ListManagement = ({
       </div>
 
       {/* Mobile Layout */}
-      <div className="flex flex-col gap-4 md:hidden">
+      <div className="flex flex-col gap-4 md:hidden w-full">
         <Button
           onClick={onNewList}
           variant="outline"
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors whitespace-nowrap w-full"
+          className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
         >
           <FilePlus className="h-4 w-4 mr-2" />
           New List
         </Button>
 
-        <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4 w-full">
+          <div className="flex items-center gap-2 w-full">
             <Button
               onClick={onSaveList}
               className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
@@ -104,11 +104,11 @@ const ListManagement = ({
               placeholder="Enter list name"
               value={listName}
               onChange={(e) => onListNameChange(e.target.value)}
-              className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
+              className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
             />
           </div>
 
-          <div>
+          <div className="w-full">
             <p className="text-warcrow-text mb-1">Current List:</p>
             <p className="text-warcrow-gold font-semibold">
               {currentListName || "New List"}
@@ -118,7 +118,7 @@ const ListManagement = ({
       </div>
 
       {savedLists.length > 0 && (
-        <div className="bg-warcrow-accent rounded-lg p-4 mb-4">
+        <div className="bg-warcrow-accent rounded-lg p-4 mb-4 w-full">
           <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
             Saved Lists
           </h3>
@@ -128,7 +128,7 @@ const ListManagement = ({
               .map((list) => (
                 <div
                   key={list.id}
-                  className="flex items-center justify-between bg-warcrow-background p-2 rounded"
+                  className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
                 >
                   <span className="text-warcrow-text">{list.name}</span>
                   <div className="flex gap-2">
