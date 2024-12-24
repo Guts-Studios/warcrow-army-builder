@@ -13,7 +13,7 @@ const Index = () => {
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
         {isMobile && (
           <div 
-            className="fixed inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20"
+            className="fixed inset-0 bottom-16 z-0 bg-contain bg-center bg-no-repeat opacity-20"
             style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
           />
         )}
@@ -37,7 +37,7 @@ const Index = () => {
           />
           <ArmyList selectedFaction={selectedFaction} />
         </div>
-        <footer className="w-full py-4 bg-warcrow-accent relative z-10">
+        <footer className="w-full py-4 bg-warcrow-accent relative z-20">
           <div className="container max-w-7xl mx-auto px-4 text-center">
             <a 
               href="https://www.patreon.com/GutzStudio" 
