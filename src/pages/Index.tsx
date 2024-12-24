@@ -13,7 +13,7 @@ const Index = () => {
     <TooltipProvider>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-hidden">
         <div 
-          className="absolute inset-0 z-0 bg-contain bg-center bg-no-repeat opacity-20 scale-[1.5]"
+          className="absolute inset-x-0 -top-1/4 h-[150%] z-0 bg-contain bg-top bg-no-repeat opacity-20 scale-100"
           style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
         />
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
