@@ -35,7 +35,7 @@ const ListManagement = ({
       {/* Desktop Layout */}
       <div className="hidden md:flex items-center gap-2 mb-4">
         <div className="flex-1">
-          <p className="text-warcrow-muted mb-2">Current List:</p>
+          <p className="text-warcrow-text mb-2">Current List:</p>
           <p className="text-warcrow-gold font-semibold">
             {currentListName || "New List"}
           </p>
@@ -86,7 +86,7 @@ const ListManagement = ({
         <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-warcrow-muted mb-1">Current List:</p>
+              <p className="text-warcrow-text mb-1">Current List:</p>
               <p className="text-warcrow-gold font-semibold">
                 {currentListName || "New List"}
               </p>
