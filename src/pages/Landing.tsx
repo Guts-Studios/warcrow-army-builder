@@ -6,10 +6,6 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-hidden">
-      <div 
-        className="absolute -left-[300px] -right-[300px] top-0 bottom-0 z-0 bg-contain bg-top bg-no-repeat opacity-20 scale-100"
-        style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
-      />
       <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
         <div className="flex flex-col items-center mb-8">
           <img 
