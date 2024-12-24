@@ -15,9 +15,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface ArmyListProps {
   selectedFaction: string;
   onFactionChange: (faction: string) => void;
+  onUnitsChange: (units: SelectedUnit[]) => void;
+  onListNameChange: (name: string | null) => void;
 }
 
-const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
+const ArmyList = ({ 
+  selectedFaction, 
+  onFactionChange,
+  onUnitsChange,
+  onListNameChange 
+}: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
   const [listName, setListName] = useState("");
@@ -145,6 +152,14 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
       description: `Loaded army list: ${list.name}`,
     });
   };
+
+  useEffect(() => {
+    onUnitsChange(selectedUnits);
+  }, [selectedUnits, onUnitsChange]);
+
+  useEffect(() => {
+    onListNameChange(currentListName);
+  }, [currentListName, onListNameChange]);
 
   return (
     <>
