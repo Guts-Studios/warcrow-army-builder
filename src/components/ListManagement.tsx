@@ -54,13 +54,6 @@ const ListManagement = ({
             onChange={(e) => onListNameChange(e.target.value)}
             className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
           />
-          <Button
-            onClick={onSaveList}
-            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save List
-          </Button>
         </div>
         <div className="flex gap-2 items-center">
           <Button
@@ -71,11 +64,20 @@ const ListManagement = ({
             <FilePlus className="h-4 w-4 mr-2" />
             New List
           </Button>
-          <div className="flex-1 ml-4">
-            <p className="text-warcrow-text mb-1">Current List:</p>
-            <p className="text-warcrow-gold font-semibold">
-              {currentListName || "New List"}
-            </p>
+          <div className="flex-1 ml-4 flex items-center gap-4">
+            <div>
+              <p className="text-warcrow-text mb-1">Current List:</p>
+              <p className="text-warcrow-gold font-semibold">
+                {currentListName || "New List"}
+              </p>
+            </div>
+            <Button
+              onClick={onSaveList}
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save List
+            </Button>
           </div>
         </div>
       </div>
@@ -89,13 +91,6 @@ const ListManagement = ({
             onChange={(e) => onListNameChange(e.target.value)}
             className="bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
           />
-          <Button
-            onClick={onSaveList}
-            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save List
-          </Button>
         </div>
 
         <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4">
@@ -107,11 +102,20 @@ const ListManagement = ({
             <FilePlus className="h-4 w-4 mr-2" />
             New List
           </Button>
-          <div>
-            <p className="text-warcrow-text mb-1">Current List:</p>
-            <p className="text-warcrow-gold font-semibold">
-              {currentListName || "New List"}
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-warcrow-text mb-1">Current List:</p>
+              <p className="text-warcrow-gold font-semibold">
+                {currentListName || "New List"}
+              </p>
+            </div>
+            <Button
+              onClick={onSaveList}
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save List
+            </Button>
           </div>
         </div>
       </div>
