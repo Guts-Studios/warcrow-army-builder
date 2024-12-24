@@ -19,7 +19,7 @@ const Landing = () => {
           <h1 className="text-4xl font-bold text-center mb-6 text-warcrow-gold animate-fade-in">
             Welcome to Warcrow Army Builder
           </h1>
-          <p className="text-lg text-warcrow-text text-center max-w-2xl animate-fade-in">
+          <p className="text-lg text-warcrow-text text-center max-w-xl animate-fade-in">
             Warcrow Army Builder is a free tool for creating and managing army lists for the Warcrow miniatures game, designed to make list-building quick and easy.
           </p>
         </div>
