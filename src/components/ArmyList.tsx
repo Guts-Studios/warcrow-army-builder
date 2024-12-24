@@ -194,6 +194,7 @@ const ArmyList = ({
             onNewList={handleNewList}
             savedLists={savedLists}
             selectedFaction={selectedFaction}
+            selectedUnits={selectedUnits}
           />
           
           {isMobile && (
