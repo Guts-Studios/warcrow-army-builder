@@ -7,6 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { SelectedUnit } from "@/types/army";
+import { FileText } from "lucide-react";
 import { Copy } from "lucide-react";
 import { useToast } from "../ui/use-toast";
 
@@ -45,7 +46,11 @@ ${selectedUnits.map(unit => `${unit.quantity}x ${unit.name} (${unit.pointsCost *
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="fixed right-4 top-4 z-10 bg-black text-white hover:bg-black/90">
+        <Button
+          variant="outline"
+          className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+        >
+          <FileText className="h-4 w-4 mr-2" />
           Export to Text
         </Button>
       </DialogTrigger>
