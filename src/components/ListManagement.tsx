@@ -72,8 +72,8 @@ const ListManagement = ({
           />
         </div>
 
-        <div className="w-full flex items-center gap-2">
-          <p className="text-warcrow-text whitespace-nowrap">Current List:</p>
+        <div className="w-full">
+          <p className="text-warcrow-text mb-1">Current List:</p>
           <p className="text-warcrow-gold font-semibold">
             {currentListName || "New List"}
           </p>
@@ -108,8 +108,8 @@ const ListManagement = ({
             />
           </div>
 
-          <div className="w-full flex items-center gap-2">
-            <p className="text-warcrow-text whitespace-nowrap">Current List:</p>
+          <div className="w-full">
+            <p className="text-warcrow-text mb-1">Current List:</p>
             <p className="text-warcrow-gold font-semibold">
               {currentListName || "New List"}
             </p>
