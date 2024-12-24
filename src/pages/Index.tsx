@@ -3,12 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
-  const navigate = useNavigate();
 
   return (
     <TooltipProvider>
@@ -24,12 +21,6 @@ const Index = () => {
               Build and manage your Warcrow army lists
             </h1>
           </div>
-          <Button 
-            onClick={() => navigate('/')}
-            className="w-full max-w-xs mx-auto block mb-4 bg-warcrow-accent hover:bg-warcrow-accent/90 text-warcrow-gold border border-warcrow-gold"
-          >
-            Home
-          </Button>
           <FactionSelector
             selectedFaction={selectedFaction}
             onFactionChange={setSelectedFaction}
