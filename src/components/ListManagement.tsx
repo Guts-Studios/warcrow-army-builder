@@ -2,6 +2,17 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Save, FilePlus, Trash2 } from "lucide-react";
 import { SavedList } from "@/types/army";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
+import { useState } from "react";
 
 interface ListManagementProps {
   listName: string;
@@ -24,6 +35,8 @@ const ListManagement = ({
   savedLists,
   selectedFaction,
 }: ListManagementProps) => {
+  const [listToDelete, setListToDelete] = useState<string | null>(null);
+
   const handleDeleteList = (listId: string) => {
     const updatedLists = savedLists.filter((list) => list.id !== listId);
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
@@ -126,7 +139,7 @@ const ListManagement = ({
                       Load
                     </Button>
                     <Button
-                      onClick={() => handleDeleteList(list.id)}
+                      onClick={() => setListToDelete(list.id)}
                       variant="outline"
                       className="bg-warcrow-background border-red-500 text-red-500 hover:bg-red-500 hover:text-warcrow-background transition-colors"
                     >
@@ -138,6 +151,36 @@ const ListManagement = ({
           </div>
         </div>
       )}
+
+      <AlertDialog open={!!listToDelete} onOpenChange={() => setListToDelete(null)}>
+        <AlertDialogContent className="bg-warcrow-background border-warcrow-accent">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-warcrow-gold">Delete List</AlertDialogTitle>
+            <AlertDialogDescription className="text-warcrow-text">
+              Are you sure you want to delete this list? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className="bg-warcrow-background border-warcrow-accent text-warcrow-text hover:bg-warcrow-accent hover:text-warcrow-text"
+              onClick={() => setListToDelete(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 text-white hover:bg-red-600"
+              onClick={() => {
+                if (listToDelete) {
+                  handleDeleteList(listToDelete);
+                }
+                setListToDelete(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
