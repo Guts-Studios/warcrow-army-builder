@@ -3,10 +3,14 @@ import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   return (
     <TooltipProvider>
@@ -18,6 +22,14 @@ const Index = () => {
           />
         )}
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
+          <Button
+            variant="ghost"
+            className="mb-4 text-warcrow-gold hover:text-warcrow-gold/80"
+            onClick={() => navigate('/')}
+          >
+            <ArrowLeft className="mr-2" />
+            Back to Home
+          </Button>
           <div className="flex flex-col items-center mb-8">
             <img 
               src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
