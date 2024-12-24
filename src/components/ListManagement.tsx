@@ -1,6 +1,4 @@
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Save, FilePlus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { SavedList } from "@/types/army";
 import {
   AlertDialog,
@@ -12,7 +10,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { useState } from "react";
+import NewListButton from "./army/list-management/NewListButton";
+import SaveListSection from "./army/list-management/SaveListSection";
+import CurrentListDisplay from "./army/list-management/CurrentListDisplay";
+import SavedListsSection from "./army/list-management/SavedListsSection";
 
 interface ListManagementProps {
   listName: string;
@@ -47,111 +48,36 @@ const ListManagement = ({
     <div className="space-y-4 w-full">
       {/* Desktop Layout */}
       <div className="hidden md:flex flex-col gap-4 w-full">
-        <Button
-          onClick={onNewList}
-          variant="outline"
-          className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-        >
-          <FilePlus className="h-4 w-4 mr-2" />
-          New List
-        </Button>
-
-        <div className="flex items-center gap-4 w-full">
-          <Button
-            onClick={onSaveList}
-            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save List
-          </Button>
-          <Input
-            placeholder="Enter list name"
-            value={listName}
-            onChange={(e) => onListNameChange(e.target.value)}
-            className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 w-full">
-          <span className="text-warcrow-text whitespace-nowrap">Current List:</span>
-          <span className="text-warcrow-gold font-semibold">
-            {currentListName || "New List"}
-          </span>
-        </div>
+        <NewListButton onNewList={onNewList} />
+        <SaveListSection
+          listName={listName}
+          onListNameChange={onListNameChange}
+          onSaveList={onSaveList}
+        />
+        <CurrentListDisplay currentListName={currentListName} />
       </div>
 
       {/* Mobile Layout */}
       <div className="flex flex-col gap-4 md:hidden w-full">
-        <Button
-          onClick={onNewList}
-          variant="outline"
-          className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-        >
-          <FilePlus className="h-4 w-4 mr-2" />
-          New List
-        </Button>
-
-        <div className="flex flex-col gap-2 bg-warcrow-accent rounded-lg p-4 w-full">
-          <div className="flex items-center gap-2 w-full">
-            <Button
-              onClick={onSaveList}
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save List
-            </Button>
-            <Input
-              placeholder="Enter list name"
-              value={listName}
-              onChange={(e) => onListNameChange(e.target.value)}
-              className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 w-full">
-            <span className="text-warcrow-text whitespace-nowrap">Current List:</span>
-            <span className="text-warcrow-gold font-semibold">
-              {currentListName || "New List"}
-            </span>
+        <NewListButton onNewList={onNewList} />
+        <div className="bg-warcrow-accent rounded-lg p-4 w-full">
+          <SaveListSection
+            listName={listName}
+            onListNameChange={onListNameChange}
+            onSaveList={onSaveList}
+          />
+          <div className="mt-2">
+            <CurrentListDisplay currentListName={currentListName} />
           </div>
         </div>
       </div>
 
-      {savedLists.length > 0 && (
-        <div className="bg-warcrow-accent rounded-lg p-4 w-full">
-          <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
-            Saved Lists
-          </h3>
-          <div className="space-y-2">
-            {savedLists
-              .filter((list) => list.faction === selectedFaction)
-              .map((list) => (
-                <div
-                  key={list.id}
-                  className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
-                >
-                  <span className="text-warcrow-text">{list.name}</span>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => onLoadList(list)}
-                      variant="outline"
-                      className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-                    >
-                      Load
-                    </Button>
-                    <Button
-                      onClick={() => setListToDelete(list.id)}
-                      variant="outline"
-                      className="bg-warcrow-background border-red-500 text-red-500 hover:bg-red-500 hover:text-warcrow-background transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
+      <SavedListsSection
+        savedLists={savedLists}
+        selectedFaction={selectedFaction}
+        onLoadList={onLoadList}
+        onDeleteClick={(listId) => setListToDelete(listId)}
+      />
 
       <AlertDialog open={!!listToDelete} onOpenChange={() => setListToDelete(null)}>
         <AlertDialogContent className="bg-warcrow-background border-warcrow-accent">
