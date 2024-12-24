@@ -8,7 +8,7 @@ interface FactionSelectorProps {
 
 const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorProps) => {
   return (
-    <div className="w-full max-w-xs mx-auto mb-8">
+    <div className="w-full max-w-xs mb-8">
       <Select value={selectedFaction} onValueChange={onFactionChange}>
         <SelectTrigger className="w-full bg-warcrow-accent text-warcrow-text border-warcrow-gold">
           <SelectValue placeholder="Select a faction" />
