@@ -21,12 +21,18 @@ const Index = () => {
               Build and manage your Warcrow army lists
             </h1>
           </div>
-          <FactionSelector
-            selectedFaction={selectedFaction}
+          <div className="hidden md:block">
+            <FactionSelector
+              selectedFaction={selectedFaction}
+              onFactionChange={setSelectedFaction}
+            />
+          </div>
+          <ArmyList 
+            selectedFaction={selectedFaction} 
             onFactionChange={setSelectedFaction}
           />
-          <ArmyList selectedFaction={selectedFaction} />
         </div>
+        <Toaster />
       </div>
     </TooltipProvider>
   );
