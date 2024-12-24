@@ -27,6 +27,18 @@ const Landing = () => {
           Start Building
         </Button>
       </div>
+      <footer className="w-full py-4 bg-warcrow-accent relative z-20">
+        <div className="container max-w-7xl mx-auto px-4 text-center">
+          <a 
+            href="https://www.patreon.com/GutzStudio" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-warcrow-gold hover:text-warcrow-gold/80 transition-colors"
+          >
+            Support us on Patreon
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
