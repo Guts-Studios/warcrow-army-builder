@@ -11,6 +11,7 @@ import HighCommandAlert from "./army/HighCommandAlert";
 import TotalPoints from "./army/TotalPoints";
 import FactionSelector from "./FactionSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ExportDialog from "./army/ExportDialog";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -170,16 +171,22 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
         </div>
 
         <div className="space-y-4 order-1 md:order-2">
-          <ListManagement
-            listName={listName}
-            currentListName={currentListName}
-            onListNameChange={setListName}
-            onSaveList={handleSaveList}
-            onLoadList={handleLoadList}
-            onNewList={handleNewList}
-            savedLists={savedLists}
-            selectedFaction={selectedFaction}
-          />
+          <div className="flex items-center justify-between gap-2">
+            <ListManagement
+              listName={listName}
+              currentListName={currentListName}
+              onListNameChange={setListName}
+              onSaveList={handleSaveList}
+              onLoadList={handleLoadList}
+              onNewList={handleNewList}
+              savedLists={savedLists}
+              selectedFaction={selectedFaction}
+            />
+            <ExportDialog 
+              selectedUnits={selectedUnits}
+              listName={currentListName}
+            />
+          </div>
           
           {isMobile && (
             <FactionSelector
