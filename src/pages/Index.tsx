@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
@@ -13,7 +13,7 @@ const Index = () => {
     <TooltipProvider>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-x-hidden">
         <div 
-          className="fixed inset-0 z-0 bg-contain bg-top bg-no-repeat opacity-20"
+          className="fixed -left-[300px] -right-[300px] inset-y-0 z-0 bg-contain bg-top bg-no-repeat opacity-20"
           style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
         />
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10 pt-[73px]">
