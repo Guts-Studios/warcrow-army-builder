@@ -14,8 +14,8 @@ interface SortControlsProps {
 
 const SortControls = ({ sortBy, onSortChange }: SortControlsProps) => {
   return (
-    <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-bold text-warcrow-gold">
+    <div className="space-y-4 md:space-y-0 md:flex md:justify-between md:items-center">
+      <h2 className="text-2xl font-bold text-warcrow-gold whitespace-nowrap">
         Available Units
       </h2>
       <Select
