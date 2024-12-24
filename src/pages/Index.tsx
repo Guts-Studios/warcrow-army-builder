@@ -13,7 +13,7 @@ const Index = () => {
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative">
         {isMobile && (
           <div 
-            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+            className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20"
             style={{ backgroundImage: 'url(/art/decorative-frame.png)' }}
           />
         )}
