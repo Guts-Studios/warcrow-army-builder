@@ -9,12 +9,15 @@ import { validateHighCommandAddition } from "@/utils/armyValidation";
 import SortControls from "./army/SortControls";
 import HighCommandAlert from "./army/HighCommandAlert";
 import TotalPoints from "./army/TotalPoints";
+import FactionSelector from "./FactionSelector";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ArmyListProps {
   selectedFaction: string;
+  onFactionChange: (faction: string) => void;
 }
 
-const ArmyList = ({ selectedFaction }: ArmyListProps) => {
+const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
   const [listName, setListName] = useState("");
@@ -23,6 +26,7 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
   const [sortBy, setSortBy] = useState<SortOption>("points-asc");
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const factionUnits = units.filter((unit) => unit.faction === selectedFaction);
   
@@ -176,6 +180,13 @@ const ArmyList = ({ selectedFaction }: ArmyListProps) => {
             savedLists={savedLists}
             selectedFaction={selectedFaction}
           />
+          
+          {isMobile && (
+            <FactionSelector
+              selectedFaction={selectedFaction}
+              onFactionChange={onFactionChange}
+            />
+          )}
           
           <h2 className="text-2xl font-bold text-warcrow-gold mb-4 hidden md:block">
             Selected Units
