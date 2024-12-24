@@ -14,6 +14,11 @@ const Index = () => {
       <div className="min-h-screen bg-warcrow-background text-warcrow-text">
         <div className="container max-w-7xl mx-auto p-4 relative">
           <div className="text-center mb-8">
+            <img 
+              src="/art/decorative-frame.png" 
+              alt="Warcrow Logo" 
+              className="mx-auto mb-4 w-48"
+            />
             <h1 className="text-4xl font-bold text-warcrow-gold">
               Warcrow Army Builder
             </h1>
