@@ -104,7 +104,9 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
   };
 
   const handleSaveList = () => {
-    if (!listName.trim()) {
+    const nameToUse = currentListName || listName;
+
+    if (!nameToUse.trim()) {
       toast({
         title: "Error",
         description: "Please enter a name for your list",
@@ -113,17 +115,20 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
       return;
     }
 
+    // Remove existing list with the same name if it exists
+    const filteredLists = savedLists.filter(list => list.name !== nameToUse);
+
     const newList: SavedList = {
       id: Date.now().toString(),
-      name: listName,
+      name: nameToUse,
       faction: selectedFaction,
       units: selectedUnits,
     };
 
-    const updatedLists = [...savedLists, newList];
+    const updatedLists = [...filteredLists, newList];
     setSavedLists(updatedLists);
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
-    setCurrentListName(listName);
+    setCurrentListName(nameToUse);
 
     toast({
       title: "Success",
