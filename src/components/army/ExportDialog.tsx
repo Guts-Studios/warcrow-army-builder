@@ -25,7 +25,14 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
   const factionId = selectedUnits[0]?.faction;
   const factionName = factions.find(f => f.id === factionId)?.name || "Unknown Faction";
 
-  const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${selectedUnits
+  // Sort units to put High Command first
+  const sortedUnits = [...selectedUnits].sort((a, b) => {
+    if (a.highCommand && !b.highCommand) return -1;
+    if (!a.highCommand && b.highCommand) return 1;
+    return 0;
+  });
+
+  const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${sortedUnits
     .map((unit) => {
       const highCommandLabel = unit.highCommand ? " [High Command]" : "";
       return `${unit.name}${highCommandLabel} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
