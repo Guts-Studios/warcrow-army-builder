@@ -10,6 +10,7 @@ import { FileText, Copy } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { SelectedUnit } from "@/types/army";
+import { factions } from "@/data/factions";
 
 interface ExportDialogProps {
   selectedUnits: SelectedUnit[];
@@ -20,8 +21,15 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const listText = `${listName || "Untitled List"}\n\n${selectedUnits
-    .map((unit) => `${unit.name} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`)
+  // Get faction name from the first unit (all units should be from same faction)
+  const factionId = selectedUnits[0]?.faction;
+  const factionName = factions.find(f => f.id === factionId)?.name || "Unknown Faction";
+
+  const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${selectedUnits
+    .map((unit) => {
+      const highCommandLabel = unit.highCommand ? " [High Command]" : "";
+      return `${unit.name}${highCommandLabel} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
+    })
     .join("\n")}`;
 
   const totalPoints = selectedUnits.reduce(
