@@ -1,6 +1,12 @@
 import { Button } from "./ui/button";
-import { Minus } from "lucide-react";
+import { Minus, Eye } from "lucide-react";
 import { SelectedUnit } from "@/types/army";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface SelectedUnitsProps {
   selectedUnits: SelectedUnit[];
@@ -23,14 +29,41 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
               ({unit.pointsCost * unit.quantity} pts)
             </span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onRemove(unit.id)}
-            className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
+                {unit.imageUrl ? (
+                  <img 
+                    src={unit.imageUrl} 
+                    alt={unit.name} 
+                    className="w-full h-auto rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
+                    Card image coming soon
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onRemove(unit.id)}
+              className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ))}
       {selectedUnits.length === 0 && (
