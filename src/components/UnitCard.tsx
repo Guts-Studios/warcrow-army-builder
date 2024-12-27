@@ -116,13 +116,20 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         <div className="space-y-2">
           <div className="flex flex-wrap gap-1">
             {unit.keywords.map((keyword, index) => (
-              <span
-                key={index}
-                className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded"
-                title={keyword.description}
-              >
-                {keyword.name}
-              </span>
+              <TooltipProvider key={index}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help"
+                    >
+                      {keyword.name}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px] text-sm">
+                    <p className="whitespace-pre-wrap">{keyword.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ))}
           </div>
           {unit.specialRules && unit.specialRules.length > 0 && (
