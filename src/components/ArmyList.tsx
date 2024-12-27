@@ -106,10 +106,10 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
   const handleSaveList = () => {
     const nameToUse = currentListName || listName;
 
-    if (!nameToUse.trim()) {
+    if (!nameToUse.trim() || nameToUse === "New List") {
       toast({
-        title: "Error",
-        description: "Please enter a name for your list",
+        title: "Enter List Name",
+        description: "Please enter a name for your list before saving",
         variant: "destructive",
       });
       return;
