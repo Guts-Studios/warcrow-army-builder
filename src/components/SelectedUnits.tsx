@@ -14,9 +14,16 @@ interface SelectedUnitsProps {
 }
 
 const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
+  // Sort units to put High Command first
+  const sortedUnits = [...selectedUnits].sort((a, b) => {
+    if (a.highCommand && !b.highCommand) return -1;
+    if (!a.highCommand && b.highCommand) return 1;
+    return 0;
+  });
+
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-2">
-      {selectedUnits.map((unit) => (
+      {sortedUnits.map((unit) => (
         <div
           key={unit.id}
           className="flex items-center justify-between bg-warcrow-background p-2 rounded"
