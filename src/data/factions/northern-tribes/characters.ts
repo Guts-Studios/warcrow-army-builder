@@ -7,12 +7,14 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 25,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
+    specialRules: ["Vulnerable", "Shove (5)", "Attract (5)"],
     highCommand: false,
     imageUrl: "/art/card/contender_card.jpg"
   },
@@ -22,6 +24,7 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 30,
     availability: 1,
+    command: 0,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
@@ -29,6 +32,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Dispel", description: "Can dispel magic" },
       { name: "Join (Hunters)", description: "Can join Hunter units" },
     ],
+    specialRules: ["Scout", "Disarmed"],
     highCommand: false,
     imageUrl: "/art/card/darkmaster_card.jpg"
   },
@@ -38,11 +42,13 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 25,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
+    specialRules: ["Intimidating (X)", "Flee", "Slowed"],
     highCommand: false,
     imageUrl: "/art/card/evoker_card.jpg"
   },
@@ -52,6 +58,7 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 25,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Varank", description: "This unit has the Varank keyword" },
@@ -59,6 +66,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
+    specialRules: ["Disarmed"],
     highCommand: false,
     imageUrl: "/art/card/hersir_card.jpg"
   },
@@ -68,12 +76,14 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 30,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
+    specialRules: ["Frightened", "Vulnerable", "Slowed", "Disarmed"],
     highCommand: false,
     imageUrl: "/art/card/prime_warrior_card.jpg"
   },
@@ -83,12 +93,14 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 15,
     availability: 1,
+    command: 0,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
     ],
+    specialRules: ["Vulnerable", "Fix a Die"],
     highCommand: false,
     imageUrl: "/art/card/wisemane_card.jpg"
   },
@@ -98,12 +110,14 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 25,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Orc", description: "This unit has the Orc keyword" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
+    specialRules: ["Disarmed", "Slowed", "Vulnerable", "Displaced", "Placed"],
     highCommand: false,
     imageUrl: "/art/card/lotta_card.jpg"
   },
@@ -113,12 +127,14 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 40,
     availability: 1,
+    command: 2,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Varank", description: "This unit has the Varank keyword" },
       { name: "Beserker Rage", description: "Has Beserker Rage" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
+    specialRules: ["Frightened", "Raging", "Fearless"],
     highCommand: false,
     imageUrl: "/art/card/njord_the_merciless_card.jpg"
   },
@@ -128,6 +144,7 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 35,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Colossal Company", description: "Part of Colossal Company" },
@@ -138,15 +155,17 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Raging", description: "Has the Raging ability" },
     ],
+    specialRules: [],
     highCommand: false,
     imageUrl: "/art/card/ormuk_card.jpg"
   },
   {
-    id: "iriavik",
+    id: "iriavik-restless-pup",
     name: "Iriavik Restless Pup",
     faction: "northern-tribes",
     pointsCost: 30,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "This unit is a character" },
       { name: "Colossal Company", description: "Part of Colossal Company" },
@@ -156,6 +175,7 @@ export const northernTribesCharacters: Unit[] = [
       { name: "Dispel", description: "Can dispel magic" },
       { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
     ],
+    specialRules: ["Slowed", "Place (3)", "Immune to State", "Frightened"],
     highCommand: false,
     imageUrl: "/art/card/iriavik_restless_pup_card.jpg"
   },
@@ -165,10 +185,12 @@ export const northernTribesCharacters: Unit[] = [
     faction: "northern-tribes",
     pointsCost: 20,
     availability: 1,
+    command: 0,
     keywords: [
       { name: "Companion", description: "Companion unit type" },
       { name: "Join (Iriavik)", description: "Can join Iriavik" },
     ],
+    specialRules: ["Slowed", "Fix a Die"],
     highCommand: false,
     imageUrl: "/art/card/coal_card.jpg"
   }

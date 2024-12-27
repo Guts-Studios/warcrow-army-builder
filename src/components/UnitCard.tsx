@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Unit } from "@/types/army";
-import { Plus, Minus, BadgeCheck, Eye } from "lucide-react";
+import { Plus, Minus, BadgeCheck, Eye, Command } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -53,6 +53,21 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
                     <span className="text-xs text-warcrow-muted">{subtitle}</span>
                   )}
                 </div>
+                {unit.command > 0 && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <div className="flex items-center gap-1">
+                          <Command className="h-4 w-4 text-warcrow-gold" />
+                          <span className="text-xs text-warcrow-gold">{unit.command}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Command Value</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 {unit.highCommand && (
                   <TooltipProvider>
                     <Tooltip>
@@ -110,6 +125,18 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
               </span>
             ))}
           </div>
+          {unit.specialRules && unit.specialRules.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {unit.specialRules.map((rule, index) => (
+                <span
+                  key={index}
+                  className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded"
+                >
+                  {rule}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-2">
               <Button

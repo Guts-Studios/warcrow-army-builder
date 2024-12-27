@@ -12,6 +12,8 @@ export interface Unit {
   highCommand: boolean;
   availability: number;
   imageUrl?: string;
+  specialRules?: string[];
+  command?: number;
 }
 
 export interface SelectedUnit extends Unit {
