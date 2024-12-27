@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -35,7 +43,7 @@ const Landing = () => {
       </div>
 
       <footer className="w-full py-4 bg-warcrow-accent relative z-20">
-        <div className="container max-w-7xl mx-auto px-4 text-center">
+        <div className="container max-w-7xl mx-auto px-4 text-center flex flex-col gap-2">
           <a 
             href="https://www.patreon.com/GutzStudio" 
             target="_blank" 
@@ -44,6 +52,21 @@ const Landing = () => {
           >
             Support us on Patreon
           </a>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="link" className="text-warcrow-gold hover:text-warcrow-gold/80 transition-colors">
+                Legal Disclaimer
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Legal Disclaimer</DialogTitle>
+                <DialogDescription className="text-left">
+                  Warcrow, its associated intellectual property, and all related content, including but not limited to images, artwork, and text from the game or books, are the exclusive property of Corvus Belli. This material is used solely for informational and non-commercial purposes under the acknowledgment of Corvus Belli's ownership. No challenge to Corvus Belli's rights is intended, and this content is not endorsed by or affiliated with Corvus Belli unless explicitly stated.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       </footer>
     </div>
