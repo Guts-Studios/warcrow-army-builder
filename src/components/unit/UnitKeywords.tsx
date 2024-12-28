@@ -1,18 +1,20 @@
+import { Keyword } from "@/types/army";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Keyword } from "@/types/army";
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 
 interface UnitKeywordsProps {
   keywords: Keyword[];
   specialRules?: string[];
+  companion?: string;
 }
 
-const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
+const UnitKeywords = ({ keywords, specialRules, companion }: UnitKeywordsProps) => {
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1">
@@ -20,39 +22,44 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
           <TooltipProvider key={index}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span
-                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help"
-                >
+                <Badge variant="outline" className="text-xs">
                   {keyword.name}
-                </span>
+                </Badge>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] text-sm">
-                <p className="whitespace-pre-wrap">{keyword.description}</p>
+              <TooltipContent>
+                <p className="max-w-xs">{keyword.description}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         ))}
       </div>
+
       {specialRules && specialRules.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {specialRules.map((rule, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span
-                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help"
-                  >
+                  <Badge variant="secondary" className="text-xs">
                     {rule}
-                  </span>
+                  </Badge>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-[300px] text-sm">
-                  <p className="whitespace-pre-wrap">
-                    {specialRuleDefinitions[rule] || "No definition available"}
+                <TooltipContent>
+                  <p className="max-w-xs">
+                    {specialRuleDefinitions[rule.toLowerCase()] || "Definition coming soon"}
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ))}
+        </div>
+      )}
+
+      {companion && (
+        <div className="flex flex-wrap gap-1">
+          <Badge variant="destructive" className="text-xs">
+            Companion of: {companion.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          </Badge>
         </div>
       )}
     </div>
