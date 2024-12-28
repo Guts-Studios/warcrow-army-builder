@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { Minus, Eye, Command } from "lucide-react";
+import { Minus, Eye, Check } from "lucide-react";
 import { SelectedUnit } from "@/types/army";
 import {
   Dialog,
@@ -46,7 +46,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <Command className="h-4 w-4 text-warcrow-gold" />
+                      <Check className="h-4 w-4 text-warcrow-gold" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>High Command</p>
