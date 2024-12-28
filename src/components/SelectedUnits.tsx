@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { Minus, Eye } from "lucide-react";
+import { Minus, Eye, Command } from "lucide-react";
 import { SelectedUnit } from "@/types/army";
 import {
   Dialog,
@@ -7,6 +7,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SelectedUnitsProps {
   selectedUnits: SelectedUnit[];
@@ -34,8 +40,20 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
           className="flex items-center justify-between bg-warcrow-background p-2 rounded"
         >
           <div className="flex items-center gap-2">
-            <span className="text-warcrow-text">
+            <span className="text-warcrow-text flex items-center gap-1">
               {unit.name} x{unit.quantity}
+              {unit.highCommand && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Command className="h-4 w-4 text-warcrow-gold" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>High Command</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </span>
             <span className="text-warcrow-muted">
               ({unit.pointsCost * unit.quantity} pts)
