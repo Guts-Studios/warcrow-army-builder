@@ -7,6 +7,7 @@ export const hegemonyCharacters: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 25,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Aestari", description: "Aestari race" },
       { name: "Character", description: "Character unit type" },
@@ -14,6 +15,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
+    specialRules: ["Place (10)"],
     highCommand: false,
     imageUrl: "/art/card/aide_card.jpg"
   },

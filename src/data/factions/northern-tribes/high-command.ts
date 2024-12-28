@@ -8,9 +8,9 @@ export const northernTribesHighCommand: Unit[] = [
     faction: "northern-tribes",
     command: 2,
     keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "High Command", description: "This unit is part of the High Command" },
-      { name: "Orc", description: "This unit has the Orc keyword" },
+      { name: "Character", description: "Character unit type" },
+      { name: "High Command", description: "High Command unit" },
+      { name: "Orc", description: "Orc race" },
       { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
       { name: "Elite", description: "Elite unit" },
       { name: "Raging", description: "Has the Raging ability" },

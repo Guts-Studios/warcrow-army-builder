@@ -7,6 +7,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
+    command: 3,
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "High Command", description: "High Command unit" },
@@ -15,8 +16,9 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Elite", description: "Elite unit" },
       { name: "Join (Bucklermen | Bulwark)", description: "Can join Bucklermen or Bulwark units" },
     ],
+    specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a die"],
     highCommand: true,
-    imageUrl: "/art/card/dragoslav_card.jpg" 
+    imageUrl: "/art/card/dragoslav_card.jpg"
   },
   {
     id: "lady-telia",
@@ -24,6 +26,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 25,
     availability: 1,
+    command: 2,
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Human", description: "Human race" },
@@ -32,7 +35,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
     highCommand: false,
-    imageUrl: "/art/card/lady_telia_card.jpg" 
+    imageUrl: "/art/card/lady_telia_card.jpg"
   },
   {
     id: "marhael-the-refused",
@@ -40,6 +43,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 35,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Aestari", description: "Aestari race" },
       { name: "Character", description: "Character unit type" },
@@ -56,6 +60,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 30,
     availability: 1,
+    command: 2,
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Human", description: "Human race" },
@@ -70,6 +75,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
+    command: 3,
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Colossal Company", description: "Part of Colossal Company" },
@@ -87,6 +93,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 35,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Aestari", description: "Aestari race" },
       { name: "Character", description: "Character unit type" },
@@ -105,6 +112,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 15,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Aestari", description: "Aestari race" },
       { name: "Character", description: "Character unit type" },
@@ -121,6 +129,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 30,
     availability: 1,
+    command: 1,
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Colossal Company", description: "Part of Colossal Company" },
