@@ -22,12 +22,12 @@ const UnitKeywords = ({ keywords, specialRules, companion }: UnitKeywordsProps) 
           <TooltipProvider key={index}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs cursor-help">
                   {keyword.name}
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">{keyword.description}</p>
+              <TooltipContent className="max-w-xs">
+                <p className="text-sm">{keyword.description}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -36,22 +36,25 @@ const UnitKeywords = ({ keywords, specialRules, companion }: UnitKeywordsProps) 
 
       {specialRules && specialRules.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {specialRules.map((rule, index) => (
-            <TooltipProvider key={index}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="secondary" className="text-xs">
-                    {rule}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs">
-                    {specialRuleDefinitions[rule.toLowerCase()] || "Definition coming soon"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+          {specialRules.map((rule, index) => {
+            const ruleKey = rule.toLowerCase().split('(')[0].trim();
+            const definition = specialRuleDefinitions[ruleKey];
+            
+            return (
+              <TooltipProvider key={index}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="text-xs cursor-help">
+                      {rule}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">{definition || "Definition coming soon"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
         </div>
       )}
 
