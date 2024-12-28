@@ -35,16 +35,9 @@ const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: U
           <Plus className="h-3 w-3" />
         </Button>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-warcrow-gold font-medium">
-          {pointsCost} pts
-        </span>
-        {quantity > 0 && (
-          <span className="text-warcrow-muted text-xs">
-            (Total: {pointsCost * quantity} pts)
-          </span>
-        )}
-      </div>
+      <span className="text-warcrow-muted text-xs">
+        Total: {pointsCost * quantity} pts
+      </span>
     </div>
   );
 };

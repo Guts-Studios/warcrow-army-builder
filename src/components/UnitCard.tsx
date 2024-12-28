@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitKeywords from "./unit/UnitKeywords";
@@ -11,32 +12,45 @@ interface UnitCardProps {
 }
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
-  const portraitUrl = unit.imageUrl?.replace('card', 'portrait');
+  const unitType = unit.keywords.find(k => 
+    ["Infantry", "Character"].includes(k.name)
+  )?.name || "Unknown";
+
+  // Convert the card image URL to a portrait URL
+  const portraitUrl = unit.imageUrl?.replace('/card/', '/portrait/').replace('_card.jpg', '_portrait.jpg');
+
+  // Split name into main name and subtitle if there's a comma
+  const [mainName, subtitle] = unit.name.split(',').map(part => part.trim());
 
   return (
-    <div className="relative bg-warcrow-card rounded-lg p-4 shadow-md border border-warcrow-gold/20">
-      <div className="space-y-4">
-        <UnitHeader
-          unit={unit}
-          mainName={unit.name}
-          portraitUrl={portraitUrl}
-        />
-        
-        <UnitKeywords 
-          keywords={unit.keywords} 
-          specialRules={unit.specialRules}
-          companion={unit.companion}
-        />
-
-        <UnitControls
-          pointsCost={unit.pointsCost}
-          quantity={quantity}
-          availability={unit.availability}
-          onAdd={onAdd}
-          onRemove={onRemove}
-        />
-      </div>
-    </div>
+    <Card className="bg-warcrow-accent border-warcrow-gold animate-fade-in">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-warcrow-gold flex justify-between items-center text-lg">
+          <UnitHeader 
+            unit={unit}
+            mainName={mainName}
+            subtitle={subtitle}
+            portraitUrl={portraitUrl}
+          />
+          <span className="text-sm whitespace-nowrap">{unit.pointsCost} pts</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <UnitKeywords 
+            keywords={unit.keywords}
+            specialRules={unit.specialRules}
+          />
+          <UnitControls
+            quantity={quantity}
+            availability={unit.availability}
+            pointsCost={unit.pointsCost}
+            onAdd={onAdd}
+            onRemove={onRemove}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

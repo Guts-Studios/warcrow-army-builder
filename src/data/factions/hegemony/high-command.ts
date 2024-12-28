@@ -140,7 +140,6 @@ export const hegemonyHighCommand: Unit[] = [
     availability: 3,
     keywords: [],
     highCommand: false,
-    imageUrl: "/art/card/mk-os_automata_card.jpg",
-    companion: "trabor-slepmund"
+    imageUrl: "/art/card/mk-os_automata_card.jpg"
   }
 ];

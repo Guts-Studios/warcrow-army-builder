@@ -14,7 +14,6 @@ export interface Unit {
   imageUrl?: string;
   specialRules?: string[];
   command?: number;
-  companion?: string;
 }
 
 export interface SelectedUnit extends Unit {

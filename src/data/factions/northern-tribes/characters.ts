@@ -192,7 +192,6 @@ export const northernTribesCharacters: Unit[] = [
     ],
     specialRules: ["Slowed", "Fix a Die"],
     highCommand: false,
-    imageUrl: "/art/card/coal_card.jpg",
-    companion: "iriavik-restless-pup"
+    imageUrl: "/art/card/coal_card.jpg"
   }
 ];
