@@ -28,16 +28,20 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1">
         {keywords.map((keyword, index) => (
-          <TooltipProvider key={index}>
+          <TooltipProvider key={index} delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span
+                <button
+                  type="button"
                   className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help"
                 >
                   {keyword.name}
-                </span>
+                </button>
               </TooltipTrigger>
-              <TooltipContent className="max-w-[300px] text-sm">
+              <TooltipContent 
+                className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                sideOffset={5}
+              >
                 <p className="whitespace-pre-wrap">{keyword.description}</p>
               </TooltipContent>
             </Tooltip>
@@ -47,16 +51,20 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
       {specialRules && specialRules.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {specialRules.map((rule, index) => (
-            <TooltipProvider key={index}>
+            <TooltipProvider key={index} delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span
+                  <button
+                    type="button"
                     className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help"
                   >
                     {rule}
-                  </span>
+                  </button>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-[300px] text-sm">
+                <TooltipContent 
+                  className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                  sideOffset={5}
+                >
                   <p className="whitespace-pre-wrap">
                     {getDefinition(rule)}
                   </p>
