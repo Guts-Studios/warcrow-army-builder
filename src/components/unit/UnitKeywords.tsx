@@ -46,7 +46,11 @@ const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) =
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help"
+                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help touch-none"
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    setOpenTooltip(`keyword-${index}`);
+                  }}
                 >
                   {keyword.name}
                 </button>
@@ -79,7 +83,11 @@ const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) =
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help"
+                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help touch-none"
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      setOpenTooltip(`rule-${index}`);
+                    }}
                   >
                     {rule}
                   </button>
