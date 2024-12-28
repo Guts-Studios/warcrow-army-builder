@@ -13,6 +13,17 @@ interface UnitKeywordsProps {
 }
 
 const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
+  const getDefinition = (name: string): string => {
+    // First try exact match
+    if (specialRuleDefinitions[name]) {
+      return specialRuleDefinitions[name];
+    }
+    
+    // If no match, try removing parameters in parentheses
+    const baseKeyword = name.replace(/\s*\([^)]*\)/, '').trim();
+    return specialRuleDefinitions[baseKeyword] || "No definition available";
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1">
@@ -47,7 +58,7 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
                 </TooltipTrigger>
                 <TooltipContent className="max-w-[300px] text-sm">
                   <p className="whitespace-pre-wrap">
-                    {specialRuleDefinitions[rule] || "No definition available"}
+                    {getDefinition(rule)}
                   </p>
                 </TooltipContent>
               </Tooltip>
