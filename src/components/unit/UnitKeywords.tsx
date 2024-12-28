@@ -1,27 +1,31 @@
+import { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Keyword } from "@/types/army";
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 
 interface UnitKeywordsProps {
-  keywords: Keyword[];
+  keywords?: Array<{ name: string; description: string }>;
   specialRules?: string[];
 }
 
-const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
-  const getDefinition = (name: string): string => {
+const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) => {
+  const [openTooltip, setOpenTooltip] = useState<string | null>(null);
+
+  const getDefinition = (ruleName: string): string => {
     // First try exact match
-    if (specialRuleDefinitions[name]) {
-      return specialRuleDefinitions[name];
+    let definition = specialRuleDefinitions[ruleName];
+    
+    // If not found, try removing everything after the first parenthesis
+    if (!definition) {
+      const baseRuleName = ruleName.split('(')[0].trim();
+      definition = specialRuleDefinitions[baseRuleName];
     }
     
-    // If no match, try removing everything after and including the first parenthesis
-    const baseKeyword = name.split('(')[0].trim();
-    return specialRuleDefinitions[baseKeyword] || "No definition available";
+    return definition || "Definition not found";
   };
 
   return (
@@ -29,7 +33,16 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
       <div className="flex flex-wrap gap-1">
         {keywords.map((keyword, index) => (
           <TooltipProvider key={index} delayDuration={0}>
-            <Tooltip>
+            <Tooltip 
+              open={openTooltip === `keyword-${index}`}
+              onOpenChange={(open) => {
+                if (open) {
+                  setOpenTooltip(`keyword-${index}`);
+                } else if (openTooltip === `keyword-${index}`) {
+                  setOpenTooltip(null);
+                }
+              }}
+            >
               <TooltipTrigger asChild>
                 <button
                   type="button"
@@ -48,11 +61,21 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
           </TooltipProvider>
         ))}
       </div>
+
       {specialRules && specialRules.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {specialRules.map((rule, index) => (
             <TooltipProvider key={index} delayDuration={0}>
-              <Tooltip>
+              <Tooltip 
+                open={openTooltip === `rule-${index}`}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setOpenTooltip(`rule-${index}`);
+                  } else if (openTooltip === `rule-${index}`) {
+                    setOpenTooltip(null);
+                  }
+                }}
+              >
                 <TooltipTrigger asChild>
                   <button
                     type="button"
