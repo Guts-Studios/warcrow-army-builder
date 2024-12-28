@@ -19,8 +19,8 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
       return specialRuleDefinitions[name];
     }
     
-    // If no match, try removing parameters in parentheses
-    const baseKeyword = name.replace(/\s*\([^)]*\)/, '').trim();
+    // If no match, try removing everything after and including the first parenthesis
+    const baseKeyword = name.split('(')[0].trim();
     return specialRuleDefinitions[baseKeyword] || "No definition available";
   };
 
