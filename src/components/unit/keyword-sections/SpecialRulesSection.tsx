@@ -13,6 +13,10 @@ interface SpecialRulesSectionProps {
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   if (!specialRules?.length) return null;
 
+  const getBaseRule = (rule: string) => {
+    return rule.split('(')[0].trim();
+  };
+
   return (
     <div className="space-y-1">
       <span className="text-xs text-warcrow-muted">Special Rules:</span>
@@ -24,7 +28,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
                 {rule}
               </TooltipTrigger>
               <TooltipContent>
-                <p>{specialRuleDefinitions[rule] || "Description coming soon"}</p>
+                <p>{specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

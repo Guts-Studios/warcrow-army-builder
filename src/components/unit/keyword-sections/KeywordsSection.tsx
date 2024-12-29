@@ -19,6 +19,10 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
 
   if (filteredKeywords.length === 0) return null;
 
+  const getBaseKeyword = (keyword: string) => {
+    return keyword.split('(')[0].trim();
+  };
+
   return (
     <div className="space-y-1">
       <span className="text-xs text-warcrow-muted">Keywords:</span>
@@ -30,7 +34,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                 {keyword.name}
               </TooltipTrigger>
               <TooltipContent>
-                <p>{keywordDefinitions[keyword.name] || keyword.description}</p>
+                <p>{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
