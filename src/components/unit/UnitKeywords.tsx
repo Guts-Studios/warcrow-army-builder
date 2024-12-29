@@ -23,7 +23,6 @@ const UnitKeywords = ({ keywords = [], specialRules = [], characteristics = [] }
   const getDefinition = (ruleName: string, type: 'special' | 'keyword' | 'characteristic'): string => {
     let definition = '';
     
-    // First try exact match
     switch(type) {
       case 'special':
         definition = specialRuleDefinitions[ruleName];
@@ -60,103 +59,114 @@ const UnitKeywords = ({ keywords = [], specialRules = [], characteristics = [] }
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 text-left">
       {characteristics && characteristics.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {characteristics.map((characteristic, index) => (
-            <TooltipProvider key={index} delayDuration={0}>
-              <Tooltip 
-                open={openTooltip === `characteristic-${index}`}
-                onOpenChange={(open) => handleTooltipInteraction(`characteristic-${index}`, open)}
-              >
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="px-1.5 py-0.5 bg-warcrow-accent/20 text-warcrow-accent text-xs rounded cursor-help active:bg-warcrow-accent/30 touch-none"
-                    onClick={() => {
-                      if (isMobile) {
-                        handleTooltipInteraction(`characteristic-${index}`, true);
-                      }
-                    }}
-                  >
-                    {characteristic}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent 
-                  className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                  sideOffset={5}
+        <div className="space-y-1">
+          <span className="text-xs text-warcrow-muted">Characteristics:</span>
+          <div className="flex flex-wrap gap-1">
+            {characteristics.map((characteristic, index) => (
+              <TooltipProvider key={index} delayDuration={0}>
+                <Tooltip 
+                  open={openTooltip === `characteristic-${index}`}
+                  onOpenChange={(open) => handleTooltipInteraction(`characteristic-${index}`, open)}
                 >
-                  <p className="whitespace-pre-wrap">{getDefinition(characteristic, 'characteristic')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="px-1.5 py-0.5 bg-warcrow-accent/20 text-warcrow-text border border-warcrow-accent/30 text-xs rounded cursor-help active:bg-warcrow-accent/30 touch-none"
+                      onClick={() => {
+                        if (isMobile) {
+                          handleTooltipInteraction(`characteristic-${index}`, true);
+                        }
+                      }}
+                    >
+                      {characteristic}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                    sideOffset={5}
+                  >
+                    <p className="whitespace-pre-wrap">{getDefinition(characteristic, 'characteristic')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </div>
       )}
 
-      <div className="flex flex-wrap gap-1">
-        {keywords.map((keyword, index) => (
-          <TooltipProvider key={index} delayDuration={0}>
-            <Tooltip 
-              open={openTooltip === `keyword-${index}`}
-              onOpenChange={(open) => handleTooltipInteraction(`keyword-${index}`, open)}
-            >
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help active:bg-warcrow-accent touch-none"
-                  onClick={() => {
-                    if (isMobile) {
-                      handleTooltipInteraction(`keyword-${index}`, true);
-                    }
-                  }}
+      {keywords && keywords.length > 0 && (
+        <div className="space-y-1">
+          <span className="text-xs text-warcrow-muted">Keywords:</span>
+          <div className="flex flex-wrap gap-1">
+            {keywords.map((keyword, index) => (
+              <TooltipProvider key={index} delayDuration={0}>
+                <Tooltip 
+                  open={openTooltip === `keyword-${index}`}
+                  onOpenChange={(open) => handleTooltipInteraction(`keyword-${index}`, open)}
                 >
-                  {keyword.name}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent 
-                className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                sideOffset={5}
-              >
-                <p className="whitespace-pre-wrap">
-                  {getDefinition(keyword.name, 'keyword') || keyword.description}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ))}
-      </div>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="px-1.5 py-0.5 bg-warcrow-background border border-warcrow-gold/30 text-warcrow-gold text-xs rounded cursor-help active:bg-warcrow-accent touch-none"
+                      onClick={() => {
+                        if (isMobile) {
+                          handleTooltipInteraction(`keyword-${index}`, true);
+                        }
+                      }}
+                    >
+                      {keyword.name}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                    sideOffset={5}
+                  >
+                    <p className="whitespace-pre-wrap">
+                      {getDefinition(keyword.name, 'keyword') || keyword.description}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
+        </div>
+      )}
 
       {specialRules && specialRules.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {specialRules.map((rule, index) => (
-            <TooltipProvider key={index} delayDuration={0}>
-              <Tooltip 
-                open={openTooltip === `rule-${index}`}
-                onOpenChange={(open) => handleTooltipInteraction(`rule-${index}`, open)}
-              >
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help active:bg-warcrow-gold/30 touch-none"
-                    onClick={() => {
-                      if (isMobile) {
-                        handleTooltipInteraction(`rule-${index}`, true);
-                      }
-                    }}
-                  >
-                    {rule}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent 
-                  className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                  sideOffset={5}
+        <div className="space-y-1">
+          <span className="text-xs text-warcrow-muted">Special Rules:</span>
+          <div className="flex flex-wrap gap-1">
+            {specialRules.map((rule, index) => (
+              <TooltipProvider key={index} delayDuration={0}>
+                <Tooltip 
+                  open={openTooltip === `rule-${index}`}
+                  onOpenChange={(open) => handleTooltipInteraction(`rule-${index}`, open)}
                 >
-                  <p className="whitespace-pre-wrap">{getDefinition(rule, 'special')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="px-1.5 py-0.5 bg-warcrow-gold/10 border border-warcrow-gold text-warcrow-gold text-xs rounded cursor-help active:bg-warcrow-gold/30 touch-none"
+                      onClick={() => {
+                        if (isMobile) {
+                          handleTooltipInteraction(`rule-${index}`, true);
+                        }
+                      }}
+                    >
+                      {rule}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    className="max-w-[300px] text-sm bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                    sideOffset={5}
+                  >
+                    <p className="whitespace-pre-wrap">{getDefinition(rule, 'special')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
         </div>
       )}
     </div>
