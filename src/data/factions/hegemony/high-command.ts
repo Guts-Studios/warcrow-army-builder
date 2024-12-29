@@ -34,6 +34,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
+    specialRules: ["Frightened", "Aim", "Repeat a die"],
     highCommand: false,
     imageUrl: "/art/card/lady_telia_card.jpg"
   },
@@ -51,6 +52,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
+    specialRules: ["Place (11)"],
     highCommand: false,
     imageUrl: "/art/card/marhael_the_refused_card.jpg"
   },
@@ -66,6 +68,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Human", description: "Human race" },
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
+    specialRules: ["Disarmed", "Vulnerable"],
     highCommand: false,
     imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
@@ -84,6 +87,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Elite", description: "Elite unit" },
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
+    specialRules: ["Vulnerable", "Disarmed"],
     highCommand: true,
     imageUrl: "/art/card/amelia_hellbroth_card.jpg"
   },
@@ -93,7 +97,7 @@ export const hegemonyHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 35,
     availability: 1,
-    command: 1,
+    command: 0,
     keywords: [
       { name: "Aestari", description: "Aestari race" },
       { name: "Character", description: "Character unit type" },
@@ -103,6 +107,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
+    specialRules: ["Disarmed", "Slowed", "Vulnerable"],
     highCommand: false,
     imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
@@ -120,6 +125,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Elf", description: "Elf race" },
       { name: "Spellcaster", description: "Can cast spells" },
     ],
+    specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
     highCommand: false,
     imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
@@ -138,6 +144,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Dispel", description: "Can dispel magic" },
       { name: "Join (War Rig)", description: "Can join War Rig units" },
     ],
+    specialRules: ["Disarmed"],
     highCommand: false,
     imageUrl: "/art/card/trabor_slepmund_card.jpg"
   },
