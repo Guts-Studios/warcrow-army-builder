@@ -59,13 +59,25 @@ const SaveListSection = ({
 
   return (
     <div className="flex items-center gap-4 w-full">
-      <Button
-        onClick={onSaveList}
-        className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
-      >
-        <Save className="h-4 w-4 mr-2" />
-        Save List
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={onSaveList}
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save List Locally
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent 
+            className="bg-warcrow-background border-warcrow-accent text-warcrow-text"
+            side="bottom"
+          >
+            Save list to your browser's local storage
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

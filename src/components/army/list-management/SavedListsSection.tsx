@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, CloudOff, Cloud } from "lucide-react";
 import { SavedList } from "@/types/army";
 
 interface SavedListsSectionProps {
@@ -30,7 +30,14 @@ const SavedListsSection = ({
             key={list.id}
             className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
           >
-            <span className="text-warcrow-text">{list.name}</span>
+            <div className="flex items-center gap-2">
+              {list.user_id ? (
+                <Cloud className="h-4 w-4 text-blue-500" />
+              ) : (
+                <CloudOff className="h-4 w-4 text-gray-500" />
+              )}
+              <span className="text-warcrow-text">{list.name}</span>
+            </div>
             <div className="flex gap-2">
               <Button
                 onClick={() => onLoadList(list)}
