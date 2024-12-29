@@ -32,13 +32,6 @@ const Landing = () => {
             Start Building
           </Button>
           <Button
-            onClick={() => navigate('/login')}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
-          >
-            Login
-          </Button>
-          <Button
             onClick={handleSignOut}
             variant="outline"
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"

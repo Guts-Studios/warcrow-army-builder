@@ -27,13 +27,7 @@ const Index = () => {
               alt="Warcrow Logo" 
               className="h-24"
             />
-            <Button
-              onClick={() => navigate('/login')}
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
-            >
-              Login
-            </Button>
+            <div className="w-[100px]" /> {/* Spacer to maintain centering */}
           </div>
           <div className="flex flex-col items-center mb-8">
             <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
