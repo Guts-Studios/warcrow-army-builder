@@ -11,5 +11,5 @@ export const keywordDefinitions: { [key: string]: string } = {
   "Berserker Rage": "Can self-inflict damage to enhance combat abilities.",
   "Preferred Terrain": "Gains advantages when fighting in specific terrain types.",
   "Ambusher": "Can be held in reserve and deploy during the battle.",
-  "Raging": "Your unit adds 1 to its attack rolls when it charges."
+  "Raging": "Your unit adds 1 Success Roll to its attack rolls when it charges."
 };
