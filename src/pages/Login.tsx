@@ -18,6 +18,10 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleGuestAccess = () => {
+    navigate('/builder');
+  };
+
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden">
       <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
@@ -26,13 +30,20 @@ const Login = () => {
           alt="Warcrow Logo" 
           className="h-24 mx-auto mb-8"
         />
-        <div className="mb-6 flex justify-center">
+        <div className="mb-6 flex justify-center gap-4">
           <Button
             onClick={() => navigate('/')}
             variant="outline"
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
           >
             Back to Home
+          </Button>
+          <Button
+            onClick={handleGuestAccess}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+          >
+            Continue as Guest
           </Button>
         </div>
         <Auth
