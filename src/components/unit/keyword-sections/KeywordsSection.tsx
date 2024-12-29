@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
+import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
