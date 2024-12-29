@@ -3,6 +3,7 @@ import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/components/ui/use-toast";
 import { validateHighCommandAddition } from "@/utils/armyValidation";
 import { units } from "@/data/factions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -19,11 +20,40 @@ export const useArmyList = (selectedFaction: string) => {
     [selectedFaction]
   );
 
+  // Fetch both local and cloud saves
   useEffect(() => {
-    const lists = localStorage.getItem("armyLists");
-    if (lists) {
-      setSavedLists(JSON.parse(lists));
-    }
+    const fetchSavedLists = async () => {
+      // Get local saves
+      const localLists = localStorage.getItem("armyLists");
+      const parsedLocalLists: SavedList[] = localLists ? JSON.parse(localLists) : [];
+
+      // Get cloud saves
+      const { data: cloudLists, error } = await supabase
+        .from('army_lists')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching cloud lists:', error);
+        setSavedLists(parsedLocalLists);
+        return;
+      }
+
+      // Combine local and cloud saves
+      const allLists = [
+        ...parsedLocalLists,
+        ...(cloudLists || []).map((list: any) => ({
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: list.units,
+          user_id: list.user_id
+        }))
+      ];
+
+      setSavedLists(allLists);
+    };
+
+    fetchSavedLists();
   }, []);
 
   const handleAdd = useCallback((unitId: string) => {
