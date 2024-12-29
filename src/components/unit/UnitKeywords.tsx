@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UnitKeywordsProps {
   keywords?: Array<{ name: string; description: string }>;
@@ -14,6 +15,7 @@ interface UnitKeywordsProps {
 
 const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) => {
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const getDefinition = (ruleName: string): string => {
     // First try exact match
@@ -28,6 +30,20 @@ const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) =
     return definition || "Definition not found";
   };
 
+  const handleTooltipInteraction = (tooltipId: string, isOpen: boolean) => {
+    if (isMobile) {
+      // On mobile, only close if clicking the same tooltip that's already open
+      if (isOpen && openTooltip !== tooltipId) {
+        setOpenTooltip(tooltipId);
+      } else if (!isOpen && openTooltip === tooltipId) {
+        setOpenTooltip(null);
+      }
+    } else {
+      // On desktop, follow normal hover behavior
+      setOpenTooltip(isOpen ? tooltipId : null);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1">
@@ -35,21 +51,16 @@ const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) =
           <TooltipProvider key={index} delayDuration={0}>
             <Tooltip 
               open={openTooltip === `keyword-${index}`}
-              onOpenChange={(open) => {
-                if (open) {
-                  setOpenTooltip(`keyword-${index}`);
-                } else if (openTooltip === `keyword-${index}`) {
-                  setOpenTooltip(null);
-                }
-              }}
+              onOpenChange={(open) => handleTooltipInteraction(`keyword-${index}`, open)}
             >
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help touch-none"
-                  onTouchStart={(e) => {
-                    e.preventDefault();
-                    setOpenTooltip(`keyword-${index}`);
+                  className="px-1.5 py-0.5 bg-warcrow-background text-warcrow-text text-xs rounded cursor-help active:bg-warcrow-accent touch-none"
+                  onClick={() => {
+                    if (isMobile) {
+                      handleTooltipInteraction(`keyword-${index}`, true);
+                    }
                   }}
                 >
                   {keyword.name}
@@ -72,21 +83,16 @@ const UnitKeywords = ({ keywords = [], specialRules = [] }: UnitKeywordsProps) =
             <TooltipProvider key={index} delayDuration={0}>
               <Tooltip 
                 open={openTooltip === `rule-${index}`}
-                onOpenChange={(open) => {
-                  if (open) {
-                    setOpenTooltip(`rule-${index}`);
-                  } else if (openTooltip === `rule-${index}`) {
-                    setOpenTooltip(null);
-                  }
-                }}
+                onOpenChange={(open) => handleTooltipInteraction(`rule-${index}`, open)}
               >
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help touch-none"
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      setOpenTooltip(`rule-${index}`);
+                    className="px-1.5 py-0.5 bg-warcrow-gold/20 text-warcrow-gold text-xs rounded cursor-help active:bg-warcrow-gold/30 touch-none"
+                    onClick={() => {
+                      if (isMobile) {
+                        handleTooltipInteraction(`rule-${index}`, true);
+                      }
                     }}
                   >
                     {rule}
