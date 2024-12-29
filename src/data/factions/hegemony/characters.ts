@@ -64,7 +64,7 @@ export const hegemonyCharacters: Unit[] = [
       { name: "Human", description: "Human race" },
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
-    specialRules: ["Repeat a die"],
+    specialRules: ["Repeat a Die"],
     highCommand: false,
     imageUrl: "/art/card/gunnery_corporal_card.jpg"
   },

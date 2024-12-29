@@ -16,7 +16,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Elite", description: "Elite unit" },
       { name: "Join (Bucklermen | Bulwark)", description: "Can join Bucklermen or Bulwark units" },
     ],
-    specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a die"],
+    specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a Die"],
     highCommand: true,
     imageUrl: "/art/card/dragoslav_card.jpg"
   },
@@ -34,7 +34,7 @@ export const hegemonyHighCommand: Unit[] = [
       { name: "Scout", description: "Has scouting abilities" },
       { name: "Join (Arquebusiers | Pioneers)", description: "Can join Arquebusiers or Pioneers units" },
     ],
-    specialRules: ["Frightened", "Aim", "Repeat a die"],
+    specialRules: ["Frightened", "Aim", "Repeat a Die"],
     highCommand: false,
     imageUrl: "/art/card/lady_telia_card.jpg"
   },

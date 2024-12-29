@@ -26,7 +26,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Human", description: "Human race" },
       { name: "Infantry", description: "Infantry unit type" },
     ],
-    specialRules: ["Cancel a symbol", "Disarmed", "Shove (2)", "Displace (4)"],
+    specialRules: ["Cancel a Symbol", "Disarmed", "Shove (2)", "Displace (4)"],
     highCommand: false,
     imageUrl: "/art/card/black_legion_bucklemen_card.jpg"
   },
@@ -40,7 +40,7 @@ export const hegemonyTroops: Unit[] = [
     keywords: [
       { name: "Human", description: "Human race" },
       { name: "Infantry", description: "Infantry unit type" },
-      { name: "Cover", description: "Provides cover" },
+      { name: "Cover (BLK)", description: "Provides cover" },
       { name: "Immovable", description: "Cannot be moved" },
     ],
     specialRules: ["Shove (3)"],
@@ -58,7 +58,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Dwarf", description: "Dwarf race" },
       { name: "Ghent", description: "Ghent faction" },
       { name: "Infantry", description: "Infantry unit type" },
-      { name: "Dispel", description: "Can dispel magic" },
+      { name: "Dispel (BLU)", description: "Can dispel magic" },
       { name: "Scout", description: "Has scouting abilities" },
     ],
     specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
