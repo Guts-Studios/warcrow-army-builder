@@ -14,7 +14,7 @@ interface KeywordsSectionProps {
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   // Show all keywords except characteristics
   const filteredKeywords = keywords.filter(k => 
-    !["Infantry", "Character", "Companion", "Colossal Company"].includes(k.name)
+    !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous"].includes(k.name)
   );
 
   if (filteredKeywords.length === 0) return null;

@@ -5,15 +5,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
 }
 
 const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
-  // Show characteristics (Infantry, Character, etc.)
+  // Show characteristics (Infantry, Character, races, etc.)
   const characteristics = keywords.filter(k => 
-    ["Infantry", "Character", "Companion", "Colossal Company"].includes(k.name)
+    ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous"].includes(k.name)
   );
 
   if (characteristics.length === 0) return null;
@@ -26,8 +27,8 @@ const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
             <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50">
               {keyword.name}
             </TooltipTrigger>
-            <TooltipContent>
-              <p>{keyword.description}</p>
+            <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal">
+              <p className="text-sm leading-relaxed">{characteristicDefinitions[keyword.name] || keyword.description}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
