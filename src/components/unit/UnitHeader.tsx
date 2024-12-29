@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Unit } from "@/types/army";
+import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
 
 interface UnitHeaderProps {
   unit: Unit;
@@ -92,6 +93,7 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
             </DialogContent>
           </Dialog>
         </div>
+        <CharacteristicsSection keywords={unit.keywords} />
       </div>
     </div>
   );

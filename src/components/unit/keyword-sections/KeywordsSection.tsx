@@ -6,19 +6,24 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
+import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
 }
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
-  if (keywords.length === 0) return null;
+  const filteredKeywords = keywords.filter(k => 
+    !Object.keys(characteristicDefinitions).includes(k.name)
+  );
+
+  if (filteredKeywords.length === 0) return null;
 
   return (
     <div className="space-y-1">
       <span className="text-xs text-warcrow-muted">Keywords:</span>
       <div className="flex flex-wrap gap-1">
-        {keywords.map((keyword) => (
+        {filteredKeywords.map((keyword) => (
           <TooltipProvider key={keyword.name}>
             <Tooltip>
               <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background border border-warcrow-gold">
