@@ -2,11 +2,22 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showGuestDialog, setShowGuestDialog] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -19,6 +30,11 @@ const Login = () => {
   }, [navigate]);
 
   const handleGuestAccess = () => {
+    setShowGuestDialog(true);
+  };
+
+  const confirmGuestAccess = () => {
+    setShowGuestDialog(false);
     navigate('/builder');
   };
 
@@ -62,6 +78,21 @@ const Login = () => {
           providers={[]}
         />
       </div>
+
+      <AlertDialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Guest Access</AlertDialogTitle>
+            <AlertDialogDescription>
+              While using the app as a guest, some features like saving army lists and cloud synchronization will be disabled. Sign in to access all features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmGuestAccess}>Continue as Guest</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
