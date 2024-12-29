@@ -14,7 +14,9 @@ interface CharacteristicsSectionProps {
 const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
   // Show characteristics (Infantry, Character, races, etc.)
   const characteristics = keywords.filter(k => 
-    ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous"].includes(k.name)
+    ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
+     "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
+     "Construct", "Undead", "Mounted"].includes(k.name)
   );
 
   if (characteristics.length === 0) return null;

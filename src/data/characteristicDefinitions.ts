@@ -10,5 +10,9 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Nemorous": "Connected to the primal forces of nature.",
   "Companion": "A unit that must be assigned to a specific character or unit type.",
   "Character": "A unique individual that can lead other units or act independently.",
-  "High Command": "Senior leaders with significant command authority."
+  "High Command": "Senior leaders with significant command authority.",
+  "Beast": "A creature or animal, often wild or trained for combat.",
+  "Construct": "An artificial being or mechanical creation.",
+  "Undead": "Reanimated beings or spirits from beyond the grave.",
+  "Mounted": "Units that ride upon mounts such as horses or other creatures."
 };
