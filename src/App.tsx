@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -51,11 +51,22 @@ function App() {
       <TooltipProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/builder" element={<Index />} />
+            <Route 
+              path="/" 
+              element={isAuthenticated ? <Landing /> : <Navigate to="/login" replace />} 
+            />
+            <Route 
+              path="/builder" 
+              element={<Index />} 
+            />
             <Route 
               path="/login" 
-              element={!isAuthenticated ? <Login /> : <Landing />} 
+              element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+            />
+            {/* Catch all route - redirect to login if not authenticated, home if authenticated */}
+            <Route 
+              path="*" 
+              element={isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/login" replace />} 
             />
           </Routes>
           <Toaster />
