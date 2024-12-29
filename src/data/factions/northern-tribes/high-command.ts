@@ -27,9 +27,9 @@ export const northernTribesHighCommand: Unit[] = [
     faction: "northern-tribes",
     command: 2,
     keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "High Command", description: "This unit is part of the High Command" },
-      { name: "Varank", description: "This unit has the Varank keyword" },
+      { name: "Character", description: "Character unit type" },
+      { name: "High Command", description: "High Command unit" },
+      { name: "Varank", description: "Varank race" },
       { name: "Beserker Rage", description: "Has Beserker Rage" },
       { name: "Dispel", description: "Can dispel magic" },
       { name: "Elite", description: "Elite unit" },
@@ -47,9 +47,9 @@ export const northernTribesHighCommand: Unit[] = [
     faction: "northern-tribes",
     command: 3,
     keywords: [
-      { name: "Character", description: "This unit is a character" },
-      { name: "High Command", description: "This unit is part of the High Command" },
-      { name: "Orc", description: "This unit has the Orc keyword" },
+      { name: "Character", description: "Character unit type" },
+      { name: "High Command", description: "High Command unit" },
+      { name: "Orc", description: "Orc race" },
       { name: "Elite", description: "Elite unit" },
       { 
         name: "Join (Infantry, Orc | Infantry, Varank)", 
