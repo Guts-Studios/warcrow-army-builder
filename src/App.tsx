@@ -2,9 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -24,6 +25,14 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
+      if (!session) {
+        toast.warning(
+          "You are in offline mode. Cloud features like saving lists will not be available.",
+          {
+            duration: 5000,
+          }
+        );
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -43,13 +52,10 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route 
-              path="/builder" 
-              element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-            />
+            <Route path="/builder" element={<Index />} />
             <Route 
               path="/login" 
-              element={!isAuthenticated ? <Login /> : <Navigate to="/builder" />} 
+              element={!isAuthenticated ? <Login /> : <Landing />} 
             />
           </Routes>
           <Toaster />
