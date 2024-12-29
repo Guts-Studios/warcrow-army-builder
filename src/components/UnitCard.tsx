@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Minus, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
@@ -33,15 +33,25 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
   const KeywordsContent = () => (
     <div className="space-y-4">
-      <UnitKeywords unit={unit} />
+      <UnitKeywords keywords={unit.keywords} specialRules={unit.specialRules} />
     </div>
   );
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <UnitHeader unit={unit} />
-        <UnitControls quantity={quantity} onAdd={onAdd} onRemove={onRemove} />
+        <UnitHeader 
+          unit={unit} 
+          mainName={unit.name}
+          portraitUrl={unit.imageUrl}
+        />
+        <UnitControls 
+          quantity={quantity} 
+          onAdd={onAdd} 
+          onRemove={onRemove}
+          availability={unit.availability}
+          pointsCost={unit.pointsCost}
+        />
       </div>
 
       {/* Desktop View */}
