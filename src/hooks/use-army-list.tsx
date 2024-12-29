@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/components/ui/use-toast";
 import { validateHighCommandAddition } from "@/utils/armyValidation";
@@ -13,7 +13,11 @@ export const useArmyList = (selectedFaction: string) => {
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
 
-  const factionUnits = units.filter((unit) => unit.faction === selectedFaction);
+  // Memoize faction units to prevent unnecessary filtering
+  const factionUnits = useMemo(() => 
+    units.filter((unit) => unit.faction === selectedFaction),
+    [selectedFaction]
+  );
 
   useEffect(() => {
     const lists = localStorage.getItem("armyLists");
@@ -22,7 +26,7 @@ export const useArmyList = (selectedFaction: string) => {
     }
   }, []);
 
-  const handleAdd = (unitId: string) => {
+  const handleAdd = useCallback((unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
     if (!unit) return;
 
@@ -45,9 +49,9 @@ export const useArmyList = (selectedFaction: string) => {
       }
       return [...prev, { ...unit, quantity: 1 }];
     });
-  };
+  }, [factionUnits, selectedUnits]);
 
-  const handleRemove = (unitId: string) => {
+  const handleRemove = useCallback((unitId: string) => {
     setQuantities((prev) => ({
       ...prev,
       [unitId]: Math.max((prev[unitId] || 0) - 1, 0),
@@ -59,9 +63,9 @@ export const useArmyList = (selectedFaction: string) => {
       );
       return updatedUnits.filter((u) => u.quantity > 0);
     });
-  };
+  }, []);
 
-  const handleNewList = () => {
+  const handleNewList = useCallback(() => {
     setQuantities({});
     setSelectedUnits([]);
     setListName("");
@@ -70,9 +74,9 @@ export const useArmyList = (selectedFaction: string) => {
       title: "New List Created",
       description: "Started a new empty list",
     });
-  };
+  }, [toast]);
 
-  const handleSaveList = () => {
+  const handleSaveList = useCallback(() => {
     const nameToUse = currentListName || listName;
 
     if (!nameToUse.trim() || nameToUse === "New List") {
@@ -103,9 +107,9 @@ export const useArmyList = (selectedFaction: string) => {
       description: "Army list saved successfully",
     });
     setListName("");
-  };
+  }, [currentListName, listName, selectedFaction, selectedUnits, savedLists, toast]);
 
-  const handleLoadList = (list: SavedList) => {
+  const handleLoadList = useCallback((list: SavedList) => {
     setSelectedUnits(list.units);
     const newQuantities: Record<string, number> = {};
     list.units.forEach((unit) => {
@@ -118,7 +122,7 @@ export const useArmyList = (selectedFaction: string) => {
       title: "Success",
       description: `Loaded army list: ${list.name}`,
     });
-  };
+  }, [toast]);
 
   return {
     quantities,
