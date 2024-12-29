@@ -33,8 +33,8 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               <TooltipTrigger className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text">
                 {keyword.name}
               </TooltipTrigger>
-              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
-                <p>{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
+              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal">
+                <p className="text-sm leading-relaxed">{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
