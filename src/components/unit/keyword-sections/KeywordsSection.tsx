@@ -24,16 +24,16 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   };
 
   return (
-    <div className="space-y-1">
-      <span className="text-xs text-warcrow-muted">Keywords:</span>
-      <div className="flex flex-wrap gap-1">
+    <div className="space-y-2">
+      <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
+      <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => (
           <TooltipProvider key={keyword.name}>
             <Tooltip>
-              <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background border border-warcrow-gold">
+              <TooltipTrigger className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text">
                 {keyword.name}
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
                 <p>{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
               </TooltipContent>
             </Tooltip>

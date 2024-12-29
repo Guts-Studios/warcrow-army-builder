@@ -18,16 +18,16 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   };
 
   return (
-    <div className="space-y-1">
-      <span className="text-xs text-warcrow-muted">Special Rules:</span>
-      <div className="flex flex-wrap gap-1">
+    <div className="space-y-2">
+      <span className="text-xs font-semibold text-warcrow-text">Special Rules:</span>
+      <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => (
           <TooltipProvider key={rule}>
             <Tooltip>
-              <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold">
+              <TooltipTrigger className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text">
                 {rule}
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
                 <p>{specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon"}</p>
               </TooltipContent>
             </Tooltip>
