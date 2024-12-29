@@ -3,6 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,6 +26,21 @@ const Login = () => {
           alt="Warcrow Logo" 
           className="h-24 mx-auto mb-8"
         />
+        <div className="mb-6 flex justify-center space-x-4">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+          >
+            Back to Home
+          </Button>
+          <Button
+            onClick={() => navigate('/builder')}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            Continue as Guest
+          </Button>
+        </div>
         <Auth
           supabaseClient={supabase}
           appearance={{
