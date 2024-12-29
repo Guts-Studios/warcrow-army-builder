@@ -60,6 +60,7 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
               onNewList={handleNewList}
               savedLists={savedLists}
               selectedFaction={selectedFaction}
+              selectedUnits={selectedUnits}
             />
           </div>
           
