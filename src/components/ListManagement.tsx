@@ -24,6 +24,7 @@ interface ListManagementProps {
   onNewList: () => void;
   savedLists: SavedList[];
   selectedFaction: string;
+  selectedUnits: any[]; // Using any[] for now since we don't have the type
 }
 
 const ListManagement = ({
@@ -35,6 +36,7 @@ const ListManagement = ({
   onNewList,
   savedLists,
   selectedFaction,
+  selectedUnits,
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
 
@@ -53,6 +55,8 @@ const ListManagement = ({
           listName={listName}
           onListNameChange={onListNameChange}
           onSaveList={onSaveList}
+          selectedUnits={selectedUnits}
+          selectedFaction={selectedFaction}
         />
         <CurrentListDisplay currentListName={currentListName} />
       </div>
@@ -65,6 +69,8 @@ const ListManagement = ({
             listName={listName}
             onListNameChange={onListNameChange}
             onSaveList={onSaveList}
+            selectedUnits={selectedUnits}
+            selectedFaction={selectedFaction}
           />
           <div className="mt-2">
             <CurrentListDisplay currentListName={currentListName} />
