@@ -1,5 +1,4 @@
 import { Keyword } from "@/types/army";
-import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
 import KeywordsSection from "./keyword-sections/KeywordsSection";
 import SpecialRulesSection from "./keyword-sections/SpecialRulesSection";
 
@@ -11,7 +10,6 @@ interface UnitKeywordsProps {
 const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
   return (
     <div className="space-y-2">
-      <CharacteristicsSection keywords={keywords} />
       <KeywordsSection keywords={keywords} />
       <SpecialRulesSection specialRules={specialRules} />
     </div>
