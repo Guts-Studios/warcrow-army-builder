@@ -62,7 +62,7 @@ export const northernTribesCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Varank", description: "Varank race" },
-      { name: "Beserker Rage", description: "Has Beserker Rage" },
+      { name: "Berserker Rage", description: "Has Berserker Rage" },
       { name: "Fearless", description: "Has the Fearless ability" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
@@ -131,7 +131,7 @@ export const northernTribesCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Varank", description: "Varank race" },
-      { name: "Beserker Rage", description: "Has Beserker Rage" },
+      { name: "Berserker Rage", description: "Has Berserker Rage" },
       { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
     ],
     specialRules: ["Frightened", "Raging", "Fearless"],
