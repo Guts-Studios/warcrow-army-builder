@@ -38,6 +38,13 @@ const Landing = () => {
           >
             Sign Out
           </Button>
+          <Button
+            onClick={() => window.open('https://www.patreon.com/warcrowarmybuilder', '_blank')}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+          >
+            Support on Patreon
+          </Button>
         </div>
       </div>
     </div>
