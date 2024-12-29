@@ -5,16 +5,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
 }
 
 const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
-  const characteristics = keywords.filter(k => 
-    Object.keys(characteristicDefinitions).includes(k.name)
-  );
+  // Show all characteristics that have descriptions
+  const characteristics = keywords.filter(k => k.description);
 
   if (characteristics.length === 0) return null;
 
@@ -27,7 +25,7 @@ const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
               {keyword.name}
             </TooltipTrigger>
             <TooltipContent>
-              <p>{characteristicDefinitions[keyword.name] || keyword.description}</p>
+              <p>{keyword.description}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

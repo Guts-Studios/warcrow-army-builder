@@ -6,16 +6,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
-import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
 }
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
-  const filteredKeywords = keywords.filter(k => 
-    !Object.keys(characteristicDefinitions).includes(k.name)
-  );
+  // Show keywords that don't have descriptions (non-characteristics)
+  const filteredKeywords = keywords.filter(k => !k.description);
 
   if (filteredKeywords.length === 0) return null;
 
