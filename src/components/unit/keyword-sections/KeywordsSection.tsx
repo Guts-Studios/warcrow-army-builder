@@ -12,8 +12,10 @@ interface KeywordsSectionProps {
 }
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
-  // Show keywords that don't have descriptions (non-characteristics)
-  const filteredKeywords = keywords.filter(k => !k.description);
+  // Show all keywords except characteristics
+  const filteredKeywords = keywords.filter(k => 
+    !["Infantry", "Character", "Companion", "Colossal Company"].includes(k.name)
+  );
 
   if (filteredKeywords.length === 0) return null;
 

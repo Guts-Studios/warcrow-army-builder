@@ -11,8 +11,10 @@ interface CharacteristicsSectionProps {
 }
 
 const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
-  // Show all characteristics that have descriptions
-  const characteristics = keywords.filter(k => k.description);
+  // Show characteristics (Infantry, Character, etc.)
+  const characteristics = keywords.filter(k => 
+    ["Infantry", "Character", "Companion", "Colossal Company"].includes(k.name)
+  );
 
   if (characteristics.length === 0) return null;
 
