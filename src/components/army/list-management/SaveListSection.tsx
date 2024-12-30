@@ -14,7 +14,7 @@ interface SaveListSectionProps {
   listName: string;
   onListNameChange: (name: string) => void;
   onSaveList: () => void;
-  selectedUnits: any[]; // Using any[] for now since we don't have the type
+  selectedUnits: any[];
   selectedFaction: string;
 }
 
@@ -58,13 +58,19 @@ const SaveListSection = ({
   };
 
   return (
-    <div className="flex items-center gap-4 w-full">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full">
+      <Input
+        placeholder="Enter list name"
+        value={listName}
+        onChange={(e) => onListNameChange(e.target.value)}
+        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold order-1 md:order-3"
+      />
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               onClick={onSaveList}
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap"
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-2 md:order-1"
             >
               <Save className="h-4 w-4 mr-2" />
               Save List Locally
@@ -83,7 +89,7 @@ const SaveListSection = ({
           <TooltipTrigger asChild>
             <Button
               onClick={handleCloudSave}
-              className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
               disabled={!supabase.auth.getUser()}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
@@ -98,12 +104,6 @@ const SaveListSection = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <Input
-        placeholder="Enter list name"
-        value={listName}
-        onChange={(e) => onListNameChange(e.target.value)}
-        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold"
-      />
     </div>
   );
 };
