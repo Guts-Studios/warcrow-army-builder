@@ -45,11 +45,15 @@ const Index = () => {
             onFactionChange={setSelectedFaction}
           />
         </div>
-        <footer className="fixed bottom-0 left-0 right-0 bg-warcrow-background/90 backdrop-blur-sm p-4 text-center text-xs text-warcrow-text/60">
+        <footer className="fixed bottom-0 left-0 right-0 bg-warcrow-background/90 backdrop-blur-sm p-4 text-center text-xs text-warcrow-text/60 space-y-2">
           <p className="max-w-2xl mx-auto">
             WARCROW and all associated marks, logos, places, names, creatures, races and race insignia/devices/logos/symbols, 
             vehicles, locations, weapons, units, characters, products, illustrations and images are either ® or ™, and/or © 
             Corvus Belli S.L.L. This is a fan-made application and is not officially endorsed by or affiliated with Corvus Belli S.L.L.
+          </p>
+          <p className="max-w-2xl mx-auto">
+            Privacy Notice: We respect your privacy and will never sell or share your personal data with third parties unless 
+            required by law. Any data collected is used solely for the purpose of providing and improving the army builder service.
           </p>
         </footer>
         <Toaster />
