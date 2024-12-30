@@ -26,7 +26,7 @@ const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
       {characteristics.map((keyword) => (
         <TooltipProvider key={keyword.name}>
           <Tooltip>
-            <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50">
+            <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text">
               {keyword.name}
             </TooltipTrigger>
             <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal">
