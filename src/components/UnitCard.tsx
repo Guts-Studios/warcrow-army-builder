@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
@@ -15,7 +14,6 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const [isKeywordsOpen, setIsKeywordsOpen] = useState(false);
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-4">
@@ -37,8 +35,6 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       <UnitCardKeywords 
         unit={unit}
         isMobile={isMobile}
-        isKeywordsOpen={isKeywordsOpen}
-        setIsKeywordsOpen={setIsKeywordsOpen}
       />
 
       <UnitCardImage unit={unit} />
