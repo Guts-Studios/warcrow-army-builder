@@ -6,8 +6,8 @@ interface AvatarPortraitProps {
 }
 
 const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
-  // Convert card URL to portrait URL by changing the directory
-  const portraitImageUrl = portraitUrl?.replace('/card/', '/portrait/');
+  // Convert card URL to portrait URL by changing both the directory and removing _card suffix
+  const portraitImageUrl = portraitUrl?.replace('/card/', '/portrait/')?.replace('_card.jpg', '.jpg');
   
   // Debug log to see the actual path
   console.log('Portrait path:', {
