@@ -11,7 +11,7 @@ interface UnitControlsProps {
 
 const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: UnitControlsProps) => {
   return (
-    <div className="flex items-center justify-between mt-2">
+    <div className="flex items-center justify-end mt-2">
       <div className="flex items-center space-x-2">
         <Button
           variant="outline"
@@ -35,9 +35,6 @@ const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: U
           <Plus className="h-3 w-3" />
         </Button>
       </div>
-      <span className="text-warcrow-muted text-xs">
-        Total: {pointsCost * quantity} pts
-      </span>
     </div>
   );
 };
