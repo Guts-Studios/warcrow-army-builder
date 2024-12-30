@@ -6,10 +6,8 @@ interface AvatarPortraitProps {
 }
 
 const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
-  // Get the base URL without the file extension
-  const baseUrl = portraitUrl?.replace('_card.jpg', '');
-  // Add the portrait suffix
-  const portraitImageUrl = baseUrl ? `${baseUrl}_portrait.jpg` : undefined;
+  // Convert card URL to portrait URL directly
+  const portraitImageUrl = portraitUrl?.replace('_card.jpg', '_portrait.jpg');
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
