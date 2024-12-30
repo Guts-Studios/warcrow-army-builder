@@ -24,10 +24,13 @@ interface UnitHeaderProps {
 }
 
 const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) => {
+  // Convert card URL to portrait URL
+  const portraitImageUrl = portraitUrl?.replace('_card.jpg', '_portrait.jpg');
+
   return (
     <div className="flex items-center gap-2">
       <Avatar className="h-8 w-8">
-        <AvatarImage src={portraitUrl} alt={mainName} />
+        <AvatarImage src={portraitImageUrl} alt={mainName} />
         <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
           {mainName.split(' ').map(word => word[0]).join('')}
         </AvatarFallback>
