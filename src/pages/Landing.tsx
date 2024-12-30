@@ -47,6 +47,13 @@ const Landing = () => {
           </Button>
         </div>
       </div>
+      <footer className="absolute bottom-4 text-center text-sm text-warcrow-text/60 max-w-2xl px-4">
+        <p>
+          WARCROW and all associated marks, logos, places, names, creatures, races and race insignia/devices/logos/symbols, 
+          vehicles, locations, weapons, units, characters, products, illustrations and images are either ® or ™, and/or © 
+          Corvus Belli S.L.L. This is a fan-made application and is not officially endorsed by or affiliated with Corvus Belli S.L.L.
+        </p>
+      </footer>
     </div>
   );
 };
