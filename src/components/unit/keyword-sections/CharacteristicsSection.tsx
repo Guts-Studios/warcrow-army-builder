@@ -9,9 +9,10 @@ import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
+  highCommand?: boolean;
 }
 
-const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
+const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   // Show characteristics (Infantry, Character, races, etc.)
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -19,10 +20,15 @@ const CharacteristicsSection = ({ keywords }: CharacteristicsSectionProps) => {
      "Construct", "Undead", "Mounted"].includes(k.name)
   );
 
-  if (characteristics.length === 0) return null;
+  if (characteristics.length === 0 && !highCommand) return null;
 
   return (
     <div className="flex flex-wrap gap-1">
+      {highCommand && (
+        <span className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black">
+          High Command
+        </span>
+      )}
       {characteristics.map((keyword) => (
         <TooltipProvider key={keyword.name}>
           <Tooltip>

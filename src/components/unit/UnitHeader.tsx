@@ -18,9 +18,11 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
         <UnitTitle 
           mainName={mainName}
           subtitle={subtitle}
+        />
+        <CharacteristicsSection 
+          keywords={unit.keywords}
           highCommand={unit.highCommand}
         />
-        <CharacteristicsSection keywords={unit.keywords} />
       </div>
     </div>
   );
