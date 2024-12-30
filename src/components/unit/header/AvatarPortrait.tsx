@@ -6,11 +6,13 @@ interface AvatarPortraitProps {
 }
 
 const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
-  // Use the portrait URL directly if it exists
+  // Convert card URL to portrait URL
+  const portraitImageUrl = portraitUrl?.replace('_card.jpg', '_portrait.jpg');
+
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
       <AvatarImage 
-        src={portraitUrl} 
+        src={portraitImageUrl} 
         alt={name} 
         className="object-cover"
       />
