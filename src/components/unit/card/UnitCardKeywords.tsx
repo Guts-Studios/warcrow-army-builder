@@ -1,5 +1,19 @@
 import { Unit } from "@/types/army";
 import UnitKeywords from "../UnitKeywords";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface UnitCardKeywordsProps {
   unit: Unit;
