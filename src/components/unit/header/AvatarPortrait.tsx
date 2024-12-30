@@ -8,6 +8,12 @@ interface AvatarPortraitProps {
 const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
   // Convert card URL to portrait URL by changing the directory
   const portraitImageUrl = portraitUrl?.replace('/card/', '/portrait/');
+  
+  // Debug log to see the actual path
+  console.log('Portrait path:', {
+    originalUrl: portraitUrl,
+    convertedUrl: portraitImageUrl
+  });
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
