@@ -6,8 +6,8 @@ interface AvatarPortraitProps {
 }
 
 const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
-  // Use the same direct path method as art cards
-  const portraitImageUrl = portraitUrl?.replace('_card.jpg', '_portrait.jpg');
+  // Convert card URL to portrait URL by changing the directory
+  const portraitImageUrl = portraitUrl?.replace('/card/', '/portrait/');
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
