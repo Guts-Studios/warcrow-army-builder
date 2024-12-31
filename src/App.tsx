@@ -68,6 +68,10 @@ function App() {
         <Router>
           <Routes>
             <Route 
+              path="/login" 
+              element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+            />
+            <Route 
               path="/" 
               element={
                 isPreview ? (
@@ -79,21 +83,17 @@ function App() {
             />
             <Route 
               path="/builder" 
-              element={<Index />} 
-            />
-            <Route 
-              path="/login" 
-              element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+              element={
+                isPreview ? (
+                  <Index />
+                ) : (
+                  isAuthenticated ? <Index /> : <Navigate to="/login" replace />
+                )
+              } 
             />
             <Route 
               path="*" 
-              element={
-                isPreview ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/login" replace />
-                )
-              } 
+              element={<Navigate to="/" replace />} 
             />
           </Routes>
           <Toaster />
