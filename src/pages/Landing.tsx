@@ -11,7 +11,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <img 
           src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
@@ -64,8 +64,8 @@ const Landing = () => {
           </a>
         </div>
       </div>
-      <footer className="absolute bottom-4 text-center text-xs md:text-sm text-warcrow-text/60 max-w-md md:max-w-2xl px-4">
-        <p>
+      <footer className="fixed bottom-0 left-0 right-0 bg-warcrow-background/95 text-center text-xs md:text-sm text-warcrow-text/60 p-4">
+        <p className="max-w-md md:max-w-2xl mx-auto">
           WARCROW and all associated marks, logos, places, names, creatures, races and race insignia/devices/logos/symbols, 
           vehicles, locations, weapons, units, characters, products, illustrations and images are either ® or ™, and/or © 
           Corvus Belli S.L.L. This is a fan-made application and is not officially endorsed by or affiliated with Corvus Belli S.L.L.
