@@ -32,6 +32,13 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </TooltipTrigger>
             <TooltipContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+              onPointerDownOutside={(e) => {
+                e.preventDefault();
+                const target = e.target as HTMLElement;
+                if (!target.closest('[role="dialog"]')) {
+                  (e.currentTarget as HTMLElement).click();
+                }
+              }}
             >
               <p className="text-sm leading-relaxed">{characteristicDefinitions["High Command"]}</p>
             </TooltipContent>
@@ -46,6 +53,13 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </TooltipTrigger>
             <TooltipContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+              onPointerDownOutside={(e) => {
+                e.preventDefault();
+                const target = e.target as HTMLElement;
+                if (!target.closest('[role="dialog"]')) {
+                  (e.currentTarget as HTMLElement).click();
+                }
+              }}
             >
               <p className="text-sm leading-relaxed">{characteristicDefinitions[keyword.name] || keyword.description}</p>
             </TooltipContent>

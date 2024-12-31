@@ -29,6 +29,13 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
+                onPointerDownOutside={(e) => {
+                  e.preventDefault();
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('[role="dialog"]')) {
+                    (e.currentTarget as HTMLElement).click();
+                  }
+                }}
               >
                 <p className="text-sm leading-relaxed">{specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon"}</p>
               </TooltipContent>
