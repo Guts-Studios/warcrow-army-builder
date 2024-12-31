@@ -67,7 +67,7 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          className="bg-[#1A1F2C] border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-[#1A1F2C] transition-colors"
         >
           <FileText className="h-4 w-4 mr-2" />
           Export to Text
@@ -75,7 +75,7 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
       </DialogTrigger>
       <DialogContent className="bg-warcrow-background border-warcrow-accent">
         <DialogHeader>
-          <DialogTitle className="text-warcrow-gold">Export Army List</DialogTitle>
+          <DialogTitle className="text-[#9b87f5]">Export Army List</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
           <pre className="whitespace-pre-wrap bg-warcrow-accent p-4 rounded-lg text-warcrow-text font-mono text-sm">
@@ -83,7 +83,7 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
           </pre>
           <Button
             onClick={handleCopy}
-            className="mt-4 bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+            className="mt-4 bg-[#9b87f5] hover:bg-[#7E69AB] text-[#1A1F2C]"
           >
             <Copy className="h-4 w-4 mr-2" />
             Copy to Clipboard

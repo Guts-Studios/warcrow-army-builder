@@ -18,7 +18,7 @@ const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: U
           size="icon"
           onClick={onRemove}
           disabled={quantity === 0}
-          className="h-7 w-7 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
+          className="h-7 w-7 bg-[#1A1F2C] border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-[#1A1F2C] disabled:opacity-50 disabled:hover:bg-[#1A1F2C] disabled:hover:text-[#9b87f5]"
         >
           <Minus className="h-3 w-3" />
         </Button>
@@ -30,7 +30,7 @@ const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: U
           size="icon"
           onClick={onAdd}
           disabled={quantity >= availability}
-          className="h-7 w-7 bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50 disabled:hover:bg-warcrow-background disabled:hover:text-warcrow-gold"
+          className="h-7 w-7 bg-[#1A1F2C] border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-[#1A1F2C] disabled:opacity-50 disabled:hover:bg-[#1A1F2C] disabled:hover:text-[#9b87f5]"
         >
           <Plus className="h-3 w-3" />
         </Button>
