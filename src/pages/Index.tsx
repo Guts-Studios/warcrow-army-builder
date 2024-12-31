@@ -25,7 +25,7 @@ const Index = () => {
             <img 
               src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
               alt="Warcrow Logo" 
-              className="h-[19.2px] md:h-[28.8px] mx-auto" // Increased by 20% from original 16px/24px
+              className="h-29 md:h-43 mx-auto"
             />
             <div className="hidden md:block w-[100px]" /> {/* Spacer to maintain centering on desktop */}
           </div>
