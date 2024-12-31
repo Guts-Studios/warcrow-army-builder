@@ -21,6 +21,7 @@ const Landing = () => {
         <h1 className="text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder
         </h1>
+        <div className="text-warcrow-gold/80 text-sm">Version 0.2.6</div>
         <p className="text-xl text-warcrow-text max-w-2xl mx-auto">
           Create and manage your Warcrow army lists with ease.
         </p>
