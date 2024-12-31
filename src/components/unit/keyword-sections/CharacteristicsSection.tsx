@@ -26,13 +26,12 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
     <div className="flex flex-wrap gap-1">
       {highCommand && (
         <TooltipProvider>
-          <Tooltip defaultOpen={false}>
+          <Tooltip>
             <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black">
               High Command
             </TooltipTrigger>
             <TooltipContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
-              forceMount
             >
               <p className="text-sm leading-relaxed">{characteristicDefinitions["High Command"]}</p>
             </TooltipContent>
@@ -41,13 +40,12 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
       )}
       {characteristics.map((keyword) => (
         <TooltipProvider key={keyword.name}>
-          <Tooltip defaultOpen={false}>
+          <Tooltip>
             <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text">
               {keyword.name}
             </TooltipTrigger>
             <TooltipContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
-              forceMount
             >
               <p className="text-sm leading-relaxed">{characteristicDefinitions[keyword.name] || keyword.description}</p>
             </TooltipContent>
