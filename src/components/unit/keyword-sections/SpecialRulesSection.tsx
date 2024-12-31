@@ -67,14 +67,15 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               </DialogTrigger>
               <DialogContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                aria-describedby={`rule-description-${rule}`}
               >
-                <div className="pt-6">
+                <div className="pt-6" id={`rule-description-${rule}`}>
                   <RuleContent rule={rule} />
                 </div>
               </DialogContent>
             </Dialog>
           ) : (
-            <TooltipProvider key={rule} delayDuration={0}>
+            <TooltipProvider key={rule}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <RuleButton rule={rule} />

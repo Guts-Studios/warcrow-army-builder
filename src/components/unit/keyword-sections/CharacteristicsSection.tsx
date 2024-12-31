@@ -65,8 +65,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </DialogTrigger>
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+              aria-describedby="high-command-description"
             >
-              <div className="pt-6">
+              <div className="pt-6" id="high-command-description">
                 <CharacteristicContent text="High Command" />
               </div>
             </DialogContent>
@@ -107,8 +108,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </DialogTrigger>
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+              aria-describedby={`characteristic-description-${keyword.name}`}
             >
-              <div className="pt-6">
+              <div className="pt-6" id={`characteristic-description-${keyword.name}`}>
                 <CharacteristicContent text={keyword.name} />
               </div>
             </DialogContent>

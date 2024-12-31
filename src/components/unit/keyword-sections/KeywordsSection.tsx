@@ -74,8 +74,9 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               </DialogTrigger>
               <DialogContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                aria-describedby={`keyword-description-${keyword.name}`}
               >
-                <div className="pt-6">
+                <div className="pt-6" id={`keyword-description-${keyword.name}`}>
                   <KeywordContent keyword={keyword} />
                 </div>
               </DialogContent>
