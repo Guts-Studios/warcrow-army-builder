@@ -27,9 +27,9 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     return 0;
   });
 
-  // Calculate total command points
-  const totalCommandPoints = selectedUnits.reduce((total, unit) => {
-    return total + (unit.highCommand ? unit.quantity : 0);
+  // Calculate total points
+  const totalPoints = selectedUnits.reduce((total, unit) => {
+    return total + (unit.pointsCost * unit.quantity);
   }, 0);
 
   return (
@@ -101,7 +101,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
       ) : (
         <div className="flex justify-end pt-2">
           <span className="text-warcrow-gold">
-            Total Command: {totalCommandPoints}
+            Total Points: {totalPoints}
           </span>
         </div>
       )}
