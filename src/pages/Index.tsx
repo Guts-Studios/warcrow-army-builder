@@ -14,20 +14,20 @@ const Index = () => {
     <TooltipProvider>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col relative overflow-x-hidden">
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
             <Button
               onClick={() => navigate('/')}
               variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+              className="w-fit border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
             >
               Back to Home
             </Button>
             <img 
               src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
               alt="Warcrow Logo" 
-              className="h-24"
+              className="h-16 md:h-24 mx-auto"
             />
-            <div className="w-[100px]" /> {/* Spacer to maintain centering */}
+            <div className="hidden md:block w-[100px]" /> {/* Spacer to maintain centering on desktop */}
           </div>
           <div className="flex flex-col items-center mb-8">
             <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
