@@ -63,14 +63,14 @@ const SaveListSection = ({
         placeholder="Enter list name"
         value={listName}
         onChange={(e) => onListNameChange(e.target.value)}
-        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-[#9b87f5] order-1 md:order-3"
+        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold order-1 md:order-3"
       />
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               onClick={onSaveList}
-              className="bg-[#9b87f5] hover:bg-[#7E69AB] text-[#1A1F2C] whitespace-nowrap order-2 md:order-1"
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-2 md:order-1"
             >
               <Save className="h-4 w-4 mr-2" />
               Save List Locally
@@ -89,7 +89,7 @@ const SaveListSection = ({
           <TooltipTrigger asChild>
             <Button
               onClick={handleCloudSave}
-              className="bg-[#8B5CF6] hover:bg-[#6E59A5] text-[#1A1F2C] whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
+              className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
               disabled={!supabase.auth.getUser()}
             >
               <CloudUpload className="h-4 w-4 mr-2" />

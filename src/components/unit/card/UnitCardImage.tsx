@@ -19,7 +19,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
         <Button
           variant="ghost"
           size="icon"
-          className="w-full border border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-[#1A1F2C]"
+          className="w-full border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
         >
           <Eye className="h-4 w-4 mr-2" />
           View Card
