@@ -19,7 +19,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const isMobile = useIsMobile();
   const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
 
-  // Show characteristics (Infantry, Character, races, etc.)
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
      "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
@@ -64,9 +63,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </DialogTrigger>
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-              onPointerDownOutside={(e) => {
-                e.preventDefault();
-              }}
             >
               <CharacteristicContent text="High Command" />
             </DialogContent>
@@ -82,13 +78,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
-                onPointerDownOutside={(e) => {
-                  e.preventDefault();
-                  const target = e.target as HTMLElement;
-                  if (!target.closest('[role="dialog"]')) {
-                    (e.currentTarget as HTMLElement).click();
-                  }
-                }}
               >
                 <CharacteristicContent text="High Command" />
               </TooltipContent>
@@ -111,9 +100,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </DialogTrigger>
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-              onPointerDownOutside={(e) => {
-                e.preventDefault();
-              }}
             >
               <CharacteristicContent text={keyword.name} />
             </DialogContent>
@@ -129,13 +115,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
-                onPointerDownOutside={(e) => {
-                  e.preventDefault();
-                  const target = e.target as HTMLElement;
-                  if (!target.closest('[role="dialog"]')) {
-                    (e.currentTarget as HTMLElement).click();
-                  }
-                }}
               >
                 <CharacteristicContent text={keyword.name} />
               </TooltipContent>

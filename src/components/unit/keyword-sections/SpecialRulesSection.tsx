@@ -65,9 +65,6 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               </DialogTrigger>
               <DialogContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                onPointerDownOutside={(e) => {
-                  e.preventDefault();
-                }}
               >
                 <RuleContent rule={rule} />
               </DialogContent>
@@ -80,13 +77,6 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
                 </TooltipTrigger>
                 <TooltipContent 
                   className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
-                  onPointerDownOutside={(e) => {
-                    e.preventDefault();
-                    const target = e.target as HTMLElement;
-                    if (!target.closest('[role="dialog"]')) {
-                      (e.currentTarget as HTMLElement).click();
-                    }
-                  }}
                 >
                   <RuleContent rule={rule} />
                 </TooltipContent>
