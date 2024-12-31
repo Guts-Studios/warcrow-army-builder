@@ -31,7 +31,7 @@ const Index = () => {
           </div>
           <div className="flex flex-col items-center mb-8">
             <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
-              Build and manage your Warcrow army lists
+              Welcome to the Builder!
             </h1>
           </div>
           <div className="hidden md:block">
