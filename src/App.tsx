@@ -24,13 +24,19 @@ function App() {
   const isPreview = window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
+    // For preview mode, immediately set as authenticated
     if (isPreview) {
+      console.log('Preview mode detected, setting as authenticated');
       setIsAuthenticated(true);
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // For non-preview mode, check authentication
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
+      
       if (!session) {
         toast.warning(
           "You are in offline mode. Cloud features like saving lists will not be available.",
@@ -39,17 +45,21 @@ function App() {
           }
         );
       }
-    });
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
     });
 
     return () => subscription.unsubscribe();
   }, [isPreview]);
 
+  // Show loading state while checking authentication
   if (isAuthenticated === null && !isPreview) {
-    return null; // or a loading spinner
+    return <div>Loading...</div>;
   }
 
   return (
@@ -75,7 +85,6 @@ function App() {
               path="/login" 
               element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
             />
-            {/* Catch all route - redirect to login if not authenticated, home if authenticated */}
             <Route 
               path="*" 
               element={
