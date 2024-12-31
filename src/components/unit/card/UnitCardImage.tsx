@@ -25,13 +25,14 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
           View Card
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-2xl">
+      <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-2xl p-0">
         <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
         {unit.imageUrl ? (
           <img
             src={unit.imageUrl}
             alt={unit.name}
             className="w-full h-auto rounded-lg"
+            loading="eager"
           />
         ) : (
           <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
