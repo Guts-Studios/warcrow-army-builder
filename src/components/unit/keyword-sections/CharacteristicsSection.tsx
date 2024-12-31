@@ -6,6 +6,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { characteristicDefinitions } from "@/data/characteristicDefinitions";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
@@ -13,6 +16,9 @@ interface CharacteristicsSectionProps {
 }
 
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
+  const isMobile = useIsMobile();
+  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
+
   // Show characteristics (Infantry, Character, races, etc.)
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -22,49 +28,120 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   if (characteristics.length === 0 && !highCommand) return null;
 
+  const toggleDialog = (keyword: string) => {
+    setOpenDialogs(prev => ({
+      ...prev,
+      [keyword]: !prev[keyword]
+    }));
+  };
+
+  const CharacteristicButton = ({ text, className }: { text: string; className: string }) => (
+    <button 
+      type="button"
+      className={className}
+    >
+      {text}
+    </button>
+  );
+
+  const CharacteristicContent = ({ text }: { text: string }) => (
+    <p className="text-sm leading-relaxed">{characteristicDefinitions[text] || "Description coming soon"}</p>
+  );
+
   return (
     <div className="flex flex-wrap gap-1">
       {highCommand && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black">
-              High Command
-            </TooltipTrigger>
-            <TooltipContent 
-              className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+        isMobile ? (
+          <Dialog 
+            open={openDialogs["High Command"]}
+            onOpenChange={() => toggleDialog("High Command")}
+          >
+            <DialogTrigger asChild>
+              <CharacteristicButton 
+                text="High Command"
+                className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
+              />
+            </DialogTrigger>
+            <DialogContent 
+              className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
               onPointerDownOutside={(e) => {
                 e.preventDefault();
-                const target = e.target as HTMLElement;
-                if (!target.closest('[role="dialog"]')) {
-                  (e.currentTarget as HTMLElement).click();
-                }
               }}
             >
-              <p className="text-sm leading-relaxed">{characteristicDefinitions["High Command"]}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              <CharacteristicContent text="High Command" />
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CharacteristicButton 
+                  text="High Command"
+                  className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
+                />
+              </TooltipTrigger>
+              <TooltipContent 
+                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+                onPointerDownOutside={(e) => {
+                  e.preventDefault();
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('[role="dialog"]')) {
+                    (e.currentTarget as HTMLElement).click();
+                  }
+                }}
+              >
+                <CharacteristicContent text="High Command" />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
       )}
       {characteristics.map((keyword) => (
-        <TooltipProvider key={keyword.name}>
-          <Tooltip>
-            <TooltipTrigger className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text">
-              {keyword.name}
-            </TooltipTrigger>
-            <TooltipContent 
-              className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+        isMobile ? (
+          <Dialog 
+            key={keyword.name}
+            open={openDialogs[keyword.name]}
+            onOpenChange={() => toggleDialog(keyword.name)}
+          >
+            <DialogTrigger asChild>
+              <CharacteristicButton 
+                text={keyword.name}
+                className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
+              />
+            </DialogTrigger>
+            <DialogContent 
+              className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
               onPointerDownOutside={(e) => {
                 e.preventDefault();
-                const target = e.target as HTMLElement;
-                if (!target.closest('[role="dialog"]')) {
-                  (e.currentTarget as HTMLElement).click();
-                }
               }}
             >
-              <p className="text-sm leading-relaxed">{characteristicDefinitions[keyword.name] || keyword.description}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              <CharacteristicContent text={keyword.name} />
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <TooltipProvider key={keyword.name}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CharacteristicButton 
+                  text={keyword.name}
+                  className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
+                />
+              </TooltipTrigger>
+              <TooltipContent 
+                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+                onPointerDownOutside={(e) => {
+                  e.preventDefault();
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('[role="dialog"]')) {
+                    (e.currentTarget as HTMLElement).click();
+                  }
+                }}
+              >
+                <CharacteristicContent text={keyword.name} />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
       ))}
     </div>
   );

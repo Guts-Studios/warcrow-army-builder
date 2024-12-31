@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 interface SpecialRulesSectionProps {
   specialRules?: string[];
@@ -18,6 +19,7 @@ interface SpecialRulesSectionProps {
 
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
+  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
 
   if (!specialRules?.length) return null;
 
@@ -40,17 +42,33 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     </p>
   );
 
+  const toggleDialog = (rule: string) => {
+    setOpenDialogs(prev => ({
+      ...prev,
+      [rule]: !prev[rule]
+    }));
+  };
+
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">Special Rules:</span>
       <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => (
           isMobile ? (
-            <Dialog key={rule}>
+            <Dialog 
+              key={rule}
+              open={openDialogs[rule]}
+              onOpenChange={() => toggleDialog(rule)}
+            >
               <DialogTrigger asChild>
                 <RuleButton rule={rule} />
               </DialogTrigger>
-              <DialogContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
+              <DialogContent 
+                className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+                onPointerDownOutside={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 <RuleContent rule={rule} />
               </DialogContent>
             </Dialog>
@@ -62,6 +80,13 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
                 </TooltipTrigger>
                 <TooltipContent 
                   className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
+                  onPointerDownOutside={(e) => {
+                    e.preventDefault();
+                    const target = e.target as HTMLElement;
+                    if (!target.closest('[role="dialog"]')) {
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                 >
                   <RuleContent rule={rule} />
                 </TooltipContent>
