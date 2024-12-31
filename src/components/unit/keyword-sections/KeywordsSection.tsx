@@ -1,4 +1,3 @@
-import { Keyword } from "@/types/army";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import {
 import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { Keyword } from "@/types/army";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
@@ -38,6 +38,12 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     <button 
       type="button"
       className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+      onClick={() => {
+        if (isMobile) {
+          console.log('Opening dialog for:', keyword.name);
+          setOpenDialog(keyword.name);
+        }
+      }}
     >
       {keyword.name}
     </button>

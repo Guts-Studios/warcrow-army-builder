@@ -31,6 +31,12 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
     <button 
       type="button"
       className={className}
+      onClick={() => {
+        if (isMobile) {
+          console.log('Opening dialog for:', text);
+          setOpenDialog(text);
+        }
+      }}
     >
       {text}
     </button>

@@ -31,6 +31,12 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     <button 
       type="button"
       className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
+      onClick={() => {
+        if (isMobile) {
+          console.log('Opening dialog for rule:', rule);
+          setOpenDialog(rule);
+        }
+      }}
     >
       {rule}
     </button>
