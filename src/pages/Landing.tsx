@@ -47,7 +47,7 @@ const Landing = () => {
             Sign Out
           </Button>
           <Button
-            onClick={() => window.open('https://www.patreon.com/warcrowarmybuilder', '_blank')}
+            onClick={() => window.open('https://www.patreon.com/c/GutzStudio', '_blank')}
             variant="outline"
             className="border-warcrow-gold text-black hover:bg-warcrow-gold hover:text-black transition-colors"
           >
