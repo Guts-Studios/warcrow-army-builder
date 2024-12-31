@@ -29,11 +29,18 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     return keyword.split('(')[0].trim();
   };
 
-  const KeywordContent = ({ keyword }: { keyword: Keyword }) => (
-    <p className="text-sm leading-relaxed">
-      {keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon"}
-    </p>
-  );
+  const KeywordContent = ({ keyword }: { keyword: Keyword }) => {
+    const definition = keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon";
+    const paragraphs = definition.split('\n').filter(p => p.trim());
+
+    return (
+      <div className="space-y-2">
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className="text-sm leading-relaxed">{paragraph}</p>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -63,7 +70,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                 <TooltipContent 
                   side="top" 
                   sideOffset={5}
-                  className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
+                  className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[300px] overflow-y-auto max-w-[400px] whitespace-normal p-4"
                 >
                   <KeywordContent keyword={keyword} />
                 </TooltipContent>
@@ -80,7 +87,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
           onClick={() => setOpenDialogKeyword(null)}
         >
           <div 
-            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative"
+            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative max-h-[80vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <button 
@@ -89,7 +96,8 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
             >
               ✕
             </button>
-            <div className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">{openDialogKeyword.name}</h3>
+            <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />
             </div>
           </div>
