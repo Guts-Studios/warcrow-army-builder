@@ -31,7 +31,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => (
           <TooltipProvider key={keyword.name} delayDuration={0}>
-            <Tooltip>
+            <Tooltip defaultOpen={false}>
               <TooltipTrigger asChild>
                 <button 
                   type="button"
@@ -44,6 +44,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                 side="top" 
                 sideOffset={5}
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
+                forceMount
               >
                 <p className="text-sm leading-relaxed">{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
               </TooltipContent>
