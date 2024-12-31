@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
@@ -19,6 +20,7 @@ interface KeywordsSectionProps {
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const isMobile = useIsMobile();
+  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
 
   // Show all keywords except characteristics and High Command
   const filteredKeywords = keywords.filter(k => 
@@ -48,18 +50,31 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     </p>
   );
 
+  const handleOpenChange = (keyword: string, isOpen: boolean) => {
+    setOpenDialogs(prev => ({
+      ...prev,
+      [keyword]: isOpen
+    }));
+  };
+
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => (
           isMobile ? (
-            <Dialog key={keyword.name}>
+            <Dialog 
+              key={keyword.name}
+              open={openDialogs[keyword.name]}
+              onOpenChange={(isOpen) => handleOpenChange(keyword.name, isOpen)}
+            >
               <DialogTrigger asChild>
                 <KeywordButton keyword={keyword} />
               </DialogTrigger>
               <DialogContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
-                <KeywordContent keyword={keyword} />
+                <div className="pt-6">
+                  <KeywordContent keyword={keyword} />
+                </div>
               </DialogContent>
             </Dialog>
           ) : (

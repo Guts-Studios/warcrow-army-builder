@@ -42,10 +42,10 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     </p>
   );
 
-  const toggleDialog = (rule: string) => {
+  const handleOpenChange = (rule: string, isOpen: boolean) => {
     setOpenDialogs(prev => ({
       ...prev,
-      [rule]: !prev[rule]
+      [rule]: isOpen
     }));
   };
 
@@ -58,7 +58,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
             <Dialog 
               key={rule}
               open={openDialogs[rule]}
-              onOpenChange={() => toggleDialog(rule)}
+              onOpenChange={(isOpen) => handleOpenChange(rule, isOpen)}
             >
               <DialogTrigger asChild>
                 <RuleButton rule={rule} />
@@ -66,7 +66,9 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               <DialogContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
               >
-                <RuleContent rule={rule} />
+                <div className="pt-6">
+                  <RuleContent rule={rule} />
+                </div>
               </DialogContent>
             </Dialog>
           ) : (

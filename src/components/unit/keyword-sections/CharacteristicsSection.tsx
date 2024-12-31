@@ -27,10 +27,10 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   if (characteristics.length === 0 && !highCommand) return null;
 
-  const toggleDialog = (keyword: string) => {
+  const handleOpenChange = (keyword: string, isOpen: boolean) => {
     setOpenDialogs(prev => ({
       ...prev,
-      [keyword]: !prev[keyword]
+      [keyword]: isOpen
     }));
   };
 
@@ -53,7 +53,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
         isMobile ? (
           <Dialog 
             open={openDialogs["High Command"]}
-            onOpenChange={() => toggleDialog("High Command")}
+            onOpenChange={(isOpen) => handleOpenChange("High Command", isOpen)}
           >
             <DialogTrigger asChild>
               <CharacteristicButton 
@@ -64,7 +64,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
             >
-              <CharacteristicContent text="High Command" />
+              <div className="pt-6">
+                <CharacteristicContent text="High Command" />
+              </div>
             </DialogContent>
           </Dialog>
         ) : (
@@ -90,7 +92,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
           <Dialog 
             key={keyword.name}
             open={openDialogs[keyword.name]}
-            onOpenChange={() => toggleDialog(keyword.name)}
+            onOpenChange={(isOpen) => handleOpenChange(keyword.name, isOpen)}
           >
             <DialogTrigger asChild>
               <CharacteristicButton 
@@ -101,7 +103,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             <DialogContent 
               className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
             >
-              <CharacteristicContent text={keyword.name} />
+              <div className="pt-6">
+                <CharacteristicContent text={keyword.name} />
+              </div>
             </DialogContent>
           </Dialog>
         ) : (
