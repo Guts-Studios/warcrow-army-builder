@@ -17,7 +17,7 @@ interface CharacteristicsSectionProps {
 
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -45,13 +45,10 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
       {highCommand && (
         isMobile ? (
           <Dialog 
-            open={openDialogs["High Command"]}
+            open={openDialog === "High Command"}
             onOpenChange={(isOpen) => {
               console.log('Dialog state changing for High Command to:', isOpen);
-              setOpenDialogs(prev => ({
-                ...prev,
-                ["High Command"]: isOpen
-              }));
+              setOpenDialog(isOpen ? "High Command" : null);
             }}
           >
             <DialogTrigger asChild>
@@ -90,13 +87,10 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
         isMobile ? (
           <Dialog 
             key={keyword.name}
-            open={openDialogs[keyword.name]}
+            open={openDialog === keyword.name}
             onOpenChange={(isOpen) => {
               console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
-              setOpenDialogs(prev => ({
-                ...prev,
-                [keyword.name]: isOpen
-              }));
+              setOpenDialog(isOpen ? keyword.name : null);
             }}
           >
             <DialogTrigger asChild>

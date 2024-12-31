@@ -19,7 +19,7 @@ interface SpecialRulesSectionProps {
 
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
   if (!specialRules?.length) return null;
 
@@ -50,13 +50,10 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           isMobile ? (
             <Dialog 
               key={rule}
-              open={openDialogs[rule]}
+              open={openDialog === rule}
               onOpenChange={(isOpen) => {
                 console.log('Dialog state changing for rule:', rule, 'to:', isOpen);
-                setOpenDialogs(prev => ({
-                  ...prev,
-                  [rule]: isOpen
-                }));
+                setOpenDialog(isOpen ? rule : null);
               }}
             >
               <DialogTrigger asChild>

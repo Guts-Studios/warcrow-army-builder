@@ -20,9 +20,8 @@ interface KeywordsSectionProps {
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
-  // Show all keywords except characteristics and High Command
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
       "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
@@ -58,13 +57,10 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
           isMobile ? (
             <Dialog 
               key={keyword.name}
-              open={openDialogs[keyword.name]}
+              open={openDialog === keyword.name}
               onOpenChange={(isOpen) => {
                 console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
-                setOpenDialogs(prev => ({
-                  ...prev,
-                  [keyword.name]: isOpen
-                }));
+                setOpenDialog(isOpen ? keyword.name : null);
               }}
             >
               <DialogTrigger asChild>
