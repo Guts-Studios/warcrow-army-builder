@@ -14,9 +14,9 @@ const Landing = () => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <img 
-          src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
+          src="/lovable-uploads/9093086e-9da5-4dd6-84de-501c946d87bb.png" 
           alt="Warcrow Logo" 
-          className="h-20 md:h-32 mx-auto"
+          className="h-24 md:h-36 mx-auto"
         />
         <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder
