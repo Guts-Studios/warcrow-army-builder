@@ -1,17 +1,25 @@
 import { Keyword } from "@/types/army";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
 }
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
+  const isMobile = useIsMobile();
+
   // Show all keywords except characteristics and High Command
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -25,37 +33,51 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     return keyword.split('(')[0].trim();
   };
 
+  const KeywordButton = ({ keyword }: { keyword: Keyword }) => (
+    <button 
+      type="button"
+      className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+    >
+      {keyword.name}
+    </button>
+  );
+
+  const KeywordContent = ({ keyword }: { keyword: Keyword }) => (
+    <p className="text-sm leading-relaxed">
+      {keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}
+    </p>
+  );
+
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => (
-          <TooltipProvider key={keyword.name} delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  type="button"
-                  className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+          isMobile ? (
+            <Dialog key={keyword.name}>
+              <DialogTrigger asChild>
+                <KeywordButton keyword={keyword} />
+              </DialogTrigger>
+              <DialogContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
+                <KeywordContent keyword={keyword} />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <TooltipProvider key={keyword.name} delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <KeywordButton keyword={keyword} />
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="top" 
+                  sideOffset={5}
+                  className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
                 >
-                  {keyword.name}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent 
-                side="top" 
-                sideOffset={5}
-                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
-                onPointerDownOutside={(e) => {
-                  e.preventDefault();
-                  const target = e.target as HTMLElement;
-                  if (!target.closest('[role="dialog"]')) {
-                    (e.currentTarget as HTMLElement).click();
-                  }
-                }}
-              >
-                <p className="text-sm leading-relaxed">{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                  <KeywordContent keyword={keyword} />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
         ))}
       </div>
     </div>
