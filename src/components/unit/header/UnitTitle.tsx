@@ -32,7 +32,7 @@ const UnitTitle = ({ mainName, subtitle, command }: UnitTitleProps) => {
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <span className="text-sm text-warcrow-muted">None</span>
+          <span className="text-sm text-warcrow-muted"></span>
         )}
       </div>
       {subtitle && (
