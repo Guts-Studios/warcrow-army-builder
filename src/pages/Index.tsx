@@ -23,7 +23,7 @@ const Index = () => {
               Back to Home
             </Button>
             <img 
-              src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
+              src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
               alt="Warcrow Logo" 
               className="h-16 md:h-24 mx-auto"
             />
