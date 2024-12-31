@@ -24,9 +24,14 @@ function App() {
   const isPreview = window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
+    if (isPreview) {
+      setIsAuthenticated(true);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
-      if (!session && !isPreview) {
+      if (!session) {
         toast.warning(
           "You are in offline mode. Cloud features like saving lists will not be available.",
           {

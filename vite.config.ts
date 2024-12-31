@@ -8,11 +8,18 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     headers: {
-      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *;",
+      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; frame-src *; frame-ancestors *;",
       'Access-Control-Allow-Origin': '*',
       'X-Frame-Options': 'ALLOWALL',
       'X-Content-Type-Options': 'nosniff',
       'X-Debug': 'false'
+    }
+  },
+  preview: {
+    headers: {
+      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; frame-src *; frame-ancestors *;",
+      'Access-Control-Allow-Origin': '*',
+      'X-Frame-Options': 'ALLOWALL'
     }
   },
   plugins: [
