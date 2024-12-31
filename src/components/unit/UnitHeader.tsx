@@ -18,6 +18,7 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
         <UnitTitle 
           mainName={mainName}
           subtitle={subtitle}
+          command={unit.command}
         />
         <CharacteristicsSection 
           keywords={unit.keywords}
