@@ -35,7 +35,8 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
   const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${sortedUnits
     .map((unit) => {
       const highCommandLabel = unit.highCommand ? " [High Command]" : "";
-      return `${unit.name}${highCommandLabel} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
+      const commandPoints = unit.command ? ` (${unit.command} CP)` : "";
+      return `${unit.name}${highCommandLabel}${commandPoints} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
     })
     .join("\n")}`;
 
@@ -44,7 +45,12 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
     0
   );
 
-  const fullText = `${listText}\n\nTotal Points: ${totalPoints}`;
+  const totalCommand = selectedUnits.reduce(
+    (total, unit) => total + ((unit.command || 0) * unit.quantity),
+    0
+  );
+
+  const fullText = `${listText}\n\nTotal Command Points: ${totalCommand}\nTotal Points: ${totalPoints}`;
 
   const handleCopy = async () => {
     try {
