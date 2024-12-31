@@ -14,7 +14,7 @@ const SelectedUnitsSection = ({
   onRemove,
 }: SelectedUnitsSectionProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:sticky md:top-4 md:max-h-[calc(100vh-2rem)] md:overflow-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-warcrow-gold">Selected Units</h2>
         <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
