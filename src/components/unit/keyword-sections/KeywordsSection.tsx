@@ -1,8 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Keyword } from "@/types/army";
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +8,6 @@ import {
 import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
-import { Keyword } from "@/types/army";
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
@@ -20,7 +15,7 @@ interface KeywordsSectionProps {
 
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [openDialogKeyword, setOpenDialogKeyword] = useState<Keyword | null>(null);
 
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -34,21 +29,6 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     return keyword.split('(')[0].trim();
   };
 
-  const KeywordButton = ({ keyword }: { keyword: Keyword }) => (
-    <button 
-      type="button"
-      className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
-      onClick={() => {
-        if (isMobile) {
-          console.log('Opening dialog for:', keyword.name);
-          setOpenDialog(keyword.name);
-        }
-      }}
-    >
-      {keyword.name}
-    </button>
-  );
-
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => (
     <p className="text-sm leading-relaxed">
       {keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon"}
@@ -61,31 +41,24 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => (
           isMobile ? (
-            <Dialog 
+            <button 
               key={keyword.name}
-              open={openDialog === keyword.name}
-              onOpenChange={(isOpen) => {
-                console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
-                setOpenDialog(isOpen ? keyword.name : null);
-              }}
+              type="button"
+              className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+              onClick={() => setOpenDialogKeyword(keyword)}
             >
-              <DialogTrigger asChild>
-                <KeywordButton keyword={keyword} />
-              </DialogTrigger>
-              <DialogContent 
-                className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                aria-describedby={`keyword-description-${keyword.name}`}
-              >
-                <div className="pt-6" id={`keyword-description-${keyword.name}`}>
-                  <KeywordContent keyword={keyword} />
-                </div>
-              </DialogContent>
-            </Dialog>
+              {keyword.name}
+            </button>
           ) : (
             <TooltipProvider key={keyword.name} delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <KeywordButton keyword={keyword} />
+                  <button 
+                    type="button"
+                    className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+                  >
+                    {keyword.name}
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="top" 
@@ -99,6 +72,29 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
           )
         ))}
       </div>
+
+      {openDialogKeyword && (
+        <div 
+          role="dialog" 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setOpenDialogKeyword(null)}
+        >
+          <div 
+            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setOpenDialogKeyword(null)}
+              className="absolute right-4 top-4 text-warcrow-text/70 hover:text-warcrow-text"
+            >
+              ✕
+            </button>
+            <div className="pt-6">
+              <KeywordContent keyword={openDialogKeyword} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

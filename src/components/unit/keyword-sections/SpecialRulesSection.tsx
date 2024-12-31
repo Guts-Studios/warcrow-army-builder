@@ -1,9 +1,4 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -19,28 +14,13 @@ interface SpecialRulesSectionProps {
 
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
 
   if (!specialRules?.length) return null;
 
   const getBaseRule = (rule: string) => {
     return rule.split('(')[0].trim();
   };
-
-  const RuleButton = ({ rule }: { rule: string }) => (
-    <button 
-      type="button"
-      className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
-      onClick={() => {
-        if (isMobile) {
-          console.log('Opening dialog for rule:', rule);
-          setOpenDialog(rule);
-        }
-      }}
-    >
-      {rule}
-    </button>
-  );
 
   const RuleContent = ({ rule }: { rule: string }) => (
     <p className="text-sm leading-relaxed">
@@ -54,31 +34,24 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
       <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => (
           isMobile ? (
-            <Dialog 
+            <button 
               key={rule}
-              open={openDialog === rule}
-              onOpenChange={(isOpen) => {
-                console.log('Dialog state changing for rule:', rule, 'to:', isOpen);
-                setOpenDialog(isOpen ? rule : null);
-              }}
+              type="button"
+              className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
+              onClick={() => setOpenDialogRule(rule)}
             >
-              <DialogTrigger asChild>
-                <RuleButton rule={rule} />
-              </DialogTrigger>
-              <DialogContent 
-                className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-                aria-describedby={`rule-description-${rule}`}
-              >
-                <div className="pt-6" id={`rule-description-${rule}`}>
-                  <RuleContent rule={rule} />
-                </div>
-              </DialogContent>
-            </Dialog>
+              {rule}
+            </button>
           ) : (
             <TooltipProvider key={rule}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <RuleButton rule={rule} />
+                  <button 
+                    type="button"
+                    className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
+                  >
+                    {rule}
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
@@ -90,6 +63,29 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           )
         ))}
       </div>
+
+      {openDialogRule && (
+        <div 
+          role="dialog" 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setOpenDialogRule(null)}
+        >
+          <div 
+            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setOpenDialogRule(null)}
+              className="absolute right-4 top-4 text-warcrow-text/70 hover:text-warcrow-text"
+            >
+              ✕
+            </button>
+            <div className="pt-6">
+              <RuleContent rule={openDialogRule} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -6,7 +6,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { characteristicDefinitions } from "@/data/characteristicDefinitions";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 
@@ -17,7 +16,7 @@ interface CharacteristicsSectionProps {
 
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
-  const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
 
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -27,21 +26,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   if (characteristics.length === 0 && !highCommand) return null;
 
-  const CharacteristicButton = ({ text, className }: { text: string; className: string }) => (
-    <button 
-      type="button"
-      className={className}
-      onClick={() => {
-        if (isMobile) {
-          console.log('Opening dialog for:', text);
-          setOpenDialog(text);
-        }
-      }}
-    >
-      {text}
-    </button>
-  );
-
   const CharacteristicContent = ({ text }: { text: string }) => (
     <p className="text-sm leading-relaxed">{characteristicDefinitions[text] || "Description coming soon"}</p>
   );
@@ -50,36 +34,23 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
     <div className="flex flex-wrap gap-1">
       {highCommand && (
         isMobile ? (
-          <Dialog 
-            open={openDialog === "High Command"}
-            onOpenChange={(isOpen) => {
-              console.log('Dialog state changing for High Command to:', isOpen);
-              setOpenDialog(isOpen ? "High Command" : null);
-            }}
+          <button 
+            type="button"
+            className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
+            onClick={() => setOpenDialogCharacteristic("High Command")}
           >
-            <DialogTrigger asChild>
-              <CharacteristicButton 
-                text="High Command"
-                className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
-              />
-            </DialogTrigger>
-            <DialogContent 
-              className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-              aria-describedby="high-command-description"
-            >
-              <div className="pt-6" id="high-command-description">
-                <CharacteristicContent text="High Command" />
-              </div>
-            </DialogContent>
-          </Dialog>
+            High Command
+          </button>
         ) : (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <CharacteristicButton 
-                  text="High Command"
+                <button 
+                  type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
-                />
+                >
+                  High Command
+                </button>
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
@@ -92,37 +63,24 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
       )}
       {characteristics.map((keyword) => (
         isMobile ? (
-          <Dialog 
+          <button 
             key={keyword.name}
-            open={openDialog === keyword.name}
-            onOpenChange={(isOpen) => {
-              console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
-              setOpenDialog(isOpen ? keyword.name : null);
-            }}
+            type="button"
+            className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
+            onClick={() => setOpenDialogCharacteristic(keyword.name)}
           >
-            <DialogTrigger asChild>
-              <CharacteristicButton 
-                text={keyword.name}
-                className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
-              />
-            </DialogTrigger>
-            <DialogContent 
-              className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
-              aria-describedby={`characteristic-description-${keyword.name}`}
-            >
-              <div className="pt-6" id={`characteristic-description-${keyword.name}`}>
-                <CharacteristicContent text={keyword.name} />
-              </div>
-            </DialogContent>
-          </Dialog>
+            {keyword.name}
+          </button>
         ) : (
           <TooltipProvider key={keyword.name}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <CharacteristicButton 
-                  text={keyword.name}
+                <button 
+                  type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
-                />
+                >
+                  {keyword.name}
+                </button>
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
@@ -133,6 +91,29 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
           </TooltipProvider>
         )
       ))}
+
+      {openDialogCharacteristic && (
+        <div 
+          role="dialog" 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setOpenDialogCharacteristic(null)}
+        >
+          <div 
+            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setOpenDialogCharacteristic(null)}
+              className="absolute right-4 top-4 text-warcrow-text/70 hover:text-warcrow-text"
+            >
+              ✕
+            </button>
+            <div className="pt-6">
+              <CharacteristicContent text={openDialogCharacteristic} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
