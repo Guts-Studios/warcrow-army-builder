@@ -32,6 +32,11 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     return total + (unit.pointsCost * unit.quantity);
   }, 0);
 
+  // Calculate total command points
+  const totalCommand = selectedUnits.reduce((total, unit) => {
+    return total + ((unit.command || 0) * unit.quantity);
+  }, 0);
+
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-2">
       {sortedUnits.map((unit) => (
@@ -99,7 +104,10 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
       {selectedUnits.length === 0 ? (
         <p className="text-warcrow-muted text-center py-4">No units selected</p>
       ) : (
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end pt-2 gap-4">
+          <span className="text-warcrow-gold">
+            Command: {totalCommand}
+          </span>
           <span className="text-warcrow-gold">
             Total Points: {totalPoints}
           </span>
