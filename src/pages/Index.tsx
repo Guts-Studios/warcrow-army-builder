@@ -18,7 +18,7 @@ const Index = () => {
             <Button
               onClick={() => navigate('/')}
               variant="outline"
-              className="w-fit border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+              className="w-fit border-warcrow-gold text-warcrow-gold bg-black hover:bg-warcrow-gold hover:text-black"
             >
               Back to Home
             </Button>
