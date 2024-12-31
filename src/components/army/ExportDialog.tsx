@@ -73,12 +73,12 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
           Export to Text
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-accent">
+      <DialogContent className="bg-warcrow-background border-warcrow-accent max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="text-warcrow-gold">Export Army List</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <pre className="whitespace-pre-wrap bg-warcrow-accent p-4 rounded-lg text-warcrow-text font-mono text-sm">
+          <pre className="whitespace-pre-wrap bg-warcrow-accent p-4 rounded-lg text-warcrow-text font-mono text-sm max-h-[60vh] overflow-y-auto">
             {fullText}
           </pre>
           <Button

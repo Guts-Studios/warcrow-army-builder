@@ -16,7 +16,7 @@ interface HighCommandAlertProps {
 const HighCommandAlert = ({ open, onOpenChange }: HighCommandAlertProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-h-[80vh]">
         <AlertDialogHeader>
           <AlertDialogTitle>High Command Limit Reached</AlertDialogTitle>
           <AlertDialogDescription>
