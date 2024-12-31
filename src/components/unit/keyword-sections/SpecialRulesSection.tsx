@@ -27,7 +27,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               <TooltipTrigger className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text">
                 {rule}
               </TooltipTrigger>
-              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal">
+              <TooltipContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal">
                 <p className="text-sm leading-relaxed">{specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon"}</p>
               </TooltipContent>
             </Tooltip>

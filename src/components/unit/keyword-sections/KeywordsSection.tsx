@@ -43,7 +43,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               <TooltipContent 
                 side="top" 
                 sideOffset={5}
-                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
+                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
               >
                 <p className="text-sm leading-relaxed">{keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}</p>
               </TooltipContent>
