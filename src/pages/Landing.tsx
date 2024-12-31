@@ -14,7 +14,7 @@ const Landing = () => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <img 
-          src="/lovable-uploads/9093086e-9da5-4dd6-84de-501c946d87bb.png" 
+          src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
           alt="Warcrow Logo" 
           className="h-24 md:h-36 mx-auto"
         />
