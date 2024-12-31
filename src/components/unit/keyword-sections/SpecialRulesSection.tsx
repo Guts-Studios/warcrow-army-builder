@@ -42,13 +42,6 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     </p>
   );
 
-  const handleOpenChange = (rule: string, isOpen: boolean) => {
-    setOpenDialogs(prev => ({
-      ...prev,
-      [rule]: isOpen
-    }));
-  };
-
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">Special Rules:</span>
@@ -58,7 +51,13 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
             <Dialog 
               key={rule}
               open={openDialogs[rule]}
-              onOpenChange={(isOpen) => handleOpenChange(rule, isOpen)}
+              onOpenChange={(isOpen) => {
+                console.log('Dialog state changing for rule:', rule, 'to:', isOpen);
+                setOpenDialogs(prev => ({
+                  ...prev,
+                  [rule]: isOpen
+                }));
+              }}
             >
               <DialogTrigger asChild>
                 <RuleButton rule={rule} />

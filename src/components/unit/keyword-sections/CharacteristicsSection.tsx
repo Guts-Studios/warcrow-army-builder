@@ -27,13 +27,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   if (characteristics.length === 0 && !highCommand) return null;
 
-  const handleOpenChange = (keyword: string, isOpen: boolean) => {
-    setOpenDialogs(prev => ({
-      ...prev,
-      [keyword]: isOpen
-    }));
-  };
-
   const CharacteristicButton = ({ text, className }: { text: string; className: string }) => (
     <button 
       type="button"
@@ -53,7 +46,13 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
         isMobile ? (
           <Dialog 
             open={openDialogs["High Command"]}
-            onOpenChange={(isOpen) => handleOpenChange("High Command", isOpen)}
+            onOpenChange={(isOpen) => {
+              console.log('Dialog state changing for High Command to:', isOpen);
+              setOpenDialogs(prev => ({
+                ...prev,
+                ["High Command"]: isOpen
+              }));
+            }}
           >
             <DialogTrigger asChild>
               <CharacteristicButton 
@@ -92,7 +91,13 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
           <Dialog 
             key={keyword.name}
             open={openDialogs[keyword.name]}
-            onOpenChange={(isOpen) => handleOpenChange(keyword.name, isOpen)}
+            onOpenChange={(isOpen) => {
+              console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
+              setOpenDialogs(prev => ({
+                ...prev,
+                [keyword.name]: isOpen
+              }));
+            }}
           >
             <DialogTrigger asChild>
               <CharacteristicButton 

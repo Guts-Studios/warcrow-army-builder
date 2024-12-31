@@ -46,16 +46,9 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
 
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => (
     <p className="text-sm leading-relaxed">
-      {keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description}
+      {keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon"}
     </p>
   );
-
-  const handleOpenChange = (keyword: string, isOpen: boolean) => {
-    setOpenDialogs(prev => ({
-      ...prev,
-      [keyword]: isOpen
-    }));
-  };
 
   return (
     <div className="space-y-2">
@@ -66,12 +59,20 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
             <Dialog 
               key={keyword.name}
               open={openDialogs[keyword.name]}
-              onOpenChange={(isOpen) => handleOpenChange(keyword.name, isOpen)}
+              onOpenChange={(isOpen) => {
+                console.log('Dialog state changing for:', keyword.name, 'to:', isOpen);
+                setOpenDialogs(prev => ({
+                  ...prev,
+                  [keyword.name]: isOpen
+                }));
+              }}
             >
               <DialogTrigger asChild>
                 <KeywordButton keyword={keyword} />
               </DialogTrigger>
-              <DialogContent className="bg-warcrow-background border-warcrow-gold text-warcrow-text">
+              <DialogContent 
+                className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+              >
                 <div className="pt-6">
                   <KeywordContent keyword={keyword} />
                 </div>
