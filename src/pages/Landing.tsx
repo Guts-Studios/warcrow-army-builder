@@ -35,21 +35,21 @@ const Landing = () => {
         <div className="space-x-4">
           <Button
             onClick={() => navigate('/builder')}
-            className="bg-[#9b87f5] hover:bg-[#7E69AB] text-black font-medium transition-colors"
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
           >
             Start Building
           </Button>
           <Button
             onClick={handleSignOut}
             variant="outline"
-            className="border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-black transition-colors"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
           >
             Sign Out
           </Button>
           <Button
             onClick={() => window.open('https://www.patreon.com/warcrowarmybuilder', '_blank')}
             variant="outline"
-            className="border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6] hover:text-black transition-colors"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
           >
             Support on Patreon
           </Button>
@@ -58,7 +58,7 @@ const Landing = () => {
           <p>Have ideas, issues, love, or hate to share?</p>
           <a 
             href="mailto:warcrowarmy@gmail.com"
-            className="text-[#9b87f5] hover:text-[#7E69AB] underline"
+            className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
           >
             Contact us at warcrowarmy@gmail.com
           </a>
