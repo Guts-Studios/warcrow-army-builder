@@ -17,7 +17,7 @@ const UnitTitle = ({ mainName, subtitle, command }: UnitTitleProps) => {
     <div className="flex-1">
       <div className="flex items-center gap-1">
         <h3 className="font-semibold text-warcrow-text">{mainName}</h3>
-        {command && command > 0 && (
+        {command && command > 0 ? (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -31,6 +31,8 @@ const UnitTitle = ({ mainName, subtitle, command }: UnitTitleProps) => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+        ) : (
+          <span className="text-sm text-warcrow-muted">None</span>
         )}
       </div>
       {subtitle && (
