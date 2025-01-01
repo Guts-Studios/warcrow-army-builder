@@ -18,20 +18,20 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
-          className="w-full border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+          size="sm"
+          className="w-full border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black h-auto py-2"
         >
           <Eye className="h-4 w-4 mr-2" />
           View Card
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-2xl p-0">
+      <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
         <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
         {unit.imageUrl ? (
           <img
             src={unit.imageUrl}
             alt={unit.name}
-            className="w-full h-auto rounded-lg"
+            className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
             loading="eager"
           />
         ) : (

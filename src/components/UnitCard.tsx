@@ -16,7 +16,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="bg-warcrow-accent rounded-lg p-4 space-y-4">
+    <div className="bg-warcrow-accent rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <UnitHeader 
           unit={unit} 

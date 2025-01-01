@@ -34,9 +34,9 @@ const UnitListSection = ({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <SortControls sortBy={sortBy} onSortChange={(value) => setSortBy(value)} />
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         {sortedUnits.map((unit) => (
           <UnitCard
             key={unit.id}
