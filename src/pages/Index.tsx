@@ -18,7 +18,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-const Index = () => {
+const Index: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
   const session = useSession();
   const navigate = useNavigate();
@@ -98,23 +98,24 @@ const Index = () => {
 };
 
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public static getDerivedStateFromError(_: Error): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Army builder error:', error, errorInfo);
   }
 
-  render(): React.ReactNode {
+  public render() {
     if (this.state.hasError) {
       return this.props.fallback;
     }
+
     return this.props.children;
   }
 }
