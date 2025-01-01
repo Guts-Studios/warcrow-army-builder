@@ -1,10 +1,13 @@
+import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 import { Loader2 } from "lucide-react";
-import * as React from "react";
+import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -26,30 +29,24 @@ const Index = () => {
   }
 
   return (
-    <ErrorBoundary
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4 bg-warcrow-background text-warcrow-text">
-          <h2 className="text-xl font-bold text-warcrow-gold">
-            Something went wrong
-          </h2>
-          <p>Please try reloading the page</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-warcrow-gold text-warcrow-background rounded hover:bg-warcrow-gold/80 transition-colors"
-          >
-            Reload
-          </button>
-        </div>
-      }
-    >
+    <TooltipProvider>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center mb-8">
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="self-start mb-4 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+            >
+              Back to Home
+            </Button>
             <img
               src="/art/decorative-frame.png"
               alt="Warcrow Logo"
               className="w-32 h-32 mb-4"
               loading="eager"
+              width={128}
+              height={128}
             />
             <h1 className="text-4xl font-bold text-warcrow-gold mb-8">
               Army Builder
@@ -63,25 +60,43 @@ const Index = () => {
             />
           </div>
 
-          <React.Suspense
+          <ErrorBoundary
             fallback={
-              <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold" />
+              <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+                <h2 className="text-xl font-bold text-warcrow-gold">
+                  Something went wrong
+                </h2>
+                <p className="text-warcrow-text">Please try reloading the page</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+                >
+                  Reload
+                </Button>
               </div>
             }
           >
-            <ArmyList
-              selectedFaction={selectedFaction}
-              onFactionChange={setSelectedFaction}
-            />
-          </React.Suspense>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold" />
+                </div>
+              }
+            >
+              <ArmyList
+                selectedFaction={selectedFaction}
+                onFactionChange={setSelectedFaction}
+              />
+            </React.Suspense>
+          </ErrorBoundary>
         </div>
+        <Toaster />
       </div>
-    </ErrorBoundary>
+    </TooltipProvider>
   );
 };
 
-// Error boundary component
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
