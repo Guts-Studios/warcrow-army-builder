@@ -12,7 +12,6 @@ export const useArmyList = (selectedFaction: string) => {
   const [currentListName, setCurrentListName] = useState<string | null>(null);
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   // Memoize faction units to prevent unnecessary filtering
@@ -24,50 +23,38 @@ export const useArmyList = (selectedFaction: string) => {
   // Fetch both local and cloud saves
   useEffect(() => {
     const fetchSavedLists = async () => {
-      setIsLoading(true);
-      try {
-        // Get local saves
-        const localLists = localStorage.getItem("armyLists");
-        const parsedLocalLists: SavedList[] = localLists ? JSON.parse(localLists) : [];
+      // Get local saves
+      const localLists = localStorage.getItem("armyLists");
+      const parsedLocalLists: SavedList[] = localLists ? JSON.parse(localLists) : [];
 
-        // Get cloud saves
-        const { data: cloudLists, error } = await supabase
-          .from('army_lists')
-          .select('*');
+      // Get cloud saves
+      const { data: cloudLists, error } = await supabase
+        .from('army_lists')
+        .select('*');
 
-        if (error) {
-          console.error('Error fetching cloud lists:', error);
-          setSavedLists(parsedLocalLists);
-          return;
-        }
-
-        // Combine local and cloud saves
-        const allLists = [
-          ...parsedLocalLists,
-          ...(cloudLists || []).map((list: any) => ({
-            id: list.id,
-            name: list.name,
-            faction: list.faction,
-            units: list.units,
-            user_id: list.user_id
-          }))
-        ];
-
-        setSavedLists(allLists);
-      } catch (error) {
-        console.error('Error in fetchSavedLists:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load saved lists. Please try refreshing the page.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        console.error('Error fetching cloud lists:', error);
+        setSavedLists(parsedLocalLists);
+        return;
       }
+
+      // Combine local and cloud saves
+      const allLists = [
+        ...parsedLocalLists,
+        ...(cloudLists || []).map((list: any) => ({
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: list.units,
+          user_id: list.user_id
+        }))
+      ];
+
+      setSavedLists(allLists);
     };
 
     fetchSavedLists();
-  }, [toast]);
+  }, []);
 
   const handleAdd = useCallback((unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
@@ -182,6 +169,5 @@ export const useArmyList = (selectedFaction: string) => {
     handleSaveList,
     handleLoadList,
     factionUnits,
-    isLoading,
   };
 };
