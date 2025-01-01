@@ -18,6 +18,29 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Army builder error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
+
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
   const session = useSession();
@@ -29,95 +52,74 @@ const Index = () => {
   }
 
   return (
-    <ErrorBoundary
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-          <h2 className="text-xl font-bold text-warcrow-gold">
-            Something went wrong
-          </h2>
-          <p className="text-warcrow-text">Please try reloading the page</p>
-          <Button
-            onClick={() => window.location.reload()}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
-          >
-            Reload
-          </Button>
-        </div>
-      }
-    >
-      <TooltipProvider>
-        <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col items-center mb-8">
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="self-start mb-4 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
-              >
-                Back to Home
-              </Button>
-              <img
-                src="/art/decorative-frame.png"
-                alt="Warcrow Logo"
-                className="w-32 h-32 mb-4"
-                loading="eager"
-                width={128}
-                height={128}
-              />
-              <h1 className="text-4xl font-bold text-warcrow-gold mb-8">
-                Army Builder
-              </h1>
-            </div>
-
-            <div className="hidden md:block mb-8">
-              <FactionSelector
-                selectedFaction={selectedFaction}
-                onFactionChange={setSelectedFaction}
-              />
-            </div>
-
-            <React.Suspense
-              fallback={
-                <div className="flex items-center justify-center min-h-[400px]">
-                  <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold" />
-                </div>
-              }
+    <React.StrictMode>
+      <ErrorBoundary
+        fallback={
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <h2 className="text-xl font-bold text-warcrow-gold">
+              Something went wrong
+            </h2>
+            <p className="text-warcrow-text">Please try reloading the page</p>
+            <Button
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
             >
-              <ArmyList
-                selectedFaction={selectedFaction}
-                onFactionChange={setSelectedFaction}
-              />
-            </React.Suspense>
+              Reload
+            </Button>
           </div>
-          <Toaster />
-        </div>
-      </TooltipProvider>
-    </ErrorBoundary>
+        }
+      >
+        <TooltipProvider>
+          <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex flex-col items-center mb-8">
+                <Button
+                  onClick={() => navigate('/')}
+                  variant="outline"
+                  className="self-start mb-4 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background"
+                >
+                  Back to Home
+                </Button>
+                <img
+                  src="/art/decorative-frame.png"
+                  alt="Warcrow Logo"
+                  className="w-32 h-32 mb-4"
+                  loading="eager"
+                  width={128}
+                  height={128}
+                />
+                <h1 className="text-4xl font-bold text-warcrow-gold mb-8">
+                  Army Builder
+                </h1>
+              </div>
+
+              <div className="hidden md:block mb-8">
+                <FactionSelector
+                  selectedFaction={selectedFaction}
+                  onFactionChange={setSelectedFaction}
+                />
+              </div>
+
+              <React.Suspense
+                fallback={
+                  <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold" />
+                  </div>
+                }
+              >
+                <ArmyList
+                  selectedFaction={selectedFaction}
+                  onFactionChange={setSelectedFaction}
+                />
+              </React.Suspense>
+            </div>
+            <Toaster />
+          </div>
+        </TooltipProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
   );
 };
-
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  public static getDerivedStateFromError(_: Error): ErrorBoundaryState {
-    return { hasError: true };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Army builder error:', error, errorInfo);
-  }
-
-  public render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-
-    return this.props.children;
-  }
-}
 
 export default Index;
