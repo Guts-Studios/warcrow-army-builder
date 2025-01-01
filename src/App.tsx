@@ -24,14 +24,12 @@ function App() {
   const isPreview = window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
-    // For preview mode, immediately set as authenticated
     if (isPreview) {
       console.log('Preview mode detected, setting as authenticated');
       setIsAuthenticated(true);
       return;
     }
 
-    // For non-preview mode, check authentication
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
@@ -57,7 +55,6 @@ function App() {
     return () => subscription.unsubscribe();
   }, [isPreview]);
 
-  // Show loading state while checking authentication
   if (isAuthenticated === null && !isPreview) {
     return <div>Loading...</div>;
   }
