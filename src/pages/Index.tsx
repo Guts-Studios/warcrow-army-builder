@@ -24,39 +24,83 @@ const Index = () => {
               Back to Home
             </Button>
             <img 
-              src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+              src="/art/decorative-frame.png"
               alt="Warcrow Logo" 
               className="h-16 md:h-24 mx-auto"
               loading="eager"
+              width={96}
+              height={96}
             />
             <div className="hidden md:block w-[100px]" />
           </div>
-          <div className="flex flex-col items-center mb-8">
-            <h1 className="text-2xl md:text-4xl font-bold text-center mb-2 text-warcrow-gold">
-              Welcome to the Builder!
-            </h1>
-          </div>
+          
           <div className="hidden md:block">
             <FactionSelector
               selectedFaction={selectedFaction}
               onFactionChange={setSelectedFaction}
             />
           </div>
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-[400px]">
-              <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold" />
-            </div>
-          }>
-            <ArmyList 
-              selectedFaction={selectedFaction} 
-              onFactionChange={setSelectedFaction}
-            />
-          </Suspense>
+
+          <ErrorBoundary fallback={<ErrorFallback />}>
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold mx-auto mb-4" />
+                  <p className="text-warcrow-gold">Loading army builder...</p>
+                </div>
+              </div>
+            }>
+              <ArmyList 
+                selectedFaction={selectedFaction} 
+                onFactionChange={setSelectedFaction}
+              />
+            </Suspense>
+          </ErrorBoundary>
         </div>
         <Toaster />
       </div>
     </TooltipProvider>
   );
 };
+
+// Simple error boundary fallback component
+const ErrorFallback = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="text-center">
+      <p className="text-warcrow-gold mb-4">Something went wrong loading the army builder.</p>
+      <Button 
+        onClick={() => window.location.reload()}
+        variant="outline"
+        className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+      >
+        Try Again
+      </Button>
+    </div>
+  </div>
+);
+
+// Error boundary component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Army builder error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
 
 export default Index;
