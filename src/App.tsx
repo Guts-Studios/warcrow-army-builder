@@ -24,13 +24,25 @@ function App() {
   const isPreview = window.location.hostname.includes('lovableproject.com');
 
   React.useEffect(() => {
-    if (isPreview) {
-      console.log('Preview mode detected, setting as authenticated');
-      setIsAuthenticated(true);
-      return;
-    }
+    const setupAuth = async () => {
+      if (isPreview) {
+        console.log('Preview mode detected, setting up preview authentication');
+        // Set up anonymous session for preview mode
+        const { data: { session }, error } = await supabase.auth.signInWithPassword({
+          email: 'preview@example.com',
+          password: 'preview-password'
+        });
+        
+        if (error) {
+          console.log('Preview auth fallback: setting as authenticated without session');
+          setIsAuthenticated(true);
+          return;
+        }
+        
+        setIsAuthenticated(!!session);
+        return;
+      }
 
-    const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
@@ -45,7 +57,7 @@ function App() {
       }
     };
 
-    checkAuth();
+    setupAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log('Auth state changed:', session ? 'Authenticated' : 'Not authenticated');
