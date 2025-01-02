@@ -26,20 +26,8 @@ function App() {
   React.useEffect(() => {
     const setupAuth = async () => {
       if (isPreview) {
-        console.log('Preview mode detected, setting up preview authentication');
-        // Set up anonymous session for preview mode
-        const { data: { session }, error } = await supabase.auth.signInWithPassword({
-          email: 'preview@example.com',
-          password: 'preview-password'
-        });
-        
-        if (error) {
-          console.log('Preview auth fallback: setting as authenticated without session');
-          setIsAuthenticated(true);
-          return;
-        }
-        
-        setIsAuthenticated(!!session);
+        console.log('Preview mode detected, setting as authenticated');
+        setIsAuthenticated(true);
         return;
       }
 
