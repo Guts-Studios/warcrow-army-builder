@@ -65,16 +65,10 @@ function App() {
         <TooltipProvider>
           <Router>
             <Routes>
-              {/* Redirect from root to /builder if authenticated */}
+              {/* Root path now always goes to Landing */}
               <Route 
                 path="/" 
-                element={
-                  isPreview ? (
-                    <Landing />
-                  ) : (
-                    isAuthenticated ? <Navigate to="/builder" replace /> : <Navigate to="/login" replace />
-                  )
-                } 
+                element={<Landing />}
               />
               
               {/* Login route with redirect if already authenticated */}
