@@ -21,7 +21,8 @@ const queryClient = new QueryClient({
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
-  const isPreview = window.location.hostname.includes('lovableproject.com');
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                   window.location.hostname.endsWith('.lovableproject.com');
 
   React.useEffect(() => {
     const setupAuth = async () => {
