@@ -35,7 +35,7 @@ function App() {
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
       
-      if (!session) {
+      if (!session && !isPreview) {
         toast.warning(
           "You are in offline mode. Cloud features like saving lists will not be available.",
           {
@@ -71,22 +71,12 @@ function App() {
               />
               <Route 
                 path="/" 
-                element={
-                  isPreview ? (
-                    <Landing />
-                  ) : (
-                    isAuthenticated ? <Landing /> : <Navigate to="/login" replace />
-                  )
-                } 
+                element={<Landing />} 
               />
               <Route 
                 path="/builder" 
                 element={
-                  isPreview ? (
-                    <Index />
-                  ) : (
-                    isAuthenticated ? <Index /> : <Navigate to="/login" replace />
-                  )
+                  isPreview || isAuthenticated ? <Index /> : <Navigate to="/login" replace />
                 } 
               />
               <Route 
