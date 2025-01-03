@@ -18,18 +18,25 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <UnitHeader 
-          unit={unit} 
-          mainName={unit.name}
-          portraitUrl={unit.imageUrl}
-        />
-        <UnitControls 
-          quantity={quantity} 
-          onAdd={onAdd} 
-          onRemove={onRemove}
-          availability={unit.availability}
-          pointsCost={unit.pointsCost}
-        />
+        <div className="flex-1">
+          <UnitHeader 
+            unit={unit} 
+            mainName={unit.name}
+            portraitUrl={unit.imageUrl}
+          />
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <span className="text-warcrow-gold font-semibold">
+            {unit.pointsCost} pts
+          </span>
+          <UnitControls 
+            quantity={quantity} 
+            onAdd={onAdd} 
+            onRemove={onRemove}
+            availability={unit.availability}
+            pointsCost={unit.pointsCost}
+          />
+        </div>
       </div>
 
       <UnitCardKeywords 
