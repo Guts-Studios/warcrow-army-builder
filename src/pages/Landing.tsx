@@ -1,9 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsGuest(!session);
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -44,7 +55,7 @@ const Landing = () => {
             variant="outline"
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
           >
-            Sign Out
+            {isGuest ? "Signed in as Guest" : "Sign Out"}
           </Button>
           <Button
             onClick={() => window.open('https://www.patreon.com/c/GutzStudio', '_blank')}
