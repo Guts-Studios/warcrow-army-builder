@@ -46,7 +46,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
         >
           <div className="flex items-center gap-2">
             <span className="text-warcrow-text flex items-center gap-1">
-              {unit.name} x{unit.quantity}
+              {unit.name} x{Math.min(unit.quantity, 9)}
               {unit.command && unit.command > 0 && (
                 <TooltipProvider>
                   <Tooltip>
