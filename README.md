@@ -2,7 +2,13 @@
 
 ## Project info
 
-**URL**: https://fe5462b0-7a7c-4d95-bdf8-b8e91184d4e8.lovable.dev
+
+**URL**: https://warcrowarmybuilder.netlify.app/
+**URL2**: https://fe5462b0-7a7c-4d95-bdf8-b8e91184d4e8.lovable.dev    This is the original host space
+
+## Changelog
+For details about changes in each version, see the [CHANGELOG.md](./CHANGELOG.md).
+
 
 ## How can I edit this code?
 
