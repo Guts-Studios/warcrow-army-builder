@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { validateHighCommandAddition } from "@/utils/armyValidation";
 import { units } from "@/data/factions";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,31 +14,28 @@ export const useArmyList = (selectedFaction: string) => {
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
 
-  // Memoize faction units to prevent unnecessary filtering
-  const factionUnits = useMemo(() => 
-    units.filter((unit) => unit.faction === selectedFaction),
+  // Filter units by the selected faction
+  const factionUnits = useMemo(
+    () => units.filter((unit) => unit.faction === selectedFaction),
     [selectedFaction]
   );
 
-  // Fetch both local and cloud saves
+  // Fetch saved lists from local storage and cloud (Supabase)
   useEffect(() => {
     const fetchSavedLists = async () => {
-      // Get local saves
       const localLists = localStorage.getItem("armyLists");
       const parsedLocalLists: SavedList[] = localLists ? JSON.parse(localLists) : [];
 
-      // Get cloud saves
       const { data: cloudLists, error } = await supabase
-        .from('army_lists')
-        .select('*');
+        .from("army_lists")
+        .select("*");
 
       if (error) {
-        console.error('Error fetching cloud lists:', error);
+        console.error("Error fetching cloud lists:", error);
         setSavedLists(parsedLocalLists);
         return;
       }
 
-      // Combine local and cloud saves
       const allLists = [
         ...parsedLocalLists,
         ...(cloudLists || []).map((list: any) => ({
@@ -46,8 +43,8 @@ export const useArmyList = (selectedFaction: string) => {
           name: list.name,
           faction: list.faction,
           units: list.units,
-          user_id: list.user_id
-        }))
+          user_id: list.user_id,
+        })),
       ];
 
       setSavedLists(allLists);
@@ -56,45 +53,79 @@ export const useArmyList = (selectedFaction: string) => {
     fetchSavedLists();
   }, []);
 
-  const handleAdd = useCallback((unitId: string) => {
-    const unit = factionUnits.find((u) => u.id === unitId);
-    if (!unit) return;
+  // Add a unit to the selectedUnits list
+  const handleAdd = useCallback(
+    (unitId: string) => {
+      const unit = factionUnits.find((u) => u.id === unitId);
+      if (!unit) return;
 
-    if (!validateHighCommandAddition(selectedUnits, unit)) {
-      setShowHighCommandAlert(true);
-      return;
-    }
+      const currentQuantity = quantities[unitId] || 0;
 
-    setQuantities((prev) => ({
-      ...prev,
-      [unitId]: (prev[unitId] || 0) + 1,
-    }));
+      // Log current state for debugging
+      console.log("Adding unit:", unit); // Log the unit being added
+      console.log("Current quantity:", currentQuantity); // Log the current quantity in the list
+      console.log("Unit availability:", unit.availability); // Log the unit's availability limit
 
-    setSelectedUnits((prev) => {
-      const existingUnit = prev.find((u) => u.id === unitId);
-      if (existingUnit) {
-        return prev.map((u) =>
-          u.id === unitId ? { ...u, quantity: u.quantity + 1 } : u
-        );
+      // Check if adding another unit would exceed availability
+      if (currentQuantity >= unit.availability) {
+        toast({
+          title: "Unit Limit Reached",
+          description: `You cannot add more than ${unit.availability} ${unit.name} to your list.`,
+          variant: "destructive",
+        });
+        return;
       }
-      return [...prev, { ...unit, quantity: 1 }];
-    });
-  }, [factionUnits, selectedUnits]);
 
+      if (!validateHighCommandAddition(selectedUnits, unit)) {
+        setShowHighCommandAlert(true);
+        return;
+      }
+
+      // Update quantities while ensuring they are constrained to single digits
+      setQuantities((prev) => ({
+        ...prev,
+        [unitId]: Math.min(currentQuantity + 1, 9), // Ensure quantity is no greater than 9
+      }));
+
+      // Update selected units
+      setSelectedUnits((prev) => {
+        const existingUnit = prev.find((u) => u.id === unitId);
+        if (existingUnit) {
+          return prev.map((u) =>
+            u.id === unitId
+              ? { ...u, quantity: Math.min(u.quantity + 1, 9) } // Constrain quantity to 9
+              : u
+          );
+        }
+        return [...prev, { ...unit, quantity: 1 }]; // Add new unit with quantity of 1
+      });
+    },
+    [factionUnits, quantities, selectedUnits, toast]
+  );
+
+  // Remove a unit from the selectedUnits list
   const handleRemove = useCallback((unitId: string) => {
     setQuantities((prev) => ({
       ...prev,
-      [unitId]: Math.max((prev[unitId] || 0) - 1, 0),
+      [unitId]: Math.max((prev[unitId] || 0) - 1, 0), // Ensure quantity doesn't go below 0
     }));
 
     setSelectedUnits((prev) => {
       const updatedUnits = prev.map((u) =>
         u.id === unitId ? { ...u, quantity: u.quantity - 1 } : u
       );
-      return updatedUnits.filter((u) => u.quantity > 0);
+      return updatedUnits.filter((u) => u.quantity > 0); // Remove units with quantity 0
     });
   }, []);
 
+  // Format the display string with logging for debugging
+  const formatDisplayString = (unit) => {
+    const displayString = `${unit.name} x${Math.min(parseInt(unit.quantity, 10), 9)}`;
+    console.log("Formatted display string:", displayString); // Log the formatted string
+    return displayString;
+  };
+
+  // Start a new list
   const handleNewList = useCallback(() => {
     setQuantities({});
     setSelectedUnits([]);
@@ -106,6 +137,7 @@ export const useArmyList = (selectedFaction: string) => {
     });
   }, [toast]);
 
+  // Save the current list
   const handleSaveList = useCallback(() => {
     const nameToUse = currentListName || listName;
 
@@ -118,19 +150,33 @@ export const useArmyList = (selectedFaction: string) => {
       return;
     }
 
-    const filteredLists = savedLists.filter(list => list.name !== nameToUse);
+    // Validate and cap quantities at availability
+    const validatedUnits = selectedUnits.map((unit) => ({
+      ...unit,
+      quantity: Math.min(unit.quantity, unit.availability),
+    }));
+
+    const filteredLists = savedLists.filter((list) => list.name !== nameToUse);
 
     const newList: SavedList = {
       id: Date.now().toString(),
       name: nameToUse,
       faction: selectedFaction,
-      units: selectedUnits,
+      units: validatedUnits,
     };
 
     const updatedLists = [...filteredLists, newList];
     setSavedLists(updatedLists);
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
     setCurrentListName(nameToUse);
+
+    // Sync quantities with validated units
+    const newQuantities: Record<string, number> = {};
+    validatedUnits.forEach((unit) => {
+      newQuantities[unit.id] = unit.quantity;
+    });
+    setQuantities(newQuantities);
+    setSelectedUnits(validatedUnits);
 
     toast({
       title: "Success",
@@ -139,15 +185,23 @@ export const useArmyList = (selectedFaction: string) => {
     setListName("");
   }, [currentListName, listName, selectedFaction, selectedUnits, savedLists, toast]);
 
+  // Load an existing list
   const handleLoadList = useCallback((list: SavedList) => {
-    setSelectedUnits(list.units);
+    const validatedUnits = list.units.map((unit) => ({
+      ...unit,
+      quantity: Math.min(unit.quantity, unit.availability), // Ensure valid quantities
+    }));
+
+    setSelectedUnits(validatedUnits);
+
     const newQuantities: Record<string, number> = {};
-    list.units.forEach((unit) => {
+    validatedUnits.forEach((unit) => {
       newQuantities[unit.id] = unit.quantity;
     });
+
     setQuantities(newQuantities);
     setCurrentListName(list.name);
-    
+
     toast({
       title: "Success",
       description: `Loaded army list: ${list.name}`,
@@ -169,5 +223,6 @@ export const useArmyList = (selectedFaction: string) => {
     handleSaveList,
     handleLoadList,
     factionUnits,
+    formatDisplayString, // Return formatDisplayString for testing/debugging
   };
 };
