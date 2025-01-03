@@ -2,6 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -20,6 +27,26 @@ const Landing = () => {
     await supabase.auth.signOut();
     navigate('/login');
   };
+
+  const changelogContent = `# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+- Placeholder for changes in progress.
+
+## [0.2.10] - 2025-01-03
+### Added
+- New feature: Export functionality for user data.
+
+### Fixed
+- Resolved bug causing app to go to 404 on page refresh.
+
+## [0.2.9] - 2025-01-01
+### Added
+- Initial deployment to Netlify due to issues with Lovable hosting.`;
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
@@ -65,13 +92,24 @@ const Landing = () => {
             Support on Patreon
           </Button>
         </div>
-        <Button
-          onClick={() => window.open('https://github.com/GutzCarlos/warcrowarmybuilder/blob/main/CHANGELOG.md', '_blank')}
-          variant="link"
-          className="text-warcrow-gold hover:text-warcrow-gold/80"
-        >
-          View Changelog
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="link"
+              className="text-warcrow-gold hover:text-warcrow-gold/80"
+            >
+              View Changelog
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-warcrow-gold">Changelog</DialogTitle>
+            </DialogHeader>
+            <div className="whitespace-pre-wrap font-mono text-sm">
+              {changelogContent}
+            </div>
+          </DialogContent>
+        </Dialog>
         <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
           <p>Have ideas, issues, love, or hate to share?</p>
           <a 
