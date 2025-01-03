@@ -16,7 +16,7 @@ const Index = () => {
         <div className="container max-w-7xl mx-auto py-8 px-4 flex-grow relative z-10">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/landing')}
               variant="outline"
               className="w-fit border-warcrow-gold text-warcrow-gold bg-black hover:bg-warcrow-gold hover:text-black"
             >

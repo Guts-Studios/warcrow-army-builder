@@ -75,6 +75,10 @@ function App() {
                 element={<Navigate to="/builder" replace />} 
               />
               <Route 
+                path="/landing" 
+                element={<Landing />} 
+              />
+              <Route 
                 path="/builder" 
                 element={
                   isPreview || isAuthenticated ? <Index /> : <Navigate to="/login" replace />
