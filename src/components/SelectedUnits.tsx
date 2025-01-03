@@ -41,6 +41,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     <div className="bg-warcrow-accent rounded-lg p-4 space-y-2">
       {sortedUnits.map((unit) => {
         const displayQuantity = Math.min(unit.quantity, 9);
+        const displayText = `${unit.name} x${displayQuantity}`;
         
         return (
           <div
@@ -49,7 +50,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
           >
             <div className="flex items-center gap-2">
               <span className="text-warcrow-text flex items-center gap-1">
-                {`${unit.name} x${displayQuantity}`}
+                {displayText}
                 {unit.command && unit.command > 0 && (
                   <TooltipProvider>
                     <Tooltip>
