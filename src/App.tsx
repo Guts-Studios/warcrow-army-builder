@@ -68,11 +68,11 @@ function App() {
             <Routes>
               <Route 
                 path="/login" 
-                element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+                element={isAuthenticated ? <Navigate to="/builder" replace /> : <Login />} 
               />
               <Route 
                 path="/" 
-                element={<Landing />} 
+                element={<Navigate to="/builder" replace />} 
               />
               <Route 
                 path="/builder" 
@@ -82,7 +82,7 @@ function App() {
               />
               <Route 
                 path="*" 
-                element={<Navigate to="/" replace />} 
+                element={<Navigate to="/builder" replace />} 
               />
             </Routes>
             <Toaster />
