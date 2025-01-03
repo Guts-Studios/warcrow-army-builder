@@ -65,6 +65,13 @@ const Landing = () => {
             Support on Patreon
           </Button>
         </div>
+        <Button
+          onClick={() => window.open('https://github.com/GutzCarlos/warcrowarmybuilder/blob/main/CHANGELOG.md', '_blank')}
+          variant="link"
+          className="text-warcrow-gold hover:text-warcrow-gold/80"
+        >
+          View Changelog
+        </Button>
         <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
           <p>Have ideas, issues, love, or hate to share?</p>
           <a 
