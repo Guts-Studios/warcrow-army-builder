@@ -37,7 +37,8 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     return total + ((unit.command || 0) * unit.quantity);
   }, 0);
 
-  const formatUnitDisplay = (name: string, quantity: number) => {
+  const formatUnitDisplay = (name: string, quantity: number | undefined) => {
+    if (!name || typeof quantity !== 'number') return "";
     const displayQuantity = Math.min(quantity, 9);
     return `${name} x${displayQuantity}`;
   };
@@ -51,8 +52,8 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
         >
           <div className="flex items-center gap-2">
             <div className="text-warcrow-text flex items-center gap-1">
-              {formatUnitDisplay(unit.name, unit.quantity)}
-              {unit.command && unit.command > 0 && (
+              <span>{formatUnitDisplay(unit.name, unit.quantity)}</span>
+              {unit.command ? (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -66,7 +67,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )}
+              ) : null}
               {unit.highCommand && (
                 <TooltipProvider>
                   <Tooltip>
