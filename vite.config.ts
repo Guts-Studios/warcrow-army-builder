@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true,
     port: 8080,
     headers: {
       'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; frame-src *; frame-ancestors *;",
