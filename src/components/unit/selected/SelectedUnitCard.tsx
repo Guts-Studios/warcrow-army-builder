@@ -21,9 +21,11 @@ const SelectedUnitCard = ({ unit, onRemove }: SelectedUnitCardProps) => {
     <div className="flex items-center justify-between bg-warcrow-background p-2 rounded">
       <div className="flex items-center gap-2">
         <div className="text-warcrow-text flex items-center gap-1">
-          <span>{formatUnitDisplay(unit.name, unit.quantity)}</span>
-          {unit.command && <CommandPoints command={unit.command} />}
-          {unit.highCommand && <HighCommandBadge />}
+          <div className="flex items-center gap-1">
+            {formatUnitDisplay(unit.name, unit.quantity)}
+            {unit.command && <CommandPoints command={unit.command} />}
+            {unit.highCommand && <HighCommandBadge />}
+          </div>
         </div>
         <span className="text-warcrow-muted">
           ({unit.pointsCost * unit.quantity} pts)
