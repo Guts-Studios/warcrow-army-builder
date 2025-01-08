@@ -15,7 +15,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const Login = () => {
+interface LoginProps {
+  onGuestAccess?: () => void;
+}
+
+const Login = ({ onGuestAccess }: LoginProps) => {
   const navigate = useNavigate();
   const [showGuestDialog, setShowGuestDialog] = useState(false);
 
@@ -35,6 +39,9 @@ const Login = () => {
 
   const confirmGuestAccess = () => {
     setShowGuestDialog(false);
+    if (onGuestAccess) {
+      onGuestAccess();
+    }
     navigate('/landing');
   };
 

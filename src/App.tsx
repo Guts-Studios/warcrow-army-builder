@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [isGuest, setIsGuest] = React.useState(false);
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
@@ -68,7 +69,13 @@ function App() {
             <Routes>
               <Route 
                 path="/login" 
-                element={isAuthenticated ? <Navigate to="/builder" replace /> : <Login />} 
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/builder" replace />
+                  ) : (
+                    <Login onGuestAccess={() => setIsGuest(true)} />
+                  )
+                } 
               />
               <Route 
                 path="/" 
@@ -81,7 +88,11 @@ function App() {
               <Route 
                 path="/builder" 
                 element={
-                  isPreview || isAuthenticated ? <Index /> : <Navigate to="/login" replace />
+                  isPreview || isAuthenticated || isGuest ? (
+                    <Index />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 } 
               />
               <Route 
