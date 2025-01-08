@@ -50,7 +50,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
           className="flex items-center justify-between bg-warcrow-background p-2 rounded"
         >
           <div className="flex items-center gap-2">
-            <span className="text-warcrow-text flex items-center gap-1">
+            <div className="text-warcrow-text flex items-center gap-1">
               {formatUnitDisplay(unit.name, unit.quantity)}
               {unit.command && unit.command > 0 && (
                 <TooltipProvider>
@@ -79,7 +79,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                   </Tooltip>
                 </TooltipProvider>
               )}
-            </span>
+            </div>
             <span className="text-warcrow-muted">
               ({unit.pointsCost * unit.quantity} pts)
             </span>
