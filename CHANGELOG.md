@@ -13,7 +13,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 - Resolved bug causing app to go to 404 on page refresh.
-- Issue with units showing an extra 0 at the end of quantity
 
 ## [0.2.9] - 2025-01-01
 ### Added
