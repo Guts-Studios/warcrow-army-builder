@@ -39,7 +39,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
 
   const formatUnitDisplay = (name: string, quantity: number) => {
     const displayQuantity = Math.min(quantity, 9);
-    return `${name} x${displayQuantity}`.replace(/0+$/, '');
+    return `${name} x${displayQuantity}`;
   };
 
   return (
