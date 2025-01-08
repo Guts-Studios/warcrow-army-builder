@@ -35,7 +35,7 @@ const Login = () => {
 
   const confirmGuestAccess = () => {
     setShowGuestDialog(false);
-    navigate('/builder');
+    navigate('/landing');
   };
 
   return (
