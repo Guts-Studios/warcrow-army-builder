@@ -10,6 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+// Import the changelog content
+import changelogContent from '../../CHANGELOG.md?raw';
+
 const Landing = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
@@ -28,38 +31,6 @@ const Landing = () => {
     navigate('/login');
   };
 
-  const changelogContent = `# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
-
-## [Unreleased]
-- Placeholder for changes in progress.
-
-## [0.3.0] - 2024-01-10
-
-### Added
-- warcrowarmy.com domain
-- New email service
-
-### Changed
-- Navigation now properly redirects to landing page from sign in either as a guest or not choosing to log as a guest
-- Updated logo consistency on login page
-
-## Known Issues
-- Reset Password not working, migrated email service platform awating verification of new domain
-
-## [0.2.11] - 2024-01-04
-### Added
-- Guest mode functionality
-- Improved navigation flow
-- Updated login page with server migration notice
-
-### Changed
-- Navigation now properly redirects to landing page
-- Updated logo consistency across pages`;
-
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
@@ -71,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
         <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder
         </h1>
-        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version 0.3.0</div>
+        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version 0.2.9</div>
         <p className="text-lg md:text-xl text-warcrow-text">
           Create and manage your Warcrow army lists with ease.
         </p>
