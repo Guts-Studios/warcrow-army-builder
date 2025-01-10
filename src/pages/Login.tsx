@@ -26,6 +26,7 @@ interface LoginProps {
 const Login = ({ onGuestAccess }: LoginProps) => {
   const navigate = useNavigate();
   const [showGuestDialog, setShowGuestDialog] = useState(false);
+  const [showHomeGuestDialog, setShowHomeGuestDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,13 +127,19 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     setShowGuestDialog(true);
   };
 
-  const confirmGuestAccess = () => {
-    console.log('Guest access confirmed');
+  const handleHomeClick = () => {
+    console.log('Home button clicked');
+    setShowHomeGuestDialog(true);
+  };
+
+  const confirmGuestAccess = (redirectPath: string = '/landing') => {
+    console.log('Guest access confirmed, redirecting to:', redirectPath);
     setShowGuestDialog(false);
+    setShowHomeGuestDialog(false);
     if (onGuestAccess) {
       onGuestAccess();
     }
-    navigate('/landing');
+    navigate(redirectPath);
   };
 
   return (
@@ -145,7 +152,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <div className="mb-6 flex justify-center gap-4">
           <Button
-            onClick={() => navigate('/')}
+            onClick={handleHomeClick}
             variant="outline"
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
           >
@@ -191,7 +198,22 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmGuestAccess}>Continue as Guest</AlertDialogAction>
+            <AlertDialogAction onClick={() => confirmGuestAccess()}>Continue as Guest</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showHomeGuestDialog} onOpenChange={setShowHomeGuestDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Continuing as Guest</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll be continuing to the home page as a guest user. Some features will be limited. You can sign in anytime to access all features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => confirmGuestAccess('/')}>Continue to Home</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
