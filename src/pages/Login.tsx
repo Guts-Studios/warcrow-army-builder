@@ -29,7 +29,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange(async (event) => {
       console.log('Auth event:', event);
       if (event === 'PASSWORD_RECOVERY') {
         toast.info('Check your email for the password reset link');
@@ -40,19 +40,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         navigate('/builder');
       }
     });
-
-    // Handle auth errors through the auth state change event
-    const handleAuthError = (error: AuthError) => {
-      console.error('Auth error:', error);
-      const errorMessage = error.message;
-      if (errorMessage.includes('For security purposes, you can only request this after')) {
-        setError('Please wait 24 seconds before requesting another password reset.');
-        // Clear the error message after 24 seconds
-        setTimeout(() => setError(null), 24000);
-      } else {
-        setError(errorMessage || 'An error occurred during authentication.');
-      }
-    };
 
     return () => {
       subscription.unsubscribe();
@@ -114,6 +101,16 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             }
           }}
           providers={[]}
+          onError={(error) => {
+            console.error('Auth error:', error);
+            if (error.message.includes('missing email')) {
+              setError('Please enter your email address');
+            } else {
+              setError(error.message);
+            }
+            // Clear error after 5 seconds
+            setTimeout(() => setError(null), 5000);
+          }}
         />
       </div>
 
