@@ -150,6 +150,12 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           alt="Warcrow Logo" 
           className="h-24 mx-auto mb-8"
         />
+        <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
+          <AlertDescription className="text-yellow-200 text-sm">
+            Currently password reset is down after migrating servers, we are waiting on our domain to be verified. 
+            Will update when fixed. If having issues, please email us at warcrowarmy@gmail.com or post in the Warcrow Discord
+          </AlertDescription>
+        </Alert>
         <div className="mb-6 flex justify-center gap-4">
           <Button
             onClick={handleHomeClick}
