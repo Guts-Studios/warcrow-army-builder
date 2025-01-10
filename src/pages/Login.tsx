@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AuthError } from "@supabase/supabase-js";
 
 interface LoginProps {
   onGuestAccess?: () => void;
@@ -26,7 +27,9 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       console.log('Auth event:', event);
       if (event === 'PASSWORD_RECOVERY') {
         toast.info('Check your email for the password reset link');
@@ -38,8 +41,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
     });
 
-    // Handle rate limit errors through the auth state change event
-    const handleAuthError = (error: Error) => {
+    // Handle auth errors through the auth state change event
+    const handleAuthError = (error: AuthError) => {
       console.error('Auth error:', error);
       const errorMessage = error.message;
       if (errorMessage.includes('For security purposes, you can only request this after')) {
@@ -51,16 +54,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
     };
 
-    // Subscribe to auth state changes and handle errors
-    const errorSubscription = supabase.auth.onAuthStateChange((event, session, error) => {
-      if (error) {
-        handleAuthError(error);
-      }
-    });
-
     return () => {
       subscription.unsubscribe();
-      errorSubscription.unsubscribe();
     };
   }, [navigate]);
 
