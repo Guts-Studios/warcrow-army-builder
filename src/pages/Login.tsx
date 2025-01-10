@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError } from "@supabase/supabase-js";
 
 interface LoginProps {
@@ -29,7 +30,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       if (event === 'PASSWORD_RECOVERY') {
         toast.info('Check your email for the password reset link');
@@ -38,6 +39,14 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       } else if (event === 'USER_UPDATED') {
         toast.success('Your password has been updated successfully');
         navigate('/builder');
+      } else if (event === 'RECOVERY_EMAIL_SENT') {
+        // Handle rate limit error from password recovery
+        const error = session?.error;
+        if (error?.message?.includes('rate_limit')) {
+          const waitTime = error.message.match(/\d+/)?.[0] || '60';
+          setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
+          setTimeout(() => setError(null), parseInt(waitTime) * 1000);
+        }
       }
     });
 
@@ -83,9 +92,9 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           </Button>
         </div>
         {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
         <Auth
           supabaseClient={supabase}
@@ -101,16 +110,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             }
           }}
           providers={[]}
-          onError={(error) => {
-            console.error('Auth error:', error);
-            if (error.message.includes('missing email')) {
-              setError('Please enter your email address');
-            } else {
-              setError(error.message);
-            }
-            // Clear error after 5 seconds
-            setTimeout(() => setError(null), 5000);
-          }}
         />
       </div>
 
