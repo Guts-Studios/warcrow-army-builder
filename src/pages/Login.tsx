@@ -29,17 +29,26 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Login component mounted');
+    
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event);
-      console.log('Session:', session);
+      console.log('Auth event triggered:', {
+        event,
+        sessionExists: !!session,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email
+      });
       
       if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery event triggered');
+        console.log('Password recovery flow initiated');
         const userEmail = session?.user?.email;
+        
         if (userEmail) {
           try {
+            console.log('Attempting to send password reset email to:', userEmail);
+            
             await sendEmail(
               [userEmail],
               'Password Reset Instructions',
@@ -47,25 +56,38 @@ const Login = ({ onGuestAccess }: LoginProps) => {
               <p>Click the link below to reset your password:</p>
               <p><a href="${window.location.origin}/reset-password">Reset Password</a></p>`
             );
-            toast.info('Password reset instructions have been sent to your email');
+            
+            console.log('Password reset email sent successfully');
+            toast.success('Password reset instructions have been sent to your email');
           } catch (error) {
-            console.error('Failed to send password reset email:', error);
-            toast.error('Failed to send password reset email');
+            console.error('Password reset email failed:', {
+              error,
+              errorMessage: error instanceof Error ? error.message : 'Unknown error'
+            });
+            toast.error('Failed to send password reset email. Please try again.');
           }
+        } else {
+          console.error('No user email available for password reset');
         }
       } else if (event === 'SIGNED_IN') {
+        console.log('User signed in, navigating to builder');
         navigate('/builder');
       } else if (event === 'USER_UPDATED') {
+        console.log('User profile updated');
         toast.success('Your password has been updated successfully');
         navigate('/builder');
       } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
         setError(null);
       }
 
       if (session?.user === null) {
         const authError = (session as unknown as { error?: AuthError }).error;
         if (authError) {
-          console.error('Auth error:', authError);
+          console.error('Authentication error:', {
+            message: authError.message,
+            status: authError.status
+          });
           
           if (authError.message?.includes('rate_limit')) {
             const waitTime = authError.message.match(/\d+/)?.[0] || '60';
@@ -80,15 +102,18 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     });
 
     return () => {
+      console.log('Login component unmounting, cleaning up subscription');
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const handleGuestAccess = () => {
+    console.log('Guest access requested');
     setShowGuestDialog(true);
   };
 
   const confirmGuestAccess = () => {
+    console.log('Guest access confirmed');
     setShowGuestDialog(false);
     if (onGuestAccess) {
       onGuestAccess();
