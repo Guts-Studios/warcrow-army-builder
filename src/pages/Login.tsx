@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 interface LoginProps {
   onGuestAccess?: () => void;
@@ -81,28 +81,35 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         setError(null);
       }
 
-      // Handle signup confirmation email error
-      if (session?.error?.message?.includes('Error sending confirmation email')) {
-        setError('Unable to send confirmation email. Please try signing in directly or contact support.');
-        toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
-      }
-
-      // Handle authentication errors
-      if (session?.error) {
+      // Handle errors from the auth state change
+      const authError = session as unknown as { error?: AuthError };
+      if (authError?.error) {
         console.error('Authentication error:', {
-          message: session.error.message,
-          status: session.error.status
+          message: authError.error.message,
+          status: authError.error.status
         });
-        
-        if (session.error.message?.includes('Invalid login credentials')) {
-          setError('Invalid email or password. Please check your credentials and try again.');
-        } else if (session.error.message?.includes('rate_limit')) {
-          const waitTime = session.error.message.match(/\d+/)?.[0] || '60';
-          setError(`Please wait ${waitTime} seconds before trying again.`);
-          setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-        } else {
-          setError(session.error.message);
-          setTimeout(() => setError(null), 5000);
+
+        if (authError.error instanceof AuthApiError) {
+          switch (authError.error.message) {
+            case 'Invalid login credentials':
+              setError('Invalid email or password. Please check your credentials and try again.');
+              break;
+            case 'Email not confirmed':
+              setError('Please verify your email address before signing in.');
+              break;
+            default:
+              if (authError.error.message?.includes('rate_limit')) {
+                const waitTime = authError.error.message.match(/\d+/)?.[0] || '60';
+                setError(`Please wait ${waitTime} seconds before trying again.`);
+                setTimeout(() => setError(null), parseInt(waitTime) * 1000);
+              } else if (authError.error.message?.includes('Error sending confirmation email')) {
+                setError('Unable to send confirmation email. Please try signing in directly or contact support.');
+                toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
+              } else {
+                setError(authError.error.message);
+                setTimeout(() => setError(null), 5000);
+              }
+          }
         }
       }
     });
