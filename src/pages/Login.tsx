@@ -81,6 +81,14 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         setError(null);
       }
 
+      if (!session?.user && event === 'SIGNED_UP') {
+        const authError = (session as unknown as { error?: AuthError }).error;
+        if (authError?.message?.includes('Error sending confirmation email')) {
+          setError('Unable to send confirmation email. Please try signing in directly or contact support.');
+          toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
+        }
+      }
+
       if (session?.user === null) {
         const authError = (session as unknown as { error?: AuthError }).error;
         if (authError) {
