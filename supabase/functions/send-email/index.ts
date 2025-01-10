@@ -15,20 +15,24 @@ interface EmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log('Edge function received request:', req.method);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const emailRequest: EmailRequest = await req.json();
+    console.log('Received email request:', emailRequest);
+
     if (!RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not set");
-      throw new Error("RESEND_API_KEY is not configured");
+      console.error('RESEND_API_KEY is not set');
+      throw new Error('RESEND_API_KEY is not configured');
     }
 
-    const emailRequest: EmailRequest = await req.json();
-    console.log("Sending email with request:", emailRequest);
-
+    console.log('Sending request to Resend API');
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -36,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Warcrow Army Builder <onboarding@resend.dev>",
+        from: "Acme <onboarding@resend.dev>",
         to: emailRequest.to,
         subject: emailRequest.subject,
         html: emailRequest.html,
@@ -45,21 +49,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (res.ok) {
       const data = await res.json();
-      console.log("Email sent successfully:", data);
+      console.log('Successfully sent email:', data);
+
       return new Response(JSON.stringify(data), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     } else {
       const error = await res.text();
-      console.error("Error sending email:", error);
+      console.error('Resend API error:', error);
       return new Response(JSON.stringify({ error }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
   } catch (error: any) {
-    console.error("Error in send-email function:", error);
+    console.error("Error in sendemail function:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
