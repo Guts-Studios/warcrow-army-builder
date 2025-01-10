@@ -139,7 +139,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     if (onGuestAccess) {
       onGuestAccess();
     }
-    navigate(redirectPath);
+    navigate('/landing');  // Always redirect to landing page
   };
 
   return (
