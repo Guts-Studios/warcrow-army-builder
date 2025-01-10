@@ -81,30 +81,28 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         setError(null);
       }
 
-      if (!session?.user && event === 'SIGNED_UP') {
-        const authError = (session as unknown as { error?: AuthError }).error;
-        if (authError?.message?.includes('Error sending confirmation email')) {
-          setError('Unable to send confirmation email. Please try signing in directly or contact support.');
-          toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
-        }
+      // Handle signup confirmation email error
+      if (session?.error?.message?.includes('Error sending confirmation email')) {
+        setError('Unable to send confirmation email. Please try signing in directly or contact support.');
+        toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
       }
 
-      if (session?.user === null) {
-        const authError = (session as unknown as { error?: AuthError }).error;
-        if (authError) {
-          console.error('Authentication error:', {
-            message: authError.message,
-            status: authError.status
-          });
-          
-          if (authError.message?.includes('rate_limit')) {
-            const waitTime = authError.message.match(/\d+/)?.[0] || '60';
-            setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
-            setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-          } else {
-            setError(authError.message);
-            setTimeout(() => setError(null), 5000);
-          }
+      // Handle authentication errors
+      if (session?.error) {
+        console.error('Authentication error:', {
+          message: session.error.message,
+          status: session.error.status
+        });
+        
+        if (session.error.message?.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (session.error.message?.includes('rate_limit')) {
+          const waitTime = session.error.message.match(/\d+/)?.[0] || '60';
+          setError(`Please wait ${waitTime} seconds before trying again.`);
+          setTimeout(() => setError(null), parseInt(waitTime) * 1000);
+        } else {
+          setError(session.error.message);
+          setTimeout(() => setError(null), 5000);
         }
       }
     });
