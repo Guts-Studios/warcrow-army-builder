@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,10 +23,17 @@ interface LoginProps {
 const Login = ({ onGuestAccess }: LoginProps) => {
   const navigate = useNavigate();
   const [showGuestDialog, setShowGuestDialog] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      console.log('Auth event:', event);
+      if (event === 'PASSWORD_RECOVERY') {
+        toast.info('Check your email for the password reset link');
+      } else if (event === 'SIGNED_IN') {
+        navigate('/builder');
+      } else if (event === 'USER_UPDATED') {
+        toast.success('Your password has been updated successfully');
         navigate('/builder');
       }
     });
@@ -69,6 +77,11 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             Continue as Guest
           </Button>
         </div>
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         <Auth
           supabaseClient={supabase}
           appearance={{
