@@ -32,6 +32,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
+      console.log('Session:', session);
       
       if (event === 'PASSWORD_RECOVERY') {
         toast.info('Check your email for the password reset link');
@@ -45,17 +46,19 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
 
       // Handle API errors, including rate limiting
-      const apiError = session?.error as AuthError | undefined;
-      if (apiError) {
-        console.error('Auth error:', apiError);
-        
-        if (apiError.message?.includes('rate_limit')) {
-          const waitTime = apiError.message.match(/\d+/)?.[0] || '60';
-          setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
-          setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-        } else {
-          setError(apiError.message);
-          setTimeout(() => setError(null), 5000);
+      if (session?.user === null) {
+        const authError = (session as unknown as { error?: AuthError }).error;
+        if (authError) {
+          console.error('Auth error:', authError);
+          
+          if (authError.message?.includes('rate_limit')) {
+            const waitTime = authError.message.match(/\d+/)?.[0] || '60';
+            setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
+            setTimeout(() => setError(null), parseInt(waitTime) * 1000);
+          } else {
+            setError(authError.message);
+            setTimeout(() => setError(null), 5000);
+          }
         }
       }
     });
