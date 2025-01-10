@@ -139,7 +139,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden">
       <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
         <img 
-          src="https://assets.corvusbelli.net/warcrow/web/logo_warcrow.png" 
+          src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
           alt="Warcrow Logo" 
           className="h-24 mx-auto mb-8"
         />
