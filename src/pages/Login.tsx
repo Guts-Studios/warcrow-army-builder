@@ -103,8 +103,9 @@ const Login = ({ onGuestAccess }: LoginProps) => {
                 setError(`Please wait ${waitTime} seconds before trying again.`);
                 setTimeout(() => setError(null), parseInt(waitTime) * 1000);
               } else if (authError.error.message?.includes('Error sending confirmation email')) {
-                setError('Unable to send confirmation email. Please try signing in directly or contact support.');
-                toast.error('Account created but confirmation email could not be sent. You can still try to sign in.');
+                setError('Account created successfully but confirmation email could not be sent. You can try signing in.');
+                toast.success('Account created successfully!');
+                toast.info('You may need to contact support to verify your email.');
               } else {
                 setError(authError.error.message);
                 setTimeout(() => setError(null), 5000);
