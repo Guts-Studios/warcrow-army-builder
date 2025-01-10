@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { sendEmail } from "@/utils/emailUtils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,17 +36,32 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       console.log('Session:', session);
       
       if (event === 'PASSWORD_RECOVERY') {
-        toast.info('Check your email for the password reset link');
+        console.log('Password recovery event triggered');
+        const userEmail = session?.user?.email;
+        if (userEmail) {
+          try {
+            await sendEmail(
+              [userEmail],
+              'Password Reset Instructions',
+              `<h1>Password Reset</h1>
+              <p>Click the link below to reset your password:</p>
+              <p><a href="${window.location.origin}/reset-password">Reset Password</a></p>`
+            );
+            toast.info('Password reset instructions have been sent to your email');
+          } catch (error) {
+            console.error('Failed to send password reset email:', error);
+            toast.error('Failed to send password reset email');
+          }
+        }
       } else if (event === 'SIGNED_IN') {
         navigate('/builder');
       } else if (event === 'USER_UPDATED') {
         toast.success('Your password has been updated successfully');
         navigate('/builder');
       } else if (event === 'SIGNED_OUT') {
-        setError(null); // Clear any existing errors
+        setError(null);
       }
 
-      // Handle API errors, including rate limiting
       if (session?.user === null) {
         const authError = (session as unknown as { error?: AuthError }).error;
         if (authError) {
