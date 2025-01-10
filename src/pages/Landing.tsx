@@ -13,9 +13,19 @@ import {
 // Import the changelog content
 import changelogContent from '../../CHANGELOG.md?raw';
 
+// Function to get the latest version from changelog
+const getLatestVersion = (content: string): string => {
+  const versionRegex = /\[(\d+\.\d+\.\d+)\]/;
+  const matches = content.match(new RegExp(versionRegex, 'g'));
+  if (!matches) return '0.0.0';
+  
+  return matches[0].match(versionRegex)![1];
+};
+
 const Landing = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
+  const latestVersion = getLatestVersion(changelogContent);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -42,7 +52,7 @@ const Landing = () => {
         <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder
         </h1>
-        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version 0.2.9</div>
+        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version {latestVersion}</div>
         <p className="text-lg md:text-xl text-warcrow-text">
           Create and manage your Warcrow army lists with ease.
         </p>
