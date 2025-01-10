@@ -38,19 +38,25 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
     });
 
-    const handleAuthError = (error: any) => {
+    // Handle rate limit errors through the auth state change event
+    const handleAuthError = (error: Error) => {
       console.error('Auth error:', error);
-      if (error?.message?.includes('over_email_send_rate_limit')) {
+      const errorMessage = error.message;
+      if (errorMessage.includes('For security purposes, you can only request this after')) {
         setError('Please wait 24 seconds before requesting another password reset.');
         // Clear the error message after 24 seconds
         setTimeout(() => setError(null), 24000);
       } else {
-        setError(error?.message || 'An error occurred during authentication.');
+        setError(errorMessage || 'An error occurred during authentication.');
       }
     };
 
-    // Subscribe to auth error events
-    const errorSubscription = supabase.auth.onError(handleAuthError);
+    // Subscribe to auth state changes and handle errors
+    const errorSubscription = supabase.auth.onAuthStateChange((event, session, error) => {
+      if (error) {
+        handleAuthError(error);
+      }
+    });
 
     return () => {
       subscription.unsubscribe();
