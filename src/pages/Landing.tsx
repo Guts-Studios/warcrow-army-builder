@@ -59,7 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
         <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder
         </h1>
-        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version 0.2.9</div>
+        <div className="text-warcrow-gold/80 text-xs md:text-sm">Version 0.3.0</div>
         <p className="text-lg md:text-xl text-warcrow-text">
           Create and manage your Warcrow army lists with ease.
         </p>
