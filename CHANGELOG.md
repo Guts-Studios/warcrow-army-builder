@@ -10,11 +10,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Submitting scores 
 - Scoreboards
+- Full rules reference
 
 ## [Unreleased]
 - Placeholder for changes in progress.
+- 
+## [0.3.0] - 2024-01-10
 
-## [0.3.0] - 2024-01-04
+### Added
+- warcrowarmy.com domain
+- New email service
+
+### Changed
+- Navigation now properly redirects to landing page from sign in either as a guest or not choosing to log as a guest
+- Updated logo consistency on login page
+## Known Issues
+- Reset Password not working, migrated email service platform awating verification of new domain
+
+## [0.2.11] - 2024-01-04
 ### Added
 - Guest mode functionality
 - Improved navigation flow
