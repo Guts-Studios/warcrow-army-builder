@@ -39,14 +39,15 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       } else if (event === 'USER_UPDATED') {
         toast.success('Your password has been updated successfully');
         navigate('/builder');
-      } else if (event === 'RECOVERY_EMAIL_SENT') {
-        // Handle rate limit error from password recovery
-        const error = session?.error;
-        if (error?.message?.includes('rate_limit')) {
-          const waitTime = error.message.match(/\d+/)?.[0] || '60';
-          setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
-          setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-        }
+      }
+
+      // Handle rate limit error from password recovery
+      // We check the error message directly since it comes from the API response
+      const apiError = (session as any)?.error as AuthError | undefined;
+      if (apiError?.message?.includes('rate_limit')) {
+        const waitTime = apiError.message.match(/\d+/)?.[0] || '60';
+        setError(`Please wait ${waitTime} seconds before requesting another password reset.`);
+        setTimeout(() => setError(null), parseInt(waitTime) * 1000);
       }
     });
 
