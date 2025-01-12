@@ -47,21 +47,34 @@ const ResetPassword = () => {
       try {
         setIsValidating(true);
         // Get the access token from the URL hash
-        const hashParams = new URLSearchParams(location.hash.substring(1));
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         
         if (!accessToken) {
-          console.error('No access token found');
+          console.error('No access token found in URL');
           toast.error("Invalid or expired reset link");
           navigate('/login');
           return;
         }
 
-        // Verify the access token
-        const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+        // Set the session with the access token
+        const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: '',
+        });
+
+        if (sessionError || !session) {
+          console.error('Session error:', sessionError);
+          toast.error("Invalid or expired reset link");
+          navigate('/login');
+          return;
+        }
+
+        // Get user details
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (error || !user) {
-          console.error('Token validation error:', error);
+        if (userError || !user) {
+          console.error('User error:', userError);
           toast.error("Invalid or expired reset link");
           navigate('/login');
           return;
@@ -78,7 +91,7 @@ const ResetPassword = () => {
     };
 
     validateAccess();
-  }, [navigate, location, form]);
+  }, [navigate, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (values.password !== values.confirmPassword) {
