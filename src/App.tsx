@@ -97,7 +97,7 @@ function App() {
               />
               <Route 
                 path="*" 
-                element={<Navigate to="/builder" replace />} 
+                element={<Navigate to="/landing" replace />} 
               />
             </Routes>
             <Toaster />
