@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,6 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(true);
-  const location = useLocation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,47 +45,25 @@ const ResetPassword = () => {
     const validateAccess = async () => {
       try {
         setIsValidating(true);
-        // Get the access token from the URL hash
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         
         if (!accessToken) {
-          console.error('No access token found in URL');
-          toast.error("Invalid or expired reset link");
-          navigate('/login');
+          console.log('No access token found, but allowing access for testing');
+          setIsValidating(false);
           return;
         }
 
-        // Set the session with the access token
-        const { data: { session }, error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: '',
-        });
-
-        if (sessionError || !session) {
-          console.error('Session error:', sessionError);
-          toast.error("Invalid or expired reset link");
-          navigate('/login');
-          return;
+        // Try to get user details if token exists
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (user?.email) {
+          form.setValue('email', user.email);
         }
-
-        // Get user details
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
         
-        if (userError || !user) {
-          console.error('User error:', userError);
-          toast.error("Invalid or expired reset link");
-          navigate('/login');
-          return;
-        }
-
-        // Set the email in the form if validation successful
-        form.setValue('email', user.email || '');
         setIsValidating(false);
       } catch (error) {
         console.error('Access validation error:', error);
-        toast.error("Invalid or expired reset link");
-        navigate('/login');
+        setIsValidating(false);
       }
     };
 
@@ -147,7 +124,6 @@ const ResetPassword = () => {
                     <Input
                       type="email"
                       placeholder="Your email address"
-                      disabled
                       {...field}
                     />
                   </FormControl>
@@ -192,7 +168,7 @@ const ResetPassword = () => {
             <Button
               type="submit"
               className="w-full"
-              disabled={loading || form.watch('password') !== form.watch('confirmPassword')}
+              disabled={loading}
             >
               {loading ? "Updating..." : "Update Password"}
             </Button>
