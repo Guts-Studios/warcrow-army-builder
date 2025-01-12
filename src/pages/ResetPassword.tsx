@@ -30,6 +30,7 @@ const formSchema = z.object({
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
   const location = useLocation();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,22 +43,41 @@ const ResetPassword = () => {
   });
 
   useEffect(() => {
-    const checkPasswordReset = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      // Get the email from the URL if present
-      const params = new URLSearchParams(location.hash.substring(1));
-      const email = params.get('email');
-      
-      if (email) {
-        form.setValue('email', decodeURIComponent(email));
-      } else if (!session?.user?.email) {
-        console.log('No active password reset session found');
+    const validateAccess = async () => {
+      try {
+        setIsValidating(true);
+        // Get the access token from the URL hash
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        
+        if (!accessToken) {
+          console.error('No access token found');
+          toast.error("Invalid or expired reset link");
+          navigate('/login');
+          return;
+        }
+
+        // Verify the access token
+        const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+        
+        if (error || !user) {
+          console.error('Token validation error:', error);
+          toast.error("Invalid or expired reset link");
+          navigate('/login');
+          return;
+        }
+
+        // Set the email in the form if validation successful
+        form.setValue('email', user.email || '');
+        setIsValidating(false);
+      } catch (error) {
+        console.error('Access validation error:', error);
+        toast.error("Invalid or expired reset link");
         navigate('/login');
       }
     };
 
-    checkPasswordReset();
+    validateAccess();
   }, [navigate, location, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -87,6 +107,16 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  if (isValidating) {
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+        <div className="text-center">
+          <p>Validating reset link...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center">
