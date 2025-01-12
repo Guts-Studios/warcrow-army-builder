@@ -126,7 +126,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 1/12 Password reset is back to working along with the sign ups. Emails seem to be getting filtered out at the server level at .edu addresses, so for now avoid signing up with any email addresses from institutions.
+            - 1/12 Password reset is back to working along with the sign ups. Check your spam/junk folders if you are not seeing it.The email might take
+              some time to be delivered. Emails seem to be getting filtered out at the server level at .edu addresses, so for now avoid signing up with any email addresses from institutions.
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
