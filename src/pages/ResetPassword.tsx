@@ -48,16 +48,15 @@ const ResetPassword = () => {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         
-        if (!accessToken) {
-          console.log('No access token found, but allowing access for testing');
-          setIsValidating(false);
-          return;
-        }
-
+        console.log('Checking access token:', accessToken ? 'Present' : 'Not present');
+        
         // Try to get user details if token exists
         const { data: { user }, error } = await supabase.auth.getUser();
         if (user?.email) {
+          console.log('User email found:', user.email);
           form.setValue('email', user.email);
+        } else {
+          console.log('No user email found');
         }
         
         setIsValidating(false);
@@ -125,6 +124,8 @@ const ResetPassword = () => {
                       type="email"
                       placeholder="Your email address"
                       {...field}
+                      disabled={true}
+                      className="bg-gray-100"
                     />
                   </FormControl>
                   <FormMessage />
