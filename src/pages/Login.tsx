@@ -44,38 +44,13 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       
       if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery flow initiated');
-        const userEmail = session?.user?.email;
-        
-        if (userEmail) {
-          try {
-            console.log('Attempting to send password reset email to:', userEmail);
-            
-            await sendEmail(
-              [userEmail],
-              'Password Reset Instructions',
-              `<h1>Password Reset</h1>
-              <p>Click the link below to reset your password:</p>
-              <p><a href="${window.location.origin}/reset-password">Reset Password</a></p>`
-            );
-            
-            console.log('Password reset email sent successfully');
-            toast.success('Password reset instructions have been sent to your email');
-          } catch (error) {
-            console.error('Password reset email failed:', {
-              error,
-              errorMessage: error instanceof Error ? error.message : 'Unknown error'
-            });
-            toast.error('Failed to send password reset email. Please try again.');
-          }
-        } else {
-          console.error('No user email available for password reset');
-        }
+        navigate('/reset-password');
       } else if (event === 'SIGNED_IN') {
         console.log('User signed in, navigating to builder');
         navigate('/builder');
       } else if (event === 'USER_UPDATED') {
         console.log('User profile updated');
-        toast.success('Your password has been updated successfully');
+        toast.success('Your profile has been updated successfully');
         navigate('/builder');
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
@@ -226,5 +201,3 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     </div>
   );
 };
-
-export default Login;

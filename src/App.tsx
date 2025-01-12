@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,10 @@ function App() {
               <Route 
                 path="/landing" 
                 element={<Landing />} 
+              />
+              <Route 
+                path="/reset-password" 
+                element={<ResetPassword />} 
               />
               <Route 
                 path="/builder" 
