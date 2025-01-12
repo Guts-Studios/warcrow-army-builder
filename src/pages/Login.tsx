@@ -126,8 +126,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            Currently password reset is down after migrating servers, we are waiting on our domain to be verified. 
-            Will update when fixed. If having issues, please email us at warcrowarmy@gmail.com or post in the Warcrow Discord
+            - 1/12 Password reset is back to working along with the sign ups. Emails seem to be getting filtered out at the server level at .edu addresses, so for now avoid signing up with any email addresses from institutions.
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
