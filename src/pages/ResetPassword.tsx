@@ -61,6 +61,11 @@ const ResetPassword = () => {
   }, [navigate, location, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (values.password !== values.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     try {
       setLoading(true);
       const { error } = await supabase.auth.updateUser({
@@ -144,7 +149,7 @@ const ResetPassword = () => {
             <Button
               type="submit"
               className="w-full"
-              disabled={loading}
+              disabled={loading || form.watch('password') !== form.watch('confirmPassword')}
             >
               {loading ? "Updating..." : "Update Password"}
             </Button>
