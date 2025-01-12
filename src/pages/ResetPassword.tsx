@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
+  email: z.string().email("Invalid email address"),
   password: z.string()
     .min(6, "Password must be at least 6 characters")
     .max(72, "Password must not exceed 72 characters"),
@@ -29,27 +30,35 @@ const formSchema = z.object({
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
   useEffect(() => {
-    // Check if we're in a password reset flow
     const checkPasswordReset = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.email) {
+      
+      // Get the email from the URL if present
+      const params = new URLSearchParams(location.hash.substring(1));
+      const email = params.get('email');
+      
+      if (email) {
+        form.setValue('email', decodeURIComponent(email));
+      } else if (!session?.user?.email) {
         console.log('No active password reset session found');
         navigate('/login');
       }
     };
 
     checkPasswordReset();
-  }, [navigate]);
+  }, [navigate, location, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -80,6 +89,24 @@ const ResetPassword = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Your email address"
+                      disabled
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="password"
