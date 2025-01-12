@@ -1,17 +1,29 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const sendEmail = async (to: string[], subject: string, html: string) => {
+interface EmailOptions {
+  type?: 'welcome' | 'reset_password';
+  token?: string;
+}
+
+export const sendEmail = async (
+  to: string[], 
+  subject: string, 
+  html: string, 
+  options: EmailOptions = {}
+) => {
   try {
     console.log('Email Request:', {
       functionName: 'send-email',
-      payload: { to, subject, html }
+      payload: { to, subject, html, ...options }
     });
     
     const { data, error } = await supabase.functions.invoke('send-email', {
       body: {
         to,
         subject,
-        html
+        html,
+        type: options.type,
+        token: options.token
       }
     });
 
