@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { sendEmail } from "@/utils/emailUtils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -201,3 +200,5 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     </div>
   );
 };
+
+export default Login;
