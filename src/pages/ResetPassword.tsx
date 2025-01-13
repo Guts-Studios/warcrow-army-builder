@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,140 +19,64 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string()
-    .min(6, "Password must be at least 6 characters")
-    .max(72, "Password must not exceed 72 characters"),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
 });
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [isValidating, setIsValidating] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
-      confirmPassword: "",
     },
   });
-
-  useEffect(() => {
-    const validateAccess = async () => {
-      try {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const type = hashParams.get('type');
-        const refreshToken = hashParams.get('refresh_token');
-        
-        console.log('Reset password parameters:', {
-          accessToken: accessToken ? 'Present' : 'Not present',
-          accessTokenLength: accessToken?.length,
-          type,
-          hasRefreshToken: !!refreshToken,
-          refreshTokenLength: refreshToken?.length
-        });
-
-        if (!accessToken || type !== 'recovery') {
-          console.error('Invalid reset flow:', { 
-            hasAccessToken: !!accessToken, 
-            type,
-            currentPath: window.location.pathname
-          });
-          setError("Invalid or expired reset link. Please request a new password reset.");
-          setTimeout(() => {
-            navigate('/login');
-          }, 3000);
-          return;
-        }
-
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || '',
-        });
-
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          setError("Invalid or expired reset link. Please request a new password reset.");
-          setTimeout(() => {
-            navigate('/login');
-          }, 3000);
-          return;
-        }
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (user?.email) {
-          form.setValue('email', user.email);
-        } else {
-          console.error('No user email found:', userError);
-          setError("Could not retrieve your email. Please try again.");
-          setTimeout(() => {
-            navigate('/login');
-          }, 3000);
-          return;
-        }
-        
-        setIsValidating(false);
-      } catch (error) {
-        console.error('Access validation error:', error);
-        setError("An error occurred. Please try again.");
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      }
-    };
-
-    validateAccess();
-  }, [navigate, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
+      setError(null);
       
-      const { error } = await supabase.auth.updateUser({
-        password: values.password
-      });
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        values.email,
+        {
+          redirectTo: `${window.location.origin}/reset-password`,
+        }
+      );
 
-      if (error) {
-        console.error('Password update error:', error);
-        toast.error(error.message);
+      if (resetError) {
+        console.error('Password reset error:', resetError);
+        setError(resetError.message);
         return;
       }
 
-      toast.success("Password updated successfully!");
-      navigate('/builder');
-    } catch (error) {
+      setEmailSent(true);
+      toast.success("Password reset instructions have been sent to your email.");
+    } catch (error: any) {
       console.error('Password reset error:', error);
-      toast.error("Failed to update password. Please try again.");
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
+  if (emailSent) {
     return (
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
-        <div className="w-full max-w-md p-8">
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </div>
-      </div>
-    );
-  }
-
-  if (isValidating) {
-    return (
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
-        <div className="text-center">
-          <p>Validating reset link...</p>
+        <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold text-center mb-6">Check Your Email</h2>
+          <p className="text-center mb-6">
+            We've sent password reset instructions to your email address.
+            Please check your inbox and follow the link to reset your password.
+          </p>
+          <Button
+            onClick={() => navigate('/login')}
+            className="w-full"
+          >
+            Return to Login
+          </Button>
         </div>
       </div>
     );
@@ -162,6 +86,11 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center">
       <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -173,40 +102,7 @@ const ResetPassword = () => {
                   <FormControl>
                     <Input
                       type="email"
-                      {...field}
-                      disabled={true}
-                      className="bg-gray-100"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
+                      placeholder="Enter your email address"
                       {...field}
                     />
                   </FormControl>
@@ -219,10 +115,17 @@ const ResetPassword = () => {
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? "Sending..." : "Send Reset Instructions"}
             </Button>
           </form>
         </Form>
+        <Button
+          variant="outline"
+          className="w-full mt-4"
+          onClick={() => navigate('/login')}
+        >
+          Back to Login
+        </Button>
       </div>
     </div>
   );
