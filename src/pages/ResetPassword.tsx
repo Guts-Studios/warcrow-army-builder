@@ -19,18 +19,24 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
@@ -49,38 +55,22 @@ const ResetPassword = () => {
       if (resetError) {
         console.error('Password reset error:', resetError);
         setError(resetError.message);
+        toast.error("Failed to reset password. Please try again.");
         return;
       }
 
-      setEmailSent(true);
       toast.success("Password reset instructions have been sent to your email.");
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (error: any) {
       console.error('Password reset error:', error);
       setError(error.message);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  if (emailSent) {
-    return (
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
-        <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold text-center mb-6">Check Your Email</h2>
-          <p className="text-center mb-6">
-            We've sent password reset instructions to your email address.
-            Please check your inbox and follow the link to reset your password.
-          </p>
-          <Button
-            onClick={() => navigate('/login')}
-            className="w-full"
-          >
-            Return to Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center">
@@ -110,12 +100,46 @@ const ResetPassword = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Confirm your new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button
               type="submit"
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Sending..." : "Send Reset Instructions"}
+              {loading ? "Processing..." : "Reset Password"}
             </Button>
           </form>
         </Form>
