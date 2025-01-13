@@ -26,7 +26,10 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const emailRequest: EmailRequest = await req.json();
-    console.log('Received email request:', emailRequest);
+    console.log('Received email request:', {
+      ...emailRequest,
+      token: emailRequest.token ? 'PRESENT' : 'MISSING'
+    });
 
     if (!RESEND_API_KEY) {
       console.error('RESEND_API_KEY is not set');
@@ -38,7 +41,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // If this is a password reset email, use the reset password template
     if (emailRequest.type === 'reset_password' && emailRequest.token) {
-      const resetUrl = `https://warcrow-army.netlify.app/reset-password#access_token=${emailRequest.token}`;
+      // Use the full URL with hash parameters
+      const resetUrl = `https://warcrowarmy.com/reset-password#${emailRequest.token}`;
+      console.log('Generated reset URL:', resetUrl);
+      
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
