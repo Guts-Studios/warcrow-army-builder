@@ -33,6 +33,39 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [userEmail, setUserEmail] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const getEmailFromHash = async () => {
+      try {
+        // Get the hash fragment from the URL (everything after #)
+        const hashFragment = window.location.hash.substring(1);
+        const params = new URLSearchParams(hashFragment);
+        const accessToken = params.get('access_token');
+        
+        if (!accessToken) {
+          setError("Invalid reset link. Please request a new password reset.");
+          return;
+        }
+
+        // Set the session with the access token
+        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+        
+        if (userError || !user?.email) {
+          console.error('Error getting user:', userError);
+          setError("Unable to verify your identity. Please request a new password reset.");
+          return;
+        }
+
+        setUserEmail(user.email);
+      } catch (err) {
+        console.error('Error processing reset token:', err);
+        setError("An error occurred while processing your reset link.");
+      }
+    };
+
+    getEmailFromHash();
+  }, []);
 
   const updatePasswordForm = useForm<UpdatePasswordFormData>({
     resolver: zodResolver(updatePasswordSchema),
@@ -82,6 +115,14 @@ const ResetPassword = () => {
           Set New Password
         </h2>
         
+        {userEmail && (
+          <Alert className="mb-6 border-warcrow-gold bg-warcrow-gold/10">
+            <AlertDescription className="text-warcrow-gold">
+              Changing password for: {userEmail}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertDescription>{error}</AlertDescription>
@@ -130,7 +171,7 @@ const ResetPassword = () => {
               <Button
                 type="submit"
                 className="w-full bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-                disabled={loading}
+                disabled={loading || !userEmail}
               >
                 {loading ? "Updating Password..." : "Update Password"}
               </Button>
