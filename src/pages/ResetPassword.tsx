@@ -15,6 +15,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -31,6 +32,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,8 +65,10 @@ const ResetPassword = () => {
             type,
             currentPath: window.location.pathname
           });
-          toast.error("Invalid or expired reset link. Please request a new one.");
-          navigate('/login');
+          setError("Invalid or expired reset link. Please request a new password reset.");
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
           return;
         }
 
@@ -75,8 +79,10 @@ const ResetPassword = () => {
 
         if (sessionError) {
           console.error('Session error:', sessionError);
-          toast.error("Invalid or expired reset link. Please request a new one.");
-          navigate('/login');
+          setError("Invalid or expired reset link. Please request a new password reset.");
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
           return;
         }
 
@@ -86,16 +92,20 @@ const ResetPassword = () => {
           form.setValue('email', user.email);
         } else {
           console.error('No user email found:', userError);
-          toast.error("Could not retrieve your email. Please try again.");
-          navigate('/login');
+          setError("Could not retrieve your email. Please try again.");
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
           return;
         }
         
         setIsValidating(false);
       } catch (error) {
         console.error('Access validation error:', error);
-        toast.error("An error occurred. Please try again.");
-        navigate('/login');
+        setError("An error occurred. Please try again.");
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
       }
     };
 
@@ -125,6 +135,18 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+        <div className="w-full max-w-md p-8">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   if (isValidating) {
     return (
