@@ -38,16 +38,10 @@ const ResetPassword = () => {
   React.useEffect(() => {
     const getEmailFromHash = async () => {
       try {
-        // First try to get the token from URL query parameters
-        const searchParams = new URLSearchParams(window.location.search);
-        let accessToken = searchParams.get('access_token');
-        
-        // If not in query params, try the hash
-        if (!accessToken) {
-          const hashFragment = window.location.hash.substring(1);
-          const hashParams = new URLSearchParams(hashFragment);
-          accessToken = hashParams.get('access_token');
-        }
+        // Get the token from the URL hash
+        const hashFragment = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hashFragment);
+        const accessToken = hashParams.get('access_token');
 
         console.log('Access token found:', !!accessToken);
         
@@ -56,22 +50,19 @@ const ResetPassword = () => {
           return;
         }
 
-        // Get the user information using the access token
-        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
-        
-        console.log('User data response:', { 
-          hasUser: !!user, 
-          email: user?.email,
-          error: userError
+        // Set the session with the access token
+        const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: '',
         });
 
-        if (userError || !user?.email) {
-          console.error('Error getting user:', userError);
+        if (sessionError || !session?.user?.email) {
+          console.error('Error setting session:', sessionError);
           setError("Unable to verify your identity. Please request a new password reset.");
           return;
         }
 
-        setUserEmail(user.email);
+        setUserEmail(session.user.email);
       } catch (err) {
         console.error('Error processing reset token:', err);
         setError("An error occurred while processing your reset link.");
@@ -103,6 +94,9 @@ const ResetPassword = () => {
       toast.success("Password has been successfully updated", {
         duration: 5000,
       });
+
+      // Sign out after password update
+      await supabase.auth.signOut();
 
       // Redirect to login after successful password update
       setTimeout(() => {
