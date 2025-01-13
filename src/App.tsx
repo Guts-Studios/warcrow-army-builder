@@ -23,14 +23,19 @@ const queryClient = new QueryClient({
 function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
   const [isGuest, setIsGuest] = React.useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
   React.useEffect(() => {
     const setupAuth = async () => {
-      // Skip auth check if we're on the reset password page
-      if (window.location.pathname === '/reset-password') {
-        console.log('Skipping auth check for reset password page');
+      // Check if we're in a password recovery flow
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type');
+      
+      if (type === 'recovery') {
+        console.log('Password recovery flow detected');
+        setIsPasswordRecovery(true);
         setIsAuthenticated(false);
         return;
       }
@@ -57,21 +62,31 @@ function App() {
 
     setupAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Skip auth state change if we're on the reset password page
-      if (window.location.pathname === '/reset-password') {
-        console.log('Skipping auth state change for reset password page');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth event triggered:', {
+        event,
+        sessionExists: !!session,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email
+      });
+
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('Password recovery event detected');
+        setIsPasswordRecovery(true);
+        setIsAuthenticated(false);
         return;
       }
-      
-      console.log('Auth state changed:', session ? 'Authenticated' : 'Not authenticated');
-      setIsAuthenticated(!!session);
+
+      // Don't update auth state during password recovery
+      if (!isPasswordRecovery) {
+        setIsAuthenticated(!!session);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [isPreview]);
+  }, [isPreview, isPasswordRecovery]);
 
-  if (isAuthenticated === null && !isPreview) {
+  if (isAuthenticated === null && !isPreview && !isPasswordRecovery) {
     return <div>Loading...</div>;
   }
 
@@ -81,7 +96,6 @@ function App() {
         <TooltipProvider>
           <Router>
             <Routes>
-              {/* Place reset-password route before other routes to ensure it takes precedence */}
               <Route 
                 path="/reset-password" 
                 element={<ResetPassword />} 
@@ -89,7 +103,7 @@ function App() {
               <Route 
                 path="/login" 
                 element={
-                  isAuthenticated ? (
+                  isAuthenticated && !isPasswordRecovery ? (
                     <Navigate to="/builder" replace />
                   ) : (
                     <Login onGuestAccess={() => setIsGuest(true)} />
