@@ -44,25 +44,53 @@ const ResetPassword = () => {
   useEffect(() => {
     const validateAccess = async () => {
       try {
-        setIsValidating(true);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
+        const type = hashParams.get('type');
         
-        console.log('Checking access token:', accessToken ? 'Present' : 'Not present');
-        
-        // Try to get user details if token exists
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (user?.email) {
-          console.log('User email found:', user.email);
-          form.setValue('email', user.email);
+        console.log('Reset password flow:', { 
+          accessToken: accessToken ? 'Present' : 'Not present',
+          type
+        });
+
+        if (accessToken) {
+          // Set the access token in the session
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: '',
+          });
+
+          if (sessionError) {
+            console.error('Session error:', sessionError);
+            toast.error("Invalid or expired reset link. Please request a new one.");
+            navigate('/login');
+            return;
+          }
+
+          // Get user details after setting the session
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (user?.email) {
+            console.log('User email found:', user.email);
+            form.setValue('email', user.email);
+          } else {
+            console.error('No user email found:', userError);
+            toast.error("Could not retrieve your email. Please try again.");
+            navigate('/login');
+            return;
+          }
         } else {
-          console.log('No user email found');
+          console.error('No access token found in URL');
+          toast.error("Invalid reset link. Please request a new one.");
+          navigate('/login');
+          return;
         }
         
         setIsValidating(false);
       } catch (error) {
         console.error('Access validation error:', error);
-        setIsValidating(false);
+        toast.error("An error occurred. Please try again.");
+        navigate('/login');
       }
     };
 
