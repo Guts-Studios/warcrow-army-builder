@@ -68,6 +68,11 @@ function App() {
         <TooltipProvider>
           <Router>
             <Routes>
+              {/* Place reset-password route before other routes to ensure it takes precedence */}
+              <Route 
+                path="/reset-password" 
+                element={<ResetPassword />} 
+              />
               <Route 
                 path="/login" 
                 element={
@@ -85,10 +90,6 @@ function App() {
               <Route 
                 path="/landing" 
                 element={<Landing />} 
-              />
-              <Route 
-                path="/reset-password" 
-                element={<ResetPassword />} 
               />
               <Route 
                 path="/builder" 
