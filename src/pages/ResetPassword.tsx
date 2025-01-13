@@ -44,24 +44,38 @@ const ResetPassword = () => {
   useEffect(() => {
     const validateAccess = async () => {
       try {
+        // Log the full URL and hash for debugging
+        console.log('Full URL:', window.location.href);
+        console.log('URL Hash:', window.location.hash);
+
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         const type = hashParams.get('type');
         const refreshToken = hashParams.get('refresh_token');
         
-        console.log('Reset password flow:', { 
+        // Log all URL parameters
+        console.log('Reset password parameters:', {
           accessToken: accessToken ? 'Present' : 'Not present',
+          accessTokenLength: accessToken?.length,
           type,
-          hasRefreshToken: !!refreshToken
+          hasRefreshToken: !!refreshToken,
+          refreshTokenLength: refreshToken?.length
         });
 
         if (!accessToken || type !== 'recovery') {
-          console.error('Invalid reset flow:', { type, hasToken: !!accessToken });
+          console.error('Invalid reset flow:', { 
+            hasAccessToken: !!accessToken, 
+            type,
+            currentPath: window.location.pathname
+          });
           toast.error("Invalid reset link. Please request a new one.");
           navigate('/login');
           return;
         }
 
+        // Log before setting session
+        console.log('Attempting to set session with tokens');
+        
         // Set the session with both tokens
         const { error: sessionError } = await supabase.auth.setSession({
           access_token: accessToken,
@@ -69,20 +83,39 @@ const ResetPassword = () => {
         });
 
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          console.error('Session error details:', {
+            error: sessionError,
+            message: sessionError.message,
+            status: sessionError.status
+          });
           toast.error("Invalid or expired reset link. Please request a new one.");
           navigate('/login');
           return;
         }
 
+        console.log('Session set successfully, fetching user details');
+
         // Get user details after setting the session
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
+        console.log('User details response:', {
+          hasUser: !!user,
+          userEmail: user?.email,
+          error: userError
+        });
+        
         if (user?.email) {
-          console.log('User email found:', user.email);
+          console.log('Setting email in form:', user.email);
           form.setValue('email', user.email);
+          
+          // Verify the form value was set
+          const formValues = form.getValues();
+          console.log('Form values after setting email:', formValues);
         } else {
-          console.error('No user email found:', userError);
+          console.error('No user email found:', {
+            error: userError,
+            user
+          });
           toast.error("Could not retrieve your email. Please try again.");
           navigate('/login');
           return;
@@ -107,6 +140,8 @@ const ResetPassword = () => {
 
     try {
       setLoading(true);
+      console.log('Attempting to update password');
+      
       const { error } = await supabase.auth.updateUser({
         password: values.password
       });
@@ -117,6 +152,7 @@ const ResetPassword = () => {
         return;
       }
 
+      console.log('Password updated successfully');
       toast.success("Password updated successfully!");
       navigate('/builder');
     } catch (error) {
