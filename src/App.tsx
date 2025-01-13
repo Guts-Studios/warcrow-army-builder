@@ -28,6 +28,13 @@ function App() {
 
   React.useEffect(() => {
     const setupAuth = async () => {
+      // Skip auth check if we're on the reset password page
+      if (window.location.pathname === '/reset-password') {
+        console.log('Skipping auth check for reset password page');
+        setIsAuthenticated(false);
+        return;
+      }
+
       if (isPreview) {
         console.log('Preview mode detected, setting as authenticated');
         setIsAuthenticated(true);
@@ -51,6 +58,12 @@ function App() {
     setupAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Skip auth state change if we're on the reset password page
+      if (window.location.pathname === '/reset-password') {
+        console.log('Skipping auth state change for reset password page');
+        return;
+      }
+      
       console.log('Auth state changed:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
     });
