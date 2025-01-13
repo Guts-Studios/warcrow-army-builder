@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: true,
     port: 8080,
     headers: {
-      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; frame-src *; frame-ancestors *;",
+      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; frame-ancestors *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';",
       'Access-Control-Allow-Origin': '*',
       'X-Frame-Options': 'ALLOWALL',
       'X-Content-Type-Options': 'nosniff',
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
   },
   preview: {
     headers: {
-      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss:; frame-src *; frame-ancestors *;",
+      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; frame-ancestors *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';",
       'Access-Control-Allow-Origin': '*',
       'X-Frame-Options': 'ALLOWALL'
     }
