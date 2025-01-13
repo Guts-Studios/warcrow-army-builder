@@ -29,8 +29,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Login component mounted');
-    
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -42,21 +40,16 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       });
       
       if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery flow initiated');
         navigate('/reset-password');
       } else if (event === 'SIGNED_IN') {
-        console.log('User signed in, navigating to builder');
         navigate('/builder');
       } else if (event === 'USER_UPDATED') {
-        console.log('User profile updated');
         toast.success('Your profile has been updated successfully');
         navigate('/builder');
       } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out');
         setError(null);
       }
 
-      // Handle errors from the auth state change
       const authError = session as unknown as { error?: AuthError };
       if (authError?.error) {
         console.error('Authentication error:', {
@@ -77,10 +70,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
                 const waitTime = authError.error.message.match(/\d+/)?.[0] || '60';
                 setError(`Please wait ${waitTime} seconds before trying again.`);
                 setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-              } else if (authError.error.message?.includes('Error sending confirmation email')) {
-                setError('Account created successfully but confirmation email could not be sent. You can try signing in.');
-                toast.success('Account created successfully!');
-                toast.info('You may need to contact support to verify your email.');
               } else {
                 setError(authError.error.message);
                 setTimeout(() => setError(null), 5000);
@@ -90,30 +79,24 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
     });
 
-    return () => {
-      console.log('Login component unmounting, cleaning up subscription');
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleGuestAccess = () => {
-    console.log('Guest access requested');
     setShowGuestDialog(true);
   };
 
   const handleHomeClick = () => {
-    console.log('Home button clicked');
     setShowHomeGuestDialog(true);
   };
 
   const confirmGuestAccess = (redirectPath: string = '/landing') => {
-    console.log('Guest access confirmed, redirecting to:', redirectPath);
     setShowGuestDialog(false);
     setShowHomeGuestDialog(false);
     if (onGuestAccess) {
       onGuestAccess();
     }
-    navigate('/landing');  // Always redirect to landing page
+    navigate('/landing');
   };
 
   return (
@@ -126,8 +109,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 1/12 Password reset is back to working along with the sign ups. Check your spam/junk folders if you are not seeing it.The email might take
-              some time to be delivered. Emails seem to be getting filtered out at the server level at .edu addresses, so for now avoid signing up with any email addresses from institutions.
+            - 1/12 Password reset is back to working along with the sign ups. Check your spam/junk folders if you are not seeing it.
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
