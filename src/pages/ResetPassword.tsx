@@ -38,19 +38,33 @@ const ResetPassword = () => {
   React.useEffect(() => {
     const getEmailFromHash = async () => {
       try {
-        // Get the hash fragment from the URL (everything after #)
-        const hashFragment = window.location.hash.substring(1);
-        const params = new URLSearchParams(hashFragment);
-        const accessToken = params.get('access_token');
+        // First try to get the token from URL query parameters
+        const searchParams = new URLSearchParams(window.location.search);
+        let accessToken = searchParams.get('access_token');
+        
+        // If not in query params, try the hash
+        if (!accessToken) {
+          const hashFragment = window.location.hash.substring(1);
+          const hashParams = new URLSearchParams(hashFragment);
+          accessToken = hashParams.get('access_token');
+        }
+
+        console.log('Access token found:', !!accessToken);
         
         if (!accessToken) {
           setError("Invalid reset link. Please request a new password reset.");
           return;
         }
 
-        // Set the session with the access token
+        // Get the user information using the access token
         const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
         
+        console.log('User data response:', { 
+          hasUser: !!user, 
+          email: user?.email,
+          error: userError
+        });
+
         if (userError || !user?.email) {
           console.error('Error getting user:', userError);
           setError("Unable to verify your identity. Please request a new password reset.");
