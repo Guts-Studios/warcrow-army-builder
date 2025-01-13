@@ -41,8 +41,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     // If this is a password reset email, use the reset password template
     if (emailRequest.type === 'reset_password' && emailRequest.token) {
+      // Format the token as a URL-safe string
+      const tokenParams = new URLSearchParams({
+        access_token: emailRequest.token,
+        type: 'recovery'
+      }).toString();
+      
       // Use the full URL with hash parameters
-      const resetUrl = `https://warcrowarmy.com/reset-password#${emailRequest.token}`;
+      const resetUrl = `https://warcrowarmy.com/reset-password#${tokenParams}`;
       console.log('Generated reset URL:', resetUrl);
       
       htmlContent = `
