@@ -1,9 +1,11 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -12,61 +14,58 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  email: z.string().email("Please enter a valid email address"),
 });
+
+type FormData = z.infer<typeof formSchema>;
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
-      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        values.email,
+        data.email,
         {
           redirectTo: `${window.location.origin}/reset-password`,
         }
       );
 
       if (resetError) {
-        console.error('Password reset error:', resetError);
-        setError(resetError.message);
-        toast.error("Failed to reset password. Please try again.");
-        return;
+        throw resetError;
       }
 
-      toast.success("Password reset instructions have been sent to your email.");
+      toast.success(
+        "Password reset instructions have been sent to your email address",
+        {
+          duration: 5000,
+        }
+      );
+      
+      // Optionally redirect to login after a delay
       setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      setError(error.message);
-      toast.error("An unexpected error occurred. Please try again.");
+        navigate("/login");
+      }, 5000);
+
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      setError(err.message || "An error occurred while resetting your password");
     } finally {
       setLoading(false);
     }
@@ -106,51 +105,16 @@ const ResetPassword = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-warcrow-gold">New Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your new password"
-                      className="bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-warcrow-gold">Confirm New Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirm your new password"
-                      className="bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="space-y-4">
               <Button
                 type="submit"
                 className="w-full bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
                 disabled={loading}
               >
-                {loading ? "Processing..." : "Reset Password"}
+                {loading ? "Sending Reset Instructions..." : "Send Reset Instructions"}
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 className="w-full border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
                 onClick={() => navigate('/login')}
