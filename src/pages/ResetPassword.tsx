@@ -47,41 +47,43 @@ const ResetPassword = () => {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         const type = hashParams.get('type');
+        const refreshToken = hashParams.get('refresh_token');
         
         console.log('Reset password flow:', { 
           accessToken: accessToken ? 'Present' : 'Not present',
-          type
+          type,
+          hasRefreshToken: !!refreshToken
         });
 
-        if (accessToken) {
-          // Set the access token in the session
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: '',
-          });
-
-          if (sessionError) {
-            console.error('Session error:', sessionError);
-            toast.error("Invalid or expired reset link. Please request a new one.");
-            navigate('/login');
-            return;
-          }
-
-          // Get user details after setting the session
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          
-          if (user?.email) {
-            console.log('User email found:', user.email);
-            form.setValue('email', user.email);
-          } else {
-            console.error('No user email found:', userError);
-            toast.error("Could not retrieve your email. Please try again.");
-            navigate('/login');
-            return;
-          }
-        } else {
-          console.error('No access token found in URL');
+        if (!accessToken || type !== 'recovery') {
+          console.error('Invalid reset flow:', { type, hasToken: !!accessToken });
           toast.error("Invalid reset link. Please request a new one.");
+          navigate('/login');
+          return;
+        }
+
+        // Set the session with both tokens
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          toast.error("Invalid or expired reset link. Please request a new one.");
+          navigate('/login');
+          return;
+        }
+
+        // Get user details after setting the session
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (user?.email) {
+          console.log('User email found:', user.email);
+          form.setValue('email', user.email);
+        } else {
+          console.error('No user email found:', userError);
+          toast.error("Could not retrieve your email. Please try again.");
           navigate('/login');
           return;
         }
