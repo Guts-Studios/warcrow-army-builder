@@ -1,10 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
+
 ## [Planned Features or Updates] 
-- New stlye
+- New style
 - Background Images
 - Playmode
 - Game sync during play mode
@@ -14,7 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 - Placeholder for changes in progress.
-- 
+
+## [0.3.1] - 2024-01-21
+
+### Added
+- Ice Archers to Northern Tribes
 ## [0.3.0] - 2024-01-10
 
 ### Added
