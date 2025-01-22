@@ -50,6 +50,21 @@ export const northernTribesTroops: Unit[] = [
     imageUrl: "/art/card/skin_changers_card.jpg"
   },
   {
+    id: "ice-archers",
+    name: "Ice Archers",
+    faction: "northern-tribes",
+    pointsCost: 25,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Varank", description: "Varank race" },
+    ],
+    specialRules: ["Slowed"],
+    highCommand: false,
+    imageUrl: "/art/card/ice_archers_card.jpg"
+  },
+  {
     id: "tundra-marauders",
     name: "Tundra Marauders",
     faction: "northern-tribes",
