@@ -113,7 +113,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 1/12 Password reset is back to working along with the sign ups. Check your spam/junk folders if you are not seeing it.
+            - 1/21 Password reset seeing some issues still. Emails are working but having issue with passing email variables to do the change. Been a little swamped lately but will get it fixed soon! Drop an email or even better drop a note in the Warcrow Discord!
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
