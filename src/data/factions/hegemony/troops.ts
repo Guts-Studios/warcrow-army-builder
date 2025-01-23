@@ -31,6 +31,22 @@ export const hegemonyTroops: Unit[] = [
     imageUrl: "/art/card/black_legion_bucklemen_card.jpg"
   },
   {
+    id: "black-legion-arquebusiers",
+    name: "Black Legion Arquebusiers",
+    faction: "hegemony-of-embersig",
+    pointsCost: 30,
+    availability: 2,
+    command: 0,
+    keywords: [
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Cover (BLK)", description: "Provides cover" },
+    ],
+    specialRules: ["Frightened"],
+    highCommand: false,
+    imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
+  },
+  {
     id: "bulwarks",
     name: "Bulwarks",
     faction: "hegemony-of-embersig",
