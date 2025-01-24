@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Clipboard, Share2, MessageSquare } from "lucide-react";
+import { Clipboard, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Section {
@@ -40,48 +40,6 @@ export const ContentDisplay = ({
     }
   };
 
-  const handleShare = async () => {
-    if (selectedSection) {
-      const shareData = {
-        title: selectedSection.title,
-        text: `${selectedSection.title}\n\n${selectedSection.content}`,
-        url: window.location.href,
-      };
-
-      // Check if Web Share API is supported
-      if (!navigator.canShare || !navigator.canShare(shareData)) {
-        toast({
-          title: "Sharing not supported",
-          description: "Your browser doesn't support sharing. The text has been copied to your clipboard instead.",
-          variant: "destructive",
-        });
-        // Fallback to copy
-        await handleCopyText();
-        return;
-      }
-
-      try {
-        await navigator.share(shareData);
-        toast({
-          title: "Sharing",
-          description: "Opening share dialog...",
-        });
-      } catch (err) {
-        // Only show error if it's not a user cancellation
-        if (err instanceof Error && err.name !== "AbortError") {
-          console.error("Share failed:", err);
-          toast({
-            title: "Failed to share",
-            description: "Could not open share dialog. The text has been copied to your clipboard instead.",
-            variant: "destructive",
-          });
-          // Fallback to copy
-          await handleCopyText();
-        }
-      }
-    }
-  };
-
   const handleDiscordShare = () => {
     if (selectedSection) {
       const text = `${selectedSection.title}\n\n${selectedSection.content}`;
@@ -113,15 +71,6 @@ export const ContentDisplay = ({
                   title="Copy section text"
                 >
                   <Clipboard className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleShare}
-                  className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                  title="Share section"
-                >
-                  <Share2 className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
