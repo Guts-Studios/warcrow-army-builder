@@ -7,10 +7,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
 
 interface Chapter {
   id: string;
@@ -26,6 +27,7 @@ interface Section {
 
 const Rules = () => {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   const { data: chapters = [], isLoading } = useQuery({
     queryKey: ['rules-chapters'],
@@ -53,6 +55,23 @@ const Rules = () => {
 
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
   const [expandedChapter, setExpandedChapter] = React.useState<string | undefined>(undefined);
+
+  // Filter chapters and sections based on search term
+  const filteredChapters = React.useMemo(() => {
+    if (!searchTerm) return chapters;
+
+    const searchLower = searchTerm.toLowerCase();
+    return chapters.map(chapter => ({
+      ...chapter,
+      sections: chapter.sections.filter(section =>
+        section.title.toLowerCase().includes(searchLower) ||
+        section.content.toLowerCase().includes(searchLower)
+      )
+    })).filter(chapter =>
+      chapter.title.toLowerCase().includes(searchLower) ||
+      chapter.sections.length > 0
+    );
+  }, [chapters, searchTerm]);
 
   // Set the first section as default when chapters data is loaded
   React.useEffect(() => {
@@ -91,9 +110,21 @@ const Rules = () => {
           <h1 className="text-3xl font-bold text-warcrow-gold">Rules Reference</h1>
         </div>
 
+        {/* Search Input */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search rules..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
           {/* Chapters Navigation */}
-          <ScrollArea className="h-[300px] md:h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-4">
+          <ScrollArea className="h-[300px] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-4">
             <Accordion 
               type="single" 
               collapsible 
@@ -101,12 +132,11 @@ const Rules = () => {
               value={expandedChapter}
               onValueChange={setExpandedChapter}
             >
-              {chapters.map((chapter) => (
+              {filteredChapters.map((chapter) => (
                 <AccordionItem key={chapter.id} value={chapter.id}>
                   <AccordionTrigger 
                     className="text-warcrow-gold hover:text-warcrow-gold/80"
                     onClick={(e) => {
-                      // Prevent the accordion from toggling when clicking directly on the trigger
                       e.stopPropagation();
                       handleChapterClick(chapter);
                     }}
@@ -137,7 +167,7 @@ const Rules = () => {
           </ScrollArea>
 
           {/* Content Area */}
-          <ScrollArea className="h-[calc(100vh-12rem-300px)] md:h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-6">
+          <ScrollArea className="h-[calc(100vh-16rem-300px)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
             <div className="prose prose-invert max-w-none">
               {selectedSection ? (
                 <>
@@ -150,7 +180,7 @@ const Rules = () => {
                 </>
               ) : (
                 <p className="text-warcrow-text">
-                  Loading content...
+                  Select a section to view its content
                 </p>
               )}
             </div>
