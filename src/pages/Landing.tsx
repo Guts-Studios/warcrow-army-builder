@@ -71,6 +71,13 @@ const Landing = () => {
             Start Building
           </Button>
           <Button
+            onClick={() => navigate('/rules')}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            Rules Reference
+          </Button>
+          <Button
             onClick={handleSignOut}
             variant="outline"
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"

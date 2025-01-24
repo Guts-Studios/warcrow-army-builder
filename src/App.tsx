@@ -10,6 +10,7 @@ import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
+import Rules from './pages/Rules';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +128,10 @@ function App() {
                     <Navigate to="/login" replace />
                   )
                 } 
+              />
+              <Route 
+                path="/rules" 
+                element={<Rules />} 
               />
               <Route 
                 path="*" 
