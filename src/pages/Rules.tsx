@@ -56,6 +56,13 @@ const Rules = () => {
 
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
 
+  // Set the first section as default when chapters data is loaded
+  React.useEffect(() => {
+    if (chapters.length > 0 && chapters[0].sections.length > 0 && !selectedSection) {
+      setSelectedSection(chapters[0].sections[0]);
+    }
+  }, [chapters, selectedSection]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
@@ -125,7 +132,7 @@ const Rules = () => {
                 </>
               ) : (
                 <p className="text-warcrow-text">
-                  Select a section from the navigation menu to view its content.
+                  Loading content...
                 </p>
               )}
             </div>
