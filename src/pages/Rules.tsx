@@ -132,73 +132,76 @@ const Rules = () => {
           <h1 className="text-3xl font-bold text-warcrow-gold">Rules Reference</h1>
         </div>
 
-        {/* Search Input and Case Sensitivity Toggle */}
-        <div className="space-y-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Search rules..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="case-sensitive"
-              checked={caseSensitive}
-              onCheckedChange={setCaseSensitive}
-            />
-            <Label htmlFor="case-sensitive" className="text-sm">
-              Case sensitive search
-            </Label>
-          </div>
-        </div>
-
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
-          {/* Chapters Navigation */}
-          <ScrollArea className="h-[300px] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-4">
-            <Accordion 
-              type="single" 
-              collapsible 
-              className="w-full"
-              value={expandedChapter}
-              onValueChange={setExpandedChapter}
-            >
-              {filteredChapters.map((chapter) => (
-                <AccordionItem key={chapter.id} value={chapter.id}>
-                  <AccordionTrigger 
-                    className="text-warcrow-gold hover:text-warcrow-gold/80"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChapterClick(chapter);
-                    }}
-                  >
-                    {highlightText(chapter.title)}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-2 pl-4">
-                      {chapter.sections.map((section) => (
-                        <Button
-                          key={section.id}
-                          variant="ghost"
-                          className={`w-full justify-start text-left ${
-                            selectedSection?.id === section.id
-                              ? 'text-warcrow-gold bg-black/40'
-                              : 'text-warcrow-text hover:text-warcrow-gold'
-                          }`}
-                          onClick={() => setSelectedSection(section)}
-                        >
-                          {highlightText(section.title)}
-                        </Button>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </ScrollArea>
+          {/* Left Column with Search and Chapters */}
+          <div className="space-y-4">
+            {/* Search Input and Case Sensitivity Toggle */}
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search rules..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="case-sensitive"
+                  checked={caseSensitive}
+                  onCheckedChange={setCaseSensitive}
+                />
+                <Label htmlFor="case-sensitive" className="text-sm">
+                  Case sensitive search
+                </Label>
+              </div>
+            </div>
+
+            {/* Chapters Navigation */}
+            <ScrollArea className="h-[300px] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-4">
+              <Accordion 
+                type="single" 
+                collapsible 
+                className="w-full"
+                value={expandedChapter}
+                onValueChange={setExpandedChapter}
+              >
+                {filteredChapters.map((chapter) => (
+                  <AccordionItem key={chapter.id} value={chapter.id}>
+                    <AccordionTrigger 
+                      className="text-warcrow-gold hover:text-warcrow-gold/80"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChapterClick(chapter);
+                      }}
+                    >
+                      {highlightText(chapter.title)}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 pl-4">
+                        {chapter.sections.map((section) => (
+                          <Button
+                            key={section.id}
+                            variant="ghost"
+                            className={`w-full justify-start text-left ${
+                              selectedSection?.id === section.id
+                                ? 'text-warcrow-gold bg-black/40'
+                                : 'text-warcrow-text hover:text-warcrow-gold'
+                            }`}
+                            onClick={() => setSelectedSection(section)}
+                          >
+                            {highlightText(section.title)}
+                          </Button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </ScrollArea>
+          </div>
 
           {/* Content Area */}
           <ScrollArea className="h-[calc(100vh-16rem-300px)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
