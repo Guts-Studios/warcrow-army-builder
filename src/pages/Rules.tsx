@@ -30,7 +30,6 @@ const Rules = () => {
   const { data: chapters = [], isLoading } = useQuery({
     queryKey: ['rules-chapters'],
     queryFn: async () => {
-      // Fetch chapters
       const { data: chaptersData, error: chaptersError } = await supabase
         .from('rules_chapters')
         .select('*')
@@ -38,7 +37,6 @@ const Rules = () => {
 
       if (chaptersError) throw chaptersError;
 
-      // Fetch sections for all chapters
       const { data: sectionsData, error: sectionsError } = await supabase
         .from('rules_sections')
         .select('*')
@@ -46,7 +44,6 @@ const Rules = () => {
 
       if (sectionsError) throw sectionsError;
 
-      // Combine chapters with their sections
       return chaptersData.map(chapter => ({
         ...chapter,
         sections: sectionsData.filter(section => section.chapter_id === chapter.id)
@@ -55,6 +52,7 @@ const Rules = () => {
   });
 
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
+  const [expandedChapter, setExpandedChapter] = React.useState<string | undefined>(undefined);
 
   // Set the first section as default when chapters data is loaded
   React.useEffect(() => {
@@ -62,6 +60,13 @@ const Rules = () => {
       setSelectedSection(chapters[0].sections[0]);
     }
   }, [chapters, selectedSection]);
+
+  const handleChapterClick = (chapter: Chapter) => {
+    if (chapter.sections.length > 0) {
+      setSelectedSection(chapter.sections[0]);
+      setExpandedChapter(chapter.id);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -89,10 +94,23 @@ const Rules = () => {
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
           {/* Chapters Navigation */}
           <ScrollArea className="h-[300px] md:h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-4">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion 
+              type="single" 
+              collapsible 
+              className="w-full"
+              value={expandedChapter}
+              onValueChange={setExpandedChapter}
+            >
               {chapters.map((chapter) => (
                 <AccordionItem key={chapter.id} value={chapter.id}>
-                  <AccordionTrigger className="text-warcrow-gold hover:text-warcrow-gold/80">
+                  <AccordionTrigger 
+                    className="text-warcrow-gold hover:text-warcrow-gold/80"
+                    onClick={(e) => {
+                      // Prevent the accordion from toggling when clicking directly on the trigger
+                      e.stopPropagation();
+                      handleChapterClick(chapter);
+                    }}
+                  >
                     {chapter.title}
                   </AccordionTrigger>
                   <AccordionContent>
