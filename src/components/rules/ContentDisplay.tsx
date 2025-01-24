@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Clipboard } from "lucide-react";
+import { Clipboard, Share2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface Section {
@@ -40,6 +40,18 @@ export const ContentDisplay = ({
     }
   };
 
+  const handleShareToDiscord = () => {
+    if (selectedSection) {
+      const text = `${selectedSection.title}\n\n${selectedSection.content}`;
+      const discordUrl = `https://discord.com/channels/@me?message=${encodeURIComponent(text)}`;
+      window.open(discordUrl, '_blank');
+      toast({
+        title: "Opening Discord",
+        description: "The section text will be ready to share in Discord.",
+      });
+    }
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <div className="prose prose-invert max-w-none">
@@ -49,15 +61,26 @@ export const ContentDisplay = ({
               <h2 className="text-2xl font-bold text-warcrow-gold">
                 {highlightText(selectedSection.title)}
               </h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCopyText}
-                className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                title="Copy section text"
-              >
-                <Clipboard className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCopyText}
+                  className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                  title="Copy section text"
+                >
+                  <Clipboard className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleShareToDiscord}
+                  className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                  title="Share to Discord"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="whitespace-pre-wrap">
               {highlightText(selectedSection.content)}
