@@ -40,16 +40,28 @@ export const ContentDisplay = ({
     }
   };
 
-  const handleShareToDiscord = () => {
+  const handleShare = async () => {
     if (selectedSection) {
       const text = `${selectedSection.title}\n\n${selectedSection.content}`;
-      // This URL format will open Discord's server/channel selector
-      const discordUrl = `https://discord.com/share?content=${encodeURIComponent(text)}`;
-      window.open(discordUrl, '_blank');
-      toast({
-        title: "Opening Discord",
-        description: "Select a server and channel to share the section.",
-      });
+      try {
+        await navigator.share({
+          title: selectedSection.title,
+          text: text,
+        });
+        toast({
+          title: "Sharing",
+          description: "Opening share dialog...",
+        });
+      } catch (err) {
+        // User cancelled or share failed
+        if (err instanceof Error && err.name !== "AbortError") {
+          toast({
+            title: "Failed to share",
+            description: "Could not open share dialog.",
+            variant: "destructive",
+          });
+        }
+      }
     }
   };
 
@@ -75,9 +87,9 @@ export const ContentDisplay = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleShareToDiscord}
+                  onClick={handleShare}
                   className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                  title="Share to Discord"
+                  title="Share section"
                 >
                   <Share2 className="h-4 w-4" />
                 </Button>
