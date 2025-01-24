@@ -43,11 +43,12 @@ export const ContentDisplay = ({
   const handleShareToDiscord = () => {
     if (selectedSection) {
       const text = `${selectedSection.title}\n\n${selectedSection.content}`;
-      const discordUrl = `https://discord.com/channels/@me?message=${encodeURIComponent(text)}`;
+      // This URL format will open Discord's server/channel selector
+      const discordUrl = `https://discord.com/share?content=${encodeURIComponent(text)}`;
       window.open(discordUrl, '_blank');
       toast({
         title: "Opening Discord",
-        description: "The section text will be ready to share in Discord.",
+        description: "Select a server and channel to share the section.",
       });
     }
   };
