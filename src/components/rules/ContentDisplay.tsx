@@ -1,5 +1,8 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Clipboard } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Section {
   id: string;
@@ -16,14 +19,46 @@ export const ContentDisplay = ({
   selectedSection,
   highlightText,
 }: ContentDisplayProps) => {
+  const { toast } = useToast();
+
+  const handleCopyText = async () => {
+    if (selectedSection) {
+      const textToCopy = `${selectedSection.title}\n\n${selectedSection.content}`;
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        toast({
+          title: "Copied to clipboard",
+          description: "The section text has been copied to your clipboard.",
+        });
+      } catch (err) {
+        toast({
+          title: "Failed to copy",
+          description: "Could not copy text to clipboard.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <div className="prose prose-invert max-w-none">
         {selectedSection ? (
           <>
-            <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-              {highlightText(selectedSection.title)}
-            </h2>
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold text-warcrow-gold">
+                {highlightText(selectedSection.title)}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyText}
+                className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                title="Copy section text"
+              >
+                <Clipboard className="h-4 w-4" />
+              </Button>
+            </div>
             <div className="whitespace-pre-wrap">
               {highlightText(selectedSection.content)}
             </div>
