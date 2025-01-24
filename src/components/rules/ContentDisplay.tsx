@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Clipboard, Share2 } from "lucide-react";
+import { Clipboard, Share2, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Section {
@@ -82,6 +82,19 @@ export const ContentDisplay = ({
     }
   };
 
+  const handleDiscordShare = () => {
+    if (selectedSection) {
+      const text = `${selectedSection.title}\n\n${selectedSection.content}`;
+      const discordUrl = `https://discord.com/channels/@me?message=${encodeURIComponent(text)}`;
+      
+      window.open(discordUrl, '_blank');
+      toast({
+        title: "Opening Discord",
+        description: "Discord is opening in a new window...",
+      });
+    }
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <div className="prose prose-invert max-w-none">
@@ -109,6 +122,15 @@ export const ContentDisplay = ({
                   title="Share section"
                 >
                   <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDiscordShare}
+                  className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                  title="Share to Discord"
+                >
+                  <MessageSquare className="h-4 w-4" />
                 </Button>
               </div>
             </div>
