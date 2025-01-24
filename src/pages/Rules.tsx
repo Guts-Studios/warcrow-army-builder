@@ -86,9 +86,9 @@ const Rules = () => {
           <h1 className="text-3xl font-bold text-warcrow-gold">Rules Reference</h1>
         </div>
 
-        <div className="grid md:grid-cols-[300px,1fr] gap-8">
+        <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
           {/* Chapters Navigation */}
-          <ScrollArea className="h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-4">
+          <ScrollArea className="h-[300px] md:h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-4">
             <Accordion type="single" collapsible className="w-full">
               {chapters.map((chapter) => (
                 <AccordionItem key={chapter.id} value={chapter.id}>
@@ -119,7 +119,7 @@ const Rules = () => {
           </ScrollArea>
 
           {/* Content Area */}
-          <ScrollArea className="h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-6">
+          <ScrollArea className="h-[calc(100vh-12rem-300px)] md:h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-6">
             <div className="prose prose-invert max-w-none">
               {selectedSection ? (
                 <>
