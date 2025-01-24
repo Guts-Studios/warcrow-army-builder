@@ -35,8 +35,11 @@ export const RulesSearch = ({
           checked={caseSensitive}
           onCheckedChange={setCaseSensitive}
         />
-        <Label htmlFor="case-sensitive" className="text-sm">
+        <Label htmlFor="case-sensitive" className="text-sm flex items-center gap-2">
           Case sensitive search
+          <span className="text-xs px-2 py-0.5 rounded-full bg-warcrow-accent/20">
+            {caseSensitive ? "ON" : "OFF"}
+          </span>
         </Label>
       </div>
     </div>
