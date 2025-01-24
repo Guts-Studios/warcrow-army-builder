@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface Chapter {
   id: string;
@@ -28,6 +30,7 @@ interface Section {
 const Rules = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [caseSensitive, setCaseSensitive] = React.useState(false);
 
   const { data: chapters = [], isLoading } = useQuery({
     queryKey: ['rules-chapters'],
@@ -60,29 +63,36 @@ const Rules = () => {
   const filteredChapters = React.useMemo(() => {
     if (!searchTerm) return chapters;
 
-    const searchLower = searchTerm.toLowerCase();
+    const searchText = caseSensitive ? searchTerm : searchTerm.toLowerCase();
+    const matchText = (text: string) => {
+      const compareText = caseSensitive ? text : text.toLowerCase();
+      return compareText.includes(searchText);
+    };
+
     return chapters.map(chapter => ({
       ...chapter,
       sections: chapter.sections.filter(section =>
-        section.title.toLowerCase().includes(searchLower) ||
-        section.content.toLowerCase().includes(searchLower)
+        matchText(section.title) || matchText(section.content)
       )
     })).filter(chapter =>
-      chapter.title.toLowerCase().includes(searchLower) ||
-      chapter.sections.length > 0
+      matchText(chapter.title) || chapter.sections.length > 0
     );
-  }, [chapters, searchTerm]);
+  }, [chapters, searchTerm, caseSensitive]);
 
   // Highlight matching text
   const highlightText = (text: string) => {
     if (!searchTerm) return text;
 
-    const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
-    return parts.map((part, index) => 
-      part.toLowerCase() === searchTerm.toLowerCase() ? 
+    const regex = new RegExp(`(${searchTerm})`, caseSensitive ? 'g' : 'gi');
+    const parts = text.split(regex);
+    return parts.map((part, index) => {
+      const isMatch = caseSensitive 
+        ? part === searchTerm
+        : part.toLowerCase() === searchTerm.toLowerCase();
+      return isMatch ? 
         <span key={index} className="bg-yellow-500/50 text-white font-medium">{part}</span> : 
-        part
-    );
+        part;
+    });
   };
 
   // Set the first section as default when chapters data is loaded
@@ -122,16 +132,28 @@ const Rules = () => {
           <h1 className="text-3xl font-bold text-warcrow-gold">Rules Reference</h1>
         </div>
 
-        {/* Search Input */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Search rules..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search Input and Case Sensitivity Toggle */}
+        <div className="space-y-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search rules..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="case-sensitive"
+              checked={caseSensitive}
+              onCheckedChange={setCaseSensitive}
+            />
+            <Label htmlFor="case-sensitive" className="text-sm">
+              Case sensitive search
+            </Label>
+          </div>
         </div>
 
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
