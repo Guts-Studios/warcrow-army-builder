@@ -8,24 +8,60 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+interface Chapter {
+  id: string;
+  title: string;
+  sections: Section[];
+}
+
+interface Section {
+  id: string;
+  title: string;
+  content: string;
+}
 
 const Rules = () => {
   const navigate = useNavigate();
 
-  // This will be replaced with actual data from Supabase later
-  const chapters = [
-    {
-      id: "chapter-1",
-      title: "Chapter 1: Basic Rules",
-      sections: [
-        {
-          id: "section-1-1",
-          title: "Introduction",
-          content: "Welcome to Warcrow...",
-        },
-      ],
-    },
-  ];
+  const { data: chapters = [], isLoading } = useQuery({
+    queryKey: ['rules-chapters'],
+    queryFn: async () => {
+      // Fetch chapters
+      const { data: chaptersData, error: chaptersError } = await supabase
+        .from('rules_chapters')
+        .select('*')
+        .order('order_index');
+
+      if (chaptersError) throw chaptersError;
+
+      // Fetch sections for all chapters
+      const { data: sectionsData, error: sectionsError } = await supabase
+        .from('rules_sections')
+        .select('*')
+        .order('order_index');
+
+      if (sectionsError) throw sectionsError;
+
+      // Combine chapters with their sections
+      return chaptersData.map(chapter => ({
+        ...chapter,
+        sections: sectionsData.filter(section => section.chapter_id === chapter.id)
+      }));
+    }
+  });
+
+  const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+        <p>Loading rules...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -57,7 +93,12 @@ const Rules = () => {
                         <Button
                           key={section.id}
                           variant="ghost"
-                          className="w-full justify-start text-left text-warcrow-text hover:text-warcrow-gold"
+                          className={`w-full justify-start text-left ${
+                            selectedSection?.id === section.id
+                              ? 'text-warcrow-gold bg-black/40'
+                              : 'text-warcrow-text hover:text-warcrow-gold'
+                          }`}
+                          onClick={() => setSelectedSection(section)}
                         >
                           {section.title}
                         </Button>
@@ -72,9 +113,20 @@ const Rules = () => {
           {/* Content Area */}
           <ScrollArea className="h-[calc(100vh-12rem)] bg-warcrow-accent/20 rounded-lg p-6">
             <div className="prose prose-invert max-w-none">
-              <p className="text-warcrow-text">
-                Select a section from the navigation menu to view its content.
-              </p>
+              {selectedSection ? (
+                <>
+                  <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
+                    {selectedSection.title}
+                  </h2>
+                  <div className="whitespace-pre-wrap">
+                    {selectedSection.content}
+                  </div>
+                </>
+              ) : (
+                <p className="text-warcrow-text">
+                  Select a section from the navigation menu to view its content.
+                </p>
+              )}
             </div>
           </ScrollArea>
         </div>
