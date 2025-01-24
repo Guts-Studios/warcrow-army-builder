@@ -42,10 +42,14 @@ export const ContentDisplay = ({
 
   const handleShare = async () => {
     if (selectedSection) {
-      const text = `${selectedSection.title}\n\n${selectedSection.content}`;
-      
+      const shareData = {
+        title: selectedSection.title,
+        text: `${selectedSection.title}\n\n${selectedSection.content}`,
+        url: window.location.href,
+      };
+
       // Check if Web Share API is supported
-      if (!navigator.share) {
+      if (!navigator.canShare || !navigator.canShare(shareData)) {
         toast({
           title: "Sharing not supported",
           description: "Your browser doesn't support sharing. The text has been copied to your clipboard instead.",
@@ -57,11 +61,7 @@ export const ContentDisplay = ({
       }
 
       try {
-        await navigator.share({
-          title: selectedSection.title,
-          text: text,
-          url: window.location.href, // Include the current URL
-        });
+        await navigator.share(shareData);
         toast({
           title: "Sharing",
           description: "Opening share dialog...",
