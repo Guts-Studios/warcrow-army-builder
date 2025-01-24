@@ -73,6 +73,18 @@ const Rules = () => {
     );
   }, [chapters, searchTerm]);
 
+  // Highlight matching text
+  const highlightText = (text: string) => {
+    if (!searchTerm) return text;
+
+    const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
+    return parts.map((part, index) => 
+      part.toLowerCase() === searchTerm.toLowerCase() ? 
+        <span key={index} className="bg-yellow-500/50 text-white font-medium">{part}</span> : 
+        part
+    );
+  };
+
   // Set the first section as default when chapters data is loaded
   React.useEffect(() => {
     if (chapters.length > 0 && chapters[0].sections.length > 0 && !selectedSection) {
@@ -141,7 +153,7 @@ const Rules = () => {
                       handleChapterClick(chapter);
                     }}
                   >
-                    {chapter.title}
+                    {highlightText(chapter.title)}
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-2 pl-4">
@@ -156,7 +168,7 @@ const Rules = () => {
                           }`}
                           onClick={() => setSelectedSection(section)}
                         >
-                          {section.title}
+                          {highlightText(section.title)}
                         </Button>
                       ))}
                     </div>
@@ -172,10 +184,10 @@ const Rules = () => {
               {selectedSection ? (
                 <>
                   <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-                    {selectedSection.title}
+                    {highlightText(selectedSection.title)}
                   </h2>
                   <div className="whitespace-pre-wrap">
-                    {selectedSection.content}
+                    {highlightText(selectedSection.content)}
                   </div>
                 </>
               ) : (
