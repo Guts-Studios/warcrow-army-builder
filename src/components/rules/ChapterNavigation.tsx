@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
 
 interface Chapter {
   id: string;
@@ -44,6 +45,11 @@ export const ChapterNavigation = ({
     }
   };
 
+  // Helper function to determine if a section is a subsection
+  const isSubsection = (title: string) => {
+    return !title.match(/^\d+\./) && title !== "Prepare the Game";
+  };
+
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <Accordion
@@ -75,13 +81,22 @@ export const ChapterNavigation = ({
                     key={section.id}
                     variant="ghost"
                     className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors whitespace-normal h-auto min-h-[2.5rem] ${
+                      isSubsection(section.title) 
+                        ? "pl-8 text-sm" 
+                        : ""
+                    } ${
                       selectedSection?.id === section.id
                         ? "text-warcrow-gold bg-black/40 font-medium"
                         : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
                     }`}
                     onClick={() => setSelectedSection(section)}
                   >
-                    <span className="break-words">{highlightText(section.title)}</span>
+                    {isSubsection(section.title) && (
+                      <ChevronRight className="h-3 w-3 mr-1 inline-block opacity-60" />
+                    )}
+                    <span className="break-words">
+                      {highlightText(section.title)}
+                    </span>
                   </Button>
                 ))}
               </div>
