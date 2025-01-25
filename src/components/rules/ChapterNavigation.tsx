@@ -45,18 +45,22 @@ export const ChapterNavigation = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-4">
+    <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <Accordion
         type="single"
         collapsible
-        className="w-full"
+        className="w-full space-y-2"
         value={expandedChapter}
         onValueChange={setExpandedChapter}
       >
         {chapters.map((chapter) => (
-          <AccordionItem key={chapter.id} value={chapter.id}>
+          <AccordionItem 
+            key={chapter.id} 
+            value={chapter.id}
+            className="border-b-0 px-2"
+          >
             <AccordionTrigger
-              className="text-warcrow-gold hover:text-warcrow-gold/80"
+              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:no-underline py-3 text-lg font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
                 handleChapterClick(chapter);
@@ -65,15 +69,15 @@ export const ChapterNavigation = ({
               {highlightText(chapter.title)}
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-2 pl-4">
+              <div className="space-y-1 pl-4">
                 {chapter.sections.map((section) => (
                   <Button
                     key={section.id}
                     variant="ghost"
-                    className={`w-full justify-start text-left ${
+                    className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors ${
                       selectedSection?.id === section.id
-                        ? "text-warcrow-gold bg-black/40"
-                        : "text-warcrow-text hover:text-warcrow-gold"
+                        ? "text-warcrow-gold bg-black/40 font-medium"
+                        : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
                     }`}
                     onClick={() => setSelectedSection(section)}
                   >

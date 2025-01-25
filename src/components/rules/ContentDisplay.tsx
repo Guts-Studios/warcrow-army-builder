@@ -54,12 +54,12 @@ export const ContentDisplay = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
+    <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-8">
       <div className="prose prose-invert max-w-none">
         {selectedSection ? (
           <>
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-warcrow-gold">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-3xl font-bold text-warcrow-gold tracking-tight">
                 {highlightText(selectedSection.title)}
               </h2>
               <div className="flex gap-2">
@@ -83,12 +83,12 @@ export const ContentDisplay = ({
                 </Button>
               </div>
             </div>
-            <div className="whitespace-pre-wrap">
+            <div className="text-warcrow-text text-lg leading-relaxed whitespace-pre-wrap">
               {highlightText(selectedSection.content)}
             </div>
           </>
         ) : (
-          <p className="text-warcrow-text">Select a section to view its content</p>
+          <p className="text-warcrow-text text-lg">Select a section to view its content</p>
         )}
       </div>
     </ScrollArea>
