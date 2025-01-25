@@ -46,8 +46,9 @@ export const ChapterNavigation = ({
   };
 
   // Helper function to determine if a section is a subsection
-  const isSubsection = (title: string) => {
-    return !title.match(/^\d+\./) && title !== "Prepare the Game";
+  const isSubsection = (chapterTitle: string, sectionTitle: string) => {
+    // Only apply subsection styling to sections in chapter 3
+    return chapterTitle === "Prepare the Game" && !sectionTitle.match(/^\d+\./);
   };
 
   return (
@@ -81,7 +82,7 @@ export const ChapterNavigation = ({
                     key={section.id}
                     variant="ghost"
                     className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors whitespace-normal h-auto min-h-[2.5rem] ${
-                      isSubsection(section.title) 
+                      isSubsection(chapter.title, section.title) 
                         ? "pl-8 text-sm" 
                         : ""
                     } ${
@@ -91,7 +92,7 @@ export const ChapterNavigation = ({
                     }`}
                     onClick={() => setSelectedSection(section)}
                   >
-                    {isSubsection(section.title) && (
+                    {isSubsection(chapter.title, section.title) && (
                       <ChevronRight className="h-3 w-3 mr-1 inline-block opacity-60" />
                     )}
                     <span className="break-words">
