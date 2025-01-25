@@ -60,7 +60,7 @@ export const ChapterNavigation = ({
             className="border-b-0 px-2"
           >
             <AccordionTrigger
-              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:no-underline py-3 text-lg font-semibold"
+              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:no-underline py-3 text-lg font-semibold text-left whitespace-normal break-words pr-8"
               onClick={(e) => {
                 e.stopPropagation();
                 handleChapterClick(chapter);
@@ -74,14 +74,14 @@ export const ChapterNavigation = ({
                   <Button
                     key={section.id}
                     variant="ghost"
-                    className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors ${
+                    className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors whitespace-normal h-auto min-h-[2.5rem] ${
                       selectedSection?.id === section.id
                         ? "text-warcrow-gold bg-black/40 font-medium"
                         : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
                     }`}
                     onClick={() => setSelectedSection(section)}
                   >
-                    {highlightText(section.title)}
+                    <span className="break-words">{highlightText(section.title)}</span>
                   </Button>
                 ))}
               </div>
