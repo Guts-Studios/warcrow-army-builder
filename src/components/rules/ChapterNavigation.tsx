@@ -52,7 +52,7 @@ export const ChapterNavigation = ({
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
+    <ScrollArea className="h-[calc(100vh-16rem)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
       <Accordion
         type="single"
         collapsible

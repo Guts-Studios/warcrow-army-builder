@@ -145,7 +145,7 @@ const Rules = () => {
         </div>
 
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
-          <div className="space-y-4">
+          <div className="space-y-4 md:h-auto h-[calc(100vh-24rem)]">
             <RulesSearch
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
