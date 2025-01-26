@@ -20,6 +20,14 @@ export const ContentDisplay = ({
   highlightText,
 }: ContentDisplayProps) => {
   const { toast } = useToast();
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  // Scroll content into view when section changes
+  React.useEffect(() => {
+    if (selectedSection && contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedSection]);
 
   const handleCopyText = async () => {
     if (selectedSection) {
@@ -55,7 +63,7 @@ export const ContentDisplay = ({
 
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-8">
-      <div className="prose prose-invert max-w-none">
+      <div className="prose prose-invert max-w-none" ref={contentRef}>
         {selectedSection ? (
           <>
             <div className="flex justify-between items-start mb-6">
