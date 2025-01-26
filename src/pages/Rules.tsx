@@ -1,18 +1,11 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { RulesSearch } from "@/components/rules/RulesSearch";
+import { supabase } from "@/integrations/supabase/client";
 import { ChapterNavigation } from "@/components/rules/ChapterNavigation";
 import { ContentDisplay } from "@/components/rules/ContentDisplay";
-
-interface Chapter {
-  id: string;
-  title: string;
-  sections: Section[];
-}
+import { RulesSearch } from "@/components/rules/RulesSearch";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Section {
   id: string;
@@ -20,137 +13,114 @@ interface Section {
   content: string;
 }
 
+interface Chapter {
+  id: string;
+  title: string;
+  sections: Section[];
+}
+
 const Rules = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [caseSensitive, setCaseSensitive] = React.useState(false);
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
-  const [expandedChapter, setExpandedChapter] = React.useState<string | undefined>(undefined);
+  const [expandedChapter, setExpandedChapter] = React.useState<string>();
+  const [searchTerm, setSearchTerm] = React.useState("");
 
-  const { data: chapters = [], isLoading, error } = useQuery({
-    queryKey: ['rules-chapters'],
+  const { data: chapters = [], isLoading } = useQuery({
+    queryKey: ["rules"],
     queryFn: async () => {
-      console.log('Fetching chapters...');
       const { data: chaptersData, error: chaptersError } = await supabase
-        .from('rules_chapters')
-        .select('*')
-        .order('order_index');
+        .from("rules_chapters")
+        .select("*")
+        .order("order_index");
 
-      if (chaptersError) {
-        console.error('Error fetching chapters:', chaptersError);
-        throw chaptersError;
-      }
-
-      console.log('Chapters data:', chaptersData);
+      if (chaptersError) throw chaptersError;
 
       const { data: sectionsData, error: sectionsError } = await supabase
-        .from('rules_sections')
-        .select('*')
-        .order('order_index');
+        .from("rules_sections")
+        .select("*")
+        .order("order_index");
 
-      if (sectionsError) {
-        console.error('Error fetching sections:', sectionsError);
-        throw sectionsError;
-      }
+      if (sectionsError) throw sectionsError;
 
-      console.log('Sections data:', sectionsData);
-
-      const chaptersWithSections = chaptersData.map(chapter => ({
+      return chaptersData.map((chapter) => ({
         ...chapter,
-        sections: sectionsData.filter(section => section.chapter_id === chapter.id)
+        sections: sectionsData
+          .filter((section) => section.chapter_id === chapter.id)
+          .map((section) => ({
+            id: section.id,
+            title: section.title,
+            content: section.content,
+          })),
       }));
-
-      console.log('Chapters with sections:', chaptersWithSections);
-      return chaptersWithSections;
-    }
+    },
   });
 
-  // Filter chapters and sections based on search term
-  const filteredChapters = React.useMemo(() => {
-    console.log('Filtering chapters with searchTerm:', searchTerm);
-    if (!searchTerm) return chapters;
-
-    const searchText = caseSensitive ? searchTerm : searchTerm.toLowerCase();
-    const matchText = (text: string) => {
-      const compareText = caseSensitive ? text : text.toLowerCase();
-      return compareText.includes(searchText);
-    };
-
-    return chapters.map(chapter => ({
-      ...chapter,
-      sections: chapter.sections.filter(section =>
-        matchText(section.title) || matchText(section.content)
-      )
-    })).filter(chapter =>
-      matchText(chapter.title) || chapter.sections.length > 0
-    );
-  }, [chapters, searchTerm, caseSensitive]);
-
-  // Highlight matching text
   const highlightText = (text: string) => {
     if (!searchTerm) return text;
 
-    const regex = new RegExp(`(${searchTerm})`, caseSensitive ? 'g' : 'gi');
-    const parts = text.split(regex);
-    return parts.map((part, index) => {
-      const isMatch = caseSensitive 
-        ? part === searchTerm
-        : part.toLowerCase() === searchTerm.toLowerCase();
-      return isMatch ? 
-        <span key={index} className="bg-yellow-500/50 text-white font-medium">{part}</span> : 
-        part;
-    });
+    const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.toLowerCase() === searchTerm.toLowerCase() ? (
+            <span key={i} className="bg-yellow-500/30">
+              {part}
+            </span>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
   };
 
-  // Set the first section as default when chapters data is loaded
-  React.useEffect(() => {
-    if (chapters.length > 0 && chapters[0].sections.length > 0 && !selectedSection) {
-      console.log('Setting default section:', chapters[0].sections[0]);
-      setSelectedSection(chapters[0].sections[0]);
-    }
-  }, [chapters, selectedSection]);
+  const filteredChapters = React.useMemo(() => {
+    if (!searchTerm) return chapters;
 
-  if (error) {
-    console.error('Error in Rules component:', error);
-    return (
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
-        <p>Error loading rules: {error.message}</p>
-      </div>
-    );
-  }
+    return chapters
+      .map((chapter) => ({
+        ...chapter,
+        sections: chapter.sections.filter(
+          (section) =>
+            section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            section.content.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+      }))
+      .filter(
+        (chapter) =>
+          chapter.sections.length > 0 ||
+          chapter.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [chapters, searchTerm]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
-        <p>Loading rules...</p>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
-
-  console.log('Rendering Rules component with chapters:', filteredChapters);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="container max-w-7xl mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-8">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="text-warcrow-gold hover:text-warcrow-gold/80"
+            onClick={() => navigate("/builder")}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold bg-black hover:bg-warcrow-gold hover:text-black"
           >
-            <ChevronLeft className="h-6 w-6" />
+            Back to Builder
           </Button>
-          <h1 className="text-3xl font-bold text-warcrow-gold">Rules Reference</h1>
+          <img
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z"
+            alt="Warcrow Logo"
+            className="h-16 md:h-24"
+          />
+          <div className="w-[100px]" />
         </div>
 
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
-          <div className="space-y-4 md:h-auto h-[calc(100vh-24rem)]">
+          <div className="space-y-4 md:h-auto h-[calc(100vh-28rem)]">
             <RulesSearch
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
-              caseSensitive={caseSensitive}
-              setCaseSensitive={setCaseSensitive}
             />
             <ChapterNavigation
               chapters={filteredChapters}
