@@ -24,6 +24,7 @@ const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
   const [expandedChapter, setExpandedChapter] = React.useState<string>();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [caseSensitive, setCaseSensitive] = React.useState(false);
 
   const { data: chapters = [], isLoading } = useQuery({
     queryKey: ["rules"],
@@ -58,7 +59,12 @@ const Rules = () => {
   const highlightText = (text: string) => {
     if (!searchTerm) return text;
 
-    const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
+    const searchRegex = new RegExp(
+      `(${searchTerm})`,
+      caseSensitive ? "g" : "gi"
+    );
+    const parts = text.split(searchRegex);
+    
     return (
       <>
         {parts.map((part, i) =>
@@ -82,16 +88,22 @@ const Rules = () => {
         ...chapter,
         sections: chapter.sections.filter(
           (section) =>
-            section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            section.content.toLowerCase().includes(searchTerm.toLowerCase())
+            (caseSensitive
+              ? section.title.includes(searchTerm)
+              : section.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (caseSensitive
+              ? section.content.includes(searchTerm)
+              : section.content.toLowerCase().includes(searchTerm.toLowerCase()))
         ),
       }))
       .filter(
         (chapter) =>
           chapter.sections.length > 0 ||
-          chapter.title.toLowerCase().includes(searchTerm.toLowerCase())
+          (caseSensitive
+            ? chapter.title.includes(searchTerm)
+            : chapter.title.toLowerCase().includes(searchTerm.toLowerCase()))
       );
-  }, [chapters, searchTerm]);
+  }, [chapters, searchTerm, caseSensitive]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -121,6 +133,8 @@ const Rules = () => {
             <RulesSearch
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
+              caseSensitive={caseSensitive}
+              setCaseSensitive={setCaseSensitive}
             />
             <ChapterNavigation
               chapters={filteredChapters}
