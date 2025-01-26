@@ -129,7 +129,7 @@ const Rules = () => {
         </div>
 
         <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
-          <div className="space-y-4 md:h-auto h-[calc(100vh-28rem)]">
+          <div className="space-y-4">
             <RulesSearch
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -145,10 +145,12 @@ const Rules = () => {
               highlightText={highlightText}
             />
           </div>
-          <ContentDisplay
-            selectedSection={selectedSection}
-            highlightText={highlightText}
-          />
+          <div className="mt-[300px] md:mt-0">
+            <ContentDisplay
+              selectedSection={selectedSection}
+              highlightText={highlightText}
+            />
+          </div>
         </div>
       </div>
     </div>
