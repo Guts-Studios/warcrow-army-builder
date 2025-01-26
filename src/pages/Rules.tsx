@@ -27,32 +27,47 @@ const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
   const [expandedChapter, setExpandedChapter] = React.useState<string | undefined>(undefined);
 
-  const { data: chapters = [], isLoading } = useQuery({
+  const { data: chapters = [], isLoading, error } = useQuery({
     queryKey: ['rules-chapters'],
     queryFn: async () => {
+      console.log('Fetching chapters...');
       const { data: chaptersData, error: chaptersError } = await supabase
         .from('rules_chapters')
         .select('*')
         .order('order_index');
 
-      if (chaptersError) throw chaptersError;
+      if (chaptersError) {
+        console.error('Error fetching chapters:', chaptersError);
+        throw chaptersError;
+      }
+
+      console.log('Chapters data:', chaptersData);
 
       const { data: sectionsData, error: sectionsError } = await supabase
         .from('rules_sections')
         .select('*')
         .order('order_index');
 
-      if (sectionsError) throw sectionsError;
+      if (sectionsError) {
+        console.error('Error fetching sections:', sectionsError);
+        throw sectionsError;
+      }
 
-      return chaptersData.map(chapter => ({
+      console.log('Sections data:', sectionsData);
+
+      const chaptersWithSections = chaptersData.map(chapter => ({
         ...chapter,
         sections: sectionsData.filter(section => section.chapter_id === chapter.id)
       }));
+
+      console.log('Chapters with sections:', chaptersWithSections);
+      return chaptersWithSections;
     }
   });
 
   // Filter chapters and sections based on search term
   const filteredChapters = React.useMemo(() => {
+    console.log('Filtering chapters with searchTerm:', searchTerm);
     if (!searchTerm) return chapters;
 
     const searchText = caseSensitive ? searchTerm : searchTerm.toLowerCase();
@@ -90,9 +105,19 @@ const Rules = () => {
   // Set the first section as default when chapters data is loaded
   React.useEffect(() => {
     if (chapters.length > 0 && chapters[0].sections.length > 0 && !selectedSection) {
+      console.log('Setting default section:', chapters[0].sections[0]);
       setSelectedSection(chapters[0].sections[0]);
     }
   }, [chapters, selectedSection]);
+
+  if (error) {
+    console.error('Error in Rules component:', error);
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+        <p>Error loading rules: {error.message}</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -101,6 +126,8 @@ const Rules = () => {
       </div>
     );
   }
+
+  console.log('Rendering Rules component with chapters:', filteredChapters);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
