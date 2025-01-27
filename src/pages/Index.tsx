@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArmyBuilder } from "@/components/builder/ArmyBuilder";
+import { ArmyBuilder } from "@/components/ArmyBuilder";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 
