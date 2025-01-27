@@ -26,6 +26,7 @@ export interface SavedList {
   faction: string;
   units: SelectedUnit[];
   user_id?: string;
+  created_at: string;
 }
 
 export interface Faction {
