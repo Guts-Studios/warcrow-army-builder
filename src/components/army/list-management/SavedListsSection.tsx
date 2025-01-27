@@ -15,9 +15,23 @@ const SavedListsSection = ({
   onLoadList, 
   onDeleteClick 
 }: SavedListsSectionProps) => {
+  // Filter lists by faction first
   const filteredLists = savedLists.filter((list) => list.faction === selectedFaction);
+  
+  // Create a map to store unique lists, keeping the most recent version of each name
+  const uniqueListsMap = new Map();
+  filteredLists.forEach((list) => {
+    // If the name already exists, only replace if the current list is newer
+    const existingList = uniqueListsMap.get(list.name);
+    if (!existingList || new Date(list.created_at) > new Date(existingList.created_at)) {
+      uniqueListsMap.set(list.name, list);
+    }
+  });
 
-  if (filteredLists.length === 0) return null;
+  // Convert map values back to array
+  const uniqueLists = Array.from(uniqueListsMap.values());
+
+  if (uniqueLists.length === 0) return null;
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
@@ -25,7 +39,7 @@ const SavedListsSection = ({
         Saved Lists
       </h3>
       <div className="space-y-2">
-        {filteredLists.map((list) => (
+        {uniqueLists.map((list) => (
           <div
             key={list.id}
             className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
