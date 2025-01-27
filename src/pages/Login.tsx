@@ -106,10 +106,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     navigate('/landing');
   };
 
-  const handleForgotPassword = () => {
-    navigate('/reset-password');
-  };
-
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden">
       <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
@@ -159,13 +155,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           }}
           providers={[]}
         />
-        <Button
-          onClick={handleForgotPassword}
-          variant="ghost"
-          className="w-full mt-4 text-warcrow-gold hover:text-warcrow-gold/80"
-        >
-          Forgot Password?
-        </Button>
       </div>
 
       <AlertDialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
