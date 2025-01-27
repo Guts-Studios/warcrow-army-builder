@@ -22,18 +22,29 @@ const ExampleUsage = () => {
     const checkTesterStatus = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+        
         if (session?.user) {
-          const { data: profile } = await supabase
+          console.log('Checking tester status for user:', session.user.id);
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('tester')
             .eq('id', session.user.id)
             .single();
           
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+          
+          console.log('Profile data:', profile);
           setIsTester(profile?.tester || false);
-          console.log('Tester status:', profile?.tester);
+          console.log('Tester status set to:', profile?.tester);
+        } else {
+          console.log('No active session found');
         }
       } catch (error) {
-        console.error('Error checking tester status:', error);
+        console.error('Error in checkTesterStatus:', error);
       }
     };
 
@@ -41,7 +52,10 @@ const ExampleUsage = () => {
   }, []);
 
   const handleSendTestEmail = React.useCallback(async () => {
+    console.log('Current tester status:', isTester);
+    
     if (!isTester) {
+      console.log('User is not a tester, showing dialog');
       setShowDialog(true);
       return;
     }
