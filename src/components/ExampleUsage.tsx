@@ -36,7 +36,7 @@ const ExampleUsage = () => {
       `;
 
       await sendEmail(
-        ['jakeballasch@gmail.com'], // Testing with the user's email
+        ['caldwejf@gmail.com'], // Testing with the new email address
         'Warcrow Army Builder - Email System Test',
         emailTemplate
       );
