@@ -22,13 +22,6 @@ export const ContentDisplay = ({
   const { toast } = useToast();
   const contentRef = React.useRef<HTMLDivElement>(null);
 
-  // Scroll content into view when section changes
-  React.useEffect(() => {
-    if (selectedSection && contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [selectedSection]);
-
   const handleCopyText = async () => {
     if (selectedSection) {
       const textToCopy = `${selectedSection.title}\n\n${selectedSection.content}`;
