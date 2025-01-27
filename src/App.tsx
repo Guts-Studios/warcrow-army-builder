@@ -30,14 +30,19 @@ function App() {
 
   React.useEffect(() => {
     const setupAuth = async () => {
-      // Check if we're in a password recovery flow
+      // Check if we're in a password recovery flow by looking at the URL hash
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get('type');
+      const accessToken = hashParams.get('access_token');
       
-      if (type === 'recovery') {
+      if (type === 'recovery' && accessToken) {
         console.log('Password recovery flow detected');
         setIsPasswordRecovery(true);
         setIsAuthenticated(false);
+        // Redirect to reset-password page if we're not already there
+        if (!window.location.pathname.includes('reset-password')) {
+          window.location.href = '/reset-password' + window.location.hash;
+        }
         return;
       }
 
