@@ -58,11 +58,11 @@ const ListManagement = ({
           toast.error("Failed to delete list from cloud");
           return;
         }
+      } else {
+        // If it's a local save, update local storage
+        const updatedLists = savedLists.filter((list) => list.id !== listId);
+        localStorage.setItem("armyLists", JSON.stringify(updatedLists));
       }
-
-      // Update local storage with filtered lists
-      const updatedLists = savedLists.filter((list) => list.id !== listId);
-      localStorage.setItem("armyLists", JSON.stringify(updatedLists));
       
       // Show success message
       toast.success("List deleted successfully");
