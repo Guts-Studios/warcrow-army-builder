@@ -9,6 +9,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
+      <div className="w-full flex justify-center gap-4 mb-4">
+        <button 
+          onClick={() => navigate('/landing')} 
+          className="bg-warcrow-gold text-black font-medium py-2 px-4 rounded hover:bg-warcrow-gold/80 transition-colors"
+        >
+          Go to Landing Page
+        </button>
+        <button 
+          onClick={() => navigate('/rules')} 
+          className="bg-warcrow-gold text-black font-medium py-2 px-4 rounded hover:bg-warcrow-gold/80 transition-colors"
+        >
+          Rules Reference
+        </button>
+      </div>
       <FactionSelector 
         selectedFaction={selectedFaction} 
         onFactionChange={setSelectedFaction} 
@@ -17,9 +31,6 @@ const Index = () => {
         selectedFaction={selectedFaction} 
         onFactionChange={setSelectedFaction}
       />
-      <button onClick={() => navigate('/landing')} className="mt-4 bg-warcrow-gold text-black font-medium py-2 px-4 rounded">
-        Go to Landing Page
-      </button>
     </div>
   );
 };
