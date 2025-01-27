@@ -6,6 +6,7 @@ import { ContentDisplay } from "@/components/rules/ContentDisplay";
 import { RulesSearch } from "@/components/rules/RulesSearch";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { ChevronUp } from "lucide-react";
 
 interface Section {
   id: string;
@@ -25,6 +26,10 @@ const Rules = () => {
   const [expandedChapter, setExpandedChapter] = React.useState<string>();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [caseSensitive, setCaseSensitive] = React.useState(false);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const { data: chapters = [], isLoading } = useQuery({
     queryKey: ["rules"],
@@ -145,6 +150,13 @@ const Rules = () => {
               highlightText={highlightText}
             />
           </div>
+          <Button
+            onClick={scrollToTop}
+            variant="outline"
+            className="md:hidden fixed bottom-4 right-4 z-50 rounded-full p-2 bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
+          >
+            <ChevronUp className="h-6 w-6" />
+          </Button>
           <div className="mt-[300px] md:mt-0">
             <ContentDisplay
               selectedSection={selectedSection}
