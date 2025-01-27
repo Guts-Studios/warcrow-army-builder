@@ -12,9 +12,10 @@ export const sendEmail = async (
   options: EmailOptions = {}
 ) => {
   try {
-    console.log('Email Request:', {
-      functionName: 'send-email',
-      payload: { to, subject, html, ...options }
+    console.log('Preparing to send email:', {
+      to,
+      subject,
+      options
     });
     
     const { data, error } = await supabase.functions.invoke('send-email', {
@@ -30,15 +31,14 @@ export const sendEmail = async (
     if (error) {
       console.error('Edge Function Error:', {
         error,
-        errorMessage: error.message,
-        errorDetails: error.details,
-        statusCode: error.status
+        message: error.message,
+        details: error.details,
+        status: error.status
       });
       throw error;
     }
 
-    console.log('Edge Function Response:', {
-      success: true,
+    console.log('Email sent successfully:', {
       data,
       timestamp: new Date().toISOString()
     });
@@ -47,7 +47,7 @@ export const sendEmail = async (
   } catch (error) {
     console.error('Email Send Failure:', {
       error,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      message: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     });
     throw error;
