@@ -16,6 +16,7 @@ import {
 const ExampleUsage = () => {
   const [isTester, setIsTester] = React.useState(false);
   const [showDialog, setShowDialog] = React.useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = React.useState(false);
 
   React.useEffect(() => {
     const checkTesterStatus = async () => {
@@ -80,6 +81,7 @@ const ExampleUsage = () => {
         'Warcrow Army Builder - Email System Test',
         emailTemplate
       );
+      setShowSuccessDialog(true);
       toast.success('Test email sent successfully');
       console.log('Test email sent successfully');
     } catch (error) {
@@ -104,6 +106,20 @@ const ExampleUsage = () => {
             <AlertDialogTitle>Tester Access Only</AlertDialogTitle>
             <AlertDialogDescription>
               Sorry, only users with the Tester role can use this feature currently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Success!</AlertDialogTitle>
+            <AlertDialogDescription>
+              The test email has been sent successfully. Please check your inbox.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
