@@ -2,7 +2,6 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChapterNavigation } from "@/components/rules/ChapterNavigation";
-import { ContentDisplay } from "@/components/rules/ContentDisplay";
 import { RulesSearch } from "@/components/rules/RulesSearch";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -133,37 +132,29 @@ const Rules = () => {
           <div className="w-[100px]" />
         </div>
 
-        <div className="flex flex-col md:grid md:grid-cols-[300px,1fr] gap-8">
-          <div className="space-y-4">
-            <RulesSearch
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              caseSensitive={caseSensitive}
-              setCaseSensitive={setCaseSensitive}
-            />
-            <ChapterNavigation
-              chapters={filteredChapters}
-              selectedSection={selectedSection}
-              setSelectedSection={setSelectedSection}
-              expandedChapter={expandedChapter}
-              setExpandedChapter={setExpandedChapter}
-              highlightText={highlightText}
-            />
-          </div>
-          <Button
-            onClick={scrollToTop}
-            variant="outline"
-            className="md:hidden fixed bottom-4 right-4 z-50 rounded-full p-2 bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-          >
-            <ChevronUp className="h-6 w-6" />
-          </Button>
-          <div className="mt-[300px] md:mt-0">
-            <ContentDisplay
-              selectedSection={selectedSection}
-              highlightText={highlightText}
-            />
-          </div>
+        <div className="space-y-4">
+          <RulesSearch
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            caseSensitive={caseSensitive}
+            setCaseSensitive={setCaseSensitive}
+          />
+          <ChapterNavigation
+            chapters={filteredChapters}
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+            expandedChapter={expandedChapter}
+            setExpandedChapter={setExpandedChapter}
+            highlightText={highlightText}
+          />
         </div>
+        <Button
+          onClick={scrollToTop}
+          variant="outline"
+          className="fixed bottom-4 right-4 z-50 rounded-full p-2 bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
+        >
+          <ChevronUp className="h-6 w-6" />
+        </Button>
       </div>
     </div>
   );
