@@ -22,9 +22,6 @@ const updatePasswordSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(72, "Password must not exceed 72 characters"),
   confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
 });
 
 type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
@@ -92,7 +89,7 @@ const ResetPassword = () => {
       password: "",
       confirmPassword: "",
     },
-    mode: "onChange", // Enable real-time validation
+    mode: "onChange",
   });
 
   // Watch both password fields for real-time comparison
@@ -216,7 +213,6 @@ const ResetPassword = () => {
                       Passwords do not match
                     </p>
                   )}
-                  <FormMessage />
                 </FormItem>
               )}
             />
