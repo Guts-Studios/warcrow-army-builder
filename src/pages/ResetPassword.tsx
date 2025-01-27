@@ -131,11 +131,11 @@ const ResetPassword = () => {
         duration: 5000,
       });
 
-      // Redirect to login after a short delay
+      // Redirect to login with a success message parameter
       setTimeout(() => {
         // Clear any hash parameters from the URL
         window.location.hash = '';
-        navigate("/login");
+        navigate("/login?message=password_reset");
       }, 2000);
 
     } catch (err: any) {

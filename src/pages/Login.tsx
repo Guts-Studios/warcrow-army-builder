@@ -27,6 +27,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [showGuestDialog, setShowGuestDialog] = useState(false);
   const [showHomeGuestDialog, setShowHomeGuestDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const {
@@ -36,55 +37,77 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         event,
         sessionExists: !!session,
         userId: session?.user?.id,
-        userEmail: session?.user?.email
+        userEmail: session?.user?.email,
+        eventType: event
       });
       
-      if (event === 'PASSWORD_RECOVERY') {
-        navigate('/reset-password');
-      } else if (event === 'SIGNED_IN') {
-        navigate('/builder');
-      } else if (event === 'USER_UPDATED') {
-        toast.success('Your profile has been updated successfully');
-        navigate('/builder');
-      } else if (event === 'SIGNED_OUT') {
-        setError(null);
-      }
-
-      const authError = session as unknown as { error?: AuthError };
-      if (authError?.error) {
-        console.error('Authentication error:', {
-          message: authError.error.message,
-          status: authError.error.status
-        });
-
-        if (authError.error instanceof AuthApiError) {
-          switch (authError.error.message) {
-            case 'Invalid login credentials':
-              setError('Invalid email or password. Please check your credentials and try again.');
-              break;
-            case 'Email not confirmed':
-              setError('Please verify your email address before signing in.');
-              break;
-            case 'Too many requests':
-              setError('Too many login attempts. Please try again later.');
-              break;
-            case 'User not found':
-              setError('No account found with this email. Please sign up first.');
-              break;
-            default:
-              if (authError.error.message?.includes('rate_limit')) {
-                const waitTime = authError.error.message.match(/\d+/)?.[0] || '60';
-                setError(`Too many attempts. Please wait ${waitTime} seconds before trying again.`);
-                setTimeout(() => setError(null), parseInt(waitTime) * 1000);
-              } else {
-                setError(authError.error.message);
-                toast.error('Login failed. Please try again.');
-                setTimeout(() => setError(null), 5000);
-              }
+      setIsLoading(true);
+      
+      try {
+        if (event === 'PASSWORD_RECOVERY') {
+          navigate('/reset-password');
+        } else if (event === 'SIGNED_IN') {
+          toast.success('Successfully signed in!');
+          navigate('/builder');
+        } else if (event === 'USER_UPDATED') {
+          toast.success('Your profile has been updated successfully');
+          navigate('/builder');
+        } else if (event === 'SIGNED_OUT') {
+          setError(null);
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed, checking session validity...');
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          if (currentSession) {
+            toast.success('Successfully signed in!');
+            navigate('/builder');
           }
         }
+
+        const authError = session as unknown as { error?: AuthError };
+        if (authError?.error) {
+          console.error('Authentication error:', {
+            message: authError.error.message,
+            status: authError.error.status
+          });
+
+          if (authError.error instanceof AuthApiError) {
+            switch (authError.error.message) {
+              case 'Invalid login credentials':
+                setError('Invalid email or password. Please check your credentials and try again.');
+                break;
+              case 'Email not confirmed':
+                setError('Please verify your email address before signing in.');
+                break;
+              case 'Too many requests':
+                setError('Too many login attempts. Please try again later.');
+                break;
+              case 'User not found':
+                setError('No account found with this email. Please sign up first.');
+                break;
+              default:
+                if (authError.error.message?.includes('rate_limit')) {
+                  const waitTime = authError.error.message.match(/\d+/)?.[0] || '60';
+                  setError(`Too many attempts. Please wait ${waitTime} seconds before trying again.`);
+                  setTimeout(() => setError(null), parseInt(waitTime) * 1000);
+                } else {
+                  setError(authError.error.message);
+                  toast.error('Login failed. Please try again.');
+                  setTimeout(() => setError(null), 5000);
+                }
+            }
+          }
+        }
+      } finally {
+        setIsLoading(false);
       }
     });
+
+    // Check URL parameters for any messages
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    if (message === 'password_reset') {
+      toast.success('Password has been reset successfully. Please sign in with your new password.');
+    }
 
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -124,6 +147,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             onClick={handleHomeClick}
             variant="outline"
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+            disabled={isLoading}
           >
             Back to Home
           </Button>
@@ -131,6 +155,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             onClick={handleGuestAccess}
             variant="outline"
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+            disabled={isLoading}
           >
             Continue as Guest
           </Button>
@@ -138,6 +163,11 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {isLoading && (
+          <Alert className="mb-4 border-warcrow-gold bg-warcrow-gold/10">
+            <AlertDescription>Signing you in...</AlertDescription>
           </Alert>
         )}
         <Auth
