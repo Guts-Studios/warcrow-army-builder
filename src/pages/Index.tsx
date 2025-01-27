@@ -12,20 +12,20 @@ const Index = () => {
       <img 
         src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
         alt="Warcrow Logo" 
-        className="h-29 md:h-43 mx-auto mb-8"
+        className="h-20 md:h-28 mx-auto mb-6"
       />
-      <div className="w-full flex justify-center gap-4 mb-4">
+      <div className="w-full max-w-xs flex justify-center gap-3 mb-8">
         <button 
           onClick={() => navigate('/landing')} 
-          className="bg-warcrow-gold text-black font-medium py-2 px-4 rounded hover:bg-warcrow-gold/80 transition-colors"
+          className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
         >
-          Go to Landing Page
+          Landing Page
         </button>
         <button 
           onClick={() => navigate('/rules')} 
-          className="bg-warcrow-gold text-black font-medium py-2 px-4 rounded hover:bg-warcrow-gold/80 transition-colors"
+          className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
         >
-          Rules Reference
+          Rules
         </button>
       </div>
       <FactionSelector 
