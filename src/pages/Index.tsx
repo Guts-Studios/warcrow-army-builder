@@ -10,8 +10,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <img 
-        src="/lovable-uploads/c11a74e0-87fb-4497-9b59-a5a4228c585f.png" 
-        alt="Warcrow Army Builder Logo" 
+        src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+        alt="Warcrow Logo" 
         className="w-64 mb-6"
       />
       <div className="w-full flex justify-center gap-4 mb-4">
