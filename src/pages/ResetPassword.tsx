@@ -32,6 +32,8 @@ const ResetPassword = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [userEmail, setUserEmail] = React.useState<string | null>(null);
   const [passwordMatch, setPasswordMatch] = React.useState<boolean>(true);
+  const [rateLimited, setRateLimited] = React.useState(false);
+  const [retryAfter, setRetryAfter] = React.useState(0);
 
   React.useEffect(() => {
     const getEmailFromHash = async () => {
@@ -53,7 +55,6 @@ const ResetPassword = () => {
           return;
         }
 
-        // Set the session with both tokens
         const { data: { session }, error: sessionError } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken || '',
@@ -61,6 +62,10 @@ const ResetPassword = () => {
 
         if (sessionError) {
           console.error('Session error:', sessionError);
+          if (sessionError.message?.includes('rate_limit')) {
+            handleRateLimitError(sessionError.message);
+            return;
+          }
           setError("Unable to verify your identity. Please request a new password reset.");
           return;
         }
@@ -74,14 +79,38 @@ const ResetPassword = () => {
         console.log('Session established for:', session.user.email);
         setUserEmail(session.user.email);
 
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error processing reset token:', err);
+        if (err.message?.includes('rate_limit')) {
+          handleRateLimitError(err.message);
+          return;
+        }
         setError("An error occurred while processing your reset link.");
       }
     };
 
     getEmailFromHash();
   }, []);
+
+  const handleRateLimitError = (errorMessage: string) => {
+    const waitTime = errorMessage.match(/\d+/)?.[0] || '60';
+    setRateLimited(true);
+    setRetryAfter(parseInt(waitTime));
+    setError(`Too many attempts. Please wait ${waitTime} seconds before trying again.`);
+    
+    // Start countdown
+    const timer = setInterval(() => {
+      setRetryAfter((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setRateLimited(false);
+          setError(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const updatePasswordForm = useForm<UpdatePasswordFormData>({
     resolver: zodResolver(updatePasswordSchema),
@@ -96,29 +125,36 @@ const ResetPassword = () => {
   const password = updatePasswordForm.watch("password");
   const confirmPassword = updatePasswordForm.watch("confirmPassword");
 
-  // Update password match state whenever either field changes
   React.useEffect(() => {
     if (confirmPassword) {
       setPasswordMatch(password === confirmPassword);
     } else {
-      setPasswordMatch(true); // Reset when confirm password is empty
+      setPasswordMatch(true);
     }
   }, [password, confirmPassword]);
 
   const onUpdatePassword = async (data: UpdatePasswordFormData) => {
+    if (rateLimited) {
+      toast.error(`Please wait ${retryAfter} seconds before trying again.`);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
       console.log('Attempting password update for:', userEmail);
 
-      // First, update the user's password
       const { error: updateError } = await supabase.auth.updateUser({
         password: data.password
       });
 
       if (updateError) {
         console.error('Password update error:', updateError);
+        if (updateError.message?.includes('rate_limit')) {
+          handleRateLimitError(updateError.message);
+          return;
+        }
         throw updateError;
       }
 
@@ -131,10 +167,12 @@ const ResetPassword = () => {
         duration: 5000,
       });
 
+      // Clear form and hash parameters
+      updatePasswordForm.reset();
+      window.location.hash = '';
+      
       // Redirect to login with a success message parameter
       setTimeout(() => {
-        // Clear any hash parameters from the URL
-        window.location.hash = '';
         navigate("/login?message=password_reset");
       }, 2000);
 
@@ -145,6 +183,8 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  // ... keep existing code (JSX for the form)
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center">
@@ -168,7 +208,14 @@ const ResetPassword = () => {
 
         {error && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>
+              {error}
+              {rateLimited && retryAfter > 0 && (
+                <span className="block mt-1">
+                  Time remaining: {retryAfter} seconds
+                </span>
+              )}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -185,6 +232,7 @@ const ResetPassword = () => {
                       type="password"
                       placeholder="Enter your new password"
                       className="bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted"
+                      disabled={rateLimited}
                       {...field}
                     />
                   </FormControl>
@@ -205,6 +253,7 @@ const ResetPassword = () => {
                       className={`bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted ${
                         confirmPassword && !passwordMatch ? 'border-red-500' : ''
                       }`}
+                      disabled={rateLimited}
                       {...field}
                     />
                   </FormControl>
@@ -220,7 +269,7 @@ const ResetPassword = () => {
               <Button
                 type="submit"
                 className="w-full bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-                disabled={loading || !userEmail || !passwordMatch}
+                disabled={loading || !userEmail || !passwordMatch || rateLimited}
               >
                 {loading ? "Updating Password..." : "Update Password"}
               </Button>
