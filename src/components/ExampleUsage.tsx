@@ -26,20 +26,20 @@ const ExampleUsage = () => {
         
         if (session?.user) {
           console.log('Checking tester status for user:', session.user.id);
-          const { data: profile, error } = await supabase
+          const { data, error } = await supabase
             .from('profiles')
             .select('tester')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
           
           if (error) {
             console.error('Error fetching profile:', error);
             return;
           }
           
-          console.log('Profile data:', profile);
-          setIsTester(profile?.tester || false);
-          console.log('Tester status set to:', profile?.tester);
+          console.log('Profile data:', data);
+          setIsTester(data?.tester || false);
+          console.log('Tester status set to:', data?.tester);
         } else {
           console.log('No active session found');
         }
