@@ -51,6 +51,9 @@ const SaveListSection = ({
       if (error) throw error;
 
       toast.success("List saved to cloud successfully!");
+      
+      // Refresh the page after successful cloud save
+      window.location.reload();
     } catch (error) {
       console.error('Error saving to cloud:', error);
       toast.error("Failed to save list to cloud");
