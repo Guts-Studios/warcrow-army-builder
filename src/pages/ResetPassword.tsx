@@ -34,6 +34,7 @@ const ResetPassword = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [userEmail, setUserEmail] = React.useState<string | null>(null);
+  const [passwordMatch, setPasswordMatch] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     const getEmailFromHash = async () => {
@@ -91,7 +92,21 @@ const ResetPassword = () => {
       password: "",
       confirmPassword: "",
     },
+    mode: "onChange", // Enable real-time validation
   });
+
+  // Watch both password fields for real-time comparison
+  const password = updatePasswordForm.watch("password");
+  const confirmPassword = updatePasswordForm.watch("confirmPassword");
+
+  // Update password match state whenever either field changes
+  React.useEffect(() => {
+    if (confirmPassword) {
+      setPasswordMatch(password === confirmPassword);
+    } else {
+      setPasswordMatch(true); // Reset when confirm password is empty
+    }
+  }, [password, confirmPassword]);
 
   const onUpdatePassword = async (data: UpdatePasswordFormData) => {
     try {
@@ -190,10 +205,17 @@ const ResetPassword = () => {
                     <Input
                       type="password"
                       placeholder="Confirm your new password"
-                      className="bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted"
+                      className={`bg-warcrow-background border-warcrow-gold text-warcrow-text placeholder:text-warcrow-muted ${
+                        confirmPassword && !passwordMatch ? 'border-red-500' : ''
+                      }`}
                       {...field}
                     />
                   </FormControl>
+                  {confirmPassword && !passwordMatch && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Passwords do not match
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -202,7 +224,7 @@ const ResetPassword = () => {
               <Button
                 type="submit"
                 className="w-full bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-                disabled={loading || !userEmail}
+                disabled={loading || !userEmail || !passwordMatch}
               >
                 {loading ? "Updating Password..." : "Update Password"}
               </Button>
