@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { SavedList } from "@/types/army";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +42,24 @@ const ListManagement = ({
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
 
-  const handleDeleteList = (listId: string) => {
+  const handleDeleteList = async (listId: string) => {
+    const listToRemove = savedLists.find((list) => list.id === listId);
+    
+    if (listToRemove?.user_id) {
+      // Delete from Supabase if it's a cloud save
+      const { error } = await supabase
+        .from('army_lists')
+        .delete()
+        .eq('id', listId);
+
+      if (error) {
+        console.error('Error deleting from cloud:', error);
+        toast.error("Failed to delete list from cloud");
+        return;
+      }
+    }
+
+    // Update local storage
     const updatedLists = savedLists.filter((list) => list.id !== listId);
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
     window.location.reload();
