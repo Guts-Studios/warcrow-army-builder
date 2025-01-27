@@ -10,16 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Submitting scores 
 - Scoreboards
-- Full rules reference
+
 
 ## [Unreleased]
 - Placeholder for changes in progress.
 
-## [0.3.1] - 2024-01-21
+### [0.3.2] - 2025-01-26
+
+### Added Full Rules Reference Section
+
+
+## [0.3.1] - 2025-01-21
 
 ### Added
 - Ice Archers to Northern Tribes
-## [0.3.0] - 2024-01-10
+## [0.3.0] - 2025-01-10
 
 ### Added
 - warcrowarmy.com domain
@@ -31,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## Known Issues
 - Reset Password not working, migrated email service platform awating verification of new domain
 
-## [0.2.11] - 2024-01-04
+## [0.2.11] - 2025-01-04
 ### Added
 - Guest mode functionality
 - Improved navigation flow
