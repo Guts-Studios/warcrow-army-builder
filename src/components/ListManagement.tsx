@@ -44,28 +44,33 @@ const ListManagement = ({
 
   const handleDeleteList = async (listId: string) => {
     const listToRemove = savedLists.find((list) => list.id === listId);
+    if (!listToRemove) return;
     
     try {
-      if (listToRemove?.user_id) {
-        // Delete from Supabase if it's a cloud save
+      // Get all lists with the same name
+      const listsWithSameName = savedLists.filter((list) => list.name === listToRemove.name);
+      
+      // Delete cloud saves
+      const cloudLists = listsWithSameName.filter(list => list.user_id);
+      if (cloudLists.length > 0) {
         const { error } = await supabase
           .from('army_lists')
           .delete()
-          .eq('id', listId);
+          .in('id', cloudLists.map(list => list.id));
 
         if (error) {
           console.error('Error deleting from cloud:', error);
-          toast.error("Failed to delete list from cloud");
+          toast.error("Failed to delete lists from cloud");
           return;
         }
-      } else {
-        // If it's a local save, update local storage
-        const updatedLists = savedLists.filter((list) => list.id !== listId);
-        localStorage.setItem("armyLists", JSON.stringify(updatedLists));
       }
       
+      // Update local storage by removing all lists with the same name
+      const updatedLists = savedLists.filter((list) => list.name !== listToRemove.name);
+      localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+      
       // Show success message
-      toast.success("List deleted successfully");
+      toast.success("Lists deleted successfully");
       
       // Close the delete dialog
       setListToDelete(null);
@@ -74,7 +79,7 @@ const ListManagement = ({
       window.location.reload();
     } catch (error) {
       console.error('Error during list deletion:', error);
-      toast.error("An error occurred while deleting the list");
+      toast.error("An error occurred while deleting the lists");
     }
   };
 
@@ -122,7 +127,7 @@ const ListManagement = ({
           <AlertDialogHeader>
             <AlertDialogTitle className="text-warcrow-gold">Delete List</AlertDialogTitle>
             <AlertDialogDescription className="text-warcrow-text">
-              Are you sure you want to delete this list? This action cannot be undone.
+              Are you sure you want to delete this list? This will delete all versions of lists with this name. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
