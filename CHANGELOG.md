@@ -17,8 +17,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### [0.3.2] - 2025-01-26
 
-### Added Full Rules Reference Section
+### Added 
+- Full Rules Reference Section
+  
+### Fixed 
+- Cloud deletes were duplicating other cloud saves. Works as intended now.
 
+### Known Issues
+- Email conmfirmation and password resets. 
+    -- We setup a custom Email server with Resend and they are having problems verifying our domain. The domain host is kind of whack so might have to
+    plan for some downtime on the warcrowarmy.com domain but the project will stay live at it's backup links. Details TBD.
 
 ## [0.3.1] - 2025-01-21
 
@@ -33,7 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 - Navigation now properly redirects to landing page from sign in either as a guest or not choosing to log as a guest
 - Updated logo consistency on login page
-## Known Issues
+### Known Issues
 - Reset Password not working, migrated email service platform awating verification of new domain
 
 ## [0.2.11] - 2025-01-04
