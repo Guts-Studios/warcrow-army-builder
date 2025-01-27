@@ -12,7 +12,7 @@ const Index = () => {
       <img 
         src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
         alt="Warcrow Logo" 
-        className="w-64 mb-6"
+        className="h-29 md:h-43 mx-auto mb-8"
       />
       <div className="w-full flex justify-center gap-4 mb-4">
         <button 
