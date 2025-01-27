@@ -65,13 +65,20 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             case 'Email not confirmed':
               setError('Please verify your email address before signing in.');
               break;
+            case 'Too many requests':
+              setError('Too many login attempts. Please try again later.');
+              break;
+            case 'User not found':
+              setError('No account found with this email. Please sign up first.');
+              break;
             default:
               if (authError.error.message?.includes('rate_limit')) {
                 const waitTime = authError.error.message.match(/\d+/)?.[0] || '60';
-                setError(`Please wait ${waitTime} seconds before trying again.`);
+                setError(`Too many attempts. Please wait ${waitTime} seconds before trying again.`);
                 setTimeout(() => setError(null), parseInt(waitTime) * 1000);
               } else {
                 setError(authError.error.message);
+                toast.error('Login failed. Please try again.');
                 setTimeout(() => setError(null), 5000);
               }
           }
