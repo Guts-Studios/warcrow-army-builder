@@ -100,6 +100,7 @@ const ResetPassword = () => {
 
       console.log('Attempting password update for:', userEmail);
 
+      // First, update the user's password
       const { error: updateError } = await supabase.auth.updateUser({
         password: data.password
       });
@@ -110,15 +111,18 @@ const ResetPassword = () => {
       }
 
       console.log('Password updated successfully');
-      toast.success("Password has been successfully updated", {
+      
+      // Sign out the user to clear any existing sessions
+      await supabase.auth.signOut();
+
+      toast.success("Password has been successfully updated. Please log in with your new password.", {
         duration: 5000,
       });
 
-      // Sign out and clear session
-      await supabase.auth.signOut();
-
-      // Redirect to login after successful password update
+      // Redirect to login after a short delay
       setTimeout(() => {
+        // Clear any hash parameters from the URL
+        window.location.hash = '';
         navigate("/login");
       }, 2000);
 
