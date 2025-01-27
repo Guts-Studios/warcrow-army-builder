@@ -15,16 +15,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Placeholder for changes in progress.
 
-### [0.4.0] - 2025-01-27
+### [0.4.1] - 2025-01-27
 
 ### Added 
 - Better error handling on login and password change
   
 ### Fixed 
 - Confirmation emails working correctly again. Everyone sign on up!
-  
-### Known Issues
-- Still working out the logic on updating a user's password. The flow works but the actual password change trigger is still at issue
+- Password reset is working now too!
 
 ### [0.3.2] - 2025-01-26
 
