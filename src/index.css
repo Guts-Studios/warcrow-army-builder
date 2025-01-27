@@ -30,20 +30,24 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior-y: none;
   }
 }
 
-/* Custom scrollbar for Webkit browsers */
+/* Improved scrollbar styling for iOS */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 ::-webkit-scrollbar-track {
   background: #1a1d24;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -53,4 +57,16 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #cca700;
+}
+
+/* iOS-specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

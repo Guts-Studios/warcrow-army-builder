@@ -77,102 +77,105 @@ export const ChapterNavigation = ({
     });
   };
 
-  // Helper function to determine if a section is a subsection
   const isSubsection = (chapterTitle: string, sectionTitle: string) => {
-    // Only apply subsection styling to sections in chapter 3
     return chapterTitle === "Prepare the Game" && !sectionTitle.match(/^\d+\./);
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6">
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full space-y-2"
-        value={expandedChapter}
-        onValueChange={setExpandedChapter}
-      >
-        {chapters.map((chapter) => (
-          <AccordionItem 
-            key={chapter.id} 
-            value={chapter.id}
-            className="border-b-0 px-2"
-          >
-            <AccordionTrigger
-              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:no-underline py-3 text-lg font-semibold text-left whitespace-normal break-words pr-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleChapterClick(chapter);
-              }}
+    <ScrollArea className="h-[calc(100vh-16rem)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6 overflow-y-auto" style={{
+      WebkitOverflowScrolling: 'touch',
+      overscrollBehavior: 'contain'
+    }}>
+      <div className="min-h-full w-full">
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full space-y-2"
+          value={expandedChapter}
+          onValueChange={setExpandedChapter}
+        >
+          {chapters.map((chapter) => (
+            <AccordionItem 
+              key={chapter.id} 
+              value={chapter.id}
+              className="border-b-0 px-2"
             >
-              {highlightText(chapter.title)}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-1 pl-4">
-                {chapter.sections.map((section) => (
-                  <div key={section.id}>
-                    <Button
-                      variant="ghost"
-                      className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors whitespace-normal h-auto min-h-[2.5rem] ${
-                        isSubsection(chapter.title, section.title) 
-                          ? "pl-8 text-sm" 
-                          : ""
-                      } ${
-                        selectedSection?.id === section.id
-                          ? "text-warcrow-gold bg-black/40 font-medium"
-                          : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
-                      }`}
-                      onClick={() => {
-                        setSelectedSection(section);
-                        setExpandedSection(expandedSection === section.id ? null : section.id);
-                      }}
-                    >
-                      {isSubsection(chapter.title, section.title) && (
-                        <ChevronRight className="h-3 w-3 mr-1 inline-block opacity-60" />
-                      )}
-                      <span className="break-words">
-                        {highlightText(section.title)}
-                      </span>
-                    </Button>
-                    {expandedSection === section.id && (
-                      <div className="mt-4 mb-6 px-4 py-3 bg-black/20 rounded-lg">
-                        <div className="flex justify-between items-start mb-4">
-                          <h3 className="text-xl font-semibold text-warcrow-gold">
-                            {highlightText(section.title)}
-                          </h3>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCopyText(section)}
-                              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                              title="Copy section text"
-                            >
-                              <Clipboard className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDiscordShare(section)}
-                              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                              title="Share to Discord"
-                            >
-                              <MessageSquare className="h-4 w-4" />
-                            </Button>
+              <AccordionTrigger
+                className="text-warcrow-gold hover:text-warcrow-gold/80 hover:no-underline py-3 text-lg font-semibold text-left whitespace-normal break-words pr-8 select-none touch-manipulation"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleChapterClick(chapter);
+                }}
+              >
+                {highlightText(chapter.title)}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-1 pl-4">
+                  {chapter.sections.map((section) => (
+                    <div key={section.id}>
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start text-left py-2 px-3 rounded-md transition-colors whitespace-normal h-auto min-h-[2.5rem] select-none touch-manipulation ${
+                          isSubsection(chapter.title, section.title) 
+                            ? "pl-8 text-sm" 
+                            : ""
+                        } ${
+                          selectedSection?.id === section.id
+                            ? "text-warcrow-gold bg-black/40 font-medium"
+                            : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
+                        }`}
+                        onClick={() => {
+                          setSelectedSection(section);
+                          setExpandedSection(expandedSection === section.id ? null : section.id);
+                        }}
+                      >
+                        {isSubsection(chapter.title, section.title) && (
+                          <ChevronRight className="h-3 w-3 mr-1 inline-block opacity-60" />
+                        )}
+                        <span className="break-words">
+                          {highlightText(section.title)}
+                        </span>
+                      </Button>
+                      {expandedSection === section.id && (
+                        <div className="mt-4 mb-6 px-4 py-3 bg-black/20 rounded-lg">
+                          <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-xl font-semibold text-warcrow-gold">
+                              {highlightText(section.title)}
+                            </h3>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCopyText(section)}
+                                className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                                title="Copy section text"
+                              >
+                                <Clipboard className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDiscordShare(section)}
+                                className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
+                                title="Share to Discord"
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-warcrow-text text-base leading-relaxed whitespace-pre-wrap">
+                            {highlightText(section.content)}
                           </div>
                         </div>
-                        <div className="text-warcrow-text text-base leading-relaxed whitespace-pre-wrap">
-                          {highlightText(section.content)}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
     </ScrollArea>
   );
 };
