@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
+import ExampleUsage from "@/components/ExampleUsage";
 
 const Index = () => {
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
@@ -34,6 +35,7 @@ const Index = () => {
               Build and manage your Warcrow army lists
             </h1>
           </div>
+          <ExampleUsage />
           <div className="hidden md:block">
             <FactionSelector
               selectedFaction={selectedFaction}
