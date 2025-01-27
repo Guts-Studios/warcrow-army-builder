@@ -116,7 +116,12 @@ const Rules = () => {
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <div className="container max-w-7xl mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col items-center gap-6 mb-8">
+          <img
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z"
+            alt="Warcrow Logo"
+            className="h-24 md:h-32"
+          />
           <div className="flex items-center gap-4">
             <Button 
               variant="outline"
@@ -133,12 +138,6 @@ const Rules = () => {
               Home
             </Button>
           </div>
-          <img
-            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z"
-            alt="Warcrow Logo"
-            className="h-24 md:h-32"
-          />
-          <div className="w-[140px]" /> {/* Spacer to balance the navigation buttons */}
         </div>
 
         <div className="space-y-4">
