@@ -117,17 +117,24 @@ const Rules = () => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <div className="container max-w-7xl mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-8">
-          <Button
-            onClick={() => navigate("/builder")}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold bg-black hover:bg-warcrow-gold hover:text-black"
-          >
-            Back to Builder
-          </Button>
+          <div className="w-full max-w-xs flex justify-center gap-3">
+            <button 
+              onClick={() => navigate('/landing')} 
+              className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
+            >
+              Landing Page
+            </button>
+            <button 
+              onClick={() => navigate('/builder')} 
+              className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
+            >
+              Builder
+            </button>
+          </div>
           <img
             src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z"
             alt="Warcrow Logo"
-            className="h-16 md:h-24"
+            className="h-24 md:h-32"
           />
           <div className="w-[100px]" />
         </div>
