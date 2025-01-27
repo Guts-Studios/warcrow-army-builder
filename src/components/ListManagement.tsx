@@ -45,24 +45,37 @@ const ListManagement = ({
   const handleDeleteList = async (listId: string) => {
     const listToRemove = savedLists.find((list) => list.id === listId);
     
-    if (listToRemove?.user_id) {
-      // Delete from Supabase if it's a cloud save
-      const { error } = await supabase
-        .from('army_lists')
-        .delete()
-        .eq('id', listId);
+    try {
+      if (listToRemove?.user_id) {
+        // Delete from Supabase if it's a cloud save
+        const { error } = await supabase
+          .from('army_lists')
+          .delete()
+          .eq('id', listId);
 
-      if (error) {
-        console.error('Error deleting from cloud:', error);
-        toast.error("Failed to delete list from cloud");
-        return;
+        if (error) {
+          console.error('Error deleting from cloud:', error);
+          toast.error("Failed to delete list from cloud");
+          return;
+        }
       }
-    }
 
-    // Update local storage
-    const updatedLists = savedLists.filter((list) => list.id !== listId);
-    localStorage.setItem("armyLists", JSON.stringify(updatedLists));
-    window.location.reload();
+      // Update local storage with filtered lists
+      const updatedLists = savedLists.filter((list) => list.id !== listId);
+      localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+      
+      // Show success message
+      toast.success("List deleted successfully");
+      
+      // Close the delete dialog
+      setListToDelete(null);
+      
+      // Refresh the page to update the lists
+      window.location.reload();
+    } catch (error) {
+      console.error('Error during list deletion:', error);
+      toast.error("An error occurred while deleting the list");
+    }
   };
 
   return (
@@ -125,7 +138,6 @@ const ListManagement = ({
                 if (listToDelete) {
                   handleDeleteList(listToDelete);
                 }
-                setListToDelete(null);
               }}
             >
               Delete
