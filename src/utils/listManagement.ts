@@ -22,6 +22,7 @@ export const fetchSavedLists = async () => {
       faction: list.faction,
       units: list.units,
       user_id: list.user_id,
+      created_at: list.created_at,
     })),
   ];
 };
@@ -36,6 +37,7 @@ export const saveListToStorage = (
     name: nameToUse,
     faction: selectedFaction,
     units: validatedUnits,
+    created_at: new Date().toISOString(),
   };
 
   return newList;
