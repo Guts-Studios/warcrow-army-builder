@@ -29,6 +29,7 @@ const ExampleUsage = () => {
             .single();
           
           setIsTester(profile?.tester || false);
+          console.log('Tester status:', profile?.tester);
         }
       } catch (error) {
         console.error('Error checking tester status:', error);
@@ -89,7 +90,11 @@ const ExampleUsage = () => {
 
   return (
     <div className="p-4">
-      <Button onClick={handleSendTestEmail}>
+      <Button 
+        onClick={handleSendTestEmail}
+        variant="outline"
+        className="bg-warcrow-accent text-warcrow-text hover:bg-warcrow-accent/80 transition-colors border border-warcrow-gold/30"
+      >
         Send Test Email
       </Button>
 
