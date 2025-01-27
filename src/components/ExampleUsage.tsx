@@ -2,9 +2,46 @@ import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import { sendEmail } from "@/utils/emailUtils";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 const ExampleUsage = () => {
+  const [isTester, setIsTester] = React.useState(false);
+  const [showDialog, setShowDialog] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkTesterStatus = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('tester')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsTester(profile?.tester || false);
+        }
+      } catch (error) {
+        console.error('Error checking tester status:', error);
+      }
+    };
+
+    checkTesterStatus();
+  }, []);
+
   const handleSendTestEmail = React.useCallback(async () => {
+    if (!isTester) {
+      setShowDialog(true);
+      return;
+    }
+
     try {
       console.log('Attempting to send test email');
       const logoUrl = "https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z";
@@ -36,7 +73,7 @@ const ExampleUsage = () => {
       `;
 
       await sendEmail(
-        ['caldwejf@gmail.com'], // Testing with the new email address
+        ['caldwejf@gmail.com'],
         'Warcrow Army Builder - Email System Test',
         emailTemplate
       );
@@ -46,13 +83,24 @@ const ExampleUsage = () => {
       console.error('Failed to send test email:', error);
       toast.error('Failed to send test email');
     }
-  }, []);
+  }, [isTester]);
 
   return (
     <div className="p-4">
       <Button onClick={handleSendTestEmail}>
         Send Test Email
       </Button>
+
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tester Access Only</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sorry, only users with the Tester role can use this feature currently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
