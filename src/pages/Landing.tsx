@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import ExampleUsage from "@/components/ExampleUsage";
 import {
   Dialog,
   DialogContent,
@@ -57,7 +56,6 @@ const Landing = () => {
         <p className="text-lg md:text-xl text-warcrow-text">
           Create and manage your Warcrow army lists with ease.
         </p>
-        <ExampleUsage />
         <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
           <p className="text-warcrow-gold font-semibold mb-2 text-sm md:text-base">🚧 Still in Development</p>
           <p className="text-warcrow-text text-sm md:text-base">
