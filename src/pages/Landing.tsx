@@ -86,6 +86,7 @@ const Landing = () => {
           >
             {isGuest ? "Signed in as Guest" : "Sign Out"}
           </Button>
+          {/* Temporarily hidden Patreon button
           <Button
             onClick={() => window.open('https://www.patreon.com/c/GutzStudio', '_blank')}
             variant="outline"
@@ -93,6 +94,7 @@ const Landing = () => {
           >
             Support on Patreon
           </Button>
+          */}
         </div>
         <Dialog>
           <DialogTrigger asChild>
