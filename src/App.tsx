@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import Index from './pages/Index';
-import Builder from './pages/Builder';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Rules from './pages/Rules';
@@ -119,13 +119,17 @@ function App() {
               />
               <Route 
                 path="/" 
-                element={<Index />} 
+                element={<Navigate to="/builder" replace />} 
+              />
+              <Route 
+                path="/landing" 
+                element={<Landing />} 
               />
               <Route 
                 path="/builder" 
                 element={
                   isPreview || isAuthenticated || isGuest ? (
-                    <Builder />
+                    <Index />
                   ) : (
                     <Navigate to="/login" replace />
                   )
@@ -141,7 +145,7 @@ function App() {
               />
               <Route 
                 path="*" 
-                element={<Navigate to="/" replace />} 
+                element={<Navigate to="/landing" replace />} 
               />
             </Routes>
             <Toaster />

@@ -1,12 +1,30 @@
-import * as React from 'react';
-import { Button } from "@/components/ui/button";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
+import ArmyBuilder from "@/components/army/ArmyBuilder";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [session, setSession] = React.useState(null);
+
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+    <div className="min-h-screen bg-warcrow-background">
       {/* Navigation Header */}
       <div className="bg-black/50 p-4">
         <div className="container mx-auto">
@@ -20,9 +38,9 @@ const Index = () => {
               <Button
                 variant="outline"
                 className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/builder')}
+                onClick={() => navigate('/missions')}
               >
-                Army Builder
+                Missions
               </Button>
               <Button
                 variant="outline"
@@ -34,41 +52,19 @@ const Index = () => {
               <Button
                 variant="outline"
                 className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/missions')}
+                onClick={() => navigate('/landing')}
               >
-                Missions
+                <Home className="mr-2 h-4 w-4" />
+                Home
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hero Section */}
-      <div className="container mx-auto py-16 px-4">
-        <div className="text-center space-y-6">
-          <h1 className="text-4xl md:text-6xl font-bold text-warcrow-gold">
-            Welcome to Warcrow
-          </h1>
-          <p className="text-xl md:text-2xl max-w-2xl mx-auto">
-            Build your army, master the rules, and conquer the battlefield
-          </p>
-          <div className="flex flex-col md:flex-row justify-center gap-4 pt-8">
-            <Button
-              size="lg"
-              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-              onClick={() => navigate('/builder')}
-            >
-              Start Building Your Army
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
-              onClick={() => navigate('/rules')}
-            >
-              Learn the Rules
-            </Button>
-          </div>
+      <div className="container mx-auto py-8 px-4 md:px-8">
+        <div className="animate-fade-in">
+          <ArmyBuilder session={session} />
         </div>
       </div>
     </div>
