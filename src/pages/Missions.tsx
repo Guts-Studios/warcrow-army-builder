@@ -128,22 +128,22 @@ const Missions = () => {
           {/* Mission Display */}
           <div className="md:col-span-2">
             {selectedMission ? (
-              <div>
-                <div className="mb-6">
-                  <img
-                    src={MISSION_IMAGES[selectedMission.title]}
-                    alt={`${selectedMission.title} Mission`}
-                    className="w-full h-48 object-cover rounded-lg shadow-lg"
-                  />
-                </div>
+              <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
                   {selectedMission.title}
                 </h2>
-                <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
+                <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
                   <div className="text-warcrow-text whitespace-pre-wrap">
                     {selectedMission.details}
                   </div>
                 </ScrollArea>
+                <div className="w-full">
+                  <img
+                    src={MISSION_IMAGES[selectedMission.title]}
+                    alt={`${selectedMission.title} Mission`}
+                    className="w-full rounded-lg shadow-lg"
+                  />
+                </div>
               </div>
             ) : (
               <div className="text-warcrow-text text-center py-8">
