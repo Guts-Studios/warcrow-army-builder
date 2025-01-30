@@ -47,7 +47,7 @@ const Landing = () => {
         <img 
           src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
           alt="Warcrow Logo" 
-          className="h-29 md:h-43 mx-auto"
+          className="h-16 md:h-43 mx-auto"
         />
         <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
           Welcome to Warcrow Army Builder

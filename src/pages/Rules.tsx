@@ -121,7 +121,7 @@ const Rules = () => {
           <img 
             src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
             alt="Warcrow Logo" 
-            className="h-14"
+            className="h-16"
           />
           <div className="flex items-center gap-4">
             <Button
