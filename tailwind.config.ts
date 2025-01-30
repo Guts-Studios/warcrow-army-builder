@@ -21,7 +21,7 @@ export default {
       colors: {
         warcrow: {
           background: "#1a1d24",
-          gold: "#ffd700",
+          gold: "#d4af37", // Darker, more accessible gold
           accent: "#2a2d34",
           text: "#e1e1e6",
           muted: "#6c7293",
@@ -65,6 +65,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'custom': '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      },
+      letterSpacing: {
+        'wider': '.1em',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -78,11 +84,16 @@ export default {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "scale-in": {
+          "0%": { transform: "scale(0.95)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
       },
     },
   },

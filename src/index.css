@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 }
 
@@ -37,14 +37,23 @@
     overscroll-behavior-y: auto;
     min-height: 100vh;
     height: auto;
+    letter-spacing: 0.025em;
   }
   html {
     height: auto;
     min-height: 100%;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-wider font-semibold;
+  }
+  
+  button {
+    @apply transition-all duration-300;
+  }
 }
 
-/* Improved scrollbar styling for iOS */
+/* Improved scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -52,17 +61,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1d24;
-  border-radius: 4px;
+  @apply bg-warcrow-background rounded;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffd700;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #cca700;
+  @apply bg-warcrow-gold rounded hover:bg-warcrow-gold/80 transition-colors;
 }
 
 /* iOS-specific optimizations */
@@ -75,4 +78,30 @@
     -webkit-user-select: none;
     user-select: none;
   }
+}
+
+/* Card and interactive element styles */
+.card, .dialog, .popover {
+  @apply shadow-custom transition-shadow duration-300;
+}
+
+.interactive-element {
+  @apply transition-all duration-300 hover:scale-105;
+}
+
+/* Fade animations */
+.fade-enter {
+  @apply opacity-0;
+}
+
+.fade-enter-active {
+  @apply opacity-100 transition-opacity duration-300;
+}
+
+.fade-exit {
+  @apply opacity-100;
+}
+
+.fade-exit-active {
+  @apply opacity-0 transition-opacity duration-300;
 }
