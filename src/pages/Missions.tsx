@@ -12,6 +12,12 @@ interface Mission {
   details: string;
 }
 
+const MISSION_IMAGES: Record<string, string> = {
+  'Consolidated Progress': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
+  'Take Positions': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05',
+  'Fog of Death': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e',
+};
+
 const Missions = () => {
   const navigate = useNavigate();
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
@@ -123,10 +129,17 @@ const Missions = () => {
           <div className="md:col-span-2">
             {selectedMission ? (
               <div>
+                <div className="mb-6">
+                  <img
+                    src={MISSION_IMAGES[selectedMission.title]}
+                    alt={`${selectedMission.title} Mission`}
+                    className="w-full h-48 object-cover rounded-lg shadow-lg"
+                  />
+                </div>
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
                   {selectedMission.title}
                 </h2>
-                <ScrollArea className="h-[calc(100vh-20rem)] pr-4">
+                <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
                   <div className="text-warcrow-text whitespace-pre-wrap">
                     {selectedMission.details}
                   </div>
