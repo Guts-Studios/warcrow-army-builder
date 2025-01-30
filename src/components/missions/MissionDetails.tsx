@@ -1,11 +1,20 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mission } from "./types";
-import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from "lucide-react";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
+};
+
+// Map dice numbers to image paths
+const DICE_IMAGES: Record<string, string> = {
+  '[d1]': '/art/dice/d1.png',
+  '[d2]': '/art/dice/d2.png',
+  '[d3]': '/art/dice/d3.png',
+  '[d4]': '/art/dice/d4.png',
+  '[d5]': '/art/dice/d5.png',
+  '[d6]': '/art/dice/d6.png',
 };
 
 const HIGHLIGHTED_WORDS = [
@@ -17,16 +26,6 @@ const HIGHLIGHTED_WORDS = [
   'Fog effects',
   'End of the game'
 ];
-
-// Map dice numbers to components
-const DICE_COMPONENTS: Record<string, React.ComponentType<any>> = {
-  '[d1]': Dice1,
-  '[d2]': Dice2,
-  '[d3]': Dice3,
-  '[d4]': Dice4,
-  '[d5]': Dice5,
-  '[d6]': Dice6,
-};
 
 interface MissionDetailsProps {
   mission: Mission | null;
@@ -46,7 +45,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     let formattedText = text;
     
     // First replace dice placeholders with temporary markers
-    Object.keys(DICE_COMPONENTS).forEach(diceKey => {
+    Object.keys(DICE_IMAGES).forEach(diceKey => {
       const regex = new RegExp(`\\${diceKey}`, 'g');
       formattedText = formattedText.replace(regex, `###DICE${diceKey}###`);
     });
@@ -67,12 +66,13 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     return parts.map((part, index) => {
       const diceMatch = part.match(/###DICE\[d([1-6])\]###/);
       if (diceMatch) {
-        const DiceComponent = DICE_COMPONENTS[`[d${diceMatch[1]}]`];
+        const imagePath = DICE_IMAGES[`[d${diceMatch[1]}]`];
         return (
-          <DiceComponent
+          <img
             key={index}
-            className="inline-block mx-1 text-warcrow-gold"
-            size={20}
+            src={imagePath}
+            alt={`Dice ${diceMatch[1]}`}
+            className="inline-block mx-1 h-5 w-5 align-middle"
           />
         );
       }
