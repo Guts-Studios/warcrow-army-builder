@@ -145,16 +145,13 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         <div className="mb-6 flex justify-center gap-4">
           <Button
             onClick={handleHomeClick}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
-            disabled={isLoading}
+            className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold transition-all duration-300"
           >
             Back to Home
           </Button>
           <Button
             onClick={handleGuestAccess}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black"
+            className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold transition-all duration-300"
             disabled={isLoading}
           >
             Continue as Guest
@@ -177,42 +174,65 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             variables: {
               default: {
                 colors: {
-                  brand: '#B8860B',
-                  brandAccent: '#8B6508',
-                }
+                  brand: '#ffd700',
+                  brandAccent: '#2a2d34',
+                  brandButtonText: "black",
+                },
+                borderWidths: {
+                  buttonBorderWidth: '1px',
+                },
+                radii: {
+                  borderRadiusButton: '6px',
+                },
               }
-            }
+            },
+            className: {
+              button: 'bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold border border-warcrow-gold text-warcrow-background transition-all duration-300',
+              input: 'bg-warcrow-background border-warcrow-gold text-warcrow-text',
+              label: 'text-warcrow-text',
+              anchor: 'text-warcrow-gold hover:text-warcrow-gold/80',
+            },
           }}
           providers={[]}
         />
       </div>
 
       <AlertDialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-warcrow-accent border-warcrow-gold">
           <AlertDialogHeader>
-            <AlertDialogTitle>Guest Access</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-warcrow-text">Guest Access</AlertDialogTitle>
+            <AlertDialogDescription className="text-warcrow-text/80">
               While using the app as a guest, some features like saving army lists and cloud synchronization will be disabled. Sign in to access all features.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => confirmGuestAccess()}>Continue as Guest</AlertDialogAction>
+            <AlertDialogCancel className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => confirmGuestAccess()}
+              className="bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold text-warcrow-background border border-warcrow-gold"
+            >
+              Continue as Guest
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <AlertDialog open={showHomeGuestDialog} onOpenChange={setShowHomeGuestDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-warcrow-accent border-warcrow-gold">
           <AlertDialogHeader>
-            <AlertDialogTitle>Continuing as Guest</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-warcrow-text">Continuing as Guest</AlertDialogTitle>
+            <AlertDialogDescription className="text-warcrow-text/80">
               You'll be continuing to the home page as a guest user. Some features will be limited. You can sign in anytime to access all features.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => confirmGuestAccess('/')}>Continue to Home</AlertDialogAction>
+            <AlertDialogCancel className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => confirmGuestAccess('/')}
+              className="bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold text-warcrow-background border border-warcrow-gold"
+            >
+              Continue to Home
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
