@@ -32,7 +32,7 @@ export const MissionHeader = () => {
             <Button
               variant="outline"
               className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-              onClick={() => navigate('/landing')}
+              onClick={() => navigate('/')}
             >
               <Home className="mr-2 h-4 w-4" />
               Home
