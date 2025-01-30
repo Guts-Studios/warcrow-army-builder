@@ -15,6 +15,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Placeholder for changes in progress.
 
+### [0.4.2] - 2025-01-30
+
+### Added 
+- Missions Page with details and deployment cards
+- Updated navigation bar on several pages
+
 ### [0.4.1] - 2025-01-27
 
 ### Added 
