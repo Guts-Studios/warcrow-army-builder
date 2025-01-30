@@ -11,6 +11,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Rules from './pages/Rules';
+import Missions from './pages/Missions';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -137,6 +138,10 @@ function App() {
               <Route 
                 path="/rules" 
                 element={<Rules />} 
+              />
+              <Route 
+                path="/missions" 
+                element={<Missions />} 
               />
               <Route 
                 path="*" 
