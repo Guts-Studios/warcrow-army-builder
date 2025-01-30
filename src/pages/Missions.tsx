@@ -1,25 +1,11 @@
 import * as React from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface Mission {
-  id: string;
-  title: string;
-  details: string;
-}
-
-const MISSION_IMAGES: Record<string, string> = {
-  'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
-  'Take Positions': '/art/missions/take_positions.jpg',
-  'Fog of Death': '/art/missions/fog_of_death.jpg',
-};
+import { MissionHeader } from "@/components/missions/MissionHeader";
+import { MissionList } from "@/components/missions/MissionList";
+import { MissionDetails } from "@/components/missions/MissionDetails";
+import type { Mission } from "@/components/missions/types";
 
 const Missions = () => {
-  const navigate = useNavigate();
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
   const [missions, setMissions] = React.useState<Mission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -60,96 +46,17 @@ const Missions = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background">
-      {/* Navigation Header */}
-      <div className="bg-black/50 p-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-            <img 
-              src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
-              alt="Warcrow Logo" 
-              className="h-16"
-            />
-            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/builder')}
-              >
-                Army Builder
-              </Button>
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/rules')}
-              >
-                Rules
-              </Button>
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/landing')}
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Home
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
+      <MissionHeader />
       <div className="container mx-auto py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Mission List */}
-          <Card className="bg-warcrow-accent p-6">
-            <h2 className="text-xl font-bold text-warcrow-gold mb-4">Missions</h2>
-            {isLoading ? (
-              <div className="text-warcrow-text text-center py-4">Loading missions...</div>
-            ) : (
-              <div className="space-y-2">
-                {missions.map((mission) => (
-                  <Button
-                    key={mission.id}
-                    variant="ghost"
-                    className={`w-full justify-start text-lg font-medium ${
-                      selectedMission?.id === mission.id
-                        ? "text-warcrow-gold bg-black/20"
-                        : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
-                    }`}
-                    onClick={() => setSelectedMission(mission)}
-                  >
-                    {mission.title}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </Card>
-
-          {/* Mission Display */}
+          <MissionList
+            missions={missions}
+            selectedMission={selectedMission}
+            onSelectMission={setSelectedMission}
+            isLoading={isLoading}
+          />
           <div className="md:col-span-2">
-            {selectedMission ? (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-                  {selectedMission.title}
-                </h2>
-                <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
-                  <div className="text-warcrow-text whitespace-pre-wrap">
-                    {selectedMission.details}
-                  </div>
-                </ScrollArea>
-                <div className="w-full">
-                  <img
-                    src={MISSION_IMAGES[selectedMission.title]}
-                    alt={`${selectedMission.title} Mission`}
-                    className="w-full rounded-lg shadow-lg"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="text-warcrow-text text-center py-8">
-                {isLoading ? "Loading mission details..." : "Select a mission to view details"}
-              </div>
-            )}
+            <MissionDetails mission={selectedMission} isLoading={isLoading} />
           </div>
         </div>
       </div>
