@@ -18,10 +18,13 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Outfit', 'sans-serif'],
+      },
       colors: {
         warcrow: {
           background: "#1a1d24",
-          gold: "#ffd700", // Changed back to the previous gold color
+          gold: "#ffd700",
           accent: "#2a2d34",
           text: "#e1e1e6",
           muted: "#6c7293",

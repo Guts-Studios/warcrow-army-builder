@@ -31,6 +31,7 @@
   * {
     @apply border-border;
     -webkit-tap-highlight-color: transparent;
+    font-family: 'Outfit', sans-serif;
   }
   body {
     @apply bg-background text-foreground;
@@ -46,6 +47,7 @@
   
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-wider font-semibold;
+    font-family: 'Outfit', sans-serif;
   }
   
   button {
