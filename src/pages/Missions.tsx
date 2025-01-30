@@ -3,39 +3,54 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Home } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Mission {
   id: string;
   title: string;
-  imageUrl: string;
+  details: string;
 }
-
-const missions: Mission[] = [
-  {
-    id: "consolidated-progress",
-    title: "Consolidated Progress",
-    imageUrl: "/art/missions/consolidated_progress.jpg",
-  },
-  {
-    id: "fog-of-death",
-    title: "Fog of Death",
-    imageUrl: "/art/missions/fog_of_death.jpg",
-  },
-  {
-    id: "take-positions",
-    title: "Take Positions",
-    imageUrl: "/art/missions/take_positions.jpg",
-  },
-];
 
 const Missions = () => {
   const navigate = useNavigate();
-  const [selectedMission, setSelectedMission] = React.useState<Mission | null>(missions[0]);
+  const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
+  const [missions, setMissions] = React.useState<Mission[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchMissions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('rules_sections')
+          .select('id, title, mission_details')
+          .not('mission_details', 'is', null)
+          .order('order_index');
+
+        if (error) {
+          console.error('Error fetching missions:', error);
+          return;
+        }
+
+        const formattedMissions = data.map(mission => ({
+          id: mission.id,
+          title: mission.title,
+          details: mission.mission_details || ''
+        }));
+
+        setMissions(formattedMissions);
+        if (formattedMissions.length > 0) {
+          setSelectedMission(formattedMissions[0]);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMissions();
+  }, []);
 
   return (
     <div className="min-h-screen bg-warcrow-background">
@@ -82,22 +97,26 @@ const Missions = () => {
           {/* Mission List */}
           <Card className="bg-warcrow-accent p-6">
             <h2 className="text-xl font-bold text-warcrow-gold mb-4">Missions</h2>
-            <div className="space-y-2">
-              {missions.map((mission) => (
-                <Button
-                  key={mission.id}
-                  variant="ghost"
-                  className={`w-full justify-start text-lg font-medium ${
-                    selectedMission?.id === mission.id
-                      ? "text-warcrow-gold bg-black/20"
-                      : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
-                  }`}
-                  onClick={() => setSelectedMission(mission)}
-                >
-                  {mission.title}
-                </Button>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-warcrow-text text-center py-4">Loading missions...</div>
+            ) : (
+              <div className="space-y-2">
+                {missions.map((mission) => (
+                  <Button
+                    key={mission.id}
+                    variant="ghost"
+                    className={`w-full justify-start text-lg font-medium ${
+                      selectedMission?.id === mission.id
+                        ? "text-warcrow-gold bg-black/20"
+                        : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
+                    }`}
+                    onClick={() => setSelectedMission(mission)}
+                  >
+                    {mission.title}
+                  </Button>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Mission Display */}
@@ -107,34 +126,15 @@ const Missions = () => {
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
                   {selectedMission.title}
                 </h2>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="relative rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90">
-                      <img
-                        src={selectedMission.imageUrl}
-                        alt={selectedMission.title}
-                        className="w-full h-auto rounded-lg"
-                        loading="eager"
-                      />
-                      {selectedMission.id === "fog-of-death" && (
-                        <div className="absolute bottom-4 right-4 bg-black/70 text-warcrow-gold px-3 py-1 rounded-full text-sm">
-                          Click to zoom
-                        </div>
-                      )}
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
-                    <img
-                      src={selectedMission.imageUrl}
-                      alt={selectedMission.title}
-                      className="w-full h-full object-contain"
-                    />
-                  </DialogContent>
-                </Dialog>
+                <ScrollArea className="h-[calc(100vh-20rem)] pr-4">
+                  <div className="text-warcrow-text whitespace-pre-wrap">
+                    {selectedMission.details}
+                  </div>
+                </ScrollArea>
               </div>
             ) : (
               <div className="text-warcrow-text text-center py-8">
-                Select a mission to view details
+                {isLoading ? "Loading mission details..." : "Select a mission to view details"}
               </div>
             )}
           </div>

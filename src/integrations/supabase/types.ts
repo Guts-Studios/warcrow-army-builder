@@ -96,6 +96,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          mission_details: string | null
           order_index: number
           title: string
           updated_at: string
@@ -105,6 +106,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          mission_details?: string | null
           order_index: number
           title: string
           updated_at?: string
@@ -114,6 +116,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          mission_details?: string | null
           order_index?: number
           title?: string
           updated_at?: string
