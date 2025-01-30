@@ -78,21 +78,19 @@ const Landing = () => {
             Rules Reference
           </Button>
           <Button
+            onClick={() => navigate('/missions')}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            Missions
+          </Button>
+          <Button
             onClick={handleSignOut}
             variant="outline"
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
           >
             {isGuest ? "Signed in as Guest" : "Sign Out"}
           </Button>
-          {/* Temporarily hidden Patreon button
-          <Button
-            onClick={() => window.open('https://www.patreon.com/c/GutzStudio', '_blank')}
-            variant="outline"
-            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-          >
-            Support on Patreon
-          </Button>
-          */}
         </div>
         <Dialog>
           <DialogTrigger asChild>
