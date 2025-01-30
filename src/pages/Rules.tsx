@@ -5,7 +5,7 @@ import { ChapterNavigation } from "@/components/rules/ChapterNavigation";
 import { RulesSearch } from "@/components/rules/RulesSearch";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, Home } from "lucide-react";
 
 interface Section {
   id: string;
@@ -115,32 +115,42 @@ const Rules = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <div className="container max-w-7xl mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
+      {/* Navigation Header */}
+      <div className="bg-black/50 p-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <img 
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+            alt="Warcrow Logo" 
+            className="h-14"
+          />
           <div className="flex items-center gap-4">
-            <Button 
+            <Button
               variant="outline"
-              onClick={() => navigate('/builder')} 
-              className="bg-warcrow-accent text-warcrow-text hover:bg-warcrow-accent/80 transition-colors border border-warcrow-gold/30"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/builder')}
             >
-              Builder
+              Army Builder
             </Button>
-            <Button 
+            <Button
               variant="outline"
-              onClick={() => navigate('/landing')} 
-              className="bg-warcrow-accent text-warcrow-text hover:bg-warcrow-accent/80 transition-colors border border-warcrow-gold/30"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/missions')}
             >
+              Missions
+            </Button>
+            <Button
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/landing')}
+            >
+              <Home className="mr-2 h-4 w-4" />
               Home
             </Button>
           </div>
-          <img
-            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z"
-            alt="Warcrow Logo"
-            className="h-24 md:h-32"
-          />
-          <div className="w-[140px]" /> {/* Spacer to balance the navigation buttons */}
         </div>
+      </div>
 
+      <div className="container max-w-7xl mx-auto py-8 px-4">
         <div className="space-y-4">
           <RulesSearch
             searchTerm={searchTerm}
