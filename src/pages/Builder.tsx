@@ -22,7 +22,7 @@ const getLatestVersion = (content: string): string => {
   return matches[0].match(versionRegex)![1];
 };
 
-const Index = () => {
+const Builder = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
   const latestVersion = getLatestVersion(changelogContent);
@@ -131,4 +131,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Builder;

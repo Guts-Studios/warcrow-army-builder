@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
