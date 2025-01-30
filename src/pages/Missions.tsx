@@ -13,9 +13,9 @@ interface Mission {
 }
 
 const MISSION_IMAGES: Record<string, string> = {
-  'Consolidated Progress': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
-  'Take Positions': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05',
-  'Fog of Death': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e',
+  'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
+  'Take Positions': '/art/missions/take_positions.jpg',
+  'Fog of Death': '/art/missions/fog_of_death.jpg',
 };
 
 const Missions = () => {
