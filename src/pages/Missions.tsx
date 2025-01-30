@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Mission {
   id: string;
@@ -88,14 +93,30 @@ const Missions = () => {
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
                   {selectedMission.title}
                 </h2>
-                <div className="relative rounded-lg overflow-hidden">
-                  <img
-                    src={selectedMission.imageUrl}
-                    alt={selectedMission.title}
-                    className="w-full h-auto rounded-lg"
-                    loading="eager"
-                  />
-                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <div className="relative rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90">
+                      <img
+                        src={selectedMission.imageUrl}
+                        alt={selectedMission.title}
+                        className="w-full h-auto rounded-lg"
+                        loading="eager"
+                      />
+                      {selectedMission.id === "fog-of-death" && (
+                        <div className="absolute bottom-4 right-4 bg-black/70 text-warcrow-gold px-3 py-1 rounded-full text-sm">
+                          Click to zoom
+                        </div>
+                      )}
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
+                    <img
+                      src={selectedMission.imageUrl}
+                      alt={selectedMission.title}
+                      className="w-full h-full object-contain"
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
             ) : (
               <div className="text-warcrow-text text-center py-8">
