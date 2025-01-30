@@ -21,7 +21,7 @@ export default {
       colors: {
         warcrow: {
           background: "#1a1d24",
-          gold: "#d4af37", // Darker, more accessible gold
+          gold: "#ffd700", // Changed back to the previous gold color
           accent: "#2a2d34",
           text: "#e1e1e6",
           muted: "#6c7293",
