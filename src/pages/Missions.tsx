@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Mission {
   id: string;
@@ -26,11 +28,40 @@ const missions: Mission[] = [
 ];
 
 const Missions = () => {
+  const navigate = useNavigate();
   const [selectedMission, setSelectedMission] = useState<Mission | null>(missions[0]);
 
   return (
-    <div className="min-h-screen bg-warcrow-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-warcrow-background">
+      {/* Navigation Header */}
+      <div className="bg-warcrow-accent/50 p-4 md:p-6 mb-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <img 
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+            alt="Warcrow Logo" 
+            className="h-16 md:h-20 cursor-pointer"
+            onClick={() => navigate('/landing')}
+          />
+          <div className="flex gap-3 md:gap-4">
+            <Button
+              onClick={() => navigate('/builder')}
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+            >
+              Army Builder
+            </Button>
+            <Button
+              onClick={() => navigate('/rules')}
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            >
+              Rules
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         <h1 className="text-3xl font-bold text-warcrow-gold mb-8">Missions</h1>
         <div className="grid grid-cols-1 md:grid-cols-[300px,1fr] gap-8">
           {/* Mission List */}
