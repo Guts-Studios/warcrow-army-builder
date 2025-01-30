@@ -1,41 +1,52 @@
-import { useState } from "react";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import FactionSelector from "@/components/FactionSelector";
-import ArmyList from "@/components/ArmyList";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
+import ArmyBuilder from "@/components/army/ArmyBuilder";
 
 const Index = () => {
-  const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
-      <img 
-        src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
-        alt="Warcrow Logo" 
-        className="h-24 md:h-32 mx-auto mb-6"
-      />
-      <div className="w-full max-w-xs flex justify-center gap-3 mb-8">
-        <button 
-          onClick={() => navigate('/landing')} 
-          className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
-        >
-          Landing Page
-        </button>
-        <button 
-          onClick={() => navigate('/rules')} 
-          className="bg-warcrow-accent text-warcrow-text px-3 py-1.5 rounded hover:bg-warcrow-accent/80 transition-colors text-sm border border-warcrow-gold/30"
-        >
-          Rules
-        </button>
+    <div className="min-h-screen bg-warcrow-background">
+      {/* Navigation Header */}
+      <div className="bg-black/50 p-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <img 
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+            alt="Warcrow Logo" 
+            className="h-14"
+          />
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/missions')}
+            >
+              Missions
+            </Button>
+            <Button
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/rules')}
+            >
+              Rules
+            </Button>
+            <Button
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+              onClick={() => navigate('/landing')}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+          </div>
+        </div>
       </div>
-      <FactionSelector 
-        selectedFaction={selectedFaction} 
-        onFactionChange={setSelectedFaction} 
-      />
-      <ArmyList 
-        selectedFaction={selectedFaction} 
-        onFactionChange={setSelectedFaction}
-      />
+
+      <div className="container mx-auto py-8">
+        <ArmyBuilder />
+      </div>
     </div>
   );
 };
