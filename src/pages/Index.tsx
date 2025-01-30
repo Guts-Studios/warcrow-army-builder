@@ -3,9 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import ArmyBuilder from "@/components/army/ArmyBuilder";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [session, setSession] = React.useState(null);
+
+  React.useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for session changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <div className="min-h-screen bg-warcrow-background">
@@ -45,7 +63,7 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto py-8">
-        <ArmyBuilder />
+        <ArmyBuilder session={session} />
       </div>
     </div>
   );
