@@ -42,12 +42,12 @@ const Missions = () => {
       {/* Navigation Header */}
       <div className="bg-black/50 p-4">
         <div className="container mx-auto flex items-center justify-between">
+          <img 
+            src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+            alt="Warcrow Logo" 
+            className="h-14" // Increased from h-12 to h-14 (approximately 20% larger)
+          />
           <div className="flex items-center gap-4">
-            <img 
-              src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
-              alt="Warcrow Logo" 
-              className="h-12"
-            />
             <Button
               variant="outline"
               className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
@@ -84,11 +84,11 @@ const Missions = () => {
               {missions.map((mission) => (
                 <Button
                   key={mission.id}
-                  variant="outline"
-                  className={`w-full justify-start ${
+                  variant="ghost"
+                  className={`w-full justify-start text-lg font-medium ${
                     selectedMission?.id === mission.id
-                      ? "border-warcrow-gold text-warcrow-gold"
-                      : "border-warcrow-muted text-warcrow-text hover:border-warcrow-gold hover:text-warcrow-gold"
+                      ? "text-warcrow-gold bg-black/20"
+                      : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
                   }`}
                   onClick={() => setSelectedMission(mission)}
                 >
