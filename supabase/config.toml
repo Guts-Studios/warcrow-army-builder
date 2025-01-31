@@ -26,9 +26,9 @@ enabled = true
 enabled = true
 
 [[functions]]
-verify_jwt = false
 [functions.send-email]
+verify_jwt = false
 
 [[functions]]
-verify_jwt = false
 [functions.mailgun]
+verify_jwt = false
