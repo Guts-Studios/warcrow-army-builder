@@ -58,3 +58,20 @@ export const sendEmail = async (
     throw error;
   }
 };
+
+// Test function to verify Resend functionality
+export const testResendEmail = async () => {
+  try {
+    await sendEmail(
+      ['caldwejf@gmail.com'], // Your email
+      'Resend Test Email',
+      '<h1>Test Email from Warcrow Army</h1><p>This is a test email sent via Resend to verify the email service is working.</p>',
+      { useResend: true }
+    );
+    console.log('Test email sent successfully via Resend');
+    return true;
+  } catch (error) {
+    console.error('Failed to send test email via Resend:', error);
+    throw error;
+  }
+};
