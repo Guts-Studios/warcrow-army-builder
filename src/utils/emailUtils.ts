@@ -95,15 +95,13 @@ export const testMailgunEmail = async () => {
 // Make test functions available globally for testing
 declare global {
   interface Window {
-    testMailgunEmail: () => Promise<boolean>;
-    testResendEmail: () => Promise<boolean>;
+    testMailgunEmail: typeof testMailgunEmail;
+    testResendEmail: typeof testResendEmail;
   }
 }
 
-// Ensure we're in a browser environment before adding to window
+// Add test functions to window object
 if (typeof window !== 'undefined') {
-  Object.assign(window, {
-    testMailgunEmail,
-    testResendEmail
-  });
+  window.testMailgunEmail = testMailgunEmail;
+  window.testResendEmail = testResendEmail;
 }
