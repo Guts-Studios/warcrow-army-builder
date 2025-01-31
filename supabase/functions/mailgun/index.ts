@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createHmac } from "https://deno.land/std@0.190.0/crypto/mod.ts";
 
-const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
-const MAILGUN_DOMAIN = "www.warcrowarmy.com";
 const WEBHOOK_SIGNING_KEY = Deno.env.get("MAILGUN_WEBHOOK_SIGNING_KEY");
 
 const corsHeaders = {
@@ -10,13 +8,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
-
-interface SendEmailRequest {
-  to: string[];
-  subject: string;
-  html: string;
-  from?: string;
-}
 
 interface MailgunWebhookEvent {
   signature: {
@@ -61,38 +52,6 @@ function verifyWebhookSignature(
   return computedSignature === signature;
 }
 
-// Send email using Mailgun
-async function sendEmail(emailData: SendEmailRequest): Promise<Response> {
-  if (!MAILGUN_API_KEY) {
-    throw new Error("Mailgun API key not configured");
-  }
-
-  const formData = new FormData();
-  formData.append("from", emailData.from || `Warcrow Army <support@${MAILGUN_DOMAIN}>`);
-  emailData.to.forEach(recipient => formData.append("to", recipient));
-  formData.append("subject", emailData.subject);
-  formData.append("html", emailData.html);
-
-  const response = await fetch(
-    `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
-      },
-      body: formData,
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Mailgun API error:", error);
-    throw new Error(`Mailgun API error: ${error}`);
-  }
-
-  return response;
-}
-
 // Handle incoming webhook events
 async function handleWebhook(payload: MailgunWebhookEvent): Promise<void> {
   const { signature, "event-data": eventData } = payload;
@@ -113,7 +72,7 @@ async function handleWebhook(payload: MailgunWebhookEvent): Promise<void> {
     subject: eventData.message.headers.subject
   });
 
-  // Here you can add specific handling for different event types
+  // Handle different event types
   switch (eventData.event) {
     case "delivered":
       console.log("Email delivered successfully");
@@ -151,16 +110,6 @@ serve(async (req) => {
           status: 200,
         });
       }
-      
-      // Handle email sending requests
-      const emailData: SendEmailRequest = await req.json();
-      const response = await sendEmail(emailData);
-      const result = await response.json();
-
-      return new Response(JSON.stringify(result), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
     }
 
     return new Response(
@@ -171,7 +120,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error in mailgun function:", error);
+    console.error("Error in mailgun webhook handler:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
