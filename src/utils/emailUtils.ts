@@ -95,11 +95,12 @@ export const testMailgunEmail = async () => {
 // Make test functions available globally for testing
 declare global {
   interface Window {
-    testMailgunEmail: typeof testMailgunEmail;
-    testResendEmail: typeof testResendEmail;
+    testMailgunEmail: () => Promise<boolean>;
+    testResendEmail: () => Promise<boolean>;
   }
 }
 
+// Ensure we're in a browser environment before adding to window
 if (typeof window !== 'undefined') {
   window.testMailgunEmail = testMailgunEmail;
   window.testResendEmail = testResendEmail;
