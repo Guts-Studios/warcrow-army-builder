@@ -39,6 +39,10 @@ const handler = async (req: Request): Promise<Response> => {
       type: emailRequest.type || 'standard'
     });
 
+    if (!emailRequest.to || emailRequest.to.length === 0) {
+      throw new Error('No recipient email addresses provided');
+    }
+
     const auth = btoa(`api:${MAILGUN_API_KEY}`);
     const mailgunUrl = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
 
@@ -77,7 +81,16 @@ const handler = async (req: Request): Promise<Response> => {
         statusText: response.statusText,
         error: responseText
       });
-      throw new Error(`Mailgun API error: ${response.status} ${response.statusText} - ${responseText}`);
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to send email',
+          details: responseText
+        }),
+        {
+          status: response.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     let result;
@@ -90,10 +103,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Email sent successfully:', result);
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ success: true, ...result }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   } catch (error: any) {
     console.error('Error in send-email function:', {
       error,

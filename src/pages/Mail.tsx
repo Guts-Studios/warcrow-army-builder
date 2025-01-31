@@ -11,6 +11,11 @@ const Mail = () => {
   const [isSending, setIsSending] = React.useState(false);
 
   const handleSendTestEmail = async () => {
+    if (!testEmail) {
+      toast.error('Please enter an email address');
+      return;
+    }
+
     try {
       setIsSending(true);
       const { data, error } = await supabase.functions.invoke('send-mailgun-email', {
@@ -25,13 +30,23 @@ const Mail = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase Function Error:', error);
+        toast.error(`Failed to send email: ${error.message}`);
+        return;
+      }
+
+      if (data?.error) {
+        console.error('Mailgun API Error:', data.error);
+        toast.error(`Mailgun error: ${data.error}`);
+        return;
+      }
 
       toast.success('Test email sent successfully! Check your inbox.');
       console.log('Email sent successfully:', data);
     } catch (error) {
       console.error('Failed to send test email:', error);
-      toast.error('Failed to send test email. Check console for details.');
+      toast.error(error instanceof Error ? error.message : 'Failed to send test email');
     } finally {
       setIsSending(false);
     }
