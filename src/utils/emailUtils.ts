@@ -102,6 +102,8 @@ declare global {
 
 // Ensure we're in a browser environment before adding to window
 if (typeof window !== 'undefined') {
-  window.testMailgunEmail = testMailgunEmail;
-  window.testResendEmail = testResendEmail;
+  Object.assign(window, {
+    testMailgunEmail,
+    testResendEmail
+  });
 }
