@@ -1,31 +1,28 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface EmailRequest {
   to: string[];
   subject: string;
   html: string;
-  type?: 'welcome' | 'reset_password';
-  token?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
   console.log('Email function received request:', req.method);
   
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
-    const MAILGUN_DOMAIN = "mg.warcrow-army.com";
+    const MAILGUN_API_KEY = Deno.env.get('MAILGUN_API_KEY');
+    const MAILGUN_DOMAIN = 'mg.warcrow-army.com';
 
     if (!MAILGUN_API_KEY) {
       console.error('MAILGUN_API_KEY is not configured');
@@ -35,8 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailRequest: EmailRequest = await req.json();
     console.log('Received email request:', {
       to: emailRequest.to,
-      subject: emailRequest.subject,
-      type: emailRequest.type || 'standard'
+      subject: emailRequest.subject
     });
 
     if (!emailRequest.to || emailRequest.to.length === 0) {
@@ -88,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
         }),
         {
           status: response.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -107,7 +103,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ success: true, ...result }),
       {
         status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   } catch (error: any) {
@@ -124,7 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }
