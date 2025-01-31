@@ -26,9 +26,9 @@ enabled = true
 enabled = true
 
 [[functions]]
-name = "send-email"
 verify_jwt = false
+[functions.send-email]
 
 [[functions]]
-name = "mailgun"
 verify_jwt = false
+[functions.mailgun]
