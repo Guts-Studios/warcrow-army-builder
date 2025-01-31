@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,20 +16,22 @@ interface EmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log('Edge function received request:', req.method);
+  console.log('Email function received request:', req.method);
   
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set');
-      throw new Error('RESEND_API_KEY is not configured');
+    const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+    const MAILGUN_DOMAIN = "mg.warcrow-army.com"; // Replace with your actual Mailgun domain
+
+    if (!MAILGUN_API_KEY) {
+      throw new Error('MAILGUN_API_KEY is not configured');
     }
 
-    const resend = new Resend(RESEND_API_KEY);
     const emailRequest: EmailRequest = await req.json();
     console.log('Received email request:', {
       to: emailRequest.to,
@@ -39,16 +39,39 @@ const handler = async (req: Request): Promise<Response> => {
       type: emailRequest.type || 'standard'
     });
 
-    const emailResponse = await resend.emails.send({
-      from: "Warcrow Army Builder <noreply@warcrow-army.com>",
-      to: emailRequest.to,
-      subject: emailRequest.subject,
-      html: emailRequest.html,
+    const auth = btoa(`api:${MAILGUN_API_KEY}`);
+    const mailgunUrl = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
+
+    const formData = new FormData();
+    formData.append('from', 'Warcrow Army Builder <noreply@warcrow-army.com>');
+    emailRequest.to.forEach(recipient => {
+      formData.append('to', recipient);
+    });
+    formData.append('subject', emailRequest.subject);
+    formData.append('html', emailRequest.html);
+
+    const response = await fetch(mailgunUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+      },
+      body: formData,
     });
 
-    console.log('Email sent successfully:', emailResponse);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Mailgun API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
+      throw new Error(`Mailgun API error: ${response.status} ${response.statusText}`);
+    }
 
-    return new Response(JSON.stringify(emailResponse), {
+    const result = await response.json();
+    console.log('Email sent successfully:', result);
+
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
