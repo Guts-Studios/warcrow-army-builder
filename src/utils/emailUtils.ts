@@ -20,7 +20,7 @@ export const sendEmail = async (
       provider: options.useResend ? 'Resend' : 'Mailgun'
     });
     
-    const functionName = options.useResend ? 'send-resend-email' : 'send-email';
+    const functionName = options.useResend ? 'send-resend-email' : 'send-mailgun-email';
     
     const { data, error } = await supabase.functions.invoke(functionName, {
       body: {

@@ -13,7 +13,7 @@ const Mail = () => {
   const handleSendTestEmail = async () => {
     try {
       setIsSending(true);
-      const { data, error } = await supabase.functions.invoke('send-email', {
+      const { data, error } = await supabase.functions.invoke('send-mailgun-email', {
         body: {
           to: [testEmail],
           subject: 'Mailgun Test Email',
@@ -42,7 +42,7 @@ const Mail = () => {
       <h1 className="text-3xl font-bold mb-8">Email Testing Dashboard</h1>
       
       <Card className="p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Send Test Email</h2>
+        <h2 className="text-xl font-semibold mb-4">Send Test Email (Mailgun)</h2>
         <div className="space-y-4">
           <div>
             <Label htmlFor="testEmail">Test Email Address</Label>
@@ -72,7 +72,7 @@ const Mail = () => {
         <Button 
           variant="outline" 
           className="mt-4"
-          onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/functions/send-email/logs', '_blank')}
+          onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/functions/send-mailgun-email/logs', '_blank')}
         >
           View Logs
         </Button>
