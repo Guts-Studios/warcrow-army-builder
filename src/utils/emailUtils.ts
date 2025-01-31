@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface EmailOptions {
   type?: 'welcome' | 'reset_password';
   token?: string;
+  useResend?: boolean;
 }
 
 export const sendEmail = async (
@@ -15,10 +16,13 @@ export const sendEmail = async (
     console.log('Preparing to send email:', {
       to,
       subject,
-      options
+      options,
+      provider: options.useResend ? 'Resend' : 'Mailgun'
     });
     
-    const { data, error } = await supabase.functions.invoke('send-email', {
+    const functionName = options.useResend ? 'send-resend-email' : 'send-email';
+    
+    const { data, error } = await supabase.functions.invoke(functionName, {
       body: {
         to,
         subject,
@@ -40,7 +44,8 @@ export const sendEmail = async (
 
     console.log('Email sent successfully:', {
       data,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      provider: options.useResend ? 'Resend' : 'Mailgun'
     });
     
     return data;

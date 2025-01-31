@@ -30,5 +30,9 @@ name = "send-email"
 verify_jwt = false
 
 [[functions]]
+name = "send-resend-email"
+verify_jwt = false
+
+[[functions]]
 name = "mailgun"
 verify_jwt = false
