@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Rules from './pages/Rules';
 import Missions from './pages/Missions';
+import Mail from './pages/Mail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -142,6 +143,16 @@ function App() {
               <Route 
                 path="/missions" 
                 element={<Missions />} 
+              />
+              <Route 
+                path="/mail" 
+                element={
+                  isPreview || isAuthenticated ? (
+                    <Mail />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
               />
               <Route 
                 path="*" 
