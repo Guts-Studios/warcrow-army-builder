@@ -25,9 +25,10 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
-    const MAILGUN_DOMAIN = "mg.warcrow-army.com"; // Replace with your actual Mailgun domain
+    const MAILGUN_DOMAIN = "mg.warcrow-army.com";
 
     if (!MAILGUN_API_KEY) {
+      console.error('MAILGUN_API_KEY is not configured');
       throw new Error('MAILGUN_API_KEY is not configured');
     }
 
@@ -49,6 +50,12 @@ const handler = async (req: Request): Promise<Response> => {
     formData.append('subject', emailRequest.subject);
     formData.append('html', emailRequest.html);
 
+    console.log('Sending request to Mailgun:', {
+      url: mailgunUrl,
+      to: emailRequest.to,
+      subject: emailRequest.subject
+    });
+
     const response = await fetch(mailgunUrl, {
       method: 'POST',
       headers: {
@@ -57,17 +64,30 @@ const handler = async (req: Request): Promise<Response> => {
       body: formData,
     });
 
+    const responseText = await response.text();
+    console.log('Mailgun API Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: responseText
+    });
+
     if (!response.ok) {
-      const errorData = await response.text();
       console.error('Mailgun API Error:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
+        error: responseText
       });
-      throw new Error(`Mailgun API error: ${response.status} ${response.statusText}`);
+      throw new Error(`Mailgun API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
-    const result = await response.json();
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      console.warn('Could not parse Mailgun response as JSON:', responseText);
+      result = { message: responseText };
+    }
+
     console.log('Email sent successfully:', result);
 
     return new Response(JSON.stringify(result), {
