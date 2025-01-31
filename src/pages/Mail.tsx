@@ -18,13 +18,13 @@ const Mail = () => {
 
     try {
       setIsSending(true);
-      const { data, error } = await supabase.functions.invoke('send-mailgun-email', {
+      const { data, error } = await supabase.functions.invoke('send-resend-email', {
         body: {
           to: [testEmail],
-          subject: 'Mailgun Test Email',
+          subject: 'Resend Test Email',
           html: `
             <h1>Test Email from Warcrow Army</h1>
-            <p>This is a test email sent via Mailgun to verify the email service is working.</p>
+            <p>This is a test email sent via Resend to verify the email service is working.</p>
             <p>Time sent: ${new Date().toLocaleString()}</p>
           `
         }
@@ -37,8 +37,8 @@ const Mail = () => {
       }
 
       if (data?.error) {
-        console.error('Mailgun API Error:', data.error);
-        toast.error(`Mailgun error: ${data.error}`);
+        console.error('Resend API Error:', data.error);
+        toast.error(`Resend error: ${data.error}`);
         return;
       }
 
@@ -57,7 +57,7 @@ const Mail = () => {
       <h1 className="text-3xl font-bold mb-8">Email Testing Dashboard</h1>
       
       <Card className="p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Send Test Email (Mailgun)</h2>
+        <h2 className="text-xl font-semibold mb-4">Send Test Email (Resend)</h2>
         <div className="space-y-4">
           <div>
             <Label htmlFor="testEmail">Test Email Address</Label>
@@ -87,7 +87,7 @@ const Mail = () => {
         <Button 
           variant="outline" 
           className="mt-4"
-          onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/functions/send-mailgun-email/logs', '_blank')}
+          onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/functions/send-resend-email/logs', '_blank')}
         >
           View Logs
         </Button>
