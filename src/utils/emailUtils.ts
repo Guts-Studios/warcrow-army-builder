@@ -91,3 +91,9 @@ export const testMailgunEmail = async () => {
     throw error;
   }
 };
+
+// Make test functions available globally for testing
+if (typeof window !== 'undefined') {
+  (window as any).testMailgunEmail = testMailgunEmail;
+  (window as any).testResendEmail = testResendEmail;
+}
