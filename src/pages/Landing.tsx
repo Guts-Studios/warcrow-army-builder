@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +23,29 @@ const getLatestVersion = (content: string): string => {
   return matches[0].match(versionRegex)![1];
 };
 
+const fetchUserCount = async () => {
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+  
+  if (error) {
+    console.error('Error fetching user count:', error);
+    throw error;
+  }
+  
+  return count || 0;
+};
+
 const Landing = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
   const latestVersion = getLatestVersion(changelogContent);
+
+  const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
+    queryKey: ['userCount'],
+    queryFn: fetchUserCount,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -55,6 +75,13 @@ const Landing = () => {
         <div className="text-warcrow-gold/80 text-xs md:text-sm">Version {latestVersion}</div>
         <p className="text-lg md:text-xl text-warcrow-text">
           Create and manage your Warcrow army lists with ease.
+        </p>
+        <p className="text-md md:text-lg text-warcrow-gold/80">
+          {isLoadingUserCount ? (
+            "Loading user count..."
+          ) : (
+            `Currently serving ${userCount} users and growing!`
+          )}
         </p>
         <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
           <p className="text-warcrow-gold font-semibold mb-2 text-sm md:text-base">🚧 Still in Development</p>
