@@ -39,9 +39,13 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('No recipient email addresses provided');
     }
 
-    const auth = btoa(`api:${MAILGUN_API_KEY}`);
+    // Create Basic Auth header
+    const authHeader = btoa(`api:${MAILGUN_API_KEY}`);
     const mailgunUrl = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
 
+    console.log('Preparing Mailgun request to:', mailgunUrl);
+
+    // Create form data
     const formData = new FormData();
     formData.append('from', 'Warcrow Army Builder <noreply@warcrow-army.com>');
     emailRequest.to.forEach(recipient => {
@@ -50,8 +54,9 @@ const handler = async (req: Request): Promise<Response> => {
     formData.append('subject', emailRequest.subject);
     formData.append('html', emailRequest.html);
 
-    console.log('Sending request to Mailgun:', {
+    console.log('Sending request to Mailgun with auth:', {
       url: mailgunUrl,
+      authHeaderLength: authHeader.length,
       to: emailRequest.to,
       subject: emailRequest.subject
     });
@@ -59,7 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
     const response = await fetch(mailgunUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${auth}`,
+        'Authorization': `Basic ${authHeader}`,
       },
       body: formData,
     });
@@ -80,7 +85,8 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({
           error: 'Failed to send email',
-          details: responseText
+          details: responseText,
+          status: response.status
         }),
         {
           status: response.status,
