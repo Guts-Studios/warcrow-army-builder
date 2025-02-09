@@ -12,6 +12,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Human", description: "Human race" },
       { name: "Infantry", description: "Infantry unit type" },
     ],
+    specialRules: ["Cancel a Symbol", "Disarmed", "Shove (2)", "Displace (4)"],
     highCommand: false,
     imageUrl: "/art/card/agressors_card.jpg"
   },
@@ -25,8 +26,7 @@ export const hegemonyTroops: Unit[] = [
     keywords: [
       { name: "Human", description: "Human race" },
       { name: "Infantry", description: "Infantry unit type" },
-    ],
-    specialRules: ["Cancel a Symbol", "Disarmed", "Shove (2)", "Displace (4)"],
+    ],   
     highCommand: false,
     imageUrl: "/art/card/black_legion_bucklemen_card.jpg"
   },
