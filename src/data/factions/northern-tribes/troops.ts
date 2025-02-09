@@ -26,8 +26,7 @@ export const northernTribesTroops: Unit[] = [
     command: 0,
     keywords: [
       { name: "Infantry", description: "Infantry unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Orc", description: "Orc race" },      
     ],
     specialRules: ["Vulnerable"],
     highCommand: false,
