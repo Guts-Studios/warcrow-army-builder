@@ -4,21 +4,25 @@ import { Resend } from "npm:resend@2.0.0";
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface EmailRequest {
   to: string[];
   subject: string;
   html: string;
+  type?: 'welcome' | 'reset_password';
+  token?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log('Email function received request:', req.method);
+  console.log('Resend email function received request:', req.method);
   
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -26,17 +30,12 @@ const handler = async (req: Request): Promise<Response> => {
     const emailRequest: EmailRequest = await req.json();
     console.log('Received email request:', {
       to: emailRequest.to,
-      subject: emailRequest.subject
+      subject: emailRequest.subject,
+      type: emailRequest.type || 'standard'
     });
 
-    if (!emailRequest.to || emailRequest.to.length === 0) {
-      throw new Error('No recipient email addresses provided');
-    }
-
-    console.log('Preparing Resend request');
-
     const emailResponse = await resend.emails.send({
-      from: 'Warcrow Army Builder <noreply@warcrow-army.com>',
+      from: "Warcrow Army Updates <updates@warcrow-army.com>",
       to: emailRequest.to,
       subject: emailRequest.subject,
       html: emailRequest.html,
@@ -44,15 +43,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Email sent successfully:', emailResponse);
 
-    return new Response(
-      JSON.stringify(emailResponse),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify(emailResponse), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: any) {
-    console.error('Error in send-email function:', {
+    console.error('Error in send-resend-email function:', {
       error,
       message: error.message,
       stack: error.stack
@@ -65,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
