@@ -29,7 +29,6 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-warcrow-gold">Army Builder</h1>
       <div className="hidden md:block">
         <FactionSelector
           selectedFaction={selectedFaction}
