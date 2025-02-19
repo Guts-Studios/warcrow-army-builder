@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { MissionHeader } from "@/components/missions/MissionHeader";
@@ -48,6 +49,7 @@ const Missions = () => {
     <div className="min-h-screen bg-warcrow-background">
       <MissionHeader />
       <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold text-warcrow-gold mb-8">Missions</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <MissionList
             missions={missions}
