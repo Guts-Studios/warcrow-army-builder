@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -13,6 +14,7 @@ import ResetPassword from './pages/ResetPassword';
 import Rules from './pages/Rules';
 import Missions from './pages/Missions';
 import Mail from './pages/Mail';
+import Profile from './pages/Profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -149,6 +151,16 @@ function App() {
                 element={
                   isPreview || isAuthenticated ? (
                     <Mail />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  isPreview || isAuthenticated ? (
+                    <Profile />
                   ) : (
                     <Navigate to="/login" replace />
                   )

@@ -72,30 +72,45 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          favorite_faction: string | null
           games_lost: number | null
           games_won: number | null
           id: string
+          location: string | null
+          social_discord: string | null
+          social_twitter: string | null
           tester: boolean
           updated_at: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          favorite_faction?: string | null
           games_lost?: number | null
           games_won?: number | null
           id: string
+          location?: string | null
+          social_discord?: string | null
+          social_twitter?: string | null
           tester?: boolean
           updated_at?: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          favorite_faction?: string | null
           games_lost?: number | null
           games_won?: number | null
           id?: string
+          location?: string | null
+          social_discord?: string | null
+          social_twitter?: string | null
           tester?: boolean
           updated_at?: string
           username?: string | null
