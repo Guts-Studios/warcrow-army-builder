@@ -39,10 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      game_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          opponent_name: string | null
+          played_at: string | null
+          updated_at: string | null
+          user_id: string | null
+          won: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          opponent_name?: string | null
+          played_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          won: boolean
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          opponent_name?: string | null
+          played_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          won?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
+          games_lost: number | null
+          games_won: number | null
           id: string
           tester: boolean
           updated_at: string
@@ -51,6 +83,8 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          games_lost?: number | null
+          games_won?: number | null
           id: string
           tester?: boolean
           updated_at?: string
@@ -59,6 +93,8 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          games_lost?: number | null
+          games_won?: number | null
           id?: string
           tester?: boolean
           updated_at?: string
