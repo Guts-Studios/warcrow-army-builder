@@ -25,6 +25,20 @@ export const ProfileAvatar = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Check file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Please upload an image file (JPEG, PNG, GIF, or WEBP)");
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error("You must be logged in to upload an avatar");
@@ -79,7 +93,7 @@ export const ProfileAvatar = ({
           <input
             id="avatar-upload"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/gif,image/webp"
             className="hidden"
             onChange={handleAvatarUpload}
             disabled={isUploading}
