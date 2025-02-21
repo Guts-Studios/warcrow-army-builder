@@ -128,13 +128,19 @@ const Landing = () => {
             We appreciate your patience and feedback!
           </p>
         </div>
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center">
+
+        {/* Main action button */}
+        <div className="flex justify-center">
           <Button
             onClick={() => navigate('/builder')}
-            className="w-full md:w-auto bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+            className="w-full md:w-auto bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors px-8 py-2 text-lg"
           >
             Start Building
           </Button>
+        </div>
+
+        {/* Main navigation buttons */}
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center">
           <Button
             onClick={() => navigate('/rules')}
             variant="outline"
@@ -156,6 +162,10 @@ const Landing = () => {
           >
             Profile
           </Button>
+        </div>
+
+        {/* Secondary buttons */}
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center md:mt-2">
           <Button
             onClick={handleSignOut}
             variant="outline"
@@ -172,6 +182,7 @@ const Landing = () => {
           </Button>
         </div>
 
+        {/* Changelog button */}
         <Dialog>
           <DialogTrigger asChild>
             <Button
