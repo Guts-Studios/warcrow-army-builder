@@ -227,7 +227,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold">Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={() => confirmGuestAccess('/')}
+              onClick={confirmGuestAccess}
               className="bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold text-warcrow-background border border-warcrow-gold"
             >
               Continue to Home
