@@ -114,15 +114,18 @@ function App() {
                 path="/login" 
                 element={
                   isAuthenticated && !isPasswordRecovery ? (
-                    <Navigate to="/builder" replace />
+                    <Navigate to="/landing" replace />
                   ) : (
-                    <Login onGuestAccess={() => setIsGuest(true)} />
+                    <Login onGuestAccess={() => {
+                      setIsGuest(true);
+                      return <Navigate to="/landing" replace />;
+                    }} />
                   )
                 } 
               />
               <Route 
                 path="/" 
-                element={<Navigate to="/builder" replace />} 
+                element={<Navigate to="/landing" replace />} 
               />
               <Route 
                 path="/landing" 

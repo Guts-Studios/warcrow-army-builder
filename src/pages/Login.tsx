@@ -48,10 +48,10 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           navigate('/reset-password');
         } else if (event === 'SIGNED_IN') {
           toast.success('Successfully signed in!');
-          navigate('/builder');
+          navigate('/landing');
         } else if (event === 'USER_UPDATED') {
           toast.success('Your profile has been updated successfully');
-          navigate('/builder');
+          navigate('/landing');
         } else if (event === 'SIGNED_OUT') {
           setError(null);
         } else if (event === 'TOKEN_REFRESHED') {
@@ -59,7 +59,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           if (currentSession) {
             toast.success('Successfully signed in!');
-            navigate('/builder');
+            navigate('/landing');
           }
         }
 
@@ -102,7 +102,6 @@ const Login = ({ onGuestAccess }: LoginProps) => {
       }
     });
 
-    // Check URL parameters for any messages
     const urlParams = new URLSearchParams(window.location.search);
     const message = urlParams.get('message');
     if (message === 'password_reset') {
@@ -120,7 +119,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     setShowHomeGuestDialog(true);
   };
 
-  const confirmGuestAccess = (redirectPath: string = '/landing') => {
+  const confirmGuestAccess = () => {
     setShowGuestDialog(false);
     setShowHomeGuestDialog(false);
     if (onGuestAccess) {
