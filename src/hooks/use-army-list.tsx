@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
@@ -75,10 +76,19 @@ export const useArmyList = (selectedFaction: string) => {
   const handleSaveList = useCallback(() => {
     const nameToUse = currentListName || listName;
 
-    if (!nameToUse.trim() || nameToUse === "New List") {
+    if (!nameToUse || !nameToUse.trim()) {
       toast({
-        title: "Enter List Name",
+        title: "Name Required",
         description: "Please enter a name for your list before saving",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (nameToUse.toLowerCase() === "new list") {
+      toast({
+        title: "Invalid Name",
+        description: "Please choose a different name for your list",
         variant: "destructive",
       });
       return;
