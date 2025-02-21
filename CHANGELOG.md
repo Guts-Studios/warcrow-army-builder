@@ -13,7 +13,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 
 ## [Unreleased]
-- Placeholder for changes in progress.
+- Profile
+  
+### [0.4.2] - 2025-01-30
+
+### Added 
+- Currently devloping the Profile feature to showcase wins/losses and some fun information to share, an avatar, and your lists. Full feature list will be documented.
+
+### Fixed
+-Saving a list locally would happen without a list name and creatre duplicate lists
+-Swapped versions and Github repos after some issues syncing up
 
 ### [0.4.2] - 2025-01-30
 
