@@ -41,7 +41,7 @@ export const ProfileForm = ({
           value={formData.username || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
@@ -53,7 +53,7 @@ export const ProfileForm = ({
           value={formData.bio || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
@@ -65,7 +65,7 @@ export const ProfileForm = ({
           value={formData.location || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
@@ -77,7 +77,7 @@ export const ProfileForm = ({
           value={formData.favorite_faction || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
@@ -89,7 +89,7 @@ export const ProfileForm = ({
           value={formData.social_discord || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
@@ -101,7 +101,7 @@ export const ProfileForm = ({
           value={formData.social_twitter || ""}
           onChange={onInputChange}
           disabled={!isEditing}
-          className="bg-black/50"
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
