@@ -4,12 +4,11 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
+import { ProfileForm } from "@/components/profile/ProfileForm";
 
 interface ProfileFormData {
   username: string | null;
@@ -22,10 +21,8 @@ interface ProfileFormData {
 }
 
 const Profile = () => {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     username: "",
     bio: "",
@@ -75,49 +72,6 @@ const Profile = () => {
     },
   });
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("You must be logged in to upload an avatar");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      
-      // Upload the file to Supabase storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
-
-      // Update the profile with the new avatar URL
-      const updatedData = { ...formData, avatar_url: publicUrl };
-      await updateProfile.mutateAsync(updatedData);
-      setFormData(updatedData);
-      
-      toast.success("Avatar uploaded successfully");
-    } catch (error) {
-      toast.error("Failed to upload avatar: " + (error as Error).message);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   React.useEffect(() => {
     if (profile) {
       setFormData({
@@ -142,6 +96,12 @@ const Profile = () => {
     updateProfile.mutate(formData);
   };
 
+  const handleAvatarUpdate = (url: string) => {
+    const updatedData = { ...formData, avatar_url: url };
+    updateProfile.mutate(updatedData);
+    setFormData(updatedData);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
@@ -152,57 +112,17 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      {/* Navigation Header */}
-      <div className="bg-black/50 p-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <img 
-                src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
-                alt="Warcrow Logo" 
-                className="h-16"
-              />
-              <h1 className="text-3xl font-bold text-warcrow-gold text-center md:text-left">Profile</h1>
-            </div>
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-              onClick={() => navigate('/landing')}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ProfileHeader />
 
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <div className="bg-black/50 rounded-lg p-6 space-y-6">
           <div className="flex flex-col items-center space-y-4">
-            <div className="relative group">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={formData.avatar_url || undefined} />
-                <AvatarFallback className="bg-warcrow-gold text-black text-xl">
-                  {formData.username?.[0]?.toUpperCase() || "?"}
-                </AvatarFallback>
-              </Avatar>
-              {isEditing && (
-                <label 
-                  htmlFor="avatar-upload" 
-                  className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
-                >
-                  <Upload className="h-6 w-6 text-warcrow-gold" />
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarUpload}
-                    disabled={isUploading}
-                  />
-                </label>
-              )}
-            </div>
+            <ProfileAvatar
+              avatarUrl={formData.avatar_url}
+              username={formData.username}
+              isEditing={isEditing}
+              onAvatarUpdate={handleAvatarUpdate}
+            />
             {!isEditing && (
               <Button 
                 onClick={() => setIsEditing(true)}
@@ -214,106 +134,14 @@ const Profile = () => {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-warcrow-gold">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                value={formData.username || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio" className="text-warcrow-gold">Bio</Label>
-              <Input
-                id="bio"
-                name="bio"
-                value={formData.bio || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location" className="text-warcrow-gold">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                value={formData.location || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="favorite_faction" className="text-warcrow-gold">Favorite Faction</Label>
-              <Input
-                id="favorite_faction"
-                name="favorite_faction"
-                value={formData.favorite_faction || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="social_discord" className="text-warcrow-gold">Discord</Label>
-              <Input
-                id="social_discord"
-                name="social_discord"
-                value={formData.social_discord || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="social_twitter" className="text-warcrow-gold">Twitter</Label>
-              <Input
-                id="social_twitter"
-                name="social_twitter"
-                value={formData.social_twitter || ""}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="bg-black/50"
-              />
-            </div>
-
-            {isEditing && (
-              <div className="flex gap-4 justify-end pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                  className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={updateProfile.isPending || isUploading}
-                  className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-                >
-                  {updateProfile.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Changes'
-                  )}
-                </Button>
-              </div>
-            )}
-          </form>
+          <ProfileForm
+            formData={formData}
+            isEditing={isEditing}
+            isPending={updateProfile.isPending}
+            onInputChange={handleInputChange}
+            onSubmit={handleSubmit}
+            onCancel={() => setIsEditing(false)}
+          />
 
           <div className="pt-4 border-t border-warcrow-gold/20">
             <div className="text-sm text-warcrow-gold/60">
