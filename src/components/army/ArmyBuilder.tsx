@@ -1,31 +1,30 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
-import { Unit, SelectedUnit } from "@/types/army";
-import { units } from "@/data/factions";
+import { SavedList } from "@/types/army";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
+import { useLocation } from "react-router-dom";
 
 interface ArmyBuilderProps {
   session: Session | null;
 }
 
 const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
+  const location = useLocation();
   const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
-  const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
+  const state = location.state as { selectedFaction?: string; loadList?: SavedList };
+
+  useEffect(() => {
+    // If we have a faction from the navigation state, use it
+    if (state?.selectedFaction) {
+      setSelectedFaction(state.selectedFaction);
+    }
+  }, [state]);
 
   const handleFactionChange = (factionId: string) => {
     setSelectedFaction(factionId);
-    setSelectedUnits([]);
   };
-
-  const handleListLoad = useCallback((name: string) => {
-    // This will be handled by the ArmyList component
-  }, []);
-
-  const handleListClear = useCallback(() => {
-    setSelectedUnits([]);
-  }, []);
 
   return (
     <div className="space-y-8">
@@ -39,6 +38,7 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
       <ArmyList
         selectedFaction={selectedFaction}
         onFactionChange={handleFactionChange}
+        initialList={state?.loadList}
       />
     </div>
   );

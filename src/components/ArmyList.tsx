@@ -1,3 +1,4 @@
+
 import { useArmyList } from "@/hooks/use-army-list";
 import ListManagement from "./ListManagement";
 import HighCommandAlert from "./army/HighCommandAlert";
@@ -6,13 +7,16 @@ import FactionSelector from "./FactionSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UnitListSection from "./army/UnitListSection";
 import SelectedUnitsSection from "./army/SelectedUnitsSection";
+import { SavedList } from "@/types/army";
+import { useEffect } from "react";
 
 interface ArmyListProps {
   selectedFaction: string;
   onFactionChange: (faction: string) => void;
+  initialList?: SavedList;
 }
 
-const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
+const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListProps) => {
   const {
     quantities,
     selectedUnits,
@@ -31,6 +35,13 @@ const ArmyList = ({ selectedFaction, onFactionChange }: ArmyListProps) => {
   } = useArmyList(selectedFaction);
 
   const isMobile = useIsMobile();
+
+  // Load initial list if provided
+  useEffect(() => {
+    if (initialList) {
+      handleLoadList(initialList);
+    }
+  }, [initialList, handleLoadList]);
 
   return (
     <>
