@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 // Import the changelog content
 import changelogContent from '../../CHANGELOG.md?raw';
@@ -39,12 +49,31 @@ const fetchUserCount = async () => {
 const Landing = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
+  const [showTesterDialog, setShowTesterDialog] = useState(false);
   const latestVersion = getLatestVersion(changelogContent);
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     refetchOnWindowFocus: false,
+  });
+
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('tester')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !isGuest,
   });
 
   useEffect(() => {
@@ -59,6 +88,14 @@ const Landing = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/login');
+  };
+
+  const handleProfileClick = () => {
+    if (!profile?.tester) {
+      setShowTesterDialog(true);
+      return;
+    }
+    navigate('/profile');
   };
 
   return (
@@ -112,6 +149,13 @@ const Landing = () => {
             Missions
           </Button>
           <Button
+            onClick={handleProfileClick}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            Profile
+          </Button>
+          <Button
             onClick={handleSignOut}
             variant="outline"
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
@@ -119,6 +163,7 @@ const Landing = () => {
             {isGuest ? "Signed in as Guest" : "Sign Out"}
           </Button>
         </div>
+
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -137,6 +182,21 @@ const Landing = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
+          <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-warcrow-gold">Testers Only</AlertDialogTitle>
+              <AlertDialogDescription className="text-warcrow-text">
+                This feature is currently only available to testers. Please contact us if you'd like to become a tester.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
+              Close
+            </AlertDialogCancel>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
           <p>Have ideas, issues, love, or hate to share?</p>
           <a 
