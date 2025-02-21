@@ -47,6 +47,8 @@ const fetchUserCount = async () => {
 };
 
 const Landing = () => {
+  console.log('GitHub sync test - ' + new Date().toISOString());
+
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
   const [showTesterDialog, setShowTesterDialog] = useState(false);
