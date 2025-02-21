@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -169,7 +168,7 @@ const Landing = () => {
             variant="outline"
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
           >
-            Support on Patreon
+            Buy us Coffee!
           </Button>
         </div>
 
