@@ -164,6 +164,13 @@ const Landing = () => {
           >
             {isGuest ? "Signed in as Guest" : "Sign Out"}
           </Button>
+          <Button
+            onClick={() => window.open('https://www.patreon.com/warcrowarmy', '_blank')}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            Support on Patreon
+          </Button>
         </div>
 
         <Dialog>
