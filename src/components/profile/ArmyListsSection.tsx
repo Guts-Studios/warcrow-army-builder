@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { SavedList } from "@/types/army";
+import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,16 @@ export const ArmyListsSection = ({ onListSelect }: ArmyListsSectionProps) => {
         .eq('user_id', session.user.id);
 
       if (!error && data) {
-        setCloudLists(data);
+        // Convert the data to match SavedList type
+        const convertedLists: SavedList[] = data.map(list => ({
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: Array.isArray(list.units) ? list.units : [],
+          created_at: list.created_at,
+          user_id: list.user_id
+        }));
+        setCloudLists(convertedLists);
       }
     };
 
