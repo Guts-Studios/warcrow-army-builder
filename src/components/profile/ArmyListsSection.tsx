@@ -37,7 +37,19 @@ export const ArmyListsSection = ({ onListSelect }: ArmyListsSectionProps) => {
           id: list.id,
           name: list.name,
           faction: list.faction,
-          units: Array.isArray(list.units) ? list.units : [],
+          units: Array.isArray(list.units) ? list.units.map((unit: any) => ({
+            id: unit.id,
+            name: unit.name,
+            pointsCost: unit.pointsCost,
+            faction: unit.faction,
+            keywords: unit.keywords || [],
+            highCommand: unit.highCommand || false,
+            availability: unit.availability || 1,
+            imageUrl: unit.imageUrl,
+            specialRules: unit.specialRules || [],
+            command: unit.command,
+            quantity: unit.quantity || 1
+          } as SelectedUnit)) : [],
           created_at: list.created_at,
           user_id: list.user_id
         }));
