@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 -Saving a list locally would happen without a list name and creatre duplicate lists
 -Swapped versions and Github repos after some issues syncing up
 
-### [0.4.2] - 2025-01-30
+### [0.4.2] - 2025-02-20
 
 ### Added 
 - Missions Page with details and deployment cards
