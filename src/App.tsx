@@ -15,6 +15,7 @@ import Rules from './pages/Rules';
 import Missions from './pages/Missions';
 import Mail from './pages/Mail';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -168,6 +169,10 @@ function App() {
                     <Navigate to="/login" replace />
                   )
                 } 
+              />
+              <Route 
+                path="/about" 
+                element={<AboutUs />} 
               />
               <Route 
                 path="*" 

@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface SecondaryActionsProps {
   isGuest: boolean;
@@ -7,6 +8,8 @@ interface SecondaryActionsProps {
 }
 
 export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center md:mt-2">
       <Button
@@ -17,7 +20,7 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
         {isGuest ? "Signed in as Guest" : "Sign Out"}
       </Button>
       <Button
-        onClick={() => window.open('https://www.patreon.com/c/GutzStudio', '_blank')}
+        onClick={() => navigate('/about')}
         variant="outline"
         className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
       >
