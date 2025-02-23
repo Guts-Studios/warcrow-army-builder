@@ -138,7 +138,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 1/27 Password reset is working! Emails confirmations are working! Edu emails are still a no go but thats the server filtering. Check spam holders for emails and if you change your password, give it about 5 seconds or reload the page and it should work perfectly (I tested this a bunch)
+            - 2/23 No Known Issues At Present, yay! Profile in development then probably Play Mode!
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
