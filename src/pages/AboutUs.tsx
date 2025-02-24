@@ -75,6 +75,7 @@ const AboutUs = () => {
               <div className="flex items-center gap-2">
                 <span className="text-warcrow-gold">★</span>
                 <span className="text-warcrow-text">Knight of Squires</span>
+                <span className="text-xs text-warcrow-gold italic ml-2">First Ever Supporter</span>
               </div>
             </div>
           </div>
