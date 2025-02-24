@@ -65,6 +65,19 @@ const AboutUs = () => {
               Contact us at warcrowarmy@gmail.com
             </a>
           </div>
+
+          <div className="bg-black/50 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Our Supporters</h2>
+            <p className="text-warcrow-text mb-4">
+              We extend our heartfelt gratitude to these amazing supporters who help make this project possible:
+            </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-warcrow-gold">★</span>
+                <span className="text-warcrow-text">Knight of Squires</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
