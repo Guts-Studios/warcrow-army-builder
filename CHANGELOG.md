@@ -14,8 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 - Profile
+
+### [0.4.4] - 2025-03-01
+
+### Added 
+-Scions now added with portraits. No art cards yet but soon!
   
-### [0.4.3] - 2025-01-30
+### [0.4.3] - 2025-02-37
 
 ### Added 
 - Currently devloping the Profile feature to showcase wins/losses and some fun information to share, an avatar, and your lists. Full feature list will be documented.
