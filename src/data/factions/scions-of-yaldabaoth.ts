@@ -14,6 +14,7 @@ const flamecobs: Unit = {
   ],
   highCommand: false,
   availability: 1,
+  imageUrl: "/art/card/flamecobs_card.jpg"
 };
 
 const osseous: Unit = {
@@ -28,7 +29,8 @@ const osseous: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Bloodlust", "Shove (5)", "Displace (8)"]
+  specialRules: ["Bloodlust", "Shove (5)", "Displace (8)"],
+  imageUrl: "/art/card/osseous_card.jpg"
 };
 
 const stompers: Unit = {
@@ -45,7 +47,8 @@ const stompers: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Frightened", "Slowed"]
+  specialRules: ["Frightened", "Slowed"],
+  imageUrl: "/art/card/stompers_card.jpg"
 };
 
 const bugbowls: Unit = {
@@ -61,7 +64,8 @@ const bugbowls: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Shove (2)", "Slowed", "Displace (8)"]
+  specialRules: ["Shove (2)", "Slowed", "Displace (8)"],
+  imageUrl: "/art/card/bugbowls_card.jpg"
 };
 
 const gobblers: Unit = {
@@ -78,7 +82,8 @@ const gobblers: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Slowed", "Diplsace (8)"] // Note: There seems to be a typo in "Diplsace" but I'm keeping it as provided
+  specialRules: ["Slowed", "Diplsace (8)"], // Note: There seems to be a typo in "Diplsace" but I'm keeping it as provided
+  imageUrl: "/art/card/gobblers_card.jpg"
 };
 
 const crucible: Unit = {
@@ -95,7 +100,8 @@ const crucible: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Vulnerable", "Place (10)"]
+  specialRules: ["Vulnerable", "Place (10)"],
+  imageUrl: "/art/card/crucible_card.jpg"
 };
 
 const intact: Unit = {
@@ -110,7 +116,8 @@ const intact: Unit = {
   ],
   highCommand: false,
   availability: 2,
-  specialRules: ["Frightened", "Bloodlust", "Repeat a Die"]
+  specialRules: ["Frightened", "Bloodlust", "Repeat a Die"],
+  imageUrl: "/art/card/intact_card.jpg"
 };
 
 const anointed: Unit = {
@@ -126,7 +133,8 @@ const anointed: Unit = {
     { name: "Intimidating (1)", description: "" }
   ],
   highCommand: false,
-  availability: 1
+  availability: 1,
+  imageUrl: "/art/card/anointed_card.jpg"
 };
 
 const marked: Unit = {
@@ -141,7 +149,8 @@ const marked: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Repeat a Die"]
+  specialRules: ["Repeat a Die"],
+  imageUrl: "/art/card/marked_card.jpg"
 };
 
 const markedMarksmen: Unit = {
@@ -157,7 +166,8 @@ const markedMarksmen: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Shove (3)", "Displace (3)", "Repeat a Die"]
+  specialRules: ["Shove (3)", "Displace (3)", "Repeat a Die"],
+  imageUrl: "/art/card/marked_marksmen_card.jpg"
 };
 
 const husks: Unit = {
@@ -172,7 +182,8 @@ const husks: Unit = {
   ],
   highCommand: false,
   availability: 2,
-  specialRules: ["Slowed"]
+  specialRules: ["Slowed"],
+  imageUrl: "/art/card/husk_card.jpg"
 };
 
 const echoes: Unit = {
@@ -190,7 +201,8 @@ const echoes: Unit = {
   highCommand: false,
   availability: 1,
   specialRules: ["Impassable", "Immovable"],
-  command: 1
+  command: 1,
+  imageUrl: "/art/card/echoes_card.jpg"
 };
 
 const mornmab: Unit = {
@@ -207,7 +219,8 @@ const mornmab: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Frightened", "Shove (3)", "Displace (3)"]
+  specialRules: ["Frightened", "Shove (3)", "Displace (3)"],
+  imageUrl: "/art/card/mornmab_card.jpg"
 };
 
 const kipleacht: Unit = {
@@ -224,7 +237,8 @@ const kipleacht: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Slowed", "Frightened", "Place", "Displace", "Repeat a Die"]
+  specialRules: ["Slowed", "Frightened", "Place", "Displace", "Repeat a Die"],
+  imageUrl: "/art/card/kipleacht_card.jpg"
 };
 
 // Characters
@@ -242,7 +256,8 @@ const rumpyRide: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  command: 2
+  command: 2,
+  imageUrl: "/art/card/rumpy_ride_card.jpg"
 };
 
 const overseer: Unit = {
@@ -258,7 +273,8 @@ const overseer: Unit = {
   highCommand: false,
   availability: 1,
   specialRules: ["Shove (4)", "Slowed", "Place (10)"],
-  command: 2
+  command: 2,
+  imageUrl: "/art/card/overseer_card.jpg"
 };
 
 const sightless: Unit = {
@@ -273,7 +289,8 @@ const sightless: Unit = {
     { name: "Join (Red Cap, Infantry)", description: "" }
   ],
   highCommand: false,
-  availability: 3
+  availability: 3,
+  imageUrl: "/art/card/sightless_card.jpg"
 };
 
 const orcHusk: Unit = {
@@ -289,7 +306,8 @@ const orcHusk: Unit = {
   ],
   highCommand: false,
   availability: 2,
-  specialRules: ["Vulnerable", "Frightened", "Slowed", "Disarmed"]
+  specialRules: ["Vulnerable", "Frightened", "Slowed", "Disarmed"],
+  imageUrl: "/art/card/orc_husk_card.jpg"
 };
 
 const harvester: Unit = {
@@ -308,7 +326,8 @@ const harvester: Unit = {
   highCommand: false,
   availability: 1,
   specialRules: ["Frightened"],
-  command: 1
+  command: 1,
+  imageUrl: "/art/card/harvester_card.jpg"
 };
 
 const feadhalu: Unit = {
@@ -324,7 +343,8 @@ const feadhalu: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Frightened", "Place (7)"]
+  specialRules: ["Frightened", "Place (7)"],
+  imageUrl: "/art/card/feadhalu_card.jpg"
 };
 
 const aodharu: Unit = {
@@ -342,7 +362,8 @@ const aodharu: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Frightened"]
+  specialRules: ["Frightened"],
+  imageUrl: "/art/card/aodharu_card.jpg"
 };
 
 const namadin: Unit = {
@@ -361,7 +382,8 @@ const namadin: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Vulnerable", "Frightened", "Impassable"]
+  specialRules: ["Vulnerable", "Frightened", "Impassable"],
+  imageUrl: "/art/card/nomaoin_card.jpg" // Note: Using the available card based on the portrait file naming
 };
 
 const needle: Unit = {
@@ -381,7 +403,8 @@ const needle: Unit = {
   highCommand: false,
   availability: 3,
   specialRules: ["Heal", "Frightened"],
-  command: 1
+  command: 1,
+  imageUrl: "/art/card/needle_card.jpg"
 };
 
 // Named Characters / High Command
@@ -400,7 +423,8 @@ const nuada: Unit = {
   highCommand: true,
   availability: 1,
   specialRules: ["Heal", "Bloodlust", "Fearless", "Slowed"],
-  command: 3
+  command: 3,
+  imageUrl: "/art/card/nuada_card.jpg"
 };
 
 const masterKeorl: Unit = {
@@ -421,7 +445,8 @@ const masterKeorl: Unit = {
   highCommand: true,
   availability: 1,
   specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
-  command: 3
+  command: 3,
+  imageUrl: "/art/card/master_keorl_card.jpg"
 };
 
 const masterNepharim: Unit = {
@@ -442,7 +467,8 @@ const masterNepharim: Unit = {
   highCommand: true,
   availability: 1,
   specialRules: ["Place (5)"],
-  command: 3
+  command: 3,
+  imageUrl: "/art/card/master_nephari_card.jpg" // Note filename correction based on actual file
 };
 
 // Export all units for this faction
