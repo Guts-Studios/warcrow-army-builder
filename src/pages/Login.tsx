@@ -138,7 +138,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 2/23 No Known Issues At Present, yay! Profile in development then probably Play Mode!
+            - 3/1/2025 Scions are added in! We missed two Scion units  earlier in the day but are in the builder now. Scion cards might be blurry until we get high res shots to replace them.
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
