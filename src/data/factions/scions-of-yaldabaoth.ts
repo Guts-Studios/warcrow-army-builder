@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 // Troops
@@ -82,7 +81,7 @@ const gobblers: Unit = {
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Slowed", "Diplsace (8)"], // Note: There seems to be a typo in "Diplsace" but I'm keeping it as provided
+  specialRules: ["Slowed", "Diplsace (8)"],
   imageUrl: "/art/card/gobblers_card.jpg"
 };
 
@@ -366,9 +365,9 @@ const aodharu: Unit = {
   imageUrl: "/art/card/aodharu_card.jpg"
 };
 
-const namadin: Unit = {
-  id: "namadin",
-  name: "Namadin",
+const namaoin: Unit = {
+  id: "namaoin",
+  name: "Namaoin",
   pointsCost: 30,
   faction: "scions-of-yaldabaoth",
   keywords: [
@@ -383,7 +382,7 @@ const namadin: Unit = {
   highCommand: false,
   availability: 1,
   specialRules: ["Vulnerable", "Frightened", "Impassable"],
-  imageUrl: "/art/card/nomaoin_card.jpg" // Note: Using the available card based on the portrait file naming
+  imageUrl: "/art/card/nomaoin_card.jpg"
 };
 
 const needle: Unit = {
@@ -407,7 +406,49 @@ const needle: Unit = {
   imageUrl: "/art/card/needle_card.jpg"
 };
 
-// Named Characters / High Command
+const puppeteer: Unit = {
+  id: "puppeteer",
+  name: "Puppeteer",
+  pointsCost: 30,
+  faction: "scions-of-yaldabaoth",
+  keywords: [
+    { name: "Character", description: "" },
+    { name: "Dead Flesh", description: "" },
+    { name: "Darkminded", description: "" },
+    { name: "Elf", description: "" },
+    { name: "Dispel (BLU)", description: "" },
+    { name: "Spellcaster", description: "" },
+    { name: "Join (Risen)", description: "" }
+  ],
+  highCommand: false,
+  availability: 1,
+  specialRules: ["Place (5)"],
+  command: 2,
+  imageUrl: "/art/card/puppeteer_card.jpg"
+};
+
+const progenitorSculptor: Unit = {
+  id: "progenitor-sculptor",
+  name: "Progenitor Sculptor",
+  pointsCost: 30,
+  faction: "scions-of-yaldabaoth",
+  keywords: [
+    { name: "Character", description: "" },
+    { name: "Elf", description: "" },
+    { name: "Darkminded", description: "" },
+    { name: "High Command", description: "" },
+    { name: "Living Flesh", description: "" },
+    { name: "Intimidating (2)", description: "" },
+    { name: "Spellcaster", description: "" },
+    { name: "Join (Infantry, Living Flesh)", description: "" }
+  ],
+  highCommand: true,
+  availability: 1,
+  specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
+  command: 2,
+  imageUrl: "/art/card/progenitor_sculptor_card.jpg"
+};
+
 const nuada: Unit = {
   id: "nuada",
   name: "Nuada",
@@ -468,7 +509,7 @@ const masterNepharim: Unit = {
   availability: 1,
   specialRules: ["Place (5)"],
   command: 3,
-  imageUrl: "/art/card/master_nephari_card.jpg" // Note filename correction based on actual file
+  imageUrl: "/art/card/master_nephari_card.jpg"
 };
 
 // Export all units for this faction
@@ -497,8 +538,10 @@ export const scionsOfYaldabaothUnits: Unit[] = [
   harvester,
   feadhalu,
   aodharu,
-  namadin,
+  namaoin,
   needle,
+  puppeteer,
+  progenitorSculptor,
   
   // Named Characters / High Command
   nuada,
