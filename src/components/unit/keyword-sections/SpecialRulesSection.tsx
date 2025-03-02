@@ -1,3 +1,4 @@
+
 import {
   Tooltip,
   TooltipContent,
@@ -22,11 +23,18 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     return rule.split('(')[0].trim();
   };
 
-  const RuleContent = ({ rule }: { rule: string }) => (
-    <p className="text-sm leading-relaxed">
-      {specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon"}
-    </p>
-  );
+  const RuleContent = ({ rule }: { rule: string }) => {
+    const definition = specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon";
+    const paragraphs = definition.split('\n').filter(p => p.trim());
+
+    return (
+      <div className="space-y-2">
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className="text-sm leading-relaxed">{paragraph}</p>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -43,7 +51,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               {rule}
             </button>
           ) : (
-            <TooltipProvider key={rule}>
+            <TooltipProvider key={rule} delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button 
@@ -54,7 +62,9 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
-                  className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[200px] overflow-y-auto max-w-[300px] whitespace-normal"
+                  side="top"
+                  sideOffset={5}
+                  className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[300px] overflow-y-auto max-w-[400px] whitespace-normal p-4"
                 >
                   <RuleContent rule={rule} />
                 </TooltipContent>
@@ -71,7 +81,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           onClick={() => setOpenDialogRule(null)}
         >
           <div 
-            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative"
+            className="bg-warcrow-background border border-warcrow-gold text-warcrow-text p-6 rounded-lg max-w-lg w-full mx-4 relative max-h-[80vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <button 
@@ -80,7 +90,8 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
             >
               ✕
             </button>
-            <div className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">{openDialogRule}</h3>
+            <div className="pt-2">
               <RuleContent rule={openDialogRule} />
             </div>
           </div>
