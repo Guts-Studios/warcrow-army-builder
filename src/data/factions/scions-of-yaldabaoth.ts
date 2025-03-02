@@ -182,7 +182,7 @@ const husks: Unit = {
   highCommand: false,
   availability: 2,
   specialRules: ["Slowed"],
-  imageUrl: "/art/card/husk_card.jpg"
+  imageUrl: "/art/card/husks_card.jpg"
 };
 
 const echoes: Unit = {
@@ -382,7 +382,7 @@ const namaoin: Unit = {
   highCommand: false,
   availability: 1,
   specialRules: ["Vulnerable", "Frightened", "Impassable"],
-  imageUrl: "/art/card/nomaoin_card.jpg"
+  imageUrl: "/art/card/namaoin_card.jpg"
 };
 
 const needle: Unit = {
@@ -509,7 +509,7 @@ const masterNepharim: Unit = {
   availability: 1,
   specialRules: ["Place (5)"],
   command: 3,
-  imageUrl: "/art/card/master_nephari_card.jpg"
+  imageUrl: "/art/card/master_nepharim_card.jpg"
 };
 
 // Export all units for this faction
