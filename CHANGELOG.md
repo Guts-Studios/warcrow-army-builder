@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Profile
 
+### [0.4.5] - 2025-03-02
+
+### Fixed
+- Broken code links to the art cards and portraits for Scions were fixed and improved card files
+
 ### [0.4.4] - 2025-03-01
 
 ### Added 
