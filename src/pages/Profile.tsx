@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,34 +37,56 @@ const Profile = () => {
     avatar_url: "",
   });
 
-  const { data: profile, isLoading } = useQuery({
+  // Fetch user profile data from Supabase
+  const { data: profile, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
+      console.log("Fetching profile data");
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+      if (!session) {
+        console.log("No session found");
+        throw new Error("Not authenticated");
+      }
 
+      console.log("User ID:", session.user.id);
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+      }
+      
+      console.log("Profile data:", data);
       return data;
     },
+    retry: 1,
   });
 
+  // Mutation to update profile data
   const updateProfile = useMutation({
     mutationFn: async (updateData: ProfileFormData) => {
+      console.log("Updating profile with data:", updateData);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+      if (!session) {
+        console.log("No session found during update");
+        throw new Error("Not authenticated");
+      }
 
       const { error } = await supabase
         .from("profiles")
         .update(updateData)
         .eq("id", session.user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating profile:", error);
+        throw error;
+      }
+      
+      console.log("Profile update successful");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -72,12 +94,15 @@ const Profile = () => {
       setIsEditing(false);
     },
     onError: (error) => {
+      console.error("Update profile error:", error);
       toast.error("Failed to update profile: " + error.message);
     },
   });
 
-  React.useEffect(() => {
+  // Update form data when profile data is loaded
+  useEffect(() => {
     if (profile) {
+      console.log("Setting form data from profile:", profile);
       setFormData({
         username: profile.username || "",
         bio: profile.bio || "",
@@ -90,6 +115,14 @@ const Profile = () => {
     }
   }, [profile]);
 
+  // Check for errors in profile loading
+  useEffect(() => {
+    if (isError && error) {
+      console.error("Profile loading error:", error);
+      toast.error("Failed to load profile: " + (error as Error).message);
+    }
+  }, [isError, error]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -97,10 +130,12 @@ const Profile = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting profile update:", formData);
     updateProfile.mutate(formData);
   };
 
   const handleAvatarUpdate = (url: string) => {
+    console.log("Updating avatar URL:", url);
     const updatedData = { ...formData, avatar_url: url };
     updateProfile.mutate(updatedData);
     setFormData(updatedData);
