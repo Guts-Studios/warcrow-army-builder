@@ -1,3 +1,4 @@
+
 import { SelectedUnit } from "@/types/army";
 
 interface TotalPointsProps {
@@ -11,7 +12,7 @@ const TotalPoints = ({ selectedUnits }: TotalPointsProps) => {
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-warcrow-background border-t border-warcrow-gold p-4 z-20">
       <div className="container max-w-7xl mx-auto flex justify-between items-center">
         <span className="text-warcrow-text">Total Army Points:</span>
         <span className="text-warcrow-gold text-xl font-bold">

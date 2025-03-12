@@ -15,7 +15,7 @@ const SelectedUnitsSection = ({
   onRemove,
 }: SelectedUnitsSectionProps) => {
   return (
-    <div className="sticky top-4 z-10 flex flex-col space-y-4 bg-warcrow-background/95 backdrop-blur-sm rounded-lg md:h-[calc(100vh-2rem)]">
+    <div className="sticky top-4 z-10 flex flex-col space-y-4 bg-warcrow-background/95 backdrop-blur-sm rounded-lg md:h-[calc(100vh-8rem)]">
       <div className="block md:hidden">
         <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
       </div>
@@ -25,7 +25,7 @@ const SelectedUnitsSection = ({
           <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
         </div>
       </div>
-      <div className="flex-grow overflow-auto max-h-[40vh] md:max-h-none">
+      <div className="flex-grow overflow-auto pb-4">
         <SelectedUnits selectedUnits={selectedUnits} onRemove={onRemove} />
       </div>
     </div>
