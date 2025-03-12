@@ -15,6 +15,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Profile
 
+### [0.4.6] - 2025-03-12
+
+### Added 
+- Sÿenann are being added as we get the data
+
+### Fixed
+- Minor UI improvements
+
+### Testing
+- Profile is in testing/development still
+
 ### [0.4.5] - 2025-03-02
 
 ### Fixed
