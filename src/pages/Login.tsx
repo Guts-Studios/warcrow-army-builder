@@ -138,7 +138,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 3/1/2025 Scions are added in! We missed two Scion units  earlier in the day but are in the builder now. Scion cards might be blurry until we get high res shots to replace them.
+            - 3/12/2025 Sÿenann are being as we get them. Still working on User Profiles and also having full stat blocks for each unit for use in Play Mode or as an "Expanded List" so all the info is ready for Play. 
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
