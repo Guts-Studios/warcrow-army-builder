@@ -1,0 +1,80 @@
+
+import { Unit } from "@/types/army";
+
+export const syenannCharacters: Unit[] = [
+  {
+    id: "aoidos",
+    name: "Aoidos",
+    pointsCost: 20,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Join (Infantry, Synann)", description: "" },
+      { name: "Spellcaster", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    imageUrl: "/art/portrait/aoidos_portrait.jpg",
+    specialRules: ["Vulnerable", "Slowed", "Disarmed", "Frightened"]
+  },
+  {
+    id: "druid",
+    name: "Druid",
+    pointsCost: 25,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Syenann", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    imageUrl: "/art/portrait/druid_portrait.jpg",
+    specialRules: ["Slowed"]
+  },
+  {
+    id: "lioslaith-coic-caledhee",
+    name: "Lioslaith Coic Caledhee",
+    pointsCost: 30,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Infantry, Syenann)", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 1,
+    imageUrl: "/art/portrait/lioslaith_coic_caledhee_portrait.jpg",
+    specialRules: ["Place (3)", "Vulnerable"]
+  },
+  {
+    id: "grand-captain",
+    name: "Grand Captain",
+    pointsCost: 30,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Join (Infantry, Syenann)", description: "" },
+      { name: "Preferred Terrain (Rugged | Forest)", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 2,
+    imageUrl: "/art/portrait/grand_captain_portrait.jpg",
+    specialRules: ["Preferred Terrain"]
+  }
+];
