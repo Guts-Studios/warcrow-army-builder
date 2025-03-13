@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +28,7 @@ export const MainActions = () => {
           .eq('id', session.user.id)
           .single();
           
-        if (!error && data && data.role === 'tester') {
+        if (!error && data && data.tester) {
           setIsTester(true);
         }
       }
