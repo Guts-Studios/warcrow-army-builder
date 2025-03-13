@@ -16,8 +16,6 @@ import Missions from './pages/Missions';
 import Mail from './pages/Mail';
 import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
-import PlayMode from './pages/PlayMode';
-import UnitDetail from './pages/UnitDetail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +30,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
   const [isGuest, setIsGuest] = React.useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
-  const [isTester, setIsTester] = React.useState(false);
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
@@ -55,28 +52,14 @@ function App() {
       }
 
       if (isPreview) {
-        console.log('Preview mode detected, setting as authenticated and tester');
+        console.log('Preview mode detected, setting as authenticated');
         setIsAuthenticated(true);
-        setIsTester(true);
         return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
-      
-      if (session) {
-        // Check if user is a tester
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('tester')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (!error && data) {
-          setIsTester(data.tester);
-        }
-      }
       
       if (!session && !isPreview) {
         toast.warning(
@@ -108,22 +91,6 @@ function App() {
       // Don't update auth state during password recovery
       if (!isPasswordRecovery) {
         setIsAuthenticated(!!session);
-        
-        // Update tester status when auth state changes
-        if (session) {
-          supabase
-            .from('profiles')
-            .select('tester')
-            .eq('id', session.user.id)
-            .single()
-            .then(({ data, error }) => {
-              if (!error && data) {
-                setIsTester(data.tester);
-              }
-            });
-        } else {
-          setIsTester(false);
-        }
       }
     });
 
@@ -206,27 +173,6 @@ function App() {
               <Route 
                 path="/about" 
                 element={<AboutUs />} 
-              />
-              {/* Play Mode Routes with Tester Access Control */}
-              <Route 
-                path="/playmode" 
-                element={
-                  isPreview || isTester ? (
-                    <PlayMode />
-                  ) : (
-                    <Navigate to="/landing" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/playmode/:unitId" 
-                element={
-                  isPreview || isTester ? (
-                    <UnitDetail />
-                  ) : (
-                    <Navigate to="/landing" replace />
-                  )
-                } 
               />
               <Route 
                 path="*" 

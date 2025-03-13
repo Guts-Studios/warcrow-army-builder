@@ -1,4 +1,3 @@
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -15,12 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 - Profile
-
-### [0.4.7] - 2025-03-18
-
-### Added 
-- Play Mode (Beta) with detailed unit stats and abilities
-- Fixed overlapping UI in Selected Units section
 
 ### [0.4.6] - 2025-03-12
 
