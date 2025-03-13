@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GameSymbol } from "./GameSymbol";
 
 export const SymbolExplorer = () => {
   const [range, setRange] = useState({ start: 0, end: 255 });
@@ -60,7 +61,7 @@ export const SymbolExplorer = () => {
             <div className="mt-4 p-4 bg-black/60 rounded-lg border border-warcrow-gold/30">
               <h3 className="text-warcrow-gold text-lg mb-2">Custom Character</h3>
               <div className="flex items-center gap-4">
-                <div className="text-4xl font-symbols">{customChar}</div>
+                <div className="text-4xl game-symbol">{customChar}</div>
                 <div className="text-warcrow-text">
                   Character: <span className="text-warcrow-gold">{customChar}</span><br />
                   Code: <span className="text-warcrow-gold">{customChar.charCodeAt(0) || 'N/A'}</span>
@@ -76,7 +77,7 @@ export const SymbolExplorer = () => {
                 className="bg-black/60 p-2 rounded-md border border-warcrow-gold/30 flex flex-col items-center hover:bg-warcrow-gold/10 transition-colors cursor-pointer"
                 onClick={() => setCustomChar(String.fromCharCode(code))}
               >
-                <div className="text-xl font-symbols mb-1">{String.fromCharCode(code)}</div>
+                <div className="text-xl game-symbol mb-1">{String.fromCharCode(code)}</div>
                 <div className="text-xs text-warcrow-text">{code}</div>
               </div>
             ))}

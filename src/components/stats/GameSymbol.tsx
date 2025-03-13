@@ -20,7 +20,7 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
   };
 
   return (
-    <span className={`font-symbols ${sizeClasses[size]} ${className}`}>
+    <span className={`game-symbol ${sizeClasses[size]} ${className}`}>
       {String.fromCharCode(code)}
     </span>
   );
