@@ -13,7 +13,7 @@ export interface ExtendedUnitStats {
 }
 
 export interface DiceRoll {
-  modifier: string;
+  modifier?: string; // Changed from required to optional
   diceColors: string;
   switchValue?: string;
   switch1?: string;
