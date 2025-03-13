@@ -25,7 +25,7 @@ const SelectedUnitsSection = ({
           <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
         </div>
       </div>
-      <div className="flex-grow overflow-auto pb-4">
+      <div className="flex-grow overflow-auto pb-20">
         <SelectedUnits selectedUnits={selectedUnits} onRemove={onRemove} />
       </div>
     </div>

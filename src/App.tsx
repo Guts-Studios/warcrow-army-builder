@@ -16,6 +16,8 @@ import Missions from './pages/Missions';
 import Mail from './pages/Mail';
 import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
+import PlayMode from './pages/PlayMode';
+import UnitDetail from './pages/UnitDetail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -173,6 +175,15 @@ function App() {
               <Route 
                 path="/about" 
                 element={<AboutUs />} 
+              />
+              {/* New Play Mode Routes */}
+              <Route 
+                path="/playmode" 
+                element={<PlayMode />} 
+              />
+              <Route 
+                path="/playmode/:unitId" 
+                element={<UnitDetail />} 
               />
               <Route 
                 path="*" 
