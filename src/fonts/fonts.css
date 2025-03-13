@@ -1,7 +1,8 @@
 
 @font-face {
   font-family: 'GameSymbols';
-  src: url('/fonts/Warcrow.ttf') format('truetype');
+  src: url('/fonts/Warcrow.woff2') format('woff2'),
+       url('/fonts/Warcrow.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
