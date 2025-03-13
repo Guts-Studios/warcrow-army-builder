@@ -16,12 +16,20 @@ import {
 export const MainActions = () => {
   const navigate = useNavigate();
   const [showTesterDialog, setShowTesterDialog] = useState(false);
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                    window.location.hostname.endsWith('.lovableproject.com');
 
   // Check if user is a tester
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // In preview mode, consider user as tester
+      if (isPreview) {
+        return { tester: true };
+      }
+      
       if (!session) return null;
 
       const { data, error } = await supabase
@@ -36,7 +44,8 @@ export const MainActions = () => {
   });
 
   const handlePlayModeClick = () => {
-    if (profile?.tester) {
+    // Allow access in preview mode or if the user is a tester
+    if (isPreview || profile?.tester) {
       navigate('/playmode');
     } else {
       setShowTesterDialog(true);
