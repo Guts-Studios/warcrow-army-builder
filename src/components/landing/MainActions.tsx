@@ -1,9 +1,40 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export const MainActions = () => {
   const navigate = useNavigate();
+  const [isTester, setIsTester] = useState(false);
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                   window.location.hostname.endsWith('.lovableproject.com');
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      // If in preview mode, set as tester
+      if (isPreview) {
+        setIsTester(true);
+        return;
+      }
+
+      // Otherwise check if user has tester role
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Fetch user's roles from profiles table
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (!error && data && data.role === 'tester') {
+          setIsTester(true);
+        }
+      }
+    };
+
+    checkUserRole();
+  }, [isPreview]);
 
   return (
     <>
@@ -31,6 +62,15 @@ export const MainActions = () => {
         >
           Missions
         </Button>
+        {(isTester || isPreview) && (
+          <Button
+            onClick={() => navigate('/unit-stats')}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            Unit Stats
+          </Button>
+        )}
         <Button
           onClick={() => navigate('/profile')}
           variant="outline"

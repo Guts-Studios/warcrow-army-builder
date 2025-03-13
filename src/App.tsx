@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,6 +15,7 @@ import Missions from './pages/Missions';
 import Mail from './pages/Mail';
 import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
+import UnitStats from './pages/UnitStats';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -165,6 +165,16 @@ function App() {
                 element={
                   isPreview || isAuthenticated ? (
                     <Profile />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/unit-stats" 
+                element={
+                  isPreview || isAuthenticated ? (
+                    <UnitStats />
                   ) : (
                     <Navigate to="/login" replace />
                   )
