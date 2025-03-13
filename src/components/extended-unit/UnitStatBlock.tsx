@@ -15,38 +15,38 @@ interface UnitStatBlockProps {
 
 const UnitStatBlock = ({ stats }: UnitStatBlockProps) => {
   return (
-    <div className="bg-warcrow-accent rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Base Statistics</h3>
+    <div className="bg-warcrow-accent rounded-lg p-4 shadow-md">
+      <h3 className="text-lg font-semibold text-warcrow-gold mb-3">Base Statistics</h3>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>MOV</TableHead>
-            <TableHead>W</TableHead>
-            <TableHead>WP</TableHead>
-            <TableHead>MOR</TableHead>
-            <TableHead>AVB</TableHead>
-            <TableHead>Members</TableHead>
-            <TableHead>Conquest</TableHead>
+          <TableRow className="border-b border-warcrow-gold/30">
+            <TableHead className="text-warcrow-gold font-medium text-center">MOV</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">W</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">WP</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">MOR</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">AVB</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">Members</TableHead>
+            <TableHead className="text-warcrow-gold font-medium text-center">Conquest</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>{stats.mov}</TableCell>
-            <TableCell>{stats.w}</TableCell>
-            <TableCell>{stats.wp}</TableCell>
-            <TableCell>{stats.mor}</TableCell>
-            <TableCell>{stats.avb}</TableCell>
-            <TableCell>{stats.members}</TableCell>
-            <TableCell>{stats.conquest}</TableCell>
+          <TableRow className="border-b border-warcrow-background/20">
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.mov}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.w}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.wp}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.mor}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.avb}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.members}</TableCell>
+            <TableCell className="text-warcrow-text font-medium text-center">{stats.conquest}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
       
       <div className="mt-4">
-        <h4 className="font-semibold text-warcrow-text">Characteristics</h4>
+        <h4 className="font-semibold text-warcrow-gold mb-2">Characteristics</h4>
         <div className="flex flex-wrap gap-2 mt-1">
           {stats.characteristics.map((characteristic, index) => (
-            <span key={index} className="px-2 py-1 bg-warcrow-background text-sm rounded">
+            <span key={index} className="px-2 py-1 bg-warcrow-background text-warcrow-text text-sm rounded border border-warcrow-gold/30">
               {characteristic}
             </span>
           ))}

@@ -3,7 +3,7 @@ import { ExtendedUnit } from "@/types/extended-unit";
 import UnitStatBlock from "./UnitStatBlock";
 import UnitProfileBlock from "./UnitProfileBlock";
 import UnitAbilitiesBlock from "./UnitAbilitiesBlock";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import UnitHeader from "../unit/UnitHeader";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -17,23 +17,23 @@ const ExtendedUnitCard = ({ unit }: ExtendedUnitCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <Card className="bg-warcrow-background border-warcrow-accent w-full max-w-4xl mx-auto">
+    <Card className="bg-warcrow-background border-warcrow-accent w-full max-w-4xl mx-auto shadow-lg">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-warcrow-gold"
+            className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-warcrow-accent/50"
             onClick={() => navigate('/playmode')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Units
           </Button>
-          <span className="text-warcrow-gold font-semibold">
+          <span className="text-warcrow-gold font-bold text-lg bg-warcrow-accent px-3 py-1 rounded">
             {unit.pointsCost} pts
           </span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-2">
           <UnitHeader 
             unit={unit} 
             mainName={unit.name}
