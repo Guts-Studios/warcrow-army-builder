@@ -5,8 +5,15 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .game-symbol {
   font-family: 'GameSymbols', sans-serif;
+  font-feature-settings: "liga", "calt", "dlig";
+  -webkit-font-feature-settings: "liga", "calt", "dlig";
+  -moz-font-feature-settings: "liga", "calt", "dlig";
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
 }
