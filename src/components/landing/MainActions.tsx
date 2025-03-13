@@ -1,9 +1,47 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export const MainActions = () => {
   const navigate = useNavigate();
+  const [showTesterDialog, setShowTesterDialog] = useState(false);
+
+  // Check if user is a tester
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('tester')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handlePlayModeClick = () => {
+    if (profile?.tester) {
+      navigate('/playmode');
+    } else {
+      setShowTesterDialog(true);
+    }
+  };
 
   return (
     <>
@@ -32,6 +70,13 @@ export const MainActions = () => {
           Missions
         </Button>
         <Button
+          onClick={handlePlayModeClick}
+          variant="outline"
+          className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+        >
+          Play Mode
+        </Button>
+        <Button
           onClick={() => navigate('/profile')}
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
@@ -39,6 +84,20 @@ export const MainActions = () => {
           Profile
         </Button>
       </div>
+
+      <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
+        <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-warcrow-gold">Testers Only</AlertDialogTitle>
+            <AlertDialogDescription className="text-warcrow-text">
+              This feature is currently only available to testers. Please contact us if you'd like to become a tester.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
+            Close
+          </AlertDialogCancel>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
