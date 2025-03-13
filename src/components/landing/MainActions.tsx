@@ -23,7 +23,7 @@ export const MainActions = () => {
         // Fetch user's roles from profiles table
         const { data, error } = await supabase
           .from('profiles')
-          .select('role')
+          .select('*')
           .eq('id', session.user.id)
           .single();
           

@@ -5,15 +5,16 @@ import UnitStatCard from "@/components/stats/UnitStatCard";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExtendedUnit } from "@/types/extendedUnit";
+import { UnitStatsHeader } from "@/components/stats/UnitStatsHeader";
 
 const UnitStats = () => {
   const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(sampleExtendedUnits[0]);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+      <UnitStatsHeader />
+      
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-warcrow-gold mb-8 text-center">Unit Stat Blocks</h1>
-        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Unit Selection Column */}
           <div className="md:col-span-1 space-y-4">
