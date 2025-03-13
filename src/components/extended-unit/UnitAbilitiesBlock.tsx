@@ -29,7 +29,7 @@ const UnitAbilitiesBlock = ({ title, abilities, className }: UnitAbilitiesBlockP
             value={`${index}`}
             className="border-b border-warcrow-gold/30 last:border-0"
           >
-            <AccordionTrigger className="text-warcrow-gold hover:text-warcrow-gold/80 font-medium py-3">
+            <AccordionTrigger className="text-warcrow-gold hover:text-warcrow-gold/80 font-medium py-3 text-left">
               {ability.name}
             </AccordionTrigger>
             <AccordionContent className="text-warcrow-text leading-relaxed pt-2 pb-4 whitespace-pre-line text-base">

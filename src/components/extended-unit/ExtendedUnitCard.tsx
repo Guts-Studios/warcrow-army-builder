@@ -8,6 +8,7 @@ import UnitHeader from "../unit/UnitHeader";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ExtendedUnitCardProps {
   unit: ExtendedUnit;
@@ -15,11 +16,12 @@ interface ExtendedUnitCardProps {
 
 const ExtendedUnitCard = ({ unit }: ExtendedUnitCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   return (
     <Card className="bg-warcrow-background border-warcrow-accent w-full max-w-4xl mx-auto shadow-lg">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -44,7 +46,7 @@ const ExtendedUnitCard = ({ unit }: ExtendedUnitCardProps) => {
       <CardContent className="space-y-6">
         <UnitStatBlock stats={unit.stats} />
         
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <UnitProfileBlock profile={unit.profile1} title="Primary Profile" />
           {unit.profile2 && (
             <UnitProfileBlock profile={unit.profile2} title="Secondary Profile" />
