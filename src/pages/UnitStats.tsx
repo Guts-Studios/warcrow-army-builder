@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExtendedUnit } from "@/types/extendedUnit";
 import { UnitStatsHeader } from "@/components/stats/UnitStatsHeader";
-import { SymbolExplorer } from "@/components/stats/SymbolExplorer";
+import { SymbolExplorer } from "@/components/stats/symbol-explorer";
 
 const UnitStats = () => {
   const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(sampleExtendedUnits[0]);
