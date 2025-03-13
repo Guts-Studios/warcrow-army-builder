@@ -1,0 +1,11 @@
+
+@font-face {
+  font-family: 'GameSymbols';
+  src: url('/fonts/game-symbols.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.game-symbol {
+  font-family: 'GameSymbols', sans-serif;
+}

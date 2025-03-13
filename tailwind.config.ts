@@ -20,6 +20,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Outfit', 'sans-serif'],
+        symbols: ['GameSymbols', 'sans-serif'],
       },
       colors: {
         warcrow: {
