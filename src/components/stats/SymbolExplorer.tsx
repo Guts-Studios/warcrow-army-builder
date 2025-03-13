@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GameSymbol } from "./GameSymbol";
 
 export const SymbolExplorer = () => {
-  const [range, setRange] = useState({ start: 0, end: 255 });
+  // Start with the private use area (E000-F8FF) where custom glyphs are often mapped
+  const [range, setRange] = useState({ start: 0xE000, end: 0xE0FF });
   const [customChar, setCustomChar] = useState("");
 
   // Generate an array of character codes
@@ -29,21 +30,39 @@ export const SymbolExplorer = () => {
         <div className="space-y-4">
           <div className="flex flex-wrap gap-4">
             <div>
-              <label className="text-sm text-warcrow-text mb-1 block">Start Code</label>
+              <label className="text-sm text-warcrow-text mb-1 block">Start Code (Hex)</label>
               <Input 
-                type="number" 
-                value={range.start} 
-                onChange={(e) => setRange({ ...range, start: parseInt(e.target.value) || 0 })}
-                className="w-24 bg-black/60 border-warcrow-gold/30 text-warcrow-text"
+                type="text" 
+                value={`0x${range.start.toString(16).toUpperCase()}`} 
+                onChange={(e) => {
+                  try {
+                    const value = parseInt(e.target.value, 16);
+                    if (!isNaN(value)) {
+                      setRange({ ...range, start: value });
+                    }
+                  } catch (e) {
+                    // Invalid hex input, ignore
+                  }
+                }}
+                className="w-32 bg-black/60 border-warcrow-gold/30 text-warcrow-text"
               />
             </div>
             <div>
-              <label className="text-sm text-warcrow-text mb-1 block">End Code</label>
+              <label className="text-sm text-warcrow-text mb-1 block">End Code (Hex)</label>
               <Input 
-                type="number" 
-                value={range.end} 
-                onChange={(e) => setRange({ ...range, end: parseInt(e.target.value) || 255 })}
-                className="w-24 bg-black/60 border-warcrow-gold/30 text-warcrow-text" 
+                type="text" 
+                value={`0x${range.end.toString(16).toUpperCase()}`} 
+                onChange={(e) => {
+                  try {
+                    const value = parseInt(e.target.value, 16);
+                    if (!isNaN(value)) {
+                      setRange({ ...range, end: value });
+                    }
+                  } catch (e) {
+                    // Invalid hex input, ignore
+                  }
+                }} 
+                className="w-32 bg-black/60 border-warcrow-gold/30 text-warcrow-text" 
               />
             </div>
             <div>
@@ -55,6 +74,30 @@ export const SymbolExplorer = () => {
                 placeholder="Enter char"
               />
             </div>
+            <div className="flex items-end">
+              <Button 
+                onClick={() => setRange({ start: 0x0000, end: 0x00FF })}
+                className="bg-black/60 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+              >
+                ASCII
+              </Button>
+            </div>
+            <div className="flex items-end">
+              <Button 
+                onClick={() => setRange({ start: 0xE000, end: 0xE0FF })}
+                className="bg-black/60 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+              >
+                PUA 1
+              </Button>
+            </div>
+            <div className="flex items-end">
+              <Button 
+                onClick={() => setRange({ start: 0xE100, end: 0xE1FF })}
+                className="bg-black/60 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+              >
+                PUA 2
+              </Button>
+            </div>
           </div>
 
           {customChar && (
@@ -64,7 +107,8 @@ export const SymbolExplorer = () => {
                 <div className="text-4xl game-symbol">{customChar}</div>
                 <div className="text-warcrow-text">
                   Character: <span className="text-warcrow-gold">{customChar}</span><br />
-                  Code: <span className="text-warcrow-gold">{customChar.charCodeAt(0) || 'N/A'}</span>
+                  Code: <span className="text-warcrow-gold">{customChar.charCodeAt(0) || 'N/A'}</span><br />
+                  Hex: <span className="text-warcrow-gold">{customChar.charCodeAt(0) ? '0x' + customChar.charCodeAt(0).toString(16).toUpperCase() : 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -78,7 +122,7 @@ export const SymbolExplorer = () => {
                 onClick={() => setCustomChar(String.fromCharCode(code))}
               >
                 <div className="text-xl game-symbol mb-1">{String.fromCharCode(code)}</div>
-                <div className="text-xs text-warcrow-text">{code}</div>
+                <div className="text-xs text-warcrow-text">0x{code.toString(16).toUpperCase()}</div>
               </div>
             ))}
           </div>
