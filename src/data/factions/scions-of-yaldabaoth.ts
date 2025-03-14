@@ -114,7 +114,7 @@ const intact: Unit = {
     { name: "Living Flesh", description: "" }
   ],
   highCommand: false,
-  availability: 2,
+  availability: 1,
   specialRules: ["Frightened", "Bloodlust", "Repeat a Die"],
   imageUrl: "/art/card/intact_card.jpg"
 };
