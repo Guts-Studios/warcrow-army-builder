@@ -14,7 +14,7 @@ export const syenannTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 3,
-    imageUrl: "/art/card/protectors_of_the_forest_card.png",
+    imageUrl: "/art/card/protectors_of_the_forest_card.jpg",
     specialRules: ["Displace (4)"]
   },
   {
@@ -32,7 +32,7 @@ export const syenannTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/card/shadows_of_the_yew_card.png",
+    imageUrl: "/art/card/shadows_of_the_yew_card.jpg",
     specialRules: ["Place (5)"]
   },
   {
