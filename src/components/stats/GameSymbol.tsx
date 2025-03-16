@@ -26,13 +26,13 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
   };
   
   const charCode = String.fromCharCode(code);
-  // Check if this is specifically the number 4
-  const isNumber4 = charCode === "4";
+  // Check if this is specifically a number character
+  const isNumber = /^\d$/.test(charCode);
   
   // Choose the appropriate class based on the character and useWarcrowClass prop
-  const symbolClass = useWarcrowClass || isNumber4 
-    ? `Warcrow-Family ${isNumber4 ? 'WC_4' : ''}`
-    : "game-symbol";
+  const symbolClass = useWarcrowClass 
+    ? `Warcrow-Family ${isNumber ? `WC_${charCode}` : ''}`
+    : "warcrow-font game-symbol";
 
   return (
     <span 
