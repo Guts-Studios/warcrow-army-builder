@@ -16,7 +16,8 @@ export const SymbolExplorer = () => {
   const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState<number>(36);
   const [activeTab, setActiveTab] = useState<string>("grid");
-  const [showNumericInput, setShowNumericInput] = useState<boolean>(false);
+  // Always show numeric input by default
+  const [showNumericInput, setShowNumericInput] = useState<boolean>(true);
 
   // Generate an array of character codes
   const generateSymbolGrid = () => {
@@ -72,7 +73,14 @@ export const SymbolExplorer = () => {
     }
   };
 
+  // Initialize with the Numbers preset for easier usage
   useEffect(() => {
+    // Set to the Numbers range on first load
+    const numbersPreset = presetRanges.find(preset => preset.name === "Numbers");
+    if (numbersPreset) {
+      setRange(numbersPreset);
+    }
+    
     // When selected symbol changes, ensure it's visible in the viewport
     if (selectedSymbol) {
       const element = document.getElementById(`symbol-${selectedSymbol}`);

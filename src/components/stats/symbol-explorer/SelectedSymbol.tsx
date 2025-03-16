@@ -45,7 +45,15 @@ export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, font
     checkFontLoading();
   }, [customChar]);
 
-  if (!customChar) return null;
+  if (!customChar) {
+    return (
+      <div className="p-4 bg-black/60 rounded-lg border border-warcrow-gold/40 text-center">
+        <p className="text-warcrow-text/80">
+          Enter a number or select a symbol from the grid to display it here.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 bg-black/60 rounded-lg border border-warcrow-gold/40">
