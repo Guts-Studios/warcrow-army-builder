@@ -32,7 +32,7 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
   // Choose the appropriate class based on the character and useWarcrowClass prop
   const symbolClass = useWarcrowClass 
     ? `Warcrow-Family ${isNumber ? `WC_${charCode}` : ''}`
-    : "warcrow-font game-symbol";
+    : "font-warcrow game-symbol";
 
   return (
     <span 

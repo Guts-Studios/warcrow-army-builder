@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -21,7 +22,7 @@ export default {
       fontFamily: {
         sans: ['Outfit', 'sans-serif'],
         symbols: ['Warcrow', 'sans-serif'],
-        warcrow: ['Warcrow', 'sans-serif'],
+        warcrow: ['Warcrow', 'custom'], // Updated to match your example
       },
       colors: {
         warcrow: {

@@ -40,4 +40,12 @@
 .WC_1, .WC_2, .WC_3, .WC_4, .WC_5, 
 .WC_6, .WC_7, .WC_8, .WC_9, .WC_0 {
   /* These classes can have specific styling if needed */
+  font-family: 'Warcrow', sans-serif;
+}
+
+/* Custom usage class as shown in the example */
+.font-warcrow {
+  font-family: 'Warcrow', custom;
+  font-weight: 400;
+  font-style: normal;
 }
