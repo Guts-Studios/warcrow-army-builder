@@ -65,55 +65,85 @@ export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, font
         </div>
       )}
       
-      <div className="flex items-center gap-6">
-        <div 
-          className="game-symbol bg-black/40 p-6 rounded-md border border-warcrow-gold/20 min-w-20 min-h-20 flex items-center justify-center"
-          style={{ fontSize: `${fontSize}px` }}
-        >
-          {customChar}
-        </div>
-        <div className="text-warcrow-text space-y-1">
-          <div>
-            Character: <span className="text-warcrow-gold ml-1">{customChar}</span>
-          </div>
-          <div>
-            Code: <span className="text-warcrow-gold ml-1">{customChar.charCodeAt(0) || 'N/A'}</span>
-          </div>
-          <div>
-            Hex: <span className="text-warcrow-gold ml-1">{customChar.charCodeAt(0) ? '0x' + customChar.charCodeAt(0).toString(16).toUpperCase() : 'N/A'}</span>
-          </div>
-          {isNumeric && (
-            <div>
-              Type: <span className="text-green-500 ml-1">Numeric Character ({customChar})</span>
+      <div className="flex flex-col sm:flex-row gap-6">
+        <div className="space-y-4">
+          <div className="bg-black/40 p-4 rounded-md border border-warcrow-gold/20">
+            <h4 className="text-warcrow-gold/90 text-xs mb-2">Current implementation:</h4>
+            <div 
+              className="game-symbol bg-black/40 p-4 rounded-md border border-warcrow-gold/20 min-w-16 min-h-16 flex items-center justify-center"
+              style={{ fontSize: `${fontSize}px` }}
+            >
+              {customChar}
             </div>
-          )}
-          <div>
-            Font: <span className={`ml-1 ${fontLoaded === true ? 'text-green-500' : fontLoaded === false ? 'text-red-500' : 'text-yellow-500'}`}>
-              {fontLoaded === true ? 'Loaded' : fontLoaded === false ? 'Failed to load' : 'Checking...'}
-            </span>
+            <div className="mt-2 text-xs text-warcrow-text/80 text-center">Using class="game-symbol"</div>
+          </div>
+          
+          <div className="bg-black/40 p-4 rounded-md border border-warcrow-gold/20">
+            <h4 className="text-warcrow-gold/90 text-xs mb-2">Alternative implementation:</h4>
+            <div 
+              className="Warcrow-Family WC_4 bg-black/40 p-4 rounded-md border border-warcrow-gold/20 min-w-16 min-h-16 flex items-center justify-center"
+              style={{ fontSize: `${fontSize}px` }}
+            >
+              {customChar}
+            </div>
+            <div className="mt-2 text-xs text-warcrow-text/80 text-center">Using class="Warcrow-Family WC_4"</div>
+          </div>
+        </div>
+        
+        <div className="text-warcrow-text space-y-1 flex-1">
+          <div className="bg-black/40 p-4 rounded-md border border-warcrow-gold/20">
+            <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Character Information</h4>
+            <div>
+              Character: <span className="text-warcrow-gold ml-1">{customChar}</span>
+            </div>
+            <div>
+              Code: <span className="text-warcrow-gold ml-1">{customChar.charCodeAt(0) || 'N/A'}</span>
+            </div>
+            <div>
+              Hex: <span className="text-warcrow-gold ml-1">{customChar.charCodeAt(0) ? '0x' + customChar.charCodeAt(0).toString(16).toUpperCase() : 'N/A'}</span>
+            </div>
+            {isNumeric && (
+              <div>
+                Type: <span className="text-green-500 ml-1">Numeric Character ({customChar})</span>
+              </div>
+            )}
+            <div>
+              Font: <span className={`ml-1 ${fontLoaded === true ? 'text-green-500' : fontLoaded === false ? 'text-red-500' : 'text-yellow-500'}`}>
+                {fontLoaded === true ? 'Loaded' : fontLoaded === false ? 'Failed to load' : 'Checking...'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
       
-      {isNumeric && (
-        <div className="mt-4 p-3 bg-black/40 rounded border border-warcrow-gold/20">
-          <h4 className="text-warcrow-gold/90 text-xs mb-2">Numeric Character Usage:</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <p className="text-xs text-warcrow-text/90">In HTML:</p>
-              <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
-                &lt;span class="game-symbol"&gt;{customChar}&lt;/span&gt;
-              </code>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-warcrow-text/90">In React:</p>
-              <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
-                &lt;span className="game-symbol"&gt;{customChar}&lt;/span&gt;
-              </code>
-            </div>
+      <div className="mt-4 p-3 bg-black/40 rounded border border-warcrow-gold/20">
+        <h4 className="text-warcrow-gold/90 text-xs mb-2">Usage Examples:</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <p className="text-xs text-warcrow-text/90">Current implementation:</p>
+            <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
+              &lt;span class="game-symbol"&gt;{customChar}&lt;/span&gt;
+            </code>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-warcrow-text/90">Alternative implementation:</p>
+            <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
+              &lt;span class="Warcrow-Family WC_4"&gt;{customChar}&lt;/span&gt;
+            </code>
           </div>
         </div>
-      )}
+      </div>
+      
+      <div className="mt-4 p-3 bg-black/40 rounded border border-warcrow-gold/20">
+        <h4 className="text-warcrow-gold/90 text-xs mb-2">Add to fonts.css:</h4>
+        <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto whitespace-pre">
+{`.Warcrow-Family {
+  font-family: 'GameSymbols', sans-serif;
+  font-feature-settings: "liga", "calt", "dlig";
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+}`}
+        </code>
+      </div>
     </div>
   );
 };

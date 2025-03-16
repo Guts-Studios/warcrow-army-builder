@@ -18,3 +18,18 @@
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
 }
+
+/* Alternative class names as mentioned by user */
+.Warcrow-Family {
+  font-family: 'GameSymbols', sans-serif;
+  font-feature-settings: "liga", "calt", "dlig";
+  -webkit-font-feature-settings: "liga", "calt", "dlig";
+  -moz-font-feature-settings: "liga", "calt", "dlig";
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+}
+
+/* Specific numeric character classes */
+.WC_1, .WC_2, .WC_3, .WC_4, .WC_5, 
+.WC_6, .WC_7, .WC_8, .WC_9, .WC_0 {
+  /* These classes can have specific styling if needed */
+}
