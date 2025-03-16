@@ -17,7 +17,7 @@ export const syenannCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/card/aoidos_card.png",
+    imageUrl: "/art/card/aoidos_card.jpg",
     specialRules: ["Vulnerable", "Slowed", "Disarmed", "Frightened"]
   },
   {
