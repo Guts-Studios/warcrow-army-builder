@@ -76,5 +76,22 @@ export const syenannCharacters: Unit[] = [
     command: 2,
     imageUrl: "/art/portrait/grand_captain_portrait.jpg",
     specialRules: ["Preferred Terrain"]
+  },
+   {
+    id: "ynyr_dara_lainn",
+    name: "Ynyr Dara Lainn",
+    pointsCost: 35,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Scout", description: "" },
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    imageUrl: "/art/portrait/ynyr_dara_lainn_portrait.jpg",
+    specialRules: ["Place (10)", "Shove (4)"]
   }
 ];
