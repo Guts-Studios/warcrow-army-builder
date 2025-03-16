@@ -7,6 +7,7 @@ import { SymbolControls } from "./SymbolControls";
 import { SelectedSymbol } from "./SelectedSymbol";
 import { SymbolGrid } from "./SymbolGrid";
 import { SymbolDetails } from "./SymbolDetails";
+import { NumericInput } from "./NumericInput";
 
 export const SymbolExplorer = () => {
   // Start with the private use area (E000-F8FF) where custom glyphs are often mapped
@@ -15,6 +16,7 @@ export const SymbolExplorer = () => {
   const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState<number>(36);
   const [activeTab, setActiveTab] = useState<string>("grid");
+  const [showNumericInput, setShowNumericInput] = useState<boolean>(false);
 
   // Generate an array of character codes
   const generateSymbolGrid = () => {
@@ -32,9 +34,24 @@ export const SymbolExplorer = () => {
     setSelectedSymbol(code);
   };
 
+  const handleNumericInput = (value: string) => {
+    try {
+      // Try parsing as a simple number first
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue)) {
+        const char = String.fromCharCode(numValue);
+        setCustomChar(char);
+        setSelectedSymbol(numValue);
+      }
+    } catch (e) {
+      console.error("Error parsing numeric input:", e);
+    }
+  };
+
   // Define preset ranges for quick navigation
   const presetRanges = [
     { name: "ASCII", start: 0x0020, end: 0x007F },
+    { name: "Numbers", start: 0x0030, end: 0x0039 }, // 0-9 in ASCII
     { name: "PUA 1", start: 0xE000, end: 0xE0FF },
     { name: "PUA 2", start: 0xE100, end: 0xE1FF },
     { name: "PUA 3", start: 0xE200, end: 0xE2FF },
@@ -68,12 +85,24 @@ export const SymbolExplorer = () => {
   return (
     <Card className="bg-black/40 rounded-lg border border-warcrow-gold/30 mt-8 overflow-hidden shadow-lg">
       <CardHeader className="bg-black/60 pb-4">
-        <CardTitle className="text-warcrow-gold flex items-center gap-2">
+        <CardTitle className="text-warcrow-gold flex flex-wrap items-center gap-2">
           <span className="text-xl">Symbol Explorer</span>
           <span className="text-xs text-warcrow-text/80 font-normal">
             (Font: GameSymbols - OpenType Layout, TrueType Outlines)
           </span>
+          <button 
+            onClick={() => setShowNumericInput(!showNumericInput)} 
+            className="ml-auto text-sm px-3 py-1 bg-black/60 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 rounded"
+          >
+            {showNumericInput ? "Hide Numeric Input" : "Show Numeric Input"}
+          </button>
         </CardTitle>
+        
+        {showNumericInput && (
+          <div className="mt-2">
+            <NumericInput onSubmit={handleNumericInput} />
+          </div>
+        )}
       </CardHeader>
       <CardContent className="p-5">
         <Tabs defaultValue="grid" value={activeTab} onValueChange={setActiveTab} className="space-y-6">

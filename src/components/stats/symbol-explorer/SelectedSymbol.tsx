@@ -8,8 +8,13 @@ interface SelectedSymbolProps {
 
 export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, fontSize }) => {
   const [fontLoaded, setFontLoaded] = useState<boolean | null>(null);
-
+  const [isNumeric, setIsNumeric] = useState<boolean>(false);
+  
   useEffect(() => {
+    // Check if the current character is a numeric character
+    const code = customChar.charCodeAt(0);
+    setIsNumeric(code >= 48 && code <= 57); // ASCII 48-57 are digits 0-9
+    
     // Simple font loading check
     const checkFontLoading = async () => {
       // Set initial state to checking
@@ -38,7 +43,7 @@ export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, font
     };
 
     checkFontLoading();
-  }, []);
+  }, [customChar]);
 
   if (!customChar) return null;
 
@@ -69,6 +74,11 @@ export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, font
           <div>
             Hex: <span className="text-warcrow-gold ml-1">{customChar.charCodeAt(0) ? '0x' + customChar.charCodeAt(0).toString(16).toUpperCase() : 'N/A'}</span>
           </div>
+          {isNumeric && (
+            <div>
+              Type: <span className="text-green-500 ml-1">Numeric Character ({customChar})</span>
+            </div>
+          )}
           <div>
             Font: <span className={`ml-1 ${fontLoaded === true ? 'text-green-500' : fontLoaded === false ? 'text-red-500' : 'text-yellow-500'}`}>
               {fontLoaded === true ? 'Loaded' : fontLoaded === false ? 'Failed to load' : 'Checking...'}
@@ -76,6 +86,26 @@ export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ customChar, font
           </div>
         </div>
       </div>
+      
+      {isNumeric && (
+        <div className="mt-4 p-3 bg-black/40 rounded border border-warcrow-gold/20">
+          <h4 className="text-warcrow-gold/90 text-xs mb-2">Numeric Character Usage:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <p className="text-xs text-warcrow-text/90">In HTML:</p>
+              <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
+                &lt;span class="game-symbol"&gt;{customChar}&lt;/span&gt;
+              </code>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-warcrow-text/90">In React:</p>
+              <code className="block text-xs bg-black/60 p-2 rounded text-warcrow-gold overflow-x-auto">
+                &lt;span className="game-symbol"&gt;{customChar}&lt;/span&gt;
+              </code>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
