@@ -17,7 +17,7 @@ export const syenannCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/portrait/aoidos_portrait.jpg",
+    imageUrl: "/art/card/aoidos_card.jpg",
     specialRules: ["Vulnerable", "Slowed", "Disarmed", "Frightened"]
   },
   {
@@ -33,7 +33,7 @@ export const syenannCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/portrait/druid_portrait.jpg",
+    imageUrl: "/art/card/druid_card.jpg",
     specialRules: ["Slowed"]
   },
   {
@@ -54,7 +54,7 @@ export const syenannCharacters: Unit[] = [
     highCommand: true,
     availability: 1,
     command: 1,
-    imageUrl: "/art/portrait/lioslaith_coic_caledhee_portrait.jpg",
+    imageUrl: "/art/card/lioslaith_coic_caledhee_card.jpg",
     specialRules: ["Place (3)", "Vulnerable"]
   },
   {
@@ -74,11 +74,11 @@ export const syenannCharacters: Unit[] = [
     highCommand: true,
     availability: 1,
     command: 2,
-    imageUrl: "/art/portrait/grand_captain_portrait.jpg",
+    imageUrl: "/art/card/grand_captain_card.jpg",
     specialRules: ["Preferred Terrain"]
   },
    {
-    id: "ynyr_dara_lainn",
+    id: "ynyr-dara-lainn",
     name: "Ynyr Dara Lainn",
     pointsCost: 35,
     faction: "syenann",
@@ -91,7 +91,7 @@ export const syenannCharacters: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 1,
-    imageUrl: "/art/portrait/ynyr_dara_lainn_portrait.jpg",
+    imageUrl: "/art/card/ynyr_dara_lainn_card.jpg",
     specialRules: ["Place (10)", "Shove (4)"]
   }
 ];
