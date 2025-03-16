@@ -6,7 +6,7 @@ interface GameSymbolProps {
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   className?: string;
   style?: React.CSSProperties;
-  useWarcrowClass?: boolean; // New prop to toggle between class styles
+  useWarcrowClass?: boolean;
 }
 
 export const GameSymbol: React.FC<GameSymbolProps> = ({ 

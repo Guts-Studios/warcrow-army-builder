@@ -6,27 +6,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExtendedUnit } from "@/types/extendedUnit";
 import { UnitStatsHeader } from "@/components/stats/UnitStatsHeader";
-import { SymbolExplorer } from "@/components/stats/symbol-explorer";
 
 const UnitStats = () => {
   const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(sampleExtendedUnits[0]);
-  const [showSymbolExplorer, setShowSymbolExplorer] = useState(false);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <UnitStatsHeader />
       
       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-end mb-4">
-          <Button
-            variant="outline"
-            className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
-            onClick={() => setShowSymbolExplorer(!showSymbolExplorer)}
-          >
-            {showSymbolExplorer ? "Hide Symbol Explorer" : "Show Symbol Explorer"}
-          </Button>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Unit Selection Column */}
           <div className="md:col-span-1 space-y-4">
@@ -56,10 +44,7 @@ const UnitStats = () => {
           {/* Unit Stat Card Column */}
           <div className="md:col-span-2">
             {selectedUnit ? (
-              <>
-                <UnitStatCard unit={selectedUnit} />
-                {showSymbolExplorer && <SymbolExplorer />}
-              </>
+              <UnitStatCard unit={selectedUnit} />
             ) : (
               <div className="bg-black/40 rounded-lg p-8 border border-warcrow-gold/30 text-center">
                 <p className="text-warcrow-gold">Select a unit to view details</p>

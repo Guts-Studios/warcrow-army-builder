@@ -1,3 +1,3 @@
 
-// This file is now just a re-export of the new component structure
-export { SymbolExplorer } from './symbol-explorer';
+// This file is now empty as the symbol explorer functionality has been removed
+export {};
