@@ -17,7 +17,7 @@ interface SymbolConfig {
 
 const symbolConfigs: SymbolConfig[] = [
   { symbol: '🔴', fontChar: 'w', color: '#ea384c' }, // Red symbol
-  { symbol: '🟠', fontChar: 'q', color: '#ff8c00' }, // Orange symbol
+  { symbol: '🟠', fontChar: 'q', color: '#F97316' }, // Orange symbol - updated color
   { symbol: '🟢', fontChar: '9', color: '#00b300' }, // Green symbol
   // Add more symbols here in the future as needed
 ];
