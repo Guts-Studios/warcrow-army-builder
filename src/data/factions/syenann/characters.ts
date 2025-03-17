@@ -93,5 +93,21 @@ export const syenannCharacters: Unit[] = [
     command: 1,
     imageUrl: "/art/card/ynyr_dara_lainn_card.jpg",
     specialRules: ["Place (10)", "Shove (4)"]
-  }
+  },
+   {
+    id: "alula",
+    name: "Alula",
+    pointsCost: 20,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Syenann", description: "" },
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    imageUrl: "alula_card.jpg",
+    specialRules: ["Disarmed"],
+   }
 ];
