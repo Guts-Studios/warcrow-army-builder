@@ -8,7 +8,7 @@ interface UnitStatCardProps {
   unit: ExtendedUnit;
 }
 
-// Helper function to replace 🔴 with Warcrow font "W" in red
+// Helper function to replace 🔴 with Warcrow font "w" in red
 const replaceSymbol = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
@@ -19,7 +19,7 @@ const replaceSymbol = (text: string | undefined): React.ReactNode => {
   // Create an array of elements where 🔴 is replaced with GameSymbol component
   return parts.map((part, i) => (
     <React.Fragment key={i}>
-      {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c]">W</span>}
+      {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c]">w</span>}
       {part}
     </React.Fragment>
   ));
