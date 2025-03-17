@@ -75,10 +75,21 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
           
           // For non-string children, recursively process them if they're React elements
           if (React.isValidElement(child)) {
+            // Fix: Add proper type checking and handling for children
+            const childElement = child as React.ReactElement;
+            const childrenArray = childElement.props && childElement.props.children 
+              ? React.Children.toArray(childElement.props.children) 
+              : [];
+              
+            // Convert to string safely
+            const childrenText = childrenArray
+              .map(c => typeof c === 'string' || typeof c === 'number' ? String(c) : '')
+              .join('');
+              
             return React.cloneElement(
-              child as React.ReactElement<any>,
+              childElement,
               { key: `recursive-${config.symbol}` },
-              replaceSymbols(React.Children.toArray(child.props.children as React.ReactNode[]).join(''))
+              replaceSymbols(childrenText)
             );
           }
           
@@ -109,10 +120,21 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
         
         // For non-string elements, recurse if they're React elements
         if (React.isValidElement(element)) {
+          // Fix: Add proper type checking and handling for children
+          const elementComponent = element as React.ReactElement;
+          const elementChildrenArray = elementComponent.props && elementComponent.props.children 
+            ? React.Children.toArray(elementComponent.props.children) 
+            : [];
+            
+          // Convert to string safely
+          const elementChildrenText = elementChildrenArray
+            .map(c => typeof c === 'string' || typeof c === 'number' ? String(c) : '')
+            .join('');
+            
           return React.cloneElement(
-            element as React.ReactElement<any>,
+            elementComponent,
             { key: `array-recursive-${config.symbol}-${index}` },
-            replaceSymbols(React.Children.toArray(element.props.children as React.ReactNode[]).join(''))
+            replaceSymbols(elementChildrenText)
           );
         }
         
