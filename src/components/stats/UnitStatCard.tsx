@@ -18,8 +18,8 @@ interface SymbolConfig {
 const symbolConfigs: SymbolConfig[] = [
   { symbol: '🔴', fontChar: 'w', color: '#ea384c' }, // Red symbol
   { symbol: '🟠', fontChar: 'q', color: '#ff8c00' }, // Orange symbol
+  { symbol: '🟢', fontChar: '9', color: '#00b300' }, // Green symbol
   // Add more symbols here in the future as needed
-  // Example: { symbol: '🟢', fontChar: 'g', color: '#00b300' }, // Green symbol
 ];
 
 // Helper function to replace special symbols with Warcrow font characters
@@ -55,8 +55,9 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
         { key: `processed-${config.symbol}` },
         React.Children.map(result.props.children, (child) => {
           // Only process string children
-          if (typeof child === 'string') {
-            const parts = child.split(config.symbol);
+          if (typeof child === 'string' || typeof child === 'number') {
+            const stringChild = String(child);
+            const parts = stringChild.split(config.symbol);
             if (parts.length === 1) return child; // No symbols to replace
             
             // Replace with fragments containing symbol replacements
@@ -74,7 +75,11 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
           
           // For non-string children, recursively process them if they're React elements
           if (React.isValidElement(child)) {
-            return replaceSymbols(React.Children.toArray(child.props.children).join(''));
+            return React.cloneElement(
+              child as React.ReactElement<any>,
+              { key: `recursive-${config.symbol}` },
+              replaceSymbols(React.Children.toArray(child.props.children as React.ReactNode[]).join(''))
+            );
           }
           
           return child;
@@ -84,8 +89,9 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
     // If result is an array (from previous replacements), process each element
     else if (Array.isArray(result)) {
       result = result.map((element, index) => {
-        if (typeof element === 'string') {
-          const parts = element.split(config.symbol);
+        if (typeof element === 'string' || typeof element === 'number') {
+          const stringElement = String(element);
+          const parts = stringElement.split(config.symbol);
           if (parts.length === 1) return element; // No symbols to replace
           
           // Replace with fragments containing symbol replacements
@@ -103,7 +109,11 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
         
         // For non-string elements, recurse if they're React elements
         if (React.isValidElement(element)) {
-          return replaceSymbols(React.Children.toArray(element.props.children).join(''));
+          return React.cloneElement(
+            element as React.ReactElement<any>,
+            { key: `array-recursive-${config.symbol}-${index}` },
+            replaceSymbols(React.Children.toArray(element.props.children as React.ReactNode[]).join(''))
+          );
         }
         
         return element;
