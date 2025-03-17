@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ExtendedUnit } from "@/types/extendedUnit";
+import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface UnitStatCardProps {
@@ -46,76 +46,124 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
           </div>
         )}
 
-        {/* Attacks */}
+        {/* Profiles - includes attacks, defenses, etc. */}
         <div>
-          <h3 className="font-bold text-lg text-warcrow-gold border-b border-warcrow-gold/30 pb-1 mb-2">Attacks</h3>
-          {unit.attacks.map((attack, index) => (
-            <div key={index} className="bg-black/60 p-3 rounded-md my-2 border-l-4 border-red-700">
-              <div className="flex flex-wrap justify-between items-center">
-                <p className="text-warcrow-text"><strong className="text-warcrow-gold">Members:</strong> {attack.members}</p>
-                {attack.modifier && (
-                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {attack.modifier}</p>
+          <h3 className="font-bold text-lg text-warcrow-gold border-b border-warcrow-gold/30 pb-1 mb-2">Profiles</h3>
+          {unit.profiles.map((profile, profileIndex) => (
+            <div key={profileIndex} className="bg-black/60 p-3 rounded-md my-2">
+              <p className="text-warcrow-gold font-medium">Members: {profile.members}</p>
+              
+              {/* Ranged Attack */}
+              {profile.ranged && (
+                <div className="border-l-4 border-amber-700 p-2 my-2">
+                  <h4 className="text-warcrow-gold">Ranged Attack</h4>
+                  {profile.ranged.range && (
+                    <p className="text-warcrow-text"><strong className="text-warcrow-gold">Range:</strong> {profile.ranged.range}</p>
+                  )}
+                  {profile.ranged.modifier && (
+                    <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {profile.ranged.modifier}</p>
+                  )}
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.ranged.dice.join(" ")}</p>
+                  
+                  {profile.ranged.switches && profile.ranged.switches.length > 0 && (
+                    <div className="mt-1">
+                      <strong className="text-warcrow-gold">Switches:</strong>
+                      {profile.ranged.switches.map((sw, i) => (
+                        <p key={i} className="text-warcrow-text text-sm ml-4">
+                          <span className="text-warcrow-gold">{sw.value}:</span> {sw.effect}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Melee Attack */}
+              <div className="border-l-4 border-red-700 p-2 my-2">
+                <h4 className="text-warcrow-gold">Melee Attack</h4>
+                {profile.attack.modifier && (
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {profile.attack.modifier}</p>
+                )}
+                <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.attack.dice.join(" ")}</p>
+                
+                {profile.attack.switches && profile.attack.switches.length > 0 && (
+                  <div className="mt-1">
+                    <strong className="text-warcrow-gold">Switches:</strong>
+                    {profile.attack.switches.map((sw, i) => (
+                      <p key={i} className="text-warcrow-text text-sm ml-4">
+                        <span className="text-warcrow-gold">{sw.value}:</span> {sw.effect}
+                      </p>
+                    ))}
+                  </div>
                 )}
               </div>
-              <p className="text-warcrow-text mt-1"><strong className="text-warcrow-gold">Dice:</strong> {attack.dice.join(" ")}</p>
               
-              {attack.switches && attack.switches.length > 0 && (
-                <div className="mt-2">
-                  <strong className="text-warcrow-gold">Switches:</strong>
-                  {attack.switches.map((sw, i) => (
-                    <p key={i} className="text-warcrow-text text-sm ml-4 mt-1">
-                      <span className="text-warcrow-gold">{sw.value}:</span> {sw.effect}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Defenses */}
-        <div>
-          <h3 className="font-bold text-lg text-warcrow-gold border-b border-warcrow-gold/30 pb-1 mb-2">Defenses</h3>
-          {unit.defenses.map((def, index) => (
-            <div key={index} className="bg-black/60 p-3 rounded-md my-2 border-l-4 border-blue-700">
-              {def.modifier && (
-                <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {def.modifier}</p>
-              )}
-              <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {def.dice.join(" ")}</p>
-              
-              {def.switches && def.switches.length > 0 && (
-                <div className="mt-2">
-                  <strong className="text-warcrow-gold">Switches:</strong>
-                  {def.switches.map((sw, i) => (
-                    <p key={i} className="text-warcrow-text text-sm ml-4 mt-1">
-                      <span className="text-warcrow-gold">{sw.value}:</span> {sw.effect}
-                    </p>
-                  ))}
-                </div>
-              )}
+              {/* Defense */}
+              <div className="border-l-4 border-blue-700 p-2 my-2">
+                <h4 className="text-warcrow-gold">Defense</h4>
+                {profile.defense.modifier && (
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {profile.defense.modifier}</p>
+                )}
+                <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.defense.dice.join(" ")}</p>
+                
+                {profile.defense.switches && profile.defense.switches.length > 0 && (
+                  <div className="mt-1">
+                    <strong className="text-warcrow-gold">Switches:</strong>
+                    {profile.defense.switches.map((sw, i) => (
+                      <p key={i} className="text-warcrow-text text-sm ml-4">
+                        <span className="text-warcrow-gold">{sw.value}:</span> {sw.effect}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                
+                {profile.defense.conquest !== undefined && (
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Conquest:</strong> {profile.defense.conquest}</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Abilities */}
-        <div className="bg-black/60 p-3 rounded-md my-2 border-l-4 border-amber-600">
-          <h3 className="font-bold text-lg text-warcrow-gold border-b border-warcrow-gold/30 pb-1 mb-2">Abilities</h3>
-          {unit.abilities.skill && (
-            <p className="text-warcrow-text mt-2">
-              <strong className="text-warcrow-gold">Skill:</strong> {unit.abilities.skill}
-            </p>
-          )}
-          {unit.abilities.passive && (
-            <p className="text-warcrow-text mt-2">
-              <strong className="text-warcrow-gold">Passive:</strong> {unit.abilities.passive}
-            </p>
-          )}
-          {unit.abilities.command && (
-            <p className="text-warcrow-text mt-2">
-              <strong className="text-warcrow-gold">Command:</strong> {unit.abilities.command}
-            </p>
-          )}
-        </div>
+        {(unit.abilities.skill || unit.abilities.passive || unit.abilities.command) && (
+          <div className="bg-black/60 p-3 rounded-md my-2 border-l-4 border-amber-600">
+            <h3 className="font-bold text-lg text-warcrow-gold border-b border-warcrow-gold/30 pb-1 mb-2">Abilities</h3>
+            
+            {unit.abilities.skill && unit.abilities.skill.length > 0 && (
+              <div className="mt-2">
+                <strong className="text-warcrow-gold">Skill:</strong>
+                {unit.abilities.skill.map((ability, i) => (
+                  <div key={i} className="ml-4 mt-1">
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{ability.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {unit.abilities.passive && unit.abilities.passive.length > 0 && (
+              <div className="mt-2">
+                <strong className="text-warcrow-gold">Passive:</strong>
+                {unit.abilities.passive.map((ability, i) => (
+                  <div key={i} className="ml-4 mt-1">
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{ability.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {unit.abilities.command && unit.abilities.command.length > 0 && (
+              <div className="mt-2">
+                <strong className="text-warcrow-gold">Command:</strong>
+                {unit.abilities.command.map((ability, i) => (
+                  <div key={i} className="ml-4 mt-1">
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{ability.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

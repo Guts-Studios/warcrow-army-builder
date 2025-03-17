@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { sampleExtendedUnits } from "@/data/extendedUnits";
+import { getAllExtendedUnits } from "@/services/extendedUnitService";
 import UnitStatCard from "@/components/stats/UnitStatCard";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,7 +8,8 @@ import { ExtendedUnit } from "@/types/extendedUnit";
 import { UnitStatsHeader } from "@/components/stats/UnitStatsHeader";
 
 const UnitStats = () => {
-  const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(sampleExtendedUnits[0]);
+  const allUnits = getAllExtendedUnits();
+  const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(allUnits[0]);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -22,7 +23,7 @@ const UnitStats = () => {
               <h2 className="text-xl font-bold text-warcrow-gold mb-4">Select Unit</h2>
               <ScrollArea className="h-[60vh]">
                 <div className="space-y-2 pr-4">
-                  {sampleExtendedUnits.map((unit) => (
+                  {allUnits.map((unit) => (
                     <Button
                       key={unit.id}
                       variant="outline"
