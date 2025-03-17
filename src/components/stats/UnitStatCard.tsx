@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,16 +60,12 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
             if (parts.length === 1) return child; // No symbols to replace
             
             // Replace with fragments containing symbol replacements
-            return (
-              <>
-                {parts.map((part, i) => (
-                  <React.Fragment key={`nested-${config.symbol}-${i}`}>
-                    {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
-                    {part}
-                  </React.Fragment>
-                ))}
-              </>
-            );
+            return parts.map((part, i) => (
+              <React.Fragment key={`nested-${config.symbol}-${i}`}>
+                {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
+                {part}
+              </React.Fragment>
+            ));
           }
           
           // For non-string children, recursively process them if they're React elements
@@ -105,17 +100,13 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
           const parts = stringElement.split(config.symbol);
           if (parts.length === 1) return element; // No symbols to replace
           
-          // Replace with fragments containing symbol replacements
-          return (
-            <React.Fragment key={`array-${config.symbol}-${index}`}>
-              {parts.map((part, i) => (
-                <React.Fragment key={`array-nested-${config.symbol}-${index}-${i}`}>
-                  {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
-                  {part}
-                </React.Fragment>
-              ))}
+          // Replace with fragments containing symbol replacements - fix to avoid nested fragments issue
+          return parts.map((part, i) => (
+            <React.Fragment key={`array-part-${config.symbol}-${index}-${i}`}>
+              {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
+              {part}
             </React.Fragment>
-          );
+          ));
         }
         
         // For non-string elements, recurse if they're React elements
@@ -140,6 +131,9 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
         
         return element;
       });
+      
+      // Flatten array to avoid nested fragments issue
+      result = result.flat();
     }
   });
   
