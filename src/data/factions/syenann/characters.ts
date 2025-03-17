@@ -107,7 +107,7 @@ export const syenannCharacters: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 1,
-    imageUrl: "alula_card.jpg",
+    imageUrl: "/art/card/alula_card.jpg",
     specialRules: ["Disarmed"],
    }
 ];
