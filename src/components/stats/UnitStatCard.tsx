@@ -12,35 +12,65 @@ interface UnitStatCardProps {
 const replaceSymbols = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
-  // First replace 🔴 symbols
+  // First replace 🔴 symbols with red "w"
   const parts = text.split('🔴');
   
   // Create an array of elements, alternating between text and red symbol
-  const redResult = parts.map((part, i) => (
+  const elements = parts.map((part, i) => (
     <React.Fragment key={`red-${i}`}>
       {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c] text-lg">w</span>}
       {part}
     </React.Fragment>
   ));
   
-  // Then process each element to replace 🟠 symbols
-  return React.Children.map(redResult, child => {
-    // Check if the child is a string before trying to split it
-    if (typeof child === 'string' || typeof child === 'number') {
-      // Convert to string and split by 🟠 symbol
-      const orangeParts = String(child).split('🟠');
-      if (orangeParts.length === 1) return child;
+  // Process each fragment to handle orange symbols
+  return elements.map((element, index) => {
+    // If the element is just a string (not a React Fragment with the red symbol)
+    if (typeof element === 'string') {
+      const orangeParts = element.split('🟠');
       
-      // Create an array alternating between text and orange symbol
-      return orangeParts.map((part, i) => (
-        <React.Fragment key={`orange-${i}`}>
-          {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
-          {part}
+      // If no orange symbols in this part, return as is
+      if (orangeParts.length === 1) {
+        return <React.Fragment key={`combined-${index}`}>{element}</React.Fragment>;
+      }
+      
+      // Create fragments with orange symbols
+      return (
+        <React.Fragment key={`combined-${index}`}>
+          {orangeParts.map((part, j) => (
+            <React.Fragment key={`orange-${index}-${j}`}>
+              {j > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
+              {part}
+            </React.Fragment>
+          ))}
         </React.Fragment>
-      ));
+      );
     }
-    // If the child is already a React element (from 🔴 replacement), return it as is
-    return child;
+    
+    // If it's already a React element (from red symbol replacement), process its children
+    return React.cloneElement(
+      element as React.ReactElement,
+      { key: `clone-${index}` },
+      React.Children.map((element as React.ReactElement).props.children, (child) => {
+        if (typeof child === 'string') {
+          const orangeParts = child.split('🟠');
+          
+          // If no orange symbols in this part, return as is
+          if (orangeParts.length === 1) {
+            return child;
+          }
+          
+          // Create fragments with orange symbols
+          return orangeParts.map((part, j) => (
+            <React.Fragment key={`nested-orange-${index}-${j}`}>
+              {j > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
+              {part}
+            </React.Fragment>
+          ));
+        }
+        return child;
+      })
+    );
   });
 };
 
