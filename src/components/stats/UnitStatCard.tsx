@@ -21,6 +21,7 @@ const symbolConfigs: SymbolConfig[] = [
   { symbol: '🟢', fontChar: '9', color: '#00b300' }, // Green symbol
   { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol
   { symbol: '🔵', fontChar: '8', color: '#3b82f6' }, // Blue symbol - updated to a softer blue
+  { symbol: '🟡', fontChar: '0', color: '#fbbf24' }, // Yellow symbol with a warm, readable yellow color
   // Add more symbols here in the future as needed
 ];
 
