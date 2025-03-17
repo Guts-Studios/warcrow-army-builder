@@ -13,21 +13,24 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
   // First replace 🔴 symbols
-  let parts = text.split('🔴');
-  let result = parts.map((part, i) => (
+  const parts = text.split('🔴');
+  
+  // Create an array of elements, alternating between text and red symbol
+  const redResult = parts.map((part, i) => (
     <React.Fragment key={`red-${i}`}>
       {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c] text-lg">w</span>}
       {part}
     </React.Fragment>
   ));
   
-  // Process the result to replace 🟠 symbols
-  return React.Children.map(result, child => {
+  // Then process each element to replace 🟠 symbols
+  return React.Children.map(redResult, child => {
     if (typeof child === 'string') {
       // Split by 🟠 symbol
       const orangeParts = child.split('🟠');
       if (orangeParts.length === 1) return child;
       
+      // Create an array alternating between text and orange symbol
       return orangeParts.map((part, i) => (
         <React.Fragment key={`orange-${i}`}>
           {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
@@ -35,6 +38,7 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
         </React.Fragment>
       ));
     }
+    // If the child is already a React element (from 🔴 replacement), return it as is
     return child;
   });
 };
