@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
@@ -133,7 +134,8 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
       });
       
       // Flatten array to avoid nested fragments issue
-      result = result.flat();
+      // Fix: use Array.from to ensure we're working with an array that has flat() method
+      result = Array.isArray(result) ? result.flatMap(item => item) : result;
     }
   });
   
