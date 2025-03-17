@@ -27,119 +27,65 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
   // Start with the original text
-  let result: React.ReactNode = text;
+  let currentNode: React.ReactNode = text;
   
   // Process each symbol configuration in order
   symbolConfigs.forEach(config => {
-    // If result is a string, handle it directly
-    if (typeof result === 'string') {
-      const parts = result.split(config.symbol);
+    if (typeof currentNode === 'string') {
+      if (!currentNode.includes(config.symbol)) return;
+      
+      const parts = currentNode.split(config.symbol);
       if (parts.length === 1) return; // No symbols to replace
       
-      // Replace the string with a React fragment containing the symbol replacements
-      result = (
-        <>
-          {parts.map((part, i) => (
-            <React.Fragment key={`${config.symbol}-${i}`}>
-              {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
-              {part}
-            </React.Fragment>
-          ))}
-        </>
-      );
-    } 
-    // If result is already a React element, traverse its children
-    else if (React.isValidElement(result)) {
-      result = React.cloneElement(
-        result,
-        { key: `processed-${config.symbol}` },
-        React.Children.map(result.props.children, (child) => {
-          // Only process string children
-          if (typeof child === 'string' || typeof child === 'number') {
-            const stringChild = String(child);
-            const parts = stringChild.split(config.symbol);
-            if (parts.length === 1) return child; // No symbols to replace
-            
-            // Replace with fragments containing symbol replacements
-            return parts.map((part, i) => (
-              <React.Fragment key={`nested-${config.symbol}-${i}`}>
-                {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
-                {part}
-              </React.Fragment>
-            ));
-          }
-          
-          // For non-string children, recursively process them if they're React elements
-          if (React.isValidElement(child)) {
-            // Fix: Add proper type checking and handling for children
-            const childElement = child as React.ReactElement;
-            const childrenArray = childElement.props && childElement.props.children 
-              ? React.Children.toArray(childElement.props.children) 
-              : [];
-              
-            // Convert to string safely
-            const childrenText = childrenArray
-              .map(c => typeof c === 'string' || typeof c === 'number' ? String(c) : '')
-              .join('');
-              
-            return React.cloneElement(
-              childElement,
-              { key: `recursive-${config.symbol}` },
-              replaceSymbols(childrenText)
-            );
-          }
-          
-          return child;
-        })
-      );
-    }
-    // If result is an array (from previous replacements), process each element
-    else if (Array.isArray(result)) {
-      result = result.map((element, index) => {
-        if (typeof element === 'string' || typeof element === 'number') {
-          const stringElement = String(element);
-          const parts = stringElement.split(config.symbol);
-          if (parts.length === 1) return element; // No symbols to replace
-          
-          // Replace with fragments containing symbol replacements - fix to avoid nested fragments issue
-          return parts.map((part, i) => (
-            <React.Fragment key={`array-part-${config.symbol}-${index}-${i}`}>
-              {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
-              {part}
-            </React.Fragment>
-          ));
-        }
-        
-        // For non-string elements, recurse if they're React elements
-        if (React.isValidElement(element)) {
-          // Fix: Add proper type checking and handling for children
-          const elementComponent = element as React.ReactElement;
-          const elementChildrenArray = elementComponent.props && elementComponent.props.children 
-            ? React.Children.toArray(elementComponent.props.children) 
-            : [];
-            
-          // Convert to string safely
-          const elementChildrenText = elementChildrenArray
-            .map(c => typeof c === 'string' || typeof c === 'number' ? String(c) : '')
-            .join('');
-            
-          return React.cloneElement(
-            elementComponent,
-            { key: `array-recursive-${config.symbol}-${index}` },
-            replaceSymbols(elementChildrenText)
+      // Create an array of nodes with proper symbol replacements
+      const nodes: React.ReactNode[] = [];
+      parts.forEach((part, i) => {
+        if (i > 0) {
+          nodes.push(
+            <span key={`symbol-${config.symbol}-${i}`} className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>
+              {config.fontChar}
+            </span>
           );
         }
-        
-        return element;
+        if (part) {
+          nodes.push(part);
+        }
       });
       
-      // Flatten array to avoid nested fragments issue
-      // Fix: use Array.from to ensure we're working with an array that has flat() method
-      result = Array.isArray(result) ? result.flatMap(item => item) : result;
+      currentNode = <>{nodes}</>;
+    } 
+    // If it's already a React element, we need to process its children
+    else if (React.isValidElement(currentNode)) {
+      const element = currentNode as React.ReactElement;
+      
+      // Process children if they exist
+      const children = React.Children.toArray(element.props.children);
+      const newChildren = children.map(child => {
+        if (typeof child === 'string' && child.includes(config.symbol)) {
+          return replaceSymbols(child);
+        }
+        return child;
+      });
+      
+      // Clone the element with new children
+      currentNode = React.cloneElement(
+        element,
+        { key: `processed-${config.symbol}` },
+        ...newChildren
+      );
+    }
+    // Handle array of nodes (from previous replacements)
+    else if (Array.isArray(currentNode)) {
+      currentNode = currentNode.map((node, index) => {
+        if (typeof node === 'string' && node.includes(config.symbol)) {
+          return replaceSymbols(node);
+        }
+        return node;
+      });
     }
   });
   
-  return result;
+  return currentNode;
 };
 
 const UnitStatCard = ({ unit }: UnitStatCardProps) => {
