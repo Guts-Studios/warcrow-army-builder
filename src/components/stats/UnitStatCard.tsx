@@ -19,7 +19,7 @@ const replaceSymbol = (text: string | undefined): React.ReactNode => {
   // Create an array of elements where 🔴 is replaced with GameSymbol component
   return parts.map((part, i) => (
     <React.Fragment key={i}>
-      {i > 0 && <GameSymbol code={87} className="text-[#ea384c]" useWarcrowClass={true} />}
+      {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c]">W</span>}
       {part}
     </React.Fragment>
   ));
