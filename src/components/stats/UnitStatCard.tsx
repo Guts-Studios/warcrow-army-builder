@@ -8,70 +8,110 @@ interface UnitStatCardProps {
   unit: ExtendedUnit;
 }
 
+// Symbol mapping configuration for easier additions in the future
+interface SymbolConfig {
+  symbol: string;
+  fontChar: string;
+  color: string;
+}
+
+const symbolConfigs: SymbolConfig[] = [
+  { symbol: '🔴', fontChar: 'w', color: '#ea384c' }, // Red symbol
+  { symbol: '🟠', fontChar: 'q', color: '#ff8c00' }, // Orange symbol
+  // Add more symbols here in the future as needed
+  // Example: { symbol: '🟢', fontChar: 'g', color: '#00b300' }, // Green symbol
+];
+
 // Helper function to replace special symbols with Warcrow font characters
 const replaceSymbols = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
-  // First replace 🔴 symbols with red "w"
-  const parts = text.split('🔴');
+  // Start with the original text
+  let result: React.ReactNode = text;
   
-  // Create an array of elements, alternating between text and red symbol
-  const elements = parts.map((part, i) => (
-    <React.Fragment key={`red-${i}`}>
-      {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c] text-lg">w</span>}
-      {part}
-    </React.Fragment>
-  ));
-  
-  // Process each fragment to handle orange symbols
-  return elements.map((element, index) => {
-    // If the element is just a string (not a React Fragment with the red symbol)
-    if (typeof element === 'string') {
-      const orangeParts = element.split('🟠');
+  // Process each symbol configuration in order
+  symbolConfigs.forEach(config => {
+    // If result is a string, handle it directly
+    if (typeof result === 'string') {
+      const parts = result.split(config.symbol);
+      if (parts.length === 1) return; // No symbols to replace
       
-      // If no orange symbols in this part, return as is
-      if (orangeParts.length === 1) {
-        return <React.Fragment key={`combined-${index}`}>{element}</React.Fragment>;
-      }
-      
-      // Create fragments with orange symbols
-      return (
-        <React.Fragment key={`combined-${index}`}>
-          {orangeParts.map((part, j) => (
-            <React.Fragment key={`orange-${index}-${j}`}>
-              {j > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
+      // Replace the string with a React fragment containing the symbol replacements
+      result = (
+        <>
+          {parts.map((part, i) => (
+            <React.Fragment key={`${config.symbol}-${i}`}>
+              {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
               {part}
             </React.Fragment>
           ))}
-        </React.Fragment>
+        </>
       );
-    }
-    
-    // If it's already a React element (from red symbol replacement), process its children
-    return React.cloneElement(
-      element as React.ReactElement,
-      { key: `clone-${index}` },
-      React.Children.map((element as React.ReactElement).props.children, (child) => {
-        if (typeof child === 'string') {
-          const orangeParts = child.split('🟠');
-          
-          // If no orange symbols in this part, return as is
-          if (orangeParts.length === 1) {
-            return child;
+    } 
+    // If result is already a React element, traverse its children
+    else if (React.isValidElement(result)) {
+      result = React.cloneElement(
+        result,
+        { key: `processed-${config.symbol}` },
+        React.Children.map(result.props.children, (child) => {
+          // Only process string children
+          if (typeof child === 'string') {
+            const parts = child.split(config.symbol);
+            if (parts.length === 1) return child; // No symbols to replace
+            
+            // Replace with fragments containing symbol replacements
+            return (
+              <>
+                {parts.map((part, i) => (
+                  <React.Fragment key={`nested-${config.symbol}-${i}`}>
+                    {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
+                    {part}
+                  </React.Fragment>
+                ))}
+              </>
+            );
           }
           
-          // Create fragments with orange symbols
-          return orangeParts.map((part, j) => (
-            <React.Fragment key={`nested-orange-${index}-${j}`}>
-              {j > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
-              {part}
+          // For non-string children, recursively process them if they're React elements
+          if (React.isValidElement(child)) {
+            return replaceSymbols(React.Children.toArray(child.props.children).join(''));
+          }
+          
+          return child;
+        })
+      );
+    }
+    // If result is an array (from previous replacements), process each element
+    else if (Array.isArray(result)) {
+      result = result.map((element, index) => {
+        if (typeof element === 'string') {
+          const parts = element.split(config.symbol);
+          if (parts.length === 1) return element; // No symbols to replace
+          
+          // Replace with fragments containing symbol replacements
+          return (
+            <React.Fragment key={`array-${config.symbol}-${index}`}>
+              {parts.map((part, i) => (
+                <React.Fragment key={`array-nested-${config.symbol}-${index}-${i}`}>
+                  {i > 0 && <span className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>{config.fontChar}</span>}
+                  {part}
+                </React.Fragment>
+              ))}
             </React.Fragment>
-          ));
+          );
         }
-        return child;
-      })
-    );
+        
+        // For non-string elements, recurse if they're React elements
+        if (React.isValidElement(element)) {
+          return replaceSymbols(React.Children.toArray(element.props.children).join(''));
+        }
+        
+        return element;
+      });
+    }
   });
+  
+  return result;
 };
 
 const UnitStatCard = ({ unit }: UnitStatCardProps) => {
