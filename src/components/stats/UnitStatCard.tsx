@@ -8,21 +8,35 @@ interface UnitStatCardProps {
   unit: ExtendedUnit;
 }
 
-// Helper function to replace 🔴 with Warcrow font "w" in red
-const replaceSymbol = (text: string | undefined): React.ReactNode => {
+// Helper function to replace special symbols with Warcrow font characters
+const replaceSymbols = (text: string | undefined): React.ReactNode => {
   if (!text) return null;
   
-  // Split by 🔴 symbol
-  const parts = text.split('🔴');
-  if (parts.length === 1) return text;
-  
-  // Create an array of elements where 🔴 is replaced with GameSymbol component
-  return parts.map((part, i) => (
-    <React.Fragment key={i}>
+  // First replace 🔴 symbols
+  let parts = text.split('🔴');
+  let result = parts.map((part, i) => (
+    <React.Fragment key={`red-${i}`}>
       {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ea384c] text-lg">w</span>}
       {part}
     </React.Fragment>
   ));
+  
+  // Process the result to replace 🟠 symbols
+  return React.Children.map(result, child => {
+    if (typeof child === 'string') {
+      // Split by 🟠 symbol
+      const orangeParts = child.split('🟠');
+      if (orangeParts.length === 1) return child;
+      
+      return orangeParts.map((part, i) => (
+        <React.Fragment key={`orange-${i}`}>
+          {i > 0 && <span className="Warcrow-Family font-warcrow text-[#ff8c00] text-lg">q</span>}
+          {part}
+        </React.Fragment>
+      ));
+    }
+    return child;
+  });
 };
 
 const UnitStatCard = ({ unit }: UnitStatCardProps) => {
@@ -44,7 +58,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
             {Object.entries(unit.stats).map(([key, value]) => (
               <div key={key} className="bg-black/60 p-2 rounded-md">
                 <strong className="text-warcrow-gold">{key}</strong>
-                <p className="text-warcrow-text">{replaceSymbol(String(value))}</p>
+                <p className="text-warcrow-text">{replaceSymbols(String(value))}</p>
               </div>
             ))}
           </div>
@@ -57,7 +71,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
             <div className="flex flex-wrap gap-2">
               {unit.keywords.map((keyword, idx) => (
                 <span key={idx} className="bg-black/60 text-warcrow-text px-2 py-1 rounded-md text-sm">
-                  {replaceSymbol(keyword)}
+                  {replaceSymbols(keyword)}
                 </span>
               ))}
             </div>
@@ -79,12 +93,12 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                     <p className="text-warcrow-text"><strong className="text-warcrow-gold">Range:</strong> {profile.ranged.range}</p>
                   )}
                   {profile.ranged.modifier && (
-                    <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbol(profile.ranged.modifier)}</p>
+                    <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbols(profile.ranged.modifier)}</p>
                   )}
                   <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.ranged.dice.map((die, i) => (
                     <React.Fragment key={i}>
                       {i > 0 && " "}
-                      {replaceSymbol(die)}
+                      {replaceSymbols(die)}
                     </React.Fragment>
                   ))}</p>
                   
@@ -93,7 +107,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                       <strong className="text-warcrow-gold">Switches:</strong>
                       {profile.ranged.switches.map((sw, i) => (
                         <p key={i} className="text-warcrow-text text-sm ml-4">
-                          <span className="text-warcrow-gold">{replaceSymbol(sw.value)}:</span> {replaceSymbol(sw.effect)}
+                          <span className="text-warcrow-gold">{replaceSymbols(sw.value)}:</span> {replaceSymbols(sw.effect)}
                         </p>
                       ))}
                     </div>
@@ -105,12 +119,12 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
               <div className="border-l-4 border-red-700 p-2 my-2">
                 <h4 className="text-warcrow-gold">Melee Attack</h4>
                 {profile.attack.modifier && (
-                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbol(profile.attack.modifier)}</p>
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbols(profile.attack.modifier)}</p>
                 )}
                 <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.attack.dice.map((die, i) => (
                   <React.Fragment key={i}>
                     {i > 0 && " "}
-                    {replaceSymbol(die)}
+                    {replaceSymbols(die)}
                   </React.Fragment>
                 ))}</p>
                 
@@ -119,7 +133,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                     <strong className="text-warcrow-gold">Switches:</strong>
                     {profile.attack.switches.map((sw, i) => (
                       <p key={i} className="text-warcrow-text text-sm ml-4">
-                        <span className="text-warcrow-gold">{replaceSymbol(sw.value)}:</span> {replaceSymbol(sw.effect)}
+                        <span className="text-warcrow-gold">{replaceSymbols(sw.value)}:</span> {replaceSymbols(sw.effect)}
                       </p>
                     ))}
                   </div>
@@ -130,12 +144,12 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
               <div className="border-l-4 border-blue-700 p-2 my-2">
                 <h4 className="text-warcrow-gold">Defense</h4>
                 {profile.defense.modifier && (
-                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbol(profile.defense.modifier)}</p>
+                  <p className="text-warcrow-text"><strong className="text-warcrow-gold">Modifier:</strong> {replaceSymbols(profile.defense.modifier)}</p>
                 )}
                 <p className="text-warcrow-text"><strong className="text-warcrow-gold">Dice:</strong> {profile.defense.dice.map((die, i) => (
                   <React.Fragment key={i}>
                     {i > 0 && " "}
-                    {replaceSymbol(die)}
+                    {replaceSymbols(die)}
                   </React.Fragment>
                 ))}</p>
                 
@@ -144,7 +158,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                     <strong className="text-warcrow-gold">Switches:</strong>
                     {profile.defense.switches.map((sw, i) => (
                       <p key={i} className="text-warcrow-text text-sm ml-4">
-                        <span className="text-warcrow-gold">{replaceSymbol(sw.value)}:</span> {replaceSymbol(sw.effect)}
+                        <span className="text-warcrow-gold">{replaceSymbols(sw.value)}:</span> {replaceSymbols(sw.effect)}
                       </p>
                     ))}
                   </div>
@@ -168,7 +182,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                 <strong className="text-warcrow-gold">Skill:</strong>
                 {unit.abilities.skill.map((ability, i) => (
                   <div key={i} className="ml-4 mt-1">
-                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbol(ability.description)}</span>
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbols(ability.description)}</span>
                   </div>
                 ))}
               </div>
@@ -179,7 +193,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                 <strong className="text-warcrow-gold">Passive:</strong>
                 {unit.abilities.passive.map((ability, i) => (
                   <div key={i} className="ml-4 mt-1">
-                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbol(ability.description)}</span>
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbols(ability.description)}</span>
                   </div>
                 ))}
               </div>
@@ -190,7 +204,7 @@ const UnitStatCard = ({ unit }: UnitStatCardProps) => {
                 <strong className="text-warcrow-gold">Command:</strong>
                 {unit.abilities.command.map((ability, i) => (
                   <div key={i} className="ml-4 mt-1">
-                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbol(ability.description)}</span>
+                    {ability.name && <strong className="text-warcrow-gold">{ability.name}:</strong>} <span className="text-warcrow-text">{replaceSymbols(ability.description)}</span>
                   </div>
                 ))}
               </div>
