@@ -2,8 +2,8 @@
 export interface ExtendedStats {
   MOV: string;
   W: number;
-  WP: number | string;
-  MOR: number | string;
+  WP: string;
+  MOR: string | number;
   AVB: number;
 }
 
@@ -12,7 +12,14 @@ export interface Switch {
   effect: string;
 }
 
-export interface Attack {
+export interface RangedAttack {
+  range?: number;
+  modifier?: string;
+  dice: string[];
+  switches?: Switch[];
+}
+
+export interface MeleeAttack {
   members: string;
   modifier?: string;
   dice: string[];
@@ -23,12 +30,25 @@ export interface Defense {
   modifier?: string;
   dice: string[];
   switches?: Switch[];
+  conquest?: number;
+}
+
+export interface AbilityEntry {
+  name?: string;
+  description: string;
 }
 
 export interface Abilities {
-  skill?: string;
-  passive?: string;
-  command?: string;
+  skill?: AbilityEntry[];
+  command?: AbilityEntry[];
+  passive?: AbilityEntry[];
+}
+
+export interface UnitProfile {
+  members: string;
+  ranged?: RangedAttack;
+  attack: MeleeAttack;
+  defense: Defense;
 }
 
 export interface ExtendedUnit {
@@ -38,8 +58,21 @@ export interface ExtendedUnit {
   stats: ExtendedStats;
   type: string;
   keywords?: string[];
-  attacks: Attack[];
-  defenses: Defense[];
+  profiles: UnitProfile[];
   abilities: Abilities;
   imageUrl?: string;
 }
+
+export interface AttachedCharacter {
+  id: string;
+  name: string;
+  wpModifier: string;
+  commandModifier?: number;
+  attackModifier?: string;
+  defenseModifier?: string;
+  attackBonus?: string;
+  defenseBonus?: string;
+  conquestModifier?: number;
+  abilities: Abilities;
+}
+
