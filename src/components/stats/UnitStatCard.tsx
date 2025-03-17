@@ -22,6 +22,7 @@ const symbolConfigs: SymbolConfig[] = [
   { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol
   { symbol: '🔵', fontChar: '8', color: '#3b82f6' }, // Blue symbol - updated to a softer blue
   { symbol: '🟡', fontChar: '0', color: '#fbbf24' }, // Yellow symbol with a warm, readable yellow color
+  { symbol: '⭐', fontChar: '1', color: '#ffd700' }, // Star symbol with gold/yellow color
   // Add more symbols here in the future as needed
 ];
 
