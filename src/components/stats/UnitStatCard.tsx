@@ -2,6 +2,7 @@
 import React from "react";
 import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
+import { GameSymbol } from "./GameSymbol";
 
 interface UnitStatCardProps {
   unit: ExtendedUnit;
@@ -15,10 +16,10 @@ const replaceSymbol = (text: string | undefined): React.ReactNode => {
   const parts = text.split('🔴');
   if (parts.length === 1) return text;
   
-  // Create an array of elements where 🔴 is replaced with styled span
+  // Create an array of elements where 🔴 is replaced with GameSymbol component
   return parts.map((part, i) => (
     <React.Fragment key={i}>
-      {i > 0 && <span className="Warcrow-Family" style={{ color: "#ea384c" }}>W</span>}
+      {i > 0 && <GameSymbol code={87} className="text-[#ea384c]" useWarcrowClass={true} />}
       {part}
     </React.Fragment>
   ));
