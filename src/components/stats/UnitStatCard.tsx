@@ -25,9 +25,10 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
   
   // Then process each element to replace 🟠 symbols
   return React.Children.map(redResult, child => {
-    if (typeof child === 'string') {
-      // Split by 🟠 symbol
-      const orangeParts = child.split('🟠');
+    // Check if the child is a string before trying to split it
+    if (typeof child === 'string' || typeof child === 'number') {
+      // Convert to string and split by 🟠 symbol
+      const orangeParts = String(child).split('🟠');
       if (orangeParts.length === 1) return child;
       
       // Create an array alternating between text and orange symbol
