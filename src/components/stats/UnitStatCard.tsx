@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +19,7 @@ const symbolConfigs: SymbolConfig[] = [
   { symbol: '🟠', fontChar: 'q', color: '#F97316' }, // Orange symbol
   { symbol: '🟢', fontChar: '9', color: '#00b300' }, // Green symbol
   { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol
+  { symbol: '🔵', fontChar: '8', color: '#0000ff' }, // Blue symbol
   // Add more symbols here in the future as needed
 ];
 
