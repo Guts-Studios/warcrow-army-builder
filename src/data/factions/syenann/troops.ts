@@ -48,7 +48,7 @@ export const syenannTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
-    imageUrl: "/art/portrait/grove_curtailers_card.jpg",
+    imageUrl: "/art/card/grove_curtailers_card.jpg",
     specialRules: ["Disarmed"]
   }
 ];
