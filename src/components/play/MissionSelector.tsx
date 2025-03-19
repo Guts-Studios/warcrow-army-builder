@@ -117,12 +117,14 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
               whileTap={{ scale: 0.98 }}
               className={cn(
                 "neo-card p-4 flex flex-col gap-2 cursor-pointer",
-                selectedMission?.id === mission.id ? "ring-2 ring-primary/50" : "hover:bg-secondary/50"
+                selectedMission?.id === mission.id 
+                  ? "ring-2 ring-warcrow-gold/50" 
+                  : "hover:bg-warcrow-accent/50"
               )}
               onClick={() => onSelectMission(mission)}
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">{mission.name}</h3>
+                <h3 className="font-semibold text-warcrow-text">{mission.name}</h3>
                 <div className="flex gap-2">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -131,24 +133,24 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
                       e.stopPropagation();
                       setDetailsMission(mission);
                     }}
-                    className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center"
+                    className="w-8 h-8 rounded-full bg-warcrow-accent flex items-center justify-center"
                   >
-                    <Info className="w-4 h-4 text-secondary-foreground" />
+                    <Info className="w-4 h-4 text-warcrow-gold" />
                   </motion.button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">{mission.description}</p>
+              <p className="text-sm text-warcrow-text/80 line-clamp-2">{mission.description}</p>
               <div className="mt-2 flex items-center justify-between">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Scroll className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 text-xs text-warcrow-text/70">
+                  <Scroll className="w-3.5 h-3.5 text-warcrow-gold" />
                   <span>{mission.turnCount} Turns</span>
                 </div>
                 <button 
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium",
                     selectedMission?.id === mission.id 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-secondary text-secondary-foreground"
+                      ? "bg-warcrow-gold text-warcrow-background" 
+                      : "bg-warcrow-accent text-warcrow-text"
                   )}
                 >
                   {selectedMission?.id === mission.id ? "Selected" : "Select"}
@@ -160,22 +162,22 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       </motion.div>
 
       <Dialog open={!!detailsMission} onOpenChange={(open) => !open && setDetailsMission(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-warcrow-background border-warcrow-gold/30">
           <DialogHeader>
-            <DialogTitle>{detailsMission?.name}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-warcrow-gold">{detailsMission?.name}</DialogTitle>
+            <DialogDescription className="text-warcrow-text">
               {detailsMission?.description}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-1">Objectives</h4>
-              <p className="text-sm">{detailsMission?.objectiveDescription}</p>
+              <h4 className="font-medium mb-1 text-warcrow-gold">Objectives</h4>
+              <p className="text-sm text-warcrow-text">{detailsMission?.objectiveDescription}</p>
             </div>
             {detailsMission?.mapImage && (
               <div>
-                <h4 className="font-medium mb-1">Battlefield Map</h4>
-                <div className="border border-border rounded-md overflow-hidden">
+                <h4 className="font-medium mb-1 text-warcrow-gold">Battlefield Map</h4>
+                <div className="border border-warcrow-gold/30 rounded-md overflow-hidden">
                   <AspectRatio ratio={1/1}>
                     <img 
                       src={detailsMission.mapImage} 
@@ -188,8 +190,8 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
             )}
             {detailsMission?.specialRules && detailsMission.specialRules.length > 0 && (
               <div>
-                <h4 className="font-medium mb-1">Special Rules</h4>
-                <ul className="list-disc pl-5 text-sm space-y-1">
+                <h4 className="font-medium mb-1 text-warcrow-gold">Special Rules</h4>
+                <ul className="list-disc pl-5 text-sm space-y-1 text-warcrow-text">
                   {detailsMission.specialRules.map((rule, index) => (
                     <li key={index}>{rule}</li>
                   ))}
@@ -204,7 +206,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
                     setDetailsMission(null);
                   }
                 }}
-                className="w-full py-2 bg-primary text-primary-foreground rounded-md font-medium"
+                className="w-full py-2 bg-warcrow-gold text-warcrow-background rounded-md font-medium hover:bg-warcrow-gold/90 transition-colors"
               >
                 Select This Mission
               </button>
