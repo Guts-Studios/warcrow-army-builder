@@ -29,7 +29,7 @@ const missions: Mission[] = [
       'Each round lasts for 5 turns.',
       'The game ends at the end of round 3 or when one of the companies has no units left on the battlefield.'
     ],
-    mapImage: '/lovable-uploads/59dc124f-dc44-4540-8a5d-4a9ee928e511.png',
+    mapImage: 'public/art/missions/consolidated_progress.jpg',
     objectiveMarkers: [
       { id: 'central', name: 'Central', color: '#9b87f5', controlledBy: null },
       { id: 'player1-1', name: 'Player 1 (1)', color: '#0EA5E9', controlledBy: null },
@@ -52,7 +52,7 @@ const missions: Mission[] = [
       'Each round lasts for 5 turns.',
       'The game ends at the end of round 3 or when one of the companies has no units left on the battlefield.'
     ],
-    mapImage: '/placeholder.svg',
+    mapImage: 'public/art/missions/take_positions.jpg',
     objectiveMarkers: [
       { id: 'player1-1', name: 'Player 1 (1)', color: '#0EA5E9', controlledBy: null },
       { id: 'player1-2', name: 'Player 1 (2)', color: '#33C3F0', controlledBy: null },
@@ -79,7 +79,7 @@ const missions: Mission[] = [
       'At the end of each turn, whoever controls the artifact can move the conquest marker 2 strides in any direction.',
       'Units within 3 strides of the artifact can take a WP test to move the conquest marker 5 strides per Success.'
     ],
-    mapImage: '/placeholder.svg',
+    mapImage: 'public/art/missions/fog_of_death.jpg',
     objectiveMarkers: [
       { id: 'artifact', name: 'Arcane Artifact', color: '#9b87f5', controlledBy: null },
       { id: 'fog-1', name: 'Fog Marker 1', color: '#94a3b8', controlledBy: null },
