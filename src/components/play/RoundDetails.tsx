@@ -61,7 +61,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
               <TableHead>Player</TableHead>
               {!isMobile && <TableHead>Objectives</TableHead>}
               <TableHead className="text-right">VP</TableHead>
-              <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -73,9 +72,20 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                   <TableRow key={`${roundNumber}-${player.id}`} className={playerIndex % 2 === 0 ? 'bg-muted/10' : ''}>
                     {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/30">
-                        <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2 text-primary" />
-                          Round {roundNumber}
+                        <div className="flex flex-col">
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 mr-2 text-primary" />
+                            Round {roundNumber}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEditRoundScore(roundNumber)}
+                            className="text-sm text-primary hover:text-primary/80 mt-2 justify-start pl-0"
+                          >
+                            <Edit2 className="w-4 h-4 mr-1" />
+                            <span className={isMobile ? "text-xs" : ""}>Edit Round</span>
+                          </Button>
                         </div>
                       </TableCell>
                     )}
@@ -116,19 +126,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     )}
                     
                     <TableCell className="text-right font-medium">{roundScore} VP</TableCell>
-                    {playerIndex === 0 && (
-                      <TableCell rowSpan={players.length} className="align-top text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEditRoundScore(roundNumber)}
-                          className="text-sm text-primary hover:text-primary/80"
-                        >
-                          <Edit2 className="w-4 h-4 mr-1" />
-                          <span className={isMobile ? "sr-only" : ""}>Edit</span>
-                        </Button>
-                      </TableCell>
-                    )}
                   </TableRow>
                 );
               })
