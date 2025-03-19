@@ -67,7 +67,7 @@ const Deployment = () => {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="container py-8 max-w-5xl mx-auto"
+      className="min-h-screen bg-warcrow-background text-warcrow-text container py-8 max-w-5xl mx-auto"
     >
       <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Deployment Phase</h1>
       
