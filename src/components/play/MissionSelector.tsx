@@ -17,6 +17,8 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 const missions: Mission[] = [
   {
     id: 'consolidated-progress',
+    title: 'Consolidated Progress',
+    details: 'Control strategic objectives across the battlefield, especially in your opponent\'s territory.',
     name: 'Consolidated Progress',
     description: 'Control strategic objectives across the battlefield, especially in your opponent\'s territory.',
     objectiveDescription: 'Score 1 VP for controlling the central objective, 1 VP for opponent\'s objective (1), 2 VPs for opponent\'s objective (2), and 1 VP if opponent controls neither of your objectives (1 and 2).',
@@ -38,6 +40,8 @@ const missions: Mission[] = [
   },
   {
     id: 'take-positions',
+    title: 'Take Positions',
+    details: 'Control objectives of your opponent\'s color while defending your own.',
     name: 'Take Positions',
     description: 'Control objectives of your opponent\'s color while defending your own.',
     objectiveDescription: 'Score 1 VP for each objective you control with your opponent\'s color, and 1 VP if your opponent doesn\'t control any of the objectives of your color.',
@@ -58,6 +62,8 @@ const missions: Mission[] = [
   },
   {
     id: 'fog-of-death',
+    title: 'Fog of Death',
+    details: 'Control an ancient arcane artifact that can manipulate the fog surrounding your companies.',
     name: 'Fog of Death',
     description: 'Control an ancient arcane artifact that can manipulate the fog surrounding your companies.',
     objectiveDescription: 'Score 1 VP when you control the artifact and a Fog marker contacts the conquest marker. Score 2 VPs at the end of each round if you control the artifact.',
