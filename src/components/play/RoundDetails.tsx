@@ -56,6 +56,11 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
     );
   };
 
+  // Function to check if a player had initial initiative (for round 1)
+  const hadInitialInitiative = (playerId: string) => {
+    return gameState.initialInitiativePlayerId === playerId;
+  };
+
   return (
     <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
       <div className="flex justify-between items-center mb-4">
@@ -78,6 +83,8 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                 const objectives = getPlayerObjectives(player.id || '', roundNumber);
                 const roundScore = getPlayerScore(player.id || '', roundNumber);
                 const hasInitiative = hadInitiative(player.id || '', roundNumber);
+                // Check if this player had initial initiative (only relevant for round 1)
+                const hasInitialInitiative = roundNumber === 1 && hadInitialInitiative(player.id || '');
                 
                 return (
                   <TableRow key={`${roundNumber}-${player.id}`} className={playerIndex % 2 === 0 ? 'bg-muted/10' : ''}>
@@ -103,7 +110,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-1">
                         {player.name}
-                        {hasInitiative && (
+                        {(hasInitiative || hasInitialInitiative) && (
                           <Flag className="h-4 w-4 text-primary ml-1" />
                         )}
                       </div>
