@@ -59,8 +59,13 @@ export interface Photo {
 
 export interface Turn {
   number: number;
-  initiativePlayerId?: string;
+  activePlayer?: string | null;
+  activationsCompleted?: Record<string, number>;
+  alternatingPlayer?: string;
+  completed?: boolean;
+  scores?: Record<string, number>;
   photos?: Photo[];
+  events?: any[];
 }
 
 export interface GameEvent {
@@ -84,17 +89,21 @@ export interface Unit {
   status?: 'active' | 'wounded' | 'destroyed';
 }
 
+export type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
+
 export interface GameState {
-  currentPhase: 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
+  id: string;
   players: Record<string, Player>;
   mission: Mission | null;
-  round: number;
-  notes: string;
+  currentPhase: GamePhase;
+  rollOffWinner: string | null;
+  firstToDeployPlayerId: string | null;
+  initialInitiativePlayerId: string | null;
+  currentTurn: number;
+  photos: Photo[];
+  units: Unit[];
+  turns: Turn[];
+  gameEvents: GameEvent[];
   gameStartTime?: number;
   gameEndTime?: number;
-  firstToDeployPlayerId?: string;
-  initialInitiativePlayerId?: string;
-  turns?: Turn[];
-  gameEvents?: GameEvent[];
-  units?: Unit[];
 }

@@ -260,24 +260,26 @@ const UnitAnnotator: React.FC<UnitAnnotatorProps> = ({
         )}
       </AnimatePresence>
 
-      <style jsx>{`
-        .annotation-point {
-          position: absolute;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background-color: rgba(255, 255, 255, 0.8);
-          color: black;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          transform: translate(-50%, -50%);
-          cursor: pointer;
-          box-shadow: 0 0 0 2px black;
-        }
-      `}</style>
+      <style>
+        {`
+          .annotation-point {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: black;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 0 2px black;
+          }
+        `}
+      </style>
     </div>
   );
 };
