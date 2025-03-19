@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, File, Check, X, Pencil } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { File, Check, X, Pencil } from 'lucide-react';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 import { Unit } from '@/types/game';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 interface ListMetadata {
   title?: string;
@@ -26,34 +25,8 @@ const ListUploader: React.FC<ListUploaderProps> = ({
   onListUpload,
   hasUploadedList
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
   const [listText, setListText] = useState<string>('');
-  const [isManualInput, setIsManualInput] = useState(false);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      processFile(files[0]);
-    }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      processFile(e.target.files[0]);
-    }
-  };
+  const [isManualInput, setIsManualInput] = useState(!hasUploadedList);
 
   const parseList = (content: string): { units: Unit[], metadata: ListMetadata } => {
     const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -141,32 +114,6 @@ const ListUploader: React.FC<ListUploaderProps> = ({
     return { units, metadata };
   };
 
-  const processFile = (file: File) => {
-    if (file.type !== 'text/plain' && 
-        file.type !== 'application/json' && 
-        !file.name.endsWith('.txt') && 
-        !file.name.endsWith('.json')) {
-      toast.error('Please upload a text or JSON file.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        const content = e.target.result.toString();
-        setListText(content);
-        
-        const { units, metadata } = parseList(content);
-        console.log('Parsed units:', units);
-        console.log('Parsed metadata:', metadata);
-        
-        onListUpload(playerId, content, units, metadata);
-        toast.success(`List uploaded successfully! Found ${units.length} units.`);
-      }
-    };
-    reader.readAsText(file);
-  };
-
   const handleManualSubmit = () => {
     if (listText.trim().length === 0) {
       toast.error('Please enter your list details');
@@ -218,12 +165,14 @@ const ListUploader: React.FC<ListUploaderProps> = ({
       >
         <div className="flex justify-between items-center">
           <h3 className="font-medium">Enter Army List</h3>
-          <button
-            onClick={() => setIsManualInput(false)}
-            className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {hasUploadedList && (
+            <button
+              onClick={() => setIsManualInput(false)}
+              className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
         <Textarea
           value={listText}
@@ -232,12 +181,12 @@ const ListUploader: React.FC<ListUploaderProps> = ({
           placeholder="Paste or type your army list here..."
         />
         <div className="flex justify-end">
-          <button
+          <Button
             onClick={handleManualSubmit}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium"
+            variant="primary"
           >
             Save List
-          </button>
+          </Button>
         </div>
       </motion.div>
     );
@@ -248,45 +197,24 @@ const ListUploader: React.FC<ListUploaderProps> = ({
       variants={fadeIn}
       initial="hidden"
       animate="visible"
-      className="space-y-4"
+      className="border rounded-lg p-4 space-y-4"
     >
-      <div
-        className={cn(
-          "border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center transition-colors",
-          isDragging ? "border-primary/70 bg-primary/5" : "border-muted hover:border-muted-foreground/50"
-        )}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
-          <Upload className="w-6 h-6 text-secondary-foreground/70" />
-        </div>
-        <h3 className="font-medium mb-1">Upload Army List</h3>
-        <p className="text-sm text-muted-foreground mb-4 max-w-xs">
-          Drag and drop your list file or click to browse
-        </p>
-        <label className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium cursor-pointer">
-          Select File
-          <input
-            type="file"
-            className="hidden"
-            accept=".txt,.json"
-            onChange={handleFileInput}
-          />
-        </label>
-        <p className="text-xs text-muted-foreground mt-3">
-          Supports .txt and .json files
-        </p>
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium">Enter Army List</h3>
       </div>
-      <div className="flex justify-center">
-        <button
-          onClick={() => setIsManualInput(true)}
-          className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+      <Textarea
+        value={listText}
+        onChange={(e) => setListText(e.target.value)}
+        className="w-full h-40 p-3 border rounded-md text-sm font-mono"
+        placeholder="Paste or type your army list here..."
+      />
+      <div className="flex justify-end">
+        <Button
+          onClick={handleManualSubmit}
+          variant="primary"
         >
-          <File className="w-4 h-4" />
-          <span>Enter list manually</span>
-        </button>
+          Save List
+        </Button>
       </div>
     </motion.div>
   );
