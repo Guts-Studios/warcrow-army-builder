@@ -8,24 +8,37 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 
+interface GamePlayer {
+  id: string;
+  name: string;
+  faction: {
+    id: string;
+    name: string;
+    icon?: string;
+  } | null;
+  list: string | null;
+}
+
 const Setup = () => {
   const navigate = useNavigate();
   const { dispatch } = useGame();
 
-  const handleSetupComplete = (players: Player[], mission: Mission) => {
+  const handleSetupComplete = (players: GamePlayer[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
     
     // Reset the game state first
     dispatch({ type: 'RESET_GAME' });
     
-    // Add players to the game state
+    // Add players to the game state with correct type
     players.forEach(player => {
       dispatch({
         type: 'ADD_PLAYER',
         payload: {
           ...player,
-          score: 0 // Initialize score to 0
-        }
+          score: 0, // Initialize score to 0
+          points: 0, // Add required field
+          objectivePoints: 0 // Add required field
+        } as Player
       });
     });
 

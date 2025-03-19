@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -154,7 +153,7 @@ const Summary = () => {
         type: 'ADD_PHOTO',
         payload: {
           ...photo,
-          turnNumber: editingRound!
+          turn: editingRound!
         }
       });
     }
@@ -276,6 +275,7 @@ const Summary = () => {
             <PhotoCapture 
               onPhotoTaken={handlePhotoTaken} 
               phase="endgame" 
+              turn={state.currentTurn}
             />
             
             <div className="flex justify-center pt-4">
@@ -385,7 +385,7 @@ const Summary = () => {
                     className="w-full rounded-lg"
                   />
                   
-                  {viewingPhoto.annotations?.map((annotation) => (
+                  {viewingPhoto.annotations.map((annotation) => (
                     <div
                       key={annotation.id || annotation.unitId}
                       className="annotation-point"
@@ -405,7 +405,6 @@ const Summary = () => {
             roundNumber={editingRound}
             players={state.players}
             units={getAllUnits()}
-            mission={state.mission}
             onComplete={handleRoundEditComplete}
             onCancel={() => setEditingRound(null)}
           />
