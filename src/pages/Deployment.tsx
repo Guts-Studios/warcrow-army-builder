@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PlayerInfo from '@/components/PlayerInfo';
 import { toast } from 'sonner';
+import { Map, Shield, ArrowLeftCircle, AlertCircle } from 'lucide-react';
 
 const Deployment = () => {
   const navigate = useNavigate();
@@ -68,30 +69,38 @@ const Deployment = () => {
       exit="exit"
       className="container py-8 max-w-5xl mx-auto"
     >
-      <h1 className="phase-title text-center mb-8">Deployment Phase</h1>
+      <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Deployment Phase</h1>
       
       {/* Mission Information */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="neo-card p-6 mb-8"
+        className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
       >
-        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Mission: {state.mission?.name}</h2>
-            <p className="text-muted-foreground">{state.mission?.description}</p>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-4">
+          <div className="space-y-4 flex-1">
+            <div>
+              <h2 className="text-2xl font-semibold mb-2 text-warcrow-gold">
+                {state.mission?.name || "Mission"}
+              </h2>
+              <p className="text-warcrow-text/90 leading-relaxed">
+                {state.mission?.description || "No mission description available"}
+              </p>
+            </div>
             
-            <div className="mt-4">
-              <h3 className="font-medium mb-1">Objectives</h3>
-              <p className="text-sm">{state.mission?.objectiveDescription}</p>
+            <div className="pt-2">
+              <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Objectives</h3>
+              <p className="text-warcrow-text/90 leading-relaxed">
+                {state.mission?.objectiveDescription || "No objectives defined"}
+              </p>
             </div>
             
             {state.mission?.specialRules && state.mission.specialRules.length > 0 && (
-              <div className="mt-4">
-                <h3 className="font-medium mb-1">Special Rules</h3>
-                <ul className="text-sm list-disc pl-5">
+              <div className="pt-2">
+                <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Special Rules</h3>
+                <ul className="text-warcrow-text/90 list-disc pl-5 space-y-1">
                   {state.mission.specialRules.map((rule, i) => (
-                    <li key={i}>{rule}</li>
+                    <li key={i} className="leading-relaxed">{rule}</li>
                   ))}
                 </ul>
               </div>
@@ -101,7 +110,7 @@ const Deployment = () => {
           {state.mission?.mapImage && (
             <div className="flex-shrink-0">
               <div 
-                className="w-40 h-40 bg-muted rounded-md overflow-hidden cursor-pointer"
+                className="w-48 h-48 bg-warcrow-background border border-warcrow-gold/30 rounded-md overflow-hidden cursor-pointer shadow-md transition-transform hover:scale-105 hover:shadow-lg duration-300"
                 onClick={() => setShowMap(true)}
               >
                 <img 
@@ -110,8 +119,9 @@ const Deployment = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="text-center mt-1 text-xs text-muted-foreground">
-                Click to expand
+              <div className="text-center mt-2 text-sm text-warcrow-gold flex justify-center items-center gap-1">
+                <Map size={16} />
+                <span>Click to expand</span>
               </div>
             </div>
           )}
@@ -122,6 +132,7 @@ const Deployment = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
       >
         {Object.entries(state.players).map(([playerId, _], index) => 
@@ -133,20 +144,28 @@ const Deployment = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="neo-card p-6 mb-8"
+        transition={{ delay: 0.2 }}
+        className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
       >
-        <h2 className="text-xl font-semibold mb-4 text-center">Deployment Order</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-center text-warcrow-gold">Deployment Order</h2>
         
-        <div className="bg-muted/30 rounded-md p-4">
-          <h3 className="font-medium text-center mb-4">Who deploys first?</h3>
+        <div className="bg-warcrow-background/50 rounded-md p-6 border border-warcrow-gold/20">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Shield className="text-warcrow-gold w-5 h-5" />
+            <h3 className="font-medium text-center text-warcrow-gold text-lg">Who deploys first?</h3>
+          </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.entries(state.players).map(([playerId, player]) => (
               <Button
                 key={playerId}
                 onClick={() => handleSelectFirstToDeploy(playerId)}
                 variant={state.firstToDeployPlayerId === playerId ? "default" : "outline"}
-                className="py-6 flex flex-col gap-2 h-auto"
+                className={`py-6 flex flex-col gap-2 h-auto border border-warcrow-gold/30 ${
+                  state.firstToDeployPlayerId === playerId 
+                    ? "bg-warcrow-gold text-warcrow-background" 
+                    : "bg-warcrow-background text-warcrow-text hover:bg-warcrow-gold/20"
+                }`}
               >
                 <span className="text-lg font-medium">{player.name}</span>
                 <span className="text-sm">Deploys First</span>
@@ -157,35 +176,41 @@ const Deployment = () => {
       </motion.div>
       
       {/* Start Game button - centered */}
-      <div className="flex justify-center mt-8 mb-4">
+      <div className="flex justify-center mt-8 mb-8">
         <Button
           onClick={handleStartGame}
           disabled={!state.firstToDeployPlayerId}
           size="lg"
-          className="px-10"
+          className={`px-10 py-6 text-lg ${
+            !state.firstToDeployPlayerId 
+              ? "bg-warcrow-accent/50 text-warcrow-text/50 cursor-not-allowed" 
+              : "bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
+          }`}
         >
           Start Game
         </Button>
       </div>
       
       {/* Navigation back button */}
-      <div className="flex justify-start mt-4">
+      <div className="flex justify-start mt-4 mb-6">
         <Button
           variant="outline"
           onClick={() => navigate('/')}
+          className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
         >
-          Back to Setup
+          <ArrowLeftCircle size={18} />
+          <span>Back to Setup</span>
         </Button>
       </div>
       
       {/* Map view dialog */}
       {state.mission?.mapImage && (
         <Dialog open={showMap} onOpenChange={setShowMap}>
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-3xl bg-warcrow-background border-warcrow-gold/30">
             <DialogHeader>
-              <DialogTitle>Mission Map: {state.mission.name}</DialogTitle>
+              <DialogTitle className="text-warcrow-gold">Mission Map: {state.mission.name}</DialogTitle>
             </DialogHeader>
-            <div className="w-full overflow-hidden rounded-md">
+            <div className="w-full overflow-hidden rounded-md border border-warcrow-gold/20">
               <img 
                 src={state.mission.mapImage} 
                 alt="Mission map" 
@@ -198,18 +223,18 @@ const Deployment = () => {
 
       {/* Initiative Selection Dialog */}
       <Dialog open={showInitiativeDialog} onOpenChange={setShowInitiativeDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-warcrow-background border-warcrow-gold/30">
           <DialogHeader>
-            <DialogTitle>Select First Player</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-warcrow-gold">Select First Player</DialogTitle>
+            <DialogDescription className="text-warcrow-text/90">
               Choose which player has the initiative for the first turn.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
             {Object.entries(state.players).map(([playerId, player]) => (
               <Button 
                 key={playerId}
-                className="py-8 flex flex-col gap-2"
+                className="py-8 flex flex-col gap-2 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
                 onClick={() => handleSelectInitiative(playerId)}
               >
                 <span className="text-xl font-bold">{player.name}</span>
