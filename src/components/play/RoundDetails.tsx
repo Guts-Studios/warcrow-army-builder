@@ -60,7 +60,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
               <TableHead className="w-24">Round</TableHead>
               <TableHead>Player</TableHead>
               {!isMobile && <TableHead>Objectives</TableHead>}
-              <TableHead className="text-right">VP</TableHead>
+              <TableHead>VP</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -125,7 +125,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       </TableCell>
                     )}
                     
-                    <TableCell className="text-right font-medium">{roundScore} VP</TableCell>
+                    <TableCell className="text-xs font-normal">{roundScore} VP</TableCell>
                   </TableRow>
                 );
               })
