@@ -41,8 +41,13 @@ const Game = () => {
   const handleScoreRound = () => {
     updateScores();
     
-    // Show initiative dialog for next round
-    setShowInitiativeDialog(true);
+    // Show initiative dialog for next round or end game after round 3
+    if (currentRound < 3) {
+      setShowInitiativeDialog(true);
+    } else {
+      toast.success(`Final round ${currentRound} scored! The game is complete.`);
+      handleEndGame();
+    }
   };
   
   const handleConfirmInitiative = () => {
@@ -68,22 +73,6 @@ const Game = () => {
     } else {
       toast.error("Please select a player with initiative");
     }
-  };
-  
-  const handlePhotoCapture = (photoData: string) => {
-    // Add photo to game state
-    dispatch({
-      type: 'ADD_PHOTO',
-      payload: {
-        id: `round-${currentRound}-photo-${Date.now()}`,
-        url: photoData,
-        timestamp: Date.now(),
-        phase: 'game',
-        roundNumber: currentRound
-      }
-    });
-    
-    toast.success('Photo captured!');
   };
 
   return (
@@ -116,7 +105,7 @@ const Game = () => {
                   )}
                   <p><strong>Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
                   <p><strong>Current Turn:</strong> {state.currentTurn}</p>
-                  <p><strong>Current Round:</strong> {currentRound}</p>
+                  <p><strong>Current Round:</strong> {currentRound} of 3</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -173,7 +162,6 @@ const Game = () => {
         initiativePlayerId={initiativePlayerId}
         setInitiativePlayerId={setInitiativePlayerId}
         onConfirm={handleConfirmInitiative}
-        onPhotoCapture={handlePhotoCapture}
       />
     </div>
   );

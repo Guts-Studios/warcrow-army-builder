@@ -1,13 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PlayerInfo from '@/components/PlayerInfo';
-import PhotoCapture from '@/components/PhotoCapture';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const Deployment = () => {
@@ -16,38 +15,8 @@ const Deployment = () => {
 
   // Local state for deployment configuration
   const [initialInitiativePlayerId, setInitialInitiativePlayerId] = useState<string | null>(null);
-  const [showPhotoCapture, setShowPhotoCapture] = useState(false);
-  const [hasDeploymentPhoto, setHasDeploymentPhoto] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
-
-  // Function to handle photo capture completion
-  const handlePhotoTaken = (photoData: string) => {
-    const newPhotoId = `photo-${Date.now()}`;
-    const newPhoto = {
-      id: newPhotoId,
-      url: photoData,
-      timestamp: Date.now(),
-      phase: 'deployment' as const,
-      annotations: [],
-    };
-
-    // Dispatch the new photo to the game state
-    dispatch({ type: 'ADD_PHOTO', payload: newPhoto });
-    setHasDeploymentPhoto(true);
-    setShowPhotoCapture(false);
-    toast.success('Deployment photo captured!');
-  };
-
-  const handleShowPhotoCapture = () => {
-    setShowPhotoCapture(true);
-  };
-
-  // Function to skip taking a photo
-  const handleSkipPhoto = () => {
-    setHasDeploymentPhoto(true);
-    toast.info('Deployment photo skipped');
-  };
 
   // Function to handle selecting who deploys first
   const handleSelectFirstToDeploy = (playerId: string) => {
@@ -160,7 +129,7 @@ const Deployment = () => {
         )}
       </motion.div>
       
-      {/* Deployment order Selection - REPLACED DROPDOWN WITH BUTTONS */}
+      {/* Deployment order Selection */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -187,31 +156,6 @@ const Deployment = () => {
         </div>
       </motion.div>
       
-      {/* Deployment actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="neo-card p-6 mb-8"
-      >
-        <h2 className="text-xl font-semibold mb-4 text-center">Deployment Photo</h2>
-        
-        <div className="mt-6 flex flex-col gap-2">
-          <Button
-            onClick={handleShowPhotoCapture}
-            className="w-full"
-          >
-            Capture Deployment Photo
-          </Button>
-          <Button
-            onClick={handleSkipPhoto}
-            variant="outline"
-            className="w-full"
-          >
-            Skip Photo
-          </Button>
-        </div>
-      </motion.div>
-      
       {/* Start Game button - centered */}
       <div className="flex justify-center mt-8 mb-4">
         <Button
@@ -233,25 +177,6 @@ const Deployment = () => {
           Back to Setup
         </Button>
       </div>
-      
-      {/* Photo capture modal */}
-      {showPhotoCapture && (
-        <Dialog open={showPhotoCapture} onOpenChange={setShowPhotoCapture}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Capture Deployment Photo</DialogTitle>
-              <DialogDescription>
-                Take a photo of the battlefield after deployment is complete.
-              </DialogDescription>
-            </DialogHeader>
-            <PhotoCapture
-              onPhotoTaken={handlePhotoTaken}
-              phase="deployment"
-              turn={0}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
       
       {/* Map view dialog */}
       {state.mission?.mapImage && (
