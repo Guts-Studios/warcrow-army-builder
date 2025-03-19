@@ -1,12 +1,6 @@
 
 import React from 'react';
-import { Edit2 } from 'lucide-react';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Edit2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -35,7 +29,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
 }) => {
   if (rounds.length === 0) {
     return (
-      <Card className="p-6 bg-muted/30">
+      <Card className="neo-card p-6 bg-muted/30">
         <p className="text-center text-muted-foreground">No round data available.</p>
       </Card>
     );
@@ -57,72 +51,74 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   return (
     <Card className="neo-card p-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold">Round Details</h3>
+        <h3 className="text-xl font-semibold">Round-by-Round Breakdown</h3>
       </div>
 
-      <Accordion type="single" collapsible className="w-full">
-        {rounds.map((roundNumber) => (
-          <AccordionItem key={roundNumber} value={`round-${roundNumber}`}>
-            <AccordionTrigger className="flex justify-between py-4 px-1">
-              <span className="text-lg font-medium">Round {roundNumber}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEditRoundScore(roundNumber);
-                }}
-                className="text-sm"
-              >
-                <Edit2 className="w-4 h-4 mr-1" />
-                Edit Scores
-              </Button>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="py-2">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Player</TableHead>
-                      <TableHead>Objectives</TableHead>
-                      <TableHead>Score</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {players.map((player) => {
-                      const objectives = getPlayerObjectives(player.id, roundNumber);
-                      return (
-                        <TableRow key={player.id}>
-                          <TableCell>{player.name}</TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {objectives.length > 0 ? (
-                                objectives.map((objective: GameEvent) => (
-                                  <Badge 
-                                    key={objective.id} 
-                                    variant="outline" 
-                                    className="mr-1 mb-1"
-                                  >
-                                    {objective.description || objective.objectiveType || 'Unknown'} 
-                                    {objective.value ? ` (${objective.value} VP)` : ''}
-                                  </Badge>
-                                ))
-                              ) : (
-                                <span className="text-muted-foreground text-sm">No objectives</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">{getPlayerScore(player.id, roundNumber)}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-24">Round</TableHead>
+              <TableHead>Player</TableHead>
+              <TableHead>Objectives</TableHead>
+              <TableHead className="text-right">VP</TableHead>
+              <TableHead className="w-24 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rounds.map((roundNumber) => (
+              players.map((player) => {
+                const objectives = getPlayerObjectives(player.id || '', roundNumber);
+                return (
+                  <TableRow key={`${roundNumber}-${player.id}`}>
+                    {players.indexOf(player) === 0 && (
+                      <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/30">
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-2 text-primary" />
+                          Round {roundNumber}
+                        </div>
+                      </TableCell>
+                    )}
+                    <TableCell>{player.name}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {objectives.length > 0 ? (
+                          objectives.map((objective: GameEvent) => (
+                            <Badge 
+                              key={objective.id} 
+                              variant="outline" 
+                              className="mr-1 mb-1"
+                            >
+                              {objective.description || objective.objectiveType || 'Unknown'} 
+                              {objective.value ? ` (${objective.value} VP)` : ''}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No objectives</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{getPlayerScore(player.id || '', roundNumber)}</TableCell>
+                    {players.indexOf(player) === 0 && (
+                      <TableCell rowSpan={players.length} className="align-top text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditRoundScore(roundNumber)}
+                          className="text-sm"
+                        >
+                          <Edit2 className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </Card>
   );
 };
