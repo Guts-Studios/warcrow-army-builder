@@ -50,23 +50,23 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
             className={cn(
               "neo-card p-4 flex items-center justify-between cursor-pointer",
               (selectedFaction?.id === faction.id || selectedFactionId === faction.id) 
-                ? "ring-2 ring-primary/50" 
-                : "hover:bg-secondary/50"
+                ? "ring-2 ring-warcrow-gold/50" 
+                : "hover:bg-warcrow-accent/50"
             )}
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
-                <Shield className="w-5 h-5 text-accent-foreground/70" />
+              <div className="w-10 h-10 rounded-full bg-warcrow-accent flex items-center justify-center">
+                <Shield className="w-5 h-5 text-warcrow-gold" />
               </div>
-              <span className="font-medium">{faction.name}</span>
+              <span className="font-medium text-warcrow-text">{faction.name}</span>
             </div>
             {(selectedFaction?.id === faction.id || selectedFactionId === faction.id) && (
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-6 h-6 bg-primary rounded-full flex items-center justify-center"
+                className="w-6 h-6 bg-warcrow-gold rounded-full flex items-center justify-center"
               >
-                <Check className="w-4 h-4 text-primary-foreground" />
+                <Check className="w-4 h-4 text-warcrow-background" />
               </motion.div>
             )}
           </motion.div>
