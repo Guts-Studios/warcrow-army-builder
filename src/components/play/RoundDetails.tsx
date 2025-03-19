@@ -68,7 +68,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
       </div>
 
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="round-details-table">
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead className="w-24 text-primary">Round</TableHead>
@@ -90,8 +90,8 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                   <TableRow 
                     key={`${roundNumber}-${player.id}`} 
                     className={playerIndex % 2 === 0 ? 'bg-background' : 'bg-muted/10'}
-                    // Removing the hover style by overriding the default TableRow hover styles
-                    style={{ hover: 'none' }}
+                    // We can't use style={{ hover: 'none' }} as hover isn't a valid CSS property
+                    // Instead we're using the CSS class added to the Table component
                   >
                     {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/20">
