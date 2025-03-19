@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit2, Clock } from 'lucide-react';
+import { Edit2, Clock, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -46,6 +46,15 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
       (event.type === 'objective' || event.type === 'mission')
     );
   };
+  
+  // Function to check if a player had initiative for a specific round
+  const hadInitiative = (playerId: string, roundNumber: number) => {
+    return gameState.gameEvents.some(
+      event => event.playerId === playerId && 
+              event.roundNumber === roundNumber && 
+              event.type === 'initiative'
+    );
+  };
 
   return (
     <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
@@ -68,6 +77,8 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
               players.map((player, playerIndex) => {
                 const objectives = getPlayerObjectives(player.id || '', roundNumber);
                 const roundScore = getPlayerScore(player.id || '', roundNumber);
+                const hasInitiative = hadInitiative(player.id || '', roundNumber);
+                
                 return (
                   <TableRow key={`${roundNumber}-${player.id}`} className={playerIndex % 2 === 0 ? 'bg-muted/10' : ''}>
                     {playerIndex === 0 && (
@@ -90,7 +101,12 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       </TableCell>
                     )}
                     <TableCell className="font-medium">
-                      {player.name}
+                      <div className="flex items-center gap-1">
+                        {player.name}
+                        {hasInitiative && (
+                          <Flag className="h-4 w-4 text-primary ml-1" />
+                        )}
+                      </div>
                       
                       {/* Show objectives below player name on mobile */}
                       {isMobile && objectives.length > 0 && (
