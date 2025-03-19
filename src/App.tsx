@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { GameProvider } from "@/context/GameContext";
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -16,6 +18,7 @@ import Mail from './pages/Mail';
 import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
 import UnitStats from './pages/UnitStats';
+import Play from './pages/Play';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,93 +108,105 @@ function App() {
     <React.Suspense fallback={<div>Loading...</div>}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Router>
-            <Routes>
-              <Route 
-                path="/reset-password" 
-                element={<ResetPassword />} 
-              />
-              <Route 
-                path="/login" 
-                element={
-                  isAuthenticated && !isPasswordRecovery ? (
-                    <Navigate to="/landing" replace />
-                  ) : (
-                    <Login onGuestAccess={() => {
-                      setIsGuest(true);
-                      return <Navigate to="/landing" replace />;
-                    }} />
-                  )
-                } 
-              />
-              <Route 
-                path="/" 
-                element={<Navigate to="/landing" replace />} 
-              />
-              <Route 
-                path="/landing" 
-                element={<Landing />} 
-              />
-              <Route 
-                path="/builder" 
-                element={
-                  isPreview || isAuthenticated || isGuest ? (
-                    <Index />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/rules" 
-                element={<Rules />} 
-              />
-              <Route 
-                path="/missions" 
-                element={<Missions />} 
-              />
-              <Route 
-                path="/mail" 
-                element={
-                  isPreview || isAuthenticated ? (
-                    <Mail />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  isPreview || isAuthenticated ? (
-                    <Profile />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/unit-stats" 
-                element={
-                  isPreview || isAuthenticated ? (
-                    <UnitStats />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                } 
-              />
-              <Route 
-                path="/about" 
-                element={<AboutUs />} 
-              />
-              <Route 
-                path="*" 
-                element={<Navigate to="/landing" replace />} 
-              />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </Router>
+          <GameProvider>
+            <Router>
+              <Routes>
+                <Route 
+                  path="/reset-password" 
+                  element={<ResetPassword />} 
+                />
+                <Route 
+                  path="/login" 
+                  element={
+                    isAuthenticated && !isPasswordRecovery ? (
+                      <Navigate to="/landing" replace />
+                    ) : (
+                      <Login onGuestAccess={() => {
+                        setIsGuest(true);
+                        return <Navigate to="/landing" replace />;
+                      }} />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/" 
+                  element={<Navigate to="/landing" replace />} 
+                />
+                <Route 
+                  path="/landing" 
+                  element={<Landing />} 
+                />
+                <Route 
+                  path="/builder" 
+                  element={
+                    isPreview || isAuthenticated || isGuest ? (
+                      <Index />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/rules" 
+                  element={<Rules />} 
+                />
+                <Route 
+                  path="/missions" 
+                  element={<Missions />} 
+                />
+                <Route 
+                  path="/mail" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Mail />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Profile />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/unit-stats" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <UnitStats />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/play" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Play />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/about" 
+                  element={<AboutUs />} 
+                />
+                <Route 
+                  path="*" 
+                  element={<Navigate to="/landing" replace />} 
+                />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </Router>
+          </GameProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </React.Suspense>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { Play } from "lucide-react";
 
 export const MainActions = () => {
   const navigate = useNavigate();
@@ -64,13 +65,23 @@ export const MainActions = () => {
           Missions
         </Button>
         {(isTester || isPreview) && (
-          <Button
-            onClick={() => navigate('/unit-stats')}
-            variant="outline"
-            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-          >
-            Unit Stats
-          </Button>
+          <>
+            <Button
+              onClick={() => navigate('/unit-stats')}
+              variant="outline"
+              className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            >
+              Unit Stats
+            </Button>
+            <Button
+              onClick={() => navigate('/play')}
+              variant="outline"
+              className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Play Mode
+            </Button>
+          </>
         )}
         <Button
           onClick={() => navigate('/profile')}
