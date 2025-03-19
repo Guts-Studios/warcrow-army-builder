@@ -9,19 +9,17 @@ const nations: Faction[] = [
   { id: 'embersig', name: 'Hegemony of Embersig' },
   { id: 'northern-tribes', name: 'Northern Tribes' },
   { id: 'syenann', name: 'The Sÿenann' },
-  { id: 'feudom', name: 'Feudom' },
-  { id: 'scions', name: 'Scions of Yaldabaoth' },
-  { id: 'mounthaven', name: 'Mounthaven' }
+  { id: 'scions', name: 'Scions of Yaldabaoth' }
 ];
 
-interface FactionSelectorProps {
+interface NationSelectorProps {
   selectedFaction: Faction | null;
   onSelectFaction: (faction: Faction) => void;
   selectedFactionId?: string;
   onFactionSelect?: (factionId: string, factionName: string) => void;
 }
 
-const FactionSelector: React.FC<FactionSelectorProps> = ({ 
+const FactionSelector: React.FC<NationSelectorProps> = ({ 
   selectedFaction, 
   onSelectFaction,
   selectedFactionId,

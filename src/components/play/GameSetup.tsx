@@ -119,13 +119,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
             exit="exit"
             className="space-y-6"
           >
-            <h2 className="phase-title">Select Factions</h2>
+            <h2 className="phase-title">Select Nations</h2>
             
             <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-base font-medium flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-muted-foreground" />
-                  <span>{playerOne.name}'s Faction</span>
+                  <span>{playerOne.name}'s Nation</span>
                 </Label>
                 <FactionSelector
                   selectedFaction={playerOne.faction}
@@ -136,7 +136,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
               <div className="space-y-4">
                 <Label className="text-base font-medium flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-muted-foreground" />
-                  <span>{playerTwo.name}'s Faction</span>
+                  <span>{playerTwo.name}'s Nation</span>
                 </Label>
                 <FactionSelector
                   selectedFaction={playerTwo.faction}
