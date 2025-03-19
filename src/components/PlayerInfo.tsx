@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import FactionSelector from '@/components/FactionSelector';
+import FactionSelector from '@/components/play/FactionSelector';
 import ListUploader from '@/components/play/ListUploader';
 import { Unit, Faction } from '@/types/game';
 
@@ -119,7 +119,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           <Label>Nation (Optional)</Label>
           <div className="mt-1">
             <FactionSelector
-              selectedFaction={player?.faction}
+              selectedFaction={player?.faction as Faction | null}
               onSelectFaction={handleFactionSelect}
             />
           </div>
