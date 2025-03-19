@@ -30,20 +30,20 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
   if (mission.id === 'consolidated-progress') {
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center">
-          <Target className="w-4 h-4 mr-1.5 text-muted-foreground" />
+        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
+          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
           Mission: Consolidated Progress
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {Object.entries(players).map(([playerId, player]) => (
-            <div key={playerId} className="p-3 border rounded-lg bg-card/50">
+            <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4" />
+                <div className="w-8 h-8 bg-warcrow-accent rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-warcrow-gold" />
                 </div>
                 <div>
-                  <div className="font-medium">{player.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="font-medium text-warcrow-text">{player.name}</div>
+                  <div className="text-xs text-warcrow-muted">
                     Current VP: {player.score || 0}
                   </div>
                 </div>
@@ -55,10 +55,11 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     id={`${playerId}-central`} 
                     checked={missionScoring[playerId]?.central}
                     onCheckedChange={() => toggleScoringCondition(playerId, 'central')}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-central`}
-                    className="text-sm flex items-center gap-1"
+                    className="text-sm flex items-center gap-1 text-warcrow-text"
                   >
                     <img src="/art/icons/flag.png" alt="Flag" className="h-3.5 w-3.5" />
                     Control central objective (1 VP)
@@ -72,14 +73,15 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     onCheckedChange={() => toggleScoringCondition(playerId, 'opponent1')}
                     disabled={Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-opponent1`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
-                        ? "text-muted-foreground" : ""
+                        ? "text-warcrow-muted" : ""
                     )}
                   >
                     <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
@@ -94,14 +96,15 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     onCheckedChange={() => toggleScoringCondition(playerId, 'opponent2')}
                     disabled={Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-opponent2`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
-                        ? "text-muted-foreground" : ""
+                        ? "text-warcrow-muted" : ""
                     )}
                   >
                     <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
@@ -120,26 +123,27 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                       )
                     }
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-defend`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && (
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
-                      ) ? "text-muted-foreground" : ""
+                      ) ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <Shield className="h-3.5 w-3.5 text-blue-500" />
+                    <Shield className="h-3.5 w-3.5 text-warcrow-gold" />
                     Opponent controls neither of your objectives (1 VP)
                   </Label>
                 </div>
                 
-                <div className="mt-2 pt-2 border-t border-border">
+                <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">Round {currentRound} VP:</div>
-                    <div className="text-lg font-bold text-primary">
+                    <div className="text-sm font-medium text-warcrow-text">Round {currentRound} VP:</div>
+                    <div className="text-lg font-bold text-warcrow-gold">
                       {calculateVP(playerId)}
                     </div>
                   </div>
@@ -153,20 +157,20 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
   } else if (mission.id === 'take-positions') {
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center">
-          <Target className="w-4 h-4 mr-1.5 text-muted-foreground" />
+        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
+          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
           Mission: Take Positions
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {Object.entries(players).map(([playerId, player]) => (
-            <div key={playerId} className="p-3 border rounded-lg bg-card/50">
+            <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4" />
+                <div className="w-8 h-8 bg-warcrow-accent rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-warcrow-gold" />
                 </div>
                 <div>
-                  <div className="font-medium">{player.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="font-medium text-warcrow-text">{player.name}</div>
+                  <div className="text-xs text-warcrow-muted">
                     Current VP: {player.score || 0}
                   </div>
                 </div>
@@ -180,14 +184,15 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     onCheckedChange={() => toggleScoringCondition(playerId, 'opponent1')}
                     disabled={Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-opponent1`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
-                        ? "text-muted-foreground" : ""
+                        ? "text-warcrow-muted" : ""
                     )}
                   >
                     <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
@@ -202,14 +207,15 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     onCheckedChange={() => toggleScoringCondition(playerId, 'opponent2')}
                     disabled={Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-opponent2`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
-                        ? "text-muted-foreground" : ""
+                        ? "text-warcrow-muted" : ""
                     )}
                   >
                     <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
@@ -228,26 +234,27 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                       )
                     }
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-defend`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && (
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
-                      ) ? "text-muted-foreground" : ""
+                      ) ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <Shield className="h-3.5 w-3.5 text-blue-500" />
+                    <Shield className="h-3.5 w-3.5 text-warcrow-gold" />
                     Opponent controls neither of your objectives (1 VP)
                   </Label>
                 </div>
                 
-                <div className="mt-2 pt-2 border-t border-border">
+                <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">Round {currentRound} VP:</div>
-                    <div className="text-lg font-bold text-primary">
+                    <div className="text-sm font-medium text-warcrow-text">Round {currentRound} VP:</div>
+                    <div className="text-lg font-bold text-warcrow-gold">
                       {calculateVP(playerId)}
                     </div>
                   </div>
@@ -270,13 +277,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
     
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center">
-          <Target className="w-4 h-4 mr-1.5 text-muted-foreground" />
+        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
+          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
           Mission: Fog of Death
         </div>
-        <div className="bg-muted/30 p-2 rounded-md mb-3 text-xs flex items-center">
-          <Cloud className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-          <span>
+        <div className="bg-warcrow-accent/30 p-2 rounded-md mb-3 text-xs flex items-center border border-warcrow-gold/20">
+          <Cloud className="w-3.5 h-3.5 mr-1.5 text-warcrow-gold" />
+          <span className="text-warcrow-text">
             {remainingMarkers} fog marker{remainingMarkers !== 1 ? 's' : ''} remaining 
             {scoredFogMarkers.fogContact1 || scoredFogMarkers.fogContact2 || 
              scoredFogMarkers.fogContact3 || scoredFogMarkers.fogContact4 ? 
@@ -285,21 +292,21 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {Object.entries(players).map(([playerId, player]) => (
-            <div key={playerId} className="p-3 border rounded-lg bg-card/50">
+            <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4" />
+                <div className="w-8 h-8 bg-warcrow-accent rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-warcrow-gold" />
                 </div>
                 <div>
-                  <div className="font-medium">{player.name}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="font-medium text-warcrow-text">{player.name}</div>
+                  <div className="text-xs text-warcrow-muted">
                     Current VP: {player.score || 0}
                   </div>
                 </div>
               </div>
               
               <div className="space-y-2 mt-2">
-                <div className="text-xs font-medium mb-1 text-muted-foreground">
+                <div className="text-xs font-medium mb-1 text-warcrow-gold">
                   Fog Marker Contact with Conquest Marker (1 VP each):
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -310,10 +317,11 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                           id={`${playerId}-${marker.id}`} 
                           checked={missionScoring[playerId]?.[marker.id] || false}
                           onCheckedChange={() => toggleScoringCondition(playerId, marker.id)}
+                          className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                         />
                         <Label 
                           htmlFor={`${playerId}-${marker.id}`}
-                          className="text-sm"
+                          className="text-sm text-warcrow-text"
                         >
                           {marker.label}
                         </Label>
@@ -323,7 +331,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                 </div>
                 
                 {remainingMarkers === 0 && (
-                  <div className="text-xs text-muted-foreground mt-1 italic">
+                  <div className="text-xs text-warcrow-muted mt-1 italic">
                     All fog markers have been used in previous rounds.
                   </div>
                 )}
@@ -335,25 +343,26 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     onCheckedChange={() => toggleScoringCondition(playerId, 'controlArtifact')}
                     disabled={Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.controlArtifact}
+                    className="border-warcrow-gold data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black"
                   />
                   <Label 
                     htmlFor={`${playerId}-control-artifact`}
                     className={cn(
-                      "text-sm flex items-center gap-1",
+                      "text-sm flex items-center gap-1 text-warcrow-text",
                       Object.keys(players).find(id => id !== playerId) && 
                       missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.controlArtifact
-                        ? "text-muted-foreground" : ""
+                        ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <Target className="h-3.5 w-3.5 text-purple-500" />
+                    <Target className="h-3.5 w-3.5 text-warcrow-gold" />
                     Control artifact at end of round (2 VP)
                   </Label>
                 </div>
                 
-                <div className="mt-2 pt-2 border-t border-border">
+                <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">Round {currentRound} VP:</div>
-                    <div className="text-lg font-bold text-primary">
+                    <div className="text-sm font-medium text-warcrow-text">Round {currentRound} VP:</div>
+                    <div className="text-lg font-bold text-warcrow-gold">
                       {calculateVP(playerId)}
                     </div>
                   </div>

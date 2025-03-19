@@ -102,7 +102,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onEditRoundScore(roundNumber)}
-                            className="text-sm text-warcrow-gold hover:bg-black hover:text-warcrow-gold mt-2 justify-start pl-0"
+                            className="text-sm text-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold mt-2 justify-start pl-0"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
                             <span className={isMobile ? "text-xs" : ""}>Edit Round</span>
