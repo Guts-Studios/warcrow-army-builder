@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, RotateCw, Save, Flag } from 'lucide-react';
+import { Home, RotateCw, Save, Flag, ArrowDown, ArrowUp } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import GameSummary from '@/components/play/GameSummary';
 import RoundSummary from '@/components/play/RoundSummary';

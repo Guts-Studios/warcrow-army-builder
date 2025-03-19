@@ -27,7 +27,7 @@ const GameSummary: React.FC<GameSummaryProps> = ({ gameState, onEditRoundScore }
     >
       <GameSummaryHeader gameState={gameState} winner={winner} />
       
-      <FinalScores players={players} />
+      <FinalScores players={players} gameState={gameState} />
       
       <RoundDetails 
         gameState={gameState}
