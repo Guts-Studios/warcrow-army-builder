@@ -237,7 +237,7 @@ export const useGameScoring = (currentRound: number) => {
                 type: 'mission',
                 playerId: playerId,
                 description: description,
-                objectiveType: objectiveType,
+                objectiveType: 'mission',
                 roundNumber: currentRound,
               }
             });

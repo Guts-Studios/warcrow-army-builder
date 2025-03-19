@@ -19,6 +19,11 @@ import Profile from './pages/Profile';
 import AboutUs from './pages/AboutUs';
 import UnitStats from './pages/UnitStats';
 import Play from './pages/Play';
+import Setup from './pages/Setup';
+import Deployment from './pages/Deployment';
+import Game from './pages/Game';
+import Summary from './pages/Summary';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -195,12 +200,52 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/setup" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Setup />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/deployment" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Deployment />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/game" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Game />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
+                  path="/summary" 
+                  element={
+                    isPreview || isAuthenticated ? (
+                      <Summary />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  } 
+                />
+                <Route 
                   path="/about" 
                   element={<AboutUs />} 
                 />
                 <Route 
                   path="*" 
-                  element={<Navigate to="/landing" replace />} 
+                  element={<NotFound />} 
                 />
               </Routes>
               <Toaster />
