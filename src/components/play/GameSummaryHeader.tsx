@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 
 interface GameSummaryHeaderProps {
   gameState: GameState;
@@ -45,7 +46,7 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
   };
 
   return (
-    <motion.div className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
+    <Card className="p-6 border border-border/40 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold text-center text-primary">Game Summary</h2>
         <Button variant="outline" size="sm" onClick={handleShare}>
@@ -109,7 +110,7 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
           </p>
         </div>
       </div>
-    </motion.div>
+    </Card>
   );
 };
 

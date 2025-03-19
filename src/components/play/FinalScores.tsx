@@ -22,6 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
 
 interface FinalScoresProps {
   players: Player[];
@@ -39,7 +40,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
   
   return (
     <motion.div className="space-y-6">
-      <motion.div className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
+      <Card className="p-6 border border-border/40 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-primary">Final Scores</h3>
           <Dialog>
@@ -112,7 +113,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
             ))}
           </TableBody>
         </Table>
-      </motion.div>
+      </Card>
       
       <Dialog open={!!viewingList} onOpenChange={(open) => !open && setViewingList(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh]">

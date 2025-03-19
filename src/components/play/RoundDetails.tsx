@@ -62,7 +62,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   };
 
   return (
-    <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
+    <Card className="p-6 border border-border/40 shadow-sm">
       <div className="flex justify-between items-center mb-4 border-b border-border/20 pb-4">
         <h3 className="text-xl font-semibold text-primary">Round-by-Round Breakdown</h3>
       </div>
@@ -70,7 +70,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/50">
+            <TableRow className="bg-muted/50">
               <TableHead className="w-24 text-primary">Round</TableHead>
               <TableHead className="text-primary">Player</TableHead>
               {!isMobile && <TableHead className="text-primary">Objectives</TableHead>}
@@ -102,7 +102,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onEditRoundScore(roundNumber)}
-                            className="text-sm text-primary hover:bg-secondary hover:text-primary mt-2 justify-start pl-0"
+                            className="text-sm text-primary hover:bg-muted hover:text-primary mt-2 justify-start pl-0"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
                             <span className={isMobile ? "text-xs" : ""}>Edit Round</span>
@@ -151,7 +151,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       </TableCell>
                     )}
                     
-                    <TableCell className="text-xs font-normal text-primary">{roundScore} VP</TableCell>
+                    <TableCell className="text-primary font-medium">{roundScore} VP</TableCell>
                   </TableRow>
                 );
               })

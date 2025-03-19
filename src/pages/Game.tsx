@@ -76,7 +76,7 @@ const Game = () => {
   };
 
   return (
-    <div className="min-h-screen py-8 bg-background">
+    <div className="min-h-screen py-8">
       <div className="container px-4">
         <motion.div
           variants={fadeIn}
@@ -86,18 +86,18 @@ const Game = () => {
           className="space-y-8"
         >
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">Game In Progress</h1>
+            <h1 className="text-3xl font-bold text-primary">Game In Progress</h1>
             <Button onClick={handleEndGame}>
               End Game & Score
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
           
-          <Card className="p-6">
+          <Card className="p-6 border border-border/40 shadow-sm">
             <div className="space-y-8">
               {/* Game Details Section */}
               <div>
-                <h2 className="text-xl font-semibold mb-4">Game Information</h2>
+                <h2 className="text-xl font-semibold mb-4 text-primary">Game Information</h2>
                 
                 <div className="space-y-2 mb-6">
                   {state.mission && (
@@ -110,8 +110,8 @@ const Game = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.values(state.players).map(player => (
-                    <div key={player.id} className="p-4 border rounded-lg">
-                      <h3 className="text-lg font-medium mb-2">{player.name}</h3>
+                    <div key={player.id} className="p-4 border rounded-lg border-border/20">
+                      <h3 className="text-lg font-medium mb-2 text-primary">{player.name}</h3>
                       <p><strong>Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
                       <p><strong>Score:</strong> {player.score || 0}</p>
                     </div>
@@ -121,8 +121,8 @@ const Game = () => {
                
               {/* Scoring Section */}
               <div>
-                <div className="flex justify-between items-center mb-4 border-t pt-4">
-                  <h2 className="text-xl font-semibold">Round {currentRound} Scoring</h2>
+                <div className="flex justify-between items-center mb-4 border-t pt-4 border-border/20">
+                  <h2 className="text-xl font-semibold text-primary">Round {currentRound} Scoring</h2>
                   <Button 
                     onClick={handleScoreRound}
                     size="sm"
