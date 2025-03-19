@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -153,7 +154,7 @@ const Summary = () => {
         type: 'ADD_PHOTO',
         payload: {
           ...photo,
-          turn: editingRound!
+          turnNumber: editingRound!
         }
       });
     }

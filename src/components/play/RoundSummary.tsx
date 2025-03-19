@@ -74,7 +74,7 @@ const RoundSummary: React.FC<RoundSummaryProps> = ({
       url: photoData,
       timestamp: Date.now(),
       phase: 'midgame',
-      roundNumber: roundNumber,
+      turnNumber: roundNumber,
       annotations: []
     });
     setTakingPhoto(false);
