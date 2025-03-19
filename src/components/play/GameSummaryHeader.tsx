@@ -46,10 +46,15 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
   };
 
   return (
-    <Card className="p-6 border border-border/40 shadow-sm">
+    <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold text-center text-primary">Game Summary</h2>
-        <Button variant="outline" size="sm" onClick={handleShare}>
+        <h2 className="text-2xl font-semibold text-center text-warcrow-gold">Game Summary</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleShare}
+          className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold"
+        >
           <Share2 className="mr-2 w-4 h-4" />
           Share
         </Button>
@@ -57,19 +62,19 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">Mission</h3>
-          <p className="text-muted-foreground">{gameState.mission?.name || gameState.mission?.title || 'No mission selected'}</p>
+          <h3 className="text-lg font-medium text-warcrow-gold">Mission</h3>
+          <p className="text-warcrow-text">{gameState.mission?.name || gameState.mission?.title || 'No mission selected'}</p>
           {gameState.mission?.description && (
-            <p className="text-sm text-muted-foreground italic">{gameState.mission.description}</p>
+            <p className="text-sm text-warcrow-muted italic">{gameState.mission.description}</p>
           )}
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">Winner</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-medium text-warcrow-gold">Winner</h3>
+          <p className="text-warcrow-text">
             {winner?.name || 'No winner'} 
             {winner?.score && ` (${winner.score} VP)`}
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-warcrow-muted">
             {typeof winner?.faction === 'object' 
               ? winner?.faction?.name 
               : (typeof winner?.faction === 'string' ? winner.faction : '')}
@@ -79,14 +84,14 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">Game Start</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-medium text-warcrow-gold">Game Start</h3>
+          <p className="text-warcrow-text">
             {gameState.gameStartTime ? formatDate(gameState.gameStartTime) : 'Not available'}
           </p>
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">Game End</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-medium text-warcrow-gold">Game End</h3>
+          <p className="text-warcrow-text">
             {gameState.gameEndTime ? formatDate(gameState.gameEndTime) : 'Not available'}
           </p>
         </div>
@@ -94,16 +99,16 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">First to Deploy</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-medium text-warcrow-gold">First to Deploy</h3>
+          <p className="text-warcrow-text">
             {gameState.firstToDeployPlayerId 
               ? players.find(p => p.id === gameState.firstToDeployPlayerId)?.name || 'Unknown' 
               : 'Not recorded'}
           </p>
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-medium text-primary">Initial Initiative</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-lg font-medium text-warcrow-gold">Initial Initiative</h3>
+          <p className="text-warcrow-text">
             {gameState.initialInitiativePlayerId 
               ? players.find(p => p.id === gameState.initialInitiativePlayerId)?.name || 'Unknown' 
               : 'Not recorded'}

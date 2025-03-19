@@ -59,7 +59,7 @@ const Setup = () => {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="min-h-screen py-8 bg-background"
+      className="min-h-screen py-8 bg-warcrow-background"
     >
       <GameSetup onComplete={handleSetupComplete} />
     </motion.div>
