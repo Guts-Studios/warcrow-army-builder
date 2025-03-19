@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, RotateCw, Save, Flag, ArrowUp, ArrowDown } from 'lucide-react';
+import { Home, RotateCw, Save, Flag } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import GameSummary from '@/components/play/GameSummary';
 import RoundSummary from '@/components/play/RoundSummary';
+import FinalScores from '@/components/play/FinalScores';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -121,6 +121,32 @@ const Summary = () => {
     setCurrentStep('summary');
     toast.success('Saved final scores and skipped to summary');
   };
+  
+  // Get all rounds played in the game
+  const getRounds = () => {
+    const rounds: number[] = [];
+    
+    // Add rounds from player scores
+    players.forEach(player => {
+      if (player.roundScores) {
+        Object.keys(player.roundScores).forEach(round => {
+          const roundNum = parseInt(round);
+          if (!isNaN(roundNum) && !rounds.includes(roundNum)) {
+            rounds.push(roundNum);
+          }
+        });
+      }
+    });
+    
+    // Add rounds from game events
+    state.gameEvents.forEach(event => {
+      if (event.roundNumber && !rounds.includes(event.roundNumber)) {
+        rounds.push(event.roundNumber);
+      }
+    });
+    
+    return rounds.sort((a, b) => a - b);
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -209,29 +235,34 @@ const Summary = () => {
             animate="visible"
             exit="exit"
           >
-            <GameSummary 
-              gameState={state} 
-              onEditRoundScore={handleEditRound}
-            />
-            
-            <div className="flex justify-center gap-4 mt-8">
-              <Button
-                variant="outline"
-                onClick={handleNewGame}
-                size="lg"
-                className="px-6"
-              >
-                <Home className="mr-2 w-5 h-5" />
-                Return Home
-              </Button>
-              <Button
-                onClick={handleNewGame}
-                size="lg"
-                className="px-6"
-              >
-                <RotateCw className="mr-2 w-5 h-5" />
-                New Game
-              </Button>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="phase-title mb-6">Game Summary</h2>
+              
+              <FinalScores 
+                players={players} 
+                gameState={state}
+                onEditRoundScore={handleEditRound}
+              />
+              
+              <div className="flex justify-center gap-4 mt-8">
+                <Button
+                  variant="outline"
+                  onClick={handleNewGame}
+                  size="lg"
+                  className="px-6"
+                >
+                  <Home className="mr-2 w-5 h-5" />
+                  Return Home
+                </Button>
+                <Button
+                  onClick={handleNewGame}
+                  size="lg"
+                  className="px-6"
+                >
+                  <RotateCw className="mr-2 w-5 h-5" />
+                  New Game
+                </Button>
+              </div>
             </div>
           </motion.div>
         );

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -17,7 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GameState, Player } from '@/types/game';
+import { Badge } from "@/components/ui/badge";
+import { GameState, Player, GameEvent } from '@/types/game';
 
 interface RoundDetailsProps {
   gameState: GameState;
@@ -45,6 +46,14 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
     return player.roundScores?.[roundNumber] || 0;
   };
 
+  const getPlayerObjectives = (playerId: string, roundNumber: number) => {
+    return gameState.gameEvents.filter(
+      event => event.playerId === playerId && 
+      event.roundNumber === roundNumber && 
+      (event.type === 'objective' || event.type === 'mission')
+    );
+  };
+
   return (
     <Card className="neo-card p-6">
       <div className="flex justify-between items-center mb-4">
@@ -56,23 +65,18 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
           <AccordionItem key={roundNumber} value={`round-${roundNumber}`}>
             <AccordionTrigger className="flex justify-between py-4 px-1">
               <span className="text-lg font-medium">Round {roundNumber}</span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditRoundScore(roundNumber);
-                  }}
-                  className="text-sm"
-                >
-                  <Edit2 className="w-4 h-4 mr-1" />
-                  Edit Scores
-                </Button>
-                <div className="w-5 h-5 flex items-center justify-center">
-                  <ChevronDown className="w-4 h-4 accordion-icon" />
-                </div>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditRoundScore(roundNumber);
+                }}
+                className="text-sm"
+              >
+                <Edit2 className="w-4 h-4 mr-1" />
+                Edit Scores
+              </Button>
             </AccordionTrigger>
             <AccordionContent>
               <div className="py-2">
@@ -80,16 +84,38 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                   <TableHeader>
                     <TableRow>
                       <TableHead>Player</TableHead>
+                      <TableHead>Objectives</TableHead>
                       <TableHead>Score</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {players.map((player) => (
-                      <TableRow key={player.id}>
-                        <TableCell>{player.name}</TableCell>
-                        <TableCell>{getPlayerScore(player.id, roundNumber)}</TableCell>
-                      </TableRow>
-                    ))}
+                    {players.map((player) => {
+                      const objectives = getPlayerObjectives(player.id, roundNumber);
+                      return (
+                        <TableRow key={player.id}>
+                          <TableCell>{player.name}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {objectives.length > 0 ? (
+                                objectives.map((objective: GameEvent) => (
+                                  <Badge 
+                                    key={objective.id} 
+                                    variant="outline" 
+                                    className="mr-1 mb-1"
+                                  >
+                                    {objective.description || objective.objectiveType || 'Unknown'} 
+                                    {objective.value ? ` (${objective.value} VP)` : ''}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No objectives</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{getPlayerScore(player.id, roundNumber)}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

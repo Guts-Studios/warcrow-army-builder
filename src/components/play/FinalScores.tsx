@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Player } from '@/types/game';
+import { Player, GameState } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { FileText, ListChecks } from 'lucide-react';
+import { FileText, ListChecks, BarChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
   Table,
@@ -22,18 +22,61 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 
 interface FinalScoresProps {
   players: Player[];
+  gameState: GameState;
+  onEditRoundScore?: (roundNumber: number) => void;
 }
 
-const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
+const FinalScores: React.FC<FinalScoresProps> = ({ 
+  players, 
+  gameState,
+  onEditRoundScore 
+}) => {
   const orderedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const [openListId, setOpenListId] = useState<string | null>(null);
   const [viewingList, setViewingList] = useState<Player | null>(null);
-
-  const toggleListView = (playerId: string) => {
-    setOpenListId(openListId === playerId ? null : playerId);
+  
+  // Get all rounds played
+  const getRounds = () => {
+    const rounds: number[] = [];
+    
+    // Add rounds from player scores
+    players.forEach(player => {
+      if (player.roundScores) {
+        Object.keys(player.roundScores).forEach(round => {
+          const roundNum = parseInt(round);
+          if (!isNaN(roundNum) && !rounds.includes(roundNum)) {
+            rounds.push(roundNum);
+          }
+        });
+      }
+    });
+    
+    // Add rounds from game events
+    gameState.gameEvents.forEach(event => {
+      if (event.roundNumber && !rounds.includes(event.roundNumber)) {
+        rounds.push(event.roundNumber);
+      }
+    });
+    
+    return rounds.sort((a, b) => a - b);
+  };
+  
+  const rounds = getRounds();
+  
+  const getPlayerRoundScore = (playerId: string, roundNumber: number) => {
+    const player = players.find(p => p.id === playerId);
+    return player?.roundScores?.[roundNumber] || 0;
+  };
+  
+  const getPlayerRoundObjectives = (playerId: string, roundNumber: number) => {
+    return gameState.gameEvents.filter(
+      event => event.playerId === playerId && 
+      event.roundNumber === roundNumber && 
+      (event.type === 'objective' || event.type === 'mission')
+    );
   };
 
   return (
@@ -113,6 +156,85 @@ const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
         </Table>
       </motion.div>
       
+      {rounds.length > 0 && (
+        <motion.div className="neo-card p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Round Scores</h3>
+            <Button variant="outline" size="sm">
+              <BarChart className="mr-2 h-4 w-4" />
+              Score Breakdown
+            </Button>
+          </div>
+          
+          <Accordion type="single" collapsible className="w-full">
+            {rounds.map((round) => (
+              <AccordionItem key={`round-${round}`} value={`round-${round}`}>
+                <AccordionTrigger className="flex justify-between py-4 px-1">
+                  <span className="text-lg font-medium">Round {round}</span>
+                  {onEditRoundScore && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditRoundScore(round);
+                      }}
+                      className="text-sm"
+                    >
+                      Edit Scores
+                    </Button>
+                  )}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Player</TableHead>
+                        <TableHead>Objectives</TableHead>
+                        <TableHead>Points</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orderedPlayers.map((player) => {
+                        if (!player.id) return null;
+                        
+                        const objectives = getPlayerRoundObjectives(player.id, round);
+                        const roundScore = getPlayerRoundScore(player.id, round);
+                        
+                        return (
+                          <TableRow key={`${player.id}-round-${round}`}>
+                            <TableCell>{player.name}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {objectives.length > 0 ? (
+                                  objectives.map((obj) => (
+                                    <Badge 
+                                      key={obj.id} 
+                                      variant="outline"
+                                      className="mr-1 mb-1"
+                                    >
+                                      {obj.description || obj.objectiveType || 'Unknown'}
+                                      {obj.value ? ` (${obj.value} VP)` : ''}
+                                    </Badge>
+                                  ))
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">No recorded objectives</span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">{roundScore}</TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </motion.div>
+      )}
+      
       <Dialog open={!!viewingList} onOpenChange={(open) => !open && setViewingList(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
@@ -135,32 +257,6 @@ const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      
-      {orderedPlayers.some(player => player.list) && (
-        <motion.div className="neo-card p-6">
-          <h3 className="text-xl font-semibold mb-4">Army Lists</h3>
-          <Accordion type="single" collapsible>
-            {orderedPlayers.map((player) => (
-              player.list && (
-                <AccordionItem key={player.id || player.name} value={player.id || player.name}>
-                  <AccordionTrigger className="font-medium">
-                    {player.name}'s Army - {
-                      typeof player.faction === 'object' 
-                        ? player.faction.name 
-                        : (typeof player.faction === 'string' ? player.faction : 'Unknown Faction')
-                    }
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="bg-muted/50 rounded-md p-4 my-2 overflow-auto max-h-[400px]">
-                      <pre className="whitespace-pre-wrap text-sm font-mono">{player.list}</pre>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              )
-            ))}
-          </Accordion>
-        </motion.div>
-      )}
     </motion.div>
   );
 };
