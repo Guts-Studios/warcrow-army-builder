@@ -183,7 +183,7 @@ const ListUploader: React.FC<ListUploaderProps> = ({
         <div className="flex justify-end">
           <Button
             onClick={handleManualSubmit}
-            variant="primary"
+            variant="default"
           >
             Save List
           </Button>
@@ -211,7 +211,7 @@ const ListUploader: React.FC<ListUploaderProps> = ({
       <div className="flex justify-end">
         <Button
           onClick={handleManualSubmit}
-          variant="primary"
+          variant="default"
         >
           Save List
         </Button>
