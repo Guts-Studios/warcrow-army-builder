@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,6 +91,16 @@
 
 .interactive-element {
   @apply transition-all duration-300 hover:scale-105;
+}
+
+/* Remove hover effect for TableRow */
+.round-details-table tr:hover {
+  background-color: inherit !important;
+}
+
+/* Modify the default TableRow hover behavior */
+[data-rk] .hover\:bg-muted\/50:hover {
+  background-color: inherit !important;
 }
 
 /* Fade animations */

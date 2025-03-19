@@ -90,6 +90,8 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                   <TableRow 
                     key={`${roundNumber}-${player.id}`} 
                     className={playerIndex % 2 === 0 ? 'bg-background' : 'bg-muted/10'}
+                    // Removing the hover style by overriding the default TableRow hover styles
+                    style={{ hover: 'none' }}
                   >
                     {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/20">
