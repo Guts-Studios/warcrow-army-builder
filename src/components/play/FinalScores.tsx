@@ -86,7 +86,11 @@ const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
             {orderedPlayers.map((player) => (
               <TableRow key={player.id || player.name}>
                 <TableCell className="font-medium">{player.name}</TableCell>
-                <TableCell>{typeof player.faction === 'object' ? player.faction.name : 'N/A'}</TableCell>
+                <TableCell>
+                  {typeof player.faction === 'object' 
+                    ? player.faction.name 
+                    : (typeof player.faction === 'string' ? player.faction : 'N/A')}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{player.score}</span>
@@ -113,7 +117,13 @@ const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
         <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
-              {viewingList?.name}'s Army List - {typeof viewingList?.faction === 'object' ? viewingList?.faction.name : 'Unknown Faction'}
+              {viewingList?.name}'s Army List - {
+                viewingList?.faction 
+                  ? (typeof viewingList.faction === 'object' 
+                    ? viewingList.faction.name 
+                    : viewingList.faction)
+                  : 'Unknown Faction'
+              }
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh] mt-4">
@@ -134,7 +144,11 @@ const FinalScores: React.FC<FinalScoresProps> = ({ players }) => {
               player.list && (
                 <AccordionItem key={player.id || player.name} value={player.id || player.name}>
                   <AccordionTrigger className="font-medium">
-                    {player.name}'s Army - {typeof player.faction === 'object' ? player.faction.name : 'Unknown Faction'}
+                    {player.name}'s Army - {
+                      typeof player.faction === 'object' 
+                        ? player.faction.name 
+                        : (typeof player.faction === 'string' ? player.faction : 'Unknown Faction')
+                    }
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="bg-muted/50 rounded-md p-4 my-2 overflow-auto max-h-[400px]">

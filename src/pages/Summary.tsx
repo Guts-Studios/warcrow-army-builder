@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 import { Unit } from '@/types/game';
-import { v4 as uuidv4 } from 'uuid';
 
 type SummaryStep = 'scoring' | 'summary';
 
