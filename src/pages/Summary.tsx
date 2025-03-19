@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -73,7 +74,7 @@ const Summary = () => {
   
   const handleNewGame = () => {
     dispatch({ type: 'RESET_GAME' });
-    navigate('/');
+    navigate('/setup');
   };
 
   const handleEditRound = (roundNumber: number) => {
@@ -244,7 +245,7 @@ const Summary = () => {
               <div className="flex justify-center gap-4 mt-8">
                 <Button
                   variant="outline"
-                  onClick={handleNewGame}
+                  onClick={() => navigate('/')}
                   size="lg"
                   className="px-6"
                 >
