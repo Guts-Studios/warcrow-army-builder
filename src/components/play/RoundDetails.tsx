@@ -62,19 +62,19 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   };
 
   return (
-    <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-primary">Round-by-Round Breakdown</h3>
+    <Card className="bg-warcrow-background border border-warcrow-gold/30 rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-4 p-6 border-b border-warcrow-gold/20">
+        <h3 className="text-xl font-semibold text-warcrow-gold">Round-by-Round Breakdown</h3>
       </div>
 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead className="w-24">Round</TableHead>
-              <TableHead>Player</TableHead>
-              {!isMobile && <TableHead>Objectives</TableHead>}
-              <TableHead>VP</TableHead>
+            <TableRow className="bg-warcrow-accent/50">
+              <TableHead className="w-24 text-warcrow-gold">Round</TableHead>
+              <TableHead className="text-warcrow-gold">Player</TableHead>
+              {!isMobile && <TableHead className="text-warcrow-gold">Objectives</TableHead>}
+              <TableHead className="text-warcrow-gold">VP</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,19 +87,22 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                 const hasInitialInitiative = roundNumber === 1 && hadInitialInitiative(player.id || '');
                 
                 return (
-                  <TableRow key={`${roundNumber}-${player.id}`} className={playerIndex % 2 === 0 ? 'bg-muted/10' : ''}>
+                  <TableRow 
+                    key={`${roundNumber}-${player.id}`} 
+                    className={playerIndex % 2 === 0 ? 'bg-warcrow-background' : 'bg-warcrow-accent/10'}
+                  >
                     {playerIndex === 0 && (
-                      <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/30">
+                      <TableCell rowSpan={players.length} className="font-medium align-top border-r border-warcrow-gold/20">
                         <div className="flex flex-col">
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-2 text-primary" />
+                          <div className="flex items-center text-warcrow-gold">
+                            <Clock className="w-4 h-4 mr-2" />
                             Round {roundNumber}
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => onEditRoundScore(roundNumber)}
-                            className="text-sm text-primary hover:text-primary/80 mt-2 justify-start pl-0"
+                            className="text-sm text-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold mt-2 justify-start pl-0"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
                             <span className={isMobile ? "text-xs" : ""}>Edit Round</span>
@@ -107,17 +110,17 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                         </div>
                       </TableCell>
                     )}
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-warcrow-text">
                       <div className="flex items-center gap-1">
                         {player.name}
                         {(hasInitiative || hasInitialInitiative) && (
-                          <Flag className="h-4 w-4 text-primary ml-1" />
+                          <Flag className="h-4 w-4 text-warcrow-gold ml-1" />
                         )}
                       </div>
                       
                       {/* Show objectives below player name on mobile */}
                       {isMobile && objectives.length > 0 && (
-                        <div className="mt-1 text-xs text-muted-foreground">
+                        <div className="mt-1 text-xs text-warcrow-muted">
                           {objectives.map((objective: GameEvent, idx) => (
                             <div key={objective.id} className="mt-1">
                               {objective.description || objective.objectiveType || 'Unknown'} 
@@ -131,9 +134,9 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     
                     {/* Only show objectives column on desktop */}
                     {!isMobile && (
-                      <TableCell>
+                      <TableCell className="text-warcrow-muted">
                         {objectives.length > 0 ? (
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm">
                             {objectives.map((objective: GameEvent, idx) => (
                               <span key={objective.id}>
                                 {objective.description || objective.objectiveType || 'Unknown'} 
@@ -143,12 +146,12 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             ))}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground text-sm">No objectives</span>
+                          <span className="text-sm">No objectives</span>
                         )}
                       </TableCell>
                     )}
                     
-                    <TableCell className="text-xs font-normal">{roundScore} VP</TableCell>
+                    <TableCell className="text-xs font-normal text-warcrow-gold">{roundScore} VP</TableCell>
                   </TableRow>
                 );
               })
