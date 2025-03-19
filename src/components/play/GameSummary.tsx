@@ -16,7 +16,11 @@ const GameSummary: React.FC<GameSummaryProps> = ({ gameState, onEditRoundScore }
   const players = Object.values(gameState.players) as Player[];
   const orderedPlayers = sortPlayersByScore(players);
   const winner = orderedPlayers[0];
-  const rounds = getAllRoundNumbers(gameState.turns || []);
+  
+  // Get all round numbers from game events and turns
+  // Always include rounds 1-3 in the game summary
+  const existingRounds = getAllRoundNumbers(gameState.turns || []);
+  const rounds = [...new Set([...existingRounds, 1, 2, 3])].sort((a, b) => a - b);
   
   return (
     <motion.div

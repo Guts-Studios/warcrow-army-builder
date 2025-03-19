@@ -27,13 +27,10 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   rounds,
   onEditRoundScore
 }) => {
-  if (rounds.length === 0) {
-    return (
-      <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
-        <p className="text-center text-muted-foreground">No round data available.</p>
-      </Card>
-    );
-  }
+  // Ensure we always show at least rounds 1-3
+  const displayRounds = rounds.length > 0 
+    ? [...new Set([...rounds, 1, 2, 3])].sort((a, b) => a - b) 
+    : [1, 2, 3];
 
   const getPlayerScore = (playerId: string, roundNumber: number) => {
     const player = gameState.players[playerId];
@@ -66,7 +63,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rounds.map((roundNumber) => (
+            {displayRounds.map((roundNumber) => (
               players.map((player, playerIndex) => {
                 const objectives = getPlayerObjectives(player.id || '', roundNumber);
                 const roundScore = getPlayerScore(player.id || '', roundNumber);
