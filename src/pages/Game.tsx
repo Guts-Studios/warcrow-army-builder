@@ -10,11 +10,14 @@ import { ArrowRight, Star } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import MissionScoring from '@/components/play/MissionScoring';
 import { useGameScoring } from '@/hooks/useGameScoring';
+import InitiativeDialog from '@/components/play/InitiativeDialog';
 
 const Game = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
   const [currentRound, setCurrentRound] = useState(1);
+  const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
+  const [initiativePlayerId, setInitiativePlayerId] = useState<string>('');
   
   const {
     missionScoring,
@@ -38,9 +41,49 @@ const Game = () => {
   const handleScoreRound = () => {
     updateScores();
     
-    // Increment round counter after scoring
-    setCurrentRound(prev => prev + 1);
-    toast.success(`Round ${currentRound} scored successfully`);
+    // Show initiative dialog for next round
+    setShowInitiativeDialog(true);
+  };
+  
+  const handleConfirmInitiative = () => {
+    if (initiativePlayerId) {
+      // First increment round counter
+      setCurrentRound(prev => prev + 1);
+      
+      // Log the round info in game events
+      dispatch({
+        type: 'ADD_GAME_EVENT',
+        payload: {
+          id: `round-${currentRound}-initiative`,
+          type: 'initiative',
+          playerId: initiativePlayerId,
+          roundNumber: currentRound + 1,
+          description: `${state.players[initiativePlayerId]?.name} has initiative for round ${currentRound + 1}`,
+          timestamp: Date.now()
+        }
+      });
+      
+      toast.success(`Round ${currentRound} scored successfully. ${state.players[initiativePlayerId]?.name} has initiative for round ${currentRound + 1}`);
+      setShowInitiativeDialog(false);
+    } else {
+      toast.error("Please select a player with initiative");
+    }
+  };
+  
+  const handlePhotoCapture = (photoData: string) => {
+    // Add photo to game state
+    dispatch({
+      type: 'ADD_PHOTO',
+      payload: {
+        id: `round-${currentRound}-photo-${Date.now()}`,
+        url: photoData,
+        timestamp: Date.now(),
+        phase: 'game',
+        roundNumber: currentRound
+      }
+    });
+    
+    toast.success('Photo captured!');
   };
 
   return (
@@ -86,7 +129,7 @@ const Game = () => {
                   ))}
                 </div>
               </div>
-              
+               
               {/* Scoring Section */}
               <div>
                 <div className="flex justify-between items-center mb-4 border-t pt-4">
@@ -121,6 +164,17 @@ const Game = () => {
           </Card>
         </motion.div>
       </div>
+      
+      <InitiativeDialog
+        open={showInitiativeDialog}
+        onOpenChange={setShowInitiativeDialog}
+        players={state.players}
+        currentRound={currentRound + 1}
+        initiativePlayerId={initiativePlayerId}
+        setInitiativePlayerId={setInitiativePlayerId}
+        onConfirm={handleConfirmInitiative}
+        onPhotoCapture={handlePhotoCapture}
+      />
     </div>
   );
 };
