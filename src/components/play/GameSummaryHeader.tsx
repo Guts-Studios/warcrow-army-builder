@@ -25,7 +25,7 @@ const GameSummaryHeader: React.FC<GameSummaryHeaderProps> = ({ gameState, winner
       const shareText = `Game Summary
 Mission: ${gameState.mission?.name || gameState.mission?.title || 'Custom Mission'}
 Winner: ${winner?.name || 'No winner'} (${typeof winner?.faction === 'object' ? winner?.faction?.name : 'N/A'})
-Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score}`).join(', ')}
+Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
 `;
 
       if (navigator.share) {
@@ -45,52 +45,63 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score}`).join(', ')}
   };
 
   return (
-    <motion.div className="neo-card p-6">
+    <motion.div className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold text-center">Game Summary</h2>
+        <h2 className="text-2xl font-semibold text-center text-primary">Game Summary</h2>
         <Button variant="outline" size="sm" onClick={handleShare}>
           <Share2 className="mr-2 w-4 h-4" />
           Share
         </Button>
       </div>
       
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-medium">Mission</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">Mission</h3>
           <p className="text-muted-foreground">{gameState.mission?.name || gameState.mission?.title || 'No mission selected'}</p>
+          {gameState.mission?.description && (
+            <p className="text-sm text-muted-foreground italic">{gameState.mission.description}</p>
+          )}
         </div>
-        <div>
-          <h3 className="text-lg font-medium">Winner</h3>
-          <p className="text-muted-foreground">{winner?.name || 'No winner'}</p>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">Winner</h3>
+          <p className="text-muted-foreground">
+            {winner?.name || 'No winner'} 
+            {winner?.score && ` (${winner.score} VP)`}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {typeof winner?.faction === 'object' 
+              ? winner?.faction?.name 
+              : (typeof winner?.faction === 'string' ? winner.faction : '')}
+          </p>
         </div>
       </div>
       
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-medium">Game Start</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">Game Start</h3>
           <p className="text-muted-foreground">
             {gameState.gameStartTime ? formatDate(gameState.gameStartTime) : 'Not available'}
           </p>
         </div>
-        <div>
-          <h3 className="text-lg font-medium">Game End</h3>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">Game End</h3>
           <p className="text-muted-foreground">
             {gameState.gameEndTime ? formatDate(gameState.gameEndTime) : 'Not available'}
           </p>
         </div>
       </div>
       
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium">First to Deploy</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">First to Deploy</h3>
           <p className="text-muted-foreground">
             {gameState.firstToDeployPlayerId 
               ? players.find(p => p.id === gameState.firstToDeployPlayerId)?.name || 'Unknown' 
               : 'Not recorded'}
           </p>
         </div>
-        <div>
-          <h3 className="text-lg font-medium">Initial Initiative</h3>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-primary">Initial Initiative</h3>
           <p className="text-muted-foreground">
             {gameState.initialInitiativePlayerId 
               ? players.find(p => p.id === gameState.initialInitiativePlayerId)?.name || 'Unknown' 

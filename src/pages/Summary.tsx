@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,7 +5,6 @@ import { Home, RotateCw, Save, Flag, ArrowDown, ArrowUp } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import GameSummary from '@/components/play/GameSummary';
 import RoundSummary from '@/components/play/RoundSummary';
-import FinalScores from '@/components/play/FinalScores';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -123,7 +121,6 @@ const Summary = () => {
     toast.success('Saved final scores and skipped to summary');
   };
   
-  // Get all rounds played in the game
   const getRounds = () => {
     const rounds: number[] = [];
     
@@ -167,9 +164,9 @@ const Summary = () => {
               {players.map((player) => (
                 <div
                   key={player.id}
-                  className="neo-card p-5"
+                  className="neo-card p-5 bg-gradient-to-br from-muted/50 to-background border border-border/50"
                 >
-                  <Label htmlFor={`score-${player.id}`} className="text-lg font-medium mb-2 block">
+                  <Label htmlFor={`score-${player.id}`} className="text-lg font-medium mb-2 block text-primary">
                     {player.name}'s Victory Points
                   </Label>
                   <div className="flex items-center">
@@ -239,8 +236,7 @@ const Summary = () => {
             <div className="max-w-4xl mx-auto">
               <h2 className="phase-title mb-6">Game Summary</h2>
               
-              <FinalScores 
-                players={players} 
+              <GameSummary 
                 gameState={state}
                 onEditRoundScore={handleEditRound}
               />

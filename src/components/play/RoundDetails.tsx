@@ -29,7 +29,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
 }) => {
   if (rounds.length === 0) {
     return (
-      <Card className="neo-card p-6 bg-muted/30">
+      <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
         <p className="text-center text-muted-foreground">No round data available.</p>
       </Card>
     );
@@ -49,15 +49,15 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   };
 
   return (
-    <Card className="neo-card p-6">
+    <Card className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold">Round-by-Round Breakdown</h3>
+        <h3 className="text-xl font-semibold text-primary">Round-by-Round Breakdown</h3>
       </div>
 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/30">
               <TableHead className="w-24">Round</TableHead>
               <TableHead>Player</TableHead>
               <TableHead>Objectives</TableHead>
@@ -67,11 +67,12 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
           </TableHeader>
           <TableBody>
             {rounds.map((roundNumber) => (
-              players.map((player) => {
+              players.map((player, playerIndex) => {
                 const objectives = getPlayerObjectives(player.id || '', roundNumber);
+                const roundScore = getPlayerScore(player.id || '', roundNumber);
                 return (
-                  <TableRow key={`${roundNumber}-${player.id}`}>
-                    {players.indexOf(player) === 0 && (
+                  <TableRow key={`${roundNumber}-${player.id}`} className={playerIndex % 2 === 0 ? 'bg-muted/10' : ''}>
+                    {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="font-medium align-top border-r border-border/30">
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2 text-primary" />
@@ -79,7 +80,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                         </div>
                       </TableCell>
                     )}
-                    <TableCell>{player.name}</TableCell>
+                    <TableCell className="font-medium">{player.name}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {objectives.length > 0 ? (
@@ -87,7 +88,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             <Badge 
                               key={objective.id} 
                               variant="outline" 
-                              className="mr-1 mb-1"
+                              className="mr-1 mb-1 border-primary/30 bg-primary/5"
                             >
                               {objective.description || objective.objectiveType || 'Unknown'} 
                               {objective.value ? ` (${objective.value} VP)` : ''}
@@ -98,14 +99,14 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-medium">{getPlayerScore(player.id || '', roundNumber)}</TableCell>
-                    {players.indexOf(player) === 0 && (
+                    <TableCell className="text-right font-medium">{roundScore} VP</TableCell>
+                    {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="align-top text-right">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onEditRoundScore(roundNumber)}
-                          className="text-sm"
+                          className="text-sm text-primary hover:text-primary/80"
                         >
                           <Edit2 className="w-4 h-4 mr-1" />
                           Edit

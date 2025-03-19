@@ -39,9 +39,9 @@ const FinalScores: React.FC<FinalScoresProps> = ({
   
   return (
     <motion.div className="space-y-6">
-      <motion.div className="neo-card p-6">
+      <motion.div className="neo-card p-6 bg-gradient-to-br from-muted/50 to-background border border-border/50">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Final Scores</h3>
+          <h3 className="text-xl font-semibold text-primary">Final Scores</h3>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -94,7 +94,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{player.score}</span>
+                    <span className="font-medium">{player.score} VP</span>
                     {player.list && (
                       <Button 
                         variant="ghost" 
