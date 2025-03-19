@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { GameState, Player, GameEvent } from '@/types/game';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -85,19 +84,14 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       
                       {/* Show objectives below player name on mobile */}
                       {isMobile && objectives.length > 0 && (
-                        <div className="mt-1">
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {objectives.map((objective: GameEvent) => (
-                              <Badge 
-                                key={objective.id} 
-                                variant="outline" 
-                                className="mt-1 text-xs border-primary/30 bg-primary/5"
-                              >
-                                {objective.description || objective.objectiveType || 'Unknown'} 
-                                {objective.value ? ` (${objective.value} VP)` : ''}
-                              </Badge>
-                            ))}
-                          </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {objectives.map((objective: GameEvent, idx) => (
+                            <div key={objective.id} className="mt-1">
+                              {objective.description || objective.objectiveType || 'Unknown'} 
+                              {objective.value ? ` (${objective.value} VP)` : ''}
+                              {idx < objectives.length - 1 ? ', ' : ''}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </TableCell>
@@ -105,22 +99,19 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     {/* Only show objectives column on desktop */}
                     {!isMobile && (
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {objectives.length > 0 ? (
-                            objectives.map((objective: GameEvent) => (
-                              <Badge 
-                                key={objective.id} 
-                                variant="outline" 
-                                className="mr-1 mb-1 border-primary/30 bg-primary/5"
-                              >
+                        {objectives.length > 0 ? (
+                          <div className="text-sm text-muted-foreground">
+                            {objectives.map((objective: GameEvent, idx) => (
+                              <span key={objective.id}>
                                 {objective.description || objective.objectiveType || 'Unknown'} 
                                 {objective.value ? ` (${objective.value} VP)` : ''}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground text-sm">No objectives</span>
-                          )}
-                        </div>
+                                {idx < objectives.length - 1 ? ', ' : ''}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No objectives</span>
+                        )}
                       </TableCell>
                     )}
                     
