@@ -1,0 +1,40 @@
+
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+
+interface EndGameDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}
+
+const EndGameDialog: React.FC<EndGameDialogProps> = ({
+  open,
+  onOpenChange,
+  onConfirm
+}) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>End Game</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to end the game now?
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="flex justify-end space-x-2 mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={onConfirm}>
+            End Game & View Results
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default EndGameDialog;

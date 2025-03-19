@@ -4,20 +4,24 @@ import React, { createContext, useContext, useReducer } from 'react';
 // Define game state types
 type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
 
+export interface Player {
+  name: string;
+  faction: string;
+  points: number;
+  objectivePoints: number;
+  score?: number;
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  details: string;
+}
+
 interface GameState {
   currentPhase: GamePhase;
-  player1: {
-    name: string;
-    faction: string;
-    points: number;
-    objectivePoints: number;
-  };
-  player2: {
-    name: string;
-    faction: string;
-    points: number;
-    objectivePoints: number;
-  };
+  player1: Player;
+  player2: Player;
   mission: string | null;
   round: number;
   notes: string;
