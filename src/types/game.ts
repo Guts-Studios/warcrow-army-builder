@@ -39,6 +39,14 @@ export interface ObjectiveMarker {
   controlledBy: string | null;
 }
 
+export interface Annotation {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
+  unitId?: string;
+}
+
 export interface Photo {
   id: string;
   url: string;
@@ -46,6 +54,7 @@ export interface Photo {
   phase: string;
   turnNumber?: number;
   roundNumber?: number;
+  annotations?: Annotation[];
 }
 
 export interface Turn {
