@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { GameState, Player, GameEvent } from '@/types/game';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RoundDetailsProps {
   gameState: GameState;
@@ -27,6 +28,8 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   rounds,
   onEditRoundScore
 }) => {
+  const isMobile = useIsMobile();
+  
   // Ensure we always show at least rounds 1-3
   const displayRounds = rounds.length > 0 
     ? [...new Set([...rounds, 1, 2, 3])].sort((a, b) => a - b) 
@@ -57,7 +60,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
             <TableRow className="bg-muted/30">
               <TableHead className="w-24">Round</TableHead>
               <TableHead>Player</TableHead>
-              <TableHead>Objectives</TableHead>
+              {!isMobile && <TableHead>Objectives</TableHead>}
               <TableHead className="text-right">VP</TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
@@ -77,25 +80,50 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                         </div>
                       </TableCell>
                     )}
-                    <TableCell className="font-medium">{player.name}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {objectives.length > 0 ? (
-                          objectives.map((objective: GameEvent) => (
-                            <Badge 
-                              key={objective.id} 
-                              variant="outline" 
-                              className="mr-1 mb-1 border-primary/30 bg-primary/5"
-                            >
-                              {objective.description || objective.objectiveType || 'Unknown'} 
-                              {objective.value ? ` (${objective.value} VP)` : ''}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-muted-foreground text-sm">No objectives</span>
-                        )}
-                      </div>
+                    <TableCell className="font-medium">
+                      {player.name}
+                      
+                      {/* Show objectives below player name on mobile */}
+                      {isMobile && objectives.length > 0 && (
+                        <div className="mt-1">
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {objectives.map((objective: GameEvent) => (
+                              <Badge 
+                                key={objective.id} 
+                                variant="outline" 
+                                className="mt-1 text-xs border-primary/30 bg-primary/5"
+                              >
+                                {objective.description || objective.objectiveType || 'Unknown'} 
+                                {objective.value ? ` (${objective.value} VP)` : ''}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </TableCell>
+                    
+                    {/* Only show objectives column on desktop */}
+                    {!isMobile && (
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {objectives.length > 0 ? (
+                            objectives.map((objective: GameEvent) => (
+                              <Badge 
+                                key={objective.id} 
+                                variant="outline" 
+                                className="mr-1 mb-1 border-primary/30 bg-primary/5"
+                              >
+                                {objective.description || objective.objectiveType || 'Unknown'} 
+                                {objective.value ? ` (${objective.value} VP)` : ''}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground text-sm">No objectives</span>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
+                    
                     <TableCell className="text-right font-medium">{roundScore} VP</TableCell>
                     {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="align-top text-right">
@@ -106,7 +134,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                           className="text-sm text-primary hover:text-primary/80"
                         >
                           <Edit2 className="w-4 h-4 mr-1" />
-                          Edit
+                          <span className={isMobile ? "sr-only" : ""}>Edit</span>
                         </Button>
                       </TableCell>
                     )}
