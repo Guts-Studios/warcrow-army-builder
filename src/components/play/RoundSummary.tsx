@@ -11,9 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Player, Unit, Mission, Photo } from '@/types/game';
-import { ArrowUp, ArrowDown, Camera } from 'lucide-react';
-import PhotoCapture from '@/components/PhotoCapture';
+import { Player, Unit, Mission } from '@/types/game';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RoundSummaryProps {
@@ -21,7 +20,7 @@ interface RoundSummaryProps {
   players: Record<string, Player>;
   units?: Unit[];
   mission?: Mission | null;
-  onComplete: (scores: Record<string, number>, photo: any) => void;
+  onComplete: (scores: Record<string, number>) => void;
   onCancel: () => void;
 }
 
@@ -42,9 +41,6 @@ const RoundSummary: React.FC<RoundSummaryProps> = ({
       return { ...acc, [playerId]: roundScore };
     }, {});
   });
-  
-  const [photo, setPhoto] = useState<Photo | null>(null);
-  const [takingPhoto, setTakingPhoto] = useState(false);
   
   const incrementScore = (playerId: string) => {
     setScores(prev => ({
@@ -68,21 +64,9 @@ const RoundSummary: React.FC<RoundSummaryProps> = ({
     }));
   };
   
-  const handlePhotoTaken = (photoData: string) => {
-    setPhoto({
-      id: `round-${roundNumber}-photo-${Date.now()}`,
-      url: photoData,
-      timestamp: Date.now(),
-      phase: 'midgame',
-      turnNumber: roundNumber,
-      annotations: []
-    });
-    setTakingPhoto(false);
-    toast.success('Photo captured for round ' + roundNumber);
-  };
-  
   const handleSave = () => {
-    onComplete(scores, photo);
+    onComplete(scores);
+    toast.success(`Round ${roundNumber} scores updated`);
   };
   
   return (
@@ -129,50 +113,6 @@ const RoundSummary: React.FC<RoundSummaryProps> = ({
             </div>
           ))}
         </div>
-        
-        {takingPhoto ? (
-          <div className="space-y-4 mt-4">
-            <h3 className="text-lg font-semibold">Capture Game State</h3>
-            <PhotoCapture 
-              onPhotoTaken={handlePhotoTaken} 
-              phase="midgame" 
-              turn={roundNumber}
-            />
-            <Button 
-              variant="outline" 
-              onClick={() => setTakingPhoto(false)}
-            >
-              Cancel Photo
-            </Button>
-          </div>
-        ) : photo ? (
-          <div className="space-y-4 mt-4">
-            <h3 className="text-lg font-semibold">Game Photo</h3>
-            <div className="relative rounded-lg overflow-hidden">
-              <img 
-                src={photo.url} 
-                alt={`Round ${roundNumber} game state`} 
-                className="w-full h-auto"
-              />
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setTakingPhoto(true)}
-            >
-              Retake Photo
-            </Button>
-          </div>
-        ) : (
-          <div className="flex justify-center mt-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setTakingPhoto(true)}
-            >
-              <Camera className="w-4 h-4 mr-2" />
-              Take Game Photo
-            </Button>
-          </div>
-        )}
         
         <DialogFooter className="mt-6">
           <DialogClose asChild>

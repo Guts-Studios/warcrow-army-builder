@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { GameState, GamePhase, Player, Mission, Photo, Unit, Turn, GameEvent } from '@/types/game';
+import { GameState, GamePhase, Player, Mission, Unit, Turn, GameEvent } from '@/types/game';
 import { toast } from 'sonner';
 
 type GameAction =
@@ -11,14 +11,12 @@ type GameAction =
   | { type: 'SET_ROLL_OFF_WINNER'; payload: string }
   | { type: 'SET_FIRST_TO_DEPLOY'; payload: string }
   | { type: 'SET_INITIAL_INITIATIVE'; payload: string }
-  | { type: 'ADD_PHOTO'; payload: Photo }
-  | { type: 'UPDATE_PHOTO'; payload: { id: string; updates: Partial<Photo> } }
   | { type: 'ADD_UNIT'; payload: Unit }
   | { type: 'ADD_PLAYER_UNITS'; payload: { playerId: string; units: Unit[] } }
   | { type: 'UPDATE_UNIT'; payload: { id: string; updates: Partial<Unit> } }
   | { type: 'START_TURN'; payload: { turnNumber: number; activePlayer: string | null } }
   | { type: 'END_TURN' }
-  | { type: 'COMPLETE_TURN'; payload: { turnNumber: number; scores: Record<string, number>; photo: Photo } }
+  | { type: 'COMPLETE_TURN'; payload: { turnNumber: number; scores: Record<string, number> } }
   | { type: 'COMPLETE_ACTIVATION'; payload: { playerId: string; turnNumber: number } }
   | { type: 'UPDATE_TURNS'; payload: Turn[] }
   | { type: 'ADD_GAME_EVENT'; payload: GameEvent }
@@ -34,7 +32,6 @@ const initialState: GameState = {
   firstToDeployPlayerId: null,
   initialInitiativePlayerId: null,
   currentTurn: 0,
-  photos: [],
   units: [],
   turns: [],
   gameEvents: [],
@@ -108,22 +105,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'SET_INITIAL_INITIATIVE':
       return { ...state, initialInitiativePlayerId: action.payload };
 
-    case 'ADD_PHOTO':
-      return {
-        ...state,
-        photos: [...state.photos, action.payload],
-      };
-
-    case 'UPDATE_PHOTO':
-      return {
-        ...state,
-        photos: state.photos.map((photo) =>
-          photo.id === action.payload.id
-            ? { ...photo, ...action.payload.updates }
-            : photo
-        ),
-      };
-
     case 'ADD_UNIT':
       return {
         ...state,
@@ -193,7 +174,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'COMPLETE_TURN': {
-      const { turnNumber, scores, photo } = action.payload;
+      const { turnNumber, scores } = action.payload;
       const completeTurnIndex = state.turns.findIndex(turn => turn.number === turnNumber);
       
       if (completeTurnIndex === -1) {
@@ -204,10 +185,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       completeTurnUpdatedTurns[completeTurnIndex] = {
         ...completeTurnUpdatedTurns[completeTurnIndex],
         completed: true,
-        scores,
-        photos: completeTurnUpdatedTurns[completeTurnIndex].photos ? 
-          [...completeTurnUpdatedTurns[completeTurnIndex].photos, photo] : 
-          [photo]
+        scores
       };
       
       return {

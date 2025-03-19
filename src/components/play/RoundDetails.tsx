@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Player, Photo, Turn } from '@/types/game';
+import { Player } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { Camera, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Table,
@@ -13,13 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface RoundDetailsProps {
   gameState: any;
   players: Player[];
   rounds: number[];
-  onViewPhoto: (photo: Photo) => void;
   onEditRoundScore: (roundNumber: number) => void;
 }
 
@@ -27,7 +25,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   gameState, 
   players, 
   rounds, 
-  onViewPhoto, 
   onEditRoundScore 
 }) => {
   const isMobile = useIsMobile();
@@ -110,12 +107,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
         ))}
       </ul>
     );
-  };
-
-  const getRoundPhotos = (roundNumber: number): Photo[] => {
-    return (gameState.turns || [])
-      .filter((turn: Turn) => Math.ceil(turn.number / 2) === roundNumber)
-      .flatMap((turn: Turn) => turn.photos || []);
   };
 
   const renderInitiativeTable = () => (
@@ -205,43 +196,27 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
 
   const renderRoundActions = () => (
     <div className={`grid ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-1 md:grid-cols-3 gap-4'} mt-4`}>
-      {rounds.map((roundNumber) => {
-        const photos = getRoundPhotos(roundNumber);
-        return (
-          <div 
-            key={`round-actions-${roundNumber}`}
-            className="flex flex-col p-2 border rounded-lg"
-          >
-            <h4 className="font-medium mb-1 text-center text-xs">
-              {isMobile ? `R${roundNumber}` : `Round ${roundNumber}`}
-            </h4>
-            <div className="flex flex-col gap-1">
-              {photos.length > 0 ? (
-                <Button 
-                  variant="secondary" 
-                  size="sm"
-                  onClick={() => onViewPhoto(photos[0])}
-                  className="w-full text-2xs sm:text-xs py-1 h-7"
-                >
-                  <Camera className="mr-1 w-3 h-3" />
-                  {isMobile ? 'Photo' : 'View Photo'}
-                </Button>
-              ) : (
-                <p className="text-2xs text-muted-foreground text-center">No photo</p>
-              )}
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => onEditRoundScore(roundNumber)}
-                className="w-full text-2xs sm:text-xs py-1 h-7"
-              >
-                <Edit className="mr-1 w-3 h-3" />
-                {isMobile ? 'Edit' : 'Edit Scores'}
-              </Button>
-            </div>
+      {rounds.map((roundNumber) => (
+        <div 
+          key={`round-actions-${roundNumber}`}
+          className="flex flex-col p-2 border rounded-lg"
+        >
+          <h4 className="font-medium mb-1 text-center text-xs">
+            {isMobile ? `R${roundNumber}` : `Round ${roundNumber}`}
+          </h4>
+          <div className="flex flex-col gap-1">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onEditRoundScore(roundNumber)}
+              className="w-full text-2xs sm:text-xs py-1 h-7"
+            >
+              <Edit className="mr-1 w-3 h-3" />
+              {isMobile ? 'Edit' : 'Edit Scores'}
+            </Button>
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 
