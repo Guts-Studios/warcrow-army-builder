@@ -247,7 +247,7 @@ const Deployment = () => {
             <PhotoCapture
               onPhotoTaken={handlePhotoTaken}
               phase="deployment"
-              turn={0} // Adding the required turn prop (0 for deployment phase)
+              turn={0}
             />
           </DialogContent>
         </Dialog>
@@ -256,16 +256,18 @@ const Deployment = () => {
       {/* Map view dialog */}
       {state.mission?.mapImage && (
         <Dialog open={showMap} onOpenChange={setShowMap}>
-          <DialogHeader>
-            <DialogTitle>Mission Map: {state.mission.name}</DialogTitle>
-          </DialogHeader>
-          <div className="w-full overflow-hidden rounded-md">
-            <img 
-              src={state.mission.mapImage} 
-              alt="Mission map" 
-              className="w-full object-contain"
-            />
-          </div>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Mission Map: {state.mission.name}</DialogTitle>
+            </DialogHeader>
+            <div className="w-full overflow-hidden rounded-md">
+              <img 
+                src={state.mission.mapImage} 
+                alt="Mission map" 
+                className="w-full object-contain"
+              />
+            </div>
+          </DialogContent>
         </Dialog>
       )}
 
