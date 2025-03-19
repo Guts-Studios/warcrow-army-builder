@@ -10,6 +10,12 @@ export interface Player {
   score?: number;
   list?: string;
   roundScores?: Record<number, number>;
+  units?: Unit[];
+}
+
+export interface Faction {
+  id: string;
+  name: string;
 }
 
 export interface Mission {
@@ -17,6 +23,20 @@ export interface Mission {
   title: string;
   details: string;
   name?: string;
+  description?: string;
+  objectiveDescription?: string;
+  turnCount?: number;
+  roundCount?: number;
+  specialRules?: string[];
+  mapImage?: string;
+  objectiveMarkers?: ObjectiveMarker[];
+}
+
+export interface ObjectiveMarker {
+  id: string;
+  name: string;
+  color: string;
+  controlledBy: string | null;
 }
 
 export interface Photo {
@@ -36,13 +56,23 @@ export interface Turn {
 
 export interface GameEvent {
   id?: string;
-  type: 'objective' | 'mission' | 'initiative';
-  playerId: string;
-  roundNumber: number;
+  type: 'objective' | 'mission' | 'initiative' | 'casualty' | 'note';
+  playerId?: string;
+  roundNumber?: number;
   turnNumber?: number;
   objectiveType?: string;
   description?: string;
   value?: number;
+  timestamp?: number;
+  unitId?: string;
+  objectiveId?: string;
+}
+
+export interface Unit {
+  id: string;
+  name: string;
+  player: string;
+  status?: 'active' | 'wounded' | 'destroyed';
 }
 
 export interface GameState {
@@ -57,4 +87,5 @@ export interface GameState {
   initialInitiativePlayerId?: string;
   turns?: Turn[];
   gameEvents?: GameEvent[];
+  units?: Unit[];
 }

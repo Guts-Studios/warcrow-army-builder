@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer } from 'react';
-import { Player, Mission, GameState } from '@/types/game';
+import { Player, Mission, GameState, GameEvent, Unit } from '@/types/game';
 
 // Define game state types
 type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
@@ -10,13 +10,18 @@ type GameAction =
   | { type: 'SET_PHASE'; payload: GamePhase }
   | { type: 'SET_PLAYER_1'; payload: Partial<Player> }
   | { type: 'SET_PLAYER_2'; payload: Partial<Player> }
-  | { type: 'SET_MISSION'; payload: string }
+  | { type: 'SET_MISSION'; payload: string | Mission }
   | { type: 'INCREMENT_ROUND' }
   | { type: 'SET_NOTES'; payload: string }
   | { type: 'SET_GAME_START_TIME'; payload: number }
   | { type: 'SET_GAME_END_TIME'; payload: number }
   | { type: 'SET_FIRST_TO_DEPLOY'; payload: string }
   | { type: 'SET_INITIAL_INITIATIVE'; payload: string }
+  | { type: 'ADD_GAME_EVENT'; payload: GameEvent }
+  | { type: 'UPDATE_SCORE'; payload: { playerId: string; score: number } }
+  | { type: 'UPDATE_UNIT'; payload: { id: string; updates: Partial<Unit> } }
+  | { type: 'ADD_UNIT'; payload: Unit }
+  | { type: 'UPDATE_PLAYER'; payload: { id: string; updates: Partial<Player> } }
   | { type: 'RESET_GAME' };
 
 // Initial state
@@ -41,6 +46,8 @@ const initialState: GameState = {
   mission: null,
   round: 1,
   notes: '',
+  gameEvents: [],
+  units: [],
 };
 
 // Create context
@@ -83,10 +90,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         }
       };
     case 'SET_MISSION':
-      return {
-        ...state,
-        mission: action.payload ? { id: action.payload, title: action.payload, details: '' } : null,
-      };
+      if (typeof action.payload === 'string') {
+        return {
+          ...state,
+          mission: action.payload ? { id: action.payload, title: action.payload, details: '' } : null,
+        };
+      } else {
+        return {
+          ...state,
+          mission: action.payload,
+        };
+      }
     case 'INCREMENT_ROUND':
       return {
         ...state,
@@ -116,6 +130,48 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         initialInitiativePlayerId: action.payload,
+      };
+    case 'ADD_GAME_EVENT':
+      return {
+        ...state,
+        gameEvents: [...(state.gameEvents || []), action.payload],
+      };
+    case 'UPDATE_SCORE':
+      const { playerId, score } = action.payload;
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [playerId]: {
+            ...state.players[playerId],
+            score,
+          }
+        }
+      };
+    case 'UPDATE_UNIT':
+      return {
+        ...state,
+        units: (state.units || []).map(unit => 
+          unit.id === action.payload.id 
+            ? { ...unit, ...action.payload.updates } 
+            : unit
+        ),
+      };
+    case 'ADD_UNIT':
+      return {
+        ...state,
+        units: [...(state.units || []), action.payload],
+      };
+    case 'UPDATE_PLAYER':
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [action.payload.id]: {
+            ...state.players[action.payload.id],
+            ...action.payload.updates,
+          }
+        }
       };
     case 'RESET_GAME':
       return initialState;
