@@ -2,33 +2,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Home, RotateCw, Save, Flag, ArrowUp, ArrowDown } from 'lucide-react';
+import { Home, RotateCw, Save, Flag, ArrowUp, ArrowDown } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
-import PhotoCapture from '@/components/PhotoCapture';
-import UnitAnnotator from '@/components/play/UnitAnnotator';
 import GameSummary from '@/components/play/GameSummary';
 import RoundSummary from '@/components/play/RoundSummary';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
-import { Photo, Unit } from '@/types/game';
+import { Unit } from '@/types/game';
 import { v4 as uuidv4 } from 'uuid';
 
-type SummaryStep = 'scoring' | 'photo' | 'annotation' | 'summary';
+type SummaryStep = 'scoring' | 'summary';
 
 const Summary = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
   const [currentStep, setCurrentStep] = useState<SummaryStep>('scoring');
-  const [viewingPhoto, setViewingPhoto] = useState<Photo | null>(null);
   const [editingRound, setEditingRound] = useState<number | null>(null);
   
   const players = Object.values(state.players);
@@ -37,10 +28,6 @@ const Summary = () => {
   const [scores, setScores] = useState<Record<string, number>>(
     playerIds.reduce((acc, id) => ({ ...acc, [id]: state.players[id].score }), {})
   );
-  
-  const latestPhoto = state.photos.length > 0 
-    ? state.photos[state.photos.length - 1] 
-    : null;
   
   const getAllUnits = (): Unit[] => {
     if (state.units.length > 0) {
@@ -80,41 +67,10 @@ const Summary = () => {
         payload: { playerId, score: scores[playerId] }
       });
     });
-    setCurrentStep('photo');
-    toast.success('Scores saved successfully!');
-  };
-  
-  const handlePhotoTaken = (photoData: string) => {
-    const photoId = `photo-${Date.now()}`;
-    const newPhoto: Photo = {
-      id: photoId,
-      url: photoData,
-      timestamp: Date.now(),
-      phase: 'endgame',
-      annotations: []
-    };
-    
-    dispatch({
-      type: 'ADD_PHOTO',
-      payload: newPhoto
-    });
-    toast.success('End game photo captured!');
-    setCurrentStep('annotation');
-  };
-  
-  const handleSaveAnnotations = (annotations: any[]) => {
-    if (latestPhoto) {
-      dispatch({
-        type: 'UPDATE_PHOTO',
-        payload: {
-          id: latestPhoto.id,
-          updates: { annotations }
-        }
-      });
-    }
     
     dispatch({ type: 'SET_PHASE', payload: 'summary' });
     setCurrentStep('summary');
+    toast.success('Scores saved successfully!');
   };
   
   const handleNewGame = () => {
@@ -126,7 +82,7 @@ const Summary = () => {
     setEditingRound(roundNumber);
   };
 
-  const handleRoundEditComplete = (roundScores: Record<string, number>, photo: Photo) => {
+  const handleRoundEditComplete = (roundScores: Record<string, number>) => {
     const playerUpdates: Record<string, { oldScore: number; newScore: number }> = {};
     
     Object.entries(state.players).forEach(([playerId, player]) => {
@@ -148,16 +104,6 @@ const Summary = () => {
         }
       });
     });
-    
-    if (photo && photo.url) {
-      dispatch({
-        type: 'ADD_PHOTO',
-        payload: {
-          ...photo,
-          turnNumber: editingRound!
-        }
-      });
-    }
     
     setEditingRound(null);
     
@@ -255,76 +201,6 @@ const Summary = () => {
           </motion.div>
         );
         
-      case 'photo':
-        return (
-          <motion.div
-            key="photo"
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="max-w-2xl mx-auto space-y-6"
-          >
-            <h2 className="phase-title">Capture Final Game State</h2>
-            
-            <div className="mb-6 text-center">
-              <p className="text-muted-foreground">
-                Take a photo of the battlefield at the end of the game.
-              </p>
-            </div>
-            
-            <PhotoCapture 
-              onPhotoTaken={handlePhotoTaken} 
-              phase="endgame" 
-              turn={state.currentTurn}
-            />
-            
-            <div className="flex justify-center pt-4">
-              <Button
-                onClick={handleSkipToSummary}
-                size="sm"
-                variant="outline"
-              >
-                <Flag className="mr-2 w-4 h-4" />
-                Skip Photo and Proceed to Summary
-              </Button>
-            </div>
-          </motion.div>
-        );
-        
-      case 'annotation':
-        return (
-          <motion.div
-            key="annotation"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="max-w-2xl mx-auto space-y-6"
-          >
-            <h2 className="phase-title">Annotate Final Positions</h2>
-            
-            {latestPhoto && (
-              <UnitAnnotator
-                photoUrl={latestPhoto.url}
-                units={getAllUnits()}
-                initialAnnotations={latestPhoto.annotations}
-                onSave={handleSaveAnnotations}
-              />
-            )}
-            
-            <div className="flex justify-center pt-4">
-              <Button
-                onClick={handleSkipToSummary}
-                size="sm"
-                variant="outline"
-              >
-                <Flag className="mr-2 w-4 h-4" />
-                Skip Annotation and Proceed to Summary
-              </Button>
-            </div>
-          </motion.div>
-        );
-        
       case 'summary':
         return (
           <motion.div
@@ -336,7 +212,6 @@ const Summary = () => {
           >
             <GameSummary 
               gameState={state} 
-              onViewPhoto={(photo) => setViewingPhoto(photo)}
               onEditRoundScore={handleEditRound}
             />
             
@@ -372,40 +247,12 @@ const Summary = () => {
       <div className="container px-4">
         {renderStepContent()}
         
-        <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Game Photo</DialogTitle>
-            </DialogHeader>
-            <div className="mt-2">
-              {viewingPhoto && (
-                <div className="relative">
-                  <img 
-                    src={viewingPhoto.url} 
-                    alt="Game state" 
-                    className="w-full rounded-lg"
-                  />
-                  
-                  {viewingPhoto.annotations.map((annotation) => (
-                    <div
-                      key={annotation.id || annotation.unitId}
-                      className="annotation-point"
-                      style={{ left: `${annotation.x}%`, top: `${annotation.y}%` }}
-                    >
-                      {annotation.label.charAt(0)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-        
         {editingRound !== null && (
           <RoundSummary
             roundNumber={editingRound}
             players={state.players}
             units={getAllUnits()}
+            mission={state.mission}
             onComplete={handleRoundEditComplete}
             onCancel={() => setEditingRound(null)}
           />
