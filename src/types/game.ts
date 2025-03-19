@@ -47,16 +47,6 @@ export interface Annotation {
   unitId?: string;
 }
 
-export interface Photo {
-  id: string;
-  url: string;
-  timestamp: number;
-  phase: string;
-  turnNumber?: number;
-  roundNumber?: number;
-  annotations?: Annotation[];
-}
-
 export interface Turn {
   number: number;
   activePlayer?: string | null;
@@ -64,7 +54,6 @@ export interface Turn {
   alternatingPlayer?: string;
   completed?: boolean;
   scores?: Record<string, number>;
-  photos?: Photo[];
   events?: any[];
 }
 
@@ -100,7 +89,6 @@ export interface GameState {
   firstToDeployPlayerId: string | null;
   initialInitiativePlayerId: string | null;
   currentTurn: number;
-  photos: Photo[];
   units: Unit[];
   turns: Turn[];
   gameEvents: GameEvent[];
