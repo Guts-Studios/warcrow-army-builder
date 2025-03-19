@@ -100,7 +100,7 @@ const Play = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
-        <div className="text-warcrow-gold">Loading...</div>
+        <div className="text-warcrow-gold animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -129,7 +129,7 @@ const Play = () => {
         <div className="container px-4 mt-6 flex justify-center">
           <button 
             onClick={resetGame}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black px-4 py-2 rounded"
+            className="border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors bg-transparent px-4 py-2 rounded"
           >
             Reset Game
           </button>

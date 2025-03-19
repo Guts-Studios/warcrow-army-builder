@@ -75,12 +75,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
             exit="exit"
             className="space-y-6"
           >
-            <h2 className="phase-title">Who's Playing?</h2>
+            <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Who's Playing?</h2>
             
             <div className="space-y-6">
               <div className="space-y-4">
-                <Label htmlFor="player-one-name" className="text-base font-medium flex items-center gap-2">
-                  <User className="w-5 h-5 text-muted-foreground" />
+                <Label htmlFor="player-one-name" className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                  <User className="w-5 h-5 text-warcrow-gold" />
                   <span>Player One</span>
                 </Label>
                 <Input
@@ -88,13 +88,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
                   placeholder="Enter player name"
                   value={playerOne.name}
                   onChange={(e) => setPlayerOne({ ...playerOne, name: e.target.value })}
-                  className="h-12"
+                  className="h-12 bg-warcrow-accent border-warcrow-gold/40 text-warcrow-text focus-visible:ring-warcrow-gold"
                 />
               </div>
               
               <div className="space-y-4">
-                <Label htmlFor="player-two-name" className="text-base font-medium flex items-center gap-2">
-                  <User className="w-5 h-5 text-muted-foreground" />
+                <Label htmlFor="player-two-name" className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                  <User className="w-5 h-5 text-warcrow-gold" />
                   <span>Player Two</span>
                 </Label>
                 <Input
@@ -102,7 +102,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
                   placeholder="Enter player name"
                   value={playerTwo.name}
                   onChange={(e) => setPlayerTwo({ ...playerTwo, name: e.target.value })}
-                  className="h-12"
+                  className="h-12 bg-warcrow-accent border-warcrow-gold/40 text-warcrow-text focus-visible:ring-warcrow-gold"
                 />
               </div>
             </div>
@@ -119,12 +119,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
             exit="exit"
             className="space-y-6"
           >
-            <h2 className="phase-title">Select Nations</h2>
+            <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Select Nations</h2>
             
             <div className="space-y-6">
               <div className="space-y-4">
-                <Label className="text-base font-medium flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+                <Label className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                  <ShieldCheck className="w-5 h-5 text-warcrow-gold" />
                   <span>{playerOne.name}'s Nation</span>
                 </Label>
                 <FactionSelector
@@ -134,8 +134,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
               </div>
               
               <div className="space-y-4">
-                <Label className="text-base font-medium flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+                <Label className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                  <ShieldCheck className="w-5 h-5 text-warcrow-gold" />
                   <span>{playerTwo.name}'s Nation</span>
                 </Label>
                 <FactionSelector
@@ -157,11 +157,11 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
             exit="exit"
             className="space-y-6"
           >
-            <h2 className="phase-title">Select Mission</h2>
+            <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Select Mission</h2>
             
             <div className="space-y-4">
-              <Label className="text-base font-medium flex items-center gap-2">
-                <Swords className="w-5 h-5 text-muted-foreground" />
+              <Label className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                <Swords className="w-5 h-5 text-warcrow-gold" />
                 <span>Choose a Mission</span>
               </Label>
               <MissionSelector
@@ -196,10 +196,10 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center",
                   step > stepNumber 
-                    ? "bg-primary text-primary-foreground" 
+                    ? "bg-warcrow-gold text-warcrow-background" 
                     : step === stepNumber 
-                      ? "bg-primary/20 text-primary border-2 border-primary" 
-                      : "bg-secondary text-muted-foreground"
+                      ? "bg-transparent text-warcrow-gold border-2 border-warcrow-gold" 
+                      : "bg-warcrow-accent/30 text-warcrow-text"
                 )}
               >
                 {stepNumber === 1 && <User className="w-5 h-5" />}
@@ -211,7 +211,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
                 <div 
                   className={cn(
                     "w-full h-1 mx-1",
-                    step > stepNumber ? "bg-primary" : "bg-secondary"
+                    step > stepNumber ? "bg-warcrow-gold" : "bg-warcrow-accent/30"
                   )}
                 />
               )}
@@ -229,14 +229,14 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
           variant="outline"
           onClick={goToPrevStep}
           disabled={step === 1}
-          className="w-32"
+          className="w-32 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background disabled:opacity-50"
         >
           Back
         </Button>
         
         <Button
           onClick={goToNextStep}
-          className="w-32"
+          className="w-32 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
         >
           {step === 3 ? 'Start Game' : 'Next'}
         </Button>
