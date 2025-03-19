@@ -8,7 +8,6 @@ import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 import { ArrowRight, Camera, Star, Target } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MissionScoring from '@/components/play/MissionScoring';
 import { useGameScoring } from '@/hooks/useGameScoring';
 import ObjectiveUpdate from '@/components/play/ObjectiveUpdate';
@@ -65,14 +64,9 @@ const Game = () => {
           </div>
           
           <Card className="p-6">
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Game Details</TabsTrigger>
-                <TabsTrigger value="objectives">Objectives</TabsTrigger>
-                <TabsTrigger value="scoring">Scoring</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="details" className="mt-4">
+            <div className="space-y-8">
+              {/* Game Details Section */}
+              <div>
                 <h2 className="text-xl font-semibold mb-4">Game Information</h2>
                 
                 <div className="space-y-2 mb-6">
@@ -93,9 +87,10 @@ const Game = () => {
                     </div>
                   ))}
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="objectives" className="mt-4">
+              </div>
+            
+              {/* Objectives Section */}
+              <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Objectives</h2>
                   <Button 
@@ -140,10 +135,11 @@ const Game = () => {
                   open={showObjectiveDialog} 
                   onClose={() => setShowObjectiveDialog(false)} 
                 />
-              </TabsContent>
+              </div>
               
-              <TabsContent value="scoring" className="mt-4">
-                <div className="flex justify-between items-center mb-4">
+              {/* Scoring Section */}
+              <div>
+                <div className="flex justify-between items-center mb-4 border-t pt-4">
                   <h2 className="text-xl font-semibold">Round {currentRound} Scoring</h2>
                   <Button 
                     onClick={handleScoreRound}
@@ -170,8 +166,8 @@ const Game = () => {
                     No mission selected
                   </div>
                 )}
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
           </Card>
         </motion.div>
       </div>
