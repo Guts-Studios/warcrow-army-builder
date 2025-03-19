@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit2, Clock, Flag } from 'lucide-react';
+import { Edit2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -90,8 +90,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                   <TableRow 
                     key={`${roundNumber}-${player.id}`} 
                     className={playerIndex % 2 === 0 ? 'bg-warcrow-background' : 'bg-warcrow-accent/30'}
-                    // We can't use style={{ hover: 'none' }} as hover isn't a valid CSS property
-                    // Instead we're using the CSS class added to the Table component
                   >
                     {playerIndex === 0 && (
                       <TableCell rowSpan={players.length} className="font-medium align-top border-r border-warcrow-gold/20">
@@ -116,7 +114,11 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       <div className="flex items-center gap-1">
                         {player.name}
                         {(hasInitiative || hasInitialInitiative) && (
-                          <Flag className="h-4 w-4 text-warcrow-gold ml-1" />
+                          <img 
+                            src="/art/icons/gold-flag.png" 
+                            alt="Initiative" 
+                            className="h-4 w-4 ml-1"
+                          />
                         )}
                       </div>
                       

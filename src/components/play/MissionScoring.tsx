@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Target, Flag, Shield, Cloud, Users } from 'lucide-react';
+import { Target, Shield, Cloud, Users } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -60,7 +60,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     htmlFor={`${playerId}-central`}
                     className="text-sm flex items-center gap-1"
                   >
-                    <Flag className="h-3.5 w-3.5 text-primary" />
+                    <img src="/art/icons/flag.png" alt="Flag" className="h-3.5 w-3.5" />
                     Control central objective (1 VP)
                   </Label>
                 </div>
@@ -82,7 +82,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-muted-foreground" : ""
                     )}
                   >
-                    <Flag className="h-3.5 w-3.5 text-orange-500" />
+                    <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 1 (1 VP)
                   </Label>
                 </div>
@@ -104,7 +104,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-muted-foreground" : ""
                     )}
                   >
-                    <Flag className="h-3.5 w-3.5 text-red-500" />
+                    <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 2 (2 VP)
                   </Label>
                 </div>
@@ -190,7 +190,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-muted-foreground" : ""
                     )}
                   >
-                    <Flag className="h-3.5 w-3.5 text-orange-500" />
+                    <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 1 (1 VP)
                   </Label>
                 </div>
@@ -212,7 +212,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-muted-foreground" : ""
                     )}
                   >
-                    <Flag className="h-3.5 w-3.5 text-red-500" />
+                    <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 2 (1 VP)
                   </Label>
                 </div>
