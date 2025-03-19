@@ -6,16 +6,14 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
-import { ArrowRight, Camera, Star, Target } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import MissionScoring from '@/components/play/MissionScoring';
 import { useGameScoring } from '@/hooks/useGameScoring';
-import ObjectiveUpdate from '@/components/play/ObjectiveUpdate';
 
 const Game = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
-  const [showObjectiveDialog, setShowObjectiveDialog] = useState(false);
   const [currentRound, setCurrentRound] = useState(1);
   
   const {
@@ -87,54 +85,6 @@ const Game = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            
-              {/* Objectives Section */}
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Objectives</h2>
-                  <Button 
-                    onClick={() => setShowObjectiveDialog(true)}
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <Target className="h-4 w-4" />
-                    <span>Update Objective</span>
-                  </Button>
-                </div>
-                
-                {state.mission?.objectiveMarkers && state.mission.objectiveMarkers.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {state.mission.objectiveMarkers.map(marker => (
-                      <div 
-                        key={marker.id} 
-                        className="p-3 border rounded-lg flex items-center gap-3"
-                      >
-                        <div 
-                          className="w-6 h-6 rounded-full flex-shrink-0" 
-                          style={{ backgroundColor: marker.color }}
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium">{marker.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {marker.controlledBy ? 
-                              `Controlled by: ${state.players[marker.controlledBy]?.name}` : 
-                              'Not controlled'}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No objective markers defined for this mission
-                  </div>
-                )}
-                
-                <ObjectiveUpdate 
-                  open={showObjectiveDialog} 
-                  onClose={() => setShowObjectiveDialog(false)} 
-                />
               </div>
               
               {/* Scoring Section */}
