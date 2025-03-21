@@ -4,8 +4,8 @@ export interface SelectedUnit {
   name: string;
   pointsCost: number;
   quantity: number;
-  faction: string; // Making this required to match Unit interface
-  keywords: string[]; // Keeping as string[] for compatibility with existing code
+  faction: string; 
+  keywords: string[]; // SelectedUnit uses string[] for keywords
   highCommand?: boolean;
   availability: number;
   imageUrl?: string;
