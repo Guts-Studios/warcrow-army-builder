@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -75,9 +76,17 @@ const Profile = () => {
         throw new Error("Not authenticated");
       }
 
+      // Convert wab_id back to wap_id for database update
+      const { wab_id, ...otherData } = updateData;
+      const dataToUpdate = {
+        ...otherData,
+        // Only include wap_id if wab_id exists in the form data
+        ...(wab_id && { wap_id: wab_id })
+      };
+
       const { error } = await supabase
         .from("profiles")
-        .update(updateData)
+        .update(dataToUpdate)
         .eq("id", session.user.id);
 
       if (error) {
@@ -109,7 +118,8 @@ const Profile = () => {
         social_discord: profile.social_discord || "",
         social_twitter: profile.social_twitter || "",
         avatar_url: profile.avatar_url || "",
-        wab_id: profile.wab_id || "",
+        // Map the database wap_id to our form's wab_id
+        wab_id: profile.wap_id || "",
       });
     }
   }, [profile]);
