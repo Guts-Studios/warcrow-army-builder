@@ -97,7 +97,7 @@ export const ProfileAvatar = ({
             <Button 
               variant="outline" 
               size="sm"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-warcrow-gold hover:text-warcrow-gold"
+              className="bg-blue-500 border-blue-600 text-white hover:bg-blue-600 hover:border-blue-700 hover:text-white"
               disabled={isUploading}
             >
               {isUploading ? (
@@ -120,7 +120,7 @@ export const ProfileAvatar = ({
           <Button 
             variant="outline" 
             size="sm"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-warcrow-gold hover:text-warcrow-gold"
+            className="bg-purple-500 border-purple-600 text-white hover:bg-purple-600 hover:border-purple-700 hover:text-white"
             onClick={() => setIsPortraitDialogOpen(true)}
           >
             <ImageIcon className="h-4 w-4 mr-1" />
