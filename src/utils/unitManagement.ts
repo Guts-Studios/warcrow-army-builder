@@ -1,4 +1,5 @@
-import { Unit, SelectedUnit } from "@/types/army";
+
+import { Unit, SelectedUnit, Keyword } from "@/types/army";
 
 export const validateUnitAddition = (
   unit: Unit,
@@ -45,7 +46,14 @@ export const updateSelectedUnits = (
           : u
       );
     }
-    return [...selectedUnits, { ...unit, quantity: 1 }];
+    // Convert Unit to SelectedUnit, mapping keywords from Keyword[] to string[]
+    const keywordsAsStrings = unit.keywords.map(k => k.name);
+    
+    return [...selectedUnits, { 
+      ...unit, 
+      quantity: 1,
+      keywords: keywordsAsStrings 
+    }];
   } else {
     const updatedUnits = selectedUnits.map((u) =>
       u.id === unit.id ? { ...u, quantity: u.quantity - 1 } : u
