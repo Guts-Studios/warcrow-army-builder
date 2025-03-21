@@ -26,6 +26,13 @@ interface ListMetadata {
   totalPoints?: string;
 }
 
+// Interface for player profile data from the database
+interface PlayerProfileData {
+  username?: string;
+  avatar_url?: string;
+  favorite_faction?: string;
+}
+
 const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   const { state, dispatch } = useGame();
   const player = state.players[playerId];
@@ -75,8 +82,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       if (error) {
         toast.error("WAB ID not found");
       } else if (data) {
-        // Update player with found profile data
-        const updates = {
+        // Create a typed updates object
+        const updates: Partial<Player> = {
           name: data.username || playerName,
           wab_id: playerWabId,
           verified: true
@@ -84,11 +91,9 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         
         // If player has a favorite faction, use it
         if (data.favorite_faction) {
-          const faction = {
-            id: data.favorite_faction,
+          updates.faction = {
             name: data.favorite_faction
           };
-          updates.faction = faction as any;
         }
         
         // If player has an avatar, use it

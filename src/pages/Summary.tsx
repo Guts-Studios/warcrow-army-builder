@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import { Container } from '@/components/ui/custom';
@@ -10,21 +10,34 @@ import PreviousRounds from '@/components/play/PreviousRounds';
 import GameResults from '@/components/play/GameResults';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
+import { getAllRoundNumbersFromState } from '@/utils/gameUtils';
 
 const Summary = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
+  const [currentRound, setCurrentRound] = useState(3); // Default to 3 rounds
   
   useEffect(() => {
     // Only allow access to summary page if a game has been started
     if (!state.mission) {
       navigate('/play');
     }
-  }, [state.mission, navigate]);
+    
+    // Determine the current round based on game state
+    const rounds = getAllRoundNumbersFromState(state);
+    if (rounds.length > 0) {
+      setCurrentRound(Math.max(...rounds));
+    }
+  }, [state, navigate]);
   
   const handleNewGame = () => {
     dispatch({ type: 'RESET_GAME' });
     navigate('/play');
+  };
+  
+  const handleEditRound = (roundNumber: number) => {
+    // Navigate to the scoring page for the selected round
+    navigate(`/scoring?round=${roundNumber}`);
   };
   
   if (!state.mission) {
@@ -40,17 +53,29 @@ const Summary = () => {
           animate="visible"
           className="space-y-6"
         >
-          <GameSummaryHeader mission={state.mission} />
+          <GameSummaryHeader 
+            gameState={state}
+            winner={Object.values(state.players)[0]} // Pass the first player as default winner
+          />
           
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
-              <GameSummary />
+              <GameSummary 
+                gameState={state}
+                onEditRoundScore={handleEditRound}
+              />
               <GameResults />
             </div>
             
             <div className="space-y-6">
-              <FinalScores />
-              <PreviousRounds />
+              <FinalScores 
+                players={Object.values(state.players)}
+                gameState={state}
+              />
+              <PreviousRounds 
+                currentRound={currentRound}
+                onEditRound={handleEditRound}
+              />
             </div>
           </div>
           
