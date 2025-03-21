@@ -95,14 +95,33 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       
       // Convert the database response to SavedList[] type
       if (data) {
-        const typedLists: SavedList[] = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          faction: item.faction,
-          units: Array.isArray(item.units) ? item.units as SelectedUnit[] : [],
-          user_id: item.user_id,
-          created_at: item.created_at
-        }));
+        const typedLists: SavedList[] = data.map(item => {
+          // Ensure units is properly typed as SelectedUnit[]
+          let typedUnits: SelectedUnit[] = [];
+          if (Array.isArray(item.units)) {
+            typedUnits = item.units.map((unit: any) => ({
+              id: unit.id || `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              name: unit.name || 'Unknown Unit',
+              pointsCost: unit.pointsCost || 0,
+              quantity: unit.quantity || 1,
+              faction: unit.faction || item.faction,
+              keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
+              highCommand: !!unit.highCommand,
+              availability: unit.availability || 1,
+              specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : []
+            }));
+          }
+          
+          return {
+            id: item.id,
+            name: item.name,
+            faction: item.faction,
+            units: typedUnits,
+            user_id: item.user_id,
+            created_at: item.created_at
+          };
+        });
+        
         return typedLists;
       }
       
@@ -167,6 +186,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         if (profileData.id) {
           const lists = await fetchSavedLists(profileData.id);
           setSavedLists(lists);
+          console.log("Fetched saved lists:", lists);
         }
       }
     } catch (err) {
@@ -312,25 +332,28 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         </div>
 
-        {/* Saved Lists Dropdown - Show only if WAB ID is verified and lists exist */}
-        {player?.verified && savedLists.length > 0 && (
+        {/* Saved Lists Dropdown - Show if WAB ID is verified and lists exist */}
+        {player?.verified && (
           <div>
             <Label>Saved Army Lists</Label>
-            <Select onValueChange={handleSavedListSelect}>
-              <SelectTrigger className="w-full mt-1">
-                <SelectValue placeholder="Select a saved list" />
-              </SelectTrigger>
-              <SelectContent>
-                {savedLists.map((list) => (
-                  <SelectItem key={list.id} value={list.id}>
-                    {list.name} ({list.faction})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground mt-1">
-              {isLoadingSavedLists ? "Loading lists..." : `${savedLists.length} list${savedLists.length === 1 ? "" : "s"} available`}
-            </p>
+            {savedLists.length > 0 ? (
+              <Select onValueChange={handleSavedListSelect}>
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Select a saved list" />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedLists.map((list) => (
+                    <SelectItem key={list.id} value={list.id}>
+                      {list.name} ({list.faction})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                {isLoadingSavedLists ? "Loading lists..." : "No saved lists available"}
+              </p>
+            )}
           </div>
         )}
 
