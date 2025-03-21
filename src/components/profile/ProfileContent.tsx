@@ -44,7 +44,10 @@ export const ProfileContent = () => {
           </div>
 
           <ProfileForm
-            formData={formData}
+            formData={{
+              ...formData,
+              wab_id: profile?.wab_id || formData.wab_id || null
+            }}
             isEditing={isEditing}
             isPending={updateProfile.isPending}
             onInputChange={handleInputChange}
