@@ -17,6 +17,9 @@ import { syenannTroops } from "@/data/factions/syenann/troops";
 import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { hegemonyOfEmbersigHighCommand } from "@/data/factions/hegemony/high-command";
+import { hegemonyOfEmbersigTroops } from "@/data/factions/hegemony/troops";
+import { hegemonyOfEmbersigCharacters } from "@/data/factions/hegemony/characters";
 
 // Combine all portrait sources
 const getAllUnitPortraits = () => {
@@ -26,6 +29,9 @@ const getAllUnitPortraits = () => {
     ...syenannCharacters,
     ...syenannTroops,
     ...scionsOfYaldabaothUnits,
+    ...hegemonyOfEmbersigHighCommand,
+    ...hegemonyOfEmbersigTroops,
+    ...hegemonyOfEmbersigCharacters,
   ];
   
   return allUnits.map(unit => ({
@@ -64,6 +70,7 @@ export const PortraitSelector = ({
   const northernTribesPortraits = filteredPortraits.filter(p => p.faction === 'northern-tribes');
   const syenannPortraits = filteredPortraits.filter(p => p.faction === 'syenann');
   const scionsPortraits = filteredPortraits.filter(p => p.faction === 'scions-of-yaldabaoth');
+  const hegemonyPortraits = filteredPortraits.filter(p => p.faction === 'hegemony-of-embersig');
   
   const handleSelectPortrait = (url: string) => {
     onSelectPortrait(url);
@@ -96,6 +103,7 @@ export const PortraitSelector = ({
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="northern-tribes">Northern Tribes</TabsTrigger>
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="syenann">Syenann</TabsTrigger>
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="scions-of-yaldabaoth">Scions</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="hegemony-of-embersig">Hegemony</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all">
@@ -173,8 +181,28 @@ export const PortraitSelector = ({
               </div>
             </ScrollArea>
           </TabsContent>
+          
+          <TabsContent value="hegemony-of-embersig">
+            <ScrollArea className="h-60">
+              <div className="grid grid-cols-4 gap-2 p-2">
+                {hegemonyPortraits.map(portrait => (
+                  <Avatar
+                    key={portrait.id}
+                    className="h-16 w-16 cursor-pointer hover:ring-2 hover:ring-warcrow-gold transition-all"
+                    onClick={() => handleSelectPortrait(portrait.imageUrl)}
+                  >
+                    <AvatarImage src={portrait.imageUrl} alt={portrait.name} />
+                    <AvatarFallback className="bg-black text-warcrow-gold text-xs">
+                      {portrait.name.split(' ').map(word => word[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
   );
 };
+
