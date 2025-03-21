@@ -82,6 +82,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   const fetchSavedLists = async (userId: string) => {
     setIsLoadingSavedLists(true);
     try {
+      console.log("Fetching saved lists for user ID:", userId);
       const { data, error } = await supabase
         .from('army_lists')
         .select('*')
@@ -92,6 +93,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         toast.error("Failed to load saved lists");
         return [];
       }
+      
+      console.log("Raw data from Supabase:", data);
       
       // Convert the database response to SavedList[] type
       if (data) {
@@ -122,6 +125,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           };
         });
         
+        console.log("Processed typed lists:", typedLists);
         return typedLists;
       }
       
@@ -147,9 +151,11 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         .single();
       
       if (error) {
+        console.error("WAB ID verification error:", error);
         toast.error("WAB ID not found");
       } else if (data) {
         const profileData: PlayerProfileData = data;
+        console.log("Profile data found:", profileData);
         
         // Create a typed updates object
         const updates: Partial<Player> = {
@@ -184,9 +190,10 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         
         // Fetch the user's saved lists
         if (profileData.id) {
+          console.log("Fetching lists for user ID:", profileData.id);
           const lists = await fetchSavedLists(profileData.id);
+          console.log("Fetched lists result:", lists);
           setSavedLists(lists);
-          console.log("Fetched saved lists:", lists);
         }
       }
     } catch (err) {
@@ -196,6 +203,20 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       setIsVerifying(false);
     }
   };
+
+  // Check for and load lists when player is verified
+  useEffect(() => {
+    const loadSavedLists = async () => {
+      // If player profile has id and is verified but no lists loaded yet
+      if (player?.verified && player?.profile_id && savedLists.length === 0 && !isLoadingSavedLists) {
+        console.log("Loading lists for verified player with profile ID:", player.profile_id);
+        const lists = await fetchSavedLists(player.profile_id);
+        setSavedLists(lists);
+      }
+    };
+    
+    loadSavedLists();
+  }, [player?.verified, player?.profile_id, savedLists.length, isLoadingSavedLists]);
 
   // Handle faction selection
   const handleFactionSelect = (faction: Faction) => {
@@ -245,8 +266,14 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
 
   // Handle selecting a saved list
   const handleSavedListSelect = (listId: string) => {
+    console.log("Selected list ID:", listId);
     const selectedList = savedLists.find(list => list.id === listId);
-    if (!selectedList) return;
+    console.log("Found selected list:", selectedList);
+    
+    if (!selectedList) {
+      console.error("Selected list not found");
+      return;
+    }
     
     // Convert saved list to the expected format
     const listText = `${selectedList.name}\n${selectedList.faction}\n\n`;
@@ -332,7 +359,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         </div>
 
-        {/* Saved Lists Dropdown - Show if WAB ID is verified and lists exist */}
+        {/* Saved Lists Dropdown - Show if WAB ID is verified */}
         {player?.verified && (
           <div>
             <Label>Saved Army Lists</Label>

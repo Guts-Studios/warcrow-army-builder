@@ -34,8 +34,8 @@ export const getAllRoundNumbers = (turns: Turn[]): number[] => {
   
   // Collect round numbers from turns
   turns.forEach(turn => {
-    // Check if roundNumber exists before accessing it
-    if (turn && turn.roundNumber !== undefined) {
+    // Check if turn and roundNumber exist before accessing
+    if (turn && typeof turn.roundNumber === 'number') {
       rounds.add(turn.roundNumber);
     }
   });
