@@ -1,23 +1,19 @@
-export interface Keyword {
-  name: string;
-  description: string;
-}
 
-export interface Unit {
+export interface SelectedUnit {
   id: string;
   name: string;
   pointsCost: number;
-  faction: string;
-  keywords: Keyword[];
-  highCommand: boolean;
+  quantity: number;
+  faction?: string;
+  keywords?: string[];
+  highCommand?: boolean;
   availability: number;
   imageUrl?: string;
   specialRules?: string[];
-  command?: number;
-}
-
-export interface SelectedUnit extends Unit {
-  quantity: number;
+  command?: {
+    normal: number;
+    charge: number;
+  };
 }
 
 export interface SavedList {
@@ -25,13 +21,7 @@ export interface SavedList {
   name: string;
   faction: string;
   units: SelectedUnit[];
-  user_id?: string;
   created_at: string;
+  user_id?: string;
+  wab_id?: string; // Add WAB ID to SavedList type
 }
-
-export interface Faction {
-  id: string;
-  name: string;
-}
-
-export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";

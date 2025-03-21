@@ -5,9 +5,24 @@ import { SavedList, SelectedUnit } from "@/types/army";
 // Function to fetch saved lists by WAB ID
 export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => {
   try {
-    console.log("Utility: Fetching profile by WAB ID:", wabId);
+    console.log("Utility: Fetching lists by WAB ID:", wabId);
     
-    // First, get the user profile by WAB ID
+    // First method: Try directly using the WAB ID from the army_lists table
+    const { data: directLists, error: directError } = await supabase
+      .from('army_lists')
+      .select('*')
+      .eq('wab_id', wabId);
+    
+    if (directError) {
+      console.error("Utility: Error fetching lists directly by WAB ID:", directError);
+    }
+    
+    if (directLists && directLists.length > 0) {
+      console.log("Utility: Found lists directly with WAB ID:", directLists.length);
+      return formatListsData(directLists);
+    }
+    
+    // Second method: Get the profile by WAB ID, then get lists by user_id
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -26,8 +41,20 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
     
     console.log("Utility: Found profile with ID:", profileData.id);
     
-    // Then fetch the lists using the profile ID
-    return await fetchSavedLists(profileData.id);
+    // Fetch the lists using the profile ID
+    const { data: listsData, error: listsError } = await supabase
+      .from('army_lists')
+      .select('*')
+      .eq('user_id', profileData.id);
+    
+    if (listsError) {
+      console.error("Utility: Error fetching lists by user ID:", listsError);
+      return [];
+    }
+    
+    console.log("Utility: Found lists by user ID:", listsData?.length || 0);
+    return formatListsData(listsData || []);
+    
   } catch (err) {
     console.error("Utility: Error in fetchListsByWabId:", err);
     return [];
@@ -48,45 +75,50 @@ export const fetchSavedLists = async (userId: string): Promise<SavedList[]> => {
       return [];
     }
     
-    console.log("Utility: Raw data from Supabase:", data);
-    
-    // Convert the database response to SavedList[] type
-    if (data && data.length > 0) {
-      const typedLists: SavedList[] = data.map(item => {
-        // Ensure units is properly typed as SelectedUnit[]
-        let typedUnits: SelectedUnit[] = [];
-        if (Array.isArray(item.units)) {
-          typedUnits = item.units.map((unit: any) => ({
-            id: unit.id || `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            name: unit.name || 'Unknown Unit',
-            pointsCost: unit.pointsCost || 0,
-            quantity: unit.quantity || 1,
-            faction: unit.faction || item.faction,
-            keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
-            highCommand: !!unit.highCommand,
-            availability: unit.availability || 1,
-            specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : []
-          }));
-        }
-        
-        return {
-          id: item.id,
-          name: item.name,
-          faction: item.faction,
-          units: typedUnits,
-          user_id: item.user_id,
-          created_at: item.created_at
-        };
-      });
-      
-      console.log("Utility: Processed typed lists:", typedLists);
-      return typedLists;
-    } else {
-      console.log("Utility: No saved lists found for user:", userId);
-      return [];
-    }
+    return formatListsData(data || []);
   } catch (err) {
     console.error("Utility: Error in fetchSavedLists:", err);
     return [];
   }
+};
+
+// Helper function to format lists data consistently
+const formatListsData = (data: any[]): SavedList[] => {
+  if (!data || data.length === 0) {
+    return [];
+  }
+  
+  console.log("Utility: Formatting lists data:", data.length);
+  
+  // Convert the database response to SavedList[] type
+  const typedLists: SavedList[] = data.map(item => {
+    // Ensure units is properly typed as SelectedUnit[]
+    let typedUnits: SelectedUnit[] = [];
+    if (Array.isArray(item.units)) {
+      typedUnits = item.units.map((unit: any) => ({
+        id: unit.id || `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: unit.name || 'Unknown Unit',
+        pointsCost: unit.pointsCost || 0,
+        quantity: unit.quantity || 1,
+        faction: unit.faction || item.faction,
+        keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
+        highCommand: !!unit.highCommand,
+        availability: unit.availability || 1,
+        specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : []
+      }));
+    }
+    
+    return {
+      id: item.id,
+      name: item.name,
+      faction: item.faction,
+      units: typedUnits,
+      user_id: item.user_id,
+      created_at: item.created_at,
+      wab_id: item.wab_id // Include the WAB ID in the returned data
+    };
+  });
+  
+  console.log("Utility: Processed typed lists:", typedLists.length);
+  return typedLists;
 };

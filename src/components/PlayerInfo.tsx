@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGame } from '@/context/GameContext';
 import { motion } from 'framer-motion';
@@ -27,7 +26,6 @@ interface PlayerInfoProps {
   index: number;
 }
 
-// Interface for list metadata
 interface ListMetadata {
   title?: string;
   faction?: string;
@@ -35,7 +33,6 @@ interface ListMetadata {
   totalPoints?: string;
 }
 
-// Interface for player profile data from the database
 interface PlayerProfileData {
   username?: string;
   avatar_url?: string;
@@ -53,7 +50,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [isLoadingSavedLists, setIsLoadingSavedLists] = useState(false);
 
-  // Handle player name change
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
     setPlayerName(name);
@@ -66,7 +62,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     });
   };
 
-  // Handle WAB ID change
   const handleWabIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const wab_id = e.target.value;
     setPlayerWabId(wab_id);
@@ -77,9 +72,12 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         updates: { wab_id }
       }
     });
+    
+    if (wab_id.length >= 12) {
+      fetchLists(wab_id);
+    }
   };
 
-  // Fetch saved lists for a WAB ID
   const fetchLists = async (wabId: string) => {
     if (!wabId) return;
     
@@ -91,9 +89,13 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       if (lists.length > 0) {
         console.log(`Found ${lists.length} lists for WAB ID: ${wabId}`, lists);
         setSavedLists(lists);
+        toast.success(`Found ${lists.length} saved lists`);
       } else {
         console.log(`No lists found for WAB ID: ${wabId}`);
         setSavedLists([]);
+        if (player?.verified) {
+          toast.info("No saved lists found for this WAB ID");
+        }
       }
     } catch (err) {
       console.error(`Error fetching lists for WAB ID: ${wabId}:`, err);
@@ -104,7 +106,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     }
   };
 
-  // Check if we need to fetch lists directly using the WAB ID
   useEffect(() => {
     if (playerWabId) {
       console.log("WAB ID entered:", playerWabId);
@@ -112,15 +113,15 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     }
   }, [playerWabId]);
 
-  // Special case for the demo WAB ID
   useEffect(() => {
-    if (playerWabId === 'WAB-TKBD-EKWZ-WX0M') {
-      console.log("Direct fetch for known WAB ID:", playerWabId);
+    const knownWabIds = ['WAB-TKBD-EKWZ-WX0M', 'WAB-1234-ABCD-5678'];
+    
+    if (playerWabId && knownWabIds.includes(playerWabId)) {
+      console.log("Loading immediate lists for known WAB ID:", playerWabId);
       fetchLists(playerWabId);
     }
-  }, []);
+  }, [playerWabId]);
 
-  // Verify WAB ID
   const verifyWabId = async () => {
     if (!playerWabId) return;
     
@@ -139,30 +140,23 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         const profileData: PlayerProfileData = data;
         console.log("Profile data found:", profileData);
         
-        // Create a typed updates object
         const updates: Partial<Player> = {
           name: profileData.username || playerName,
           wab_id: playerWabId,
           verified: true
         };
         
-        // Save the profile ID for later use
         if (profileData.id) {
           updates.user_profile_id = profileData.id;
-          
-          // Fetch lists immediately after verification
-          console.log("Fetching lists for verified profile ID:", profileData.id);
           await fetchLists(playerWabId);
         }
         
-        // If player has a favorite faction, use it
         if (profileData.favorite_faction) {
           updates.faction = {
             name: profileData.favorite_faction
           };
         }
         
-        // If player has an avatar, use it
         if (profileData.avatar_url) {
           updates.avatar_url = profileData.avatar_url;
         }
@@ -175,7 +169,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           }
         });
         
-        // Update local state
         setPlayerName(profileData.username || playerName);
         toast.success("WAB ID verified");
       }
@@ -187,10 +180,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     }
   };
 
-  // Check for and load lists when player is verified
   useEffect(() => {
     const loadSavedLists = async () => {
-      // If player is verified but no lists loaded yet
       if (player?.verified && player?.user_profile_id && savedLists.length === 0 && !isLoadingSavedLists) {
         console.log("Loading lists for verified player with profile ID:", player.user_profile_id);
         await fetchLists(player.wab_id || '');
@@ -200,7 +191,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     loadSavedLists();
   }, [player?.verified, player?.user_profile_id, savedLists.length, isLoadingSavedLists]);
 
-  // Handle faction selection
   const handleFactionSelect = (faction: Faction) => {
     dispatch({
       type: 'UPDATE_PLAYER',
@@ -213,14 +203,12 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     });
   };
 
-  // Handle list upload
   const handleListUpload = (
     playerId: string, 
     listContent: string, 
     parsedUnits?: Unit[], 
     metadata?: ListMetadata
   ) => {
-    // Update player with list content
     dispatch({
       type: 'UPDATE_PLAYER',
       payload: {
@@ -229,7 +217,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       }
     });
 
-    // If we have parsed units, add them to the player and global units array
     if (parsedUnits && parsedUnits.length > 0) {
       dispatch({
         type: 'ADD_PLAYER_UNITS',
@@ -240,13 +227,11 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       });
     }
 
-    // Save metadata locally
     if (metadata) {
       setListMetadata(metadata);
     }
   };
 
-  // Handle selecting a saved list
   const handleSavedListSelect = (listId: string) => {
     console.log("Selected list ID:", listId);
     const selectedList = savedLists.find(list => list.id === listId);
@@ -257,7 +242,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       return;
     }
     
-    // Convert saved list to the expected format
     const listText = `${selectedList.name}\n${selectedList.faction}\n\n`;
     const units: Unit[] = selectedList.units.map((unit, index) => ({
       id: `unit-${playerId}-${index}`,
@@ -265,20 +249,17 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       player: playerId
     }));
 
-    // Create metadata from the saved list
     const metadata: ListMetadata = {
       title: selectedList.name,
       faction: selectedList.faction,
       totalPoints: `${selectedList.units.reduce((sum, unit) => sum + (unit.pointsCost * unit.quantity), 0)} pts`
     };
 
-    // Call the list upload handler with this data
     handleListUpload(playerId, listText, units, metadata);
     
     toast.success(`List "${selectedList.name}" loaded successfully`);
   };
 
-  // Get player units if they exist
   const playerUnits = state.units.filter(unit => unit.player === playerId);
 
   return (
@@ -341,7 +322,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         </div>
 
-        {/* Always show the Saved Lists Dropdown */}
         <div>
           <Label>Saved Army Lists</Label>
           {isLoadingSavedLists ? (
@@ -377,7 +357,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         </div>
 
-        {/* Display list metadata if available */}
         {player?.list && (
           <div className="mt-4 space-y-2">
             {listMetadata.title && (
@@ -386,7 +365,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
               </div>
             )}
             
-            {/* Show points summary on the same line */}
             {(listMetadata.commandPoints || listMetadata.totalPoints) && (
               <div className="flex justify-between text-sm">
                 {listMetadata.commandPoints && (
@@ -405,7 +383,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         )}
 
-        {/* Display units section with all units */}
         {player?.list && (
           <>
             <Separator className="my-4" />

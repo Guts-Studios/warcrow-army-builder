@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Save, CloudUpload } from "lucide-react";
@@ -39,13 +40,34 @@ const SaveListSection = ({
         return;
       }
 
+      // First, fetch the user's profile to get their WAB ID
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('wab_id')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        toast.error("Failed to retrieve your WAB ID");
+        return;
+      }
+
+      const wab_id = profileData?.wab_id;
+      
+      if (!wab_id) {
+        toast.error("Your profile doesn't have a WAB ID assigned");
+        return;
+      }
+
       const { error } = await supabase
         .from('army_lists')
         .insert({
           name: listName,
           faction: selectedFaction,
           units: selectedUnits,
-          user_id: user.id
+          user_id: user.id,
+          wab_id: wab_id // Add the WAB ID to the saved list
         });
 
       if (error) throw error;
