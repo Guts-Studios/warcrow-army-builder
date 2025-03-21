@@ -4,7 +4,15 @@ import { useGame } from '@/context/GameContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mission } from '@/types/game';
 
-const MissionSelector: React.FC = () => {
+interface MissionSelectorProps {
+  selectedMission?: Mission | null;
+  onSelectMission?: (mission: Mission) => void;
+}
+
+const MissionSelector: React.FC<MissionSelectorProps> = ({ 
+  selectedMission: externalSelectedMission, 
+  onSelectMission 
+}) => {
   const { state, dispatch } = useGame();
   
   const missions: Mission[] = [
@@ -69,8 +77,15 @@ const MissionSelector: React.FC = () => {
   ];
 
   const handleMissionSelect = (mission: Mission) => {
-    dispatch({ type: 'SET_MISSION', payload: mission });
+    if (onSelectMission) {
+      onSelectMission(mission);
+    } else {
+      dispatch({ type: 'SET_MISSION', payload: mission });
+    }
   };
+
+  // Use either the external selected mission (from props) or the one from context
+  const activeMissionId = externalSelectedMission?.id || state.mission?.id;
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -78,7 +93,7 @@ const MissionSelector: React.FC = () => {
         <Card 
           key={mission.id}
           className={`cursor-pointer transition-all hover:border-warcrow-gold ${
-            state.mission?.id === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : ''
+            activeMissionId === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : ''
           }`}
           onClick={() => handleMissionSelect(mission)}
         >
