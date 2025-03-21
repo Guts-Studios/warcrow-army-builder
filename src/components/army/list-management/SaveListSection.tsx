@@ -67,7 +67,7 @@ const SaveListSection = ({
           faction: selectedFaction,
           units: selectedUnits,
           user_id: user.id,
-          wab_id: wab_id // Add the WAB ID to the saved list
+          wab_id: wab_id
         });
 
       if (error) throw error;

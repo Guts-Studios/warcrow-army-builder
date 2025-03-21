@@ -62,7 +62,7 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
 };
 
 // Function to fetch saved lists by user ID
-export const fetchSavedLists = async (userId: string): Promise<SavedList[]> => {
+export const fetchSavedListsByUserId = async (userId: string): Promise<SavedList[]> => {
   try {
     console.log("Utility: Fetching saved lists for user ID:", userId);
     const { data, error } = await supabase
@@ -77,7 +77,7 @@ export const fetchSavedLists = async (userId: string): Promise<SavedList[]> => {
     
     return formatListsData(data || []);
   } catch (err) {
-    console.error("Utility: Error in fetchSavedLists:", err);
+    console.error("Utility: Error in fetchSavedListsByUserId:", err);
     return [];
   }
 };
@@ -104,7 +104,8 @@ const formatListsData = (data: any[]): SavedList[] => {
         keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
         highCommand: !!unit.highCommand,
         availability: unit.availability || 1,
-        specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : []
+        specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : [],
+        command: unit.command || 0
       }));
     }
     
@@ -115,7 +116,7 @@ const formatListsData = (data: any[]): SavedList[] => {
       units: typedUnits,
       user_id: item.user_id,
       created_at: item.created_at,
-      wab_id: item.wab_id // Include the WAB ID in the returned data
+      wab_id: item.wab_id
     };
   });
   

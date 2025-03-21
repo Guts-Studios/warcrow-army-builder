@@ -10,10 +10,7 @@ export interface SelectedUnit {
   availability: number;
   imageUrl?: string;
   specialRules?: string[];
-  command?: {
-    normal: number;
-    charge: number;
-  };
+  command?: number;
 }
 
 export interface SavedList {
@@ -23,5 +20,30 @@ export interface SavedList {
   units: SelectedUnit[];
   created_at: string;
   user_id?: string;
-  wab_id?: string; // Add WAB ID to SavedList type
+  wab_id?: string;
 }
+
+export interface Unit {
+  id: string;
+  name: string;
+  faction: string;
+  pointsCost: number;
+  availability: number;
+  command?: number;
+  keywords: Keyword[];
+  specialRules?: string[];
+  highCommand?: boolean;
+  imageUrl?: string;
+}
+
+export interface Keyword {
+  name: string;
+  description?: string;
+}
+
+export interface Faction {
+  id: string;
+  name: string;
+}
+
+export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
