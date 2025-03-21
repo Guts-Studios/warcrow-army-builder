@@ -55,10 +55,33 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
     wab_id: "",
   });
 
+  // Detect if in preview mode
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                  window.location.hostname.endsWith('.lovableproject.com');
+
   const { data: profile, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       console.log("Fetching profile data");
+      
+      // If in preview mode, return mock profile data with a WAB ID
+      if (isPreview) {
+        console.log("Using preview mode profile data");
+        return {
+          id: "preview-user-id",
+          username: "Preview User",
+          bio: "This is a preview account",
+          location: "Preview Land",
+          favorite_faction: "Hegemony of Embersig",
+          social_discord: "preview#1234",
+          social_twitter: "@previewUser",
+          avatar_url: "/art/portrait/nuada_portrait.jpg",
+          wab_id: "WAB-PREV-MODE-DEMO",
+          games_won: 5,
+          games_lost: 2
+        };
+      }
+      
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         console.log("No session found");
@@ -81,10 +104,16 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
       return data;
     },
     retry: 1,
+    enabled: !isPreview, // Only run the query if not in preview mode
   });
 
   const updateProfile = useMutation({
     mutationFn: async (updateData: ProfileFormData) => {
+      if (isPreview) {
+        console.log("Update skipped in preview mode");
+        return;
+      }
+      
       console.log("Updating profile with data:", updateData);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -116,7 +145,19 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    if (profile) {
+    // If in preview mode, set form data to mock data immediately
+    if (isPreview) {
+      setFormData({
+        username: "Preview User",
+        bio: "This is a preview account",
+        location: "Preview Land",
+        favorite_faction: "Hegemony of Embersig",
+        social_discord: "preview#1234",
+        social_twitter: "@previewUser",
+        avatar_url: "/art/portrait/nuada_portrait.jpg",
+        wab_id: "WAB-PREV-MODE-DEMO"
+      });
+    } else if (profile) {
       console.log("Setting form data from profile:", profile);
       setFormData({
         username: profile.username || "",
@@ -129,7 +170,7 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
         wab_id: profile.wab_id || "",
       });
     }
-  }, [profile]);
+  }, [profile, isPreview]);
 
   useEffect(() => {
     if (isError && error) {
@@ -161,10 +202,22 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const value = {
-    profile,
+    profile: isPreview ? {
+      id: "preview-user-id",
+      username: "Preview User",
+      bio: "This is a preview account",
+      location: "Preview Land",
+      favorite_faction: "Hegemony of Embersig",
+      social_discord: "preview#1234",
+      social_twitter: "@previewUser",
+      avatar_url: "/art/portrait/nuada_portrait.jpg",
+      wab_id: "WAB-PREV-MODE-DEMO",
+      games_won: 5,
+      games_lost: 2
+    } : profile,
     formData,
     isEditing,
-    isLoading,
+    isLoading: !isPreview && isLoading,
     updateProfile,
     setIsEditing,
     handleInputChange,
