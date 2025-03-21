@@ -10,6 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import FactionSelector from '@/components/play/FactionSelector';
 import ListUploader from '@/components/play/ListUploader';
 import { Unit, Faction } from '@/types/game';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface PlayerInfoProps {
   playerId: string;
@@ -28,7 +30,9 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   const { state, dispatch } = useGame();
   const player = state.players[playerId];
   const [playerName, setPlayerName] = useState(player?.name || '');
+  const [playerWabId, setPlayerWabId] = useState(player?.wab_id || '');
   const [listMetadata, setListMetadata] = useState<ListMetadata>({});
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Handle player name change
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +45,75 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         updates: { name }
       }
     });
+  };
+
+  // Handle WAB ID change
+  const handleWabIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const wab_id = e.target.value;
+    setPlayerWabId(wab_id);
+    dispatch({
+      type: 'UPDATE_PLAYER',
+      payload: {
+        id: playerId,
+        updates: { wab_id }
+      }
+    });
+  };
+
+  // Verify WAB ID
+  const verifyWabId = async () => {
+    if (!playerWabId) return;
+    
+    setIsVerifying(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username, avatar_url, favorite_faction')
+        .eq('wab_id', playerWabId)
+        .single();
+      
+      if (error) {
+        toast.error("WAB ID not found");
+      } else if (data) {
+        // Update player with found profile data
+        const updates = {
+          name: data.username || playerName,
+          wab_id: playerWabId,
+          verified: true
+        };
+        
+        // If player has a favorite faction, use it
+        if (data.favorite_faction) {
+          const faction = {
+            id: data.favorite_faction,
+            name: data.favorite_faction
+          };
+          updates.faction = faction as any;
+        }
+        
+        // If player has an avatar, use it
+        if (data.avatar_url) {
+          updates.avatar_url = data.avatar_url;
+        }
+        
+        dispatch({
+          type: 'UPDATE_PLAYER',
+          payload: {
+            id: playerId,
+            updates
+          }
+        });
+        
+        // Update local state
+        setPlayerName(data.username || playerName);
+        toast.success("WAB ID verified");
+      }
+    } catch (err) {
+      console.error("Error verifying WAB ID:", err);
+      toast.error("Error verifying WAB ID");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   // Handle faction selection
@@ -113,6 +186,33 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
             placeholder="Enter player name..."
             className="mt-1"
           />
+        </div>
+
+        <div>
+          <Label htmlFor={`player-wabid-${index}`}>WAB ID</Label>
+          <div className="flex gap-2">
+            <Input
+              id={`player-wabid-${index}`}
+              value={playerWabId}
+              onChange={handleWabIdChange}
+              placeholder="WAB-XXXX-XXXX-XXXX"
+              className="mt-1 flex-1"
+            />
+            <button
+              onClick={verifyWabId}
+              disabled={isVerifying || !playerWabId}
+              className={`mt-1 px-3 py-2 rounded ${
+                player?.verified 
+                  ? "bg-green-600 text-white" 
+                  : "bg-warcrow-gold text-warcrow-background"
+              } disabled:opacity-50`}
+            >
+              {isVerifying ? "..." : player?.verified ? "✓" : "Verify"}
+            </button>
+          </div>
+          {player?.verified && (
+            <p className="text-xs text-green-500 mt-1">ID verified</p>
+          )}
         </div>
 
         <div>

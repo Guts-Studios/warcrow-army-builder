@@ -7,6 +7,7 @@ import { Player, Mission } from '@/types/game';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GamePlayer {
   id: string;
@@ -17,17 +18,30 @@ interface GamePlayer {
     icon?: string;
   } | null;
   list: string | null;
+  wab_id?: string;
+  verified?: boolean;
+  avatar_url?: string;
 }
 
 const Setup = () => {
   const navigate = useNavigate();
   const { dispatch } = useGame();
 
-  const handleSetupComplete = (players: GamePlayer[], mission: Mission) => {
+  const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
     
     // Reset the game state first
     dispatch({ type: 'RESET_GAME' });
+    
+    // Record the verified players' WAB IDs to track game stats later
+    const verifiedWabIds = players
+      .filter(p => p.verified && p.wab_id)
+      .map(p => ({ wab_id: p.wab_id, name: p.name }));
+    
+    if (verifiedWabIds.length > 0) {
+      // Store the verified WAB IDs in localStorage for later use when the game ends
+      localStorage.setItem('warcrow_verified_players', JSON.stringify(verifiedWabIds));
+    }
     
     // Add players to the game state with correct type
     players.forEach(player => {

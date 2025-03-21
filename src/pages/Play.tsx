@@ -18,6 +18,9 @@ interface GamePlayer {
     icon?: string;
   } | null;
   list: string | null;
+  wab_id?: string;
+  verified?: boolean;
+  avatar_url?: string;
 }
 
 const Play = () => {
@@ -67,11 +70,21 @@ const Play = () => {
     checkAccess();
   }, [navigate, isPreview]);
   
-  const handleSetupComplete = (players: GamePlayer[], mission: Mission) => {
+  const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
     
     // Reset the game state first
     dispatch({ type: 'RESET_GAME' });
+    
+    // Record the verified players' WAB IDs to track game stats later
+    const verifiedWabIds = players
+      .filter(p => p.verified && p.wab_id)
+      .map(p => ({ wab_id: p.wab_id, name: p.name }));
+    
+    if (verifiedWabIds.length > 0) {
+      // Store the verified WAB IDs in localStorage for later use when the game ends
+      localStorage.setItem('warcrow_verified_players', JSON.stringify(verifiedWabIds));
+    }
     
     // Add players to the game state with correct type
     players.forEach(player => {
@@ -112,6 +125,8 @@ const Play = () => {
   const resetGame = () => {
     if (window.confirm('Are you sure you want to reset the game? All progress will be lost.')) {
       dispatch({ type: 'RESET_GAME' });
+      // Also clear any stored game data
+      localStorage.removeItem('warcrow_verified_players');
     }
   };
   

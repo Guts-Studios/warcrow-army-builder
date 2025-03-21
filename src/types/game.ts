@@ -1,4 +1,3 @@
-
 export interface Player {
   id?: string;
   name: string;
@@ -11,6 +10,9 @@ export interface Player {
   list?: string;
   roundScores?: Record<number, number>;
   units?: Unit[];
+  wab_id?: string;
+  verified?: boolean;
+  avatar_url?: string;
 }
 
 export interface Faction {
