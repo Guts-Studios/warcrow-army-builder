@@ -84,6 +84,7 @@ export type Database = {
           tester: boolean
           updated_at: string
           username: string | null
+          wap_id: string
         }
         Insert: {
           avatar_url?: string | null
@@ -99,6 +100,7 @@ export type Database = {
           tester?: boolean
           updated_at?: string
           username?: string | null
+          wap_id: string
         }
         Update: {
           avatar_url?: string | null
@@ -114,6 +116,7 @@ export type Database = {
           tester?: boolean
           updated_at?: string
           username?: string | null
+          wap_id?: string
         }
         Relationships: []
       }
@@ -187,7 +190,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_wap_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

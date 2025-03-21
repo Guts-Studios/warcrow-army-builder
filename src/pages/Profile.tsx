@@ -21,6 +21,7 @@ interface ProfileFormData {
   social_discord: string | null;
   social_twitter: string | null;
   avatar_url: string | null;
+  wap_id?: string | null;
 }
 
 const Profile = () => {
@@ -35,6 +36,7 @@ const Profile = () => {
     social_discord: "",
     social_twitter: "",
     avatar_url: "",
+    wap_id: "",
   });
 
   // Fetch user profile data from Supabase
@@ -111,6 +113,7 @@ const Profile = () => {
         social_discord: profile.social_discord || "",
         social_twitter: profile.social_twitter || "",
         avatar_url: profile.avatar_url || "",
+        wap_id: profile.wap_id || "",
       });
     }
   }, [profile]);

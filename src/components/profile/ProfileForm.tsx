@@ -12,6 +12,7 @@ interface ProfileFormData {
   social_discord: string | null;
   social_twitter: string | null;
   avatar_url: string | null;
+  wap_id?: string | null;
 }
 
 interface ProfileFormProps {
@@ -33,6 +34,20 @@ export const ProfileForm = ({
 }: ProfileFormProps) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      {formData.wap_id && (
+        <div className="space-y-2">
+          <Label htmlFor="wap_id" className="text-warcrow-gold">Warcrow Army ID</Label>
+          <Input
+            id="wap_id"
+            name="wap_id"
+            value={formData.wap_id || ""}
+            disabled={true}
+            className="bg-black/50 text-warcrow-gold opacity-100 border-warcrow-gold/30"
+          />
+          <p className="text-xs text-warcrow-text/70">This is your unique identifier in the Warcrow Army Builder system</p>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="username" className="text-warcrow-gold">Username</Label>
         <Input
