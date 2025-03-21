@@ -1,90 +1,6 @@
-export interface Player {
-  id?: string;
-  name: string;
-  faction: {
-    name: string;
-  } | string;
-  points: number;
-  objectivePoints: number;
-  score?: number;
-  list?: string;
-  roundScores?: Record<number, number>;
-  units?: Unit[];
-  wab_id?: string;
-  verified?: boolean;
-  avatar_url?: string;
-}
-
-export interface Faction {
-  id: string;
-  name: string;
-}
-
-export interface Mission {
-  id: string;
-  title: string;
-  details: string;
-  name?: string;
-  description?: string;
-  objectiveDescription?: string;
-  turnCount?: number;
-  roundCount?: number;
-  specialRules?: string[];
-  mapImage?: string;
-  objectiveMarkers?: ObjectiveMarker[];
-}
-
-export interface ObjectiveMarker {
-  id: string;
-  name: string;
-  color: string;
-  controlledBy: string | null;
-}
-
-export interface Annotation {
-  id: string;
-  x: number;
-  y: number;
-  label: string;
-  unitId?: string;
-}
-
-export interface Turn {
-  number: number;
-  activePlayer?: string | null;
-  activationsCompleted?: Record<string, number>;
-  alternatingPlayer?: string;
-  completed?: boolean;
-  scores?: Record<string, number>;
-  events?: any[];
-}
-
-export interface GameEvent {
-  id?: string;
-  type: 'objective' | 'mission' | 'initiative' | 'casualty' | 'note';
-  playerId?: string;
-  roundNumber?: number;
-  turnNumber?: number;
-  objectiveType?: string;
-  description?: string;
-  value?: number;
-  timestamp?: number;
-  unitId?: string;
-  objectiveId?: string;
-}
-
-export interface Unit {
-  id: string;
-  name: string;
-  player: string;
-  status?: 'active' | 'wounded' | 'destroyed';
-}
-
-export type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
-
 export interface GameState {
   id: string;
-  players: Record<string, Player>;
+  players: { [playerId: string]: Player };
   mission: Mission | null;
   currentPhase: GamePhase;
   rollOffWinner: string | null;
@@ -94,6 +10,65 @@ export interface GameState {
   units: Unit[];
   turns: Turn[];
   gameEvents: GameEvent[];
-  gameStartTime?: number;
-  gameEndTime?: number;
+  gameStartTime: number | undefined;
+  gameEndTime: number | undefined;
+}
+
+export type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
+
+export interface Player {
+  id: string;
+  name: string;
+  faction?: {
+    name: string;
+    icon?: string;
+  };
+  units?: Unit[];
+  list?: string;
+  wab_id?: string;
+  avatar_url?: string;
+  verified?: boolean;
+  user_profile_id?: string; // Added this field to store the profile ID
+  score?: number;
+  roundScores?: Record<string, number>;
+}
+
+export interface Mission {
+  id: string;
+  name: string;
+  description: string;
+  objective: string;
+}
+
+export interface Unit {
+  id: string;
+  name: string;
+  player: string;
+  status?: 'alive' | 'wounded' | 'destroyed';
+  keywords?: string[];
+  pointsCost?: number;
+  quantity?: number;
+  faction?: string;
+  highCommand?: boolean;
+  availability?: number;
+  specialRules?: string[];
+}
+
+export interface Turn {
+  number: number;
+  roundNumber?: number;
+  activePlayer: string | null;
+  alternatingPlayer?: string;
+  activationsCompleted: Record<string, number>;
+  completed?: boolean;
+  events?: GameEvent[];
+  scores?: Record<string, number>;
+}
+
+export interface GameEvent {
+  id: string;
+  type: 'score' | 'kill' | 'objective';
+  description: string;
+  playerId: string;
+  roundNumber?: number;
 }

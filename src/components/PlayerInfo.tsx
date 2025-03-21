@@ -97,7 +97,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       console.log("Raw data from Supabase:", data);
       
       // Convert the database response to SavedList[] type
-      if (data) {
+      if (data && data.length > 0) {
         const typedLists: SavedList[] = data.map(item => {
           // Ensure units is properly typed as SelectedUnit[]
           let typedUnits: SelectedUnit[] = [];
@@ -126,10 +126,13 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         });
         
         console.log("Processed typed lists:", typedLists);
+        setSavedLists(typedLists);
         return typedLists;
+      } else {
+        console.log("No saved lists found for user:", userId);
+        setSavedLists([]);
+        return [];
       }
-      
-      return [];
     } catch (err) {
       console.error("Error in fetchSavedLists:", err);
       return [];
@@ -164,6 +167,11 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           verified: true
         };
         
+        // Save the profile ID for later use
+        if (profileData.id) {
+          updates.user_profile_id = profileData.id;
+        }
+        
         // If player has a favorite faction, use it
         if (profileData.favorite_faction) {
           updates.faction = {
@@ -191,9 +199,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         // Fetch the user's saved lists
         if (profileData.id) {
           console.log("Fetching lists for user ID:", profileData.id);
-          const lists = await fetchSavedLists(profileData.id);
-          console.log("Fetched lists result:", lists);
-          setSavedLists(lists);
+          await fetchSavedLists(profileData.id);
         }
       }
     } catch (err) {
@@ -207,16 +213,15 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   // Check for and load lists when player is verified
   useEffect(() => {
     const loadSavedLists = async () => {
-      // If player profile has id and is verified but no lists loaded yet
-      if (player?.verified && player?.profile_id && savedLists.length === 0 && !isLoadingSavedLists) {
-        console.log("Loading lists for verified player with profile ID:", player.profile_id);
-        const lists = await fetchSavedLists(player.profile_id);
-        setSavedLists(lists);
+      // If player is verified but no lists loaded yet
+      if (player?.verified && player?.user_profile_id && savedLists.length === 0 && !isLoadingSavedLists) {
+        console.log("Loading lists for verified player with profile ID:", player.user_profile_id);
+        await fetchSavedLists(player.user_profile_id);
       }
     };
     
     loadSavedLists();
-  }, [player?.verified, player?.profile_id, savedLists.length, isLoadingSavedLists]);
+  }, [player?.verified, player?.user_profile_id, savedLists.length, isLoadingSavedLists]);
 
   // Handle faction selection
   const handleFactionSelect = (faction: Faction) => {
