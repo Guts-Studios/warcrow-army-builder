@@ -1,220 +1,101 @@
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Scroll, Info } from 'lucide-react';
+import React from 'react';
+import { useGame } from '@/context/GameContext';
+import { Card, CardContent } from '@/components/ui/card';
 import { Mission } from '@/types/game';
-import { cn } from '@/lib/utils';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
-// Mission definitions
-const missions: Mission[] = [
-  {
-    id: 'consolidated-progress',
-    title: 'Consolidated Progress',
-    details: 'Control strategic objectives across the battlefield, especially in your opponent\'s territory.',
-    name: 'Consolidated Progress',
-    description: 'Control strategic objectives across the battlefield, especially in your opponent\'s territory.',
-    objectiveDescription: 'Score 1 VP for controlling the central objective, 1 VP for opponent\'s objective (1), 2 VPs for opponent\'s objective (2), and 1 VP if opponent controls neither of your objectives (1 and 2).',
-    turnCount: 5,
-    roundCount: 3,
-    specialRules: [
-      'Place 5 objective markers as shown in the diagram: central objective and two objectives for each player.',
-      'Each round lasts for 5 turns.',
-      'The game ends at the end of round 3 or when one of the companies has no units left on the battlefield.'
-    ],
-    mapImage: 'public/art/missions/consolidated_progress.jpg',
-    objectiveMarkers: [
-      { id: 'central', name: 'Central', color: '#9b87f5', controlledBy: null },
-      { id: 'player1-1', name: 'Player 1 (1)', color: '#0EA5E9', controlledBy: null },
-      { id: 'player1-2', name: 'Player 1 (2)', color: '#33C3F0', controlledBy: null },
-      { id: 'player2-1', name: 'Player 2 (1)', color: '#ea384c', controlledBy: null },
-      { id: 'player2-2', name: 'Player 2 (2)', color: '#D946EF', controlledBy: null }
-    ]
-  },
-  {
-    id: 'take-positions',
-    title: 'Take Positions',
-    details: 'Control objectives of your opponent\'s color while defending your own.',
-    name: 'Take Positions',
-    description: 'Control objectives of your opponent\'s color while defending your own.',
-    objectiveDescription: 'Score 1 VP for each objective you control with your opponent\'s color, and 1 VP if your opponent doesn\'t control any of the objectives of your color.',
-    turnCount: 5,
-    roundCount: 3,
-    specialRules: [
-      'Place 4 objective markers on the battlefield with the player colors shown in the diagram.',
-      'Each round lasts for 5 turns.',
-      'The game ends at the end of round 3 or when one of the companies has no units left on the battlefield.'
-    ],
-    mapImage: 'public/art/missions/take_positions.jpg',
-    objectiveMarkers: [
-      { id: 'player1-1', name: 'Player 1 (1)', color: '#0EA5E9', controlledBy: null },
-      { id: 'player1-2', name: 'Player 1 (2)', color: '#33C3F0', controlledBy: null },
-      { id: 'player2-1', name: 'Player 2 (1)', color: '#ea384c', controlledBy: null },
-      { id: 'player2-2', name: 'Player 2 (2)', color: '#D946EF', controlledBy: null }
-    ]
-  },
-  {
-    id: 'fog-of-death',
-    title: 'Fog of Death',
-    details: 'Control an ancient arcane artifact that can manipulate the fog surrounding your companies.',
-    name: 'Fog of Death',
-    description: 'Control an ancient arcane artifact that can manipulate the fog surrounding your companies.',
-    objectiveDescription: 'Score 1 VP when you control the artifact and a Fog marker contacts the conquest marker. Score 2 VPs at the end of each round if you control the artifact.',
-    turnCount: 4,
-    roundCount: 3,
-    specialRules: [
-      'Place an objective marker in the center of the battlefield (represents an arcane artifact).',
-      'The first player to deploy places a conquest marker adjacent to the objective marker, showing their color.',
-      'Place four Fog markers in each corner of the battlefield.',
-      'Place an event token on position 3 of the turn counter.',
-      'When the event is activated: displace all Fog markers 10 strides toward the conquest marker.',
-      'All units within 8 strides of any Fog marker must resolve a "Fog Effects" roll for each nearby Fog marker.',
-      'At the end of each turn, whoever controls the artifact can move the conquest marker 2 strides in any direction.',
-      'Units within 3 strides of the artifact can take a WP test to move the conquest marker 5 strides per Success.'
-    ],
-    mapImage: 'public/art/missions/fog_of_death.jpg',
-    objectiveMarkers: [
-      { id: 'artifact', name: 'Arcane Artifact', color: '#9b87f5', controlledBy: null },
-      { id: 'fog-1', name: 'Fog Marker 1', color: '#94a3b8', controlledBy: null },
-      { id: 'fog-2', name: 'Fog Marker 2', color: '#94a3b8', controlledBy: null },
-      { id: 'fog-3', name: 'Fog Marker 3', color: '#94a3b8', controlledBy: null },
-      { id: 'fog-4', name: 'Fog Marker 4', color: '#94a3b8', controlledBy: null },
-      { id: 'conquest', name: 'Conquest Marker', color: '#f59e0b', controlledBy: null }
-    ]
-  }
-];
+const MissionSelector: React.FC = () => {
+  const { state, dispatch } = useGame();
+  
+  const missions: Mission[] = [
+    {
+      id: 'take-positions',
+      title: 'Take Positions',
+      name: 'Take Positions',
+      description: 'Control key strategic locations on the battlefield.',
+      objective: 'Control objectives',
+      details: 'Players compete to control 5 objective markers placed across the battlefield. Points are awarded at the end of each round based on the number of objectives controlled.',
+      objectiveDescription: 'Control the most objective markers',
+      turnCount: 6,
+      roundCount: 3,
+      specialRules: ['Objectives are placed before deployment', 'Control is determined by unit proximity'],
+      mapImage: '/art/missions/take_positions.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Alpha', value: 1 },
+        { id: 'obj2', name: 'Bravo', value: 1 },
+        { id: 'obj3', name: 'Charlie', value: 1 },
+        { id: 'obj4', name: 'Delta', value: 1 },
+        { id: 'obj5', name: 'Echo', value: 1 }
+      ]
+    },
+    {
+      id: 'consolidated-progress',
+      title: 'Consolidated Progress',
+      name: 'Consolidated Progress',
+      description: 'Maintain control of your territory while advancing into enemy territory.',
+      objective: 'Control objectives in sequence',
+      details: 'Players must hold their starting objectives while advancing to capture enemy objectives. Points are awarded for holding objectives in your zone and in the enemy zone.',
+      objectiveDescription: 'Hold your objectives and capture enemy objectives',
+      turnCount: 5,
+      roundCount: 3,
+      specialRules: ['Deployment zones determined before placement', 'Objectives must be captured in order'],
+      mapImage: '/art/missions/consolidated_progress.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Home Base', value: 1 },
+        { id: 'obj2', name: 'Forward Base', value: 2 },
+        { id: 'obj3', name: 'Center', value: 3 },
+        { id: 'obj4', name: 'Enemy Forward', value: 4 },
+        { id: 'obj5', name: 'Enemy Base', value: 5 }
+      ]
+    },
+    {
+      id: 'fog-of-death',
+      title: 'Fog of Death',
+      name: 'Fog of Death',
+      description: 'Battle amid an unnatural fog that spreads death and confusion.',
+      objective: 'Survive and eliminate',
+      details: 'A deadly fog covers the battlefield, moving each round. Players score points for surviving units and eliminating enemy units while avoiding the fog.',
+      objectiveDescription: 'Avoid the deadly fog while eliminating enemies',
+      turnCount: 4,
+      roundCount: 4,
+      specialRules: ['Fog movement determined at start of each round', 'Units in fog take damage', 'Limited visibility'],
+      mapImage: '/art/missions/fog_of_death.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Safe Zone Alpha', value: 2 },
+        { id: 'obj2', name: 'Safe Zone Bravo', value: 2 },
+        { id: 'obj3', name: 'Safe Zone Charlie', value: 2 }
+      ]
+    }
+  ];
 
-interface MissionSelectorProps {
-  selectedMission: Mission | null;
-  onSelectMission: (mission: Mission) => void;
-}
-
-const MissionSelector: React.FC<MissionSelectorProps> = ({ 
-  selectedMission, 
-  onSelectMission 
-}) => {
-  const [detailsMission, setDetailsMission] = useState<Mission | null>(null);
+  const handleMissionSelect = (mission: Mission) => {
+    dispatch({ type: 'SET_MISSION', payload: mission });
+  };
 
   return (
-    <>
-      <motion.div 
-        className="space-y-4 w-full"
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="grid grid-cols-1 gap-3">
-          {missions.map((mission) => (
-            <motion.div
-              key={mission.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={cn(
-                "neo-card p-4 flex flex-col gap-2 cursor-pointer",
-                selectedMission?.id === mission.id 
-                  ? "ring-2 ring-warcrow-gold/50" 
-                  : "hover:bg-warcrow-accent/50"
-              )}
-              onClick={() => onSelectMission(mission)}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-warcrow-text">{mission.name}</h3>
-                <div className="flex gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDetailsMission(mission);
-                    }}
-                    className="w-8 h-8 rounded-full bg-warcrow-accent flex items-center justify-center"
-                  >
-                    <Info className="w-4 h-4 text-warcrow-gold" />
-                  </motion.button>
-                </div>
-              </div>
-              <p className="text-sm text-warcrow-text/80 line-clamp-2">{mission.description}</p>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="flex items-center gap-1 text-xs text-warcrow-text/70">
-                  <Scroll className="w-3.5 h-3.5 text-warcrow-gold" />
-                  <span>{mission.turnCount} Turns</span>
-                </div>
-                <button 
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium",
-                    selectedMission?.id === mission.id 
-                      ? "bg-warcrow-gold text-warcrow-background" 
-                      : "bg-warcrow-accent text-warcrow-text"
-                  )}
-                >
-                  {selectedMission?.id === mission.id ? "Selected" : "Select"}
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      <Dialog open={!!detailsMission} onOpenChange={(open) => !open && setDetailsMission(null)}>
-        <DialogContent className="max-w-lg bg-warcrow-background border-warcrow-gold/30">
-          <DialogHeader>
-            <DialogTitle className="text-warcrow-gold">{detailsMission?.name}</DialogTitle>
-            <DialogDescription className="text-warcrow-text">
-              {detailsMission?.description}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium mb-1 text-warcrow-gold">Objectives</h4>
-              <p className="text-sm text-warcrow-text">{detailsMission?.objectiveDescription}</p>
+    <div className="grid gap-4 md:grid-cols-3">
+      {missions.map((mission) => (
+        <Card 
+          key={mission.id}
+          className={`cursor-pointer transition-all hover:border-warcrow-gold ${
+            state.mission?.id === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : ''
+          }`}
+          onClick={() => handleMissionSelect(mission)}
+        >
+          <CardContent className="p-4">
+            <div className="aspect-[16/9] mb-4 overflow-hidden rounded-md">
+              <img 
+                src={mission.mapImage || '/placeholder.svg'} 
+                alt={mission.title}
+                className="object-cover w-full h-full"
+              />
             </div>
-            {detailsMission?.mapImage && (
-              <div>
-                <h4 className="font-medium mb-1 text-warcrow-gold">Battlefield Map</h4>
-                <div className="border border-warcrow-gold/30 rounded-md overflow-hidden">
-                  <AspectRatio ratio={1/1}>
-                    <img 
-                      src={detailsMission.mapImage} 
-                      alt={`${detailsMission.name} map`} 
-                      className="w-full object-cover"
-                    />
-                  </AspectRatio>
-                </div>
-              </div>
-            )}
-            {detailsMission?.specialRules && detailsMission.specialRules.length > 0 && (
-              <div>
-                <h4 className="font-medium mb-1 text-warcrow-gold">Special Rules</h4>
-                <ul className="list-disc pl-5 text-sm space-y-1 text-warcrow-text">
-                  {detailsMission.specialRules.map((rule, index) => (
-                    <li key={index}>{rule}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="pt-2">
-              <button
-                onClick={() => {
-                  if (detailsMission) {
-                    onSelectMission(detailsMission);
-                    setDetailsMission(null);
-                  }
-                }}
-                className="w-full py-2 bg-warcrow-gold text-warcrow-background rounded-md font-medium hover:bg-warcrow-gold/90 transition-colors"
-              >
-                Select This Mission
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+            <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
+            <p className="text-sm mt-1 line-clamp-2 text-warcrow-text/80">{mission.description}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

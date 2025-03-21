@@ -1,10 +1,12 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Skull } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { v4 as uuidv4 } from 'uuid';
+import { Skull } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CasualtyRecordProps {
@@ -14,52 +16,46 @@ interface CasualtyRecordProps {
 
 const CasualtyRecord: React.FC<CasualtyRecordProps> = ({ open, onClose }) => {
   const { state, dispatch } = useGame();
-  const [unitId, setUnitId] = useState<string>('');
-  const [description, setDescription] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!unitId || !description) {
-      toast.error('Please fill in all required fields');
+    if (!selectedUnit) {
+      toast.error('Please select a unit');
       return;
     }
     
-    // Add game event
+    const unit = state.units.find(u => u.id === selectedUnit);
+    
+    if (!unit) return;
+    
+    // Add casualty event
     dispatch({
       type: 'ADD_GAME_EVENT',
       payload: {
         id: uuidv4(),
         timestamp: Date.now(),
         type: 'casualty',
-        unitId,
-        description
+        unitId: selectedUnit,
+        description: `${unit.name} was marked as a casualty`,
+        playerId: unit.player
       }
     });
     
-    // Update unit status if needed
+    // Update unit status to destroyed
     dispatch({
       type: 'UPDATE_UNIT',
       payload: {
-        id: unitId,
-        updates: {
-          status: 'destroyed'
-        }
+        id: selectedUnit,
+        updates: { status: 'destroyed' }
       }
     });
     
-    toast.success('Casualty recorded successfully');
-    setUnitId('');
-    setDescription('');
+    toast.success('Casualty recorded');
+    setSelectedUnit('');
     onClose();
   };
-
-  // Get all units from all players
-  const allUnits = state.units && state.units.length > 0 
-    ? state.units 
-    : Object.values(state.players).flatMap(player => 
-        player.units || []
-      );
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -73,38 +69,32 @@ const CasualtyRecord: React.FC<CasualtyRecordProps> = ({ open, onClose }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Unit</label>
-            <select
-              className="w-full p-2 border rounded-md"
-              value={unitId}
-              onChange={(e) => setUnitId(e.target.value)}
-              required
+            <Label>Select Unit</Label>
+            <Select 
+              value={selectedUnit} 
+              onValueChange={setSelectedUnit}
             >
-              <option value="">Select a unit</option>
-              {allUnits.map(unit => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.name} ({state.players[unit.player]?.name})
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <textarea
-              className="w-full h-20 p-2 border rounded-md"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g., Destroyed by ranged attack"
-              required
-            />
+              <SelectTrigger>
+                <SelectValue placeholder="Select a unit" />
+              </SelectTrigger>
+              <SelectContent>
+                {state.units
+                  .filter(unit => unit.status !== 'destroyed')
+                  .map(unit => (
+                    <SelectItem key={unit.id} value={unit.id}>
+                      {unit.name} ({state.players[unit.player]?.name || 'Unknown Player'})
+                    </SelectItem>
+                  ))
+                }
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">Record Casualty</Button>
           </div>
         </form>
       </DialogContent>

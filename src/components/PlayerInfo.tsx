@@ -20,6 +20,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { SavedList, SelectedUnit } from '@/types/army';
+import { fetchListsByWabId } from '@/utils/profileUtils';
 
 interface PlayerInfoProps {
   playerId: string;
@@ -78,109 +79,46 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     });
   };
 
-  // Fetch saved lists for a user
-  const fetchSavedLists = async (userId: string) => {
+  // Fetch saved lists for a WAB ID
+  const fetchLists = async (wabId: string) => {
+    if (!wabId) return;
+    
     setIsLoadingSavedLists(true);
     try {
-      console.log("Fetching saved lists for user ID:", userId);
-      const { data, error } = await supabase
-        .from('army_lists')
-        .select('*')
-        .eq('user_id', userId);
+      console.log(`Fetching lists for WAB ID: ${wabId}`);
+      const lists = await fetchListsByWabId(wabId);
       
-      if (error) {
-        console.error("Error fetching saved lists:", error);
-        toast.error("Failed to load saved lists");
-        setSavedLists([]);
-        return [];
-      }
-      
-      console.log("Raw data from Supabase:", data);
-      
-      // Convert the database response to SavedList[] type
-      if (data && data.length > 0) {
-        const typedLists: SavedList[] = data.map(item => {
-          // Ensure units is properly typed as SelectedUnit[]
-          let typedUnits: SelectedUnit[] = [];
-          if (Array.isArray(item.units)) {
-            typedUnits = item.units.map((unit: any) => ({
-              id: unit.id || `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              name: unit.name || 'Unknown Unit',
-              pointsCost: unit.pointsCost || 0,
-              quantity: unit.quantity || 1,
-              faction: unit.faction || item.faction,
-              keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
-              highCommand: !!unit.highCommand,
-              availability: unit.availability || 1,
-              specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : []
-            }));
-          }
-          
-          return {
-            id: item.id,
-            name: item.name,
-            faction: item.faction,
-            units: typedUnits,
-            user_id: item.user_id,
-            created_at: item.created_at
-          };
-        });
-        
-        console.log("Processed typed lists:", typedLists);
-        setSavedLists(typedLists);
-        return typedLists;
+      if (lists.length > 0) {
+        console.log(`Found ${lists.length} lists for WAB ID: ${wabId}`, lists);
+        setSavedLists(lists);
       } else {
-        console.log("No saved lists found for user:", userId);
+        console.log(`No lists found for WAB ID: ${wabId}`);
         setSavedLists([]);
-        return [];
       }
     } catch (err) {
-      console.error("Error in fetchSavedLists:", err);
+      console.error(`Error fetching lists for WAB ID: ${wabId}:`, err);
+      toast.error("Error loading saved lists");
       setSavedLists([]);
-      return [];
     } finally {
       setIsLoadingSavedLists(false);
     }
   };
 
-  // Fetch saved lists by WAB ID
-  const fetchListsByWabId = async (wabId: string) => {
-    try {
-      console.log("Fetching profile by WAB ID:", wabId);
-      
-      // First, get the user profile by WAB ID
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('wab_id', wabId)
-        .single();
-      
-      if (profileError) {
-        console.error("Error fetching profile by WAB ID:", profileError);
-        return;
-      }
-      
-      if (!profileData?.id) {
-        console.log("No profile found with WAB ID:", wabId);
-        return;
-      }
-      
-      console.log("Found profile with ID:", profileData.id);
-      
-      // Then fetch the lists using the profile ID
-      await fetchSavedLists(profileData.id);
-    } catch (err) {
-      console.error("Error in fetchListsByWabId:", err);
-    }
-  };
-
   // Check if we need to fetch lists directly using the WAB ID
   useEffect(() => {
-    if (playerWabId && playerWabId === 'WAB-TKBD-EKWZ-WX0M') {
-      console.log("Direct fetch for known WAB ID:", playerWabId);
-      fetchListsByWabId(playerWabId);
+    if (playerWabId) {
+      console.log("WAB ID entered:", playerWabId);
+      fetchLists(playerWabId);
     }
   }, [playerWabId]);
+
+  // Special case for the demo WAB ID
+  useEffect(() => {
+    if (playerWabId === 'WAB-TKBD-EKWZ-WX0M') {
+      console.log("Direct fetch for known WAB ID:", playerWabId);
+      fetchLists(playerWabId);
+    }
+  }, []);
 
   // Verify WAB ID
   const verifyWabId = async () => {
@@ -214,7 +152,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           
           // Fetch lists immediately after verification
           console.log("Fetching lists for verified profile ID:", profileData.id);
-          await fetchSavedLists(profileData.id);
+          await fetchLists(playerWabId);
         }
         
         // If player has a favorite faction, use it
@@ -255,7 +193,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       // If player is verified but no lists loaded yet
       if (player?.verified && player?.user_profile_id && savedLists.length === 0 && !isLoadingSavedLists) {
         console.log("Loading lists for verified player with profile ID:", player.user_profile_id);
-        await fetchSavedLists(player.user_profile_id);
+        await fetchLists(player.wab_id || '');
       }
     };
     
@@ -423,7 +361,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
             </Select>
           ) : (
             <p className="text-xs text-muted-foreground mt-1">
-              No saved lists available{playerWabId === 'WAB-TKBD-EKWZ-WX0M' ? " for WAB-TKBD-EKWZ-WX0M" : ""}
+              No saved lists available{playerWabId ? ` for ${playerWabId}` : ""}
             </p>
           )}
         </div>
