@@ -172,7 +172,7 @@ function App() {
                 <Route 
                   path="/profile" 
                   element={
-                    isPreview || isAuthenticated ? (
+                    isPreview || (isAuthenticated && !isGuest) ? (
                       <Profile />
                     ) : (
                       <Navigate to="/login" replace />
