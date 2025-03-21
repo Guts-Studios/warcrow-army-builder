@@ -9,9 +9,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import FactionSelector from '@/components/play/FactionSelector';
 import ListUploader from '@/components/play/ListUploader';
-import { Unit, Faction } from '@/types/game';
+import { Unit, Faction, Player } from '@/types/game';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { SavedList } from '@/types/army';
 
 interface PlayerInfoProps {
   playerId: string;
@@ -40,6 +48,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   const [playerWabId, setPlayerWabId] = useState(player?.wab_id || '');
   const [listMetadata, setListMetadata] = useState<ListMetadata>({});
   const [isVerifying, setIsVerifying] = useState(false);
+  const [savedLists, setSavedLists] = useState<SavedList[]>([]);
+  const [isLoadingSavedLists, setIsLoadingSavedLists] = useState(false);
 
   // Handle player name change
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +77,30 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     });
   };
 
+  // Fetch saved lists for a user
+  const fetchSavedLists = async (userId: string) => {
+    setIsLoadingSavedLists(true);
+    try {
+      const { data, error } = await supabase
+        .from('army_lists')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error("Error fetching saved lists:", error);
+        toast.error("Failed to load saved lists");
+        return [];
+      }
+      
+      return data || [];
+    } catch (err) {
+      console.error("Error in fetchSavedLists:", err);
+      return [];
+    } finally {
+      setIsLoadingSavedLists(false);
+    }
+  };
+
   // Verify WAB ID
   const verifyWabId = async () => {
     if (!playerWabId) return;
@@ -75,7 +109,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, avatar_url, favorite_faction')
+        .select('username, avatar_url, favorite_faction, id')
         .eq('wab_id', playerWabId)
         .single();
       
@@ -112,6 +146,12 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         // Update local state
         setPlayerName(data.username || playerName);
         toast.success("WAB ID verified");
+        
+        // Fetch the user's saved lists
+        if (data.id) {
+          const lists = await fetchSavedLists(data.id);
+          setSavedLists(lists as SavedList[]);
+        }
       }
     } catch (err) {
       console.error("Error verifying WAB ID:", err);
@@ -165,6 +205,32 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
     if (metadata) {
       setListMetadata(metadata);
     }
+  };
+
+  // Handle selecting a saved list
+  const handleSavedListSelect = (listId: string) => {
+    const selectedList = savedLists.find(list => list.id === listId);
+    if (!selectedList) return;
+    
+    // Convert saved list to the expected format
+    const listText = `${selectedList.name}\n${selectedList.faction}\n\n`;
+    const units: Unit[] = selectedList.units.map((unit, index) => ({
+      id: `unit-${playerId}-${index}`,
+      name: unit.name,
+      player: playerId
+    }));
+
+    // Create metadata from the saved list
+    const metadata: ListMetadata = {
+      title: selectedList.name,
+      faction: selectedList.faction,
+      totalPoints: `${selectedList.units.reduce((sum, unit) => sum + (unit.pointsCost * unit.quantity), 0)} pts`
+    };
+
+    // Call the list upload handler with this data
+    handleListUpload(playerId, listText, units, metadata);
+    
+    toast.success(`List "${selectedList.name}" loaded successfully`);
   };
 
   // Get player units if they exist
@@ -229,6 +295,28 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
             />
           </div>
         </div>
+
+        {/* Saved Lists Dropdown - Show only if WAB ID is verified and lists exist */}
+        {player?.verified && savedLists.length > 0 && (
+          <div>
+            <Label>Saved Army Lists</Label>
+            <Select onValueChange={handleSavedListSelect}>
+              <SelectTrigger className="w-full mt-1">
+                <SelectValue placeholder="Select a saved list" />
+              </SelectTrigger>
+              <SelectContent>
+                {savedLists.map((list) => (
+                  <SelectItem key={list.id} value={list.id}>
+                    {list.name} ({list.faction})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              {isLoadingSavedLists ? "Loading lists..." : `${savedLists.length} list${savedLists.length === 1 ? "" : "s"} available`}
+            </p>
+          </div>
+        )}
 
         <div>
           <Label>Army List (Optional)</Label>
