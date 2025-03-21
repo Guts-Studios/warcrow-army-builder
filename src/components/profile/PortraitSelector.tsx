@@ -16,9 +16,9 @@ import { syenannTroops } from "@/data/factions/syenann/troops";
 import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { hegemonyOfEmbersigHighCommand } from "@/data/factions/hegemony/high-command";
-import { hegemonyOfEmbersigTroops } from "@/data/factions/hegemony/troops";
-import { hegemonyOfEmbersigCharacters } from "@/data/factions/hegemony/characters";
+import { hegemonyHighCommand } from "@/data/factions/hegemony/high-command";
+import { hegemonyTroops } from "@/data/factions/hegemony/troops";
+import { hegemonyCharacters } from "@/data/factions/hegemony/characters";
 
 // Combine all portrait sources
 const getAllUnitPortraits = () => {
@@ -28,9 +28,9 @@ const getAllUnitPortraits = () => {
     ...syenannCharacters,
     ...syenannTroops,
     ...scionsOfYaldabaothUnits,
-    ...hegemonyOfEmbersigHighCommand,
-    ...hegemonyOfEmbersigTroops,
-    ...hegemonyOfEmbersigCharacters,
+    ...hegemonyHighCommand,
+    ...hegemonyTroops,
+    ...hegemonyCharacters,
   ];
   
   return allUnits.map(unit => ({
