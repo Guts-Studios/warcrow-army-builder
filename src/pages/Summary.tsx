@@ -44,6 +44,10 @@ const Summary = () => {
     return null; // Will redirect in useEffect
   }
   
+  // Find the winner
+  const winner = Object.values(state.players)
+    .sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+  
   return (
     <div className="min-h-screen py-6 bg-warcrow-background">
       <Container>
@@ -55,7 +59,7 @@ const Summary = () => {
         >
           <GameSummaryHeader 
             gameState={state}
-            winner={Object.values(state.players)[0]} // Pass the first player as default winner
+            winner={winner}
           />
           
           <div className="grid md:grid-cols-2 gap-6">

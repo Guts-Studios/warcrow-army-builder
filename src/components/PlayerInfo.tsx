@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SavedList } from '@/types/army';
+import { SavedList, SelectedUnit } from '@/types/army';
 
 interface PlayerInfoProps {
   playerId: string;
@@ -39,6 +39,7 @@ interface PlayerProfileData {
   username?: string;
   avatar_url?: string;
   favorite_faction?: string;
+  id?: string;
 }
 
 const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
@@ -92,7 +93,20 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         return [];
       }
       
-      return data || [];
+      // Convert the database response to SavedList[] type
+      if (data) {
+        const typedLists: SavedList[] = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          faction: item.faction,
+          units: Array.isArray(item.units) ? item.units as SelectedUnit[] : [],
+          user_id: item.user_id,
+          created_at: item.created_at
+        }));
+        return typedLists;
+      }
+      
+      return [];
     } catch (err) {
       console.error("Error in fetchSavedLists:", err);
       return [];
@@ -116,23 +130,25 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       if (error) {
         toast.error("WAB ID not found");
       } else if (data) {
+        const profileData: PlayerProfileData = data;
+        
         // Create a typed updates object
         const updates: Partial<Player> = {
-          name: data.username || playerName,
+          name: profileData.username || playerName,
           wab_id: playerWabId,
           verified: true
         };
         
         // If player has a favorite faction, use it
-        if (data.favorite_faction) {
+        if (profileData.favorite_faction) {
           updates.faction = {
-            name: data.favorite_faction
+            name: profileData.favorite_faction
           };
         }
         
         // If player has an avatar, use it
-        if (data.avatar_url) {
-          updates.avatar_url = data.avatar_url;
+        if (profileData.avatar_url) {
+          updates.avatar_url = profileData.avatar_url;
         }
         
         dispatch({
@@ -144,13 +160,13 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         });
         
         // Update local state
-        setPlayerName(data.username || playerName);
+        setPlayerName(profileData.username || playerName);
         toast.success("WAB ID verified");
         
         // Fetch the user's saved lists
-        if (data.id) {
-          const lists = await fetchSavedLists(data.id);
-          setSavedLists(lists as SavedList[]);
+        if (profileData.id) {
+          const lists = await fetchSavedLists(profileData.id);
+          setSavedLists(lists);
         }
       }
     } catch (err) {
