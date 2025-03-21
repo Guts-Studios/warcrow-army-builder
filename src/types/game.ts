@@ -1,3 +1,4 @@
+
 export interface GameState {
   id: string;
   players: { [playerId: string]: Player };
@@ -19,18 +20,20 @@ export type GamePhase = 'setup' | 'deployment' | 'game' | 'scoring' | 'summary';
 export interface Player {
   id: string;
   name: string;
-  faction?: {
-    name: string;
-    icon?: string;
-  };
+  faction?: Faction;
   units?: Unit[];
   list?: string;
   wab_id?: string;
   avatar_url?: string;
   verified?: boolean;
-  user_profile_id?: string; // Added this field to store the profile ID
+  user_profile_id?: string;
   score?: number;
   roundScores?: Record<string, number>;
+}
+
+export interface Faction {
+  name: string;
+  icon?: string;
 }
 
 export interface Mission {
@@ -38,6 +41,13 @@ export interface Mission {
   name: string;
   description: string;
   objective: string;
+  // Add the missing properties needed by components
+  title?: string;
+  objectiveDescription?: string;
+  mapImage?: string;
+  specialRules?: string[];
+  objectiveMarkers?: any[];
+  turnCount?: number;
 }
 
 export interface Unit {
@@ -67,8 +77,11 @@ export interface Turn {
 
 export interface GameEvent {
   id: string;
-  type: 'score' | 'kill' | 'objective';
+  type: 'score' | 'kill' | 'objective' | 'initiative' | 'mission' | 'casualty' | 'note';
   description: string;
   playerId: string;
   roundNumber?: number;
+  timestamp?: number;
+  objectiveType?: string;
+  value?: number;
 }

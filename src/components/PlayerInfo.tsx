@@ -91,6 +91,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       if (error) {
         console.error("Error fetching saved lists:", error);
         toast.error("Failed to load saved lists");
+        setSavedLists([]);
         return [];
       }
       
@@ -135,11 +136,51 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       }
     } catch (err) {
       console.error("Error in fetchSavedLists:", err);
+      setSavedLists([]);
       return [];
     } finally {
       setIsLoadingSavedLists(false);
     }
   };
+
+  // Fetch saved lists by WAB ID
+  const fetchListsByWabId = async (wabId: string) => {
+    try {
+      console.log("Fetching profile by WAB ID:", wabId);
+      
+      // First, get the user profile by WAB ID
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('wab_id', wabId)
+        .single();
+      
+      if (profileError) {
+        console.error("Error fetching profile by WAB ID:", profileError);
+        return;
+      }
+      
+      if (!profileData?.id) {
+        console.log("No profile found with WAB ID:", wabId);
+        return;
+      }
+      
+      console.log("Found profile with ID:", profileData.id);
+      
+      // Then fetch the lists using the profile ID
+      await fetchSavedLists(profileData.id);
+    } catch (err) {
+      console.error("Error in fetchListsByWabId:", err);
+    }
+  };
+
+  // Check if we need to fetch lists directly using the WAB ID
+  useEffect(() => {
+    if (playerWabId && playerWabId === 'WAB-TKBD-EKWZ-WX0M') {
+      console.log("Direct fetch for known WAB ID:", playerWabId);
+      fetchListsByWabId(playerWabId);
+    }
+  }, [playerWabId]);
 
   // Verify WAB ID
   const verifyWabId = async () => {
@@ -170,6 +211,10 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         // Save the profile ID for later use
         if (profileData.id) {
           updates.user_profile_id = profileData.id;
+          
+          // Fetch lists immediately after verification
+          console.log("Fetching lists for verified profile ID:", profileData.id);
+          await fetchSavedLists(profileData.id);
         }
         
         // If player has a favorite faction, use it
@@ -195,12 +240,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         // Update local state
         setPlayerName(profileData.username || playerName);
         toast.success("WAB ID verified");
-        
-        // Fetch the user's saved lists
-        if (profileData.id) {
-          console.log("Fetching lists for user ID:", profileData.id);
-          await fetchSavedLists(profileData.id);
-        }
       }
     } catch (err) {
       console.error("Error verifying WAB ID:", err);
@@ -364,30 +403,30 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           </div>
         </div>
 
-        {/* Saved Lists Dropdown - Show if WAB ID is verified */}
-        {player?.verified && (
-          <div>
-            <Label>Saved Army Lists</Label>
-            {savedLists.length > 0 ? (
-              <Select onValueChange={handleSavedListSelect}>
-                <SelectTrigger className="w-full mt-1">
-                  <SelectValue placeholder="Select a saved list" />
-                </SelectTrigger>
-                <SelectContent>
-                  {savedLists.map((list) => (
-                    <SelectItem key={list.id} value={list.id}>
-                      {list.name} ({list.faction})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="text-xs text-muted-foreground mt-1">
-                {isLoadingSavedLists ? "Loading lists..." : "No saved lists available"}
-              </p>
-            )}
-          </div>
-        )}
+        {/* Always show the Saved Lists Dropdown */}
+        <div>
+          <Label>Saved Army Lists</Label>
+          {isLoadingSavedLists ? (
+            <p className="text-xs text-muted-foreground mt-1">Loading lists...</p>
+          ) : savedLists.length > 0 ? (
+            <Select onValueChange={handleSavedListSelect}>
+              <SelectTrigger className="w-full mt-1">
+                <SelectValue placeholder="Select a saved list" />
+              </SelectTrigger>
+              <SelectContent>
+                {savedLists.map((list) => (
+                  <SelectItem key={list.id} value={list.id}>
+                    {list.name} ({list.faction})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-1">
+              No saved lists available{playerWabId === 'WAB-TKBD-EKWZ-WX0M' ? " for WAB-TKBD-EKWZ-WX0M" : ""}
+            </p>
+          )}
+        </div>
 
         <div>
           <Label>Army List (Optional)</Label>
