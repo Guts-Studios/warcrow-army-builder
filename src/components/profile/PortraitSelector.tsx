@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -205,4 +204,3 @@ export const PortraitSelector = ({
     </Dialog>
   );
 };
-
