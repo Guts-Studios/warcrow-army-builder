@@ -14,7 +14,7 @@ interface ProfileFormData {
   social_discord: string | null;
   social_twitter: string | null;
   avatar_url: string | null;
-  wap_id?: string | null;
+  wab_id?: string | null;
 }
 
 interface ProfileFormProps {
@@ -37,18 +37,18 @@ export const ProfileForm = ({
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
-    if (formData.wap_id) {
+    if (formData.wab_id) {
       try {
-        await navigator.clipboard.writeText(formData.wap_id);
+        await navigator.clipboard.writeText(formData.wab_id);
         setCopied(true);
-        toast.success("WAP ID copied to clipboard");
+        toast.success("WAB ID copied to clipboard");
         
         // Reset the copied state after 2 seconds
         setTimeout(() => {
           setCopied(false);
         }, 2000);
       } catch (err) {
-        toast.error("Failed to copy WAP ID");
+        toast.error("Failed to copy WAB ID");
         console.error("Failed to copy: ", err);
       }
     }
@@ -56,14 +56,14 @@ export const ProfileForm = ({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      {formData.wap_id && (
+      {formData.wab_id && (
         <div className="space-y-2">
-          <Label htmlFor="wap_id" className="text-warcrow-gold">Warcrow Army ID</Label>
+          <Label htmlFor="wab_id" className="text-warcrow-gold">Warcrow Army ID</Label>
           <div className="flex gap-2">
             <Input
-              id="wap_id"
-              name="wap_id"
-              value={formData.wap_id || ""}
+              id="wab_id"
+              name="wab_id"
+              value={formData.wab_id || ""}
               disabled={true}
               className="bg-black/50 text-warcrow-gold opacity-100 border-warcrow-gold/30 flex-1"
             />

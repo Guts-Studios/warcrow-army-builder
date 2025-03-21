@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +20,7 @@ interface ProfileFormData {
   social_discord: string | null;
   social_twitter: string | null;
   avatar_url: string | null;
-  wap_id?: string | null;
+  wab_id?: string | null;
 }
 
 const Profile = () => {
@@ -36,10 +35,9 @@ const Profile = () => {
     social_discord: "",
     social_twitter: "",
     avatar_url: "",
-    wap_id: "",
+    wab_id: "",
   });
 
-  // Fetch user profile data from Supabase
   const { data: profile, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -68,7 +66,6 @@ const Profile = () => {
     retry: 1,
   });
 
-  // Mutation to update profile data
   const updateProfile = useMutation({
     mutationFn: async (updateData: ProfileFormData) => {
       console.log("Updating profile with data:", updateData);
@@ -101,7 +98,6 @@ const Profile = () => {
     },
   });
 
-  // Update form data when profile data is loaded
   useEffect(() => {
     if (profile) {
       console.log("Setting form data from profile:", profile);
@@ -113,12 +109,11 @@ const Profile = () => {
         social_discord: profile.social_discord || "",
         social_twitter: profile.social_twitter || "",
         avatar_url: profile.avatar_url || "",
-        wap_id: profile.wap_id || "",
+        wab_id: profile.wab_id || "",
       });
     }
   }, [profile]);
 
-  // Check for errors in profile loading
   useEffect(() => {
     if (isError && error) {
       console.error("Profile loading error:", error);
@@ -145,7 +140,6 @@ const Profile = () => {
   };
 
   const handleListSelect = (list: SavedList) => {
-    // Navigate to the builder with the selected list's faction
     navigate('/builder', { state: { selectedFaction: list.faction, loadList: list } });
   };
 
