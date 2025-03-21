@@ -34,6 +34,7 @@ export interface Player {
 export interface Faction {
   name: string;
   icon?: string;
+  id?: string; // Adding id property to match FactionSelector implementation
 }
 
 export interface Mission {
@@ -41,13 +42,15 @@ export interface Mission {
   name: string;
   description: string;
   objective: string;
-  // Add the missing properties needed by components
+  // Add properties needed by components
   title?: string;
+  details?: string; // Adding details property for MissionSelector
   objectiveDescription?: string;
   mapImage?: string;
   specialRules?: string[];
   objectiveMarkers?: any[];
   turnCount?: number;
+  roundCount?: number; // Adding roundCount property
 }
 
 export interface Unit {
@@ -84,4 +87,6 @@ export interface GameEvent {
   timestamp?: number;
   objectiveType?: string;
   value?: number;
+  unitId?: string; // Adding unitId for CasualtyRecord component
+  objectiveId?: string; // Adding objectiveId for ObjectiveUpdate component
 }

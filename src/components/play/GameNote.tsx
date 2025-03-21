@@ -13,7 +13,7 @@ interface GameNoteProps {
 }
 
 const GameNote: React.FC<GameNoteProps> = ({ open, onClose }) => {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const [note, setNote] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,6 +24,9 @@ const GameNote: React.FC<GameNoteProps> = ({ open, onClose }) => {
       return;
     }
     
+    // Get the first player ID as a fallback if needed
+    const defaultPlayerId = Object.keys(state.players)[0] || '';
+    
     // Add game event
     dispatch({
       type: 'ADD_GAME_EVENT',
@@ -31,7 +34,8 @@ const GameNote: React.FC<GameNoteProps> = ({ open, onClose }) => {
         id: uuidv4(),
         timestamp: Date.now(),
         type: 'note',
-        description: note
+        description: note,
+        playerId: defaultPlayerId // Add required playerId property
       }
     });
     
