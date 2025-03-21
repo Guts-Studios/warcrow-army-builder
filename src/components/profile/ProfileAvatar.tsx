@@ -1,10 +1,11 @@
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Upload, Loader2, ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PortraitSelector } from "./PortraitSelector";
 
 interface ProfileAvatarProps {
   avatarUrl: string | null;
@@ -20,6 +21,7 @@ export const ProfileAvatar = ({
   onAvatarUpdate 
 }: ProfileAvatarProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [isPortraitDialogOpen, setIsPortraitDialogOpen] = useState(false);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -72,6 +74,11 @@ export const ProfileAvatar = ({
     }
   };
 
+  const handleSelectPortrait = (url: string) => {
+    onAvatarUpdate(url);
+    toast.success("Portrait selected as avatar");
+  };
+
   return (
     <div className="relative group">
       <Avatar className="h-24 w-24">
@@ -80,26 +87,53 @@ export const ProfileAvatar = ({
           {username?.[0]?.toUpperCase() || "?"}
         </AvatarFallback>
       </Avatar>
+      
       {isEditing && (
-        <label 
-          htmlFor="avatar-upload" 
-          className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
-        >
-          {isUploading ? (
-            <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
-          ) : (
-            <Upload className="h-6 w-6 text-warcrow-gold" />
-          )}
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            className="hidden"
-            onChange={handleAvatarUpload}
-            disabled={isUploading}
-          />
-        </label>
+        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 flex gap-2">
+          <label 
+            htmlFor="avatar-upload" 
+            className="cursor-pointer"
+          >
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-warcrow-gold hover:text-warcrow-gold"
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-1" />
+              )}
+              Upload
+            </Button>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              disabled={isUploading}
+            />
+          </label>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-warcrow-gold hover:text-warcrow-gold"
+            onClick={() => setIsPortraitDialogOpen(true)}
+          >
+            <ImageIcon className="h-4 w-4 mr-1" />
+            Portraits
+          </Button>
+        </div>
       )}
+      
+      <PortraitSelector 
+        open={isPortraitDialogOpen}
+        onOpenChange={setIsPortraitDialogOpen}
+        onSelectPortrait={handleSelectPortrait}
+      />
     </div>
   );
 };
