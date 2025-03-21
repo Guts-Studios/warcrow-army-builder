@@ -14,6 +14,7 @@ import { northernTribesHighCommand } from "@/data/factions/northern-tribes/high-
 import { northernTribesTroops } from "@/data/factions/northern-tribes/troops";
 import { syenannCharacters } from "@/data/factions/syenann/characters";
 import { syenannTroops } from "@/data/factions/syenann/troops";
+import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -24,6 +25,7 @@ const getAllUnitPortraits = () => {
     ...northernTribesTroops,
     ...syenannCharacters,
     ...syenannTroops,
+    ...scionsOfYaldabaothUnits,
   ];
   
   return allUnits.map(unit => ({
@@ -61,7 +63,7 @@ export const PortraitSelector = ({
   // Group portraits by faction
   const northernTribesPortraits = filteredPortraits.filter(p => p.faction === 'northern-tribes');
   const syenannPortraits = filteredPortraits.filter(p => p.faction === 'syenann');
-  // Add more factions as they become available
+  const scionsPortraits = filteredPortraits.filter(p => p.faction === 'scions-of-yaldabaoth');
   
   const handleSelectPortrait = (url: string) => {
     onSelectPortrait(url);
@@ -93,6 +95,7 @@ export const PortraitSelector = ({
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="all">All</TabsTrigger>
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="northern-tribes">Northern Tribes</TabsTrigger>
             <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="syenann">Syenann</TabsTrigger>
+            <TabsTrigger className="data-[state=active]:text-warcrow-gold" value="scions-of-yaldabaoth">Scions</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all">
@@ -137,6 +140,25 @@ export const PortraitSelector = ({
             <ScrollArea className="h-60">
               <div className="grid grid-cols-4 gap-2 p-2">
                 {syenannPortraits.map(portrait => (
+                  <Avatar
+                    key={portrait.id}
+                    className="h-16 w-16 cursor-pointer hover:ring-2 hover:ring-warcrow-gold transition-all"
+                    onClick={() => handleSelectPortrait(portrait.imageUrl)}
+                  >
+                    <AvatarImage src={portrait.imageUrl} alt={portrait.name} />
+                    <AvatarFallback className="bg-black text-warcrow-gold text-xs">
+                      {portrait.name.split(' ').map(word => word[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+          
+          <TabsContent value="scions-of-yaldabaoth">
+            <ScrollArea className="h-60">
+              <div className="grid grid-cols-4 gap-2 p-2">
+                {scionsPortraits.map(portrait => (
                   <Avatar
                     key={portrait.id}
                     className="h-16 w-16 cursor-pointer hover:ring-2 hover:ring-warcrow-gold transition-all"
