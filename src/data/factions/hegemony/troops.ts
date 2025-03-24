@@ -1,3 +1,4 @@
+
 import { Unit } from "../../../types/army";
 
 export const hegemonyTroops: Unit[] = [
