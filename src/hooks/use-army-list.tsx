@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
-import { validateHighCommandAddition } from "@/utils/armyValidation";
+import { validateHighCommandAddition, validateUnitAddition } from "@/utils/armyValidation";
 import { units } from "@/data/factions";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
-import { validateUnitAddition, getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement";
+import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -36,10 +35,10 @@ export const useArmyList = (selectedFaction: string) => {
 
       const currentQuantity = quantities[unitId] || 0;
 
-      if (!validateUnitAddition(unit, currentQuantity, unit.availability)) {
+      if (!validateUnitAddition(selectedUnits, unit, selectedFaction)) {
         toast({
           title: "Unit Limit Reached",
-          description: `You cannot add more than ${unit.availability} ${unit.name} to your list.`,
+          description: `You cannot add more ${unit.name} to your list.`,
           variant: "destructive",
         });
         return;
@@ -53,7 +52,7 @@ export const useArmyList = (selectedFaction: string) => {
       setQuantities((prev) => getUpdatedQuantities(unitId, prev, true));
       setSelectedUnits((prev) => updateSelectedUnits(prev, unit, true));
     },
-    [factionUnits, quantities, selectedUnits, toast]
+    [factionUnits, quantities, selectedUnits, selectedFaction, toast]
   );
 
   const handleRemove = useCallback((unitId: string) => {
