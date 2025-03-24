@@ -1,3 +1,4 @@
+
 import { Unit } from "../../../types/army";
 
 export const northernTribesCharacters: Unit[] = [
@@ -193,5 +194,57 @@ export const northernTribesCharacters: Unit[] = [
     specialRules: ["Slowed", "Fix a Die"],
     highCommand: false,
     imageUrl: "/art/card/coal_card.jpg"
+  },
+  // Adding new units from the updated sheet
+  {
+    id: "eskold-the-executioner",
+    name: "Eskold the Executioner",
+    faction: "northern-tribes",
+    pointsCost: 30,
+    availability: 1,
+    command: 1,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Varank", description: "Varank race" },
+      { name: "Join (Infantry, Varank| Calvary Warg)", description: "Can join Infantry Varank or Calvary Warg units" },
+      { name: "Elite", description: "Elite unit" },
+    ],
+    specialRules: [],
+    highCommand: false,
+    imageUrl: "/art/card/eskold_the_executioner_card.jpg"
+  },
+  {
+    id: "selika",
+    name: "Selika",
+    faction: "northern-tribes",
+    pointsCost: 30,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Varank", description: "Varank race" },
+      { name: "Ambusher", description: "Has the Ambusher ability" },
+      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
+    ],
+    specialRules: [],
+    highCommand: false,
+    imageUrl: "/art/card/selika_card.jpg"
+  },
+  {
+    id: "tattoist",
+    name: "Tattoist",
+    faction: "northern-tribes",
+    pointsCost: 15,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Varank", description: "Varank race" },
+      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
+      { name: "Elite", description: "Elite unit" },
+    ],
+    specialRules: [],
+    highCommand: false,
+    imageUrl: "/art/card/tattoist_card.jpg"
   }
 ];
