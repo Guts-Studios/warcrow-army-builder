@@ -245,7 +245,7 @@ export const hegemonyCharacters: Unit[] = [
     id: "ansera-noighman",
     name: "Ansera Noighman",
     faction: "hegemony-of-embersig",
-    pointsCost: 15,
+    pointsCost: 20,
     availability: 1,
     command: 0,
     keywords: [
