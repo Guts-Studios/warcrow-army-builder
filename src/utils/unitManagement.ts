@@ -1,12 +1,19 @@
 
 import { Unit, SelectedUnit, Keyword } from "@/types/army";
+import { validateUnitAddition, validateHighCommandAddition } from "./armyValidation";
 
-export const validateUnitAddition = (
+export const validateUnitAdditionWrapper = (
   unit: Unit,
   currentQuantity: number,
-  availability: number
+  availability: number,
+  selectedUnits: SelectedUnit[],
+  armyFaction: string
 ): boolean => {
-  return currentQuantity < availability;
+  // First, check basic availability
+  if (currentQuantity >= availability) return false;
+  
+  // Then perform comprehensive validation
+  return validateUnitAddition(selectedUnits, unit, armyFaction);
 };
 
 export const getUpdatedQuantities = (
@@ -60,4 +67,26 @@ export const updateSelectedUnits = (
     );
     return updatedUnits.filter((u) => u.quantity > 0);
   }
+};
+
+/**
+ * Checks if a unit can be added to the army
+ * Used by UnitCard and other components to disable add button when needed
+ */
+export const canAddUnit = (
+  unit: Unit,
+  currentQuantity: number,
+  selectedUnits: SelectedUnit[],
+  armyFaction: string
+): boolean => {
+  // If unit has reached availability limit
+  if (currentQuantity >= unit.availability) return false;
+  
+  // If trying to add a high command unit when one already exists
+  if (unit.highCommand && selectedUnits.some(u => u.highCommand)) return false;
+  
+  // If unit faction doesn't match army faction
+  if (unit.faction !== armyFaction) return false;
+  
+  return true;
 };

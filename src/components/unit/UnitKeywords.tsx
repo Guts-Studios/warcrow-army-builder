@@ -12,7 +12,7 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
   // Convert string[] to Keyword[] if needed
   const processedKeywords: Keyword[] = keywords.map(keyword => 
     typeof keyword === 'string' 
-      ? { name: keyword } 
+      ? { name: keyword, description: "" } 
       : keyword
   );
 
