@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Target, Shield, Cloud, Users } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -57,7 +56,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     htmlFor={`${playerId}-central`}
                     className="text-sm flex items-center gap-1 text-warcrow-text"
                   >
-                    <img src="/art/icons/flag.png" alt="Flag" className="h-3.5 w-3.5" />
+                    <img src="/art/icons/flag.png.png" alt="Flag" className="h-3.5 w-3.5" />
                     Control central objective (1 VP)
                   </Label>
                 </div>
@@ -80,7 +79,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
+                    <img src="/art/icons/orange-flag.png.png" alt="Orange Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 1 (1 VP)
                   </Label>
                 </div>
@@ -103,7 +102,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
+                    <img src="/art/icons/red-flag.png.png" alt="Red Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 2 (2 VP)
                   </Label>
                 </div>
@@ -187,7 +186,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <img src="/art/icons/orange-flag.png" alt="Orange Flag" className="h-3.5 w-3.5" />
+                    <img src="/art/icons/orange-flag.png.png" alt="Orange Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 1 (1 VP)
                   </Label>
                 </div>
@@ -210,7 +209,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                         ? "text-warcrow-muted" : ""
                     )}
                   >
-                    <img src="/art/icons/red-flag.png" alt="Red Flag" className="h-3.5 w-3.5" />
+                    <img src="/art/icons/red-flag.png.png" alt="Red Flag" className="h-3.5 w-3.5" />
                     Control opponent's objective 2 (1 VP)
                   </Label>
                 </div>
