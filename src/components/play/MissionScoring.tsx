@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Target, Shield, Cloud, Users } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,6 +37,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
             const checkboxColor = isFirstPlayer 
               ? "border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white" 
               : "border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white";
+            const iconColor = isFirstPlayer ? "text-red-500" : "text-blue-500";
             
             return (
               <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
@@ -61,9 +63,9 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     />
                     <Label 
                       htmlFor={`${playerId}-central`}
-                      className={`text-sm flex items-center gap-1 ${playerColor}`}
+                      className="text-sm flex items-center gap-1 text-warcrow-text"
                     >
-                      <img src="/art/icons/flag.png.png" alt="Flag" className="h-3.5 w-3.5" />
+                      <img src="/art/icons/flag.png" alt="Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control central objective (1 VP)
                     </Label>
                   </div>
@@ -80,13 +82,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-opponent1`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/orange-flag.png.png" alt="Orange Flag" className="h-3.5 w-3.5" />
+                      <img src="/art/icons/orange-flag.png" alt="Orange Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control opponent's objective 1 (1 VP)
                     </Label>
                   </div>
@@ -103,13 +105,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-opponent2`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/red-flag.png.png" alt="Red Flag" className="h-3.5 w-3.5" />
+                      <img src="/art/icons/red-flag.png" alt="Red Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control opponent's objective 2 (2 VP)
                     </Label>
                   </div>
@@ -130,14 +132,14 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-defend`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && (
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         ) ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Shield className={`h-3.5 w-3.5 ${playerColor}`} />
+                      <Shield className={`h-3.5 w-3.5 ${iconColor}`} />
                       Opponent controls neither of your objectives (1 VP)
                     </Label>
                   </div>
@@ -167,6 +169,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
             const checkboxColor = isFirstPlayer 
               ? "border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white" 
               : "border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white";
+            const iconColor = isFirstPlayer ? "text-red-500" : "text-blue-500";
             
             return (
               <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
@@ -195,13 +198,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-opponent1`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/orange-flag.png.png" alt="Orange Flag" className="h-3.5 w-3.5" />
+                      <img src="/art/icons/orange-flag.png" alt="Orange Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control opponent's objective 1 (1 VP)
                     </Label>
                   </div>
@@ -218,13 +221,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-opponent2`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/red-flag.png.png" alt="Red Flag" className="h-3.5 w-3.5" />
+                      <img src="/art/icons/red-flag.png" alt="Red Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control opponent's objective 2 (1 VP)
                     </Label>
                   </div>
@@ -245,14 +248,14 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-defend`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && (
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         ) ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Shield className={`h-3.5 w-3.5 ${playerColor}`} />
+                      <Shield className={`h-3.5 w-3.5 ${iconColor}`} />
                       Opponent controls neither of your objectives (1 VP)
                     </Label>
                   </div>
@@ -300,6 +303,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
             const checkboxColor = isFirstPlayer 
               ? "border-red-500 data-[state=checked]:bg-red-500 data-[state=checked]:text-white" 
               : "border-blue-500 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white";
+            const iconColor = isFirstPlayer ? "text-red-500" : "text-blue-500";
             
             return (
               <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
@@ -316,7 +320,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                 </div>
                 
                 <div className="space-y-2 mt-2">
-                  <div className={`text-xs font-medium mb-1 ${playerColor}`}>
+                  <div className={`text-xs font-medium mb-1 text-warcrow-text`}>
                     Fog Marker Contact with Conquest Marker (1 VP each):
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -331,7 +335,7 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                           />
                           <Label 
                             htmlFor={`${playerId}-${marker.id}`}
-                            className={`text-sm ${playerColor}`}
+                            className="text-sm text-warcrow-text"
                           >
                             {marker.label}
                           </Label>
@@ -358,13 +362,13 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Label 
                       htmlFor={`${playerId}-control-artifact`}
                       className={cn(
-                        `text-sm flex items-center gap-1 ${playerColor}`,
+                        "text-sm flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.controlArtifact
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Target className={`h-3.5 w-3.5 ${playerColor}`} />
+                      <Target className={`h-3.5 w-3.5 ${iconColor}`} />
                       Control artifact at end of round (2 VP)
                     </Label>
                   </div>
