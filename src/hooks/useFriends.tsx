@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -321,7 +320,7 @@ export const useFriends = (userId: string) => {
   };
 
   useEffect(() => {
-    if (userId && !isPreviewId) {
+    if (userId) {
       fetchFriends();
       fetchFriendRequests();
       fetchOutgoingRequests();

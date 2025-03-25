@@ -22,20 +22,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const FriendsSection = ({ userId }: { userId: string }) => {
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const { searchQuery, setSearchQuery, searchResults, isSearching, searchUsers } = useUserSearch();
+  const { toast } = useToast();
   
-  // Display a placeholder UI for preview mode
-  if (userId === "preview-user-id") {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-warcrow-gold">Friends</h2>
-        <div className="bg-black/20 p-4 rounded border border-warcrow-gold/10 text-center">
-          <p className="text-warcrow-text/70">Friends feature is not available in preview mode</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Always call useFriends hook regardless of userId value
   const { 
     friends, 
     friendRequests, 
@@ -47,10 +38,10 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
     sendFriendRequest,
     unfriend
   } = useFriends(userId);
-  
-  const { toast } = useToast();
-  const [selectedUser, setSelectedUser] = useState<any>(null);
 
+  // Check if we're in preview mode after all hooks are called
+  const isPreviewMode = userId === "preview-user-id";
+  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -136,6 +127,18 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
       });
     }
   };
+
+  // For preview mode, return a simplified UI
+  if (isPreviewMode) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-warcrow-gold">Friends</h2>
+        <div className="bg-black/20 p-4 rounded border border-warcrow-gold/10 text-center">
+          <p className="text-warcrow-text/70">Friends feature is not available in preview mode</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
