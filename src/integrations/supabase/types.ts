@@ -75,6 +75,41 @@ export type Database = {
         }
         Relationships: []
       }
+      friend_activities: {
+        Row: {
+          activity_data: Json
+          activity_type: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_data?: Json
+          activity_type: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json
+          activity_type?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           created_at: string | null
@@ -233,7 +268,10 @@ export type Database = {
           id: string
           location: string | null
           social_discord: string | null
+          social_instagram: string | null
+          social_twitch: string | null
           social_twitter: string | null
+          social_youtube: string | null
           tester: boolean
           updated_at: string
           username: string | null
@@ -249,7 +287,10 @@ export type Database = {
           id: string
           location?: string | null
           social_discord?: string | null
+          social_instagram?: string | null
+          social_twitch?: string | null
           social_twitter?: string | null
+          social_youtube?: string | null
           tester?: boolean
           updated_at?: string
           username?: string | null
@@ -265,7 +306,10 @@ export type Database = {
           id?: string
           location?: string | null
           social_discord?: string | null
+          social_instagram?: string | null
+          social_twitch?: string | null
           social_twitter?: string | null
+          social_youtube?: string | null
           tester?: boolean
           updated_at?: string
           username?: string | null

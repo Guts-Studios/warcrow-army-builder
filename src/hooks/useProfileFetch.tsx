@@ -68,10 +68,9 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessi
         favorite_faction: data.favorite_faction,
         social_discord: data.social_discord,
         social_twitter: data.social_twitter,
-        // Add missing social media properties with null fallbacks
-        social_instagram: null,
-        social_youtube: null,
-        social_twitch: null,
+        social_instagram: data.social_instagram,
+        social_youtube: data.social_youtube,
+        social_twitch: data.social_twitch,
         avatar_url: data.avatar_url,
         wab_id: data.wab_id,
         games_won: data.games_won,
