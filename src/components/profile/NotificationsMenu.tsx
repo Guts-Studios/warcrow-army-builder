@@ -13,9 +13,7 @@ import { toast } from "sonner";
 interface Notification {
   id: string;
   type: string;
-  content: {
-    message: string;
-  };
+  content: { message: string } | Record<string, any>;
   read: boolean;
   created_at: string;
   sender: {
@@ -56,8 +54,14 @@ export const NotificationsMenu = ({ userId }: NotificationsMenuProps) => {
         
         if (error) throw error;
         
-        setNotifications(data || []);
-        setUnreadCount((data || []).filter(n => !n.read).length);
+        // Type assertion to ensure correct handling of content field
+        const typedNotifications = (data || []).map(item => ({
+          ...item,
+          content: typeof item.content === 'object' ? item.content : { message: String(item.content) }
+        }));
+        
+        setNotifications(typedNotifications);
+        setUnreadCount(typedNotifications.filter(n => !n.read).length);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
