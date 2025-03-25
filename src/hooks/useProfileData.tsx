@@ -6,6 +6,7 @@ import { useProfileSession } from "./useProfileSession";
 import { useProfileFetch } from "./useProfileFetch";
 import { useProfileUpdate } from "./useProfileUpdate";
 import { useProfileNavigation } from "./useProfileNavigation";
+import { ensureWabId } from "@/utils/wabIdUtils";
 
 export const useProfileData = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,7 +25,7 @@ export const useProfileData = () => {
   const { isAuthenticated, usePreviewData, userId, sessionChecked } = useProfileSession();
 
   // Fetch profile data, only when session is checked
-  const { profile, isLoading, isError, error } = useProfileFetch({
+  const { profile, isLoading, isError, error, refetch } = useProfileFetch({
     isAuthenticated,
     usePreviewData,
     userId,
@@ -40,6 +41,24 @@ export const useProfileData = () => {
 
   // Navigation hooks
   const { handleListSelect } = useProfileNavigation();
+
+  // Check and generate WAB ID if needed
+  useEffect(() => {
+    const checkWabId = async () => {
+      if (profile && !profile.wab_id && userId && !usePreviewData) {
+        console.log("Profile missing WAB ID, generating one...");
+        const newWabId = await ensureWabId(userId);
+        
+        if (newWabId) {
+          // Refetch profile to get the updated WAB ID
+          console.log("WAB ID generated, refetching profile");
+          refetch();
+        }
+      }
+    };
+    
+    checkWabId();
+  }, [profile, userId, usePreviewData, refetch]);
 
   useEffect(() => {
     if (profile) {

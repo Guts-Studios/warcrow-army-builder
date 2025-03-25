@@ -17,11 +17,11 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   // Pass both the profile ID and whether this is preview mode
   const { isInitialized } = useProfileRealtime(profileId, isPreviewMode);
 
-  // Check for WAB ID and warn if missing
+  // Check for WAB ID
   useEffect(() => {
     if (profileData.profile && !profileData.profile.wab_id && !isPreviewMode) {
-      console.error("ProfileDataProvider - WAB ID is missing from profile data:", profileData.profile);
-      toast.error("Your Warcrow Army ID is missing. Please contact support for assistance.");
+      console.warn("ProfileDataProvider - WAB ID is missing from profile data:", profileData.profile);
+      // No need to show toast here now since we'll generate it in useProfileData
     }
   }, [profileData.profile, isPreviewMode]);
 
