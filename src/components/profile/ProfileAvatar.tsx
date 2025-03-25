@@ -12,6 +12,7 @@ interface ProfileAvatarProps {
   isEditing: boolean;
   onAvatarUpdate: (url: string) => void;
   size?: "default" | "sm" | "lg";
+  isOnline?: boolean;
 }
 
 export const ProfileAvatar = ({
@@ -19,7 +20,8 @@ export const ProfileAvatar = ({
   username,
   isEditing,
   onAvatarUpdate,
-  size = "default"
+  size = "default",
+  isOnline
 }: ProfileAvatarProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -45,6 +47,10 @@ export const ProfileAvatar = ({
           {getInitials(username)}
         </AvatarFallback>
       </Avatar>
+      
+      {isOnline !== undefined && (
+        <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-black ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+      )}
       
       {isEditing && (
         <Button

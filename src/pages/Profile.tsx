@@ -4,9 +4,15 @@ import { ProfileContent } from "@/components/profile/ProfileContent";
 import { LoadingScreen } from "@/components/profile/LoadingScreen";
 import { toast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const ProfileWithData = () => {
   const { isLoading, profile, error } = useProfileContext();
+  
+  // Initialize online tracking when profile is loaded
+  // This ensures the current user's online status is tracked
+  const currentUserId = profile?.id || null;
+  useOnlineStatus(currentUserId ? [currentUserId] : []);
   
   useEffect(() => {
     if (error) {

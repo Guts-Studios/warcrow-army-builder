@@ -65,7 +65,6 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
           }
           
           // Invalidate notifications query to refresh data
-          // This ensures the bell dropdown will be updated with the new notification
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
         }
       )

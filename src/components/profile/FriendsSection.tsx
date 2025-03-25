@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FriendProfileDialog } from "@/components/profile/FriendProfileDialog";
 import { DirectMessageDialog } from "@/components/profile/DirectMessageDialog";
 import { toast } from "sonner";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface FriendsSectionProps {
   userId: string;
@@ -32,6 +33,10 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
   const { toast: uiToast } = useToast();
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
   const [selectedFriendForMessage, setSelectedFriendForMessage] = useState<Friend | null>(null);
+
+  // Get friend IDs to track online status
+  const friendIds = friends.map(friend => friend.id);
+  const { onlineStatus } = useOnlineStatus(friendIds);
 
   const handleAddFriend = async () => {
     if (!friendCode.trim()) return;
@@ -129,9 +134,13 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                         isEditing={false}
                         onAvatarUpdate={() => {}}
                         size="sm"
+                        isOnline={onlineStatus[friend.id]}
                       />
                       <span className="ml-2 text-warcrow-text">
                         {friend.username || "Unnamed User"}
+                        {onlineStatus[friend.id] && 
+                          <span className="ml-2 text-green-500 text-xs">Online</span>
+                        }
                       </span>
                     </button>
                     <div className="flex gap-2">
