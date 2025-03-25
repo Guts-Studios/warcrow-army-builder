@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -9,8 +8,8 @@ export type OnlineStatus = {
 
 export const useOnlineStatus = (userIds: string[]) => {
   const [onlineStatus, setOnlineStatus] = useState<OnlineStatus>({});
-  const { profile } = useProfileSession();
-  const currentUserId = profile?.id;
+  const { userId } = useProfileSession();
+  const currentUserId = userId;
   
   // Track current user's online status
   useEffect(() => {
