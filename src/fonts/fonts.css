@@ -35,8 +35,19 @@
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
-  text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5);
-  filter: saturate(1.2); /* Slight saturation boost for all symbols */
+  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px rgba(255,255,255,0.7);
+  filter: saturate(1.2) contrast(1.1); /* Enhanced visibility */
+}
+
+/* Game symbol with enhanced visibility for dark symbols */
+.game-symbol-dark {
+  font-family: 'Warcrow', sans-serif;
+  font-feature-settings: "liga", "calt", "dlig";
+  -webkit-font-feature-settings: "liga", "calt", "dlig";
+  -moz-font-feature-settings: "liga", "calt", "dlig";
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5);
+  filter: saturate(1.4) brightness(1.1) contrast(1.1); /* Enhanced visibility for dark symbols */
 }
 
 /* Alternative class names as mentioned by user */
@@ -49,11 +60,18 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Specific numeric character classes */
+/* Specific numeric character classes with enhanced visibility */
+.WC_7 {
+  /* Special styling for black symbol (7) */
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5);
+  filter: saturate(1.4) brightness(1.1) contrast(1.1);
+}
+
+/* Other numeric character classes */
 .WC_1, .WC_2, .WC_3, .WC_4, .WC_5, 
-.WC_6, .WC_7, .WC_8, .WC_9, .WC_0 {
-  /* These classes can have specific styling if needed */
+.WC_6, .WC_8, .WC_9, .WC_0 {
   font-family: 'Warcrow', sans-serif;
+  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 4px rgba(255,255,255,0.6);
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
@@ -70,8 +88,8 @@
   font-family: 'Warcrow', custom;
   font-weight: 400;
   font-style: normal;
-  text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5);
-  filter: saturate(1.2); /* Slight saturation boost for all symbols */
+  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px rgba(255,255,255,0.7);
+  filter: saturate(1.2) contrast(1.1); /* Enhanced visibility */
 }
 
 /* Adding the specific sample-text class from the user's example */
