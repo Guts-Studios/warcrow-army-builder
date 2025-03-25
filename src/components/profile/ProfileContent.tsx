@@ -4,6 +4,7 @@ import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ArmyListsSection } from "@/components/profile/ArmyListsSection";
 import { FriendsSection } from "@/components/profile/FriendsSection";
+import { ProfileComments } from "@/components/profile/ProfileComments";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 import { useEffect } from "react";
@@ -146,6 +147,13 @@ export const ProfileContent = () => {
               <h2 className="text-xl font-semibold text-warcrow-gold">My Army Lists</h2>
               <ArmyListsSection onListSelect={handleListSelect} />
             </div>
+            
+            {/* Add the ProfileComments section */}
+            {profile?.id && (
+              <div className="mt-6 pt-6 border-t border-warcrow-gold/20">
+                <ProfileComments profileId={profile.id} />
+              </div>
+            )}
           </div>
         </div>
       </div>
