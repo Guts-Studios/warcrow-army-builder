@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react";
 import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
 import { useProfileSession } from "@/hooks/useProfileSession";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { profileFadeIn } from "@/components/profile/animations";
+import { PageHeader } from "@/components/common/PageHeader";
 
 const Activity = () => {
   const { userId, isAuthenticated, usePreviewData } = useProfileSession();
@@ -30,22 +30,14 @@ const Activity = () => {
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <header className="bg-black/50 border-b border-warcrow-gold/20 backdrop-blur-sm">
-        <div className="container max-w-5xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-warcrow-gold">Activity Feed</h1>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
-                onClick={() => navigate("/profile")}
-              >
-                Back to Profile
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader title="Activity Feed">
+        <button 
+          className="bg-black/70 border border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10 transition-colors rounded-md px-4 py-2 text-sm"
+          onClick={() => navigate("/profile")}
+        >
+          Back to Profile
+        </button>
+      </PageHeader>
       
       <main className="container max-w-5xl mx-auto px-4 py-6">
         <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
