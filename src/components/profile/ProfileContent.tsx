@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { Copy, Check } from "lucide-react";
+import { useState } from "react";
 
 export const ProfileContent = () => {
   const { 
@@ -22,6 +24,8 @@ export const ProfileContent = () => {
     handleListSelect,
     error
   } = useProfileContext();
+
+  const [copied, setCopied] = useState(false);
 
   // Show toast notification for profile errors
   useEffect(() => {
@@ -38,6 +42,25 @@ export const ProfileContent = () => {
       console.warn("ProfileContent: WAB ID missing from profile data");
     }
   }, [profile]);
+
+  // Function to copy WAB ID to clipboard
+  const copyWabIdToClipboard = async () => {
+    if (profile?.wab_id) {
+      try {
+        await navigator.clipboard.writeText(profile.wab_id);
+        setCopied(true);
+        toast.success("WAB ID copied to clipboard");
+        
+        // Reset the copied state after 2 seconds
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
+      } catch (err) {
+        toast.error("Failed to copy WAB ID");
+        console.error("Failed to copy: ", err);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -59,11 +82,6 @@ export const ProfileContent = () => {
                   <h2 className="text-xl font-semibold text-warcrow-gold">
                     {profile.username}
                   </h2>
-                  {profile?.wab_id && (
-                    <div className="text-sm text-warcrow-gold/80 font-mono mt-1">
-                      {profile.wab_id}
-                    </div>
-                  )}
                 </div>
               )}
               
@@ -79,6 +97,25 @@ export const ProfileContent = () => {
             </div>
             
             <div className="flex-1">
+              {/* Add a prominent WAB ID display at the top of the right column */}
+              {profile?.wab_id && (
+                <div className="mb-4 p-3 bg-black/70 rounded-md border border-warcrow-gold/50 shadow-md">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-warcrow-gold font-semibold">Warcrow Army Builder ID:</span>
+                    <Button 
+                      onClick={copyWabIdToClipboard}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 border-warcrow-gold/50 text-warcrow-gold hover:bg-black/50"
+                    >
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <div className="text-warcrow-gold font-mono text-lg tracking-wide mt-1">{profile.wab_id}</div>
+                  <div className="text-xs text-warcrow-gold/70 mt-1">Use this ID to link your army lists</div>
+                </div>
+              )}
+
               <ProfileForm
                 formData={{
                   ...formData,
