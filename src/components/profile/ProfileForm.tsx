@@ -2,9 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Copy, Check, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface ProfileFormData {
   username: string | null;
@@ -34,53 +33,8 @@ export const ProfileForm = ({
   onSubmit,
   onCancel
 }: ProfileFormProps) => {
-  const [copied, setCopied] = useState(false);
-
-  const copyToClipboard = async () => {
-    if (formData.wab_id) {
-      try {
-        await navigator.clipboard.writeText(formData.wab_id);
-        setCopied(true);
-        toast.success("WAB ID copied to clipboard");
-        
-        // Reset the copied state after 2 seconds
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-      } catch (err) {
-        toast.error("Failed to copy WAB ID");
-        console.error("Failed to copy: ", err);
-      }
-    }
-  };
-
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      {formData.wab_id && (
-        <div className="space-y-2">
-          <Label htmlFor="wab_id" className="text-warcrow-gold">Warcrow Army ID</Label>
-          <div className="flex gap-2">
-            <Input
-              id="wab_id"
-              name="wab_id"
-              value={formData.wab_id || ""}
-              disabled={true}
-              className="bg-black/50 text-warcrow-gold opacity-100 border-warcrow-gold/30 flex-1"
-            />
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={copyToClipboard}
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-              title="Copy to clipboard"
-            >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
-          <p className="text-xs text-warcrow-text/70">This is your unique identifier in the Warcrow Army Builder system</p>
-        </div>
-      )}
-
       <div className="space-y-2">
         <Label htmlFor="username" className="text-warcrow-gold flex items-center gap-1">
           Username
