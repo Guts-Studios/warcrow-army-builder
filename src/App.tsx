@@ -5,6 +5,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { GameProvider } from "@/context/GameContext";
+import { toast } from "@/components/ui/use-toast";
+
+import Index from './pages/Index';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
+import Rules from './pages/Rules';
+import Missions from './pages/Missions';
+import Mail from './pages/Mail';
+import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
+import UnitStats from './pages/UnitStats';
+import Play from './pages/Play';
+import Setup from './pages/Setup';
+import Deployment from './pages/Deployment';
+import Game from './pages/Game';
+import Summary from './pages/Summary';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,12 +84,11 @@ function App() {
       }
       
       if (!session && !isPreview) {
-        toast.warning(
-          "You are in offline mode. Cloud features like saving lists will not be available.",
-          {
-            duration: 5000,
-          }
-        );
+        toast({
+          title: "Offline Mode",
+          description: "You are in offline mode. Cloud features like saving lists will not be available.",
+          duration: 5000,
+        });
       }
     };
 
