@@ -53,8 +53,12 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
               key={`symbol-${config.symbol}-${i}`} 
               className="Warcrow-Family font-warcrow" 
               style={{ 
-                color: config.color, 
+                color: config.color,
                 fontSize: '1.125rem',
+                backgroundColor: isBlackSymbol ? 'transparent' : 'rgba(40, 40, 40, 0.7)',
+                borderRadius: '0.25rem',
+                padding: '0 0.25rem',
+                margin: '0 0.125rem',
                 // Use different styling for black vs colored symbols
                 ...(isBlackSymbol ? {
                   background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',

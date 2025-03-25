@@ -7,6 +7,7 @@ interface GameSymbolProps {
   className?: string;
   style?: React.CSSProperties;
   useWarcrowClass?: boolean;
+  bgColor?: string; // New prop for background color
 }
 
 export const GameSymbol: React.FC<GameSymbolProps> = ({ 
@@ -14,7 +15,8 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
   size = "md", 
   className = "",
   style = {},
-  useWarcrowClass = false
+  useWarcrowClass = false,
+  bgColor
 }) => {
   const sizeClasses = {
     sm: "text-sm",
@@ -39,14 +41,15 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
 
   return (
     <span 
-      className={`${symbolClass} ${sizeClasses[size]} ${className}`}
+      className={`${symbolClass} ${sizeClasses[size]} ${className} ${bgColor ? 'inline-flex items-center justify-center rounded px-1' : ''}`}
       style={{
         fontFeatureSettings: '"liga", "calt", "dlig"',
+        backgroundColor: bgColor || 'transparent',
         // Use color overlay for dark symbols instead of text-shadow
         ...(isDarkSymbol ? {
-          background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
+          background: bgColor || 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
+          WebkitBackgroundClip: !bgColor ? 'text' : 'unset',
+          WebkitTextFillColor: !bgColor ? 'transparent' : 'inherit',
           filter: 'contrast(1.5) brightness(1.2)',
         } : {
           // Removed the text-shadow here
