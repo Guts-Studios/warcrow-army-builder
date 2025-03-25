@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,9 +9,47 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
+  const [isTester, setIsTester] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const checkUserRole = async () => {
+      // Check for preview mode
+      const isPreview = window.location.hostname === 'lovableproject.com' || 
+                      window.location.hostname.endsWith('.lovableproject.com');
+      
+      if (isPreview) {
+        setIsTester(true);
+        setIsAuthenticated(true);
+        return;
+      }
+      
+      // Check auth status and tester role
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      
+      if (session) {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('tester')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsTester(!!data?.tester);
+        } catch (error) {
+          console.error('Error checking tester status:', error);
+          setIsTester(false);
+        }
+      }
+    };
+    
+    checkUserRole();
+  }, []);
   
   return (
     <DropdownMenu>
@@ -45,6 +83,14 @@ export const NavDropdown = () => {
         >
           Rules
         </DropdownMenuItem>
+        {(isTester || isPreview) && (
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/profile')}
+          >
+            Profile
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem 
           className="cursor-pointer hover:bg-warcrow-gold/10"
           onClick={() => navigate('/landing')}

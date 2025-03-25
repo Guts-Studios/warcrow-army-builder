@@ -38,6 +38,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
   const [isGuest, setIsGuest] = React.useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
+  const [isTester, setIsTester] = React.useState(false);
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
@@ -60,14 +61,31 @@ function App() {
       }
 
       if (isPreview) {
-        console.log('Preview mode detected, setting as authenticated');
+        console.log('Preview mode detected, setting as authenticated and tester');
         setIsAuthenticated(true);
+        setIsTester(true);
         return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
+      
+      // Check tester role if authenticated
+      if (session) {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('tester')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsTester(!!data?.tester);
+          console.log('Tester role check:', data?.tester ? 'Tester' : 'Not tester');
+        } catch (error) {
+          console.error('Error checking tester status:', error);
+        }
+      }
       
       if (!session && !isPreview) {
         toast.warning(
@@ -99,6 +117,24 @@ function App() {
       // Don't update auth state during password recovery
       if (!isPasswordRecovery) {
         setIsAuthenticated(!!session);
+        
+        // Update tester status on auth change
+        if (session) {
+          supabase
+            .from('profiles')
+            .select('tester')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data }) => {
+              setIsTester(!!data?.tester);
+            })
+            .catch(error => {
+              console.error('Error checking tester status:', error);
+              setIsTester(false);
+            });
+        } else {
+          setIsTester(false);
+        }
       }
     });
 
@@ -172,7 +208,7 @@ function App() {
                 <Route 
                   path="/profile" 
                   element={
-                    isPreview || (isAuthenticated && !isGuest) ? (
+                    (isPreview || (isAuthenticated && isTester && !isGuest)) ? (
                       <Profile />
                     ) : (
                       <Navigate to="/login" replace />
