@@ -45,6 +45,9 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
       const nodes: React.ReactNode[] = [];
       parts.forEach((part, i) => {
         if (i > 0) {
+          // Special handling for black symbol (7)
+          const isBlackSymbol = config.fontChar === '7';
+          
           nodes.push(
             <span 
               key={`symbol-${config.symbol}-${i}`} 
@@ -52,7 +55,16 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
               style={{ 
                 color: config.color, 
                 fontSize: '1.125rem',
-                textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)' 
+                // Use different styling for black vs colored symbols
+                ...(isBlackSymbol ? {
+                  background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  filter: 'contrast(1.5) brightness(1.2)',
+                } : {
+                  textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
+                  filter: 'saturate(1.2)'
+                })
               }}
             >
               {config.fontChar}
