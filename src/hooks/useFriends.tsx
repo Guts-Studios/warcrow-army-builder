@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Friend {
   id: string;
@@ -34,6 +34,7 @@ export const useFriends = (userId: string) => {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<OutgoingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const isPreviewId = userId === "preview-user-id";
 
@@ -46,7 +47,6 @@ export const useFriends = (userId: string) => {
     
     setIsLoading(true);
     try {
-      // Query friendships table where the user is either sender or recipient
       const { data, error } = await supabase
         .from('friendships')
         .select(`
@@ -67,9 +67,7 @@ export const useFriends = (userId: string) => {
         return;
       }
       
-      // Format the data to get the friend's info (not the current user's)
       const formattedFriends: Friend[] = data.map(friendship => {
-        // Determine if the friend is the sender or recipient
         const isSender = friendship.sender_id === userId;
         const friendProfile = isSender ? friendship.recipient : friendship.sender;
         
@@ -175,7 +173,6 @@ export const useFriends = (userId: string) => {
 
   const sendFriendRequest = async (recipientId: string) => {
     try {
-      // First check if friendship already exists in either direction
       const { data: existingFriendship, error: checkError } = await supabase
         .from('friendships')
         .select()
@@ -192,7 +189,6 @@ export const useFriends = (userId: string) => {
         throw new Error("A friend request already exists for this user");
       }
       
-      // Insert new friendship record
       const { data, error } = await supabase
         .from('friendships')
         .insert({
@@ -208,7 +204,6 @@ export const useFriends = (userId: string) => {
         throw new Error("Failed to send friend request");
       }
       
-      // Create notification for recipient
       await supabase
         .from('notifications')
         .insert({
@@ -218,7 +213,6 @@ export const useFriends = (userId: string) => {
           content: { message: "sent you a friend request" }
         });
       
-      // Refresh the outgoing requests list
       fetchOutgoingRequests();
       return true;
     } catch (err) {
@@ -229,7 +223,6 @@ export const useFriends = (userId: string) => {
 
   const acceptFriendRequest = async (friendshipId: string, senderId: string) => {
     try {
-      // Update the friendship status to accepted
       const { error } = await supabase
         .from('friendships')
         .update({ status: 'accepted' })
@@ -242,7 +235,6 @@ export const useFriends = (userId: string) => {
         throw new Error("Failed to accept friend request");
       }
       
-      // Create notification for sender
       await supabase
         .from('notifications')
         .insert({
@@ -252,7 +244,6 @@ export const useFriends = (userId: string) => {
           content: { message: "accepted your friend request" }
         });
       
-      // Refresh lists
       fetchFriends();
       fetchFriendRequests();
     } catch (err) {

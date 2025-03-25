@@ -11,10 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const NotificationsMenu = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   const isPreviewId = userId === "preview-user-id";
 
@@ -35,12 +37,22 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       
       if (error) {
         console.error("Error fetching notifications:", error);
+        toast({
+          title: "Error fetching notifications",
+          description: "Please try again later",
+          variant: "destructive"
+        });
         return;
       }
       
       setNotifications(data || []);
     } catch (err) {
       console.error("Error fetching notifications:", err);
+      toast({
+        title: "Error fetching notifications",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -57,6 +69,11 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       
       if (error) {
         console.error("Error marking notification as read:", error);
+        toast({
+          title: "Error marking notification as read",
+          description: "Please try again later",
+          variant: "destructive"
+        });
         return;
       }
       
@@ -65,6 +82,11 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       );
     } catch (err) {
       console.error("Error marking notification as read:", err);
+      toast({
+        title: "Error marking notification as read",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     }
   };
 
@@ -76,7 +98,6 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
 
   const unreadNotifications = notifications.filter(n => !n.read);
 
-  // Return a simplified menu for preview mode
   if (isPreviewId) {
     return (
       <DropdownMenu>
