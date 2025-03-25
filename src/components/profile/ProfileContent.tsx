@@ -45,7 +45,7 @@ export const ProfileContent = () => {
 
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <div className="bg-black/50 rounded-lg p-6 space-y-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div className="flex flex-col md:flex-row md:items-start gap-6">
             <div className="flex flex-col items-center space-y-4">
               <ProfileAvatar
                 avatarUrl={profile?.avatar_url || formData.avatar_url}
@@ -53,6 +53,20 @@ export const ProfileContent = () => {
                 isEditing={isEditing}
                 onAvatarUpdate={handleAvatarUpdate}
               />
+              
+              {profile?.username && (
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-warcrow-gold">
+                    {profile.username}
+                  </h2>
+                  {profile?.wab_id && (
+                    <div className="text-sm text-warcrow-gold/80 font-mono mt-1">
+                      {profile.wab_id}
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {!isEditing && (
                 <Button 
                   onClick={() => setIsEditing(true)}
@@ -64,27 +78,20 @@ export const ProfileContent = () => {
               )}
             </div>
             
-            {/* Enhanced WAB ID display with better visibility */}
-            {profile?.wab_id && (
-              <div className="text-center md:text-right p-3 bg-black/30 rounded-md border border-warcrow-gold/40 shadow-md">
-                <div className="text-sm text-warcrow-gold font-semibold">Warcrow Army ID:</div>
-                <div className="text-warcrow-gold text-lg font-mono font-bold tracking-wide">{profile.wab_id}</div>
-                <div className="text-xs text-warcrow-gold/70 mt-1">Keep this ID to manage your army lists</div>
-              </div>
-            )}
+            <div className="flex-1">
+              <ProfileForm
+                formData={{
+                  ...formData,
+                  wab_id: profile?.wab_id || formData.wab_id || null
+                }}
+                isEditing={isEditing}
+                isPending={updateProfile.isPending}
+                onInputChange={handleInputChange}
+                onSubmit={handleSubmit}
+                onCancel={() => setIsEditing(false)}
+              />
+            </div>
           </div>
-
-          <ProfileForm
-            formData={{
-              ...formData,
-              wab_id: profile?.wab_id || formData.wab_id || null
-            }}
-            isEditing={isEditing}
-            isPending={updateProfile.isPending}
-            onInputChange={handleInputChange}
-            onSubmit={handleSubmit}
-            onCancel={() => setIsEditing(false)}
-          />
 
           <div className="pt-4 border-t border-warcrow-gold/20">
             <div className="text-sm text-warcrow-gold/60 mb-4">
