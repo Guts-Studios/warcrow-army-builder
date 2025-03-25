@@ -1,15 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-interface Activity {
-  id: string;
-  timestamp: string;
-  message: string;
-}
+import { useFriendActivities, FriendActivity } from '@/hooks/useFriendActivities';
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDistanceToNow } from 'date-fns';
 
 interface FriendActivityFeedProps {
   userId: string;
@@ -17,41 +14,41 @@ interface FriendActivityFeedProps {
 }
 
 export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, className }) => {
-  const [activityFeed, setActivityFeed] = useState<Activity[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { activities, isLoading, error } = useFriendActivities(userId);
 
-  const fetchActivityFeed = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Simulate fetching data from an API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const mockActivity: Activity[] = [
-        { id: '1', timestamp: '2024-07-15T10:00:00', message: 'Played a game' },
-        { id: '2', timestamp: '2024-07-14T18:30:00', message: 'Added a new friend' },
-        { id: '3', timestamp: '2024-07-13T22:45:00', message: 'Updated profile settings' },
-      ];
-      
-      setActivityFeed(mockActivity);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch activity feed');
-      toast.error(`Failed to fetch activity feed: ${err.message}`);
-    } finally {
-      setIsLoading(false);
+  const refreshFeed = () => {
+    // Force refetch by reloading the page - in a real app, we would use the
+    // refetch function from the hook instead
+    window.location.reload();
+    toast.success("Refreshing activity feed");
+  };
+
+  // Format activity message based on activity type
+  const formatActivityMessage = (activity: FriendActivity) => {
+    switch (activity.activity_type) {
+      case 'create_list':
+        return `Created a new army list: ${activity.activity_data.list_name}`;
+      case 'update_list':
+        return `Updated army list: ${activity.activity_data.list_name}`;
+      case 'login':
+        return 'Logged in';
+      case 'profile_update':
+        return 'Updated their profile';
+      case 'add_friend':
+        return 'Added a new friend';
+      default:
+        return activity.activity_type.replace('_', ' ');
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      fetchActivityFeed();
+  // Format time to relative format (e.g., "2 hours ago")
+  const formatTime = (timestamp: string) => {
+    try {
+      return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+    } catch (e) {
+      return 'recently';
     }
-  }, [userId]);
-
-  const refreshFeed = () => {
-    fetchActivityFeed();
   };
 
   return (
@@ -69,20 +66,46 @@ export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, 
         </Button>
       </div>
 
-      {isLoading && <div className="text-warcrow-text text-sm">Loading activity...</div>}
-      {error && <div className="text-red-500 text-sm">Error: {error}</div>}
+      {isLoading && (
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center space-x-2">
+              <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+              <div className="space-y-1">
+                <Skeleton className="h-3 md:h-4 w-full" />
+                <Skeleton className="h-2 md:h-3 w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {error && <div className="text-red-500 text-sm">Error loading activities: {error.message}</div>}
 
       <ul className="space-y-2 overflow-auto flex-1 min-h-0 max-h-[150px] md:max-h-full">
-        {activityFeed.map(activity => (
-          <li key={activity.id} className="text-warcrow-text/80 text-xs md:text-sm">
-            <span>{activity.message}</span>
-            <div className="text-[10px] md:text-xs text-warcrow-text/50">
-              {new Date(activity.timestamp).toLocaleDateString()}
-            </div>
-          </li>
-        ))}
-        {activityFeed.length === 0 && !isLoading && !error && (
-          <li className="text-warcrow-text/50 text-xs md:text-sm">No activity to display.</li>
+        {!isLoading && activities.length > 0 ? (
+          activities.map(activity => (
+            <li key={activity.id} className="text-warcrow-text/80 text-xs md:text-sm">
+              <div className="flex items-center space-x-2">
+                <img 
+                  src={activity.avatar_url || "/images/user.png"} 
+                  alt="" 
+                  className="h-5 w-5 md:h-6 md:w-6 rounded-full"
+                />
+                <div>
+                  <span className="text-warcrow-gold/90">{activity.username}</span>
+                  <span className="ml-1">{formatActivityMessage(activity)}</span>
+                  <div className="text-[10px] md:text-xs text-warcrow-text/50">
+                    {formatTime(activity.created_at)}
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))
+        ) : (
+          !isLoading && !error && (
+            <li className="text-warcrow-text/50 text-xs md:text-sm">No activity to display.</li>
+          )
         )}
       </ul>
     </div>

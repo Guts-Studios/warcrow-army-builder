@@ -7,12 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFriends } from '@/hooks/useFriends';
 import { useProfileContext } from './ProfileData';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface Friend {
   id: string;
   username: string | null;
   avatar_url: string | null;
-  is_online?: boolean;
   friendship_id: string;
 }
 
@@ -35,6 +35,12 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     acceptFriendRequest,
     rejectFriendRequest
   } = useFriends(userId);
+
+  // Create a list of friend IDs to track online status
+  const friendIds = friends.map(friend => friend.id);
+  
+  // Track online status of all friends
+  const { onlineStatus } = useOnlineStatus(friendIds);
 
   // Check if this is the current user's profile
   useEffect(() => {
@@ -132,7 +138,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
                   <div>
                     <div className="font-medium text-warcrow-gold text-xs md:text-sm">{friend.username}</div>
                     <div className="text-[10px] md:text-xs text-warcrow-text/70">
-                      {friend.is_online ? 'Online' : 'Offline'}
+                      {onlineStatus[friend.id] ? 'Online' : 'Offline'}
                     </div>
                   </div>
                 </div>
