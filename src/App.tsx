@@ -116,19 +116,23 @@ function App() {
         setIsAuthenticated(!!session);
         
         if (session) {
-          // Fixed: properly handle the Promise chain
-          supabase
-            .from('profiles')
-            .select('tester')
-            .eq('id', session.user.id)
-            .single()
-            .then(({ data }) => {
+          // Fixed Promise chain handling - using async/await instead
+          const checkTesterStatus = async () => {
+            try {
+              const { data } = await supabase
+                .from('profiles')
+                .select('tester')
+                .eq('id', session.user.id)
+                .single();
+              
               setIsTester(!!data?.tester);
-            })
-            .catch(error => {
+            } catch (error) {
               console.error('Error checking tester status:', error);
               setIsTester(false);
-            });
+            }
+          };
+          
+          checkTesterStatus();
         } else {
           setIsTester(false);
         }
