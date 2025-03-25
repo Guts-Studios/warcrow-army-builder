@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -41,7 +40,6 @@ const Game = () => {
   const handleScoreRound = () => {
     updateScores();
     
-    // Show initiative dialog for next round or end game after round 3
     if (currentRound < 3) {
       setShowInitiativeDialog(true);
     } else {
@@ -52,10 +50,8 @@ const Game = () => {
   
   const handleConfirmInitiative = () => {
     if (initiativePlayerId) {
-      // First increment round counter
       setCurrentRound(prev => prev + 1);
       
-      // Log the round info in game events
       dispatch({
         type: 'ADD_GAME_EVENT',
         payload: {
@@ -75,7 +71,6 @@ const Game = () => {
     }
   };
 
-  // Getting the mission image path
   const getMissionImagePath = () => {
     if (!state.mission?.title) return null;
     
@@ -108,29 +103,29 @@ const Game = () => {
           
           <Card className="p-6 border border-border/40 shadow-sm bg-black/80">
             <div className="space-y-8">
-              {/* Game Details Section */}
               <div>
                 <h2 className="text-xl font-semibold mb-4 text-warcrow-gold">Game Information</h2>
                 
-                <div className="space-y-2 mb-6 text-warcrow-text">
-                  {state.mission && (
-                    <p><strong className="text-warcrow-text">Mission:</strong> {state.mission.name}</p>
-                  )}
-                  <p><strong className="text-warcrow-text">Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
-                  <p><strong className="text-warcrow-text">Current Turn:</strong> {state.currentTurn}</p>
-                  <p><strong className="text-warcrow-text">Current Round:</strong> {currentRound} of 3</p>
-                </div>
-                
-                {/* Mission Map Image */}
-                {state.mission && getMissionImagePath() && (
-                  <div className="mb-6">
-                    <img 
-                      src={getMissionImagePath() || ''} 
-                      alt={`${state.mission.name} Map`}
-                      className="w-full rounded-lg shadow-lg object-contain max-h-[200px]"
-                    />
+                <div className="flex flex-col md:flex-row mb-6">
+                  <div className="space-y-2 flex-1 text-warcrow-text">
+                    {state.mission && (
+                      <p><strong className="text-warcrow-text">Mission:</strong> {state.mission.name}</p>
+                    )}
+                    <p><strong className="text-warcrow-text">Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
+                    <p><strong className="text-warcrow-text">Current Turn:</strong> {state.currentTurn}</p>
+                    <p><strong className="text-warcrow-text">Current Round:</strong> {currentRound} of 3</p>
                   </div>
-                )}
+                  
+                  {state.mission && getMissionImagePath() && (
+                    <div className="mt-4 md:mt-0 md:ml-4 md:w-1/3 flex-shrink-0">
+                      <img 
+                        src={getMissionImagePath() || ''} 
+                        alt={`${state.mission.name} Map`}
+                        className="w-full rounded-lg shadow-lg object-contain h-[160px]"
+                      />
+                    </div>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.values(state.players).map(player => (
@@ -141,21 +136,8 @@ const Game = () => {
                     </div>
                   ))}
                 </div>
-                
-                {/* Score Round Button - Moved here and made larger */}
-                <div className="flex justify-center mt-8">
-                  <Button 
-                    onClick={handleScoreRound}
-                    size="lg"
-                    className="flex items-center gap-2 px-8 py-3"
-                  >
-                    <Star className="h-5 w-5" />
-                    <span className="text-base">Score Round {currentRound}</span>
-                  </Button>
-                </div>
               </div>
                
-              {/* Scoring Section */}
               <div>
                 <div className="flex justify-between items-center mb-4 border-t pt-4 border-border/20">
                   <h2 className="text-xl font-semibold text-warcrow-gold">Round {currentRound} Scoring</h2>
@@ -176,6 +158,17 @@ const Game = () => {
                     No mission selected
                   </div>
                 )}
+              </div>
+              
+              <div className="flex justify-center mt-12 pb-4">
+                <Button 
+                  onClick={handleScoreRound}
+                  size="lg"
+                  className="flex items-center gap-2 px-10 py-6 text-lg"
+                >
+                  <Star className="h-6 w-6" />
+                  <span>Score Round {currentRound}</span>
+                </Button>
               </div>
             </div>
           </Card>
