@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useFriends, Friend, FriendRequest, OutgoingRequest } from "@/hooks/useFriends";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -181,9 +180,11 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
           </div>
 
           {/* Friend Requests */}
-          {friendRequests.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-warcrow-gold/90">Friend Requests ({friendRequests.length})</h3>
+          <div className="space-y-2">
+            <h3 className="text-warcrow-gold/90">Friend Requests ({friendRequests.length})</h3>
+            {friendRequests.length === 0 ? (
+              <p className="text-warcrow-text/70 italic">No pending friend requests</p>
+            ) : (
               <div className="space-y-2">
                 {friendRequests.map((request) => (
                   <div key={request.id} className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10">
@@ -231,13 +232,15 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Outgoing Requests */}
-          {outgoingRequests.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-warcrow-gold/90">Pending Requests ({outgoingRequests.length})</h3>
+          <div className="space-y-2">
+            <h3 className="text-warcrow-gold/90">Pending Requests ({outgoingRequests.length})</h3>
+            {outgoingRequests.length === 0 ? (
+              <p className="text-warcrow-text/70 italic">No outgoing friend requests</p>
+            ) : (
               <div className="space-y-2">
                 {outgoingRequests.map((request) => (
                   <div key={request.id} className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10">
@@ -264,8 +267,8 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
