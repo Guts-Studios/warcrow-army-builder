@@ -38,9 +38,10 @@ export const useFriendProfileFetch = (friendId: string | null) => {
         favorite_faction: data.favorite_faction,
         social_discord: data.social_discord,
         social_twitter: data.social_twitter,
-        social_instagram: data.social_instagram || null,
-        social_youtube: data.social_youtube || null,
-        social_twitch: data.social_twitch || null,
+        // Add missing social media properties with null fallbacks
+        social_instagram: null,
+        social_youtube: null,
+        social_twitch: null,
         avatar_url: data.avatar_url,
         wab_id: data.wab_id,
         games_won: data.games_won,
