@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -11,12 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const NotificationsMenu = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   
   const isPreviewId = userId === "preview-user-id";
 
@@ -37,7 +39,11 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       
       if (error) {
         console.error("Error fetching notifications:", error);
-        toast({
+        toast.error("Error fetching notifications", {
+          description: "Please try again later",
+          position: "top-right"
+        });
+        uiToast({
           title: "Error fetching notifications",
           description: "Please try again later",
           variant: "destructive"
@@ -46,9 +52,22 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       }
       
       setNotifications(data || []);
+      
+      // If there are unread notifications, show a toast
+      const unreadCount = data ? data.filter(n => !n.read).length : 0;
+      if (unreadCount > 0) {
+        toast.info(`You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`, {
+          position: "top-right",
+          duration: 3000
+        });
+      }
     } catch (err) {
       console.error("Error fetching notifications:", err);
-      toast({
+      toast.error("Error fetching notifications", {
+        description: "Please try again later",
+        position: "top-right"
+      });
+      uiToast({
         title: "Error fetching notifications",
         description: "Please try again later",
         variant: "destructive"
@@ -69,7 +88,11 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       
       if (error) {
         console.error("Error marking notification as read:", error);
-        toast({
+        toast.error("Error marking notification as read", {
+          description: "Please try again later",
+          position: "top-right"
+        });
+        uiToast({
           title: "Error marking notification as read",
           description: "Please try again later",
           variant: "destructive"
@@ -82,10 +105,44 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
       );
     } catch (err) {
       console.error("Error marking notification as read:", err);
-      toast({
+      toast.error("Error marking notification as read", {
+        description: "Please try again later",
+        position: "top-right"
+      });
+      uiToast({
         title: "Error marking notification as read",
         description: "Please try again later",
         variant: "destructive"
+      });
+    }
+  };
+  
+  const markAllAsRead = async () => {
+    if (isPreviewId || notifications.length === 0) return;
+    
+    try {
+      const unreadNotifications = notifications.filter(n => !n.read);
+      if (unreadNotifications.length === 0) return;
+      
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('recipient_id', userId)
+        .eq('read', false);
+      
+      if (error) throw error;
+      
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, read: true }))
+      );
+      
+      toast.success("All notifications marked as read", {
+        position: "top-right"
+      });
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
+      toast.error("Failed to mark all as read", {
+        position: "top-right"
       });
     }
   };
@@ -150,9 +207,9 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
                 onClick={() => markAsRead(notification.id)}
                 className="hover:bg-warcrow-gold/10 data-[state=open]:bg-warcrow-gold/10"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between w-full">
                   <div className="text-sm">
-                    {notification.message}
+                    {notification.message || notification.content?.message || "New notification"}
                   </div>
                   {notification.read ? (
                     <CheckCheck className="h-4 w-4 ml-2 text-green-500" />
@@ -167,7 +224,10 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
         {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator className="bg-warcrow-gold/20" />
-            <DropdownMenuItem className="text-center hover:bg-warcrow-gold/10 data-[state=open]:bg-warcrow-gold/10">
+            <DropdownMenuItem 
+              className="text-center hover:bg-warcrow-gold/10 data-[state=open]:bg-warcrow-gold/10"
+              onClick={markAllAsRead}
+            >
               Mark all as read
             </DropdownMenuItem>
           </>

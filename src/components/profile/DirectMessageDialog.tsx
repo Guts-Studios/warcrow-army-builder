@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Dialog,
@@ -13,6 +12,7 @@ import { Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -41,10 +41,9 @@ export const DirectMessageDialog = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const { userId, sessionChecked } = useProfileSession();
 
-  // Load message history when dialog opens
   useEffect(() => {
     if (isOpen && friendId && userId && sessionChecked) {
       loadMessages();
@@ -58,7 +57,6 @@ export const DirectMessageDialog = ({
     try {
       console.log(`Loading messages between ${userId} and ${friendId}`);
       
-      // Query for messages in either direction (sent or received)
       const { data, error } = await supabase
         .from('direct_messages')
         .select('*')
@@ -69,7 +67,6 @@ export const DirectMessageDialog = ({
       
       console.log(`Loaded ${data?.length || 0} messages`);
       
-      // Format messages for display, marking which ones are from the current user
       const formattedMessages = data.map(msg => ({
         id: msg.id,
         content: msg.content,
@@ -81,7 +78,11 @@ export const DirectMessageDialog = ({
       setMessages(formattedMessages);
     } catch (error) {
       console.error("Error loading messages:", error);
-      toast({
+      toast.error("Failed to load messages", {
+        description: "Please try again later",
+        position: "top-right"
+      });
+      uiToast({
         title: "Failed to load message history",
         description: "Please try again later",
         variant: "destructive",
@@ -98,7 +99,6 @@ export const DirectMessageDialog = ({
     try {
       console.log(`Sending message to ${friendId}`);
       
-      // Insert the new message
       const { data, error } = await supabase
         .from('direct_messages')
         .insert({
@@ -113,7 +113,6 @@ export const DirectMessageDialog = ({
       
       console.log("Message sent successfully:", data);
       
-      // Add the sent message to the messages list
       setMessages([...messages, {
         id: data.id,
         content: data.content,
@@ -122,7 +121,6 @@ export const DirectMessageDialog = ({
         isCurrentUser: true
       }]);
       
-      // Create notification for the recipient
       await supabase
         .from('notifications')
         .insert({
@@ -132,11 +130,19 @@ export const DirectMessageDialog = ({
           content: { message: "sent you a message" }
         });
         
-      // Clear the input field
+      toast.success("Message sent", {
+        position: "top-right",
+        duration: 2000
+      });
+      
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
-      toast({
+      toast.error("Failed to send message", {
+        description: "Please try again",
+        position: "top-right"
+      });
+      uiToast({
         title: "Failed to send message",
         description: "Please try again",
         variant: "destructive",

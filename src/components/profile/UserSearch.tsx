@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -32,28 +31,40 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
     
     setIsSearching(true);
     try {
-      // Search by WAB ID or username
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, wab_id, avatar_url")
         .or(`wab_id.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
-        .neq("id", currentUserId) // Don't show current user
+        .neq("id", currentUserId)
         .limit(5);
       
       if (error) throw error;
       
       setSearchResults(data || []);
+      
+      if (data && data.length === 0) {
+        toast.info("No users found", {
+          description: "Try a different username or WAB ID",
+          position: "top-right"
+        });
+      } else if (data && data.length > 0) {
+        toast.success(`Found ${data.length} user${data.length > 1 ? 's' : ''}`, {
+          position: "top-right",
+          duration: 2000
+        });
+      }
     } catch (error) {
       console.error("Error searching users:", error);
-      toast.error("Failed to search users");
+      toast.error("Failed to search users", {
+        position: "top-right"
+      });
     } finally {
       setIsSearching(false);
     }
   };
 
-  const sendFriendRequest = async (recipientId: string) => {
+  const sendFriendRequest = async (recipientId: string, username: string | null) => {
     try {
-      // Check if friendship already exists
       const { data: existingFriendship, error: checkError } = await supabase
         .from("friendships")
         .select()
@@ -63,11 +74,13 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
       if (checkError) throw checkError;
       
       if (existingFriendship) {
-        toast.info("You already have a friendship or pending request with this user");
+        toast.info("Already connected", {
+          description: "You already have a friendship or pending request with this user",
+          position: "top-right"
+        });
         return;
       }
       
-      // Insert friendship record
       const { error: insertError } = await supabase
         .from("friendships")
         .insert({
@@ -78,7 +91,6 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
       
       if (insertError) throw insertError;
       
-      // Create notification for recipient
       const { error: notificationError } = await supabase
         .from("notifications")
         .insert({
@@ -90,10 +102,15 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
       
       if (notificationError) throw notificationError;
       
-      toast.success("Friend request sent!");
+      toast.success("Friend request sent!", {
+        description: `Request sent to ${username || "user"}`,
+        position: "top-right"
+      });
     } catch (error) {
       console.error("Error sending friend request:", error);
-      toast.error("Failed to send friend request");
+      toast.error("Failed to send friend request", {
+        position: "top-right"
+      });
     }
   };
 
@@ -154,7 +171,7 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
                     </div>
                   </div>
                   <Button 
-                    onClick={() => sendFriendRequest(user.id)}
+                    onClick={() => sendFriendRequest(user.id, user.username)}
                     size="sm"
                     className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
                   >

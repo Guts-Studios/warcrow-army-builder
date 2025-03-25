@@ -8,6 +8,7 @@ import { Loader2, UserPlus, Check, X, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { FriendProfileDialog } from "@/components/profile/FriendProfileDialog";
 import { DirectMessageDialog } from "@/components/profile/DirectMessageDialog";
+import { toast } from "sonner";
 
 interface FriendsSectionProps {
   userId: string;
@@ -28,7 +29,7 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
   } = useFriends(userId);
   const [friendCode, setFriendCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
   const [selectedFriendForMessage, setSelectedFriendForMessage] = useState<Friend | null>(null);
 
@@ -39,12 +40,26 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
     try {
       await sendFriendRequest(friendCode.trim());
       setFriendCode("");
-      toast({
+      
+      // Show sonner toast notification
+      toast.success("Friend request sent", {
+        description: "We'll notify you when they respond",
+        position: "top-right"
+      });
+      
+      // Also use the UI toast for consistent interfaces
+      uiToast({
         title: "Friend request sent",
         description: "We'll notify you when they respond",
       });
     } catch (error: any) {
-      toast({
+      // Show error notification with sonner
+      toast.error("Failed to send friend request", {
+        description: error.message || "Please try a valid WAB ID or user ID",
+        position: "top-right"
+      });
+      
+      uiToast({
         title: "Failed to send friend request",
         description: error.message || "Please try a valid WAB ID or user ID",
         variant: "destructive",
@@ -123,7 +138,14 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => setSelectedFriendForMessage(friend)}
+                        onClick={() => {
+                          setSelectedFriendForMessage(friend);
+                          // Show a subtle notification when opening message dialog
+                          toast.info(`Opening chat with ${friend.username || "friend"}`, {
+                            position: "top-right",
+                            duration: 2000
+                          });
+                        }}
                         className="text-warcrow-gold hover:bg-black/50"
                       >
                         <MessageSquare className="h-4 w-4" />
@@ -131,7 +153,13 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => unfriend(friend.friendship_id)}
+                        onClick={() => {
+                          unfriend(friend.friendship_id);
+                          // Show notification when unfriending
+                          toast.info(`Removed ${friend.username || "friend"} from friends list`, {
+                            position: "top-right"
+                          });
+                        }}
                         className="border-warcrow-gold/30 text-warcrow-gold hover:bg-red-900/20 hover:text-red-400 hover:border-red-900/30"
                       >
                         Remove
@@ -165,7 +193,13 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                     <div className="flex gap-2">
                       <Button 
                         size="sm"
-                        onClick={() => acceptFriendRequest(request.friendship_id, request.sender_id)}
+                        onClick={() => {
+                          acceptFriendRequest(request.friendship_id, request.sender_id);
+                          // Show notification when accepting a friend request
+                          toast.success(`Accepted friend request from ${request.sender_username || "user"}`, {
+                            position: "top-right"
+                          });
+                        }}
                         className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
                       >
                         <Check className="h-4 w-4" />
@@ -173,7 +207,13 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => rejectFriendRequest(request.friendship_id)}
+                        onClick={() => {
+                          rejectFriendRequest(request.friendship_id);
+                          // Show notification when rejecting a friend request
+                          toast.info(`Rejected friend request`, {
+                            position: "top-right"
+                          });
+                        }}
                         className="border-red-900/30 text-red-400 hover:bg-red-900/20"
                       >
                         <X className="h-4 w-4" />
