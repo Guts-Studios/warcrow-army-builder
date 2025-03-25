@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ExtendedUnit, AbilityEntry } from "@/types/extendedUnit";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,8 +44,9 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
       const nodes: React.ReactNode[] = [];
       parts.forEach((part, i) => {
         if (i > 0) {
-          // Special handling for black symbol (7)
+          // All symbols get a background for consistency
           const isBlackSymbol = config.fontChar === '7';
+          const bgColor = 'rgba(40, 40, 40, 0.7)';
           
           nodes.push(
             <span 
@@ -55,20 +55,11 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
               style={{ 
                 color: config.color,
                 fontSize: '1.125rem',
-                backgroundColor: isBlackSymbol ? 'transparent' : 'rgba(40, 40, 40, 0.7)',
+                backgroundColor: bgColor,
                 borderRadius: '0.25rem',
                 padding: '0 0.25rem',
                 margin: '0 0.125rem',
-                // Use different styling for black vs colored symbols
-                ...(isBlackSymbol ? {
-                  background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: 'contrast(1.5) brightness(1.2)',
-                } : {
-                  // Removed the text-shadow here
-                  filter: 'saturate(1.2)'
-                })
+                filter: isBlackSymbol ? 'contrast(1.5) brightness(1.2)' : 'saturate(1.2)'
               }}
             >
               {config.fontChar}

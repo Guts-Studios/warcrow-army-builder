@@ -28,7 +28,7 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Game symbol with stroke - new class for enhanced visibility (removing white stroke) */
+/* Game symbol with stroke - new class for enhanced visibility (without white stroke) */
 .game-symbol-stroke {
   font-family: 'Warcrow', sans-serif;
   font-feature-settings: "liga", "calt", "dlig";
@@ -45,9 +45,6 @@
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
-  background: radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   filter: contrast(1.5) brightness(1.2);
 }
 
@@ -75,12 +72,9 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Specific numeric character classes with enhanced visibility */
+/* Black symbol (7) */
 .WC_7 {
-  /* Special styling for black symbol (7) using background gradient instead of shadow */
-  background: radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #000;
   filter: contrast(1.5) brightness(1.2);
 }
 

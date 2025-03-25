@@ -47,7 +47,7 @@ const UnitStats = () => {
                   <span>Green</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={55} size="xl" /> 
+                  <GameSymbol code={55} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
                   <span>Black</span>
                 </div>
                 <div className="flex items-center gap-2">
