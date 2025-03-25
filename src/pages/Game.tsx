@@ -158,16 +158,6 @@ const Game = () => {
                     </div>
                   )}
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.values(state.players).map(player => (
-                    <div key={player.id} className="p-4 border rounded-lg border-border/20 bg-black/60">
-                      <h3 className="text-lg font-medium mb-2 text-warcrow-gold">{player.name}</h3>
-                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
-                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Victory Points:</strong> {player.score || 0}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
                
               <div>
