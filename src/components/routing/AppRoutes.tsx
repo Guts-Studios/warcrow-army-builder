@@ -33,9 +33,13 @@ export function AppRoutes() {
       <Route path="/unit-stats" element={<UnitStats />} />
       <Route path="/game" element={<Game />} />
       <Route path="/setup" element={<Setup />} />
+      <Route path="/play" element={<Play />} />
       <Route path="/play/:gameId" element={<Play />} />
+      <Route path="/deployment" element={<Deployment />} />
       <Route path="/deployment/:gameId" element={<Deployment />} />
+      <Route path="/scoring" element={<Scoring />} />
       <Route path="/scoring/:gameId" element={<Scoring />} />
+      <Route path="/summary" element={<Summary />} />
       <Route path="/summary/:gameId" element={<Summary />} />
       <Route path="/missions" element={<Missions />} />
       <Route path="/mail" element={<Mail />} />

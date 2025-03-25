@@ -49,7 +49,9 @@ const Setup = () => {
         payload: {
           ...player,
           score: 0, // Initialize score to 0
-          roundScores: {} // Initialize roundScores as empty object
+          roundScores: {}, // Initialize roundScores as empty object
+          points: 0, // Add required field
+          objectivePoints: 0 // Add required field
         } as Player
       });
     });

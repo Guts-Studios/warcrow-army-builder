@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,11 +83,11 @@ export const MainActions = () => {
           </>
         )}
         <Button
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/')}
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
-          Profile
+          Home
         </Button>
       </div>
     </>
