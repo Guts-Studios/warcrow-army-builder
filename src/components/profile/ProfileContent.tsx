@@ -12,7 +12,11 @@ import { toast } from "sonner";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 
-export const ProfileContent = () => {
+interface ProfileContentProps {
+  isOnline?: boolean;
+}
+
+export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   const { 
     profile,
     formData, 
@@ -76,6 +80,7 @@ export const ProfileContent = () => {
                 username={profile?.username || formData.username}
                 isEditing={isEditing}
                 onAvatarUpdate={handleAvatarUpdate}
+                isOnline={isOnline}
               />
               
               {profile?.username && (
@@ -83,6 +88,10 @@ export const ProfileContent = () => {
                   <h2 className="text-xl font-semibold text-warcrow-gold">
                     {profile.username}
                   </h2>
+                  <div className="mt-1 flex items-center justify-center text-sm">
+                    <span className={`h-2 w-2 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                    <span className="text-warcrow-text/70">{isOnline ? 'Online' : 'Offline'}</span>
+                  </div>
                 </div>
               )}
               

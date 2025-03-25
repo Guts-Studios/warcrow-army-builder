@@ -91,9 +91,18 @@ export const ProfileAvatar = ({
     }
   };
 
+  // Size the online status indicator based on avatar size
+  const getStatusIndicatorSize = () => {
+    switch (size) {
+      case "sm": return "h-3 w-3";
+      case "lg": return "h-5 w-5";
+      default: return "h-4 w-4";
+    }
+  };
+
   return (
     <div className="relative">
-      <Avatar className={`${getSize()} border-2 border-warcrow-gold`}>
+      <Avatar className={`${getSize()} border-2 ${isOnline ? 'border-green-500/70' : 'border-warcrow-gold'}`}>
         <AvatarImage src={avatarUrl || undefined} alt={username || "User"} />
         <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
           {getInitials(username)}
@@ -102,7 +111,7 @@ export const ProfileAvatar = ({
       
       {isOnline !== undefined && (
         <span 
-          className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-black ${
+          className={`absolute bottom-0 right-0 ${getStatusIndicatorSize()} rounded-full border-2 border-black ${
             isOnline ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
           }`} 
           title={isOnline ? "Online" : "Offline"}

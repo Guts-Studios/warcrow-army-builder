@@ -12,7 +12,17 @@ const ProfileWithData = () => {
   // Initialize online tracking when profile is loaded
   // This ensures the current user's online status is tracked
   const currentUserId = profile?.id || null;
-  useOnlineStatus(currentUserId ? [currentUserId] : []);
+  const { onlineStatus } = useOnlineStatus(currentUserId ? [currentUserId] : []);
+  
+  // Log current user's online status for debugging
+  useEffect(() => {
+    if (currentUserId && onlineStatus) {
+      console.log("Current user online status:", { 
+        userId: currentUserId, 
+        isOnline: onlineStatus[currentUserId] 
+      });
+    }
+  }, [currentUserId, onlineStatus]);
   
   useEffect(() => {
     if (error) {
@@ -40,7 +50,7 @@ const ProfileWithData = () => {
     );
   }
 
-  return <ProfileContent />;
+  return <ProfileContent isOnline={currentUserId ? onlineStatus[currentUserId] : false} />;
 };
 
 const Profile = () => {
