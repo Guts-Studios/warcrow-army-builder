@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface ActivityData {
   list_id: string;
@@ -73,16 +74,35 @@ export const useFriendActivities = (userId: string) => {
         throw activitiesError;
       }
       
-      // Format the activities with user information
-      const formattedActivities: FriendActivity[] = activitiesData.map(activity => ({
-        id: activity.id,
-        user_id: activity.user_id,
-        activity_type: activity.activity_type,
-        activity_data: activity.activity_data,
-        created_at: activity.created_at,
-        username: activity.profiles?.username,
-        avatar_url: activity.profiles?.avatar_url
-      }));
+      // Format the activities with user information and properly cast the activity_data
+      const formattedActivities: FriendActivity[] = activitiesData.map(activity => {
+        // Safely handle activity_data by ensuring it conforms to the ActivityData type
+        let typedActivityData: ActivityData;
+        const rawData = activity.activity_data as Json;
+        
+        // Default values in case data is missing
+        typedActivityData = {
+          list_id: typeof rawData === 'object' && rawData !== null && 'list_id' in rawData 
+            ? String(rawData.list_id) 
+            : '',
+          list_name: typeof rawData === 'object' && rawData !== null && 'list_name' in rawData 
+            ? String(rawData.list_name) 
+            : '',
+          faction: typeof rawData === 'object' && rawData !== null && 'faction' in rawData 
+            ? String(rawData.faction) 
+            : ''
+        };
+        
+        return {
+          id: activity.id,
+          user_id: activity.user_id,
+          activity_type: activity.activity_type,
+          activity_data: typedActivityData,
+          created_at: activity.created_at,
+          username: activity.profiles?.username,
+          avatar_url: activity.profiles?.avatar_url
+        };
+      });
       
       console.log("Fetched friend activities:", formattedActivities.length);
       
