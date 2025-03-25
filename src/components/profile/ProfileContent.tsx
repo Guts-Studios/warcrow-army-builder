@@ -73,7 +73,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text bg-gradient-to-b from-black/60 to-transparent">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text bg-gradient-to-b from-black/60 to-transparent overflow-auto pb-12">
       <ProfileHeader />
 
       <motion.div 

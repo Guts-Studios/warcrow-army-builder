@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useFriendActivities, FriendActivity } from "@/hooks/useFriendActivities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { profileFadeIn, staggerChildren, cardHover } from "./animations";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FriendActivityFeedProps {
   userId: string;
@@ -61,7 +61,6 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
 
   const handleListClick = (activity: FriendActivity) => {
     if (activity.activity_type === 'list_created' && activity.activity_data.list_id) {
-      // Navigate to the list view in the builder
       navigate('/builder', { 
         state: { 
           viewSharedList: true, 
@@ -73,13 +72,11 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
   
   const handleLike = (activityId: string) => {
     if (likedActivities.has(activityId)) {
-      // Unlike
       const newLiked = new Set(likedActivities);
       newLiked.delete(activityId);
       setLikedActivities(newLiked);
       toast.info("Like removed");
     } else {
-      // Like
       setLikedActivities(new Set(likedActivities).add(activityId));
       toast.success("Activity liked");
     }
@@ -111,11 +108,11 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
     );
   }
   
-  // If this is the compact view, only show a limited number of activities
   const displayActivities = isCompact ? activities.slice(0, 5) : activities;
+  const maxHeight = isCompact ? "max-h-[400px]" : "max-h-[600px]";
 
   return (
-    <Card className="bg-black/50 border-warcrow-gold/20 h-full">
+    <Card className="bg-black/50 border-warcrow-gold/20">
       <CardHeader className={isCompact ? "p-4" : ""}>
         <div className="flex justify-between items-center">
           <CardTitle className="text-warcrow-gold">Friend Activity</CardTitle>
@@ -145,114 +142,116 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
             )}
           </div>
         ) : (
-          <motion.div 
-            className="space-y-4"
-            variants={staggerChildren}
-            initial="hidden"
-            animate="visible"
-          >
-            {displayActivities.map((activity) => (
-              <motion.div 
-                key={activity.id} 
-                className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
-                  activity.activity_type === 'list_created' 
-                    ? 'cursor-pointer hover:bg-warcrow-gold/10' 
-                    : ''
-                }`}
-                onClick={() => activity.activity_type === 'list_created' ? handleListClick(activity) : null}
-                variants={profileFadeIn}
-                whileHover={activity.activity_type === 'list_created' ? "hover" : "initial"}
-              >
-                <div className="flex-shrink-0">
-                  <ProfileAvatar
-                    avatarUrl={activity.avatar_url}
-                    username={activity.username || "User"}
-                    isEditing={false}
-                    onAvatarUpdate={() => {}}
-                    size="sm"
-                    isOnline={onlineStatus[activity.user_id]}
-                  />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium text-warcrow-gold">
-                        {activity.username || "Unknown User"}
-                      </span>
-                      {onlineStatus[activity.user_id] && (
-                        <span className="text-xs text-green-500">(online)</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 text-warcrow-text/60 text-xs">
-                      {getActivityIcon(activity)}
-                      <span>
-                        {activity.created_at
-                          ? formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })
-                          : "recently"}
-                      </span>
-                    </div>
+          <ScrollArea className={maxHeight}>
+            <motion.div 
+              className="space-y-4 pr-4"
+              variants={staggerChildren}
+              initial="hidden"
+              animate="visible"
+            >
+              {displayActivities.map((activity) => (
+                <motion.div 
+                  key={activity.id} 
+                  className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
+                    activity.activity_type === 'list_created' 
+                      ? 'cursor-pointer hover:bg-warcrow-gold/10' 
+                      : ''
+                  }`}
+                  onClick={() => activity.activity_type === 'list_created' ? handleListClick(activity) : null}
+                  variants={profileFadeIn}
+                  whileHover={activity.activity_type === 'list_created' ? "hover" : "initial"}
+                >
+                  <div className="flex-shrink-0">
+                    <ProfileAvatar
+                      avatarUrl={activity.avatar_url}
+                      username={activity.username || "User"}
+                      isEditing={false}
+                      onAvatarUpdate={() => {}}
+                      size="sm"
+                      isOnline={onlineStatus[activity.user_id]}
+                    />
                   </div>
-                  <p className="text-sm text-warcrow-text/90">
-                    {getActivityMessage(activity)}
-                  </p>
-                  
-                  <div className="flex items-center mt-2 space-x-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLike(activity.id);
-                            }}
-                          >
-                            <Heart 
-                              className={`h-4 w-4 mr-1 ${likedActivities.has(activity.id) ? 'fill-red-500 text-red-500' : ''}`} 
-                            />
-                            <span className="text-xs">Like</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
-                          {likedActivities.has(activity.id) ? 'Unlike this activity' : 'Like this activity'}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium text-warcrow-gold">
+                          {activity.username || "Unknown User"}
+                        </span>
+                        {onlineStatus[activity.user_id] && (
+                          <span className="text-xs text-green-500">(online)</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 text-warcrow-text/60 text-xs">
+                        {getActivityIcon(activity)}
+                        <span>
+                          {activity.created_at
+                            ? formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })
+                            : "recently"}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-warcrow-text/90">
+                      {getActivityMessage(activity)}
+                    </p>
                     
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleComment(activity);
-                            }}
-                          >
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            <span className="text-xs">Comment</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
-                          Comment on this activity
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {activity.activity_type === 'list_created' && (
-                    <div className="text-xs text-warcrow-gold/70 italic mt-1">
-                      Click to view list
+                    <div className="flex items-center mt-2 space-x-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleLike(activity.id);
+                              }}
+                            >
+                              <Heart 
+                                className={`h-4 w-4 mr-1 ${likedActivities.has(activity.id) ? 'fill-red-500 text-red-500' : ''}`} 
+                              />
+                              <span className="text-xs">Like</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
+                            {likedActivities.has(activity.id) ? 'Unlike this activity' : 'Like this activity'}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleComment(activity);
+                              }}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-1" />
+                              <span className="text-xs">Comment</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
+                            Comment on this activity
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                    
+                    {activity.activity_type === 'list_created' && (
+                      <div className="text-xs text-warcrow-gold/70 italic mt-1">
+                        Click to view list
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>
