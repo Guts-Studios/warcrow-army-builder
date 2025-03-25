@@ -20,14 +20,15 @@ export const useProfileData = () => {
     wab_id: "",
   });
 
-  // Get session information
-  const { isAuthenticated, usePreviewData, userId } = useProfileSession();
+  // Get session information with session checked status
+  const { isAuthenticated, usePreviewData, userId, sessionChecked } = useProfileSession();
 
-  // Fetch profile data
+  // Fetch profile data, only when session is checked
   const { profile, isLoading, isError, error } = useProfileFetch({
     isAuthenticated,
     usePreviewData,
-    userId
+    userId,
+    sessionChecked
   });
 
   // Profile update hooks
@@ -85,7 +86,7 @@ export const useProfileData = () => {
     profile,
     formData,
     isEditing,
-    isLoading: isLoading && !usePreviewData,
+    isLoading: (isLoading && !usePreviewData) || (!sessionChecked && !usePreviewData),
     error: isError ? error as Error : null,
     updateProfile,
     setIsEditing,

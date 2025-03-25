@@ -1,10 +1,11 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const useProfileRealtime = (profileId: string | null, isPreview: boolean) => {
   const queryClient = useQueryClient();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (!profileId || isPreview) {
@@ -13,6 +14,7 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
     }
 
     console.log("Setting up realtime subscriptions for profile:", profileId);
+    setIsInitialized(true);
     
     const notificationsChannel = supabase
       .channel('notifications-channel')
@@ -75,6 +77,9 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
       supabase.removeChannel(notificationsChannel);
       supabase.removeChannel(friendshipsChannel);
       supabase.removeChannel(messagesChannel);
+      setIsInitialized(false);
     };
   }, [profileId, isPreview, queryClient]);
+
+  return { isInitialized };
 };

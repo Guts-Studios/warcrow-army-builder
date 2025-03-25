@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -40,21 +40,24 @@ export const DirectMessageDialog = ({
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
   const { toast } = useToast();
-  const { userId } = useProfileSession();
+  const { userId, sessionChecked } = useProfileSession();
 
   // Load message history when dialog opens
-  useState(() => {
-    if (isOpen && friendId && userId) {
+  useEffect(() => {
+    if (isOpen && friendId && userId && sessionChecked) {
       loadMessages();
     }
-  });
+  }, [isOpen, friendId, userId, sessionChecked]);
 
   const loadMessages = async () => {
     if (!friendId || !userId) return;
     
     setIsLoading(true);
     try {
+      console.log(`Loading messages between ${userId} and ${friendId}`);
+      
       // Query for messages in either direction (sent or received)
       const { data, error } = await supabase
         .from('direct_messages')
@@ -63,6 +66,8 @@ export const DirectMessageDialog = ({
         .order('sent_at', { ascending: true });
         
       if (error) throw error;
+      
+      console.log(`Loaded ${data?.length || 0} messages`);
       
       // Format messages for display, marking which ones are from the current user
       const formattedMessages = data.map(msg => ({
@@ -89,7 +94,10 @@ export const DirectMessageDialog = ({
   const sendMessage = async () => {
     if (!newMessage.trim() || !friendId || !userId) return;
     
+    setSendingMessage(true);
     try {
+      console.log(`Sending message to ${friendId}`);
+      
       // Insert the new message
       const { data, error } = await supabase
         .from('direct_messages')
@@ -102,6 +110,8 @@ export const DirectMessageDialog = ({
         .single();
         
       if (error) throw error;
+      
+      console.log("Message sent successfully:", data);
       
       // Add the sent message to the messages list
       setMessages([...messages, {
@@ -131,6 +141,8 @@ export const DirectMessageDialog = ({
         description: "Please try again",
         variant: "destructive",
       });
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -157,6 +169,7 @@ export const DirectMessageDialog = ({
         <div className="h-[300px] overflow-y-auto py-2 space-y-2 mb-2 border-t border-b border-warcrow-gold/20">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin text-warcrow-gold/70 mr-2" />
               <p className="text-warcrow-gold/70">Loading messages...</p>
             </div>
           ) : messages.length === 0 ? (
@@ -191,16 +204,21 @@ export const DirectMessageDialog = ({
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyDown={(e) => e.key === 'Enter' && !sendingMessage && sendMessage()}
             placeholder="Write your message..."
             className="flex-1 bg-black/30 text-warcrow-text border border-warcrow-gold/30 rounded p-2 outline-none focus:border-warcrow-gold/50"
+            disabled={sendingMessage}
           />
           <Button 
             onClick={sendMessage}
-            disabled={!newMessage.trim()}
+            disabled={!newMessage.trim() || sendingMessage}
             className="bg-warcrow-gold/80 text-black hover:bg-warcrow-gold"
           >
-            <Send size={18} />
+            {sendingMessage ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send size={18} />
+            )}
           </Button>
         </div>
         

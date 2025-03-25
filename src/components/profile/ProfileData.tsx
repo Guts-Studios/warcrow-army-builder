@@ -14,7 +14,10 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   const isPreviewMode = profileId === "preview-user-id";
     
   // Pass both the profile ID and whether this is preview mode
-  useProfileRealtime(profileId, isPreviewMode);
+  const { isInitialized } = useProfileRealtime(profileId, isPreviewMode);
+
+  // Log the initialization state for debugging
+  console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized);
 
   return (
     <ProfileContext.Provider value={profileData}>

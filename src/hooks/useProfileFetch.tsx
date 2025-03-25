@@ -7,13 +7,14 @@ interface UseProfileFetchProps {
   isAuthenticated: boolean;
   usePreviewData: boolean;
   userId?: string;
+  sessionChecked: boolean;
 }
 
-export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId }: UseProfileFetchProps) => {
+export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessionChecked }: UseProfileFetchProps) => {
   const { data: profile, isLoading, isError, error } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
-      console.log("Fetching profile data");
+      console.log("Fetching profile data for user ID:", userId);
       
       if (usePreviewData) {
         console.log("Using preview mode profile data");
@@ -32,17 +33,15 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId }: Use
         } as Profile;
       }
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("No session found");
-        throw new Error("Not authenticated");
+      if (!userId) {
+        console.log("No user ID available");
+        throw new Error("User ID is required");
       }
-
-      console.log("User ID:", session.user.id);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", session.user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (error) {
@@ -50,11 +49,13 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId }: Use
         throw error;
       }
       
-      console.log("Profile data:", data);
+      console.log("Profile data fetched:", data);
       return data as Profile;
     },
-    retry: 1,
-    enabled: usePreviewData || isAuthenticated,
+    retry: 2,
+    retryDelay: 1000,
+    // Enable the query only when we've checked the session and either we're in preview mode or authenticated with a userId
+    enabled: sessionChecked && (usePreviewData || (isAuthenticated && !!userId)),
   });
 
   return { profile, isLoading, isError, error };
