@@ -1,401 +1,239 @@
 
 import { useState } from "react";
+import { useFriends, Friend, FriendRequest, OutgoingRequest } from "@/hooks/useFriends";
+import { useProfileSession } from "@/hooks/useProfileSession";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Loader2, UserPlus, Check, X, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useFriends } from "@/hooks/useFriends";
-import { useUserSearch } from "@/hooks/useUserSearch";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserSearch } from "./UserSearch";
-import { FriendProfileDialog } from "./FriendProfileDialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { FriendProfileDialog } from "@/components/profile/FriendProfileDialog";
+import { DirectMessageDialog } from "@/components/profile/DirectMessageDialog";
 
-export const FriendsSection = ({ userId }: { userId: string }) => {
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const { searchQuery, setSearchQuery, searchResults, isSearching, searchUsers } = useUserSearch();
-  const { toast } = useToast();
-  
-  // Always call useFriends hook regardless of userId value
+interface FriendsSectionProps {
+  userId: string;
+}
+
+export const FriendsSection = ({ userId }: FriendsSectionProps) => {
+  const { isAuthenticated } = useProfileSession();
   const { 
     friends, 
     friendRequests, 
-    outgoingRequests, 
-    isLoading, 
+    outgoingRequests,
+    isLoading,
+    sendFriendRequest, 
     acceptFriendRequest, 
     rejectFriendRequest,
     cancelFriendRequest,
-    sendFriendRequest,
     unfriend
   } = useFriends(userId);
+  const [friendCode, setFriendCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+  const [selectedFriendForMessage, setSelectedFriendForMessage] = useState<Friend | null>(null);
 
-  // Check if we're in preview mode after all hooks are called
-  const isPreviewMode = userId === "preview-user-id";
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    searchUsers(query);
-  };
-
-  const handleSendFriendRequest = async (recipientId: string) => {
+  const handleAddFriend = async () => {
+    if (!friendCode.trim()) return;
+    
+    setIsSubmitting(true);
     try {
-      await sendFriendRequest(recipientId);
+      await sendFriendRequest(friendCode.trim());
+      setFriendCode("");
       toast({
-        title: "Friend request sent!",
-        description: "Your friend request has been sent."
+        title: "Friend request sent",
+        description: "We'll notify you when they respond",
       });
     } catch (error: any) {
       toast({
-        title: "Error sending friend request",
-        description: error.message || "Failed to send friend request.",
-        variant: "destructive"
+        title: "Failed to send friend request",
+        description: error.message || "Please try a valid WAB ID or user ID",
+        variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleAcceptFriendRequest = async (friendshipId: string, senderId: string) => {
-    try {
-      await acceptFriendRequest(friendshipId, senderId);
-      toast({
-        title: "Friend request accepted!",
-        description: "You are now friends."
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error accepting friend request",
-        description: error.message || "Failed to accept friend request.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleRejectFriendRequest = async (friendshipId: string) => {
-    try {
-      await rejectFriendRequest(friendshipId);
-      toast({
-        title: "Friend request rejected",
-        description: "You have rejected the friend request."
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error rejecting friend request",
-        description: error.message || "Failed to reject friend request.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleCancelFriendRequest = async (friendshipId: string) => {
-    try {
-      await cancelFriendRequest(friendshipId);
-      toast({
-        title: "Friend request cancelled",
-        description: "You have cancelled the friend request."
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error cancelling friend request",
-        description: error.message || "Failed to cancel friend request.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleUnfriend = async (friendshipId: string) => {
-    try {
-      await unfriend(friendshipId);
-      toast({
-        title: "Friend removed",
-        description: "You have removed this friend."
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error removing friend",
-        description: error.message || "Failed to remove friend.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleViewProfile = (friendId: string) => {
-    setSelectedFriendId(friendId);
-    setIsProfileDialogOpen(true);
-  };
-
-  // For preview mode, return a simplified UI
-  if (isPreviewMode) {
+  if (!isAuthenticated && userId === "preview-user-id") {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-warcrow-gold">Friends</h2>
-        <div className="bg-black/20 p-4 rounded border border-warcrow-gold/10 text-center">
-          <p className="text-warcrow-text/70">Friends feature is not available in preview mode</p>
-        </div>
+        <p className="text-warcrow-text/70 italic">You need to be logged in to manage friends</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h2 className="text-xl font-semibold text-warcrow-gold">Friends</h2>
+      
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Add Friend Section */}
+          <div className="space-y-2">
+            <h3 className="text-warcrow-gold/90">Add Friend</h3>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={friendCode}
+                onChange={(e) => setFriendCode(e.target.value)}
+                placeholder="Enter WAB ID or User ID"
+                className="flex-1 bg-black/30 text-warcrow-text border border-warcrow-gold/30 rounded p-2"
+              />
+              <Button
+                onClick={handleAddFriend}
+                disabled={isSubmitting || !friendCode.trim()}
+                className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4 mr-1" />}
+                Add
+              </Button>
+            </div>
+          </div>
 
-      {/* Search for Users */}
-      <div className="space-y-2">
-        <Label htmlFor="search" className="text-warcrow-gold">Search Users</Label>
-        <Input
-          id="search"
-          placeholder="Search by username..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="bg-black/50 border-warcrow-gold/30 text-warcrow-text"
-        />
-
-        {isSearching && (
-          <div className="text-warcrow-text/70 italic">Searching...</div>
-        )}
-
-        {searchResults.length > 0 && (
-          <Card className="bg-black/50 border-warcrow-gold/30">
-            <CardContent className="p-4">
-              <ScrollArea className="h-40">
-                <div className="space-y-2">
-                  {searchResults.map(user => (
-                    <div key={user.id} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar_url || undefined} alt={user.username || "User"} />
-                          <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                            {user.username?.charAt(0).toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-warcrow-text">{user.username || "User"}</span>
-                      </div>
+          {/* Friends List */}
+          <div className="space-y-2">
+            <h3 className="text-warcrow-gold/90">My Friends ({friends.length})</h3>
+            {friends.length === 0 ? (
+              <p className="text-warcrow-text/70 italic">You haven't added any friends yet</p>
+            ) : (
+              <div className="space-y-2">
+                {friends.map((friend) => (
+                  <div key={friend.id} className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10">
+                    <button 
+                      className="flex items-center flex-1 text-left"
+                      onClick={() => setSelectedFriend(friend.id)}
+                    >
+                      <ProfileAvatar
+                        avatarUrl={friend.avatar_url}
+                        username={friend.username || "User"}
+                        isEditing={false}
+                        onAvatarUpdate={() => {}}
+                        size="sm"
+                      />
+                      <span className="ml-2 text-warcrow-text">
+                        {friend.username || "Unnamed User"}
+                      </span>
+                    </button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setSelectedFriendForMessage(friend)}
+                        className="text-warcrow-gold hover:bg-black/50"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => {
-                          setSelectedUser(user);
-                        }}
-                        disabled={outgoingRequests.some(req => req.recipient_id === user.id) ||
-                                  friends.some(friend => friend.id === user.id)}
-                        className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+                        onClick={() => unfriend(friend.friendship_id)}
+                        className="border-warcrow-gold/30 text-warcrow-gold hover:bg-red-900/20 hover:text-red-400 hover:border-red-900/30"
                       >
-                        {outgoingRequests.some(req => req.recipient_id === user.id) ? 'Pending...' : 'Add Friend'}
+                        Remove
                       </Button>
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Friend Requests */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-warcrow-gold">Friend Requests</h3>
-        {isLoading ? (
-          <div className="text-warcrow-text/70 italic">Loading friend requests...</div>
-        ) : friendRequests.length > 0 ? (
-          <div className="space-y-2">
-            {friendRequests.map(request => (
-              <Card key={request.id} className="bg-black/50 border-warcrow-gold/30">
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center space-x-2">
-                    <Avatar className="h-8 w-8 cursor-pointer" onClick={() => handleViewProfile(request.sender_id)}>
-                      <AvatarImage src={request.sender_avatar_url || undefined} alt={request.sender_username || "User"} />
-                      <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {request.sender_username?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span 
-                      className="text-sm text-warcrow-text hover:text-warcrow-gold cursor-pointer"
-                      onClick={() => handleViewProfile(request.sender_id)}
-                    >
-                      {request.sender_username || "Anonymous User"}
-                    </span>
                   </div>
-                  <div className="space-x-2">
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Friend Requests */}
+          {friendRequests.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-warcrow-gold/90">Friend Requests ({friendRequests.length})</h3>
+              <div className="space-y-2">
+                {friendRequests.map((request) => (
+                  <div key={request.id} className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10">
+                    <div className="flex items-center flex-1">
+                      <ProfileAvatar
+                        avatarUrl={request.sender_avatar_url}
+                        username={request.sender_username || "User"}
+                        isEditing={false}
+                        onAvatarUpdate={() => {}}
+                        size="sm"
+                      />
+                      <span className="ml-2 text-warcrow-text">
+                        {request.sender_username || "Unnamed User"}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm"
+                        onClick={() => acceptFriendRequest(request.friendship_id, request.sender_id)}
+                        className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => rejectFriendRequest(request.friendship_id)}
+                        className="border-red-900/30 text-red-400 hover:bg-red-900/20"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Outgoing Requests */}
+          {outgoingRequests.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-warcrow-gold/90">Pending Requests ({outgoingRequests.length})</h3>
+              <div className="space-y-2">
+                {outgoingRequests.map((request) => (
+                  <div key={request.id} className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10">
+                    <div className="flex items-center flex-1">
+                      <ProfileAvatar
+                        avatarUrl={request.recipient_avatar_url}
+                        username={request.recipient_username || "User"}
+                        isEditing={false}
+                        onAvatarUpdate={() => {}}
+                        size="sm"
+                      />
+                      <span className="ml-2 text-warcrow-text">
+                        {request.recipient_username || "Unnamed User"}
+                      </span>
+                    </div>
                     <Button 
                       variant="outline" 
-                      size="sm" 
-                      onClick={() => handleAcceptFriendRequest(request.friendship_id, request.sender_id)}
-                      className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+                      size="sm"
+                      onClick={() => cancelFriendRequest(request.friendship_id)}
+                      className="border-warcrow-gold/30 text-warcrow-gold hover:bg-black"
                     >
-                      Accept
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleRejectFriendRequest(request.friendship_id)}
-                      className="text-warcrow-text hover:bg-black/20"
-                    >
-                      Reject
+                      Cancel
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-warcrow-text/70 italic">No friend requests</div>
-        )}
-      </div>
-
-      {/* Friend List */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-warcrow-gold">My Friends</h3>
-        {isLoading ? (
-          <div className="text-warcrow-text/70 italic">Loading friends...</div>
-        ) : friends.length > 0 ? (
-          <div className="space-y-2">
-            {friends.map(friend => (
-              <Card key={friend.id} className="bg-black/50 border-warcrow-gold/30">
-                <CardContent className="flex items-center justify-between p-4">
-                  <div 
-                    className="flex items-center space-x-2 cursor-pointer"
-                    onClick={() => handleViewProfile(friend.id)}
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={friend.avatar_url || undefined} alt={friend.username || "User"} />
-                      <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {friend.username?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-warcrow-text hover:text-warcrow-gold">
-                      {friend.username || "Anonymous User"}
-                    </span>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedUser(friend);
-                    }}
-                    className="text-warcrow-text hover:bg-black/20"
-                  >
-                    Unfriend
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-warcrow-text/70 italic">No friends yet</div>
-        )}
-      </div>
-
-      {/* Outgoing Friend Requests */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-warcrow-gold">Outgoing Friend Requests</h3>
-        {isLoading ? (
-          <div className="text-warcrow-text/70 italic">Loading outgoing requests...</div>
-        ) : outgoingRequests.length > 0 ? (
-          <div className="space-y-2">
-            {outgoingRequests.map(request => (
-              <Card key={request.id} className="bg-black/50 border-warcrow-gold/30">
-                <CardContent className="flex items-center justify-between p-4">
-                  <div 
-                    className="flex items-center space-x-2 cursor-pointer"
-                    onClick={() => handleViewProfile(request.recipient_id)}
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={request.recipient_avatar_url || undefined} alt={request.recipient_username || "User"} />
-                      <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {request.recipient_username?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-warcrow-text hover:text-warcrow-gold">
-                      {request.recipient_username || "Anonymous User"}
-                    </span>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleCancelFriendRequest(request.friendship_id)}
-                    className="text-warcrow-text hover:bg-black/20"
-                  >
-                    Cancel Request
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-warcrow-text/70 italic">No outgoing friend requests</div>
-        )}
-      </div>
-      
-      {/* Confirmation Dialog */}
-      <AlertDialog open={!!selectedUser} onOpenChange={(open) => {
-        if (!open) setSelectedUser(null);
-      }}>
-        <AlertDialogContent className="bg-black border-warcrow-gold/30 text-warcrow-text">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-warcrow-gold">
-              {friends.some(friend => friend.id === selectedUser?.id) ? "Unfriend" : "Send Friend Request"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-warcrow-text/80">
-              {friends.some(friend => friend.id === selectedUser?.id) ? 
-                `Are you sure you want to remove ${selectedUser?.username} from your friends?` :
-                `Are you sure you want to send a friend request to ${selectedUser?.username}?`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-warcrow-text hover:bg-black/20">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={async () => {
-                if (friends.some(friend => friend.id === selectedUser?.id)) {
-                  if (selectedUser?.id) {
-                    const friend = friends.find(f => f.id === selectedUser.id);
-                    if (friend) {
-                      await handleUnfriend(friend.friendship_id);
-                      toast({
-                        title: "Friend Removed",
-                        description: `${selectedUser.username} has been removed from your friends.`,
-                      });
-                    }
-                  }
-                } else {
-                  if (selectedUser?.id) {
-                    await handleSendFriendRequest(selectedUser.id);
-                    toast({
-                      title: "Friend Request Sent",
-                      description: `A friend request has been sent to ${selectedUser.username}.`,
-                    });
-                  }
-                }
-                setSelectedUser(null);
-              }}
-              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
-            >
-              {friends.some(friend => friend.id === selectedUser?.id) ? "Unfriend" : "Send Request"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Friend Profile Dialog */}
       <FriendProfileDialog 
-        friendId={selectedFriendId}
-        isOpen={isProfileDialogOpen}
-        onClose={() => {
-          setIsProfileDialogOpen(false);
-          setSelectedFriendId(null);
-        }}
+        friendId={selectedFriend}
+        isOpen={!!selectedFriend}
+        onClose={() => setSelectedFriend(null)}
+      />
+
+      {/* Direct Message Dialog */}
+      <DirectMessageDialog
+        friendId={selectedFriendForMessage?.id || null}
+        friendUsername={selectedFriendForMessage?.username || null}
+        friendAvatar={selectedFriendForMessage?.avatar_url || null}
+        isOpen={!!selectedFriendForMessage}
+        onClose={() => setSelectedFriendForMessage(null)}
       />
     </div>
   );

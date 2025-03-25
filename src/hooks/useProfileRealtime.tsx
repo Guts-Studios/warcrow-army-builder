@@ -49,11 +49,32 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
         }
       )
       .subscribe();
+      
+    const messagesChannel = supabase
+      .channel('messages-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `recipient_id=eq.${profileId}`
+        },
+        (payload) => {
+          console.log('New message received:', payload);
+          // Invalidate any messages queries to refresh data
+          queryClient.invalidateQueries({ queryKey: ["messages"] });
+          // Also invalidate notifications since we create a notification for new messages
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        }
+      )
+      .subscribe();
 
     return () => {
       console.log("Cleaning up realtime subscriptions");
       supabase.removeChannel(notificationsChannel);
       supabase.removeChannel(friendshipsChannel);
+      supabase.removeChannel(messagesChannel);
     };
   }, [profileId, isPreview, queryClient]);
 };
