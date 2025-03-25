@@ -19,6 +19,7 @@ export const useProfileComments = (profileId: string | null) => {
     setError(null);
     
     try {
+      // First get the comments
       const { data, error } = await supabase
         .from('profile_comments')
         .select(`
@@ -27,22 +28,40 @@ export const useProfileComments = (profileId: string | null) => {
           profile_id,
           content,
           created_at,
-          updated_at,
-          author:profiles!profile_comments_author_id_fkey(username, avatar_url)
+          updated_at
         `)
         .eq('profile_id', profileId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       
-      // Format the comments with author information
-      const formattedComments = data.map(comment => ({
-        ...comment,
-        author_username: comment.author?.username,
-        author_avatar_url: comment.author?.avatar_url,
-      }));
+      // Get author information for each comment
+      const commentsWithAuthors = await Promise.all(
+        data.map(async (comment) => {
+          const { data: authorData, error: authorError } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', comment.author_id)
+            .single();
+          
+          if (authorError) {
+            console.error('Error fetching author data:', authorError);
+            return {
+              ...comment,
+              author_username: 'Unknown User',
+              author_avatar_url: null
+            };
+          }
+          
+          return {
+            ...comment,
+            author_username: authorData?.username || 'Unknown User',
+            author_avatar_url: authorData?.avatar_url || null
+          };
+        })
+      );
       
-      setComments(formattedComments);
+      setComments(commentsWithAuthors);
     } catch (err) {
       console.error('Error fetching profile comments:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch comments'));
