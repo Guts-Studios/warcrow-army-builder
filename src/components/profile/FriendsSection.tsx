@@ -40,7 +40,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
   const [selectedFriendForMessage, setSelectedFriendForMessage] = useState<Friend | null>(null);
   const [activeTab, setActiveTab] = useState("friends");
 
-  // Get friend IDs to track online status
   const friendIds = friends.map(friend => friend.id);
   const { onlineStatus } = useOnlineStatus(friendIds);
 
@@ -52,19 +51,16 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
       await sendFriendRequest(friendCode.trim());
       setFriendCode("");
       
-      // Show sonner toast notification
       toast.success("Friend request sent", {
         description: "We'll notify you when they respond",
         position: "top-right"
       });
       
-      // Also use the UI toast for consistent interfaces
       uiToast({
         title: "Friend request sent",
         description: "We'll notify you when they respond",
       });
     } catch (error: any) {
-      // Show error notification with sonner
       toast.error("Failed to send friend request", {
         description: error.message || "Please try a valid WAB ID or user ID",
         position: "top-right"
@@ -80,7 +76,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
     }
   };
   
-  // Filter friends based on search query
   const filteredFriends = friends.filter(friend => 
     friend.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
     !searchQuery
@@ -113,7 +108,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Add Friend Section - Only show in full mode */}
           {!isCompact && (
             <div className="space-y-2">
               <h3 className="text-warcrow-gold/90 text-sm">Add Friend</h3>
@@ -137,7 +131,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
             </div>
           )}
 
-          {/* Tabs for Friends, Requests, Pending */}
           <Tabs defaultValue="friends" className="w-full" onValueChange={setActiveTab}>
             <TabsList className="bg-black/20 w-full grid grid-cols-3 border border-warcrow-gold/20 h-8">
               <TabsTrigger 
@@ -167,7 +160,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
               animate="visible"
               className="pt-2"
             >
-              {/* Friends Tab */}
               <TabsContent value="friends" className="mt-0 space-y-2">
                 {!isCompact && friends.length > 0 && (
                   <div className="relative">
@@ -272,7 +264,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
                 )}
               </TabsContent>
 
-              {/* Friend Requests Tab */}
               <TabsContent value="requests" className="mt-0">
                 {friendRequests.length === 0 ? (
                   <div className="py-3 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
@@ -346,7 +337,6 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
                 )}
               </TabsContent>
 
-              {/* Outgoing Requests Tab */}
               <TabsContent value="pending" className="mt-0">
                 {outgoingRequests.length === 0 ? (
                   <div className="py-3 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
@@ -405,14 +395,12 @@ export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProp
         </div>
       )}
 
-      {/* Friend Profile Dialog */}
       <FriendProfileDialog 
         friendId={selectedFriend}
         isOpen={!!selectedFriend}
         onClose={() => setSelectedFriend(null)}
       />
 
-      {/* Direct Message Dialog */}
       <DirectMessageDialog
         friendId={selectedFriendForMessage?.id || null}
         friendUsername={selectedFriendForMessage?.username || null}

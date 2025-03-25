@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useFriendActivities, FriendActivity } from "@/hooks/useFriendActivities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,7 +109,6 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
     );
   }
   
-  // Display fewer activities when compact and adjust the scroll area height based on content
   const displayActivities = isCompact ? activities.slice(0, 3) : activities.slice(0, 8);
   const scrollAreaHeight = isCompact ? "max-h-[300px]" : getScrollAreaHeight(false, displayActivities.length);
 

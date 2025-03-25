@@ -1,3 +1,4 @@
+
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
@@ -8,7 +9,6 @@ import { useProfileContext } from "./ProfileData";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Copy, Check, Edit } from "lucide-react";
-import { SocialMediaLinks } from "./SocialMediaLinks";
 import { ProfileCompletionIndicator } from "./ProfileCompletionIndicator";
 import { ProfileTabs } from "./ProfileTabs";
 import { motion } from "framer-motion";
@@ -177,20 +177,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                   )}
                 </div>
               </div>
-
-              <motion.div 
-                className="mt-3"
-                variants={profileFadeIn}
-              >
-                <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
-                <SocialMediaLinks
-                  social_discord={profile.social_discord}
-                  social_twitter={profile.social_twitter}
-                  social_instagram={profile.social_instagram}
-                  social_youtube={profile.social_youtube}
-                  social_twitch={profile.social_twitch}
-                />
-              </motion.div>
 
               <motion.div 
                 className="pt-4 border-t border-warcrow-gold/20"
