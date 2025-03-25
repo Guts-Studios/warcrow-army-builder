@@ -56,7 +56,7 @@ const Play = () => {
         } else {
           setHasAccess(false);
           toast.error("You don't have access to this feature");
-          navigate('/landing');
+          navigate('/');
         }
       } else {
         setHasAccess(false);

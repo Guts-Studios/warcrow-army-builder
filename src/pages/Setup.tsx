@@ -7,7 +7,6 @@ import { Player, Mission } from '@/types/game';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 interface GamePlayer {
   id: string;
@@ -50,8 +49,7 @@ const Setup = () => {
         payload: {
           ...player,
           score: 0, // Initialize score to 0
-          points: 0, // Add required field
-          objectivePoints: 0 // Add required field
+          roundScores: {} // Initialize roundScores as empty object
         } as Player
       });
     });

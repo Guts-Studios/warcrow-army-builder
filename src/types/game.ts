@@ -29,6 +29,8 @@ export interface Player {
   user_profile_id?: string;
   score?: number;
   roundScores?: Record<string, number>;
+  points?: number;
+  objectivePoints?: number;
 }
 
 export interface Faction {
