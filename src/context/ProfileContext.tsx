@@ -8,6 +8,7 @@ interface ProfileContextType {
   formData: ProfileFormData;
   isEditing: boolean;
   isLoading: boolean;
+  error: Error | null; // Added error property
   updateProfile: any;
   setIsEditing: (value: boolean) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

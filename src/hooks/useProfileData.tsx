@@ -225,6 +225,7 @@ export const useProfileData = () => {
     formData,
     isEditing,
     isLoading: isLoading && !usePreviewData,
+    error: isError ? error as Error : null, // Add error to the return object
     updateProfile,
     setIsEditing,
     handleInputChange,
