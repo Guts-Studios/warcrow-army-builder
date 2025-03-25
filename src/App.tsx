@@ -1,30 +1,10 @@
-
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { GameProvider } from "@/context/GameContext";
-
-import Index from './pages/Index';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import ResetPassword from './pages/ResetPassword';
-import Rules from './pages/Rules';
-import Missions from './pages/Missions';
-import Mail from './pages/Mail';
-import Profile from './pages/Profile';
-import AboutUs from './pages/AboutUs';
-import UnitStats from './pages/UnitStats';
-import Play from './pages/Play';
-import Setup from './pages/Setup';
-import Deployment from './pages/Deployment';
-import Game from './pages/Game';
-import Summary from './pages/Summary';
-import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,7 +96,6 @@ function App() {
         setIsAuthenticated(!!session);
         
         if (session) {
-          // Fixed Promise chain handling - using async/await instead
           const checkTesterStatus = async () => {
             try {
               const { data } = await supabase
@@ -286,7 +265,6 @@ function App() {
                 />
               </Routes>
               <Toaster />
-              <Sonner />
             </Router>
           </GameProvider>
         </TooltipProvider>
