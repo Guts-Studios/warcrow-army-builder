@@ -1,260 +1,85 @@
-import { useState, useEffect } from "react";
-import { useFriendActivities, FriendActivity } from "@/hooks/useFriendActivities";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
-import { formatDistanceToNow } from "date-fns";
-import { Loader2, User2, Shield, Plus, ListPlus, UserPlus, Heart, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { motion } from "framer-motion";
-import { profileFadeIn, staggerChildren, cardHover } from "./animations";
+import React, { useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { getScrollAreaHeight } from "@/lib/utils";
+import { toast } from 'sonner';
+
+interface Activity {
+  id: string;
+  timestamp: string;
+  message: string;
+}
 
 interface FriendActivityFeedProps {
   userId: string;
-  isCompact?: boolean;
+  className?: string;
 }
 
-export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivityFeedProps) => {
-  const { activities, isLoading, error } = useFriendActivities(userId);
-  const [friendIds, setFriendIds] = useState<string[]>([]);
-  const { onlineStatus } = useOnlineStatus(friendIds);
-  const navigate = useNavigate();
-  const [likedActivities, setLikedActivities] = useState<Set<string>>(new Set());
-  
+export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, className }) => {
+  const [activityFeed, setActivityFeed] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchActivityFeed = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Simulate fetching data from an API
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const mockActivity: Activity[] = [
+        { id: '1', timestamp: '2024-07-15T10:00:00', message: 'Played a game' },
+        { id: '2', timestamp: '2024-07-14T18:30:00', message: 'Added a new friend' },
+        { id: '3', timestamp: '2024-07-13T22:45:00', message: 'Updated profile settings' },
+      ];
+      
+      setActivityFeed(mockActivity);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch activity feed');
+      toast.error(`Failed to fetch activity feed: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (activities.length > 0) {
-      const uniqueFriendIds = [...new Set(activities.map(activity => activity.user_id))];
-      setFriendIds(uniqueFriendIds);
+    if (userId) {
+      fetchActivityFeed();
     }
-  }, [activities]);
+  }, [userId]);
 
-  const getActivityIcon = (activity: FriendActivity) => {
-    switch (activity.activity_type) {
-      case 'list_created':
-        return <ListPlus className="w-5 h-5 text-green-500" />;
-      case 'friend_added':
-        return <UserPlus className="w-5 h-5 text-blue-500" />;
-      default:
-        return <Shield className="w-5 h-5 text-warcrow-gold" />;
-    }
+  const refreshFeed = () => {
+    fetchActivityFeed();
   };
-
-  const getActivityMessage = (activity: FriendActivity) => {
-    switch (activity.activity_type) {
-      case 'list_created':
-        return (
-          <span>
-            created a new <span className="font-semibold">{activity.activity_data.faction}</span> list: 
-            <span className="font-medium italic ml-1">"{activity.activity_data.list_name}"</span>
-          </span>
-        );
-      case 'friend_added':
-        return "added a new friend";
-      default:
-        return "performed an activity";
-    }
-  };
-
-  const handleListClick = (activity: FriendActivity) => {
-    if (activity.activity_type === 'list_created' && activity.activity_data.list_id) {
-      navigate('/builder', { 
-        state: { 
-          viewSharedList: true, 
-          listId: activity.activity_data.list_id 
-        } 
-      });
-    }
-  };
-  
-  const handleLike = (activityId: string) => {
-    if (likedActivities.has(activityId)) {
-      const newLiked = new Set(likedActivities);
-      newLiked.delete(activityId);
-      setLikedActivities(newLiked);
-      toast.info("Like removed");
-    } else {
-      setLikedActivities(new Set(likedActivities).add(activityId));
-      toast.success("Activity liked");
-    }
-  };
-  
-  const handleComment = (activity: FriendActivity) => {
-    toast.info(`Commenting on ${activity.username}'s activity`, {
-      description: "Comment functionality coming soon!",
-      action: {
-        label: "Notify me",
-        onClick: () => toast.success("You'll be notified when this feature is available")
-      }
-    });
-  };
-
-  if (error) {
-    console.error("Error loading friend activities:", error);
-    return (
-      <Card className="bg-black/50 border-warcrow-gold/20">
-        <CardHeader>
-          <CardTitle className="text-warcrow-gold">Friend Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center text-warcrow-text/60">
-            Unable to load friend activities
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  const displayActivities = isCompact ? activities.slice(0, 3) : activities.slice(0, 8);
-  const scrollAreaHeight = isCompact ? "max-h-[300px]" : getScrollAreaHeight(false, displayActivities.length);
 
   return (
-    <Card className="bg-black/50 border-warcrow-gold/20 h-full flex flex-col">
-      <CardHeader className={isCompact ? "p-3" : "p-4"}>
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-warcrow-gold text-lg">Friend Activity</CardTitle>
-          {isCompact && activities.length > 3 && (
-            <Button 
-              variant="link" 
-              className="text-warcrow-gold p-0 h-auto"
-              onClick={() => navigate('/profile')}
-            >
-              View All
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className={`${isCompact ? "p-3 pt-0" : "p-4 pt-0"} flex-1`}>
-        {isLoading ? (
-          <div className="flex justify-center py-4">
-            <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
-          </div>
-        ) : displayActivities.length === 0 ? (
-          <div className="text-center text-warcrow-text/60 py-4">
-            No recent friend activity
-            {userId === "preview-user-id" && (
-              <div className="text-xs mt-2">
-                (Friend activities are only available for logged-in users)
-              </div>
-            )}
-          </div>
-        ) : (
-          <ScrollArea className={scrollAreaHeight}>
-            <motion.div 
-              className="space-y-3 pr-4"
-              variants={staggerChildren}
-              initial="hidden"
-              animate="visible"
-            >
-              {displayActivities.map((activity) => (
-                <motion.div 
-                  key={activity.id} 
-                  className={`flex items-start gap-2 p-2 rounded-lg transition-colors ${
-                    activity.activity_type === 'list_created' 
-                      ? 'cursor-pointer hover:bg-warcrow-gold/10' 
-                      : ''
-                  }`}
-                  onClick={() => activity.activity_type === 'list_created' ? handleListClick(activity) : null}
-                  variants={profileFadeIn}
-                  whileHover={activity.activity_type === 'list_created' ? "hover" : "initial"}
-                >
-                  <div className="flex-shrink-0">
-                    <ProfileAvatar
-                      avatarUrl={activity.avatar_url}
-                      username={activity.username || "User"}
-                      isEditing={false}
-                      onAvatarUpdate={() => {}}
-                      size="xs"
-                      isOnline={onlineStatus[activity.user_id]}
-                    />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium text-warcrow-gold text-sm">
-                          {activity.username || "Unknown User"}
-                        </span>
-                        {onlineStatus[activity.user_id] && (
-                          <span className="text-xs text-green-500">(online)</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 text-warcrow-text/60 text-xs">
-                        {getActivityIcon(activity)}
-                        <span>
-                          {activity.created_at
-                            ? formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })
-                            : "recently"}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-warcrow-text/90">
-                      {getActivityMessage(activity)}
-                    </p>
-                    
-                    <div className="flex items-center mt-1 space-x-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-6 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleLike(activity.id);
-                              }}
-                            >
-                              <Heart 
-                                className={`h-3 w-3 mr-1 ${likedActivities.has(activity.id) ? 'fill-red-500 text-red-500' : ''}`} 
-                              />
-                              <span className="text-xs">Like</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
-                            {likedActivities.has(activity.id) ? 'Unlike this activity' : 'Like this activity'}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-6 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleComment(activity);
-                              }}
-                            >
-                              <MessageSquare className="h-3 w-3 mr-1" />
-                              <span className="text-xs">Comment</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/30">
-                            Comment on this activity
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    
-                    {activity.activity_type === 'list_created' && (
-                      <div className="text-xs text-warcrow-gold/70 italic mt-1">
-                        Click to view list
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </ScrollArea>
+    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-warcrow-gold/10 h-full flex flex-col ${className}`}>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-warcrow-gold font-medium">Friend Activity</h3>
+        <Button
+          onClick={refreshFeed}
+          variant="outline"
+          size="sm"
+          className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" />
+          Refresh
+        </Button>
+      </div>
+
+      {isLoading && <div className="text-warcrow-text">Loading activity...</div>}
+      {error && <div className="text-red-500">Error: {error}</div>}
+
+      <ul className="space-y-2 overflow-auto h-full">
+        {activityFeed.map(activity => (
+          <li key={activity.id} className="text-warcrow-text/80">
+            <span className="text-sm">{activity.message}</span>
+            <div className="text-xs text-warcrow-text/50">{activity.timestamp}</div>
+          </li>
+        ))}
+        {activityFeed.length === 0 && !isLoading && !error && (
+          <li className="text-warcrow-text/50">No activity to display.</li>
         )}
-      </CardContent>
-    </Card>
+      </ul>
+    </div>
   );
 };

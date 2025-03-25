@@ -117,7 +117,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                     <Button 
                       onClick={() => setIsEditing(true)}
                       variant="outline"
-                      className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:border-warcrow-gold transition-colors"
+                      className="bg-warcrow-gold text-black border-warcrow-gold hover:bg-warcrow-gold/80 hover:border-warcrow-gold/80 transition-colors"
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Profile
@@ -126,7 +126,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                   
                   <Button 
                     variant="outline" 
-                    className="border-warcrow-gold/50 text-warcrow-gold/80 hover:bg-warcrow-gold/10 hover:border-warcrow-gold transition-colors"
+                    className="bg-black border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10 hover:border-warcrow-gold transition-colors"
                     onClick={() => setShowStats(!showStats)}
                   >
                     {showStats ? 'Hide Stats' : 'Show Stats'}
@@ -145,7 +145,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                           onClick={copyWabIdToClipboard}
                           variant="outline"
                           size="sm"
-                          className="h-7 border-warcrow-gold/50 text-warcrow-gold hover:bg-black/50"
+                          className="h-7 bg-warcrow-gold/20 border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/30"
                         >
                           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>

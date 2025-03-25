@@ -10,11 +10,6 @@ interface ProfileFormData {
   bio: string | null;
   location: string | null;
   favorite_faction: string | null;
-  social_discord: string | null;
-  social_twitter: string | null;
-  social_instagram: string | null;
-  social_youtube: string | null;
-  social_twitch: string | null;
   avatar_url: string | null;
   wab_id?: string | null;
 }
@@ -102,7 +97,7 @@ export const ProfileForm = ({
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            className="border-warcrow-gold text-black bg-warcrow-gold hover:bg-warcrow-gold/80 hover:border-warcrow-gold/80 transition-colors"
           >
             Cancel
           </Button>
