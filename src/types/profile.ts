@@ -6,6 +6,9 @@ export interface ProfileFormData {
   favorite_faction: string | null;
   social_discord: string | null;
   social_twitter: string | null;
+  social_instagram: string | null;
+  social_youtube: string | null;
+  social_twitch: string | null;
   avatar_url: string | null;
   wab_id?: string | null;
 }
@@ -18,6 +21,9 @@ export interface Profile {
   favorite_faction: string | null;
   social_discord: string | null;
   social_twitter: string | null;
+  social_instagram: string | null;
+  social_youtube: string | null;
+  social_twitch: string | null;
   avatar_url: string | null;
   wab_id: string | null;
   games_won: number;

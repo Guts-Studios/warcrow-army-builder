@@ -2,8 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Discord, Twitter, Instagram, Youtube, Twitch } from "lucide-react";
 import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
 
 interface ProfileFormData {
   username: string | null;
@@ -12,6 +13,9 @@ interface ProfileFormData {
   favorite_faction: string | null;
   social_discord: string | null;
   social_twitter: string | null;
+  social_instagram: string | null;
+  social_youtube: string | null;
+  social_twitch: string | null;
   avatar_url: string | null;
   wab_id?: string | null;
 }
@@ -93,26 +97,84 @@ export const ProfileForm = ({
         />
       </div>
 
+      <Separator className="my-4 bg-warcrow-gold/20" />
+      
+      <div className="mb-2">
+        <h3 className="text-warcrow-gold text-lg">Social Media Links</h3>
+        <p className="text-xs text-warcrow-gold/70">Connect your profile to other platforms</p>
+      </div>
+
       <div className="space-y-2">
-        <Label htmlFor="social_discord" className="text-warcrow-gold">Discord</Label>
+        <Label htmlFor="social_discord" className="text-warcrow-gold flex items-center gap-2">
+          <Discord className="h-4 w-4" /> Discord
+        </Label>
         <Input
           id="social_discord"
           name="social_discord"
           value={formData.social_discord || ""}
           onChange={onInputChange}
           disabled={!isEditing}
+          placeholder={isEditing ? "e.g. username#1234" : ""}
           className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="social_twitter" className="text-warcrow-gold">Twitter</Label>
+        <Label htmlFor="social_twitter" className="text-warcrow-gold flex items-center gap-2">
+          <Twitter className="h-4 w-4" /> Twitter
+        </Label>
         <Input
           id="social_twitter"
           name="social_twitter"
           value={formData.social_twitter || ""}
           onChange={onInputChange}
           disabled={!isEditing}
+          placeholder={isEditing ? "e.g. @username" : ""}
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="social_instagram" className="text-warcrow-gold flex items-center gap-2">
+          <Instagram className="h-4 w-4" /> Instagram
+        </Label>
+        <Input
+          id="social_instagram"
+          name="social_instagram"
+          value={formData.social_instagram || ""}
+          onChange={onInputChange}
+          disabled={!isEditing}
+          placeholder={isEditing ? "e.g. @username" : ""}
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="social_youtube" className="text-warcrow-gold flex items-center gap-2">
+          <Youtube className="h-4 w-4" /> YouTube
+        </Label>
+        <Input
+          id="social_youtube"
+          name="social_youtube"
+          value={formData.social_youtube || ""}
+          onChange={onInputChange}
+          disabled={!isEditing}
+          placeholder={isEditing ? "e.g. @channel or channel URL" : ""}
+          className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="social_twitch" className="text-warcrow-gold flex items-center gap-2">
+          <Twitch className="h-4 w-4" /> Twitch
+        </Label>
+        <Input
+          id="social_twitch"
+          name="social_twitch"
+          value={formData.social_twitch || ""}
+          onChange={onInputChange}
+          disabled={!isEditing}
+          placeholder={isEditing ? "e.g. username" : ""}
           className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
         />
       </div>

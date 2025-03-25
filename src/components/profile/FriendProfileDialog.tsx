@@ -1,14 +1,17 @@
-
-import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
-import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
-import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
-import { DirectMessageDialog } from "@/components/profile/DirectMessageDialog";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { ProfileComments } from "@/components/profile/ProfileComments";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Profile } from "@/types/profile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { SocialMediaLinks } from "./SocialMediaLinks";
 
 interface FriendProfileDialogProps {
   friendId: string | null;
@@ -16,126 +19,130 @@ interface FriendProfileDialogProps {
   onClose: () => void;
 }
 
-export const FriendProfileDialog = ({ friendId, isOpen, onClose }: FriendProfileDialogProps) => {
-  const { profile, isLoading } = useFriendProfileFetch(friendId);
-  const [showMessageDialog, setShowMessageDialog] = useState(false);
-  const { onlineStatus } = useOnlineStatus(friendId ? [friendId] : []);
-  const isOnline = friendId ? onlineStatus[friendId] : false;
-  const [activeTab, setActiveTab] = useState("info");
+export const FriendProfileDialog = ({
+  friendId,
+  isOpen,
+  onClose,
+}: FriendProfileDialogProps) => {
+  const { data: friendProfile, isLoading, isError, error } = useQuery<Profile | null>({
+    queryKey: ["friendProfile", friendId],
+    queryFn: async () => {
+      if (!friendId) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", friendId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching friend profile:", error);
+        throw error;
+      }
+
+      return data as Profile;
+    },
+    enabled: !!friendId && isOpen,
+  });
 
   useEffect(() => {
-    if (!isOpen) {
-      setShowMessageDialog(false);
+    if (isError && error) {
+      console.error("Error loading friend profile:", error);
     }
-  }, [isOpen]);
+  }, [isError, error]);
+
+  if (!isOpen) return null;
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="bg-warcrow-background border-warcrow-gold/30 text-warcrow-text max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-warcrow-gold">Friend Profile</DialogTitle>
-            <DialogDescription className="text-warcrow-text/70">
-              View information about your friend
-            </DialogDescription>
-          </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-4">
+            <Avatar>
+              {friendProfile?.avatar_url ? (
+                <AvatarImage src={friendProfile.avatar_url} alt={friendProfile.username || "Friend Avatar"} />
+              ) : (
+                <AvatarFallback>{friendProfile?.username?.slice(0, 2).toUpperCase() || "??"}</AvatarFallback>
+              )}
+            </Avatar>
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              friendProfile?.username || "Unnamed User"
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            {friendProfile?.bio || "No bio available"}
+          </DialogDescription>
+        </DialogHeader>
 
-          {isLoading ? (
-            <div className="flex justify-center py-8">Loading profile...</div>
-          ) : profile ? (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <ProfileAvatar
-                  avatarUrl={profile.avatar_url}
-                  username={profile.username || "User"}
-                  isEditing={false}
-                  onAvatarUpdate={() => {}}
-                  size="lg"
-                  isOnline={isOnline}
+        {isLoading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
+          </div>
+        ) : (
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="username" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                Username
+              </label>
+              <div className="col-span-3">
+                <input
+                  type="text"
+                  id="username"
+                  value={friendProfile?.username || "N/A"}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                  disabled
                 />
-                <div>
-                  <h3 className="text-xl font-medium text-warcrow-gold">{profile.username || "Unnamed User"}</h3>
-                  <div className="flex items-center mt-1">
-                    <div className={`h-2 w-2 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                    <span className="text-sm text-warcrow-text/70">{isOnline ? 'Online' : 'Offline'}</span>
-                  </div>
-                  {profile.wab_id && (
-                    <p className="text-sm text-warcrow-text/70 mt-1">WAB ID: {profile.wab_id}</p>
-                  )}
-                </div>
               </div>
-
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-                <TabsList className="bg-black/30 border border-warcrow-gold/30">
-                  <TabsTrigger 
-                    value="info" 
-                    className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
-                  >
-                    Profile Info
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="comments" 
-                    className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
-                  >
-                    Comments
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="info" className="mt-4">
-                  <div className="space-y-4">
-                    {profile.bio && (
-                      <div>
-                        <h4 className="text-sm font-medium text-warcrow-gold">Bio</h4>
-                        <p className="text-warcrow-text/90 mt-1">{profile.bio}</p>
-                      </div>
-                    )}
-
-                    {profile.location && (
-                      <div className="mt-2">
-                        <h4 className="text-sm font-medium text-warcrow-gold">Location</h4>
-                        <p className="text-warcrow-text/90">{profile.location}</p>
-                      </div>
-                    )}
-
-                    {profile.favorite_faction && (
-                      <div className="mt-2">
-                        <h4 className="text-sm font-medium text-warcrow-gold">Favorite Faction</h4>
-                        <p className="text-warcrow-text/90">{profile.favorite_faction}</p>
-                      </div>
-                    )}
-
-                    <div className="mt-4 space-x-2 flex justify-end">
-                      <Button 
-                        onClick={() => setShowMessageDialog(true)}
-                        className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Message
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="comments" className="mt-4">
-                  {friendId && (
-                    <ProfileComments profileId={friendId} />
-                  )}
-                </TabsContent>
-              </Tabs>
             </div>
-          ) : (
-            <div className="py-4 text-center">Could not load profile</div>
-          )}
-        </DialogContent>
-      </Dialog>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="location" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                Location
+              </label>
+              <div className="col-span-3">
+                <input
+                  type="text"
+                  id="location"
+                  value={friendProfile?.location || "N/A"}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="faction" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                Faction
+              </label>
+              <div className="col-span-3">
+                <input
+                  type="text"
+                  id="faction"
+                  value={friendProfile?.favorite_faction || "N/A"}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-      <DirectMessageDialog
-        friendId={friendId}
-        friendUsername={profile?.username || null}
-        friendAvatar={profile?.avatar_url || null}
-        isOpen={showMessageDialog}
-        onClose={() => setShowMessageDialog(false)}
-      />
-    </>
+        {/* Social Media Links */}
+        {(friendProfile?.social_discord || friendProfile?.social_twitter ||
+          friendProfile?.social_instagram || friendProfile?.social_youtube ||
+          friendProfile?.social_twitch) && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
+            <SocialMediaLinks
+              social_discord={friendProfile?.social_discord}
+              social_twitter={friendProfile?.social_twitter}
+              social_instagram={friendProfile?.social_instagram}
+              social_youtube={friendProfile?.social_youtube}
+              social_twitch={friendProfile?.social_twitch}
+            />
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

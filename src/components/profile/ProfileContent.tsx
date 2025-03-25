@@ -1,4 +1,3 @@
-
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
@@ -11,6 +10,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { SocialMediaLinks } from "./SocialMediaLinks";
 
 interface ProfileContentProps {
   isOnline?: boolean;
@@ -139,6 +139,21 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
               />
             </div>
           </div>
+
+          {/* Social Media Links Section */}
+          {(profile.social_discord || profile.social_twitter || profile.social_instagram || 
+            profile.social_youtube || profile.social_twitch) && (
+            <div className="mt-3">
+              <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
+              <SocialMediaLinks
+                social_discord={profile.social_discord}
+                social_twitter={profile.social_twitter}
+                social_instagram={profile.social_instagram}
+                social_youtube={profile.social_youtube}
+                social_twitch={profile.social_twitch}
+              />
+            </div>
+          )}
 
           <div className="pt-4 border-t border-warcrow-gold/20">
             <div className="text-sm text-warcrow-gold/60 mb-4">
