@@ -17,6 +17,9 @@ export const useProfileData = () => {
     favorite_faction: "",
     social_discord: "",
     social_twitter: "",
+    social_instagram: "",
+    social_youtube: "",
+    social_twitch: "",
     avatar_url: "",
     wab_id: "",
   });
@@ -70,6 +73,9 @@ export const useProfileData = () => {
         favorite_faction: profile.favorite_faction || "",
         social_discord: profile.social_discord || "",
         social_twitter: profile.social_twitter || "",
+        social_instagram: profile.social_instagram || "",
+        social_youtube: profile.social_youtube || "",
+        social_twitch: profile.social_twitch || "",
         avatar_url: profile.avatar_url || "",
         wab_id: profile.wab_id || "",
       });

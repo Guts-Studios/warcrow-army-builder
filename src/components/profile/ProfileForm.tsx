@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle, Discord, Twitter, Instagram, Youtube, Twitch } from "lucide-react";
+import { Loader2, AlertCircle, MessageSquare, Twitter, Instagram, Youtube, Twitch } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 
@@ -106,7 +105,7 @@ export const ProfileForm = ({
 
       <div className="space-y-2">
         <Label htmlFor="social_discord" className="text-warcrow-gold flex items-center gap-2">
-          <Discord className="h-4 w-4" /> Discord
+          <MessageSquare className="h-4 w-4" /> Discord
         </Label>
         <Input
           id="social_discord"

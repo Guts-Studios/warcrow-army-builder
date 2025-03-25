@@ -1,6 +1,6 @@
 
 import { 
-  Discord, 
+  MessageSquare, 
   Twitter, 
   Instagram, 
   Youtube, 
@@ -65,7 +65,7 @@ export const SocialMediaLinks = ({
                   setTimeout(() => document.body.removeChild(toast), 3000);
                 }}
               >
-                <Discord className="h-4 w-4" />
+                <MessageSquare className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
