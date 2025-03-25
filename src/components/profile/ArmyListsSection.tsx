@@ -4,7 +4,8 @@ import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Cloud, CloudOff } from "lucide-react";
+import { Cloud, CloudOff, Eye } from "lucide-react";
+import ShareListButton from "@/components/army/ShareListButton";
 
 interface ArmyListsSectionProps {
   onListSelect: (list: SavedList) => void;
@@ -71,13 +72,17 @@ export const ArmyListsSection = ({ onListSelect }: ArmyListsSectionProps) => {
         <span className="text-warcrow-text">{list.name}</span>
         <span className="text-warcrow-gold/60 text-sm">({list.faction})</span>
       </div>
-      <Button
-        onClick={() => onListSelect(list)}
-        variant="outline"
-        className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
-      >
-        View List
-      </Button>
+      <div className="flex items-center gap-2">
+        <ShareListButton list={list} />
+        <Button
+          onClick={() => onListSelect(list)}
+          variant="outline"
+          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+        >
+          <Eye className="h-4 w-4 mr-1" />
+          View
+        </Button>
+      </div>
     </div>
   );
 

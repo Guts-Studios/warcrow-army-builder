@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -20,6 +19,7 @@ import Deployment from '@/pages/Deployment';
 import Game from '@/pages/Game';
 import Summary from '@/pages/Summary';
 import NotFound from '@/pages/NotFound';
+import SharedList from "@/pages/SharedList";
 
 export const AppRoutes: React.FC = () => {
   const { isAuthenticated, isGuest, isPasswordRecovery, isTester } = useAuth();
@@ -163,9 +163,15 @@ export const AppRoutes: React.FC = () => {
         element={<AboutUs />} 
       />
       <Route 
+        path="/shared-list/:listCode" 
+        element={<SharedList />} 
+      />
+      <Route 
         path="*" 
         element={<NotFound />} 
       />
     </Routes>
   );
 };
+
+export default AppRoutes;
