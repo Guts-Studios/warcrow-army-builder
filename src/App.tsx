@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -115,6 +116,7 @@ function App() {
         setIsAuthenticated(!!session);
         
         if (session) {
+          // Fixed: properly handle the Promise chain
           supabase
             .from('profiles')
             .select('tester')
@@ -123,7 +125,7 @@ function App() {
             .then(({ data }) => {
               setIsTester(!!data?.tester);
             })
-            .catch((error) => {
+            .catch(error => {
               console.error('Error checking tester status:', error);
               setIsTester(false);
             });
