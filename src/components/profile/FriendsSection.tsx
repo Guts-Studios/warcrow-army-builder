@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useFriends } from "@/hooks/useFriends";
 import { useUserSearch } from "@/hooks/useUserSearch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { UserSearch } from "./UserSearch";
+import { FriendProfileDialog } from "./FriendProfileDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +24,8 @@ import {
 
 export const FriendsSection = ({ userId }: { userId: string }) => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { searchQuery, setSearchQuery, searchResults, isSearching, searchUsers } = useUserSearch();
   const { toast } = useToast();
   
@@ -127,6 +131,11 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
     }
   };
 
+  const handleViewProfile = (friendId: string) => {
+    setSelectedFriendId(friendId);
+    setIsProfileDialogOpen(true);
+  };
+
   // For preview mode, return a simplified UI
   if (isPreviewMode) {
     return (
@@ -206,13 +215,18 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
               <Card key={request.id} className="bg-black/50 border-warcrow-gold/30">
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="flex items-center space-x-2">
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-8 w-8 cursor-pointer" onClick={() => handleViewProfile(request.sender_id)}>
                       <AvatarImage src={request.sender_avatar_url || undefined} alt={request.sender_username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
                         {request.sender_username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{request.sender_username || "Anonymous User"}</span>
+                    <span 
+                      className="text-sm text-warcrow-text hover:text-warcrow-gold cursor-pointer"
+                      onClick={() => handleViewProfile(request.sender_id)}
+                    >
+                      {request.sender_username || "Anonymous User"}
+                    </span>
                   </div>
                   <div className="space-x-2">
                     <Button 
@@ -251,14 +265,19 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
             {friends.map(friend => (
               <Card key={friend.id} className="bg-black/50 border-warcrow-gold/30">
                 <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center space-x-2">
+                  <div 
+                    className="flex items-center space-x-2 cursor-pointer"
+                    onClick={() => handleViewProfile(friend.id)}
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={friend.avatar_url || undefined} alt={friend.username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
                         {friend.username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{friend.username || "Anonymous User"}</span>
+                    <span className="text-sm text-warcrow-text hover:text-warcrow-gold">
+                      {friend.username || "Anonymous User"}
+                    </span>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -289,14 +308,19 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
             {outgoingRequests.map(request => (
               <Card key={request.id} className="bg-black/50 border-warcrow-gold/30">
                 <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center space-x-2">
+                  <div 
+                    className="flex items-center space-x-2 cursor-pointer"
+                    onClick={() => handleViewProfile(request.recipient_id)}
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={request.recipient_avatar_url || undefined} alt={request.recipient_username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
                         {request.recipient_username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{request.recipient_username || "Anonymous User"}</span>
+                    <span className="text-sm text-warcrow-text hover:text-warcrow-gold">
+                      {request.recipient_username || "Anonymous User"}
+                    </span>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -363,6 +387,16 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Friend Profile Dialog */}
+      <FriendProfileDialog 
+        friendId={selectedFriendId}
+        isOpen={isProfileDialogOpen}
+        onClose={() => {
+          setIsProfileDialogOpen(false);
+          setSelectedFriendId(null);
+        }}
+      />
     </div>
   );
 };
