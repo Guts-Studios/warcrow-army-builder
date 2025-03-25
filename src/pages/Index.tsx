@@ -1,10 +1,10 @@
-
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import ArmyBuilder from "@/components/army/ArmyBuilder";
 import { supabase } from "@/integrations/supabase/client";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,24 +38,11 @@ const Index = () => {
               />
               <h1 className="text-3xl font-bold text-warcrow-gold text-center">Army Builder</h1>
             </div>
-            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <div className="flex items-center gap-4">
+              <NavDropdown />
               <Button
                 variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/missions')}
-              >
-                Missions
-              </Button>
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-                onClick={() => navigate('/rules')}
-              >
-                Rules
-              </Button>
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
                 onClick={() => navigate('/landing')}
               >
                 <Home className="mr-2 h-4 w-4" />
