@@ -9,7 +9,7 @@ import {
 import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MapPin, Discord, Twitter } from "lucide-react";
+import { Loader2, MapPin, MessageSquare, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FriendProfileDialogProps {
@@ -107,14 +107,14 @@ export const FriendProfileDialog = ({ friendId, isOpen, onClose }: FriendProfile
               
               {profile.social_discord && (
                 <div className="flex items-center text-sm">
-                  <Discord className="h-3.5 w-3.5 mr-1.5 text-warcrow-gold/70" />
+                  <MessageSquare className="h-3.5 w-3.5 mr-1.5 text-warcrow-gold/70" />
                   <span>{profile.social_discord}</span>
                 </div>
               )}
               
               {profile.social_twitter && (
                 <div className="flex items-center text-sm">
-                  <Twitter className="h-3.5 w-3.5 mr-1.5 text-warcrow-gold/70" />
+                  <AtSign className="h-3.5 w-3.5 mr-1.5 text-warcrow-gold/70" />
                   <span>{profile.social_twitter}</span>
                 </div>
               )}
