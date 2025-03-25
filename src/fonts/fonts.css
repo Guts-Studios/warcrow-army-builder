@@ -28,14 +28,13 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Game symbol with stroke - new class for enhanced visibility */
+/* Game symbol with stroke - new class for enhanced visibility (removing white stroke) */
 .game-symbol-stroke {
   font-family: 'Warcrow', sans-serif;
   font-feature-settings: "liga", "calt", "dlig";
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
-  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px rgba(255,255,255,0.7);
   filter: saturate(1.2) contrast(1.1); /* Enhanced visibility */
 }
 
@@ -71,11 +70,10 @@
   filter: contrast(1.5) brightness(1.2);
 }
 
-/* Other numeric character classes */
+/* Other numeric character classes - removed text-shadow */
 .WC_1, .WC_2, .WC_3, .WC_4, .WC_5, 
 .WC_6, .WC_8, .WC_9, .WC_0 {
   font-family: 'Warcrow', sans-serif;
-  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 4px rgba(255,255,255,0.6);
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
@@ -87,12 +85,11 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Font with white stroke for better visibility */
+/* Font with white stroke for better visibility - removed the stroke */
 .font-warcrow-stroke {
   font-family: 'Warcrow', custom;
   font-weight: 400;
   font-style: normal;
-  text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px rgba(255,255,255,0.7);
   filter: saturate(1.2) contrast(1.1); /* Enhanced visibility */
 }
 

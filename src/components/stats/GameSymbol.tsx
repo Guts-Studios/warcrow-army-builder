@@ -47,10 +47,9 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
           background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          textShadow: 'none',
           filter: 'contrast(1.5) brightness(1.2)',
         } : {
-          textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
+          // Removed the text-shadow here
           filter: 'saturate(1.2)'
         }),
         ...style

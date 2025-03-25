@@ -62,7 +62,7 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
                   WebkitTextFillColor: 'transparent',
                   filter: 'contrast(1.5) brightness(1.2)',
                 } : {
-                  textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
+                  // Removed the text-shadow here
                   filter: 'saturate(1.2)'
                 })
               }}
