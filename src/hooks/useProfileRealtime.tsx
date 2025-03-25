@@ -65,6 +65,7 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
           }
           
           // Invalidate notifications query to refresh data
+          // This ensures the bell dropdown will be updated with the new notification
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
         }
       )
@@ -98,8 +99,9 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
             }
           }
           
-          // Invalidate friends query to refresh data
+          // Explicitly invalidate friends query AND notifications
           queryClient.invalidateQueries({ queryKey: ["friends"] });
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
         }
       )
       .subscribe();
@@ -135,9 +137,8 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
             }
           });
           
-          // Invalidate any messages queries to refresh data
+          // Make sure to invalidate both messages and notifications queries
           queryClient.invalidateQueries({ queryKey: ["messages"] });
-          // Also invalidate notifications since we create a notification for new messages
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
         }
       )

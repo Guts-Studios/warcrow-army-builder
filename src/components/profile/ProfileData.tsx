@@ -26,7 +26,10 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   }, [profileData.profile, isPreviewMode]);
 
   // Log the initialization state for debugging
-  console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized, "WAB ID present:", !!profileData.profile?.wab_id);
+  console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized, 
+              "Profile ID:", profileId,
+              "WAB ID present:", !!profileData.profile?.wab_id,
+              "Notifications enabled:", !isPreviewMode && isInitialized);
 
   return (
     <ProfileContext.Provider value={profileData}>

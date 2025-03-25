@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -21,6 +20,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast: uiToast } = useToast();
   const queryClient = useQueryClient();
+  const [triggerRefresh, setTriggerRefresh] = useState<number>(0);
   
   const isPreviewId = userId === "preview-user-id";
 
@@ -172,41 +172,11 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
           // Add new notification to state
           setNotifications(prev => [payload.new, ...prev]);
           
-          // Show toast notification
-          const notificationType = payload.new?.type;
-          const senderName = payload.new?.content?.sender_name || "Someone";
-          
-          switch (notificationType) {
-            case 'friend_request':
-              toast.info("New Friend Request", {
-                description: `${senderName} sent you a friend request`,
-                position: "top-right",
-                duration: 5000
-              });
-              break;
-            case 'friend_accepted':
-              toast.success("Friend Request Accepted", {
-                description: `${senderName} accepted your friend request`,
-                position: "top-right",
-                duration: 5000
-              });
-              break;
-            case 'direct_message':
-              toast.info("New Message", {
-                description: `${senderName} sent you a message`,
-                position: "top-right",
-                duration: 5000
-              });
-              break;
-            default:
-              toast.info("New Notification", {
-                description: `You have a new notification`,
-                position: "top-right",
-                duration: 5000
-              });
-          }
-          
+          // Trigger a refresh of the notifications via query cache
           queryClient.invalidateQueries({ queryKey: ["notifications"] });
+          
+          // Trigger the component to refresh
+          setTriggerRefresh(prev => prev + 1);
         }
       )
       .subscribe();
@@ -216,11 +186,29 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     };
   }, [userId, isPreviewId, queryClient]);
 
+  // Fetch notifications when component mounts or when userId changes
   useEffect(() => {
     if (userId) {
       fetchNotifications();
     }
-  }, [userId]);
+  }, [userId, triggerRefresh]);
+
+  // Also refetch notifications when we detect a change through the query cache
+  useEffect(() => {
+    // Listen for query cache invalidations
+    const unsubscribe = queryClient.getQueryCache().subscribe({
+      onInvalidate: (query) => {
+        if (query.queryKey[0] === "notifications") {
+          console.log("Notifications query invalidated, refreshing...");
+          fetchNotifications();
+        }
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient]);
 
   // Handle notification refresh
   const refreshNotifications = () => {
