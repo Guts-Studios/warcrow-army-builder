@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -195,7 +196,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     const unsubscribe = queryClient.getQueryCache().subscribe(() => {
       const notificationsQuery = queryClient
         .getQueryCache()
-        .findAll(["notifications"]);
+        .findAll({ queryKey: ["notifications"] });
       
       if (notificationsQuery.length > 0) {
         console.log("Notifications query cache updated, refreshing...");
