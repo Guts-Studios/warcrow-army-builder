@@ -20,8 +20,8 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   // Check for WAB ID
   useEffect(() => {
     if (profileData.profile && !profileData.profile.wab_id && !isPreviewMode) {
-      console.warn("ProfileDataProvider - WAB ID is missing from profile data:", profileData.profile);
-      // No need to show toast here now since we'll generate it in useProfileData
+      console.error("ProfileDataProvider - WAB ID is missing from profile data:", profileData.profile);
+      // Don't show toast here now since we'll generate it in useProfileData
     }
   }, [profileData.profile, isPreviewMode]);
 

@@ -32,7 +32,7 @@ export const ensureWabId = async (userId: string): Promise<string | null> => {
       .from('profiles')
       .select('wab_id')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     
     if (fetchError) {
       console.error("Error fetching profile to check WAB ID:", fetchError);
