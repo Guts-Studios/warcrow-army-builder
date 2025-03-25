@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Activity {
   id: string;
@@ -18,6 +20,7 @@ export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, 
   const [activityFeed, setActivityFeed] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const fetchActivityFeed = async () => {
     setIsLoading(true);
@@ -52,32 +55,34 @@ export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, 
   };
 
   return (
-    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-warcrow-gold/10 h-full flex flex-col ${className}`}>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-warcrow-gold font-medium">Friend Activity</h3>
+    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 flex flex-col ${className}`}>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-warcrow-gold font-medium text-sm md:text-base">Friend Activity</h3>
         <Button
           onClick={refreshFeed}
           variant="outline"
           size="sm"
-          className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+          className="border-warcrow-gold/50 text-black bg-warcrow-gold hover:bg-warcrow-gold/80 h-7 px-2 py-1 text-xs md:text-sm"
         >
           <RefreshCw className="h-3 w-3 mr-1" />
-          Refresh
+          {!isMobile ? 'Refresh' : ''}
         </Button>
       </div>
 
-      {isLoading && <div className="text-warcrow-text">Loading activity...</div>}
-      {error && <div className="text-red-500">Error: {error}</div>}
+      {isLoading && <div className="text-warcrow-text text-sm">Loading activity...</div>}
+      {error && <div className="text-red-500 text-sm">Error: {error}</div>}
 
-      <ul className="space-y-2 overflow-auto h-full">
+      <ul className="space-y-2 overflow-auto flex-1 min-h-0 max-h-[150px] md:max-h-full">
         {activityFeed.map(activity => (
-          <li key={activity.id} className="text-warcrow-text/80">
-            <span className="text-sm">{activity.message}</span>
-            <div className="text-xs text-warcrow-text/50">{activity.timestamp}</div>
+          <li key={activity.id} className="text-warcrow-text/80 text-xs md:text-sm">
+            <span>{activity.message}</span>
+            <div className="text-[10px] md:text-xs text-warcrow-text/50">
+              {new Date(activity.timestamp).toLocaleDateString()}
+            </div>
           </li>
         ))}
         {activityFeed.length === 0 && !isLoading && !error && (
-          <li className="text-warcrow-text/50">No activity to display.</li>
+          <li className="text-warcrow-text/50 text-xs md:text-sm">No activity to display.</li>
         )}
       </ul>
     </div>
