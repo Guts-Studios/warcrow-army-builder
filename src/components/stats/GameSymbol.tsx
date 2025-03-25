@@ -39,6 +39,7 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
       className={`${symbolClass} ${sizeClasses[size]} ${className}`}
       style={{
         fontFeatureSettings: '"liga", "calt", "dlig"',
+        textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
         ...style
       }}
     >

@@ -46,7 +46,15 @@ const replaceSymbols = (text: string | undefined): React.ReactNode => {
       parts.forEach((part, i) => {
         if (i > 0) {
           nodes.push(
-            <span key={`symbol-${config.symbol}-${i}`} className="Warcrow-Family font-warcrow" style={{ color: config.color, fontSize: '1.125rem' }}>
+            <span 
+              key={`symbol-${config.symbol}-${i}`} 
+              className="Warcrow-Family font-warcrow" 
+              style={{ 
+                color: config.color, 
+                fontSize: '1.125rem',
+                textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)' 
+              }}
+            >
               {config.fontChar}
             </span>
           );
