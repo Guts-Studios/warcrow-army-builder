@@ -9,6 +9,7 @@ import { useFriends } from '@/hooks/useFriends';
 import { useProfileContext } from './ProfileData';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useProfileSession } from '@/hooks/useProfileSession';
 
 interface Friend {
   id: string;
@@ -26,6 +27,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const isMobile = useIsMobile();
   const { profile } = useProfileContext();
+  const { userId: currentUserId } = useProfileSession();
   
   // Use the useFriends hook to get actual friends data
   const { 
@@ -40,8 +42,14 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   // Create a list of friend IDs to track online status
   const friendIds = friends.map(friend => friend.id);
   
-  // Track online status of all friends
-  const { onlineStatus } = useOnlineStatus(friendIds);
+  // Add current user to the tracked IDs to ensure their status is tracked
+  const trackedIds = [...friendIds];
+  if (currentUserId) {
+    trackedIds.push(currentUserId);
+  }
+  
+  // Track online status of all friends and current user
+  const { onlineStatus } = useOnlineStatus(trackedIds);
 
   // Check if this is the current user's profile
   useEffect(() => {
@@ -96,15 +104,27 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
         contentHeight: friends.length <= 10 ? 'auto' : `${isMobile ? 220 : 300}px`
       };
     } else {
-      // For full view
+      // For full view - show up to 10 friends without scrolling
       return {
         maxHeight: 'none',
-        contentHeight: 'auto'
+        contentHeight: friends.length <= 10 ? 'auto' : '400px'
       };
     }
   };
 
   const { maxHeight, contentHeight } = getListHeight();
+
+  // For debugging online status
+  useEffect(() => {
+    if (currentUserId) {
+      console.log("Current user online status:", currentUserId, onlineStatus[currentUserId]);
+    }
+    if (friends.length > 0) {
+      console.log("Friend online statuses:", 
+        friends.map(f => ({ id: f.id, username: f.username, isOnline: onlineStatus[f.id] }))
+      );
+    }
+  }, [onlineStatus, currentUserId, friends]);
 
   return (
     <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 relative`} style={{ maxHeight }}>
@@ -150,7 +170,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
           ))}
         </div>
       ) : (
-        <ScrollArea className={`${contentHeight !== 'auto' ? `h-[${contentHeight}]` : ''}`}>
+        <ScrollArea className={contentHeight !== 'auto' ? `h-[${contentHeight}]` : ''}>
           <ul className="space-y-2 pr-2">
             {friends.length > 0 ? (
               friends.map((friend) => (

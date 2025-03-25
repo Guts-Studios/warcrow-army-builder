@@ -41,7 +41,7 @@ export const useOnlineStatus = (userIds: string[]) => {
     console.log("Setting up presence tracking for current user:", currentUserId);
     
     // Create a channel for user presence with a unique name to prevent conflicts
-    const channelName = `online-users:${currentUserId}`;
+    const channelName = `presence:${currentUserId}`;
     const channel = supabase.channel(channelName);
     
     // Subscribe to the channel
@@ -52,8 +52,8 @@ export const useOnlineStatus = (userIds: string[]) => {
         // Initially set the user's status when subscribed
         await updatePresence(channel, currentUserId);
         
-        // Update presence every 10 seconds while tab is active (reduced from 15 seconds)
-        const interval = setInterval(() => updatePresence(channel, currentUserId), 10000);
+        // Update presence every 5 seconds while tab is active (reduced from 10 seconds)
+        const interval = setInterval(() => updatePresence(channel, currentUserId), 5000);
         
         // Handle visibility changes (tab switching)
         const handleVisibilityChange = () => {
@@ -116,45 +116,37 @@ export const useOnlineStatus = (userIds: string[]) => {
         // Create a new status object based on presence data
         const newStatus: OnlineStatus = {};
         
-        // Loop through all user IDs we're monitoring
-        validUserIds.forEach(userId => {
-          let isOnline = false;
+        // Set default status to false for all users we're tracking
+        validUserIds.forEach(id => {
+          newStatus[id] = false;
+        });
+        
+        // Loop through all presence state entries
+        Object.entries(presenceState).forEach(([channelKey, presences]) => {
+          const presenceArray = presences as Array<any>;
           
-          // Check all presence entries for this user
-          Object.entries(presenceState).forEach(([key, presences]) => {
-            // Check if this channel belongs to the user we're looking for
-            if (key === userId || key.includes(`:${userId}`)) {
-              // The user has an active presence
-              isOnline = true;
-            } else {
-              // For each presence entry, check if the user_id matches
-              const userPresenceArray = presences as Array<any>;
-              if (userPresenceArray.some(presence => presence.user_id === userId)) {
-                isOnline = true;
-              }
+          presenceArray.forEach(presence => {
+            if (presence.user_id && validUserIds.includes(presence.user_id)) {
+              newStatus[presence.user_id] = true;
             }
           });
-          
-          newStatus[userId] = isOnline;
-          console.log(`User ${userId} online status:`, isOnline);
         });
+        
+        // Always show current user as online when they're included in tracking
+        if (currentUserId && validUserIds.includes(currentUserId)) {
+          newStatus[currentUserId] = true;
+        }
+        
+        console.log("Updated online statuses:", newStatus);
         
         setOnlineStatus(prev => ({
           ...prev,
           ...newStatus
         }));
-        
-        // If current user is being tracked, show a toast when online status is established
-        if (currentUserId && validUserIds.includes(currentUserId) && newStatus[currentUserId]) {
-          toast.success("You're now online", { 
-            id: "online-status",
-            position: "bottom-right",
-            duration: 2000
-          });
-        }
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('User joined:', key, newPresences);
+        
         if (!newPresences || newPresences.length === 0) return;
         
         newPresences.forEach(presence => {
@@ -171,21 +163,21 @@ export const useOnlineStatus = (userIds: string[]) => {
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('User left:', key, leftPresences);
+        
         if (!leftPresences || leftPresences.length === 0) return;
         
         // Don't immediately mark users as offline when they leave
         // They might just be changing pages or refreshing
-        // Instead, set a timeout to mark them offline after a delay
         leftPresences.forEach(presence => {
           const presenceUserId = presence.user_id;
           
+          // Never mark current user as offline
+          if (presenceUserId === currentUserId) return;
+          
           if (presenceUserId && validUserIds.includes(presenceUserId)) {
-            // Wait 15 seconds before marking user as offline
-            // This helps prevent flickering when users navigate between pages
-            console.log(`Setting timeout to mark ${presenceUserId} as offline`);
+            // Set a timeout to mark user as offline after a delay
             setTimeout(() => {
               // Check if they've rejoined before marking offline
-              channel.presenceState();
               const presenceState = channel.presenceState();
               let stillOnline = false;
               
@@ -196,21 +188,22 @@ export const useOnlineStatus = (userIds: string[]) => {
                 }
               });
               
-              if (!stillOnline) {
+              if (!stillOnline && presenceUserId !== currentUserId) {
                 console.log(`Marking ${presenceUserId} as offline after delay`);
                 setOnlineStatus(prev => ({
                   ...prev,
                   [presenceUserId]: false
                 }));
               }
-            }, 15000);
+            }, 10000); // Reduced from 15 seconds to 10 seconds
           }
         });
       })
       .subscribe();
     
-    // If current user is in the list, ensure they show as online
+    // If current user is in the list, ensure they show as online immediately
     if (currentUserId && validUserIds.includes(currentUserId)) {
+      console.log("Setting current user as online immediately:", currentUserId);
       setOnlineStatus(prev => ({
         ...prev,
         [currentUserId]: true
@@ -221,7 +214,7 @@ export const useOnlineStatus = (userIds: string[]) => {
       console.log("Removing presence channel");
       supabase.removeChannel(channel);
     };
-  }, [userIds, currentUserId, updatePresence]);
+  }, [userIds, currentUserId]);
   
   return { onlineStatus };
 };

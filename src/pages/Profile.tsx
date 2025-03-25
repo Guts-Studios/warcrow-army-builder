@@ -6,9 +6,11 @@ import { toast } from "@/components/ui/use-toast";
 import { useEffect, useMemo } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useFriends } from "@/hooks/useFriends";
+import { useProfileSession } from "@/hooks/useProfileSession";
 
 const ProfileWithData = () => {
   const { isLoading, profile, error } = useProfileContext();
+  const { userId: sessionUserId } = useProfileSession();
   
   // Get the current user ID and any friend IDs to track
   const currentUserId = profile?.id || null;
@@ -20,10 +22,19 @@ const ProfileWithData = () => {
   const idsToTrack = useMemo(() => {
     if (!currentUserId) return [];
     
-    // Track current user and all friends
-    const friendIds = friends.map(friend => friend.id);
-    return [currentUserId, ...friendIds];
-  }, [currentUserId, friends]);
+    // Always include the session user to ensure we track our own status
+    const userIds = new Set([currentUserId]);
+    
+    // Add sessionUserId if different from profile ID
+    if (sessionUserId && sessionUserId !== currentUserId) {
+      userIds.add(sessionUserId);
+    }
+    
+    // Track all friends
+    friends.forEach(friend => userIds.add(friend.id));
+    
+    return Array.from(userIds);
+  }, [currentUserId, sessionUserId, friends]);
   
   // Initialize online tracking for current user and their friends
   const { onlineStatus } = useOnlineStatus(idsToTrack);
@@ -36,7 +47,14 @@ const ProfileWithData = () => {
         isOnline: onlineStatus[currentUserId] 
       });
     }
-  }, [currentUserId, onlineStatus]);
+    
+    if (sessionUserId && onlineStatus) {
+      console.log("Session user online status:", { 
+        userId: sessionUserId, 
+        isOnline: onlineStatus[sessionUserId] 
+      });
+    }
+  }, [currentUserId, sessionUserId, onlineStatus]);
   
   useEffect(() => {
     if (error) {
@@ -64,7 +82,13 @@ const ProfileWithData = () => {
     );
   }
 
-  return <ProfileContent isOnline={currentUserId ? onlineStatus[currentUserId] : false} />;
+  // Determine which online status to use - prioritize session user if viewing own profile
+  const isViewingOwnProfile = sessionUserId === currentUserId;
+  const isOnline = isViewingOwnProfile 
+    ? true // Always show yourself as online
+    : currentUserId ? onlineStatus[currentUserId] || false : false;
+
+  return <ProfileContent isOnline={isOnline} />;
 };
 
 const Profile = () => {
