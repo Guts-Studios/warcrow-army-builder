@@ -117,9 +117,12 @@ export const useProfileRealtime = (profileId: string | null, isPreview: boolean)
         (payload) => {
           console.log('New message received:', payload);
           
+          // Extract sender information if available
+          const senderName = payload.new?.sender_name || "Someone";
+          
           // Show toast notification for new messages
           toast("New Message", {
-            description: "You have received a new message",
+            description: `${senderName} sent you a message`,
             position: "top-right",
             duration: 5000,
             action: {

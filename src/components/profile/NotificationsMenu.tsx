@@ -14,11 +14,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const NotificationsMenu = ({ userId }: { userId: string }) => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast: uiToast } = useToast();
+  const queryClient = useQueryClient();
   
   const isPreviewId = userId === "preview-user-id";
 
@@ -31,6 +33,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     
     setIsLoading(true);
     try {
+      console.log("Fetching notifications for user:", userId);
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -51,6 +54,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
         return;
       }
       
+      console.log("Notifications fetched:", data?.length || 0, "notifications");
       setNotifications(data || []);
       
       // If there are unread notifications, show a toast
@@ -147,11 +151,83 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     }
   };
 
+  // Set up real-time subscription for new notifications
+  useEffect(() => {
+    if (isPreviewId || !userId) return;
+
+    console.log("Setting up realtime subscription for notifications");
+    
+    const channel = supabase
+      .channel('notification-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `recipient_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('New notification received via realtime:', payload);
+          // Add new notification to state
+          setNotifications(prev => [payload.new, ...prev]);
+          
+          // Show toast notification
+          const notificationType = payload.new?.type;
+          const senderName = payload.new?.content?.sender_name || "Someone";
+          
+          switch (notificationType) {
+            case 'friend_request':
+              toast.info("New Friend Request", {
+                description: `${senderName} sent you a friend request`,
+                position: "top-right",
+                duration: 5000
+              });
+              break;
+            case 'friend_accepted':
+              toast.success("Friend Request Accepted", {
+                description: `${senderName} accepted your friend request`,
+                position: "top-right",
+                duration: 5000
+              });
+              break;
+            case 'direct_message':
+              toast.info("New Message", {
+                description: `${senderName} sent you a message`,
+                position: "top-right",
+                duration: 5000
+              });
+              break;
+            default:
+              toast.info("New Notification", {
+                description: `You have a new notification`,
+                position: "top-right",
+                duration: 5000
+              });
+          }
+          
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, isPreviewId, queryClient]);
+
   useEffect(() => {
     if (userId) {
       fetchNotifications();
     }
   }, [userId]);
+
+  // Handle notification refresh
+  const refreshNotifications = () => {
+    if (userId) {
+      fetchNotifications();
+    }
+  };
 
   const unreadNotifications = notifications.filter(n => !n.read);
 
@@ -178,6 +254,29 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     );
   }
 
+  const formatNotificationContent = (notification: any) => {
+    // If there's a direct message or content with message property
+    if (notification.type === 'direct_message') {
+      const senderName = notification.content?.sender_name || 'Someone';
+      return `${senderName} sent you a message`;
+    }
+    
+    // For friend requests
+    if (notification.type === 'friend_request') {
+      const senderName = notification.content?.sender_name || 'Someone';
+      return `${senderName} sent you a friend request`;
+    }
+    
+    // For friend request accepted
+    if (notification.type === 'friend_accepted') {
+      const senderName = notification.content?.sender_name || 'Someone';
+      return `${senderName} accepted your friend request`;
+    }
+    
+    // Default fallback for any other type
+    return notification.message || notification.content?.message || "New notification";
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -185,6 +284,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
           variant="outline" 
           size="icon"
           className="relative rounded-full border-warcrow-gold/30 bg-black hover:bg-black"
+          onClick={refreshNotifications}
         >
           <Bell className="h-5 w-5 text-warcrow-gold" />
           {unreadNotifications.length > 0 && (
@@ -209,7 +309,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
               >
                 <div className="flex items-center justify-between w-full">
                   <div className="text-sm">
-                    {notification.message || notification.content?.message || "New notification"}
+                    {formatNotificationContent(notification)}
                   </div>
                   {notification.read ? (
                     <CheckCheck className="h-4 w-4 ml-2 text-green-500" />
