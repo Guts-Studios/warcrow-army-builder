@@ -44,6 +44,14 @@ export const ProfileContent = () => {
                 </Button>
               )}
             </div>
+            
+            {/* Display the WAB ID here, outside of the form but visible whether editing or not */}
+            {profile?.wab_id && (
+              <div className="text-center md:text-right">
+                <div className="text-sm text-warcrow-gold/80 font-semibold">Warcrow Army ID:</div>
+                <div className="text-warcrow-gold">{profile.wab_id}</div>
+              </div>
+            )}
           </div>
 
           <ProfileForm
