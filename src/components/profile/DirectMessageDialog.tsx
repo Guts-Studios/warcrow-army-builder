@@ -66,7 +66,10 @@ export const DirectMessageDialog = ({
       
       // Format messages for display, marking which ones are from the current user
       const formattedMessages = data.map(msg => ({
-        ...msg,
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.sender_id,
+        sent_at: msg.sent_at,
         isCurrentUser: msg.sender_id === userId
       }));
       
@@ -94,7 +97,6 @@ export const DirectMessageDialog = ({
           sender_id: userId,
           recipient_id: friendId,
           content: newMessage.trim(),
-          sent_at: new Date().toISOString()
         })
         .select()
         .single();
@@ -102,7 +104,13 @@ export const DirectMessageDialog = ({
       if (error) throw error;
       
       // Add the sent message to the messages list
-      setMessages([...messages, { ...data, isCurrentUser: true }]);
+      setMessages([...messages, {
+        id: data.id,
+        content: data.content,
+        sender_id: data.sender_id,
+        sent_at: data.sent_at,
+        isCurrentUser: true
+      }]);
       
       // Create notification for the recipient
       await supabase
