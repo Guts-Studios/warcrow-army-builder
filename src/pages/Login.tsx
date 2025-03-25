@@ -138,7 +138,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 3/12/2025 Sÿenann are being as we get them. Still working on User Profiles and also having full stat blocks for each unit for use in Play Mode or as an "Expanded List" so all the info is ready for Play. 
+            - 3/25/2025 Major updates coming right before we go to Adepticon!!! Hopefully all the features even in rough form but working! 
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
