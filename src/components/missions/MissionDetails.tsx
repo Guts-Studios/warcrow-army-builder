@@ -36,7 +36,7 @@ interface MissionDetailsProps {
 export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   if (!mission) {
     return (
-      <div className="text-warcrow-text text-center py-8 bg-black/20 rounded-md">
+      <div className="text-warcrow-text text-center py-8 bg-black/50 rounded-md border border-warcrow-gold/10">
         {isLoading ? "Loading mission details..." : "Select a mission to view details"}
       </div>
     );
@@ -87,7 +87,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   };
 
   return (
-    <div className="space-y-6 bg-black/30 p-6 rounded-lg border border-warcrow-gold/20">
+    <div className="space-y-6 bg-black/70 p-6 rounded-lg border border-warcrow-gold/20">
       <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
         {mission.title}
       </h2>

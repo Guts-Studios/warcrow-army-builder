@@ -92,21 +92,23 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       {missions.map((mission) => (
         <Card 
           key={mission.id}
-          className={`cursor-pointer transition-all hover:border-warcrow-gold ${
-            activeMissionId === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : ''
+          className={`cursor-pointer transition-all h-full flex flex-col hover:border-warcrow-gold ${
+            activeMissionId === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : 'border-transparent'
           }`}
           onClick={() => handleMissionSelect(mission)}
         >
-          <CardContent className="p-4 bg-black/70">
-            <div className="aspect-video mb-4 overflow-hidden rounded-md">
+          <CardContent className="p-0 flex-1 flex flex-col bg-black/70 rounded-lg overflow-hidden">
+            <div className="w-full h-48 overflow-hidden">
               <img 
                 src={mission.mapImage || '/placeholder.svg'} 
                 alt={mission.title}
-                className="object-cover w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
-            <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
-            <p className="text-sm mt-1 text-warcrow-text/80">{mission.description}</p>
+            <div className="p-4 flex-1 flex flex-col bg-black/90">
+              <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
+              <p className="text-sm mt-1 text-warcrow-text/80">{mission.description}</p>
+            </div>
           </CardContent>
         </Card>
       ))}
