@@ -29,8 +29,8 @@ export const ProfileContent = () => {
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div className="flex flex-col items-center space-y-4">
               <ProfileAvatar
-                avatarUrl={formData.avatar_url}
-                username={formData.username}
+                avatarUrl={profile?.avatar_url || formData.avatar_url}
+                username={profile?.username || formData.username}
                 isEditing={isEditing}
                 onAvatarUpdate={handleAvatarUpdate}
               />
@@ -64,7 +64,7 @@ export const ProfileContent = () => {
               <p>Games Lost: {profile?.games_lost || 0}</p>
             </div>
 
-            {profile?.id && (
+            {profile?.id && profile.id !== "preview-user-id" && (
               <div className="space-y-6">
                 <FriendsSection userId={profile.id} />
               </div>

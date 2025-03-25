@@ -9,10 +9,12 @@ export { useProfileContext } from "@/context/ProfileContext";
 export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   const profileData = useProfileData();
   
-  // Configure real-time subscriptions
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                  window.location.hostname.endsWith('.lovableproject.com');
-  useProfileRealtime(profileData.profile?.id, isPreview);
+  // Configure real-time subscriptions only if we have a profile ID that's not the preview ID
+  const shouldSetupRealtime = 
+    profileData.profile?.id && 
+    profileData.profile.id !== "preview-user-id";
+    
+  useProfileRealtime(shouldSetupRealtime ? profileData.profile?.id : null);
 
   return (
     <ProfileContext.Provider value={profileData}>

@@ -22,15 +22,33 @@ export const useProfileData = () => {
     wab_id: "",
   });
 
+  // Check if we're running in preview mode
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                   window.location.hostname.endsWith('.lovableproject.com');
+
+  // Get the session to check if user is authenticated
+  const { data: sessionData, error: sessionError } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return data;
+    },
+    retry: 1,
+  });
+
+  // Determine if we're authenticated and if we should use preview data
+  const isAuthenticated = !!sessionData?.session?.user;
+  const usePreviewData = isPreview && !isAuthenticated;
+
+  console.log("Auth status:", { isPreview, isAuthenticated, usePreviewData });
 
   const { data: profile, isLoading, isError, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       console.log("Fetching profile data");
       
-      if (isPreview) {
+      if (usePreviewData) {
         console.log("Using preview mode profile data");
         return {
           id: "preview-user-id",
@@ -69,12 +87,12 @@ export const useProfileData = () => {
       return data;
     },
     retry: 1,
-    enabled: !isPreview,
+    enabled: usePreviewData || isAuthenticated,
   });
 
   const updateProfile = useMutation({
     mutationFn: async (updateData: ProfileFormData) => {
-      if (isPreview) {
+      if (usePreviewData) {
         console.log("Update skipped in preview mode");
         return;
       }
@@ -110,18 +128,7 @@ export const useProfileData = () => {
   });
 
   useEffect(() => {
-    if (isPreview) {
-      setFormData({
-        username: "Preview User",
-        bio: "This is a preview account",
-        location: "Preview Land",
-        favorite_faction: "Hegemony of Embersig",
-        social_discord: "preview#1234",
-        social_twitter: "@previewUser",
-        avatar_url: "/art/portrait/nuada_portrait.jpg",
-        wab_id: "WAB-PREV-MODE-DEMO"
-      });
-    } else if (profile) {
+    if (profile) {
       console.log("Setting form data from profile:", profile);
       setFormData({
         username: profile.username || "",
@@ -134,7 +141,7 @@ export const useProfileData = () => {
         wab_id: profile.wab_id || "",
       });
     }
-  }, [profile, isPreview]);
+  }, [profile]);
 
   useEffect(() => {
     if (isError && error) {
@@ -166,22 +173,10 @@ export const useProfileData = () => {
   };
 
   return {
-    profile: isPreview ? {
-      id: "preview-user-id",
-      username: "Preview User",
-      bio: "This is a preview account",
-      location: "Preview Land",
-      favorite_faction: "Hegemony of Embersig",
-      social_discord: "preview#1234",
-      social_twitter: "@previewUser",
-      avatar_url: "/art/portrait/nuada_portrait.jpg",
-      wab_id: "WAB-PREV-MODE-DEMO",
-      games_won: 5,
-      games_lost: 2
-    } : profile,
+    profile,
     formData,
     isEditing,
-    isLoading: !isPreview && isLoading,
+    isLoading: isLoading && !usePreviewData,
     updateProfile,
     setIsEditing,
     handleInputChange,
