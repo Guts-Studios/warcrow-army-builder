@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -93,7 +92,7 @@ const Game = () => {
             </Button>
           </div>
           
-          <Card className="p-6 border border-border/40 shadow-sm">
+          <Card className="p-6 border border-border/40 shadow-sm bg-black/80">
             <div className="space-y-8">
               {/* Game Details Section */}
               <div>
@@ -110,7 +109,7 @@ const Game = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.values(state.players).map(player => (
-                    <div key={player.id} className="p-4 border rounded-lg border-border/20">
+                    <div key={player.id} className="p-4 border rounded-lg border-border/20 bg-black/60">
                       <h3 className="text-lg font-medium mb-2 text-primary">{player.name}</h3>
                       <p><strong>Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
                       <p><strong>Score:</strong> {player.score || 0}</p>
