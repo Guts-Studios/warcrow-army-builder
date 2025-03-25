@@ -97,8 +97,8 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
           }`}
           onClick={() => handleMissionSelect(mission)}
         >
-          <CardContent className="p-4">
-            <div className="aspect-[16/9] mb-4 overflow-hidden rounded-md">
+          <CardContent className="p-4 bg-black/70">
+            <div className="aspect-video mb-4 overflow-hidden rounded-md">
               <img 
                 src={mission.mapImage || '/placeholder.svg'} 
                 alt={mission.title}
@@ -106,7 +106,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
               />
             </div>
             <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
-            <p className="text-sm mt-1 line-clamp-2 text-warcrow-text/80">{mission.description}</p>
+            <p className="text-sm mt-1 text-warcrow-text/80">{mission.description}</p>
           </CardContent>
         </Card>
       ))}

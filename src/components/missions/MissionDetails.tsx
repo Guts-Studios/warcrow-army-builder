@@ -1,3 +1,4 @@
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mission } from "./types";
 
@@ -35,7 +36,7 @@ interface MissionDetailsProps {
 export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   if (!mission) {
     return (
-      <div className="text-warcrow-text text-center py-8">
+      <div className="text-warcrow-text text-center py-8 bg-black/20 rounded-md">
         {isLoading ? "Loading mission details..." : "Select a mission to view details"}
       </div>
     );
@@ -86,7 +87,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-black/30 p-6 rounded-lg border border-warcrow-gold/20">
       <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
         {mission.title}
       </h2>
@@ -95,11 +96,11 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
           {renderTextWithDice(mission.details)}
         </div>
       </ScrollArea>
-      <div className="w-full">
+      <div className="w-full mt-6">
         <img
           src={MISSION_IMAGES[mission.title]}
           alt={`${mission.title} Mission`}
-          className="w-full rounded-lg shadow-lg"
+          className="w-full rounded-lg shadow-lg object-contain max-h-[400px]"
         />
       </div>
     </div>
