@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -197,9 +198,15 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
   useEffect(() => {
     // Listen for query cache invalidations
     const unsubscribe = queryClient.getQueryCache().subscribe({
-      onInvalidate: (query) => {
+      onSuccess: (query) => {
         if (query.queryKey[0] === "notifications") {
-          console.log("Notifications query invalidated, refreshing...");
+          console.log("Notifications query succeeded, refreshing...");
+          fetchNotifications();
+        }
+      },
+      onError: (error, query) => {
+        if (query.queryKey[0] === "notifications") {
+          console.log("Notifications query error, refreshing...");
           fetchNotifications();
         }
       }
@@ -208,7 +215,7 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     return () => {
       unsubscribe();
     };
-  }, [queryClient]);
+  }, [queryClient, userId]);
 
   // Handle notification refresh
   const refreshNotifications = () => {
