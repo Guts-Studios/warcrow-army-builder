@@ -46,8 +46,10 @@
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
-  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5);
-  filter: saturate(1.4) brightness(1.1) contrast(1.1); /* Enhanced visibility for dark symbols */
+  background: radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: contrast(1.5) brightness(1.2);
 }
 
 /* Alternative class names as mentioned by user */
@@ -62,9 +64,11 @@
 
 /* Specific numeric character classes with enhanced visibility */
 .WC_7 {
-  /* Special styling for black symbol (7) */
-  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.5);
-  filter: saturate(1.4) brightness(1.1) contrast(1.1);
+  /* Special styling for black symbol (7) using background gradient instead of shadow */
+  background: radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: contrast(1.5) brightness(1.2);
 }
 
 /* Other numeric character classes */

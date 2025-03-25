@@ -42,11 +42,17 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
       className={`${symbolClass} ${sizeClasses[size]} ${className}`}
       style={{
         fontFeatureSettings: '"liga", "calt", "dlig"',
-        // Enhanced visibility for all symbols, with special handling for dark ones
-        textShadow: isDarkSymbol 
-          ? '0 0 1px #fff, 0 0 3px #fff, 0 0 5px rgba(255,255,255,0.8), 0 0 7px rgba(255,255,255,0.5)' 
-          : '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
-        filter: isDarkSymbol ? 'saturate(1.4) brightness(1.1)' : 'saturate(1.2)', // Boost dark symbols more
+        // Use color overlay for dark symbols instead of text-shadow
+        ...(isDarkSymbol ? {
+          background: 'radial-gradient(circle, rgba(0,0,0,0.9) 60%, rgba(60,60,60,0.8) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: 'none',
+          filter: 'contrast(1.5) brightness(1.2)',
+        } : {
+          textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
+          filter: 'saturate(1.2)'
+        }),
         ...style
       }}
     >
