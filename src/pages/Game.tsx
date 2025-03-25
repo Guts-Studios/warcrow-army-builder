@@ -98,21 +98,21 @@ const Game = () => {
               <div>
                 <h2 className="text-xl font-semibold mb-4 text-primary">Game Information</h2>
                 
-                <div className="space-y-2 mb-6">
+                <div className="space-y-2 mb-6 text-warcrow-text">
                   {state.mission && (
-                    <p><strong>Mission:</strong> {state.mission.name}</p>
+                    <p><strong className="text-warcrow-text">Mission:</strong> {state.mission.name}</p>
                   )}
-                  <p><strong>Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
-                  <p><strong>Current Turn:</strong> {state.currentTurn}</p>
-                  <p><strong>Current Round:</strong> {currentRound} of 3</p>
+                  <p><strong className="text-warcrow-text">Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
+                  <p><strong className="text-warcrow-text">Current Turn:</strong> {state.currentTurn}</p>
+                  <p><strong className="text-warcrow-text">Current Round:</strong> {currentRound} of 3</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.values(state.players).map(player => (
                     <div key={player.id} className="p-4 border rounded-lg border-border/20 bg-black/60">
-                      <h3 className="text-lg font-medium mb-2 text-primary">{player.name}</h3>
-                      <p><strong>Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
-                      <p><strong>Score:</strong> {player.score || 0}</p>
+                      <h3 className="text-lg font-medium mb-2 text-warcrow-gold">{player.name}</h3>
+                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
+                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Score:</strong> {player.score || 0}</p>
                     </div>
                   ))}
                 </div>
@@ -143,7 +143,7 @@ const Game = () => {
                     scoredFogMarkers={scoredFogMarkers}
                   />
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-warcrow-text">
                     No mission selected
                   </div>
                 )}
