@@ -1,6 +1,4 @@
 
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { FriendsSection } from "@/components/profile/FriendsSection";
 import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
@@ -8,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Check, Edit } from "lucide-react";
+import { Copy, Check, Edit, ActivityIcon } from "lucide-react";
 import { ProfileCompletionIndicator } from "./ProfileCompletionIndicator";
 import { ProfileTabs } from "./ProfileTabs";
 import { motion } from "framer-motion";
 import { profileFadeIn, staggerChildren } from "./animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { PageHeader } from "@/components/common/PageHeader";
+import { useNavigate } from "react-router-dom";
+import { useProfileSession } from "@/hooks/useProfileSession";
 
 interface ProfileContentProps {
   isOnline?: boolean;
@@ -33,7 +34,9 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
     handleListSelect,
     error
   } = useProfileContext();
-
+  
+  const navigate = useNavigate();
+  const { isAuthenticated } = useProfileSession();
   const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const isMobile = useIsMobile();
@@ -71,7 +74,18 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text bg-gradient-to-b from-black/60 to-transparent overflow-auto pb-8 md:pb-12">
-      <ProfileHeader />
+      <PageHeader title="Profile">
+        {isAuthenticated && (
+          <Button
+            variant="outline"
+            className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+            onClick={() => navigate("/activity")}
+          >
+            <ActivityIcon className="h-4 w-4 mr-2" />
+            Activity Feed
+          </Button>
+        )}
+      </PageHeader>
 
       <motion.div 
         className="container max-w-5xl mx-auto py-2 md:py-4 px-3 md:px-4"
@@ -225,7 +239,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
             variants={profileFadeIn}
           >
             {isMobile ? (
-              // On mobile, display the friends and activity feed in a horizontal layout
               <div className="grid grid-cols-2 gap-3">
                 {profile?.id && (
                   <>
@@ -239,7 +252,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                 )}
               </div>
             ) : (
-              // On desktop, display in the original vertical layout
               <>
                 {profile?.id && (
                   <>
