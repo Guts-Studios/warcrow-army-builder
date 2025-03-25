@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, Clock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import MissionScoring from '@/components/play/MissionScoring';
 import { useGameScoring } from '@/hooks/useGameScoring';
@@ -17,6 +18,7 @@ const Game = () => {
   const [currentRound, setCurrentRound] = useState(1);
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
   const [initiativePlayerId, setInitiativePlayerId] = useState<string>('');
+  const [gameTime, setGameTime] = useState<string>('00:00:00');
   
   const {
     missionScoring,
@@ -31,6 +33,32 @@ const Game = () => {
       navigate('/setup');
     }
   }, [state.currentPhase, navigate]);
+  
+  // Add game timer effect
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (state.gameStartTime) {
+      interval = window.setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - state.gameStartTime!;
+        
+        // Format time as HH:MM:SS
+        const seconds = Math.floor((elapsed / 1000) % 60);
+        const minutes = Math.floor((elapsed / 1000 / 60) % 60);
+        const hours = Math.floor(elapsed / 1000 / 60 / 60);
+        
+        const formattedTime = 
+          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        setGameTime(formattedTime);
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [state.gameStartTime]);
   
   const handleEndGame = () => {
     dispatch({ type: 'SET_PHASE', payload: 'scoring' });
@@ -114,10 +142,14 @@ const Game = () => {
                     <p><strong className="text-warcrow-text">Players:</strong> {Object.values(state.players).map(p => p.name).join(' vs ')}</p>
                     <p><strong className="text-warcrow-text">Current Turn:</strong> {state.currentTurn}</p>
                     <p><strong className="text-warcrow-text">Current Round:</strong> {currentRound} of 3</p>
+                    <p className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2 text-warcrow-gold" />
+                      <strong className="text-warcrow-text">Game Time:</strong> <span className="ml-2 text-warcrow-gold">{gameTime}</span>
+                    </p>
                   </div>
                   
                   {state.mission && getMissionImagePath() && (
-                    <div className="mt-4 md:mt-0 md:ml-4 md:w-1/3 flex-shrink-0">
+                    <div className="mt-4 md:mt-0 md:ml-4 md:w-1/3 flex-shrink-0 flex justify-end">
                       <img 
                         src={getMissionImagePath() || ''} 
                         alt={`${state.mission.name} Map`}
@@ -132,7 +164,7 @@ const Game = () => {
                     <div key={player.id} className="p-4 border rounded-lg border-border/20 bg-black/60">
                       <h3 className="text-lg font-medium mb-2 text-warcrow-gold">{player.name}</h3>
                       <p className="text-warcrow-text"><strong className="text-warcrow-text">Nation:</strong> {typeof player.faction === 'string' ? player.faction : player.faction?.name}</p>
-                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Score:</strong> {player.score || 0}</p>
+                      <p className="text-warcrow-text"><strong className="text-warcrow-text">Victory Points:</strong> {player.score || 0}</p>
                     </div>
                   ))}
                 </div>
@@ -164,7 +196,7 @@ const Game = () => {
                 <Button 
                   onClick={handleScoreRound}
                   size="lg"
-                  className="flex items-center gap-2 px-10 py-6 text-lg"
+                  className="flex items-center gap-2 px-12 py-7 text-lg"
                 >
                   <Star className="h-6 w-6" />
                   <span>Score Round {currentRound}</span>
