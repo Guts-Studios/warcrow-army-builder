@@ -45,11 +45,11 @@ export const ProfileContent = () => {
               )}
             </div>
             
-            {/* Display the WAB ID here, outside of the form but visible whether editing or not */}
+            {/* Display the WAB ID here, with improved visibility */}
             {profile?.wab_id && (
-              <div className="text-center md:text-right">
-                <div className="text-sm text-warcrow-gold/80 font-semibold">Warcrow Army ID:</div>
-                <div className="text-warcrow-gold">{profile.wab_id}</div>
+              <div className="text-center md:text-right p-3 bg-black/30 rounded-md border border-warcrow-gold/20">
+                <div className="text-sm text-warcrow-gold font-semibold">Warcrow Army ID:</div>
+                <div className="text-warcrow-gold text-lg font-mono">{profile.wab_id}</div>
               </div>
             )}
           </div>
