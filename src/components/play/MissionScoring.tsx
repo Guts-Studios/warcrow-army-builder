@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Target, Shield, Cloud, Users } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,10 +29,6 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
   if (mission.id === 'consolidated-progress') {
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
-          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
-          Mission: Consolidated Progress
-        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {Object.entries(players).map(([playerId, player]) => (
             <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
@@ -157,10 +152,6 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
   } else if (mission.id === 'take-positions') {
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
-          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
-          Mission: Take Positions
-        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {Object.entries(players).map(([playerId, player]) => (
             <div key={playerId} className="p-3 border border-warcrow-gold/30 rounded-lg bg-warcrow-accent/50">
@@ -277,10 +268,6 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
     
     return (
       <>
-        <div className="text-sm font-medium mb-2 flex items-center text-warcrow-gold">
-          <Target className="w-4 h-4 mr-1.5 text-warcrow-gold" />
-          Mission: Fog of Death
-        </div>
         <div className="bg-warcrow-accent/30 p-2 rounded-md mb-3 text-xs flex items-center border border-warcrow-gold/20">
           <Cloud className="w-3.5 h-3.5 mr-1.5 text-warcrow-gold" />
           <span className="text-warcrow-text">
