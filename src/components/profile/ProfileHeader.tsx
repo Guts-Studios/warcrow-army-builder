@@ -1,14 +1,10 @@
 
 import { useProfileContext } from "./ProfileData";
 import { NotificationsMenu } from "./NotificationsMenu";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 
 export const ProfileHeader = () => {
   const { profile } = useProfileContext();
-  const navigate = useNavigate();
   
   return (
     <div className="bg-black/50 py-4 border-b border-warcrow-gold/20">
@@ -27,14 +23,6 @@ export const ProfileHeader = () => {
             {profile && profile.id && (
               <NotificationsMenu userId={profile.id} />
             )}
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black md:w-auto"
-              onClick={() => navigate('/landing')}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
           </div>
         </div>
       </div>

@@ -1,13 +1,10 @@
+
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
 import ArmyBuilder from "@/components/army/ArmyBuilder";
 import { supabase } from "@/integrations/supabase/client";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 
 const Index = () => {
-  const navigate = useNavigate();
   const [session, setSession] = React.useState(null);
 
   React.useEffect(() => {
@@ -40,14 +37,6 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-4">
               <NavDropdown />
-              <Button
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-                onClick={() => navigate('/landing')}
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Home
-              </Button>
             </div>
           </div>
         </div>

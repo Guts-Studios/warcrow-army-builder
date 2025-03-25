@@ -1,12 +1,7 @@
 
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 
 export const MissionHeader = () => {
-  const navigate = useNavigate();
-  
   return (
     <div className="bg-black/50 p-4">
       <div className="container mx-auto">
@@ -21,14 +16,6 @@ export const MissionHeader = () => {
           </div>
           <div className="flex items-center gap-4">
             <NavDropdown />
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-              onClick={() => navigate('/landing')}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
           </div>
         </div>
       </div>
