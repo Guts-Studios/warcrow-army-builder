@@ -75,6 +75,19 @@ const Game = () => {
     }
   };
 
+  // Getting the mission image path
+  const getMissionImagePath = () => {
+    if (!state.mission?.title) return null;
+    
+    const MISSION_IMAGES: Record<string, string> = {
+      'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
+      'Take Positions': '/art/missions/take_positions.jpg',
+      'Fog of Death': '/art/missions/fog_of_death.jpg',
+    };
+    
+    return MISSION_IMAGES[state.mission.title] || null;
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="container px-4">
@@ -108,6 +121,17 @@ const Game = () => {
                   <p><strong className="text-warcrow-text">Current Round:</strong> {currentRound} of 3</p>
                 </div>
                 
+                {/* Mission Map Image */}
+                {state.mission && getMissionImagePath() && (
+                  <div className="mb-6">
+                    <img 
+                      src={getMissionImagePath() || ''} 
+                      alt={`${state.mission.name} Map`}
+                      className="w-full rounded-lg shadow-lg object-contain max-h-[200px]"
+                    />
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.values(state.players).map(player => (
                     <div key={player.id} className="p-4 border rounded-lg border-border/20 bg-black/60">
@@ -117,20 +141,24 @@ const Game = () => {
                     </div>
                   ))}
                 </div>
+                
+                {/* Score Round Button - Moved here and made larger */}
+                <div className="flex justify-center mt-8">
+                  <Button 
+                    onClick={handleScoreRound}
+                    size="lg"
+                    className="flex items-center gap-2 px-8 py-3"
+                  >
+                    <Star className="h-5 w-5" />
+                    <span className="text-base">Score Round {currentRound}</span>
+                  </Button>
+                </div>
               </div>
                
               {/* Scoring Section */}
               <div>
                 <div className="flex justify-between items-center mb-4 border-t pt-4 border-border/20">
                   <h2 className="text-xl font-semibold text-warcrow-gold">Round {currentRound} Scoring</h2>
-                  <Button 
-                    onClick={handleScoreRound}
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <Star className="h-4 w-4" />
-                    <span>Score Round {currentRound}</span>
-                  </Button>
                 </div>
                 
                 {state.mission ? (
