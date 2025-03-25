@@ -1,15 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { ProfileFormData } from "@/types/profile";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { ProfileFormData, Profile } from "@/types/profile";
-import { SavedList } from "@/types/army";
+import { useProfileSession } from "./useProfileSession";
+import { useProfileFetch } from "./useProfileFetch";
+import { useProfileUpdate } from "./useProfileUpdate";
+import { useProfileNavigation } from "./useProfileNavigation";
 
 export const useProfileData = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     username: "",
@@ -22,158 +20,25 @@ export const useProfileData = () => {
     wab_id: "",
   });
 
-  // Check if we're running in preview mode
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                  window.location.hostname.endsWith('.lovableproject.com');
+  // Get session information
+  const { isAuthenticated, usePreviewData, userId } = useProfileSession();
 
-  // Get the session to check if user is authenticated
-  const { data: sessionData, error: sessionError } = useQuery({
-    queryKey: ["auth-session"],
-    queryFn: async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      return data;
-    },
-    retry: 1,
+  // Fetch profile data
+  const { profile, isLoading, isError, error } = useProfileFetch({
+    isAuthenticated,
+    usePreviewData,
+    userId
   });
 
-  // Determine if we're authenticated and if we should use preview data
-  const isAuthenticated = !!sessionData?.session?.user;
-  const usePreviewData = isPreview && !isAuthenticated;
-
-  console.log("Auth status:", { isPreview, isAuthenticated, usePreviewData });
-
-  const { data: profile, isLoading, isError, error } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      console.log("Fetching profile data");
-      
-      if (usePreviewData) {
-        console.log("Using preview mode profile data");
-        return {
-          id: "preview-user-id",
-          username: "Preview User",
-          bio: "This is a preview account",
-          location: "Preview Land",
-          favorite_faction: "Hegemony of Embersig",
-          social_discord: "preview#1234",
-          social_twitter: "@previewUser",
-          avatar_url: "/art/portrait/nuada_portrait.jpg",
-          wab_id: "WAB-PREV-MODE-DEMO",
-          games_won: 5,
-          games_lost: 2
-        };
-      }
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("No session found");
-        throw new Error("Not authenticated");
-      }
-
-      console.log("User ID:", session.user.id);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        throw error;
-      }
-      
-      console.log("Profile data:", data);
-      return data;
-    },
-    retry: 1,
-    enabled: usePreviewData || isAuthenticated,
+  // Profile update hooks
+  const { updateProfile } = useProfileUpdate({
+    usePreviewData,
+    profile,
+    onSuccess: () => setIsEditing(false)
   });
 
-  // New function to check if a username already exists
-  const checkUsernameExists = async (username: string, currentUserId: string): Promise<boolean> => {
-    if (!username || username === profile?.username) return false;
-    
-    try {
-      // First, try to use our new database function
-      const { data, error } = await supabase.rpc(
-        'check_username_exists', 
-        { username_to_check: username }
-      );
-      
-      if (error) {
-        console.error("Error checking username with RPC:", error);
-        // Fallback: Query the profiles table directly with case-insensitive match
-        const { data: profilesData, error: profilesError } = await supabase
-          .from("profiles")
-          .select("id")
-          .not("id", "eq", currentUserId) // Exclude current user
-          .ilike("username", username)
-          .maybeSingle();
-          
-        if (profilesError) {
-          console.error("Error checking username:", profilesError);
-          return false;
-        }
-        
-        return !!profilesData;
-      }
-      
-      return data;
-    } catch (err) {
-      console.error("Username check error:", err);
-      return false;
-    }
-  };
-
-  const updateProfile = useMutation({
-    mutationFn: async (updateData: ProfileFormData) => {
-      if (usePreviewData) {
-        console.log("Update skipped in preview mode");
-        return;
-      }
-      
-      console.log("Updating profile with data:", updateData);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.log("No session found during update");
-        throw new Error("Not authenticated");
-      }
-
-      // Check if username already exists (if it was changed)
-      if (updateData.username && updateData.username !== profile?.username) {
-        const exists = await checkUsernameExists(updateData.username, session.user.id);
-        if (exists) {
-          throw new Error("Username already taken. Please choose a different username.");
-        }
-      }
-
-      const { error } = await supabase
-        .from("profiles")
-        .update(updateData)
-        .eq("id", session.user.id);
-
-      if (error) {
-        console.error("Error updating profile:", error);
-        // Handle the unique constraint violation
-        if (error.code === '23505') {
-          throw new Error("Username already taken. Please choose a different username.");
-        }
-        throw error;
-      }
-      
-      console.log("Profile update successful");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      toast.success("Profile updated successfully");
-      setIsEditing(false);
-    },
-    onError: (error) => {
-      console.error("Update profile error:", error);
-      toast.error("Failed to update profile: " + (error as Error).message);
-    },
-  });
+  // Navigation hooks
+  const { handleListSelect } = useProfileNavigation();
 
   useEffect(() => {
     if (profile) {
@@ -216,16 +81,12 @@ export const useProfileData = () => {
     setFormData(updatedData);
   };
 
-  const handleListSelect = (list: SavedList) => {
-    navigate('/builder', { state: { selectedFaction: list.faction, loadList: list } });
-  };
-
   return {
     profile,
     formData,
     isEditing,
     isLoading: isLoading && !usePreviewData,
-    error: isError ? error as Error : null, // Add error to the return object
+    error: isError ? error as Error : null,
     updateProfile,
     setIsEditing,
     handleInputChange,
