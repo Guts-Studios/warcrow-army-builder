@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useFriends } from '@/hooks/useFriends';
 import { useProfileContext } from './ProfileData';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Friend {
   id: string;
@@ -85,8 +86,28 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     }
   };
 
+  // Calculate display height based on number of friends (show up to 10 without scrolling)
+  const getListHeight = () => {
+    if (isCompact) {
+      // For compact view
+      const baseHeight = isMobile ? 240 : 320;
+      return {
+        maxHeight: `${baseHeight}px`,
+        contentHeight: friends.length <= 10 ? 'auto' : `${isMobile ? 220 : 300}px`
+      };
+    } else {
+      // For full view
+      return {
+        maxHeight: 'none',
+        contentHeight: 'auto'
+      };
+    }
+  };
+
+  const { maxHeight, contentHeight } = getListHeight();
+
   return (
-    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 relative ${isCompact ? 'max-h-60 md:max-h-80' : ''}`}>
+    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 relative`} style={{ maxHeight }}>
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-warcrow-gold font-medium text-sm md:text-base">
           Friends {friends.length > 0 && `(${friends.length})`}
@@ -118,7 +139,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
 
       {isLoading ? (
         <div className="space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
               <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
               <div className="space-y-1">
@@ -129,36 +150,38 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
           ))}
         </div>
       ) : (
-        <ul className={`space-y-2 ${isCompact ? 'overflow-y-auto max-h-[120px] md:max-h-[180px]' : ''}`}>
-          {friends.length > 0 ? (
-            friends.map((friend) => (
-              <li key={friend.id} className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
-                  <div>
-                    <div className="font-medium text-warcrow-gold text-xs md:text-sm">{friend.username}</div>
-                    <div className="text-[10px] md:text-xs text-warcrow-text/70">
-                      {onlineStatus[friend.id] ? 'Online' : 'Offline'}
+        <ScrollArea className={`${contentHeight !== 'auto' ? `h-[${contentHeight}]` : ''}`}>
+          <ul className="space-y-2 pr-2">
+            {friends.length > 0 ? (
+              friends.map((friend) => (
+                <li key={friend.id} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+                    <div>
+                      <div className="font-medium text-warcrow-gold text-xs md:text-sm">{friend.username}</div>
+                      <div className="text-[10px] md:text-xs text-warcrow-text/70">
+                        {onlineStatus[friend.id] ? 'Online' : 'Offline'}
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                {isCurrentUser && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs ml-2"
-                    onClick={() => handleRemoveFriend(friend.friendship_id)}
-                  >
-                    <UserMinus className="h-3 w-3" />
-                  </Button>
-                )}
-              </li>
-            ))
-          ) : (
-            <li className="text-warcrow-text/70 text-xs md:text-sm">No friends yet.</li>
-          )}
-        </ul>
+                  
+                  {isCurrentUser && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs ml-2"
+                      onClick={() => handleRemoveFriend(friend.friendship_id)}
+                    >
+                      <UserMinus className="h-3 w-3" />
+                    </Button>
+                  )}
+                </li>
+              ))
+            ) : (
+              <li className="text-warcrow-text/70 text-xs md:text-sm">No friends yet.</li>
+            )}
+          </ul>
+        </ScrollArea>
       )}
     </div>
   );

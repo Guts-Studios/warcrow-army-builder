@@ -1,4 +1,3 @@
-
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { FriendsSection } from "@/components/profile/FriendsSection";
 import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
@@ -16,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { PageHeader } from "@/components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 
 interface ProfileContentProps {
   isOnline?: boolean;
