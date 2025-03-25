@@ -3,16 +3,24 @@ import { ProfileDataProvider, useProfileContext } from "@/components/profile/Pro
 import { ProfileContent } from "@/components/profile/ProfileContent";
 import { LoadingScreen } from "@/components/profile/LoadingScreen";
 import { toast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const ProfileWithData = () => {
   const { isLoading, profile, error } = useProfileContext();
   
-  // Initialize online tracking when profile is loaded
-  // This ensures the current user's online status is tracked
+  // Get the current user ID and any friend IDs to track
   const currentUserId = profile?.id || null;
-  const { onlineStatus } = useOnlineStatus(currentUserId ? [currentUserId] : []);
+  
+  // Create a list of IDs to track online status for (current user + friends if available)
+  const idsToTrack = useMemo(() => {
+    if (!currentUserId) return [];
+    // Just track current user - friends will be handled in their component
+    return [currentUserId];
+  }, [currentUserId]);
+  
+  // Initialize online tracking for current user and their friends
+  const { onlineStatus } = useOnlineStatus(idsToTrack);
   
   // Log current user's online status for debugging
   useEffect(() => {
