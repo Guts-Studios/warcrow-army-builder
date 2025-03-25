@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GameProvider } from "@/context/GameContext";
+
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -44,7 +44,6 @@ function App() {
 
   React.useEffect(() => {
     const setupAuth = async () => {
-      // Check if we're in a password recovery flow by looking at the URL hash
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get('type');
       const accessToken = hashParams.get('access_token');
@@ -53,7 +52,6 @@ function App() {
         console.log('Password recovery flow detected');
         setIsPasswordRecovery(true);
         setIsAuthenticated(false);
-        // Redirect to reset-password page if we're not already there
         if (!window.location.pathname.includes('reset-password')) {
           window.location.href = '/reset-password' + window.location.hash;
         }
@@ -71,7 +69,6 @@ function App() {
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
       setIsAuthenticated(!!session);
       
-      // Check tester role if authenticated
       if (session) {
         try {
           const { data } = await supabase
@@ -114,11 +111,9 @@ function App() {
         return;
       }
 
-      // Don't update auth state during password recovery
       if (!isPasswordRecovery) {
         setIsAuthenticated(!!session);
         
-        // Update tester status on auth change
         if (session) {
           supabase
             .from('profiles')
@@ -128,7 +123,7 @@ function App() {
             .then(({ data }) => {
               setIsTester(!!data?.tester);
             })
-            .catch(error => {
+            .catch((error) => {
               console.error('Error checking tester status:', error);
               setIsTester(false);
             });

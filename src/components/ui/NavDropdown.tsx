@@ -15,14 +15,17 @@ export const NavDropdown = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
   
   useEffect(() => {
     const checkUserRole = async () => {
       // Check for preview mode
-      const isPreview = window.location.hostname === 'lovableproject.com' || 
+      const isPreviewMode = window.location.hostname === 'lovableproject.com' || 
                       window.location.hostname.endsWith('.lovableproject.com');
       
-      if (isPreview) {
+      setIsPreview(isPreviewMode);
+      
+      if (isPreviewMode) {
         setIsTester(true);
         setIsAuthenticated(true);
         return;
