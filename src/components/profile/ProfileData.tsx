@@ -14,7 +14,11 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
     profileData.profile?.id && 
     profileData.profile.id !== "preview-user-id";
     
-  useProfileRealtime(shouldSetupRealtime ? profileData.profile?.id : null);
+  // Pass both the profile ID and whether this is preview mode
+  useProfileRealtime(
+    shouldSetupRealtime ? profileData.profile?.id : null, 
+    profileData.profile?.id === "preview-user-id"
+  );
 
   return (
     <ProfileContext.Provider value={profileData}>

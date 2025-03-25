@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +19,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 export const FriendsSection = ({ userId }: { userId: string }) => {
   const { searchQuery, setSearchQuery, searchResults, isSearching, searchUsers } = useUserSearch();
@@ -44,8 +44,10 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
     acceptFriendRequest, 
     rejectFriendRequest,
     cancelFriendRequest,
-    sendFriendRequest
+    sendFriendRequest,
+    unfriend
   } = useFriends(userId);
+  
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
@@ -60,61 +62,77 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
       await sendFriendRequest(recipientId);
       toast({
         title: "Friend request sent!",
-        description: "Your friend request has been sent.",
+        description: "Your friend request has been sent."
       });
     } catch (error: any) {
       toast({
         title: "Error sending friend request",
         description: error.message || "Failed to send friend request.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
-  const handleAcceptFriendRequest = async (friendRequestId: string) => {
+  const handleAcceptFriendRequest = async (friendshipId: string, senderId: string) => {
     try {
-      await acceptFriendRequest(friendRequestId);
+      await acceptFriendRequest(friendshipId, senderId);
       toast({
         title: "Friend request accepted!",
-        description: "You are now friends.",
+        description: "You are now friends."
       });
     } catch (error: any) {
       toast({
         title: "Error accepting friend request",
         description: error.message || "Failed to accept friend request.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
-  const handleRejectFriendRequest = async (friendRequestId: string) => {
+  const handleRejectFriendRequest = async (friendshipId: string) => {
     try {
-      await rejectFriendRequest(friendRequestId);
+      await rejectFriendRequest(friendshipId);
       toast({
         title: "Friend request rejected",
-        description: "You have rejected the friend request.",
+        description: "You have rejected the friend request."
       });
     } catch (error: any) {
       toast({
         title: "Error rejecting friend request",
         description: error.message || "Failed to reject friend request.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
-  const handleCancelFriendRequest = async (recipientId: string) => {
+  const handleCancelFriendRequest = async (friendshipId: string) => {
     try {
-      await cancelFriendRequest(recipientId);
+      await cancelFriendRequest(friendshipId);
       toast({
         title: "Friend request cancelled",
-        description: "You have cancelled the friend request.",
+        description: "You have cancelled the friend request."
       });
     } catch (error: any) {
       toast({
         title: "Error cancelling friend request",
         description: error.message || "Failed to cancel friend request.",
-        variant: "destructive",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUnfriend = async (friendshipId: string) => {
+    try {
+      await unfriend(friendshipId);
+      toast({
+        title: "Friend removed",
+        description: "You have removed this friend."
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error removing friend",
+        description: error.message || "Failed to remove friend.",
+        variant: "destructive"
       });
     }
   };
@@ -149,10 +167,10 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={user.avatar_url || undefined} alt={user.username || "User"} />
                           <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                            {user.username?.split(' ').map(word => word[0]).join('')}
+                            {user.username?.charAt(0).toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm text-warcrow-text">{user.username}</span>
+                        <span className="text-sm text-warcrow-text">{user.username || "User"}</span>
                       </div>
                       <Button 
                         variant="outline" 
@@ -187,18 +205,18 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={request.requester.avatar_url || undefined} alt={request.requester.username || "User"} />
+                      <AvatarImage src={request.sender_avatar_url || undefined} alt={request.sender_username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {request.requester.username?.split(' ').map(word => word[0]).join('')}
+                        {request.sender_username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{request.requester.username}</span>
+                    <span className="text-sm text-warcrow-text">{request.sender_username || "Anonymous User"}</span>
                   </div>
                   <div className="space-x-2">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => handleAcceptFriendRequest(request.id)}
+                      onClick={() => handleAcceptFriendRequest(request.friendship_id, request.sender_id)}
                       className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
                     >
                       Accept
@@ -206,7 +224,7 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => handleRejectFriendRequest(request.id)}
+                      onClick={() => handleRejectFriendRequest(request.friendship_id)}
                       className="text-warcrow-text hover:bg-black/20"
                     >
                       Reject
@@ -235,10 +253,10 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={friend.avatar_url || undefined} alt={friend.username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {friend.username?.split(' ').map(word => word[0]).join('')}
+                        {friend.username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{friend.username}</span>
+                    <span className="text-sm text-warcrow-text">{friend.username || "Anonymous User"}</span>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -267,21 +285,21 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
         ) : outgoingRequests.length > 0 ? (
           <div className="space-y-2">
             {outgoingRequests.map(request => (
-              <Card key={request.recipient_id} className="bg-black/50 border-warcrow-gold/30">
+              <Card key={request.id} className="bg-black/50 border-warcrow-gold/30">
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={request.recipient.avatar_url || undefined} alt={request.recipient.username || "User"} />
+                      <AvatarImage src={request.recipient_avatar_url || undefined} alt={request.recipient_username || "User"} />
                       <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
-                        {request.recipient.username?.split(' ').map(word => word[0]).join('')}
+                        {request.recipient_username?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-warcrow-text">{request.recipient.username}</span>
+                    <span className="text-sm text-warcrow-text">{request.recipient_username || "Anonymous User"}</span>
                   </div>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => handleCancelFriendRequest(request.recipient_id)}
+                    onClick={() => handleCancelFriendRequest(request.friendship_id)}
                     className="text-warcrow-text hover:bg-black/20"
                   >
                     Cancel Request
@@ -316,11 +334,14 @@ export const FriendsSection = ({ userId }: { userId: string }) => {
               onClick={async () => {
                 if (friends.some(friend => friend.id === selectedUser?.id)) {
                   if (selectedUser?.id) {
-                    await handleCancelFriendRequest(selectedUser.id);
-                    toast({
-                      title: "Friend Removed",
-                      description: `${selectedUser.username} has been removed from your friends.`,
-                    });
+                    const friend = friends.find(f => f.id === selectedUser.id);
+                    if (friend) {
+                      await handleUnfriend(friend.friendship_id);
+                      toast({
+                        title: "Friend Removed",
+                        description: `${selectedUser.username} has been removed from your friends.`,
+                      });
+                    }
                   }
                 } else {
                   if (selectedUser?.id) {

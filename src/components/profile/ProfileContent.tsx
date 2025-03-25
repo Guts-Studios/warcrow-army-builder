@@ -64,7 +64,7 @@ export const ProfileContent = () => {
               <p>Games Lost: {profile?.games_lost || 0}</p>
             </div>
 
-            {profile?.id && profile.id !== "preview-user-id" && (
+            {profile?.id && (
               <div className="space-y-6">
                 <FriendsSection userId={profile.id} />
               </div>
