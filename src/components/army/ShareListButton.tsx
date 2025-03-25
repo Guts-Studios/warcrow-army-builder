@@ -44,8 +44,8 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           const keywords = Array.isArray(unit.keywords) ? unit.keywords : [];
           // Check if the unit has either "Scout" or "Ambusher" keywords
           const hasHiddenKeyword = keywords.some(keyword => {
-            const keywordStr = typeof keyword === 'string' ? keyword : keyword.name;
-            return keywordStr.toLowerCase() === 'scout' || keywordStr.toLowerCase() === 'ambusher';
+            return typeof keyword === 'string' && 
+              (keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher');
           });
           return !hasHiddenKeyword;
         })
@@ -71,8 +71,8 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
       if (typeof list.faction === 'string') {
         return list.faction;
       }
-      // Otherwise, try to get the name property or return Unknown
-      return list.faction?.name || "Unknown Faction";
+      // Otherwise, return Unknown Faction
+      return "Unknown Faction";
     };
 
     // Add print content
