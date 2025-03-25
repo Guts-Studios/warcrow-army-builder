@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -85,7 +86,7 @@ const Game = () => {
           className="space-y-8"
         >
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-primary">Game In Progress</h1>
+            <h1 className="text-3xl font-bold text-warcrow-gold">Game In Progress</h1>
             <Button onClick={handleEndGame}>
               End Game & Score
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -96,7 +97,7 @@ const Game = () => {
             <div className="space-y-8">
               {/* Game Details Section */}
               <div>
-                <h2 className="text-xl font-semibold mb-4 text-primary">Game Information</h2>
+                <h2 className="text-xl font-semibold mb-4 text-warcrow-gold">Game Information</h2>
                 
                 <div className="space-y-2 mb-6 text-warcrow-text">
                   {state.mission && (
@@ -121,7 +122,7 @@ const Game = () => {
               {/* Scoring Section */}
               <div>
                 <div className="flex justify-between items-center mb-4 border-t pt-4 border-border/20">
-                  <h2 className="text-xl font-semibold text-primary">Round {currentRound} Scoring</h2>
+                  <h2 className="text-xl font-semibold text-warcrow-gold">Round {currentRound} Scoring</h2>
                   <Button 
                     onClick={handleScoreRound}
                     size="sm"
