@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +49,7 @@ export const useProfileSession = () => {
   // Determine if we're authenticated and if we should use preview data
   const isAuthenticated = !!sessionData?.session?.user;
   const usePreviewData = isPreview && !isAuthenticated;
+  const userId = sessionData?.session?.user?.id || null;
 
   console.log("Auth status:", { 
     isPreview, 
@@ -64,7 +64,7 @@ export const useProfileSession = () => {
     usePreviewData,
     sessionData,
     sessionError,
-    userId: sessionData?.session?.user?.id,
+    userId,
     sessionChecked
   };
 };

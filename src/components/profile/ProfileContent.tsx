@@ -3,6 +3,7 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { FriendsSection } from "@/components/profile/FriendsSection";
+import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 import { useEffect, useState } from "react";

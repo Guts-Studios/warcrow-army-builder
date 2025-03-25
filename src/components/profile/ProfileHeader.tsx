@@ -7,7 +7,7 @@ import { useProfileSession } from "@/hooks/useProfileSession";
 
 export const ProfileHeader = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useProfileSession();
+  const { isAuthenticated, userId } = useProfileSession();
   
   return (
     <header className="bg-black/50 border-b border-warcrow-gold/20 backdrop-blur-sm">
@@ -36,7 +36,7 @@ export const ProfileHeader = () => {
                 Activity Feed
               </Button>
               
-              <NotificationsMenu />
+              <NotificationsMenu userId={userId || ""} />
             </div>
           )}
         </div>
