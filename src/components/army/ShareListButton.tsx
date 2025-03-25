@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
 import { SavedList } from "@/types/army";
 import { toast } from "sonner";
-import { Share2, Check, Copy } from "lucide-react";
+import { Share2, Check, Copy, Printer } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +35,144 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
       toast.error("Failed to copy link");
       console.error("Failed to copy:", err);
     }
+  };
+
+  const printList = (courtesyList = false) => {
+    // Filter out scout/ambusher units if printing courtesy list
+    const filteredUnits = courtesyList 
+      ? list.units.filter(unit => {
+          const keywords = Array.isArray(unit.keywords) ? unit.keywords : [];
+          // Check if the unit has either "Scout" or "Ambusher" keywords
+          const hasHiddenKeyword = keywords.some(keyword => {
+            const keywordStr = typeof keyword === 'string' ? keyword : keyword.name;
+            return keywordStr.toLowerCase() === 'scout' || keywordStr.toLowerCase() === 'ambusher';
+          });
+          return !hasHiddenKeyword;
+        })
+      : list.units;
+
+    // Calculate totals for the filtered list
+    const totalPoints = filteredUnits.reduce((sum, unit) => 
+      sum + (unit.pointsCost * (unit.quantity || 1)), 0);
+    
+    const totalCommand = filteredUnits.reduce((sum, unit) => 
+      sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error("Failed to open print window. Check your popup blocker.");
+      return;
+    }
+
+    // Get faction name
+    const getFactionName = () => {
+      // If faction is directly a string, return it
+      if (typeof list.faction === 'string') {
+        return list.faction;
+      }
+      // Otherwise, try to get the name property or return Unknown
+      return list.faction?.name || "Unknown Faction";
+    };
+
+    // Add print content
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${courtesyList ? "Courtesy List" : "Full List"} - ${list.name}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 20px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            h1, h2, h3 {
+              color: #333;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+              padding-bottom: 10px;
+              border-bottom: 2px solid #333;
+            }
+            .unit {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .unit-name {
+              font-weight: bold;
+            }
+            .meta {
+              color: #666;
+              font-style: italic;
+            }
+            .command {
+              color: #8a6d3b;
+              margin-left: 5px;
+            }
+            .totals {
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 2px solid #333;
+              font-weight: bold;
+            }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 0.8em;
+              color: #666;
+            }
+            ${courtesyList ? '.notice { color: #8a6d3b; margin-top: 10px; font-style: italic; }' : ''}
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${list.name}</h1>
+            <p>Faction: ${getFactionName()}</p>
+            <p class="meta">Created: ${new Date(list.created_at).toLocaleDateString()}</p>
+            ${courtesyList ? '<p class="notice">Courtesy List - Scout and Ambusher units hidden</p>' : ''}
+          </div>
+
+          <h2>Units</h2>
+          <div class="units">
+            ${filteredUnits.map(unit => `
+              <div class="unit">
+                <div>
+                  <span class="unit-name">${unit.name}</span>
+                  ${unit.highCommand ? ' [High Command]' : ''}
+                  ${unit.command ? `<span class="command">(${unit.command} CP)</span>` : ''}
+                  ${unit.quantity > 1 ? ` ×${unit.quantity}` : ''}
+                </div>
+                <div>${unit.pointsCost * (unit.quantity || 1)} pts</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="totals">
+            <div>Command Points: ${totalCommand} CP</div>
+            <div>Total Points: ${totalPoints} pts</div>
+          </div>
+
+          <div class="footer">
+            <p>Printed from Warcrow Army Builder</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    // Trigger print and close window after printing
+    printWindow.document.close();
+    printWindow.addEventListener('load', () => {
+      printWindow.focus();
+      printWindow.print();
+      // Close window after print
+      printWindow.onafterprint = function() {
+        printWindow.close();
+      };
+    });
   };
 
   return (
@@ -79,6 +216,31 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           <div className="text-sm text-warcrow-text/70 mt-2">
             Anyone with this link can view your army list without needing to log in. 
             <span className="text-warcrow-gold"> The link is now compressed for easier sharing.</span>
+          </div>
+
+          <div className="border-t border-warcrow-gold/20 pt-4 mt-4">
+            <h3 className="text-warcrow-gold font-medium mb-3">Print Options</h3>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <Button
+                onClick={() => printList(false)} 
+                variant="outline"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print Full List
+              </Button>
+              <Button
+                onClick={() => printList(true)}
+                variant="outline"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print Courtesy List
+              </Button>
+            </div>
+            <p className="text-xs text-warcrow-text/70 mt-2">
+              Courtesy List hides units with Scout or Ambusher keywords for tournament play.
+            </p>
           </div>
         </div>
       </DialogContent>

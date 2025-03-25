@@ -5,6 +5,9 @@ import { decodeUrlToList } from "@/utils/shareListUtils";
 import { SavedList } from "@/types/army";
 import { factions } from "@/data/factions";
 import ExportDialog from "@/components/army/ExportDialog";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { toast } from "sonner";
 
 const SharedList = () => {
   const { listCode } = useParams<{ listCode: string }>();
@@ -57,6 +60,136 @@ const SharedList = () => {
     );
   };
 
+  const printList = (courtesyList = false) => {
+    if (!listData) return;
+
+    // Filter out scout/ambusher units if printing courtesy list
+    const filteredUnits = courtesyList 
+      ? listData.units.filter(unit => {
+          const keywords = Array.isArray(unit.keywords) ? unit.keywords : [];
+          // Check if the unit has either "Scout" or "Ambusher" keywords
+          const hasHiddenKeyword = keywords.some(keyword => {
+            const keywordStr = typeof keyword === 'string' ? keyword : keyword.name;
+            return keywordStr.toLowerCase() === 'scout' || keywordStr.toLowerCase() === 'ambusher';
+          });
+          return !hasHiddenKeyword;
+        })
+      : listData.units;
+
+    // Calculate totals for the filtered list
+    const totalPoints = filteredUnits.reduce((sum, unit) => 
+      sum + (unit.pointsCost * (unit.quantity || 1)), 0);
+    
+    const totalCommand = filteredUnits.reduce((sum, unit) => 
+      sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error("Failed to open print window. Check your popup blocker.");
+      return;
+    }
+
+    // Add print content
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${courtesyList ? "Courtesy List" : "Full List"} - ${listData.name}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 20px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            h1, h2, h3 {
+              color: #333;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+              padding-bottom: 10px;
+              border-bottom: 2px solid #333;
+            }
+            .unit {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .unit-name {
+              font-weight: bold;
+            }
+            .meta {
+              color: #666;
+              font-style: italic;
+            }
+            .command {
+              color: #8a6d3b;
+              margin-left: 5px;
+            }
+            .totals {
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 2px solid #333;
+              font-weight: bold;
+            }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 0.8em;
+              color: #666;
+            }
+            ${courtesyList ? '.notice { color: #8a6d3b; margin-top: 10px; font-style: italic; }' : ''}
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${listData.name}</h1>
+            <p>Faction: ${getFactionName(listData.faction)}</p>
+            <p class="meta">Created: ${new Date(listData.created_at).toLocaleDateString()}</p>
+            ${courtesyList ? '<p class="notice">Courtesy List - Scout and Ambusher units hidden</p>' : ''}
+          </div>
+
+          <h2>Units</h2>
+          <div class="units">
+            ${filteredUnits.map(unit => `
+              <div class="unit">
+                <div>
+                  <span class="unit-name">${unit.name}</span>
+                  ${unit.highCommand ? ' [High Command]' : ''}
+                  ${unit.command ? `<span class="command">(${unit.command} CP)</span>` : ''}
+                  ${unit.quantity > 1 ? ` ×${unit.quantity}` : ''}
+                </div>
+                <div>${unit.pointsCost * (unit.quantity || 1)} pts</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="totals">
+            <div>Command Points: ${totalCommand} CP</div>
+            <div>Total Points: ${totalPoints} pts</div>
+          </div>
+
+          <div class="footer">
+            <p>Printed from Warcrow Army Builder</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    // Trigger print and close window after printing
+    printWindow.document.close();
+    printWindow.addEventListener('load', () => {
+      printWindow.focus();
+      printWindow.print();
+      // Close window after print
+      printWindow.onafterprint = function() {
+        printWindow.close();
+      };
+    });
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
@@ -103,7 +236,25 @@ const SharedList = () => {
               <p className="text-warcrow-text/70">Faction: {getFactionName(listData.faction)}</p>
               <p className="text-sm text-warcrow-text/70">Created: {new Date(listData.created_at).toLocaleDateString()}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                onClick={() => printList(false)} 
+                variant="outline"
+                size="sm"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+              >
+                <Printer className="h-4 w-4 mr-1" />
+                Full List
+              </Button>
+              <Button
+                onClick={() => printList(true)}
+                variant="outline"
+                size="sm"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+              >
+                <Printer className="h-4 w-4 mr-1" />
+                Courtesy List
+              </Button>
               <ExportDialog selectedUnits={listData.units} listName={listData.name} />
             </div>
           </div>
