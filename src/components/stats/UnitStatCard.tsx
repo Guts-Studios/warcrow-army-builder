@@ -16,13 +16,13 @@ interface SymbolConfig {
 }
 
 const symbolConfigs: SymbolConfig[] = [
-  { symbol: '🔴', fontChar: 'w', color: '#ea384c' }, // Red symbol
-  { symbol: '🟠', fontChar: 'q', color: '#F97316' }, // Orange symbol
-  { symbol: '🟢', fontChar: '9', color: '#00b300' }, // Green symbol
-  { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol
-  { symbol: '🔵', fontChar: '8', color: '#3b82f6' }, // Blue symbol - updated to a softer blue
-  { symbol: '🟡', fontChar: '0', color: '#fbbf24' }, // Yellow symbol with a warm, readable yellow color
-  { symbol: '⭐', fontChar: '1', color: '#ffd700' }, // Star symbol with gold/yellow color
+  { symbol: '🔴', fontChar: 'w', color: '#FF3850' }, // Red symbol - more vibrant
+  { symbol: '🟠', fontChar: 'q', color: '#FF8C00' }, // Orange symbol - more vibrant
+  { symbol: '🟢', fontChar: '9', color: '#22C55E' }, // Green symbol - more vibrant
+  { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol (keeping as is for contrast)
+  { symbol: '🔵', fontChar: '8', color: '#3B82F6' }, // Blue symbol - more vibrant
+  { symbol: '🟡', fontChar: '0', color: '#FACC15' }, // Yellow symbol - more vibrant
+  { symbol: '⭐', fontChar: '1', color: '#FFD700' }, // Star symbol (keeping gold color)
   // Add more symbols here in the future as needed
 ];
 

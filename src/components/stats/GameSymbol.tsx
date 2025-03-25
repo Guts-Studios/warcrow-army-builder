@@ -40,6 +40,7 @@ export const GameSymbol: React.FC<GameSymbolProps> = ({
       style={{
         fontFeatureSettings: '"liga", "calt", "dlig"',
         textShadow: '0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5)',
+        filter: 'saturate(1.2)', // Add slight saturation boost to all symbols
         ...style
       }}
     >

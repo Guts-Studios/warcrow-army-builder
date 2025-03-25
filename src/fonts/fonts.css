@@ -25,6 +25,7 @@
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Game symbol with stroke - new class for enhanced visibility */
@@ -35,6 +36,7 @@
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
   text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5);
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Alternative class names as mentioned by user */
@@ -44,6 +46,7 @@
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Specific numeric character classes */
@@ -51,6 +54,7 @@
 .WC_6, .WC_7, .WC_8, .WC_9, .WC_0 {
   /* These classes can have specific styling if needed */
   font-family: 'Warcrow', sans-serif;
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Custom usage class as shown in the example */
@@ -58,6 +62,7 @@
   font-family: 'Warcrow', custom;
   font-weight: 400;
   font-style: normal;
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Font with white stroke for better visibility */
@@ -66,6 +71,7 @@
   font-weight: 400;
   font-style: normal;
   text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 3px rgba(255,255,255,0.5);
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
 /* Adding the specific sample-text class from the user's example */
@@ -74,4 +80,5 @@
   font-weight: 400;
   font-style: normal;
   font-size: 32px;
+  filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
