@@ -3,6 +3,7 @@ import { useFriends } from "@/hooks/useFriends";
 import { FriendRequestsSection } from "./FriendRequestsSection";
 import { FriendsListSection } from "./FriendsListSection";
 import { UserSearch } from "./UserSearch";
+import { OutgoingRequestsSection } from "./OutgoingRequestsSection";
 
 interface FriendsSectionProps {
   userId: string;
@@ -13,9 +14,11 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
     friends,
     isLoading,
     incomingRequests,
+    outgoingRequests,
     handleAcceptRequest,
     handleRejectRequest,
-    handleRemoveFriend
+    handleRemoveFriend,
+    handleCancelRequest
   } = useFriends(userId);
 
   return (
@@ -30,6 +33,13 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
           requests={incomingRequests}
           onAccept={handleAcceptRequest}
           onReject={handleRejectRequest}
+        />
+      )}
+
+      {outgoingRequests.length > 0 && (
+        <OutgoingRequestsSection
+          requests={outgoingRequests}
+          onCancel={handleCancelRequest}
         />
       )}
 

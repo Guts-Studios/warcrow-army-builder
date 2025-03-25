@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -174,6 +173,25 @@ export const useFriends = (userId: string) => {
     }
   };
 
+  const handleCancelRequest = async (friendshipId: string) => {
+    try {
+      const { error } = await supabase
+        .from("friendships")
+        .delete()
+        .eq("id", friendshipId);
+      
+      if (error) throw error;
+      
+      // Update the local state
+      setPendingRequests(prev => prev.filter(request => request.friendship_id !== friendshipId));
+      
+      toast.success("Friend request cancelled");
+    } catch (error) {
+      console.error("Error cancelling friend request:", error);
+      toast.error("Failed to cancel friend request");
+    }
+  };
+
   const handleRemoveFriend = async (friendshipId: string) => {
     try {
       const { error } = await supabase
@@ -198,8 +216,10 @@ export const useFriends = (userId: string) => {
     pendingRequests,
     isLoading,
     incomingRequests: pendingRequests.filter(request => !request.is_sender),
+    outgoingRequests: pendingRequests.filter(request => request.is_sender),
     handleAcceptRequest,
     handleRejectRequest,
-    handleRemoveFriend
+    handleRemoveFriend,
+    handleCancelRequest
   };
 };
