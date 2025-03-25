@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -41,11 +42,15 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
     // Filter out scout/ambusher units if printing courtesy list
     const filteredUnits = courtesyList 
       ? list.units.filter(unit => {
-          const keywords = Array.isArray(unit.keywords) ? unit.keywords : [];
           // Check if the unit has either "Scout" or "Ambusher" keywords
-          const hasHiddenKeyword = keywords.some(keyword => {
-            return typeof keyword === 'string' && 
-              (keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher');
+          const hasHiddenKeyword = Array.isArray(unit.keywords) && unit.keywords.some(keyword => {
+            // Handle both string keywords and keyword objects
+            if (typeof keyword === 'string') {
+              return keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher';
+            } else if (keyword && typeof keyword === 'object' && 'name' in keyword) {
+              return keyword.name.toLowerCase() === 'scout' || keyword.name.toLowerCase() === 'ambusher';
+            }
+            return false;
           });
           return !hasHiddenKeyword;
         })
