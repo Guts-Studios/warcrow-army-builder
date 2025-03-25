@@ -83,6 +83,20 @@ export const useProfileComments = (profileId: string | null) => {
     }
     
     try {
+      // Get the current user's username for the notification
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .single();
+        
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+      }
+      
+      const username = userData?.username || 'Someone';
+      
+      // Post the comment
       const { data, error } = await supabase
         .from('profile_comments')
         .insert({
@@ -93,6 +107,28 @@ export const useProfileComments = (profileId: string | null) => {
         .select();
       
       if (error) throw error;
+      
+      // Only create a notification if the comment is on someone else's profile
+      if (userId !== profileId) {
+        // Create a notification for the profile owner
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            recipient_id: profileId,
+            sender_id: userId,
+            type: 'profile_comment',
+            content: {
+              sender_name: username,
+              message: `${username} commented on your profile`,
+              comment_id: data?.[0]?.id,
+              comment_preview: formData.content.trim().substring(0, 50) + (formData.content.length > 50 ? '...' : '')
+            }
+          });
+          
+        if (notificationError) {
+          console.error('Error creating notification:', notificationError);
+        }
+      }
       
       toast.success('Comment posted successfully');
       

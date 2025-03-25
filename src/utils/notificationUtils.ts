@@ -19,6 +19,11 @@ export const formatNotificationContent = (notification: any) => {
     return `${senderName} accepted your friend request`;
   }
   
+  if (notification.type === 'profile_comment') {
+    const senderName = notification.content?.sender_name || 'Someone';
+    return `${senderName} commented on your profile`;
+  }
+  
   return notification.message || notification.content?.message || "New notification";
 };
 
