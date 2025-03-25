@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -152,7 +151,6 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     }
   };
 
-  // Set up real-time subscription for new notifications
   useEffect(() => {
     if (isPreviewId || !userId) return;
 
@@ -187,28 +185,21 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     };
   }, [userId, isPreviewId, queryClient]);
 
-  // Fetch notifications when component mounts or when userId changes
   useEffect(() => {
     if (userId) {
       fetchNotifications();
     }
   }, [userId, triggerRefresh]);
 
-  // Also refetch notifications when we detect a change through the query cache
   useEffect(() => {
-    // Listen for query cache invalidations
-    const unsubscribe = queryClient.getQueryCache().subscribe({
-      onSuccess: (query) => {
-        if (query.queryKey[0] === "notifications") {
-          console.log("Notifications query succeeded, refreshing...");
-          fetchNotifications();
-        }
-      },
-      onError: (error, query) => {
-        if (query.queryKey[0] === "notifications") {
-          console.log("Notifications query error, refreshing...");
-          fetchNotifications();
-        }
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      const notificationsQuery = queryClient
+        .getQueryCache()
+        .findAll(["notifications"]);
+      
+      if (notificationsQuery.length > 0) {
+        console.log("Notifications query cache updated, refreshing...");
+        fetchNotifications();
       }
     });
     
@@ -217,7 +208,6 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
     };
   }, [queryClient, userId]);
 
-  // Handle notification refresh
   const refreshNotifications = () => {
     if (userId) {
       fetchNotifications();
@@ -250,25 +240,21 @@ export const NotificationsMenu = ({ userId }: { userId: string }) => {
   }
 
   const formatNotificationContent = (notification: any) => {
-    // If there's a direct message or content with message property
     if (notification.type === 'direct_message') {
       const senderName = notification.content?.sender_name || 'Someone';
       return `${senderName} sent you a message`;
     }
     
-    // For friend requests
     if (notification.type === 'friend_request') {
       const senderName = notification.content?.sender_name || 'Someone';
       return `${senderName} sent you a friend request`;
     }
     
-    // For friend request accepted
     if (notification.type === 'friend_accepted') {
       const senderName = notification.content?.sender_name || 'Someone';
       return `${senderName} accepted your friend request`;
     }
     
-    // Default fallback for any other type
     return notification.message || notification.content?.message || "New notification";
   };
 
