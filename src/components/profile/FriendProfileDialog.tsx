@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -5,13 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Profile } from "@/types/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { SocialMediaLinks } from "./SocialMediaLinks";
+import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
 
 interface FriendProfileDialogProps {
   friendId: string | null;
@@ -24,26 +23,7 @@ export const FriendProfileDialog = ({
   isOpen,
   onClose,
 }: FriendProfileDialogProps) => {
-  const { data: friendProfile, isLoading, isError, error } = useQuery<Profile | null>({
-    queryKey: ["friendProfile", friendId],
-    queryFn: async () => {
-      if (!friendId) return null;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", friendId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching friend profile:", error);
-        throw error;
-      }
-
-      return data as Profile;
-    },
-    enabled: !!friendId && isOpen,
-  });
+  const { profile: friendProfile, isLoading, isError, error } = useFriendProfileFetch(friendId);
 
   useEffect(() => {
     if (isError && error) {
@@ -128,17 +108,17 @@ export const FriendProfileDialog = ({
         )}
 
         {/* Social Media Links */}
-        {(friendProfile?.social_discord || friendProfile?.social_twitter ||
-          friendProfile?.social_instagram || friendProfile?.social_youtube ||
-          friendProfile?.social_twitch) && (
+        {friendProfile && (friendProfile.social_discord || friendProfile.social_twitter ||
+          friendProfile.social_instagram || friendProfile.social_youtube ||
+          friendProfile.social_twitch) && (
           <div className="mt-4">
             <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
             <SocialMediaLinks
-              social_discord={friendProfile?.social_discord}
-              social_twitter={friendProfile?.social_twitter}
-              social_instagram={friendProfile?.social_instagram}
-              social_youtube={friendProfile?.social_youtube}
-              social_twitch={friendProfile?.social_twitch}
+              social_discord={friendProfile.social_discord}
+              social_twitter={friendProfile.social_twitter}
+              social_instagram={friendProfile.social_instagram}
+              social_youtube={friendProfile.social_youtube}
+              social_twitch={friendProfile.social_twitch}
             />
           </div>
         )}
