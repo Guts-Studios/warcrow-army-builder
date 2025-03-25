@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useFriends, Friend, FriendRequest, OutgoingRequest } from "@/hooks/useFriends";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -17,9 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FriendsSectionProps {
   userId: string;
+  isCompact?: boolean;
 }
 
-export const FriendsSection = ({ userId }: FriendsSectionProps) => {
+export const FriendsSection = ({ userId, isCompact = false }: FriendsSectionProps) => {
   const { isAuthenticated } = useProfileSession();
   const { 
     friends, 
@@ -88,68 +88,73 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
 
   if (!isAuthenticated && userId === "preview-user-id") {
     return (
-      <div className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-6 border border-warcrow-gold/10 shadow-lg">
+      <div className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-warcrow-gold/10 shadow-lg">
         <h2 className="text-xl font-semibold text-warcrow-gold">Friends</h2>
         <p className="text-warcrow-text/70 italic mt-4">You need to be logged in to manage friends</p>
       </div>
     );
   }
 
+  const maxFriendsToShow = isCompact ? 3 : 10;
+  const friendListHeight = isCompact ? "max-h-[200px]" : "max-h-[300px]";
+
   return (
     <motion.div 
-      className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-6 border border-warcrow-gold/10 shadow-lg h-full"
+      className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-warcrow-gold/10 shadow-lg h-full"
       variants={profileFadeIn}
       initial="hidden"
       animate="visible"
     >
-      <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Friends</h2>
+      <h2 className={`${isCompact ? "text-lg" : "text-xl"} font-semibold text-warcrow-gold mb-3`}>Friends</h2>
       
       {isLoading ? (
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-4">
           <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Add Friend Section */}
-          <div className="space-y-2">
-            <h3 className="text-warcrow-gold/90 text-sm">Add Friend</h3>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                value={friendCode}
-                onChange={(e) => setFriendCode(e.target.value)}
-                placeholder="Enter WAB ID or User ID"
-                className="flex-1 bg-black/30 text-warcrow-text border border-warcrow-gold/30 rounded p-2 placeholder:text-warcrow-text/50"
-              />
-              <Button
-                onClick={handleAddFriend}
-                disabled={isSubmitting || !friendCode.trim()}
-                className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
-              >
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4 mr-1" />}
-                Add
-              </Button>
+        <div className="space-y-3">
+          {/* Add Friend Section - Only show in full mode */}
+          {!isCompact && (
+            <div className="space-y-2">
+              <h3 className="text-warcrow-gold/90 text-sm">Add Friend</h3>
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={friendCode}
+                  onChange={(e) => setFriendCode(e.target.value)}
+                  placeholder="Enter WAB ID or User ID"
+                  className="flex-1 bg-black/30 text-warcrow-text border border-warcrow-gold/30 rounded p-2 placeholder:text-warcrow-text/50"
+                />
+                <Button
+                  onClick={handleAddFriend}
+                  disabled={isSubmitting || !friendCode.trim()}
+                  className="bg-warcrow-gold/80 hover:bg-warcrow-gold text-black"
+                >
+                  {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4 mr-1" />}
+                  Add
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Tabs for Friends, Requests, Pending */}
           <Tabs defaultValue="friends" className="w-full" onValueChange={setActiveTab}>
-            <TabsList className="bg-black/20 w-full grid grid-cols-3 border border-warcrow-gold/20">
+            <TabsList className="bg-black/20 w-full grid grid-cols-3 border border-warcrow-gold/20 h-8">
               <TabsTrigger 
                 value="friends" 
-                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+                className="text-xs data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
               >
                 Friends {friends.length > 0 && `(${friends.length})`}
               </TabsTrigger>
               <TabsTrigger 
                 value="requests" 
-                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+                className="text-xs data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
               >
                 Requests {friendRequests.length > 0 && `(${friendRequests.length})`}
               </TabsTrigger>
               <TabsTrigger 
                 value="pending" 
-                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+                className="text-xs data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
               >
                 Pending {outgoingRequests.length > 0 && `(${outgoingRequests.length})`}
               </TabsTrigger>
@@ -160,11 +165,11 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
               variants={profileFadeIn}
               initial="hidden"
               animate="visible"
-              className="pt-4"
+              className="pt-2"
             >
               {/* Friends Tab */}
               <TabsContent value="friends" className="mt-0 space-y-2">
-                {friends.length > 0 && (
+                {!isCompact && friends.length > 0 && (
                   <div className="relative">
                     <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-warcrow-text/50" />
                     <Input
@@ -172,26 +177,28 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                       placeholder="Search friends..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 bg-black/30 border-warcrow-gold/20 placeholder:text-warcrow-text/50"
+                      className="pl-8 bg-black/30 border-warcrow-gold/20 placeholder:text-warcrow-text/50 h-8 text-sm"
                     />
                   </div>
                 )}
                 
                 {friends.length === 0 ? (
-                  <div className="py-6 text-center text-warcrow-text/70 italic bg-black/20 rounded-md">
+                  <div className="py-4 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
                     <p>You haven't added any friends yet</p>
-                    <p className="text-sm mt-1">Use the search box above to find new friends</p>
+                    {!isCompact && (
+                      <p className="text-sm mt-1">Use the search box above to find new friends</p>
+                    )}
                   </div>
                 ) : filteredFriends.length === 0 ? (
-                  <div className="py-6 text-center text-warcrow-text/70 italic bg-black/20 rounded-md">
+                  <div className="py-4 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
                     <p>No friends match your search</p>
                   </div>
                 ) : (
                   <motion.div 
-                    className="space-y-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin"
+                    className={`space-y-1 ${friendListHeight} overflow-y-auto pr-1 scrollbar-thin`}
                     variants={staggerChildren}
                   >
-                    {filteredFriends.map((friend) => (
+                    {filteredFriends.slice(0, maxFriendsToShow).map((friend) => (
                       <motion.div 
                         key={friend.id} 
                         className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10 hover:bg-black/40 transition-colors"
@@ -206,49 +213,61 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                             username={friend.username || "User"}
                             isEditing={false}
                             onAvatarUpdate={() => {}}
-                            size="sm"
+                            size="xs"
                             isOnline={onlineStatus[friend.id]}
                           />
-                          <span className="ml-2 text-warcrow-text">
+                          <span className="ml-2 text-warcrow-text text-xs">
                             {friend.username || "Unnamed User"}
                             {onlineStatus[friend.id] && 
-                              <span className="ml-2 text-green-500 text-xs">Online</span>
+                              <span className="ml-1 text-green-500 text-xs">•</span>
                             }
                           </span>
                         </button>
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedFriendForMessage(friend);
-                              // Show a subtle notification when opening message dialog
-                              toast.info(`Opening chat with ${friend.username || "friend"}`, {
-                                position: "top-right",
-                                duration: 2000
-                              });
-                            }}
-                            className="text-warcrow-gold hover:bg-black/50"
-                          >
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              unfriend(friend.friendship_id);
-                              // Show notification when unfriending
-                              toast.info(`Removed ${friend.username || "friend"} from friends list`, {
-                                position: "top-right"
-                              });
-                            }}
-                            className="border-warcrow-gold/30 text-warcrow-gold hover:bg-red-900/20 hover:text-red-400 hover:border-red-900/30"
-                          >
-                            Remove
-                          </Button>
-                        </div>
+                        {!isCompact && (
+                          <div className="flex gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedFriendForMessage(friend);
+                                toast.info(`Opening chat with ${friend.username || "friend"}`, {
+                                  position: "top-right",
+                                  duration: 2000
+                                });
+                              }}
+                              className="text-warcrow-gold hover:bg-black/50 h-7 w-7 p-0"
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                unfriend(friend.friendship_id);
+                                toast.info(`Removed ${friend.username || "friend"} from friends list`, {
+                                  position: "top-right"
+                                });
+                              }}
+                              className="border-warcrow-gold/30 text-warcrow-gold hover:bg-red-900/20 hover:text-red-400 hover:border-red-900/30 h-7 text-xs"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
                       </motion.div>
                     ))}
+
+                    {isCompact && filteredFriends.length > maxFriendsToShow && (
+                      <div className="text-center mt-1">
+                        <Button 
+                          variant="link" 
+                          className="text-warcrow-gold/80 p-0 h-auto text-xs"
+                          onClick={() => setActiveTab("friends")}
+                        >
+                          Show {filteredFriends.length - maxFriendsToShow} more...
+                        </Button>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </TabsContent>
@@ -256,15 +275,15 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
               {/* Friend Requests Tab */}
               <TabsContent value="requests" className="mt-0">
                 {friendRequests.length === 0 ? (
-                  <div className="py-6 text-center text-warcrow-text/70 italic bg-black/20 rounded-md">
+                  <div className="py-3 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
                     <p>No pending friend requests</p>
                   </div>
                 ) : (
                   <motion.div 
-                    className="space-y-2 max-h-[300px] overflow-y-auto pr-1"
+                    className={`space-y-1 ${friendListHeight} overflow-y-auto pr-1`}
                     variants={staggerChildren}
                   >
-                    {friendRequests.map((request) => (
+                    {friendRequests.slice(0, maxFriendsToShow).map((request) => (
                       <motion.div 
                         key={request.id} 
                         className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10 hover:bg-black/40 transition-colors"
@@ -287,7 +306,6 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                             size="sm"
                             onClick={() => {
                               acceptFriendRequest(request.friendship_id, request.sender_id);
-                              // Show notification when accepting a friend request
                               toast.success(`Accepted friend request from ${request.sender_username || "user"}`, {
                                 position: "top-right"
                               });
@@ -301,7 +319,6 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                             size="sm"
                             onClick={() => {
                               rejectFriendRequest(request.friendship_id);
-                              // Show notification when rejecting a friend request
                               toast.info(`Rejected friend request`, {
                                 position: "top-right"
                               });
@@ -313,6 +330,18 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                         </div>
                       </motion.div>
                     ))}
+
+                    {isCompact && friendRequests.length > maxFriendsToShow && (
+                      <div className="text-center mt-1">
+                        <Button 
+                          variant="link" 
+                          className="text-warcrow-gold/80 p-0 h-auto text-xs"
+                          onClick={() => setActiveTab("requests")}
+                        >
+                          Show {friendRequests.length - maxFriendsToShow} more...
+                        </Button>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </TabsContent>
@@ -320,15 +349,15 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
               {/* Outgoing Requests Tab */}
               <TabsContent value="pending" className="mt-0">
                 {outgoingRequests.length === 0 ? (
-                  <div className="py-6 text-center text-warcrow-text/70 italic bg-black/20 rounded-md">
+                  <div className="py-3 text-center text-warcrow-text/70 italic bg-black/20 rounded-md text-sm">
                     <p>No outgoing friend requests</p>
                   </div>
                 ) : (
                   <motion.div 
-                    className="space-y-2 max-h-[300px] overflow-y-auto pr-1"
+                    className={`space-y-1 ${friendListHeight} overflow-y-auto pr-1`}
                     variants={staggerChildren}
                   >
-                    {outgoingRequests.map((request) => (
+                    {outgoingRequests.slice(0, maxFriendsToShow).map((request) => (
                       <motion.div 
                         key={request.id} 
                         className="flex items-center justify-between p-2 bg-black/30 rounded-md border border-warcrow-gold/10 hover:bg-black/40 transition-colors"
@@ -356,6 +385,18 @@ export const FriendsSection = ({ userId }: FriendsSectionProps) => {
                         </Button>
                       </motion.div>
                     ))}
+
+                    {isCompact && outgoingRequests.length > maxFriendsToShow && (
+                      <div className="text-center mt-1">
+                        <Button 
+                          variant="link" 
+                          className="text-warcrow-gold/80 p-0 h-auto text-xs"
+                          onClick={() => setActiveTab("pending")}
+                        >
+                          Show {outgoingRequests.length - maxFriendsToShow} more...
+                        </Button>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </TabsContent>

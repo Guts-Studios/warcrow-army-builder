@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useFriendActivities, FriendActivity } from "@/hooks/useFriendActivities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getScrollAreaHeight } from "@/lib/utils";
 
 interface FriendActivityFeedProps {
   userId: string;
@@ -108,15 +110,16 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
     );
   }
   
-  const displayActivities = isCompact ? activities.slice(0, 5) : activities;
-  const maxHeight = isCompact ? "max-h-[400px]" : "max-h-[600px]";
+  // Display fewer activities when compact and adjust the scroll area height based on content
+  const displayActivities = isCompact ? activities.slice(0, 3) : activities.slice(0, 8);
+  const scrollAreaHeight = isCompact ? "max-h-[300px]" : getScrollAreaHeight(false, displayActivities.length);
 
   return (
-    <Card className="bg-black/50 border-warcrow-gold/20">
-      <CardHeader className={isCompact ? "p-4" : ""}>
+    <Card className="bg-black/50 border-warcrow-gold/20 h-full flex flex-col">
+      <CardHeader className={isCompact ? "p-3" : "p-4"}>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-warcrow-gold">Friend Activity</CardTitle>
-          {isCompact && activities.length > 5 && (
+          <CardTitle className="text-warcrow-gold text-lg">Friend Activity</CardTitle>
+          {isCompact && activities.length > 3 && (
             <Button 
               variant="link" 
               className="text-warcrow-gold p-0 h-auto"
@@ -127,13 +130,13 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
           )}
         </div>
       </CardHeader>
-      <CardContent className={isCompact ? "p-4 pt-0" : ""}>
+      <CardContent className={`${isCompact ? "p-3 pt-0" : "p-4 pt-0"} flex-1`}>
         {isLoading ? (
-          <div className="flex justify-center py-8">
+          <div className="flex justify-center py-4">
             <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
           </div>
         ) : displayActivities.length === 0 ? (
-          <div className="text-center text-warcrow-text/60">
+          <div className="text-center text-warcrow-text/60 py-4">
             No recent friend activity
             {userId === "preview-user-id" && (
               <div className="text-xs mt-2">
@@ -142,9 +145,9 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
             )}
           </div>
         ) : (
-          <ScrollArea className={maxHeight}>
+          <ScrollArea className={scrollAreaHeight}>
             <motion.div 
-              className="space-y-4 pr-4"
+              className="space-y-3 pr-4"
               variants={staggerChildren}
               initial="hidden"
               animate="visible"
@@ -152,7 +155,7 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
               {displayActivities.map((activity) => (
                 <motion.div 
                   key={activity.id} 
-                  className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
+                  className={`flex items-start gap-2 p-2 rounded-lg transition-colors ${
                     activity.activity_type === 'list_created' 
                       ? 'cursor-pointer hover:bg-warcrow-gold/10' 
                       : ''
@@ -167,14 +170,14 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
                       username={activity.username || "User"}
                       isEditing={false}
                       onAvatarUpdate={() => {}}
-                      size="sm"
+                      size="xs"
                       isOnline={onlineStatus[activity.user_id]}
                     />
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-1">
-                        <span className="font-medium text-warcrow-gold">
+                        <span className="font-medium text-warcrow-gold text-sm">
                           {activity.username || "Unknown User"}
                         </span>
                         {onlineStatus[activity.user_id] && (
@@ -190,25 +193,25 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-warcrow-text/90">
+                    <p className="text-xs text-warcrow-text/90">
                       {getActivityMessage(activity)}
                     </p>
                     
-                    <div className="flex items-center mt-2 space-x-2">
+                    <div className="flex items-center mt-1 space-x-2">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
+                              className="h-6 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleLike(activity.id);
                               }}
                             >
                               <Heart 
-                                className={`h-4 w-4 mr-1 ${likedActivities.has(activity.id) ? 'fill-red-500 text-red-500' : ''}`} 
+                                className={`h-3 w-3 mr-1 ${likedActivities.has(activity.id) ? 'fill-red-500 text-red-500' : ''}`} 
                               />
                               <span className="text-xs">Like</span>
                             </Button>
@@ -225,13 +228,13 @@ export const FriendActivityFeed = ({ userId, isCompact = false }: FriendActivity
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
+                              className="h-6 px-2 text-warcrow-text/60 hover:text-warcrow-gold hover:bg-transparent"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleComment(activity);
                               }}
                             >
-                              <MessageSquare className="h-4 w-4 mr-1" />
+                              <MessageSquare className="h-3 w-3 mr-1" />
                               <span className="text-xs">Comment</span>
                             </Button>
                           </TooltipTrigger>

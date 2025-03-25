@@ -1,3 +1,4 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -16,12 +17,19 @@ export function truncateText(text: string, maxLength: number): string {
 
 export function getScrollAreaHeight(isCompact: boolean = false, itemCount: number = 0): string {
   if (isCompact) {
-    return "max-h-[400px]";
+    return "max-h-[300px]";
   }
   
-  // Adjust height based on item count, but keep within reasonable limits
-  const baseHeight = 600;
-  const adjustedHeight = Math.min(baseHeight, Math.max(300, itemCount * 100));
+  // For activity feed, limit height based on item count
+  if (itemCount > 0) {
+    // Calculate height based on items with padding: approx. 80px per item + some padding
+    const baseItemHeight = 80; 
+    const minHeight = 200;
+    const maxHeight = 500;
+    
+    const calculatedHeight = Math.min(maxHeight, Math.max(minHeight, itemCount * baseItemHeight));
+    return `max-h-[${calculatedHeight}px]`;
+  }
   
-  return `max-h-[${adjustedHeight}px]`;
+  return "max-h-[500px]";
 }

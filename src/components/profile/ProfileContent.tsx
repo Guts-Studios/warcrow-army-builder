@@ -1,4 +1,3 @@
-
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
@@ -37,14 +36,12 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
 
-  // Show toast notification for profile errors
   useEffect(() => {
     if (error) {
       toast.error(`Error loading profile: ${error.message}`);
     }
   }, [error]);
 
-  // Log WAB ID to help debug disappearing issue
   useEffect(() => {
     if (profile?.wab_id) {
       console.log("ProfileContent: WAB ID present:", profile.wab_id);
@@ -53,7 +50,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
     }
   }, [profile]);
 
-  // Function to copy WAB ID to clipboard
   const copyWabIdToClipboard = async () => {
     if (profile?.wab_id) {
       try {
@@ -61,7 +57,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
         setCopied(true);
         toast.success("WAB ID copied to clipboard");
         
-        // Reset the copied state after 2 seconds
         setTimeout(() => {
           setCopied(false);
         }, 2000);
@@ -77,13 +72,12 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
       <ProfileHeader />
 
       <motion.div 
-        className="container max-w-5xl mx-auto py-8 px-4"
+        className="container max-w-5xl mx-auto py-4 px-4"
         variants={staggerChildren}
         initial="hidden"
         animate="visible"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column - Profile information */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">
             <motion.div 
               className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-6 space-y-6 border border-warcrow-gold/10 shadow-lg"
@@ -140,7 +134,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                 </motion.div>
                 
                 <div className="flex-1">
-                  {/* Add a prominent WAB ID display at the top of the right column */}
                   {profile?.wab_id && (
                     <motion.div 
                       className="mb-4 p-3 bg-gradient-to-r from-black/70 to-black/50 rounded-md border border-warcrow-gold/50 shadow-md"
@@ -174,7 +167,6 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                     onCancel={() => setIsEditing(false)}
                   />
                   
-                  {/* Profile completion indicator */}
                   {!isEditing && profile && (
                     <motion.div
                       className="mt-4"
@@ -186,73 +178,68 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                 </div>
               </div>
 
-              {/* Social Media Links Section */}
-              {profile && (profile.social_discord || profile.social_twitter || profile.social_instagram || 
-                profile.social_youtube || profile.social_twitch) && (
-                <motion.div 
-                  className="mt-3"
-                  variants={profileFadeIn}
-                >
-                  <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
-                  <SocialMediaLinks
-                    social_discord={profile.social_discord}
-                    social_twitter={profile.social_twitter}
-                    social_instagram={profile.social_instagram}
-                    social_youtube={profile.social_youtube}
-                    social_twitch={profile.social_twitch}
-                  />
-                </motion.div>
-              )}
+              <motion.div 
+                className="mt-3"
+                variants={profileFadeIn}
+              >
+                <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
+                <SocialMediaLinks
+                  social_discord={profile.social_discord}
+                  social_twitter={profile.social_twitter}
+                  social_instagram={profile.social_instagram}
+                  social_youtube={profile.social_youtube}
+                  social_twitch={profile.social_twitch}
+                />
+              </motion.div>
 
-              {/* Game statistics */}
-              {showStats && profile && (
-                <motion.div 
-                  className="pt-4 border-t border-warcrow-gold/20"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h3 className="text-warcrow-gold/80 font-medium mb-2">Game Statistics</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
-                      <div className="text-2xl font-bold text-warcrow-gold">{profile.games_won}</div>
-                      <div className="text-xs text-warcrow-text/70">Games Won</div>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
-                      <div className="text-2xl font-bold text-warcrow-text/80">{profile.games_lost}</div>
-                      <div className="text-xs text-warcrow-text/70">Games Lost</div>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
-                      <div className="text-2xl font-bold text-green-500">
-                        {profile.games_won + profile.games_lost > 0 
-                          ? Math.round((profile.games_won / (profile.games_won + profile.games_lost)) * 100) 
-                          : 0}%
-                      </div>
-                      <div className="text-xs text-warcrow-text/70">Win Rate</div>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
-                      <div className="text-2xl font-bold text-blue-400">{profile.games_won + profile.games_lost}</div>
-                      <div className="text-xs text-warcrow-text/70">Total Games</div>
-                    </div>
+              <motion.div 
+                className="pt-4 border-t border-warcrow-gold/20"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-warcrow-gold/80 font-medium mb-2">Game Statistics</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                    <div className="text-2xl font-bold text-warcrow-gold">{profile.games_won}</div>
+                    <div className="text-xs text-warcrow-text/70">Games Won</div>
                   </div>
-                </motion.div>
-              )}
+                  <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                    <div className="text-2xl font-bold text-warcrow-text/80">{profile.games_lost}</div>
+                    <div className="text-xs text-warcrow-text/70">Games Lost</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                    <div className="text-2xl font-bold text-green-500">
+                      {profile.games_won + profile.games_lost > 0 
+                        ? Math.round((profile.games_won / (profile.games_won + profile.games_lost)) * 100) 
+                        : 0}%
+                    </div>
+                    <div className="text-xs text-warcrow-text/70">Win Rate</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                    <div className="text-2xl font-bold text-blue-400">{profile.games_won + profile.games_lost}</div>
+                    <div className="text-xs text-warcrow-text/70">Total Games</div>
+                  </div>
+                </div>
+              </motion.div>
 
-              {/* Tabbed content area */}
               <ProfileTabs onListSelect={handleListSelect} />
             </motion.div>
           </div>
           
-          {/* Right column - Friends and Activity */}
           <motion.div 
-            className="space-y-6"
+            className="space-y-4 flex flex-col"
             variants={profileFadeIn}
           >
             {profile?.id && (
               <>
-                <FriendsSection userId={profile.id} />
-                <FriendActivityFeed userId={profile.id} />
+                <div className="flex-shrink">
+                  <FriendsSection userId={profile.id} isCompact={true} />
+                </div>
+                <div className="flex-1">
+                  <FriendActivityFeed userId={profile.id} />
+                </div>
               </>
             )}
           </motion.div>
