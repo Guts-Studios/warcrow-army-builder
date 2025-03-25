@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -70,11 +69,11 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
         })
       : selectedUnits;
 
-    // Calculate totals for the filtered list
-    const totalPoints = filteredUnits.reduce((sum, unit) => 
+    // Calculate totals for ALL units, regardless of filtering
+    const totalPoints = selectedUnits.reduce((sum, unit) => 
       sum + (unit.pointsCost * (unit.quantity || 1)), 0);
     
-    const totalCommand = filteredUnits.reduce((sum, unit) => 
+    const totalCommand = selectedUnits.reduce((sum, unit) => 
       sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
 
     // Create a new window for printing

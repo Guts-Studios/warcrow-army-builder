@@ -33,7 +33,6 @@ const SharedList = () => {
     }
   }, [listCode]);
 
-  // Get faction name from faction ID
   const getFactionName = (factionId: string): string => {
     const faction = factions.find(f => f.id === factionId);
     return faction?.name || "Unknown Faction";
@@ -62,12 +61,9 @@ const SharedList = () => {
   const printList = (courtesyList = false) => {
     if (!listData) return;
 
-    // Filter out scout/ambusher units if printing courtesy list
     const filteredUnits = courtesyList 
       ? listData.units.filter(unit => {
-          // Check if the unit has either "Scout" or "Ambusher" keywords
           const hasHiddenKeyword = Array.isArray(unit.keywords) && unit.keywords.some(keyword => {
-            // Handle both string keywords and keyword objects
             if (typeof keyword === 'string') {
               return keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher';
             } else if (keyword && typeof keyword === 'object' && 'name' in keyword) {
@@ -80,21 +76,18 @@ const SharedList = () => {
         })
       : listData.units;
 
-    // Calculate totals for the filtered list
-    const totalPoints = filteredUnits.reduce((sum, unit) => 
+    const totalPoints = listData.units.reduce((sum, unit) => 
       sum + (unit.pointsCost * (unit.quantity || 1)), 0);
     
-    const totalCommand = filteredUnits.reduce((sum, unit) => 
+    const totalCommand = listData.units.reduce((sum, unit) => 
       sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
 
-    // Create a new window for printing
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast.error("Failed to open print window. Check your popup blocker.");
       return;
     }
 
-    // Add print content
     printWindow.document.write(`
       <html>
         <head>
@@ -182,12 +175,10 @@ const SharedList = () => {
       </html>
     `);
 
-    // Trigger print and close window after printing
     printWindow.document.close();
     printWindow.addEventListener('load', () => {
       printWindow.focus();
       printWindow.print();
-      // Close window after print
       printWindow.onafterprint = function() {
         printWindow.close();
       };
@@ -218,13 +209,11 @@ const SharedList = () => {
     );
   }
 
-  // Calculate total points
   const totalPoints = listData.units.reduce(
     (total, unit) => total + unit.pointsCost * (unit.quantity || 1), 
     0
   );
   
-  // Calculate total command points
   const totalCommand = listData.units.reduce(
     (total, unit) => total + ((unit.command || 0) * (unit.quantity || 1)),
     0
