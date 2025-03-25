@@ -4,7 +4,6 @@ import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ArmyListsSection } from "@/components/profile/ArmyListsSection";
 import { FriendsSection } from "@/components/profile/FriendsSection";
-import { UserSearch } from "@/components/profile/UserSearch";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 
@@ -45,10 +44,6 @@ export const ProfileContent = () => {
                 </Button>
               )}
             </div>
-            
-            {profile?.id && !isEditing && (
-              <UserSearch currentUserId={profile.id} />
-            )}
           </div>
 
           <ProfileForm
