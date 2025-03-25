@@ -11,7 +11,7 @@ interface UseProfileFetchProps {
 }
 
 export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessionChecked }: UseProfileFetchProps) => {
-  const { data: profile, isLoading, isError, error } = useQuery({
+  const { data: profile, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
       console.log("Fetching profile data for user ID:", userId);
@@ -49,14 +49,21 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessi
         throw error;
       }
       
-      console.log("Profile data fetched:", data);
+      // Log the WAB ID specifically to verify it's present in the data
+      console.log("Profile data fetched with WAB ID:", data?.wab_id);
+      
+      if (!data?.wab_id) {
+        console.warn("No WAB ID found in profile data. This may indicate a database issue.");
+      }
+      
       return data as Profile;
     },
     retry: 2,
     retryDelay: 1000,
     // Enable the query only when we've checked the session and either we're in preview mode or authenticated with a userId
     enabled: sessionChecked && (usePreviewData || (isAuthenticated && !!userId)),
+    staleTime: 60000, // Cache profile data for 1 minute to reduce flickering
   });
 
-  return { profile, isLoading, isError, error };
+  return { profile, isLoading, isError, error, refetch };
 };

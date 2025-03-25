@@ -1,8 +1,9 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import ProfileContext from "@/context/ProfileContext";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useProfileRealtime } from "@/hooks/useProfileRealtime";
+import { toast } from "sonner";
 
 export { useProfileContext } from "@/context/ProfileContext";
 
@@ -16,8 +17,16 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   // Pass both the profile ID and whether this is preview mode
   const { isInitialized } = useProfileRealtime(profileId, isPreviewMode);
 
+  // Check for WAB ID and warn if missing
+  useEffect(() => {
+    if (profileData.profile && !profileData.profile.wab_id && !isPreviewMode) {
+      console.error("ProfileDataProvider - WAB ID is missing from profile data:", profileData.profile);
+      toast.error("Your Warcrow Army ID is missing. Please contact support for assistance.");
+    }
+  }, [profileData.profile, isPreviewMode]);
+
   // Log the initialization state for debugging
-  console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized);
+  console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized, "WAB ID present:", !!profileData.profile?.wab_id);
 
   return (
     <ProfileContext.Provider value={profileData}>

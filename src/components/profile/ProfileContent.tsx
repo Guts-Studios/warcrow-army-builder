@@ -6,6 +6,8 @@ import { ArmyListsSection } from "@/components/profile/ArmyListsSection";
 import { FriendsSection } from "@/components/profile/FriendsSection";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const ProfileContent = () => {
   const { 
@@ -17,8 +19,25 @@ export const ProfileContent = () => {
     handleInputChange,
     handleSubmit,
     handleAvatarUpdate,
-    handleListSelect
+    handleListSelect,
+    error
   } = useProfileContext();
+
+  // Show toast notification for profile errors
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error loading profile: ${error.message}`);
+    }
+  }, [error]);
+
+  // Log WAB ID to help debug disappearing issue
+  useEffect(() => {
+    if (profile?.wab_id) {
+      console.log("ProfileContent: WAB ID present:", profile.wab_id);
+    } else {
+      console.warn("ProfileContent: WAB ID missing from profile data");
+    }
+  }, [profile]);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -45,11 +64,12 @@ export const ProfileContent = () => {
               )}
             </div>
             
-            {/* Display the WAB ID here, with improved visibility */}
+            {/* Enhanced WAB ID display with better visibility */}
             {profile?.wab_id && (
-              <div className="text-center md:text-right p-3 bg-black/30 rounded-md border border-warcrow-gold/20">
+              <div className="text-center md:text-right p-3 bg-black/30 rounded-md border border-warcrow-gold/40 shadow-md">
                 <div className="text-sm text-warcrow-gold font-semibold">Warcrow Army ID:</div>
-                <div className="text-warcrow-gold text-lg font-mono">{profile.wab_id}</div>
+                <div className="text-warcrow-gold text-lg font-mono font-bold tracking-wide">{profile.wab_id}</div>
+                <div className="text-xs text-warcrow-gold/70 mt-1">Keep this ID to manage your army lists</div>
               </div>
             )}
           </div>
