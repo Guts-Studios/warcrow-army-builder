@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { decodeUrlToList } from "@/utils/shareListUtils";
@@ -72,7 +71,8 @@ const SharedList = () => {
             if (typeof keyword === 'string') {
               return keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher';
             } else if (keyword && typeof keyword === 'object' && 'name' in keyword) {
-              return keyword.name.toLowerCase() === 'scout' || keyword.name.toLowerCase() === 'ambusher';
+              const keywordObj = keyword as { name: string };
+              return keywordObj.name.toLowerCase() === 'scout' || keywordObj.name.toLowerCase() === 'ambusher';
             }
             return false;
           });

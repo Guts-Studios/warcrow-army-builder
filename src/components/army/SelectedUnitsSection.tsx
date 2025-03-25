@@ -1,8 +1,7 @@
 
-import { SelectedUnit, SavedList } from "@/types/army";
+import { SelectedUnit } from "@/types/army";
 import SelectedUnits from "../SelectedUnits";
-import ExportDialog from "./ExportDialog";
-import ShareListButton from "./ShareListButton";
+import ShareExportButton from "./ShareExportButton";
 
 interface SelectedUnitsSectionProps {
   selectedUnits: SelectedUnit[];
@@ -15,31 +14,36 @@ const SelectedUnitsSection = ({
   currentListName,
   onRemove,
 }: SelectedUnitsSectionProps) => {
-  // Create a temporary SavedList object for the share button
-  const currentList: SavedList = {
-    id: `temp-${Date.now()}`,
-    name: currentListName || "Untitled List",
-    faction: selectedUnits.length > 0 ? selectedUnits[0].faction : "",
-    units: selectedUnits,
-    created_at: new Date().toISOString()
-  };
+  // Get faction from the first unit (if available)
+  const faction = selectedUnits.length > 0 ? selectedUnits[0].faction : "";
 
   return (
     <div className="sticky top-4 z-10 flex flex-col space-y-4 bg-warcrow-background/95 backdrop-blur-sm rounded-lg md:h-[calc(100vh-8rem)]">
-      <div className="block md:hidden">
-        <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
-      </div>
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-warcrow-gold">Selected Units</h2>
         <div className="hidden md:flex gap-2">
           {selectedUnits.length > 0 && currentListName && (
-            <ShareListButton list={currentList} />
+            <ShareExportButton 
+              selectedUnits={selectedUnits} 
+              listName={currentListName}
+              faction={faction}
+            />
           )}
-          <ExportDialog selectedUnits={selectedUnits} listName={currentListName} />
         </div>
       </div>
       <div className="flex-grow overflow-auto pb-4">
         <SelectedUnits selectedUnits={selectedUnits} onRemove={onRemove} />
+      </div>
+      
+      {/* Mobile share button at the bottom */}
+      <div className="block md:hidden">
+        {selectedUnits.length > 0 && currentListName && (
+          <ShareExportButton 
+            selectedUnits={selectedUnits} 
+            listName={currentListName}
+            faction={faction}
+          />
+        )}
       </div>
     </div>
   );

@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
-import { SavedList } from "@/types/army";
+import { SavedList, SelectedUnit } from "@/types/army";
 import { toast } from "sonner";
-import { Share2, Check, Copy, Printer } from "lucide-react";
+import { Share2, Check, Copy, Printer, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,15 +12,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { factions } from "@/data/factions";
 
-interface ShareListButtonProps {
-  list: SavedList;
+interface ShareExportButtonProps {
+  selectedUnits: SelectedUnit[];
+  listName: string | null;
+  faction: string;
 }
 
-const ShareListButton = ({ list }: ShareListButtonProps) => {
+const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButtonProps) => {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const shareableLink = generateShareableLink(list);
+  
+  // Create a temporary SavedList for sharing
+  const tempList: SavedList = {
+    id: `temp-${Date.now()}`,
+    name: listName || "Untitled List",
+    faction: faction,
+    units: selectedUnits,
+    created_at: new Date().toISOString()
+  };
+  
+  const shareableLink = generateShareableLink(tempList);
 
   const copyToClipboard = async () => {
     try {
@@ -41,7 +54,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
   const printList = (courtesyList = false) => {
     // Filter out scout/ambusher units if printing courtesy list
     const filteredUnits = courtesyList 
-      ? list.units.filter(unit => {
+      ? selectedUnits.filter(unit => {
           // Check if the unit has either "Scout" or "Ambusher" keywords
           const hasHiddenKeyword = Array.isArray(unit.keywords) && unit.keywords.some(keyword => {
             // Handle both string keywords and keyword objects
@@ -55,7 +68,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           });
           return !hasHiddenKeyword;
         })
-      : list.units;
+      : selectedUnits;
 
     // Calculate totals for the filtered list
     const totalPoints = filteredUnits.reduce((sum, unit) => 
@@ -73,19 +86,15 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
 
     // Get faction name
     const getFactionName = () => {
-      // If faction is directly a string, return it
-      if (typeof list.faction === 'string') {
-        return list.faction;
-      }
-      // Otherwise, return Unknown Faction
-      return "Unknown Faction";
+      const factionData = factions.find(f => f.id === faction);
+      return factionData?.name || "Unknown Faction";
     };
 
     // Add print content
     printWindow.document.write(`
       <html>
         <head>
-          <title>${courtesyList ? "Courtesy List" : "Full List"} - ${list.name}</title>
+          <title>${courtesyList ? "Courtesy List" : "Full List"} - ${listName || "Untitled List"}</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -136,9 +145,9 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
         </head>
         <body>
           <div class="header">
-            <h1>${list.name}</h1>
+            <h1>${listName || "Untitled List"}</h1>
             <p>Faction: ${getFactionName()}</p>
-            <p class="meta">Created: ${new Date(list.created_at).toLocaleDateString()}</p>
+            <p class="meta">Created: ${new Date().toLocaleDateString()}</p>
             ${courtesyList ? '<p class="notice">Courtesy List - Scout and Ambusher units hidden</p>' : ''}
           </div>
 
@@ -181,6 +190,54 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
     });
   };
 
+  // Export to text functionality
+  const generateExportText = () => {
+    // Sort units to put High Command first
+    const sortedUnits = [...selectedUnits].sort((a, b) => {
+      if (a.highCommand && !b.highCommand) return -1;
+      if (!a.highCommand && b.highCommand) return 1;
+      return 0;
+    });
+    
+    const factionName = factions.find(f => f.id === faction)?.name || "Unknown Faction";
+
+    // Generate list text
+    const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${sortedUnits
+      .map((unit) => {
+        const highCommandLabel = unit.highCommand ? " [High Command]" : "";
+        const commandPoints = unit.command ? ` (${unit.command} CP)` : "";
+        return `${unit.name}${highCommandLabel}${commandPoints} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
+      })
+      .join("\n")}`;
+
+    const totalPoints = selectedUnits.reduce(
+      (total, unit) => total + unit.pointsCost * unit.quantity,
+      0
+    );
+
+    const totalCommand = selectedUnits.reduce(
+      (total, unit) => total + ((unit.command || 0) * unit.quantity),
+      0
+    );
+
+    return `${listText}\n\nTotal Command Points: ${totalCommand}\nTotal Points: ${totalPoints}`;
+  };
+
+  const exportText = generateExportText();
+
+  const handleCopyExport = async () => {
+    try {
+      await navigator.clipboard.writeText(exportText);
+      toast.success("Army list has been copied to your clipboard");
+    } catch (err) {
+      toast.error("Could not copy text to clipboard");
+    }
+  };
+
+  if (selectedUnits.length === 0 || !listName) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -200,7 +257,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
         
         <div className="space-y-4 mt-4">
           <p className="text-warcrow-text">
-            Share this link with others to let them view your "{list.name}" list without logging in:
+            Share this link with others to let them view your "{listName}" list without logging in:
           </p>
           
           <div className="flex items-center gap-2">
@@ -225,28 +282,44 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           </div>
 
           <div className="border-t border-warcrow-gold/20 pt-4 mt-4">
-            <h3 className="text-warcrow-gold font-medium mb-3">Print Options</h3>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <Button
-                onClick={() => printList(false)} 
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Full List
-              </Button>
-              <Button
-                onClick={() => printList(true)}
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Courtesy List
-              </Button>
+            <h3 className="text-warcrow-gold font-medium mb-3">Export Options</h3>
+            <div className="space-y-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <Button
+                  onClick={() => printList(false)} 
+                  variant="outline"
+                  className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Full List
+                </Button>
+                <Button
+                  onClick={() => printList(true)}
+                  variant="outline"
+                  className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Courtesy List
+                </Button>
+              </div>
+              <p className="text-xs text-warcrow-text/70">
+                Courtesy List hides units with Scout or Ambusher keywords for tournament play.
+              </p>
+              
+              <div className="border-t border-warcrow-gold/20 pt-4 mt-2">
+                <h4 className="text-warcrow-gold font-medium mb-2">Export as Text</h4>
+                <pre className="whitespace-pre-wrap bg-warcrow-accent p-4 rounded-lg text-warcrow-text font-mono text-sm max-h-[200px] overflow-y-auto">
+                  {exportText}
+                </pre>
+                <Button
+                  onClick={handleCopyExport}
+                  className="mt-2 bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy to Clipboard
+                </Button>
+              </div>
             </div>
-            <p className="text-xs text-warcrow-text/70 mt-2">
-              Courtesy List hides units with Scout or Ambusher keywords for tournament play.
-            </p>
           </div>
         </div>
       </DialogContent>
@@ -254,4 +327,4 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
   );
 };
 
-export default ShareListButton;
+export default ShareExportButton;
