@@ -283,6 +283,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_username_exists: {
+        Args: {
+          username_to_check: string
+        }
+        Returns: boolean
+      }
       generate_wab_id: {
         Args: Record<PropertyKey, never>
         Returns: string

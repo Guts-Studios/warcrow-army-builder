@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Copy, Check } from "lucide-react";
+import { Loader2, Copy, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -82,7 +82,10 @@ export const ProfileForm = ({
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="username" className="text-warcrow-gold">Username</Label>
+        <Label htmlFor="username" className="text-warcrow-gold flex items-center gap-1">
+          Username
+          {isEditing && <span className="text-xs text-warcrow-gold/70 ml-1">(must be unique)</span>}
+        </Label>
         <Input
           id="username"
           name="username"
@@ -90,7 +93,14 @@ export const ProfileForm = ({
           onChange={onInputChange}
           disabled={!isEditing}
           className={`bg-black/50 ${!isEditing ? "text-warcrow-gold opacity-100" : "text-white"}`}
+          placeholder={isEditing ? "Enter a unique username" : ""}
         />
+        {isEditing && (
+          <p className="text-xs flex items-center gap-1 text-warcrow-gold/70">
+            <AlertCircle className="h-3 w-3" />
+            Usernames must be unique across all users
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
