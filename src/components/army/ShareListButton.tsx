@@ -77,7 +77,8 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           </div>
           
           <div className="text-sm text-warcrow-text/70 mt-2">
-            Anyone with this link can view your army list without needing to log in.
+            Anyone with this link can view your army list without needing to log in. 
+            <span className="text-warcrow-gold"> The link is now compressed for easier sharing.</span>
           </div>
         </div>
       </DialogContent>

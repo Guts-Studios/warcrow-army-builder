@@ -1,8 +1,9 @@
 
 import { SavedList } from "@/types/army";
+import { compress, decompress } from "./compressionUtils";
 
 /**
- * Encodes a list into a URL-safe string
+ * Encodes a list into a URL-safe string with compression
  */
 export const encodeListToUrl = (list: SavedList): string => {
   // Convert list to a serialized string
@@ -13,13 +14,8 @@ export const encodeListToUrl = (list: SavedList): string => {
     created_at: list.created_at
   });
   
-  // Encode to Base64 and make URL safe
-  const encodedData = btoa(listData)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-  
-  return encodedData;
+  // Compress and encode the data
+  return compress(listData);
 };
 
 /**
@@ -27,13 +23,8 @@ export const encodeListToUrl = (list: SavedList): string => {
  */
 export const decodeUrlToList = (encodedUrl: string): SavedList | null => {
   try {
-    // Restore proper Base64 format
-    const sanitizedData = encodedUrl
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
-    
-    // Decode from Base64
-    const jsonString = atob(sanitizedData);
+    // Decompress the data
+    const jsonString = decompress(encodedUrl);
     const listData = JSON.parse(jsonString);
     
     // Create a temporary ID if none exists
