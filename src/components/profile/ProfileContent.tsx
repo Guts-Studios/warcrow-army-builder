@@ -3,6 +3,8 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ArmyListsSection } from "@/components/profile/ArmyListsSection";
+import { FriendsSection } from "@/components/profile/FriendsSection";
+import { UserSearch } from "@/components/profile/UserSearch";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
 
@@ -25,21 +27,27 @@ export const ProfileContent = () => {
 
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <div className="bg-black/50 rounded-lg p-6 space-y-6">
-          <div className="flex flex-col items-center space-y-4">
-            <ProfileAvatar
-              avatarUrl={formData.avatar_url}
-              username={formData.username}
-              isEditing={isEditing}
-              onAvatarUpdate={handleAvatarUpdate}
-            />
-            {!isEditing && (
-              <Button 
-                onClick={() => setIsEditing(true)}
-                variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-              >
-                Edit Profile
-              </Button>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div className="flex flex-col items-center space-y-4">
+              <ProfileAvatar
+                avatarUrl={formData.avatar_url}
+                username={formData.username}
+                isEditing={isEditing}
+                onAvatarUpdate={handleAvatarUpdate}
+              />
+              {!isEditing && (
+                <Button 
+                  onClick={() => setIsEditing(true)}
+                  variant="outline"
+                  className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+                >
+                  Edit Profile
+                </Button>
+              )}
+            </div>
+            
+            {profile?.id && !isEditing && (
+              <UserSearch currentUserId={profile.id} />
             )}
           </div>
 
@@ -61,7 +69,13 @@ export const ProfileContent = () => {
               <p>Games Lost: {profile?.games_lost || 0}</p>
             </div>
 
-            <div className="space-y-4">
+            {profile?.id && (
+              <div className="space-y-6">
+                <FriendsSection userId={profile.id} />
+              </div>
+            )}
+
+            <div className="mt-6 space-y-4">
               <h2 className="text-xl font-semibold text-warcrow-gold">My Army Lists</h2>
               <ArmyListsSection onListSelect={handleListSelect} />
             </div>

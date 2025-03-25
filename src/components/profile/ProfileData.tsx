@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +54,6 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
     wab_id: "",
   });
 
-  // Detect if in preview mode
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                   window.location.hostname.endsWith('.lovableproject.com');
 
@@ -64,7 +62,6 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
     queryFn: async () => {
       console.log("Fetching profile data");
       
-      // If in preview mode, return mock profile data with a WAB ID
       if (isPreview) {
         console.log("Using preview mode profile data");
         return {
@@ -104,7 +101,7 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
       return data;
     },
     retry: 1,
-    enabled: !isPreview, // Only run the query if not in preview mode
+    enabled: !isPreview,
   });
 
   const updateProfile = useMutation({
@@ -145,7 +142,6 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    // If in preview mode, set form data to mock data immediately
     if (isPreview) {
       setFormData({
         username: "Preview User",
@@ -178,6 +174,47 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
       toast.error("Failed to load profile: " + (error as Error).message);
     }
   }, [isError, error]);
+
+  useEffect(() => {
+    if (profile?.id && !isPreview) {
+      const notificationsChannel = supabase
+        .channel('notifications-channel')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `recipient_id=eq.${profile.id}`
+          },
+          (payload) => {
+            console.log('New notification received:', payload);
+          }
+        )
+        .subscribe();
+
+      const friendshipsChannel = supabase
+        .channel('friendships-channel')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'friendships',
+            filter: `or(sender_id.eq.${profile.id},recipient_id.eq.${profile.id})`
+          },
+          (payload) => {
+            console.log('Friendship change:', payload);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(notificationsChannel);
+        supabase.removeChannel(friendshipsChannel);
+      };
+    }
+  }, [profile?.id, isPreview]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

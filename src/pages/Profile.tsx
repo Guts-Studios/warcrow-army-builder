@@ -3,6 +3,7 @@ import { ProfileDataProvider } from "@/components/profile/ProfileData";
 import { ProfileContent } from "@/components/profile/ProfileContent";
 import { LoadingScreen } from "@/components/profile/LoadingScreen";
 import { useProfileContext } from "@/components/profile/ProfileData";
+import { Toaster } from "sonner";
 
 const ProfileWithData = () => {
   const { isLoading } = useProfileContext();
@@ -18,6 +19,7 @@ const Profile = () => {
   return (
     <ProfileDataProvider>
       <ProfileWithData />
+      <Toaster position="top-right" />
     </ProfileDataProvider>
   );
 };

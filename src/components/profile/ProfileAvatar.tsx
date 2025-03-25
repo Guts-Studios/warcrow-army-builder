@@ -1,139 +1,95 @@
 
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, ImageIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { PortraitSelector } from "./PortraitSelector";
+import { PencilIcon } from "lucide-react";
+
+const PORTRAIT_OPTIONS = [
+  "/art/portrait/namaoin_portrait.jpg",
+  "/art/portrait/nayra_caladren_portrait.jpg",
+  "/art/portrait/naergon_caladren_portrait.jpg",
+  "/art/portrait/dragoslav_portrait.jpg",
+  "/art/portrait/amelia_hellbroth_portrait.jpg",
+  "/art/portrait/aide_portrait.jpg",
+  "/art/portrait/nuada_portrait.jpg"
+];
 
 interface ProfileAvatarProps {
   avatarUrl: string | null;
   username: string | null;
   isEditing: boolean;
   onAvatarUpdate: (url: string) => void;
+  size?: "default" | "sm" | "lg";
 }
 
-export const ProfileAvatar = ({ 
-  avatarUrl, 
-  username, 
-  isEditing, 
-  onAvatarUpdate 
+export const ProfileAvatar = ({
+  avatarUrl,
+  username,
+  isEditing,
+  onAvatarUpdate,
+  size = "default"
 }: ProfileAvatarProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [isPortraitDialogOpen, setIsPortraitDialogOpen] = useState(false);
-
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file size (max 5MB)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size must be less than 5MB");
-      return;
-    }
-
-    // Check file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Please upload an image file (JPEG, PNG, GIF, or WEBP)");
-      return;
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("You must be logged in to upload an avatar");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
-
-      onAvatarUpdate(publicUrl);
-      toast.success("Avatar uploaded successfully");
-    } catch (error) {
-      toast.error("Failed to upload avatar: " + (error as Error).message);
-    } finally {
-      setIsUploading(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const getSize = () => {
+    switch (size) {
+      case "sm": return "h-10 w-10";
+      case "lg": return "h-24 w-24";
+      default: return "h-16 w-16";
     }
   };
-
-  const handleSelectPortrait = (url: string) => {
-    onAvatarUpdate(url);
-    toast.success("Portrait selected as avatar");
+  
+  const getInitials = (name: string | null) => {
+    if (!name) return "?";
+    const initials = name.match(/\b\w/g) || [];
+    return ((initials.shift() || "") + (initials.pop() || "")).toUpperCase();
   };
 
   return (
-    <div className="relative group">
-      <Avatar className="h-24 w-24">
-        <AvatarImage src={avatarUrl || undefined} />
-        <AvatarFallback className="bg-warcrow-gold text-black text-xl">
-          {username?.[0]?.toUpperCase() || "?"}
+    <div className="relative">
+      <Avatar className={`${getSize()} border-2 border-warcrow-gold`}>
+        <AvatarImage src={avatarUrl || undefined} alt={username || "User"} />
+        <AvatarFallback className="bg-warcrow-gold/20 text-warcrow-gold">
+          {getInitials(username)}
         </AvatarFallback>
       </Avatar>
       
       {isEditing && (
-        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 flex gap-2">
-          <label 
-            htmlFor="avatar-upload" 
-            className="cursor-pointer"
-          >
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="bg-blue-500 border-blue-600 text-white hover:bg-blue-600 hover:border-blue-700 hover:text-white"
-              disabled={isUploading}
-            >
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Upload className="h-4 w-4 mr-1" />
-              )}
-              Upload
-            </Button>
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              className="hidden"
-              onChange={handleAvatarUpload}
-              disabled={isUploading}
-            />
-          </label>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="bg-purple-500 border-purple-600 text-white hover:bg-purple-600 hover:border-purple-700 hover:text-white"
-            onClick={() => setIsPortraitDialogOpen(true)}
-          >
-            <ImageIcon className="h-4 w-4 mr-1" />
-            Portraits
-          </Button>
-        </div>
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={() => setIsDialogOpen(true)}
+          className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full border-warcrow-gold bg-black hover:bg-black"
+        >
+          <PencilIcon className="h-3 w-3 text-warcrow-gold" />
+        </Button>
       )}
       
-      <PortraitSelector 
-        open={isPortraitDialogOpen}
-        onOpenChange={setIsPortraitDialogOpen}
-        onSelectPortrait={handleSelectPortrait}
-      />
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-black/90 border-warcrow-gold text-warcrow-text">
+          <DialogHeader>
+            <DialogTitle className="text-warcrow-gold">Choose an Avatar</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            {PORTRAIT_OPTIONS.map((portrait) => (
+              <div
+                key={portrait}
+                className={`cursor-pointer rounded-md overflow-hidden border-2 hover:border-warcrow-gold transition-all ${
+                  avatarUrl === portrait ? "border-warcrow-gold" : "border-transparent"
+                }`}
+                onClick={() => {
+                  onAvatarUpdate(portrait);
+                  setIsDialogOpen(false);
+                }}
+              >
+                <img src={portrait} alt="Avatar option" className="w-full h-auto aspect-square object-cover" />
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
