@@ -2,17 +2,18 @@
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { ArmyListsSection } from "@/components/profile/ArmyListsSection";
 import { FriendsSection } from "@/components/profile/FriendsSection";
-import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
-import { ProfileComments } from "@/components/profile/ProfileComments";
 import { Button } from "@/components/ui/button";
 import { useProfileContext } from "./ProfileData";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { Copy, Check, Edit } from "lucide-react";
 import { SocialMediaLinks } from "./SocialMediaLinks";
+import { ProfileCompletionIndicator } from "./ProfileCompletionIndicator";
+import { ProfileTabs } from "./ProfileTabs";
+import { motion } from "framer-motion";
+import { profileFadeIn, staggerChildren } from "./animations";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileContentProps {
   isOnline?: boolean;
@@ -33,6 +34,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   } = useProfileContext();
 
   const [copied, setCopied] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   // Show toast notification for profile errors
   useEffect(() => {
@@ -70,16 +72,27 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text bg-gradient-to-b from-black/60 to-transparent">
       <ProfileHeader />
 
-      <div className="container max-w-5xl mx-auto py-8 px-4">
+      <motion.div 
+        className="container max-w-5xl mx-auto py-8 px-4"
+        variants={staggerChildren}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Profile information */}
           <div className="lg:col-span-2">
-            <div className="bg-black/50 rounded-lg p-6 space-y-6">
+            <motion.div 
+              className="bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-6 space-y-6 border border-warcrow-gold/10 shadow-lg"
+              variants={profileFadeIn}
+            >
               <div className="flex flex-col md:flex-row md:items-start gap-6">
-                <div className="flex flex-col items-center space-y-4">
+                <motion.div 
+                  className="flex flex-col items-center space-y-4"
+                  variants={profileFadeIn}
+                >
                   <ProfileAvatar
                     avatarUrl={profile?.avatar_url || formData.avatar_url}
                     username={profile?.username || formData.username}
@@ -88,7 +101,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                     isOnline={isOnline}
                   />
                   
-                  {profile?.username && (
+                  {profile?.username ? (
                     <div className="text-center">
                       <h2 className="text-xl font-semibold text-warcrow-gold">
                         {profile.username}
@@ -98,23 +111,40 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                         <span className="text-warcrow-text/70">{isOnline ? 'Online' : 'Offline'}</span>
                       </div>
                     </div>
+                  ) : (
+                    <div className="text-center space-y-2">
+                      <Skeleton className="h-6 w-32 bg-warcrow-gold/10" />
+                      <Skeleton className="h-4 w-20 mx-auto bg-warcrow-gold/10" />
+                    </div>
                   )}
                   
                   {!isEditing && (
                     <Button 
                       onClick={() => setIsEditing(true)}
                       variant="outline"
-                      className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+                      className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:border-warcrow-gold transition-colors"
                     >
+                      <Edit className="h-4 w-4 mr-2" />
                       Edit Profile
                     </Button>
                   )}
-                </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="border-warcrow-gold/50 text-warcrow-gold/80 hover:bg-warcrow-gold/10 hover:border-warcrow-gold transition-colors"
+                    onClick={() => setShowStats(!showStats)}
+                  >
+                    {showStats ? 'Hide Stats' : 'Show Stats'}
+                  </Button>
+                </motion.div>
                 
                 <div className="flex-1">
                   {/* Add a prominent WAB ID display at the top of the right column */}
                   {profile?.wab_id && (
-                    <div className="mb-4 p-3 bg-black/70 rounded-md border border-warcrow-gold/50 shadow-md">
+                    <motion.div 
+                      className="mb-4 p-3 bg-gradient-to-r from-black/70 to-black/50 rounded-md border border-warcrow-gold/50 shadow-md"
+                      variants={profileFadeIn}
+                    >
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-warcrow-gold font-semibold">Warcrow Army Builder ID:</span>
                         <Button 
@@ -128,7 +158,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                       </div>
                       <div className="text-warcrow-gold font-mono text-lg tracking-wide mt-1">{profile.wab_id}</div>
                       <div className="text-xs text-warcrow-gold/70 mt-1">Use this ID to link your army lists</div>
-                    </div>
+                    </motion.div>
                   )}
 
                   <ProfileForm
@@ -142,13 +172,26 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                     onSubmit={handleSubmit}
                     onCancel={() => setIsEditing(false)}
                   />
+                  
+                  {/* Profile completion indicator */}
+                  {!isEditing && profile && (
+                    <motion.div
+                      className="mt-4"
+                      variants={profileFadeIn}
+                    >
+                      <ProfileCompletionIndicator profile={profile} />
+                    </motion.div>
+                  )}
                 </div>
               </div>
 
               {/* Social Media Links Section */}
-              {(profile.social_discord || profile.social_twitter || profile.social_instagram || 
+              {profile && (profile.social_discord || profile.social_twitter || profile.social_instagram || 
                 profile.social_youtube || profile.social_twitch) && (
-                <div className="mt-3">
+                <motion.div 
+                  className="mt-3"
+                  variants={profileFadeIn}
+                >
                   <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
                   <SocialMediaLinks
                     social_discord={profile.social_discord}
@@ -157,41 +200,63 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                     social_youtube={profile.social_youtube}
                     social_twitch={profile.social_twitch}
                   />
-                </div>
+                </motion.div>
               )}
 
-              <div className="pt-4 border-t border-warcrow-gold/20">
-                <div className="text-sm text-warcrow-gold/60 mb-4">
-                  <p>Games Won: {profile?.games_won || 0}</p>
-                  <p>Games Lost: {profile?.games_lost || 0}</p>
-                </div>
-
-                <div className="mt-6 space-y-4">
-                  <h2 className="text-xl font-semibold text-warcrow-gold">My Army Lists</h2>
-                  <ArmyListsSection onListSelect={handleListSelect} />
-                </div>
-                
-                {/* Add the ProfileComments section */}
-                {profile?.id && (
-                  <div className="mt-6 pt-6 border-t border-warcrow-gold/20">
-                    <ProfileComments profileId={profile.id} />
+              {/* Game statistics */}
+              {showStats && profile && (
+                <motion.div 
+                  className="pt-4 border-t border-warcrow-gold/20"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <h3 className="text-warcrow-gold/80 font-medium mb-2">Game Statistics</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                      <div className="text-2xl font-bold text-warcrow-gold">{profile.games_won}</div>
+                      <div className="text-xs text-warcrow-text/70">Games Won</div>
+                    </div>
+                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                      <div className="text-2xl font-bold text-warcrow-text/80">{profile.games_lost}</div>
+                      <div className="text-xs text-warcrow-text/70">Games Lost</div>
+                    </div>
+                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                      <div className="text-2xl font-bold text-green-500">
+                        {profile.games_won + profile.games_lost > 0 
+                          ? Math.round((profile.games_won / (profile.games_won + profile.games_lost)) * 100) 
+                          : 0}%
+                      </div>
+                      <div className="text-xs text-warcrow-text/70">Win Rate</div>
+                    </div>
+                    <div className="bg-black/30 p-3 rounded-md border border-warcrow-gold/10">
+                      <div className="text-2xl font-bold text-blue-400">{profile.games_won + profile.games_lost}</div>
+                      <div className="text-xs text-warcrow-text/70">Total Games</div>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
+                </motion.div>
+              )}
+
+              {/* Tabbed content area */}
+              <ProfileTabs onListSelect={handleListSelect} />
+            </motion.div>
           </div>
           
           {/* Right column - Friends and Activity */}
-          <div className="space-y-6">
+          <motion.div 
+            className="space-y-6"
+            variants={profileFadeIn}
+          >
             {profile?.id && (
               <>
                 <FriendsSection userId={profile.id} />
                 <FriendActivityFeed userId={profile.id} />
               </>
             )}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,177 +1,47 @@
-import * as React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from "@/components/auth/AuthProvider";
 
-// Import all page components
-import Index from '@/pages/Index';
-import Landing from '@/pages/Landing';
-import Login from '@/pages/Login';
-import ResetPassword from '@/pages/ResetPassword';
-import Rules from '@/pages/Rules';
-import Missions from '@/pages/Missions';
-import Mail from '@/pages/Mail';
-import Profile from '@/pages/Profile';
-import AboutUs from '@/pages/AboutUs';
-import UnitStats from '@/pages/UnitStats';
-import Play from '@/pages/Play';
-import Setup from '@/pages/Setup';
-import Deployment from '@/pages/Deployment';
-import Game from '@/pages/Game';
-import Summary from '@/pages/Summary';
-import NotFound from '@/pages/NotFound';
+import { Route, Routes } from "react-router-dom";
+import Index from "@/pages/Index";
+import Profile from "@/pages/Profile";
+import Login from "@/pages/Login";
+import NotFound from "@/pages/NotFound";
+import ResetPassword from "@/pages/ResetPassword";
+import Rules from "@/pages/Rules";
+import UnitStats from "@/pages/UnitStats";
+import Game from "@/pages/Game";
+import Setup from "@/pages/Setup";
+import Play from "@/pages/Play";
+import Deployment from "@/pages/Deployment";
+import Scoring from "@/pages/Scoring";
+import Summary from "@/pages/Summary";
+import Missions from "@/pages/Missions";
+import Mail from "@/pages/Mail";
 import SharedList from "@/pages/SharedList";
+import AboutUs from "@/pages/AboutUs";
+import Activity from "@/pages/Activity";
+import Landing from "@/pages/Landing";
 
-export const AppRoutes: React.FC = () => {
-  const { isAuthenticated, isGuest, isPasswordRecovery, isTester } = useAuth();
-  
-  // Determine if we should show a loading state
-  const isLoading = isAuthenticated === null && 
-    !window.location.hostname.endsWith('.lovableproject.com') && 
-    !isPasswordRecovery;
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com');
-
+export function AppRoutes() {
   return (
     <Routes>
-      <Route 
-        path="/reset-password" 
-        element={<ResetPassword />} 
-      />
-      <Route 
-        path="/login" 
-        element={
-          isAuthenticated && !isPasswordRecovery ? (
-            <Navigate to="/landing" replace />
-          ) : (
-            <Login onGuestAccess={() => {}} />
-          )
-        } 
-      />
-      <Route 
-        path="/" 
-        element={<Navigate to="/landing" replace />} 
-      />
-      <Route 
-        path="/landing" 
-        element={<Landing />} 
-      />
-      <Route 
-        path="/builder" 
-        element={
-          isPreview || isAuthenticated || isGuest ? (
-            <Index />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/rules" 
-        element={<Rules />} 
-      />
-      <Route 
-        path="/missions" 
-        element={<Missions />} 
-      />
-      <Route 
-        path="/mail" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Mail />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/profile" 
-        element={
-          (isPreview || (isAuthenticated && isTester && !isGuest)) ? (
-            <Profile />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/unit-stats" 
-        element={
-          isPreview || isAuthenticated ? (
-            <UnitStats />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/play" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Play />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/setup" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Setup />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/deployment" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Deployment />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/game" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Game />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/summary" 
-        element={
-          isPreview || isAuthenticated ? (
-            <Summary />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } 
-      />
-      <Route 
-        path="/about" 
-        element={<AboutUs />} 
-      />
-      <Route 
-        path="/shared-list/:listCode" 
-        element={<SharedList />} 
-      />
-      <Route 
-        path="*" 
-        element={<NotFound />} 
-      />
+      <Route path="/" element={<Landing />} />
+      <Route path="/builder" element={<Index />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/activity" element={<Activity />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/rules" element={<Rules />} />
+      <Route path="/unit-stats" element={<UnitStats />} />
+      <Route path="/game" element={<Game />} />
+      <Route path="/setup" element={<Setup />} />
+      <Route path="/play/:gameId" element={<Play />} />
+      <Route path="/deployment/:gameId" element={<Deployment />} />
+      <Route path="/scoring/:gameId" element={<Scoring />} />
+      <Route path="/summary/:gameId" element={<Summary />} />
+      <Route path="/missions" element={<Missions />} />
+      <Route path="/mail" element={<Mail />} />
+      <Route path="/shared-list/:id" element={<SharedList />} />
+      <Route path="/about" element={<AboutUs />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
-};
-
-export default AppRoutes;
+}
