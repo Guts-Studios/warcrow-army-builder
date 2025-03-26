@@ -102,8 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       if (!session && !isPreview) {
-        toast({
-          title: "Offline Mode",
+        toast('Offline Mode', {
           description: "You are in offline mode. Cloud features like saving lists will not be available.",
           duration: 5000,
         });
@@ -128,26 +127,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      if (event === 'SIGNED_UP') {
-        console.log('User signed up, email confirmation status:', {
+      if (event === 'SIGNED_UP' || event === 'USER_UPDATED') {
+        console.log('User signed up or updated, email confirmation status:', {
           email: session?.user?.email,
           confirmed: !!session?.user?.email_confirmed_at
         });
         
-        if (!session?.user?.email_confirmed_at) {
-          toast({
-            title: "Verification Email Sent",
+        if (event === 'SIGNED_UP' && !session?.user?.email_confirmed_at) {
+          toast('Verification Email Sent', {
             description: "Please check your email to confirm your account. Check your spam folder if you don't see it.",
             duration: 8000,
           });
         }
-      }
-
-      if (event === 'USER_UPDATED') {
-        console.log('User updated event, email confirmation status:', {
-          email: session?.user?.email,
-          confirmed: !!session?.user?.email_confirmed_at
-        });
       }
 
       if (!isPasswordRecovery) {
