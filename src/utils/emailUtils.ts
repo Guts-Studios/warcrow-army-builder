@@ -121,11 +121,45 @@ export const checkDomainVerificationStatus = async () => {
   }
 };
 
-// Make test function available globally for testing
+// Function to resend confirmation emails to unconfirmed users
+export const resendAllPendingConfirmationEmails = async () => {
+  try {
+    console.log('Fetching users with unconfirmed emails...');
+    
+    // Fetch users who need confirmation
+    const { data: users, error } = await supabase.functions.invoke('send-resend-email', {
+      body: {
+        resendAllPendingConfirmations: true
+      }
+    });
+
+    if (error) {
+      console.error('Error fetching unconfirmed users:', error);
+      throw error;
+    }
+
+    console.log('Confirmation emails resend result:', users);
+    return {
+      success: true,
+      message: `Confirmation emails sent to ${users.count} users`,
+      details: users
+    };
+  } catch (error) {
+    console.error('Failed to resend confirmation emails:', error);
+    return {
+      success: false,
+      message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      details: null
+    };
+  }
+};
+
+// Make functions available globally for testing
 declare global {
   interface Window {
     testResendEmail: typeof testResendEmail;
     checkDomainVerificationStatus: typeof checkDomainVerificationStatus;
+    resendAllPendingConfirmationEmails: typeof resendAllPendingConfirmationEmails;
   }
 }
 
@@ -133,4 +167,5 @@ declare global {
 if (typeof window !== 'undefined') {
   window.testResendEmail = testResendEmail;
   window.checkDomainVerificationStatus = checkDomainVerificationStatus;
+  window.resendAllPendingConfirmationEmails = resendAllPendingConfirmationEmails;
 }

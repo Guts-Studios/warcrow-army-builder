@@ -19,6 +19,7 @@ interface EmailRequest {
   fromEmail?: string; // Allow specifying the sender email
   fromName?: string;  // Allow specifying the sender name
   checkDomainOnly?: boolean; // Flag to only check domain verification status
+  resendAllPendingConfirmations?: boolean; // Flag to resend all pending confirmation emails
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -38,7 +39,8 @@ const handler = async (req: Request): Promise<Response> => {
       type: emailRequest.type || 'standard',
       fromEmail: emailRequest.fromEmail,
       fromName: emailRequest.fromName,
-      checkDomainOnly: emailRequest.checkDomainOnly
+      checkDomainOnly: emailRequest.checkDomainOnly,
+      resendAllPendingConfirmations: emailRequest.resendAllPendingConfirmations
     });
 
     // Check if this is just a domain verification check
@@ -87,6 +89,109 @@ const handler = async (req: Request): Promise<Response> => {
             status: `Error checking domains: ${domainError.message || 'Unknown error'}`,
             timestamp: new Date().toISOString(),
             domains: []
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
+    // Handle resending all pending confirmation emails
+    if (emailRequest.resendAllPendingConfirmations) {
+      console.log('Attempting to resend all pending confirmation emails');
+      
+      try {
+        // Need to use service role key to access user data
+        const supabaseAdminUrl = Deno.env.get('SUPABASE_URL');
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!supabaseAdminUrl || !supabaseServiceKey) {
+          throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
+        }
+        
+        // Fetch users with unconfirmed emails
+        const response = await fetch(`${supabaseAdminUrl}/rest/v1/auth/users?select=id,email,email_confirmed_at`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+            'apikey': supabaseServiceKey,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch users: ${response.status} ${errorText}`);
+        }
+        
+        const allUsers = await response.json();
+        console.log(`Retrieved ${allUsers.length} users`);
+        
+        // Filter users who need confirmation
+        const unconfirmedUsers = allUsers.filter((user: any) => !user.email_confirmed_at);
+        console.log(`Found ${unconfirmedUsers.length} users with unconfirmed emails`);
+        
+        // Resend confirmation emails
+        const results = [];
+        for (const user of unconfirmedUsers) {
+          console.log(`Resending confirmation email to ${user.email}`);
+          
+          try {
+            // Send confirmation email through Supabase
+            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/resend`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'apikey': supabaseServiceKey,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: user.email,
+                type: 'signup',
+              }),
+            });
+            
+            if (!resendResponse.ok) {
+              const errorText = await resendResponse.text();
+              console.error(`Failed to resend confirmation to ${user.email}: ${resendResponse.status} ${errorText}`);
+              results.push({
+                email: user.email,
+                success: false,
+                error: `${resendResponse.status}: ${errorText}`
+              });
+            } else {
+              console.log(`Successfully resent confirmation email to ${user.email}`);
+              results.push({
+                email: user.email,
+                success: true
+              });
+            }
+          } catch (sendError) {
+            console.error(`Error sending to ${user.email}:`, sendError);
+            results.push({
+              email: user.email,
+              success: false,
+              error: sendError.message || 'Unknown error'
+            });
+          }
+        }
+        
+        return new Response(JSON.stringify({
+          count: unconfirmedUsers.length,
+          results: results,
+          timestamp: new Date().toISOString()
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        console.error('Failed to process resend confirmation request:', error);
+        return new Response(
+          JSON.stringify({ 
+            error: error.message || 'Unknown error',
+            timestamp: new Date().toISOString()
           }),
           {
             status: 500,
