@@ -115,9 +115,9 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                         {player.name}
                         {(hasInitiative || hasInitialInitiative) && (
                           <img 
-                            src="/art/icons/gold-flag.png" 
+                            src="/art/icons/initiative-icon.png" 
                             alt="Initiative" 
-                            className="h-4 w-4 ml-1"
+                            className="h-5 w-5 ml-1"
                           />
                         )}
                       </div>
@@ -155,7 +155,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       </TableCell>
                     )}
                     
-                    <TableCell className="text-warcrow-gold font-medium">{roundScore} VP</TableCell>
+                    <TableCell className="text-warcrow-gold font-medium text-lg">{roundScore} VP</TableCell>
                   </TableRow>
                 );
               })
