@@ -16,6 +16,8 @@ interface EmailRequest {
   html: string;
   type?: 'welcome' | 'reset_password';
   token?: string;
+  fromEmail?: string; // Allow specifying the sender email
+  fromName?: string;  // Allow specifying the sender name
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -32,7 +34,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Received email request:', {
       to: emailRequest.to,
       subject: emailRequest.subject,
-      type: emailRequest.type || 'standard'
+      type: emailRequest.type || 'standard',
+      fromEmail: emailRequest.fromEmail,
+      fromName: emailRequest.fromName
     });
 
     // Improved error handling and logging
@@ -47,17 +51,49 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Log the full configuration being used (except API key)
+    // Get the API key from environment
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    // For security, we only log a portion of the API key for debugging
+    const maskedApiKey = apiKey ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}` : null;
+    
+    // Use custom from email if provided, otherwise use default
+    const fromEmail = emailRequest.fromEmail || "updates@updates.warcrowarmy.com";
+    const fromName = emailRequest.fromName || "Warcrow Army";
+    const fromField = `${fromName} <${fromEmail}>`;
+
+    // Log the full configuration being used
     console.log('Sending email with configuration:', {
-      from: "Warcrow Army <updates@updates.warcrowarmy.com>",
+      from: fromField,
       to: emailRequest.to,
       subject: emailRequest.subject,
       htmlLength: emailRequest.html?.length || 0,
-      apiKeyPresent: !!Deno.env.get("RESEND_API_KEY"),
+      apiKeyPresent: !!apiKey,
+      apiKeyMasked: maskedApiKey,
+      domainUsed: fromEmail.split('@')[1]
     });
 
+    // Fetch verified domains to check if our domain is actually verified
+    try {
+      const domainsResponse = await resend.domains.list();
+      console.log('Verified domains in Resend account:', JSON.stringify(domainsResponse));
+      
+      // Check if our domain is in the verified list
+      const ourDomain = fromEmail.split('@')[1];
+      const isDomainVerified = domainsResponse.data?.some(
+        domain => domain.name === ourDomain && domain.status === 'verified'
+      );
+      
+      console.log(`Domain ${ourDomain} verification status:`, isDomainVerified ? 'Verified' : 'Not verified');
+      
+      if (!isDomainVerified) {
+        console.warn(`Warning: The domain ${ourDomain} appears to not be verified in this Resend account.`);
+      }
+    } catch (domainError) {
+      console.error('Failed to check domain verification status:', domainError);
+    }
+
     const emailResponse = await resend.emails.send({
-      from: "Warcrow Army <updates@updates.warcrowarmy.com>", // Using your verified domain
+      from: fromField,
       to: emailRequest.to,
       subject: emailRequest.subject,
       html: emailRequest.html,

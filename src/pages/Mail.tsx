@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon, AlertTriangleIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Mail = () => {
   const [testEmail, setTestEmail] = React.useState('');
@@ -19,6 +19,38 @@ const Mail = () => {
 <p>This is a test email sent via Resend to verify the email service is working.</p>
 <p>Time sent: ${new Date().toLocaleString()}</p>`
   );
+  const [useDifferentSender, setUseDifferentSender] = React.useState(false);
+  const [customFromEmail, setCustomFromEmail] = React.useState('onboarding@resend.dev');
+  const [customFromName, setCustomFromName] = React.useState('Warcrow Test');
+  const [domainStatus, setDomainStatus] = React.useState<string | null>(null);
+  
+  const checkDomainStatus = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-resend-email', {
+        body: {
+          to: [testEmail || 'test@example.com'],
+          subject: 'Domain Check Only',
+          html: '<p>Domain check</p>',
+          checkDomainOnly: true
+        }
+      });
+
+      if (error) {
+        console.error('Failed to check domain status:', error);
+        setDomainStatus('Failed to check domain status');
+        return;
+      }
+
+      setDomainStatus(data?.domainStatus || 'Unknown status');
+    } catch (error) {
+      console.error('Error checking domain status:', error);
+      setDomainStatus('Error checking domain status');
+    }
+  };
+
+  React.useEffect(() => {
+    checkDomainStatus();
+  }, []);
 
   const handleSendTestEmail = async () => {
     if (!testEmail) {
@@ -28,12 +60,22 @@ const Mail = () => {
 
     try {
       setIsSending(true);
-      const { data, error } = await supabase.functions.invoke('send-resend-email', {
-        body: {
-          to: [testEmail],
-          subject: customSubject,
-          html: customHtml
+      
+      const emailConfig: any = {
+        to: [testEmail],
+        subject: customSubject,
+        html: customHtml,
+      };
+      
+      if (useDifferentSender && customFromEmail) {
+        emailConfig.fromEmail = customFromEmail;
+        if (customFromName) {
+          emailConfig.fromName = customFromName;
         }
+      }
+      
+      const { data, error } = await supabase.functions.invoke('send-resend-email', {
+        body: emailConfig
       });
 
       if (error) {
@@ -102,11 +144,31 @@ const Mail = () => {
           <TabsTrigger value="resend">Resend Edge Function</TabsTrigger>
           <TabsTrigger value="supabase">Supabase Auth Email</TabsTrigger>
           <TabsTrigger value="config">Configuration</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="resend">
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Send Test Email (Resend Edge Function)</h2>
+            
+            {domainStatus && domainStatus.includes('not verified') && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangleIcon className="h-4 w-4" />
+                <AlertTitle>Domain Not Verified</AlertTitle>
+                <AlertDescription>
+                  {domainStatus}. This will cause email sending to fail.
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => window.open('https://resend.com/domains', '_blank')}
+                  >
+                    Go to Resend Domains
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <div className="space-y-4">
               <div>
                 <Label htmlFor="testEmail">Test Email Address</Label>
@@ -141,6 +203,57 @@ const Mail = () => {
                   onChange={(e) => setCustomHtml(e.target.value)}
                   className="w-full h-40 mt-1 px-3 py-2 border rounded-md border-input bg-background"
                 />
+              </div>
+              
+              {useDifferentSender && (
+                <div className="p-3 border rounded-md border-yellow-200 bg-yellow-50">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
+                    <span className="text-sm font-medium text-yellow-800">Using alternative sender</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="customFromEmail">From Email</Label>
+                      <Input
+                        id="customFromEmail"
+                        type="email"
+                        placeholder="sender@example.com"
+                        value={customFromEmail}
+                        onChange={(e) => setCustomFromEmail(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="customFromName">From Name</Label>
+                      <Input
+                        id="customFromName"
+                        type="text"
+                        placeholder="Sender Name"
+                        value={customFromName}
+                        onChange={(e) => setCustomFromName(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="useDifferentSender" 
+                  checked={useDifferentSender}
+                  onCheckedChange={(checked) => {
+                    setUseDifferentSender(checked === true);
+                  }}
+                />
+                <Label 
+                  htmlFor="useDifferentSender"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Use Resend's default domain instead (for testing)
+                </Label>
               </div>
               
               <Button 
@@ -238,6 +351,82 @@ const Mail = () => {
                   onClick={() => window.open('https://resend.com/logs', '_blank')}
                 >
                   Resend Email Logs
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="advanced">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Advanced Troubleshooting</h2>
+            <div className="space-y-4">
+              <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+                <InfoIcon className="h-4 w-4 text-blue-600" />
+                <AlertTitle>Resend Domain Status</AlertTitle>
+                <AlertDescription className="mt-2">
+                  {domainStatus ? domainStatus : 'Checking domain status...'}
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold">Common Issues and Solutions:</h3>
+                <div className="space-y-3 mt-2">
+                  <div className="p-3 border rounded-md">
+                    <h4 className="font-medium">Domain Verification Issues</h4>
+                    <p className="text-sm mt-1">
+                      If your domain shows as verified in Resend dashboard but you still get verification errors, try:
+                    </p>
+                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                      <li>Checking that the API key you're using has access to this domain</li>
+                      <li>Verifying DNS records are correctly set up (TXT and DKIM records)</li>
+                      <li>Testing with Resend's default domain as a workaround (see Advanced Settings tab)</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 border rounded-md">
+                    <h4 className="font-medium">API Key Issues</h4>
+                    <p className="text-sm mt-1">
+                      If you're experiencing API key errors:
+                    </p>
+                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                      <li>Check that your API key is correctly set in Supabase edge function secrets</li>
+                      <li>Ensure your API key has the necessary permissions</li>
+                      <li>Create a new API key if the current one isn't working</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 border rounded-md">
+                    <h4 className="font-medium">SMTP vs. API Diagnostic</h4>
+                    <p className="text-sm mt-1">
+                      If one method works but the other doesn't:
+                    </p>
+                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                      <li>If Supabase Auth emails work but Resend API doesn't: Issue with Resend API key or domain verification</li>
+                      <li>If Resend API works but Supabase Auth doesn't: Issue with SMTP configuration in Supabase</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-4 mt-6">
+                <Button 
+                  variant="outline"
+                  onClick={checkDomainStatus}
+                >
+                  Refresh Domain Status
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => window.open('https://resend.com/api-keys', '_blank')}
+                >
+                  Manage Resend API Keys
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions', '_blank')}
+                >
+                  Supabase Secrets
                 </Button>
               </div>
             </div>

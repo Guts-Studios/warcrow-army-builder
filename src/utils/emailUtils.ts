@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 interface EmailOptions {
   type?: 'welcome' | 'reset_password';
   token?: string;
+  fromEmail?: string; // Add support for custom sender email
+  fromName?: string;  // Add support for custom sender name
 }
 
 export const sendEmail = async (
@@ -26,7 +28,9 @@ export const sendEmail = async (
         subject,
         html,
         type: options.type,
-        token: options.token
+        token: options.token,
+        fromEmail: options.fromEmail,
+        fromName: options.fromName
       }
     });
 
@@ -58,13 +62,21 @@ export const sendEmail = async (
 };
 
 // Test function to verify Resend functionality
-export const testResendEmail = async () => {
+export const testResendEmail = async (useDefaultDomain = false) => {
   try {
+    const options: EmailOptions = {};
+    
+    // Use Resend's default domain for testing if specified
+    if (useDefaultDomain) {
+      options.fromEmail = 'onboarding@resend.dev';
+      options.fromName = 'Warcrow Test';
+    }
+    
     await sendEmail(
       ['caldwejf@gmail.com'],
       'Resend Test Email',
       '<h1>Test Email from Warcrow Army</h1><p>This is a test email sent via Resend to verify the email service is working.</p>',
-      {}
+      options
     );
     console.log('Test email sent successfully via Resend');
     return true;
