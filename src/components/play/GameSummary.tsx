@@ -15,7 +15,7 @@ interface GameSummaryProps {
 const GameSummary: React.FC<GameSummaryProps> = ({ gameState, onEditRoundScore }) => {
   const players = Object.values(gameState.players) as Player[];
   const orderedPlayers = sortPlayersByScore(players);
-  const winner = orderedPlayers[0];
+  const winner = orderedPlayers.length > 0 ? orderedPlayers[0] : undefined;
   
   // Get all round numbers from game events and turns
   // Always include rounds 1-3 in the game summary

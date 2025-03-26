@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 
 interface GameSummaryHeaderProps {
   gameState: GameState;
-  winner: Player;
+  winner: Player | undefined;
 }
 
 const GameSummaryHeader: React.FC<GameSummaryHeaderProps> = ({ gameState, winner }) => {
@@ -21,11 +21,22 @@ const GameSummaryHeader: React.FC<GameSummaryHeaderProps> = ({ gameState, winner
     return format(new Date(timestamp), 'MMM dd, yyyy hh:mm a');
   };
 
+  // Helper function to safely get faction name
+  const getFactionName = (player?: Player): string => {
+    if (!player || !player.faction) return 'Unknown';
+    
+    if (typeof player.faction === 'object' && player.faction !== null) {
+      return player.faction.name || 'Unknown';
+    }
+    
+    return typeof player.faction === 'string' ? player.faction : 'Unknown';
+  };
+
   const handleShare = async () => {
     try {
       const shareText = `Game Summary
 Mission: ${gameState.mission?.name || gameState.mission?.title || 'Custom Mission'}
-Winner: ${winner?.name || 'No winner'} (${typeof winner?.faction === 'object' ? winner?.faction?.name : 'N/A'})
+Winner: ${winner?.name || 'No winner'} (${getFactionName(winner)})
 Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
 `;
 
@@ -72,12 +83,10 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
           <h3 className="text-lg font-medium text-warcrow-gold">Winner</h3>
           <p className="text-warcrow-text">
             {winner?.name || 'No winner'} 
-            {winner?.score && ` (${winner.score} VP)`}
+            {winner?.score !== undefined && ` (${winner.score} VP)`}
           </p>
           <p className="text-sm text-warcrow-muted">
-            {typeof winner?.faction === 'object' 
-              ? winner?.faction?.name 
-              : (typeof winner?.faction === 'string' ? winner.faction : '')}
+            {getFactionName(winner)}
           </p>
         </div>
       </div>

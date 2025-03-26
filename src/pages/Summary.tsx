@@ -3,10 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import { Container } from '@/components/ui/custom';
-import GameSummaryHeader from '@/components/play/GameSummaryHeader';
 import GameSummary from '@/components/play/GameSummary';
-import FinalScores from '@/components/play/FinalScores';
-import PreviousRounds from '@/components/play/PreviousRounds';
 import GameResults from '@/components/play/GameResults';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
@@ -44,10 +41,6 @@ const Summary = () => {
     return null; // Will redirect in useEffect
   }
   
-  // Find the winner
-  const winner = Object.values(state.players)
-    .sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-  
   return (
     <div className="min-h-screen py-6 bg-warcrow-background">
       <Container>
@@ -57,11 +50,6 @@ const Summary = () => {
           animate="visible"
           className="space-y-6"
         >
-          <GameSummaryHeader 
-            gameState={state}
-            winner={winner}
-          />
-          
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
               <GameSummary 
@@ -72,24 +60,15 @@ const Summary = () => {
             </div>
             
             <div className="space-y-6">
-              <FinalScores 
-                players={Object.values(state.players)}
-                gameState={state}
-              />
-              <PreviousRounds 
-                currentRound={currentRound}
-                onEditRound={handleEditRound}
-              />
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleNewGame}
+                  className="px-6 py-3 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 rounded-lg transition-colors font-medium"
+                >
+                  Start New Game
+                </button>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex justify-center mt-8">
-            <button
-              onClick={handleNewGame}
-              className="px-6 py-3 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 rounded-lg transition-colors font-medium"
-            >
-              Start New Game
-            </button>
           </div>
         </motion.div>
       </Container>

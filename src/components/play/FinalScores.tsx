@@ -38,6 +38,17 @@ const FinalScores: React.FC<FinalScoresProps> = ({
   const orderedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
   const [viewingList, setViewingList] = useState<Player | null>(null);
   
+  // Helper function to safely get faction name
+  const getFactionName = (player: Player): string => {
+    if (!player.faction) return 'Unknown Faction';
+    
+    if (typeof player.faction === 'object' && player.faction !== null) {
+      return player.faction.name || 'Unknown Faction';
+    }
+    
+    return typeof player.faction === 'string' ? player.faction : 'Unknown Faction';
+  };
+  
   return (
     <motion.div className="space-y-6">
       <Card className="p-6 border border-border/40 shadow-sm">
@@ -60,7 +71,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
                     player.list && player.id && (
                       <AccordionItem key={player.id} value={player.id}>
                         <AccordionTrigger className="font-medium">
-                          {player.name}'s Army - {typeof player.faction === 'object' ? player.faction.name : 'Unknown Faction'}
+                          {player.name}'s Army - {getFactionName(player)}
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="bg-muted/50 rounded-md p-4 my-2 overflow-auto max-h-[400px]">
@@ -88,11 +99,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
             {orderedPlayers.map((player) => (
               <TableRow key={player.id || player.name}>
                 <TableCell className="font-medium">{player.name}</TableCell>
-                <TableCell>
-                  {typeof player.faction === 'object' 
-                    ? player.faction.name 
-                    : (typeof player.faction === 'string' ? player.faction : 'N/A')}
-                </TableCell>
+                <TableCell>{getFactionName(player)}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{player.score} VP</span>
@@ -119,13 +126,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
         <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
-              {viewingList?.name}'s Army List - {
-                viewingList?.faction 
-                  ? (typeof viewingList.faction === 'object' 
-                    ? viewingList.faction.name 
-                    : viewingList.faction)
-                  : 'Unknown Faction'
-              }
+              {viewingList?.name}'s Army List - {viewingList ? getFactionName(viewingList) : 'Unknown Faction'}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh] mt-4">
