@@ -39,7 +39,13 @@ const Mail = () => {
 
       if (data?.error) {
         console.error('Resend API Error:', data.error);
-        toast.error(`Resend error: ${data.error}`);
+        
+        // Check for domain verification error
+        if (data.error.includes('domain is not verified')) {
+          toast.error('Domain verification error. Using Resend default domain instead.');
+        } else {
+          toast.error(`Resend error: ${data.error}`);
+        }
         return;
       }
 
@@ -77,6 +83,10 @@ const Mail = () => {
           >
             {isSending ? 'Sending...' : 'Send Test Email'}
           </Button>
+          <p className="text-sm text-gray-500 mt-2">
+            Note: This uses Resend's default domain (onboarding@resend.dev) for sending. 
+            To use your own domain, verify it in the Resend dashboard.
+          </p>
         </div>
       </Card>
 
@@ -95,6 +105,13 @@ const Mail = () => {
             onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates', '_blank')}
           >
             Supabase Email Templates
+          </Button>
+          <Button 
+            variant="outline"
+            className="mt-2"
+            onClick={() => window.open('https://resend.com/domains', '_blank')}
+          >
+            Verify Domain in Resend
           </Button>
         </div>
       </Card>
