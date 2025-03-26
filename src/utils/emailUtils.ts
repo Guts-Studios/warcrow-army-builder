@@ -156,9 +156,10 @@ export const resendAllPendingConfirmationEmails = async () => {
 
 // Make functions available globally for testing
 if (typeof window !== 'undefined') {
-  window.testResendEmail = testResendEmail;
-  window.checkDomainVerificationStatus = checkDomainVerificationStatus;
-  window.resendAllPendingConfirmationEmails = resendAllPendingConfirmationEmails;
+  // Explicitly define the functions on the window object
+  (window as any).testResendEmail = testResendEmail;
+  (window as any).checkDomainVerificationStatus = checkDomainVerificationStatus;
+  (window as any).resendAllPendingConfirmationEmails = resendAllPendingConfirmationEmails;
 }
 
 // Explicitly define the global interface
