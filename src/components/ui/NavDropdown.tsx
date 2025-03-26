@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   
   useEffect(() => {
     const checkUserRole = async () => {
@@ -26,8 +28,9 @@ export const NavDropdown = () => {
       setIsPreview(isPreviewMode);
       
       if (isPreviewMode) {
-        setIsTester(true);
+        setTester(true);
         setIsAuthenticated(true);
+        setUserId("preview-user-id");
         return;
       }
       
@@ -36,6 +39,7 @@ export const NavDropdown = () => {
       setIsAuthenticated(!!session);
       
       if (session) {
+        setUserId(session.user.id);
         try {
           const { data } = await supabase
             .from('profiles')
@@ -55,52 +59,58 @@ export const NavDropdown = () => {
   }, []);
   
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+    <div className="flex items-center gap-2">
+      {(isAuthenticated || isPreview) && (
+        <NotificationsMenu userId={userId || "preview-user-id"} />
+      )}
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="ml-2">Navigation</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          className="w-56 bg-black border border-warcrow-gold/20 text-warcrow-gold"
         >
-          <Menu className="h-5 w-5" />
-          <span className="ml-2">Navigation</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        className="w-56 bg-black border border-warcrow-gold/20 text-warcrow-gold"
-      >
-        <DropdownMenuItem 
-          className="cursor-pointer hover:bg-warcrow-gold/10"
-          onClick={() => navigate('/builder')}
-        >
-          Army Builder
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          className="cursor-pointer hover:bg-warcrow-gold/10"
-          onClick={() => navigate('/missions')}
-        >
-          Missions
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          className="cursor-pointer hover:bg-warcrow-gold/10"
-          onClick={() => navigate('/rules')}
-        >
-          Rules
-        </DropdownMenuItem>
-        {(isTester || isPreview) && (
           <DropdownMenuItem 
             className="cursor-pointer hover:bg-warcrow-gold/10"
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/builder')}
           >
-            Profile
+            Army Builder
           </DropdownMenuItem>
-        )}
-        <DropdownMenuItem 
-          className="cursor-pointer hover:bg-warcrow-gold/10"
-          onClick={() => navigate('/')}
-        >
-          Home
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/missions')}
+          >
+            Missions
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/rules')}
+          >
+            Rules
+          </DropdownMenuItem>
+          {(isTester || isPreview) && (
+            <DropdownMenuItem 
+              className="cursor-pointer hover:bg-warcrow-gold/10"
+              onClick={() => navigate('/profile')}
+            >
+              Profile
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/')}
+          >
+            Home
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };

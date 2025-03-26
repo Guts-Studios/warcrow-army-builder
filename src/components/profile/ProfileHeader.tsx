@@ -1,9 +1,9 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Bell, ActivityIcon } from "lucide-react";
-import { NotificationsMenu } from "./NotificationsMenu";
+import { ChevronLeft, ActivityIcon } from "lucide-react";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 export const ProfileHeader = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export const ProfileHeader = () => {
                 Activity Feed
               </Button>
               
-              <NotificationsMenu userId={userId || ""} />
+              <NavDropdown />
             </div>
           )}
         </div>
