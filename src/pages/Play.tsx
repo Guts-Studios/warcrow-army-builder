@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -8,6 +7,8 @@ import GameSetup from '@/components/play/GameSetup';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Player, Mission } from '@/types/game';
+import { Button } from '@/components/ui/button';
+import { ArrowLeftCircle } from 'lucide-react';
 
 interface GamePlayer {
   id: string;
@@ -110,6 +111,10 @@ const Play = () => {
     navigate('/deployment');
   };
   
+  const handleNavigateBack = () => {
+    navigate('/landing');
+  };
+  
   if (isLoading) {
     return (
       <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
@@ -139,6 +144,17 @@ const Play = () => {
         exit="exit"
         className="py-8"
       >
+        <div className="container px-4 mb-6">
+          <Button
+            onClick={handleNavigateBack}
+            variant="outline"
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
+          >
+            <ArrowLeftCircle size={18} />
+            <span>Back to Home</span>
+          </Button>
+        </div>
+      
         <GameSetup onComplete={handleSetupComplete} />
         
         <div className="container px-4 mt-6 flex justify-center">
