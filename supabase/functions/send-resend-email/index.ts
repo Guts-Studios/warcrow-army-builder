@@ -35,6 +35,27 @@ const handler = async (req: Request): Promise<Response> => {
       type: emailRequest.type || 'standard'
     });
 
+    // Improved error handling and logging
+    if (!emailRequest.to || !Array.isArray(emailRequest.to) || emailRequest.to.length === 0) {
+      console.error('Invalid recipient list:', emailRequest.to);
+      return new Response(
+        JSON.stringify({ error: 'Invalid recipient list' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Log the full configuration being used (except API key)
+    console.log('Sending email with configuration:', {
+      from: "Warcrow Army <updates@updates.warcrowarmy.com>",
+      to: emailRequest.to,
+      subject: emailRequest.subject,
+      htmlLength: emailRequest.html?.length || 0,
+      apiKeyPresent: !!Deno.env.get("RESEND_API_KEY"),
+    });
+
     const emailResponse = await resend.emails.send({
       from: "Warcrow Army <updates@updates.warcrowarmy.com>", // Using your verified domain
       to: emailRequest.to,
@@ -52,13 +73,27 @@ const handler = async (req: Request): Promise<Response> => {
     console.error('Error in send-resend-email function:', {
       error,
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      response: error.response ? {
+        status: error.response.status,
+        data: error.response.data,
+      } : 'No response data'
     });
+
+    let errorMessage = error.message || 'Unknown error';
+    let errorDetails = 'No additional details available';
+    
+    if (error.response?.data) {
+      errorDetails = typeof error.response.data === 'string' 
+        ? error.response.data 
+        : JSON.stringify(error.response.data);
+    }
 
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.response?.data || 'No additional details available'
+        error: errorMessage,
+        details: errorDetails,
+        timestamp: new Date().toISOString()
       }),
       {
         status: 500,
