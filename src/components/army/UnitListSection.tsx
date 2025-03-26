@@ -4,7 +4,7 @@ import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
 import SortControls from "./SortControls";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
@@ -25,6 +25,8 @@ const UnitListSection = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>([]);
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [showKeywords, setShowKeywords] = useState(false);
 
   // Get all unique characteristics across all units
   const allCharacteristics = Array.from(
@@ -70,7 +72,17 @@ const UnitListSection = ({
     });
   };
 
-  // Filter units based on search query and selected characteristics
+  const handleKeywordToggle = (keyword: string) => {
+    setSelectedKeywords(prev => {
+      if (prev.includes(keyword)) {
+        return prev.filter(k => k !== keyword);
+      } else {
+        return [...prev, keyword];
+      }
+    });
+  };
+
+  // Filter units based on search query, selected characteristics, and selected keywords
   const filteredUnits = factionUnits.filter(unit => {
     // Text search filter
     const matchesSearch = searchQuery === "" || 
@@ -95,7 +107,16 @@ const UnitListSection = ({
         return hasCharacteristic || isHighCommand;
       });
 
-    return matchesSearch && matchesCharacteristics;
+    // Keyword filter
+    const matchesKeywords = selectedKeywords.length === 0 || 
+      selectedKeywords.every(keyword => {
+        return unit.keywords.some(unitKeyword => {
+          const keywordName = typeof unitKeyword === 'string' ? unitKeyword : unitKeyword.name;
+          return keywordName === keyword;
+        });
+      });
+
+    return matchesSearch && matchesCharacteristics && matchesKeywords;
   });
 
   // Sort filtered units
@@ -113,6 +134,12 @@ const UnitListSection = ({
         return 0;
     }
   });
+
+  const clearAllFilters = () => {
+    setSelectedCharacteristics([]);
+    setSelectedKeywords([]);
+    setSearchQuery("");
+  };
 
   return (
     <div className="space-y-3">
@@ -137,33 +164,68 @@ const UnitListSection = ({
         
         {showFilters && (
           <div className="p-3 bg-warcrow-background/80 border border-warcrow-gold/30 rounded-md space-y-3">
-            <h3 className="text-sm font-semibold text-warcrow-gold">Filter by Characteristics</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {allCharacteristics.map(characteristic => (
-                <div key={characteristic} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`characteristic-${characteristic}`}
-                    checked={selectedCharacteristics.includes(characteristic)}
-                    onCheckedChange={() => handleCharacteristicToggle(characteristic)}
-                    className="data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black border-warcrow-gold/70"
-                  />
-                  <label 
-                    htmlFor={`characteristic-${characteristic}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-warcrow-text"
-                  >
-                    {characteristic}
-                  </label>
-                </div>
-              ))}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-warcrow-gold">Filter by Characteristics</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {allCharacteristics.map(characteristic => (
+                  <div key={characteristic} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`characteristic-${characteristic}`}
+                      checked={selectedCharacteristics.includes(characteristic)}
+                      onCheckedChange={() => handleCharacteristicToggle(characteristic)}
+                      className="data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black border-warcrow-gold/70"
+                    />
+                    <label 
+                      htmlFor={`characteristic-${characteristic}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-warcrow-text"
+                    >
+                      {characteristic}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
             
-            {selectedCharacteristics.length > 0 && (
+            <div className="space-y-3">
+              <button 
+                className="w-full flex items-center justify-between text-sm font-semibold text-warcrow-gold py-1 hover:text-warcrow-gold/80"
+                onClick={() => setShowKeywords(!showKeywords)}
+              >
+                <span>Filter by Keywords</span>
+                {showKeywords ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+              
+              {showKeywords && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-1 border-t border-warcrow-gold/20 pt-2">
+                  {allKeywords.map(keyword => (
+                    <div key={keyword} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`keyword-${keyword}`}
+                        checked={selectedKeywords.includes(keyword)}
+                        onCheckedChange={() => handleKeywordToggle(keyword)}
+                        className="data-[state=checked]:bg-warcrow-gold data-[state=checked]:text-black border-warcrow-gold/70"
+                      />
+                      <label 
+                        htmlFor={`keyword-${keyword}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-warcrow-text"
+                      >
+                        {keyword}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery) && (
               <div className="flex justify-end">
                 <button
-                  onClick={() => setSelectedCharacteristics([])}
+                  onClick={clearAllFilters}
                   className="text-xs text-warcrow-gold hover:underline"
                 >
-                  Clear filters
+                  Clear all filters
                 </button>
               </div>
             )}
@@ -189,13 +251,10 @@ const UnitListSection = ({
         <div className="py-8 text-center">
           <p className="text-warcrow-muted">No units match your search criteria.</p>
           <button 
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCharacteristics([]);
-            }}
+            onClick={clearAllFilters}
             className="mt-2 text-warcrow-gold hover:underline"
           >
-            Clear search
+            Clear all filters
           </button>
         </div>
       )}
