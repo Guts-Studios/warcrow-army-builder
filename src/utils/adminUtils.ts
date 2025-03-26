@@ -108,9 +108,9 @@ export const AdminOnly = ({
   isWabAdmin, 
   fallback = null 
 }: { 
-  children: React.ReactNode, 
-  isWabAdmin: boolean, 
-  fallback?: React.ReactNode 
+  children: React.ReactNode; 
+  isWabAdmin: boolean; 
+  fallback?: React.ReactNode; 
 }) => {
   if (!isWabAdmin) {
     return <>{fallback}</>;
