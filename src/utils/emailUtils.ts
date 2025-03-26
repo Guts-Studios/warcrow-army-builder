@@ -60,12 +60,10 @@ export const sendEmail = async (
   }
 };
 
-// Test function to verify Resend functionality
 export const testResendEmail = async (useDefaultDomain = false) => {
   try {
     const options: EmailOptions = {};
     
-    // Use Resend's default domain for testing if specified
     if (useDefaultDomain) {
       options.fromEmail = 'onboarding@resend.dev';
       options.fromName = 'Warcrow Test';
@@ -85,14 +83,12 @@ export const testResendEmail = async (useDefaultDomain = false) => {
   }
 };
 
-// Add function to check domain verification status
 export const checkDomainVerificationStatus = async () => {
   try {
     console.log('Checking domain verification status...');
     const { data, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
         checkDomainOnly: true,
-        // Include minimal required fields even though they won't be used
         to: ['check@example.com'],
         subject: 'Domain Check',
         html: '<p>Domain verification check</p>'
@@ -120,12 +116,10 @@ export const checkDomainVerificationStatus = async () => {
   }
 };
 
-// Function to resend confirmation emails to unconfirmed users
 export const resendAllPendingConfirmationEmails = async () => {
   try {
     console.log('Fetching users with unconfirmed emails...');
     
-    // Fetch users who need confirmation
     const { data: users, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
         resendAllPendingConfirmations: true
@@ -153,13 +147,11 @@ export const resendAllPendingConfirmationEmails = async () => {
   }
 };
 
-// Add function to check and update wab_admin status
 export const updateUserWabAdminStatus = async (
   userId: string,
   setAsAdmin: boolean
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    // Verify the current user is an admin first
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       return { 
@@ -168,7 +160,6 @@ export const updateUserWabAdminStatus = async (
       };
     }
     
-    // Check if the current user is an admin
     const { data: adminCheck, error: adminCheckError } = await supabase.rpc(
       'is_wab_admin',
       { user_id: session.user.id }
@@ -182,7 +173,6 @@ export const updateUserWabAdminStatus = async (
       };
     }
     
-    // Update the target user's admin status
     const { error } = await supabase
       .from('profiles')
       .update({ wab_admin: setAsAdmin })
@@ -209,12 +199,11 @@ export const updateUserWabAdminStatus = async (
   }
 };
 
-// Function to get all wab admins
 export const getWabAdmins = async (): Promise<any[]> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, email:auth.users(email), wab_id')
+      .select('id, username, wab_id')
       .eq('wab_admin', true)
       .order('username');
     
@@ -223,20 +212,29 @@ export const getWabAdmins = async (): Promise<any[]> => {
       return [];
     }
     
-    // Process the data to extract emails from the joined auth.users table
-    return data.map(admin => ({
-      ...admin,
-      email: admin.email?.[0]?.email || 'No email found'
-    }));
+    const adminsWithEmails = await Promise.all(
+      data.map(async (admin) => {
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('email')
+          .eq('id', admin.id)
+          .single();
+        
+        return {
+          ...admin,
+          email: userError ? 'No email found' : (userData?.email || 'No email found')
+        };
+      })
+    );
+    
+    return adminsWithEmails;
   } catch (error) {
     console.error('Unexpected error fetching wab admins:', error);
     return [];
   }
 };
 
-// Make functions available globally for testing
 if (typeof window !== 'undefined') {
-  // Explicitly define the functions on the window object
   (window as any).testResendEmail = testResendEmail;
   (window as any).checkDomainVerificationStatus = checkDomainVerificationStatus;
   (window as any).resendAllPendingConfirmationEmails = resendAllPendingConfirmationEmails;
@@ -244,7 +242,6 @@ if (typeof window !== 'undefined') {
   (window as any).getWabAdmins = getWabAdmins;
 }
 
-// Explicitly define the global interface
 declare global {
   interface Window {
     testResendEmail: typeof testResendEmail;
