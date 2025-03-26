@@ -28,7 +28,7 @@ export const NavDropdown = () => {
       setIsPreview(isPreviewMode);
       
       if (isPreviewMode) {
-        setTester(true);
+        setIsTester(true);
         setIsAuthenticated(true);
         setUserId("preview-user-id");
         return;
