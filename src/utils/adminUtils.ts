@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import React from 'react';
 
@@ -81,17 +82,15 @@ export const revokeWabAdmin = async (
   }
 };
 
-type AdminOnlyProps = {
+interface AdminOnlyProps {
   children: React.ReactNode;
   isWabAdmin: boolean;
   fallback?: React.ReactNode;
-};
+}
 
-export function AdminOnly({
-  children,
-  isWabAdmin,
-  fallback = null,
-}: AdminOnlyProps) {
+export function AdminOnly(props: AdminOnlyProps) {
+  const { children, isWabAdmin, fallback = null } = props;
+  
   if (!isWabAdmin) {
     return <>{fallback}</>;
   }
