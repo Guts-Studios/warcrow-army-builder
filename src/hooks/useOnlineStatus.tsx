@@ -40,8 +40,8 @@ export const useOnlineStatus = (userIds: string[]) => {
     
     console.log("Setting up presence tracking for current user:", currentUserId);
     
-    // Create a channel for user presence with a unique name to prevent conflicts
-    const channelName = `presence:${currentUserId}`;
+    // Use a global channel name for better presence sharing
+    const channelName = 'online-users-tracker';
     const channel = supabase.channel(channelName);
     
     // Subscribe to the channel
@@ -52,8 +52,8 @@ export const useOnlineStatus = (userIds: string[]) => {
         // Initially set the user's status when subscribed
         await updatePresence(channel, currentUserId);
         
-        // Update presence every 5 seconds while tab is active (reduced from 10 seconds)
-        const interval = setInterval(() => updatePresence(channel, currentUserId), 5000);
+        // Update presence more frequently to ensure status is accurately reflected
+        const interval = setInterval(() => updatePresence(channel, currentUserId), 3000);
         
         // Handle visibility changes (tab switching)
         const handleVisibilityChange = () => {
@@ -122,7 +122,7 @@ export const useOnlineStatus = (userIds: string[]) => {
         });
         
         // Loop through all presence state entries
-        Object.entries(presenceState).forEach(([channelKey, presences]) => {
+        Object.entries(presenceState).forEach(([_, presences]) => {
           const presenceArray = presences as Array<any>;
           
           presenceArray.forEach(presence => {
@@ -166,8 +166,7 @@ export const useOnlineStatus = (userIds: string[]) => {
         
         if (!leftPresences || leftPresences.length === 0) return;
         
-        // Don't immediately mark users as offline when they leave
-        // They might just be changing pages or refreshing
+        // Use a shorter timeout for marking users as offline
         leftPresences.forEach(presence => {
           const presenceUserId = presence.user_id;
           
@@ -195,7 +194,7 @@ export const useOnlineStatus = (userIds: string[]) => {
                   [presenceUserId]: false
                 }));
               }
-            }, 10000); // Reduced from 15 seconds to 10 seconds
+            }, 5000); // Reduced to 5 seconds for quicker status updates
           }
         });
       })
@@ -208,13 +207,16 @@ export const useOnlineStatus = (userIds: string[]) => {
         ...prev,
         [currentUserId]: true
       }));
+      
+      // Also track the current user's presence to broadcast to others
+      updatePresence(channel, currentUserId);
     }
     
     return () => {
       console.log("Removing presence channel");
       supabase.removeChannel(channel);
     };
-  }, [userIds, currentUserId]);
+  }, [userIds, currentUserId, updatePresence]);
   
   return { onlineStatus };
 };

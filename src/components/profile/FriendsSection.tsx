@@ -51,6 +51,17 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     trackedIds.push(currentUserId);
   }
   
+  // Force refresh of online status every 30 seconds
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setRefreshTrigger(prev => prev + 1);
+    }, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+  
   // Track online status of all friends and current user
   const { onlineStatus } = useOnlineStatus(trackedIds);
 
@@ -62,6 +73,8 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   }, [profile, userId]);
 
   const refreshFriends = () => {
+    // Manually force refresh the online status
+    setRefreshTrigger(prev => prev + 1);
     // This will trigger a refetch in the useFriends hook
     window.location.reload();
     toast.success("Refreshing friends list");
@@ -132,7 +145,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
         friends.map(f => ({ id: f.id, username: f.username, isOnline: onlineStatus[f.id] }))
       );
     }
-  }, [onlineStatus, currentUserId, friends]);
+  }, [onlineStatus, currentUserId, friends, refreshTrigger]);
 
   return (
     <>
@@ -191,7 +204,14 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
                       className="flex items-center space-x-2 flex-1 cursor-pointer hover:bg-black/30 p-1 rounded-md transition-colors"
                       onClick={() => handleFriendClick(friend.id)}
                     >
-                      <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+                      <div className="relative">
+                        <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+                        <span 
+                          className={`absolute bottom-0 right-0 h-2 w-2 md:h-3 md:w-3 rounded-full border border-black ${
+                            onlineStatus[friend.id] ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                          }`}
+                        />
+                      </div>
                       <div>
                         <div className="font-medium text-warcrow-gold text-xs md:text-sm group-hover:underline">{friend.username}</div>
                         <div className="text-[10px] md:text-xs text-warcrow-text/70">
