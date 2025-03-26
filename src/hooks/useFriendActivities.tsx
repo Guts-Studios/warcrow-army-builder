@@ -7,6 +7,9 @@ interface ActivityData {
   list_id: string;
   list_name: string;
   faction: string;
+  profile_id?: string; // Added for comment activities
+  comment_id?: string; // Added for comment activities
+  comment_preview?: string; // Added for comment activities
 }
 
 export interface FriendActivity {
@@ -90,7 +93,16 @@ export const useFriendActivities = (userId: string) => {
             : '',
           faction: typeof rawData === 'object' && rawData !== null && 'faction' in rawData 
             ? String(rawData.faction) 
-            : ''
+            : '',
+          profile_id: typeof rawData === 'object' && rawData !== null && 'profile_id' in rawData
+            ? String(rawData.profile_id)
+            : undefined,
+          comment_id: typeof rawData === 'object' && rawData !== null && 'comment_id' in rawData
+            ? String(rawData.comment_id)
+            : undefined,
+          comment_preview: typeof rawData === 'object' && rawData !== null && 'comment_preview' in rawData
+            ? String(rawData.comment_preview)
+            : undefined
         };
         
         return {

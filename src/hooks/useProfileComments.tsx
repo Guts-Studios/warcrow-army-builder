@@ -128,6 +128,26 @@ export const useProfileComments = (profileId: string | null) => {
         if (notificationError) {
           console.error('Error creating notification:', notificationError);
         }
+        
+        // Add this comment to friend activities so it shows in the activity feed
+        const { error: activityError } = await supabase
+          .from('friend_activities')
+          .insert({
+            user_id: userId,
+            activity_type: 'profile_comment',
+            activity_data: {
+              profile_id: profileId,
+              comment_id: data?.[0]?.id,
+              comment_preview: formData.content.trim().substring(0, 50) + (formData.content.length > 50 ? '...' : ''),
+              list_id: '', // These fields are required by the existing activity_data type
+              list_name: '',
+              faction: ''
+            }
+          });
+          
+        if (activityError) {
+          console.error('Error creating friend activity:', activityError);
+        }
       }
       
       toast.success('Comment posted successfully');
