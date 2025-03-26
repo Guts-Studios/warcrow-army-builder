@@ -144,17 +144,6 @@ const Play = () => {
         exit="exit"
         className="py-8"
       >
-        <div className="container px-4 mb-6">
-          <Button
-            onClick={handleNavigateBack}
-            variant="outline"
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
-          >
-            <ArrowLeftCircle size={18} />
-            <span>Back to Home</span>
-          </Button>
-        </div>
-      
         <GameSetup onComplete={handleSetupComplete} />
         
         <div className="container px-4 mt-6 flex justify-center">
@@ -172,7 +161,17 @@ const Play = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          <p>Warcrow Companion App - Made with ♥ for the Warcrow community</p>
+          <div className="container flex justify-between items-center">
+            <Button
+              onClick={handleNavigateBack}
+              variant="outline"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
+            >
+              <ArrowLeftCircle size={18} />
+              <span>Back to Home</span>
+            </Button>
+            <p>Warcrow Companion App - Made with ♥ for the Warcrow community</p>
+          </div>
         </motion.footer>
       </motion.div>
     </div>
