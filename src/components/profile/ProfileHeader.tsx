@@ -1,13 +1,13 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Bell, ActivityIcon } from "lucide-react";
-import { NotificationsMenu } from "./NotificationsMenu";
+import { ChevronLeft } from "lucide-react";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 export const ProfileHeader = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userId } = useProfileSession();
+  const { isAuthenticated } = useProfileSession();
   
   return (
     <header className="bg-black/50 border-b border-warcrow-gold/20 backdrop-blur-sm">
@@ -26,18 +26,7 @@ export const ProfileHeader = () => {
           </div>
           
           {isAuthenticated && (
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
-                onClick={() => navigate("/activity")}
-              >
-                <ActivityIcon className="h-4 w-4 mr-2" />
-                Activity Feed
-              </Button>
-              
-              <NotificationsMenu userId={userId || ""} />
-            </div>
+            <NavDropdown />
           )}
         </div>
       </div>

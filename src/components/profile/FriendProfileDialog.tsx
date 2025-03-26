@@ -38,23 +38,23 @@ export const FriendProfileDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-4">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-black/90 border-warcrow-gold/30 text-warcrow-text">
+        <DialogHeader className="border-b border-warcrow-gold/20 pb-4">
+          <DialogTitle className="flex items-center gap-4 text-warcrow-gold">
             <Avatar>
               {friendProfile?.avatar_url ? (
                 <AvatarImage src={friendProfile.avatar_url} alt={friendProfile.username || "Friend Avatar"} />
               ) : (
-                <AvatarFallback>{friendProfile?.username?.slice(0, 2).toUpperCase() || "??"}</AvatarFallback>
+                <AvatarFallback className="bg-black/50 text-warcrow-gold">{friendProfile?.username?.slice(0, 2).toUpperCase() || "??"}</AvatarFallback>
               )}
             </Avatar>
             {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold" />
             ) : (
               friendProfile?.username || "Unnamed User"
             )}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-warcrow-text/80">
             {friendProfile?.bio || "No bio available"}
           </DialogDescription>
         </DialogHeader>
@@ -65,9 +65,17 @@ export const FriendProfileDialog = ({
           </div>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full mb-4">
-              <TabsTrigger value="info" className="text-warcrow-gold">Profile Info</TabsTrigger>
-              <TabsTrigger value="comments" className="text-warcrow-gold">
+            <TabsList className="grid grid-cols-2 w-full mb-4 bg-black/70 border border-warcrow-gold/20">
+              <TabsTrigger 
+                value="info" 
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text/80"
+              >
+                Profile Info
+              </TabsTrigger>
+              <TabsTrigger 
+                value="comments" 
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text/80"
+              >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Comments
               </TabsTrigger>
@@ -83,7 +91,7 @@ export const FriendProfileDialog = ({
                     type="text"
                     id="username"
                     value={friendProfile?.username || "N/A"}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    className="flex h-10 w-full rounded-md border border-warcrow-gold/30 bg-black/50 px-3 py-2 text-sm text-warcrow-text placeholder:text-warcrow-text/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     disabled
                   />
                 </div>
@@ -97,7 +105,7 @@ export const FriendProfileDialog = ({
                     type="text"
                     id="location"
                     value={friendProfile?.location || "N/A"}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    className="flex h-10 w-full rounded-md border border-warcrow-gold/30 bg-black/50 px-3 py-2 text-sm text-warcrow-text placeholder:text-warcrow-text/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     disabled
                   />
                 </div>
@@ -111,7 +119,7 @@ export const FriendProfileDialog = ({
                     type="text"
                     id="faction"
                     value={friendProfile?.favorite_faction || "N/A"}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    className="flex h-10 w-full rounded-md border border-warcrow-gold/30 bg-black/50 px-3 py-2 text-sm text-warcrow-text placeholder:text-warcrow-text/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     disabled
                   />
                 </div>
@@ -119,17 +127,17 @@ export const FriendProfileDialog = ({
               
               {/* Game Stats */}
               <div className="mt-4 pt-4 border-t border-warcrow-gold/20">
-                <h3 className="text-warcrow-gold/80 font-medium mb-2 text-sm">Game Statistics</h3>
+                <h3 className="text-warcrow-gold font-medium mb-2 text-sm">Game Statistics</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                  <div className="bg-black/50 p-2 rounded-md border border-warcrow-gold/20 backdrop-blur-sm">
                     <div className="text-lg font-bold text-warcrow-gold">{friendProfile?.games_won || 0}</div>
                     <div className="text-[10px] text-warcrow-text/70">Games Won</div>
                   </div>
-                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                  <div className="bg-black/50 p-2 rounded-md border border-warcrow-gold/20 backdrop-blur-sm">
                     <div className="text-lg font-bold text-warcrow-text/80">{friendProfile?.games_lost || 0}</div>
                     <div className="text-[10px] text-warcrow-text/70">Games Lost</div>
                   </div>
-                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                  <div className="bg-black/50 p-2 rounded-md border border-warcrow-gold/20 backdrop-blur-sm">
                     <div className="text-lg font-bold text-green-500">
                       {friendProfile && (friendProfile.games_won + friendProfile.games_lost > 0) 
                         ? Math.round((friendProfile.games_won / (friendProfile.games_won + friendProfile.games_lost)) * 100) 
@@ -137,7 +145,7 @@ export const FriendProfileDialog = ({
                     </div>
                     <div className="text-[10px] text-warcrow-text/70">Win Rate</div>
                   </div>
-                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                  <div className="bg-black/50 p-2 rounded-md border border-warcrow-gold/20 backdrop-blur-sm">
                     <div className="text-lg font-bold text-blue-400">
                       {friendProfile ? (friendProfile.games_won + friendProfile.games_lost) : 0}
                     </div>
@@ -151,7 +159,7 @@ export const FriendProfileDialog = ({
                 friendProfile.social_instagram || friendProfile.social_youtube ||
                 friendProfile.social_twitch) && (
                 <div className="mt-4">
-                  <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
+                  <h3 className="text-sm font-medium text-warcrow-gold">Social Platforms</h3>
                   <SocialMediaLinks
                     social_discord={friendProfile.social_discord}
                     social_twitter={friendProfile.social_twitter}
@@ -163,7 +171,7 @@ export const FriendProfileDialog = ({
               )}
             </TabsContent>
             
-            <TabsContent value="comments">
+            <TabsContent value="comments" className="bg-black/50 p-4 rounded-md border border-warcrow-gold/20 backdrop-blur-sm">
               {friendId && <ProfileComments profileId={friendId} />}
             </TabsContent>
           </Tabs>

@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Home } from "lucide-react";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 export const UnitStatsHeader = () => {
   const navigate = useNavigate();
@@ -18,29 +19,32 @@ export const UnitStatsHeader = () => {
             />
             <h1 className="text-3xl font-bold text-warcrow-gold text-center md:text-left">Unit Stat Blocks</h1>
           </div>
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-              onClick={() => navigate('/builder')}
-            >
-              Army Builder
-            </Button>
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-              onClick={() => navigate('/rules')}
-            >
-              Rules
-            </Button>
-            <Button
-              variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
-              onClick={() => navigate('/landing')}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+              <Button
+                variant="outline"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
+                onClick={() => navigate('/builder')}
+              >
+                Army Builder
+              </Button>
+              <Button
+                variant="outline"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
+                onClick={() => navigate('/rules')}
+              >
+                Rules
+              </Button>
+              <Button
+                variant="outline"
+                className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black w-full md:w-auto"
+                onClick={() => navigate('/landing')}
+              >
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </Button>
+            </div>
+            <NavDropdown />
           </div>
         </div>
       </div>

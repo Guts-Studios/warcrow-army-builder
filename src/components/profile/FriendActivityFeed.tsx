@@ -37,6 +37,8 @@ export const FriendActivityFeed: React.FC<FriendActivityFeedProps> = ({ userId, 
         return 'Updated their profile';
       case 'add_friend':
         return 'Added a new friend';
+      case 'profile_comment':
+        return `Commented on a profile: "${activity.activity_data.comment_preview}"`;
       default:
         return activity.activity_type.replace('_', ' ');
     }
