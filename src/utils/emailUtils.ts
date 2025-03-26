@@ -86,14 +86,51 @@ export const testResendEmail = async (useDefaultDomain = false) => {
   }
 };
 
+// Add function to check domain verification status
+export const checkDomainVerificationStatus = async () => {
+  try {
+    console.log('Checking domain verification status...');
+    const { data, error } = await supabase.functions.invoke('send-resend-email', {
+      body: {
+        checkDomainOnly: true,
+        // Include minimal required fields even though they won't be used
+        to: ['check@example.com'],
+        subject: 'Domain Check',
+        html: '<p>Domain verification check</p>'
+      }
+    });
+
+    if (error) {
+      console.error('Error checking domain status:', error);
+      return {
+        verified: false,
+        status: `Error: ${error.message}`,
+        domains: []
+      };
+    }
+
+    console.log('Domain status check result:', data);
+    return data;
+  } catch (error) {
+    console.error('Failed to check domain status:', error);
+    return {
+      verified: false,
+      status: `Exception: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      domains: []
+    };
+  }
+};
+
 // Make test function available globally for testing
 declare global {
   interface Window {
     testResendEmail: typeof testResendEmail;
+    checkDomainVerificationStatus: typeof checkDomainVerificationStatus;
   }
 }
 
-// Add test function to window object
+// Add functions to window object
 if (typeof window !== 'undefined') {
   window.testResendEmail = testResendEmail;
+  window.checkDomainVerificationStatus = checkDomainVerificationStatus;
 }

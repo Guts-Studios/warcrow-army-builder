@@ -18,6 +18,7 @@ interface EmailRequest {
   token?: string;
   fromEmail?: string; // Allow specifying the sender email
   fromName?: string;  // Allow specifying the sender name
+  checkDomainOnly?: boolean; // Flag to only check domain verification status
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -36,8 +37,64 @@ const handler = async (req: Request): Promise<Response> => {
       subject: emailRequest.subject,
       type: emailRequest.type || 'standard',
       fromEmail: emailRequest.fromEmail,
-      fromName: emailRequest.fromName
+      fromName: emailRequest.fromName,
+      checkDomainOnly: emailRequest.checkDomainOnly
     });
+
+    // Check if this is just a domain verification check
+    if (emailRequest.checkDomainOnly) {
+      console.log('Domain verification check requested');
+      
+      try {
+        // Get all domains in the Resend account
+        const domainsResponse = await resend.domains.list();
+        
+        console.log('Domains in Resend account:', JSON.stringify(domainsResponse));
+        
+        // Default email domain
+        const defaultDomain = "updates.warcrowarmy.com";
+        
+        // Check if our domain is in the verified list
+        const ourDomain = emailRequest.fromEmail ? 
+          emailRequest.fromEmail.split('@')[1] : 
+          defaultDomain;
+          
+        const domainRecord = domainsResponse.data?.find(
+          domain => domain.name === ourDomain
+        );
+        
+        const isDomainVerified = domainRecord?.status === 'verified';
+        
+        console.log(`Domain ${ourDomain} verification status:`, 
+          isDomainVerified ? 'Verified' : `Not verified (${domainRecord?.status || 'not found'})`);
+        
+        return new Response(JSON.stringify({
+          verified: isDomainVerified,
+          status: domainRecord ? 
+            `Domain ${ourDomain} is ${domainRecord.status}` : 
+            `Domain ${ourDomain} not found in Resend account`,
+          timestamp: new Date().toISOString(),
+          domains: domainsResponse.data || []
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (domainError) {
+        console.error('Failed to check domain verification status:', domainError);
+        return new Response(
+          JSON.stringify({ 
+            verified: false,
+            status: `Error checking domains: ${domainError.message || 'Unknown error'}`,
+            timestamp: new Date().toISOString(),
+            domains: []
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
 
     // Improved error handling and logging
     if (!emailRequest.to || !Array.isArray(emailRequest.to) || emailRequest.to.length === 0) {
