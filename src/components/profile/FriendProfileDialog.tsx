@@ -7,10 +7,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { Loader2, MessageSquare } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProfileComments } from "./ProfileComments";
 
 interface FriendProfileDialogProps {
   friendId: string | null;
@@ -24,6 +26,7 @@ export const FriendProfileDialog = ({
   onClose,
 }: FriendProfileDialogProps) => {
   const { profile: friendProfile, isLoading, isError, error } = useFriendProfileFetch(friendId);
+  const [activeTab, setActiveTab] = useState<string>("info");
 
   useEffect(() => {
     if (isError && error) {
@@ -35,7 +38,7 @@ export const FriendProfileDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-4">
             <Avatar>
@@ -61,66 +64,109 @@ export const FriendProfileDialog = ({
             <Loader2 className="h-6 w-6 text-warcrow-gold animate-spin" />
           </div>
         ) : (
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="username" className="text-right text-sm font-medium leading-none text-warcrow-gold">
-                Username
-              </label>
-              <div className="col-span-3">
-                <input
-                  type="text"
-                  id="username"
-                  value={friendProfile?.username || "N/A"}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
-                  disabled
-                />
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full mb-4">
+              <TabsTrigger value="info" className="text-warcrow-gold">Profile Info</TabsTrigger>
+              <TabsTrigger value="comments" className="text-warcrow-gold">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Comments
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="info" className="space-y-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="username" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                  Username
+                </label>
+                <div className="col-span-3">
+                  <input
+                    type="text"
+                    id="username"
+                    value={friendProfile?.username || "N/A"}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    disabled
+                  />
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="location" className="text-right text-sm font-medium leading-none text-warcrow-gold">
-                Location
-              </label>
-              <div className="col-span-3">
-                <input
-                  type="text"
-                  id="location"
-                  value={friendProfile?.location || "N/A"}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
-                  disabled
-                />
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="location" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                  Location
+                </label>
+                <div className="col-span-3">
+                  <input
+                    type="text"
+                    id="location"
+                    value={friendProfile?.location || "N/A"}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    disabled
+                  />
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="faction" className="text-right text-sm font-medium leading-none text-warcrow-gold">
-                Faction
-              </label>
-              <div className="col-span-3">
-                <input
-                  type="text"
-                  id="faction"
-                  value={friendProfile?.favorite_faction || "N/A"}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
-                  disabled
-                />
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="faction" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                  Faction
+                </label>
+                <div className="col-span-3">
+                  <input
+                    type="text"
+                    id="faction"
+                    value={friendProfile?.favorite_faction || "N/A"}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-black/30 text-warcrow-text"
+                    disabled
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+              
+              {/* Game Stats */}
+              <div className="mt-4 pt-4 border-t border-warcrow-gold/20">
+                <h3 className="text-warcrow-gold/80 font-medium mb-2 text-sm">Game Statistics</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                    <div className="text-lg font-bold text-warcrow-gold">{friendProfile?.games_won || 0}</div>
+                    <div className="text-[10px] text-warcrow-text/70">Games Won</div>
+                  </div>
+                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                    <div className="text-lg font-bold text-warcrow-text/80">{friendProfile?.games_lost || 0}</div>
+                    <div className="text-[10px] text-warcrow-text/70">Games Lost</div>
+                  </div>
+                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                    <div className="text-lg font-bold text-green-500">
+                      {friendProfile && (friendProfile.games_won + friendProfile.games_lost > 0) 
+                        ? Math.round((friendProfile.games_won / (friendProfile.games_won + friendProfile.games_lost)) * 100) 
+                        : 0}%
+                    </div>
+                    <div className="text-[10px] text-warcrow-text/70">Win Rate</div>
+                  </div>
+                  <div className="bg-black/30 p-2 rounded-md border border-warcrow-gold/10">
+                    <div className="text-lg font-bold text-blue-400">
+                      {friendProfile ? (friendProfile.games_won + friendProfile.games_lost) : 0}
+                    </div>
+                    <div className="text-[10px] text-warcrow-text/70">Total Games</div>
+                  </div>
+                </div>
+              </div>
 
-        {/* Social Media Links */}
-        {friendProfile && (friendProfile.social_discord || friendProfile.social_twitter ||
-          friendProfile.social_instagram || friendProfile.social_youtube ||
-          friendProfile.social_twitch) && (
-          <div className="mt-4">
-            <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
-            <SocialMediaLinks
-              social_discord={friendProfile.social_discord}
-              social_twitter={friendProfile.social_twitter}
-              social_instagram={friendProfile.social_instagram}
-              social_youtube={friendProfile.social_youtube}
-              social_twitch={friendProfile.social_twitch}
-            />
-          </div>
+              {/* Social Media Links */}
+              {friendProfile && (friendProfile.social_discord || friendProfile.social_twitter ||
+                friendProfile.social_instagram || friendProfile.social_youtube ||
+                friendProfile.social_twitch) && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-warcrow-gold/80">Social Platforms</h3>
+                  <SocialMediaLinks
+                    social_discord={friendProfile.social_discord}
+                    social_twitter={friendProfile.social_twitter}
+                    social_instagram={friendProfile.social_instagram}
+                    social_youtube={friendProfile.social_youtube}
+                    social_twitch={friendProfile.social_twitch}
+                  />
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="comments">
+              {friendId && <ProfileComments profileId={friendId} />}
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>

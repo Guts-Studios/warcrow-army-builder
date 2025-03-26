@@ -10,6 +10,7 @@ import { useProfileContext } from './ProfileData';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProfileSession } from '@/hooks/useProfileSession';
+import { FriendProfileDialog } from './FriendProfileDialog';
 
 interface Friend {
   id: string;
@@ -25,6 +26,8 @@ interface FriendsSectionProps {
 
 export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompact = false }) => {
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  const [showFriendProfile, setShowFriendProfile] = useState(false);
   const isMobile = useIsMobile();
   const { profile } = useProfileContext();
   const { userId: currentUserId } = useProfileSession();
@@ -94,6 +97,11 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     }
   };
 
+  const handleFriendClick = (friendId: string) => {
+    setSelectedFriendId(friendId);
+    setShowFriendProfile(true);
+  };
+
   // Calculate display height based on number of friends (show up to 10 without scrolling)
   const getListHeight = () => {
     if (isCompact) {
@@ -127,82 +135,97 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   }, [onlineStatus, currentUserId, friends]);
 
   return (
-    <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 relative`} style={{ maxHeight }}>
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-warcrow-gold font-medium text-sm md:text-base">
-          Friends {friends.length > 0 && `(${friends.length})`}
-        </h3>
-        <div className="flex gap-1 md:gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-warcrow-gold/50 text-black bg-warcrow-gold hover:bg-warcrow-gold/80 h-7 px-2 py-1 text-xs"
-            onClick={refreshFriends}
-          >
-            <RefreshCw className="h-3 w-3" />
-            {!isMobile && <span className="ml-1">Refresh</span>}
-          </Button>
-
-          {!isCurrentUser && profile && (
+    <>
+      <div className={`bg-black/50 backdrop-filter backdrop-blur-sm rounded-lg p-3 border border-warcrow-gold/10 relative`} style={{ maxHeight }}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-warcrow-gold font-medium text-sm md:text-base">
+            Friends {friends.length > 0 && `(${friends.length})`}
+          </h3>
+          <div className="flex gap-1 md:gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="border-green-500/50 text-green-500 hover:bg-green-500/10 h-7 px-2 py-1 text-xs"
-              onClick={handleAddFriend}
+              className="border-warcrow-gold/50 text-black bg-warcrow-gold hover:bg-warcrow-gold/80 h-7 px-2 py-1 text-xs"
+              onClick={refreshFriends}
             >
-              <UserPlus className="h-3 w-3" />
-              {!isMobile && <span className="ml-1">Add</span>}
+              <RefreshCw className="h-3 w-3" />
+              {!isMobile && <span className="ml-1">Refresh</span>}
             </Button>
-          )}
-        </div>
-      </div>
 
-      {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center space-x-2">
-              <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
-              <div className="space-y-1">
-                <Skeleton className="h-3 md:h-4 w-[80px] md:w-[100px]" />
-                <Skeleton className="h-2 md:h-4 w-[60px] md:w-[80px]" />
-              </div>
-            </div>
-          ))}
+            {!isCurrentUser && profile && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-green-500/50 text-green-500 hover:bg-green-500/10 h-7 px-2 py-1 text-xs"
+                onClick={handleAddFriend}
+              >
+                <UserPlus className="h-3 w-3" />
+                {!isMobile && <span className="ml-1">Add</span>}
+              </Button>
+            )}
+          </div>
         </div>
-      ) : (
-        <ScrollArea className={contentHeight !== 'auto' ? `h-[${contentHeight}]` : ''}>
-          <ul className="space-y-2 pr-2">
-            {friends.length > 0 ? (
-              friends.map((friend) => (
-                <li key={friend.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
-                    <div>
-                      <div className="font-medium text-warcrow-gold text-xs md:text-sm">{friend.username}</div>
-                      <div className="text-[10px] md:text-xs text-warcrow-text/70">
-                        {onlineStatus[friend.id] ? 'Online' : 'Offline'}
+
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+                <div className="space-y-1">
+                  <Skeleton className="h-3 md:h-4 w-[80px] md:w-[100px]" />
+                  <Skeleton className="h-2 md:h-4 w-[60px] md:w-[80px]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <ScrollArea className={contentHeight !== 'auto' ? `h-[${contentHeight}]` : ''}>
+            <ul className="space-y-2 pr-2">
+              {friends.length > 0 ? (
+                friends.map((friend) => (
+                  <li 
+                    key={friend.id} 
+                    className="flex items-center justify-between group"
+                  >
+                    <div 
+                      className="flex items-center space-x-2 flex-1 cursor-pointer hover:bg-black/30 p-1 rounded-md transition-colors"
+                      onClick={() => handleFriendClick(friend.id)}
+                    >
+                      <img src={friend.avatar_url || "/images/user.png"} alt={friend.username || ''} className="h-6 w-6 md:h-8 md:w-8 rounded-full" />
+                      <div>
+                        <div className="font-medium text-warcrow-gold text-xs md:text-sm group-hover:underline">{friend.username}</div>
+                        <div className="text-[10px] md:text-xs text-warcrow-text/70">
+                          {onlineStatus[friend.id] ? 'Online' : 'Offline'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {isCurrentUser && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs ml-2"
-                      onClick={() => handleRemoveFriend(friend.friendship_id)}
-                    >
-                      <UserMinus className="h-3 w-3" />
-                    </Button>
-                  )}
-                </li>
-              ))
-            ) : (
-              <li className="text-warcrow-text/70 text-xs md:text-sm">No friends yet.</li>
-            )}
-          </ul>
-        </ScrollArea>
-      )}
-    </div>
+                    
+                    {isCurrentUser && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs ml-2"
+                        onClick={() => handleRemoveFriend(friend.friendship_id)}
+                      >
+                        <UserMinus className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </li>
+                ))
+              ) : (
+                <li className="text-warcrow-text/70 text-xs md:text-sm">No friends yet.</li>
+              )}
+            </ul>
+          </ScrollArea>
+        )}
+      </div>
+
+      {/* Friend Profile Dialog */}
+      <FriendProfileDialog 
+        friendId={selectedFriendId}
+        isOpen={showFriendProfile}
+        onClose={() => setShowFriendProfile(false)}
+      />
+    </>
   );
 };
