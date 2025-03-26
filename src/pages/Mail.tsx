@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, AlertTriangleIcon, MailIcon } from "lucide-react";
+import { InfoIcon, AlertTriangleIcon, MailIcon, RefreshCw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { resendAllPendingConfirmationEmails } from "@/utils/emailUtils";
 
@@ -480,8 +480,19 @@ const Mail = () => {
                   onClick={handleResendConfirmationEmails}
                   disabled={isResendingConfirmations}
                   className="w-full sm:w-auto"
+                  variant="default"
                 >
-                  {isResendingConfirmations ? 'Sending...' : 'Resend All Confirmation Emails'}
+                  {isResendingConfirmations ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <MailIcon className="mr-2 h-4 w-4" />
+                      Resend All Confirmation Emails
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
