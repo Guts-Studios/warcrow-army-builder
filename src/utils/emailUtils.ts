@@ -1,10 +1,11 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface EmailOptions {
   type?: 'welcome' | 'reset_password';
   token?: string;
-  fromEmail?: string; // Add support for custom sender email
-  fromName?: string;  // Add support for custom sender name
+  fromEmail?: string; 
+  fromName?: string;  
 }
 
 export const sendEmail = async (
@@ -120,9 +121,13 @@ export const resendAllPendingConfirmationEmails = async () => {
   try {
     console.log('Fetching users with unconfirmed emails...');
     
-    const { data: users, error } = await supabase.functions.invoke('send-resend-email', {
+    const { data, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
-        resendAllPendingConfirmations: true
+        resendAllPendingConfirmations: true,
+        // Adding minimal required fields for the edge function
+        to: ['placeholder@example.com'],
+        subject: 'Confirmation',
+        html: '<p>Confirmation</p>'
       }
     });
 
@@ -131,11 +136,11 @@ export const resendAllPendingConfirmationEmails = async () => {
       throw error;
     }
 
-    console.log('Confirmation emails resend result:', users);
+    console.log('Confirmation emails resend result:', data);
     return {
       success: true,
-      message: `Confirmation emails sent to ${users.count} users`,
-      details: users
+      message: `Confirmation emails sent to ${data?.count || 0} users`,
+      details: data
     };
   } catch (error) {
     console.error('Failed to resend confirmation emails:', error);
@@ -201,6 +206,7 @@ export const updateUserWabAdminStatus = async (
 
 export const getWabAdmins = async (): Promise<any[]> => {
   try {
+    // First get the admin profiles
     const { data, error } = await supabase
       .from('profiles')
       .select('id, username, wab_id')
@@ -212,17 +218,18 @@ export const getWabAdmins = async (): Promise<any[]> => {
       return [];
     }
     
+    // Then for each admin, get their email via a separate service role query
     const adminsWithEmails = await Promise.all(
       data.map(async (admin) => {
+        // Using RPC call to get user email safely since we can't directly query auth.users
         const { data: userData, error: userError } = await supabase
-          .from('auth.users')
-          .select('email')
-          .eq('id', admin.id)
+          .rpc('get_user_email', { user_id: admin.id })
           .single();
         
         return {
           ...admin,
-          email: userError ? 'No email found' : (userData?.email || 'No email found')
+          // If the RPC fails or returns no data, use a fallback
+          email: userError ? 'Email not accessible' : (userData?.email || 'No email found')
         };
       })
     );

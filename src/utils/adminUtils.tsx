@@ -91,6 +91,9 @@ interface AdminOnlyProps {
 export function AdminOnly(props: AdminOnlyProps) {
   const { children, isWabAdmin, fallback = null } = props;
   
+  // Simple debug console log to verify admin status (can be removed in production)
+  console.log('AdminOnly component - isWabAdmin:', isWabAdmin);
+  
   if (!isWabAdmin) {
     return <>{fallback}</>;
   }

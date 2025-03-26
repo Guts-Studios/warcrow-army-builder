@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -61,7 +60,8 @@ const handler = async (req: Request): Promise<Response> => {
           emailRequest.fromEmail.split('@')[1] : 
           defaultDomain;
           
-        const domainRecord = domainsResponse.data?.find(
+        const verifiedDomains = domainsResponse.data || [];
+        const domainRecord = verifiedDomains.find(
           domain => domain.name === ourDomain
         );
         
@@ -76,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
             `Domain ${ourDomain} is ${domainRecord.status}` : 
             `Domain ${ourDomain} not found in Resend account`,
           timestamp: new Date().toISOString(),
-          domains: domainsResponse.data || []
+          domains: verifiedDomains
         }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -111,8 +111,8 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
         }
         
-        // Fetch users with unconfirmed emails
-        const response = await fetch(`${supabaseAdminUrl}/rest/v1/auth/users?select=id,email,email_confirmed_at`, {
+        // Fetch users with unconfirmed emails - using proper API endpoint for auth users
+        const response = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users?confirmed_at=null`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${supabaseServiceKey}`,
@@ -126,11 +126,8 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error(`Failed to fetch users: ${response.status} ${errorText}`);
         }
         
-        const allUsers = await response.json();
-        console.log(`Retrieved ${allUsers.length} users`);
-        
-        // Filter users who need confirmation
-        const unconfirmedUsers = allUsers.filter((user: any) => !user.email_confirmed_at);
+        const responseData = await response.json();
+        const unconfirmedUsers = responseData.users || [];
         console.log(`Found ${unconfirmedUsers.length} users with unconfirmed emails`);
         
         // Resend confirmation emails
@@ -140,17 +137,13 @@ const handler = async (req: Request): Promise<Response> => {
           
           try {
             // Send confirmation email through Supabase
-            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/resend`, {
+            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users/${user.id}/send-email-verification`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${supabaseServiceKey}`,
                 'apikey': supabaseServiceKey,
                 'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email: user.email,
-                type: 'signup',
-              }),
+              }
             });
             
             if (!resendResponse.ok) {
