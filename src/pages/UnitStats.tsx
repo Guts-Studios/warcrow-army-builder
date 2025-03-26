@@ -32,43 +32,6 @@ const UnitStats = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Symbol Legend Section */}
-          <div className="md:col-span-3 mb-4">
-            <div className="bg-black/40 rounded-lg p-4 border border-warcrow-gold/30">
-              <h2 className="text-xl font-bold text-warcrow-gold mb-2">Symbol Legend</h2>
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={119} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Red</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={113} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Orange</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={57} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Green</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={55} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Black</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={56} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Blue</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={48} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Yellow</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <GameSymbol code={49} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
-                  <span>Star</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
           {/* Unit Selection Column */}
           <div className="md:col-span-1 space-y-4">
             <div className="bg-black/40 rounded-lg p-4 border border-warcrow-gold/30">

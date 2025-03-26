@@ -1,8 +1,9 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Play, User } from "lucide-react";
 
 export const MainActions = () => {
   const navigate = useNavigate();
@@ -62,6 +63,14 @@ export const MainActions = () => {
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
           Missions
+        </Button>
+        <Button
+          onClick={() => navigate('/profile')}
+          variant="outline"
+          className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+        >
+          <User className="mr-2 h-4 w-4" />
+          Profile
         </Button>
         {(isTester || isPreview) && (
           <>
