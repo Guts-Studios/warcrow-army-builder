@@ -46,26 +46,26 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Users className={`w-4 h-4 ${playerColor}`} />
                   </div>
                   <div>
-                    <div className={`font-medium ${playerColor}`}>{player.name}</div>
-                    <div className="text-xs text-warcrow-muted">
+                    <div className={`font-medium text-base ${playerColor}`}>{player.name}</div>
+                    <div className="text-sm text-warcrow-muted">
                       <span className="text-right">Victory Points: {player.score || 0}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-2 mt-2">
+                <div className="space-y-3 mt-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox 
                       id={`${playerId}-central`} 
                       checked={missionScoring[playerId]?.central}
                       onCheckedChange={() => toggleScoringCondition(playerId, 'central')}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-central`}
-                      className="text-sm flex items-center gap-1 text-warcrow-text"
+                      className="text-base flex items-center gap-1 text-warcrow-text"
                     >
-                      <img src="/art/icons/flag.png" alt="Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <img src="/art/icons/obj.png" alt="Neutral Flag" className="h-4 w-4" />
                       Control central objective (1 VP)
                     </Label>
                   </div>
@@ -77,18 +77,22 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                       onCheckedChange={() => toggleScoringCondition(playerId, 'opponent1')}
                       disabled={Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-opponent1`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/orange-flag.png" alt="Orange Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <img 
+                        src={isFirstPlayer ? "/art/icons/blue-obj.png" : "/art/icons/red-obj.png"} 
+                        alt="Opponent Flag" 
+                        className="h-4 w-4" 
+                      />
                       Control opponent's objective 1 (1 VP)
                     </Label>
                   </div>
@@ -100,18 +104,22 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                       onCheckedChange={() => toggleScoringCondition(playerId, 'opponent2')}
                       disabled={Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-opponent2`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/red-flag.png" alt="Red Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <img 
+                        src={isFirstPlayer ? "/art/icons/blue-obj.png" : "/art/icons/red-obj.png"} 
+                        alt="Opponent Flag" 
+                        className="h-4 w-4" 
+                      />
                       Control opponent's objective 2 (2 VP)
                     </Label>
                   </div>
@@ -127,27 +135,27 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         )
                       }
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-defend`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && (
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         ) ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Shield className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <Shield className={`h-4 w-4 ${iconColor}`} />
                       Opponent controls neither of your objectives (1 VP)
                     </Label>
                   </div>
                   
-                  <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
+                  <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-warcrow-text">Round {currentRound}</div>
-                      <div className={`text-xl font-bold ${playerColor} text-right`}>
+                      <div className="text-base font-medium text-warcrow-text">Round {currentRound}</div>
+                      <div className={`text-2xl font-bold ${playerColor} text-right`}>
                         {calculateVP(playerId)} VP
                       </div>
                     </div>
@@ -178,14 +186,14 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Users className={`w-4 h-4 ${playerColor}`} />
                   </div>
                   <div>
-                    <div className={`font-medium ${playerColor}`}>{player.name}</div>
-                    <div className="text-xs text-warcrow-muted">
+                    <div className={`font-medium text-base ${playerColor}`}>{player.name}</div>
+                    <div className="text-sm text-warcrow-muted">
                       <span className="text-right">Victory Points: {player.score || 0}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-2 mt-2">
+                <div className="space-y-3 mt-3">
                   <div className="flex items-center space-x-2">
                     <Checkbox 
                       id={`${playerId}-opponent1`} 
@@ -193,18 +201,22 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                       onCheckedChange={() => toggleScoringCondition(playerId, 'opponent1')}
                       disabled={Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-opponent1`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/orange-flag.png" alt="Orange Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <img 
+                        src={isFirstPlayer ? "/art/icons/blue-obj.png" : "/art/icons/red-obj.png"} 
+                        alt="Opponent Flag" 
+                        className="h-4 w-4" 
+                      />
                       Control opponent's objective 1 (1 VP)
                     </Label>
                   </div>
@@ -216,18 +228,22 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                       onCheckedChange={() => toggleScoringCondition(playerId, 'opponent2')}
                       disabled={Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-opponent2`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.defendObjectives
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <img src="/art/icons/red-flag.png" alt="Red Flag" className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <img 
+                        src={isFirstPlayer ? "/art/icons/blue-obj.png" : "/art/icons/red-obj.png"} 
+                        alt="Opponent Flag" 
+                        className="h-4 w-4" 
+                      />
                       Control opponent's objective 2 (1 VP)
                     </Label>
                   </div>
@@ -243,27 +259,27 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         )
                       }
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-defend`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && (
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent1 ||
                           missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.opponent2
                         ) ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Shield className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <Shield className={`h-4 w-4 ${iconColor}`} />
                       Opponent controls neither of your objectives (1 VP)
                     </Label>
                   </div>
                   
-                  <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
+                  <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-warcrow-text">Round {currentRound}</div>
-                      <div className={`text-xl font-bold ${playerColor} text-right`}>
+                      <div className="text-base font-medium text-warcrow-text">Round {currentRound}</div>
+                      <div className={`text-2xl font-bold ${playerColor} text-right`}>
                         {calculateVP(playerId)} VP
                       </div>
                     </div>
@@ -287,8 +303,8 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
     
     return (
       <>
-        <div className="bg-warcrow-accent/30 p-2 rounded-md mb-3 text-xs flex items-center border border-warcrow-gold/20">
-          <Cloud className="w-3.5 h-3.5 mr-1.5 text-warcrow-gold" />
+        <div className="bg-warcrow-accent/30 p-3 rounded-md mb-3 text-sm flex items-center border border-warcrow-gold/20">
+          <Cloud className="w-4 h-4 mr-2 text-warcrow-gold" />
           <span className="text-warcrow-text">
             {remainingMarkers} fog marker{remainingMarkers !== 1 ? 's' : ''} remaining 
             {scoredFogMarkers.fogContact1 || scoredFogMarkers.fogContact2 || 
@@ -312,15 +328,15 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                     <Users className={`w-4 h-4 ${playerColor}`} />
                   </div>
                   <div>
-                    <div className={`font-medium ${playerColor}`}>{player.name}</div>
-                    <div className="text-xs text-warcrow-muted">
+                    <div className={`font-medium text-base ${playerColor}`}>{player.name}</div>
+                    <div className="text-sm text-warcrow-muted">
                       <span className="text-right">Victory Points: {player.score || 0}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-2 mt-2">
-                  <div className={`text-xs font-medium mb-1 text-warcrow-text`}>
+                <div className="space-y-3 mt-3">
+                  <div className={`text-sm font-medium mb-1 text-warcrow-text`}>
                     Fog Marker Contact with Conquest Marker (1 VP each):
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -331,11 +347,11 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                             id={`${playerId}-${marker.id}`} 
                             checked={missionScoring[playerId]?.[marker.id] || false}
                             onCheckedChange={() => toggleScoringCondition(playerId, marker.id)}
-                            className={checkboxColor}
+                            className={`${checkboxColor} h-5 w-5`}
                           />
                           <Label 
                             htmlFor={`${playerId}-${marker.id}`}
-                            className="text-sm text-warcrow-text"
+                            className="text-base text-warcrow-text"
                           >
                             {marker.label}
                           </Label>
@@ -345,38 +361,38 @@ const MissionScoring: React.FC<MissionScoringProps> = ({
                   </div>
                   
                   {remainingMarkers === 0 && (
-                    <div className="text-xs text-warcrow-muted mt-1 italic">
+                    <div className="text-sm text-warcrow-muted mt-2 italic">
                       All fog markers have been used in previous rounds.
                     </div>
                   )}
                   
-                  <div className="flex items-center space-x-2 mt-2">
+                  <div className="flex items-center space-x-2 mt-3">
                     <Checkbox 
                       id={`${playerId}-control-artifact`} 
                       checked={missionScoring[playerId]?.controlArtifact || false}
                       onCheckedChange={() => toggleScoringCondition(playerId, 'controlArtifact')}
                       disabled={Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.controlArtifact}
-                      className={checkboxColor}
+                      className={`${checkboxColor} h-5 w-5`}
                     />
                     <Label 
                       htmlFor={`${playerId}-control-artifact`}
                       className={cn(
-                        "text-sm flex items-center gap-1 text-warcrow-text",
+                        "text-base flex items-center gap-1 text-warcrow-text",
                         Object.keys(players).find(id => id !== playerId) && 
                         missionScoring[Object.keys(players).find(id => id !== playerId) || '']?.controlArtifact
                           ? "text-warcrow-muted" : ""
                       )}
                     >
-                      <Target className={`h-3.5 w-3.5 ${iconColor}`} />
+                      <Target className={`h-4 w-4 ${iconColor}`} />
                       Control artifact at end of round (2 VP)
                     </Label>
                   </div>
                   
-                  <div className="mt-2 pt-2 border-t border-warcrow-gold/20">
+                  <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-warcrow-text">Round {currentRound}</div>
-                      <div className={`text-xl font-bold ${playerColor} text-right`}>
+                      <div className="text-base font-medium text-warcrow-text">Round {currentRound}</div>
+                      <div className={`text-2xl font-bold ${playerColor} text-right`}>
                         {calculateVP(playerId)} VP
                       </div>
                     </div>

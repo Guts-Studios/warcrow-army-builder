@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 interface EmailOptions {
   type?: 'welcome' | 'reset_password' | 'confirmation';
   token?: string;
-  useResend?: boolean;
 }
 
 export const sendEmail = async (
@@ -18,12 +17,10 @@ export const sendEmail = async (
       to,
       subject,
       options,
-      provider: options.useResend ? 'Resend' : 'Mailgun'
+      provider: 'Resend'
     });
     
-    const functionName = options.useResend ? 'send-resend-email' : 'send-mailgun-email';
-    
-    const { data, error } = await supabase.functions.invoke(functionName, {
+    const { data, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
         to,
         subject,
@@ -46,7 +43,7 @@ export const sendEmail = async (
     console.log('Email sent successfully:', {
       data,
       timestamp: new Date().toISOString(),
-      provider: options.useResend ? 'Resend' : 'Mailgun'
+      provider: 'Resend'
     });
     
     return data;
@@ -67,28 +64,12 @@ export const testResendEmail = async () => {
       ['caldwejf@gmail.com'],
       'Resend Test Email',
       '<h1>Test Email from Warcrow Army</h1><p>This is a test email sent via Resend to verify the email service is working.</p>',
-      { useResend: true }
+      {}
     );
     console.log('Test email sent successfully via Resend');
     return true;
   } catch (error) {
     console.error('Failed to send test email via Resend:', error);
-    throw error;
-  }
-};
-
-// Test function to verify Mailgun functionality
-export const testMailgunEmail = async () => {
-  try {
-    await sendEmail(
-      ['caldwejf@gmail.com'],
-      'Mailgun Test Email',
-      '<h1>Test Email from Warcrow Army</h1><p>This is a test email sent via Mailgun to verify the email service is working.</p>'
-    );
-    console.log('Test email sent successfully via Mailgun');
-    return true;
-  } catch (error) {
-    console.error('Failed to send test email via Mailgun:', error);
     throw error;
   }
 };
@@ -103,7 +84,7 @@ export const sendTestConfirmationEmail = async (email: string) => {
       <p>This is a test email to verify that our email confirmation system is working properly.</p>
       <p>In a real confirmation email, you would see a link to click to confirm your email address.</p>
       <p>If you are receiving this test email, it means our email delivery system is functioning correctly.</p>`,
-      { type: 'confirmation', useResend: true }
+      { type: 'confirmation' }
     );
     console.log('Test confirmation email sent successfully');
     return true;
@@ -116,7 +97,6 @@ export const sendTestConfirmationEmail = async (email: string) => {
 // Make test functions available globally for testing
 declare global {
   interface Window {
-    testMailgunEmail: typeof testMailgunEmail;
     testResendEmail: typeof testResendEmail;
     sendTestConfirmationEmail: typeof sendTestConfirmationEmail;
   }
@@ -124,7 +104,6 @@ declare global {
 
 // Add test functions to window object
 if (typeof window !== 'undefined') {
-  window.testMailgunEmail = testMailgunEmail;
   window.testResendEmail = testResendEmail;
   window.sendTestConfirmationEmail = sendTestConfirmationEmail;
 }
