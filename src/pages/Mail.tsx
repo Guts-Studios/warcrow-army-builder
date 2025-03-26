@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, AlertTriangleIcon } from "lucide-react";
+import { InfoIcon, AlertTriangleIcon, MailIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { resendAllPendingConfirmationEmails } from "@/utils/emailUtils";
 
 const Mail = () => {
   const [testEmail, setTestEmail] = React.useState('');
@@ -23,6 +24,7 @@ const Mail = () => {
   const [customFromEmail, setCustomFromEmail] = React.useState('onboarding@resend.dev');
   const [customFromName, setCustomFromName] = React.useState('Warcrow Test');
   const [domainStatus, setDomainStatus] = React.useState<string | null>(null);
+  const [isResendingConfirmations, setIsResendingConfirmations] = React.useState(false);
   
   const checkDomainStatus = async () => {
     try {
@@ -51,6 +53,27 @@ const Mail = () => {
   React.useEffect(() => {
     checkDomainStatus();
   }, []);
+
+  const handleResendConfirmationEmails = async () => {
+    try {
+      setIsResendingConfirmations(true);
+      toast.info("Resending confirmation emails to unconfirmed users...");
+      
+      const result = await resendAllPendingConfirmationEmails();
+      
+      if (result.success) {
+        toast.success(result.message);
+        console.log('Confirmation emails resend details:', result.details);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error('Failed to resend confirmation emails:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to resend confirmation emails');
+    } finally {
+      setIsResendingConfirmations(false);
+    }
+  };
 
   const handleSendTestEmail = async () => {
     if (!testEmail) {
@@ -115,7 +138,6 @@ const Mail = () => {
 
     try {
       setIsSending(true);
-      // Attempt to send a password recovery email using Supabase Auth
       const { error } = await supabase.auth.resetPasswordForEmail(testEmail, {
         redirectTo: window.location.origin + '/reset-password',
       });
@@ -145,6 +167,7 @@ const Mail = () => {
           <TabsTrigger value="supabase">Supabase Auth Email</TabsTrigger>
           <TabsTrigger value="config">Configuration</TabsTrigger>
           <TabsTrigger value="advanced">Advanced Settings</TabsTrigger>
+          <TabsTrigger value="admin">Admin Actions</TabsTrigger>
         </TabsList>
         
         <TabsContent value="resend">
@@ -427,6 +450,38 @@ const Mail = () => {
                   onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions', '_blank')}
                 >
                   Supabase Secrets
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="admin">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Admin Email Actions</h2>
+            <div className="space-y-4">
+              <Alert className="bg-amber-50 text-amber-800 border-amber-200 mb-4">
+                <InfoIcon className="h-4 w-4 text-amber-600" />
+                <AlertTitle>Mass Email Operations</AlertTitle>
+                <AlertDescription className="mt-2">
+                  These operations affect multiple users. Use with caution.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="border rounded-md p-4">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <MailIcon className="h-4 w-4 mr-2" />
+                  Resend Confirmation Emails
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  This will resend confirmation emails to all users who have not yet confirmed their email addresses.
+                </p>
+                <Button 
+                  onClick={handleResendConfirmationEmails}
+                  disabled={isResendingConfirmations}
+                  className="w-full sm:w-auto"
+                >
+                  {isResendingConfirmations ? 'Sending...' : 'Resend All Confirmation Emails'}
                 </Button>
               </div>
             </div>
