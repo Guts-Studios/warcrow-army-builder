@@ -1,6 +1,7 @@
+
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface AuthContextType {
   isPasswordRecovery: boolean;
   isTester: boolean;
   setIsGuest: (value: boolean) => void;
+  resendConfirmationEmail: (email: string) => Promise<void>;
 }
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -20,6 +22,7 @@ export const AuthContext = React.createContext<AuthContextType>({
   isPasswordRecovery: false,
   isTester: false,
   setIsGuest: () => {},
+  resendConfirmationEmail: async () => {},
 });
 
 export const useAuth = () => React.useContext(AuthContext);
@@ -32,6 +35,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
+
+  // Function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      console.log('Attempting to resend confirmation email to:', email);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      
+      if (error) {
+        console.error('Error resending confirmation email:', error);
+        toast.error(`Failed to resend confirmation email: ${error.message}`);
+        throw error;
+      }
+      
+      console.log('Confirmation email resent successfully');
+      toast.success('Confirmation email sent! Please check your inbox and spam folder.');
+    } catch (error) {
+      console.error('Unexpected error resending confirmation email:', error);
+      toast.error('Failed to resend confirmation email. Please try again later.');
+    }
+  };
 
   React.useEffect(() => {
     const setupAuth = async () => {
@@ -91,7 +117,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         event,
         sessionExists: !!session,
         userId: session?.user?.id,
-        userEmail: session?.user?.email
+        userEmail: session?.user?.email,
+        userEmailConfirmed: session?.user?.email_confirmed_at
       });
 
       if (event === 'PASSWORD_RECOVERY') {
@@ -99,6 +126,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsPasswordRecovery(true);
         setIsAuthenticated(false);
         return;
+      }
+
+      if (event === 'SIGNED_UP') {
+        console.log('User signed up, email confirmation status:', {
+          email: session?.user?.email,
+          confirmed: !!session?.user?.email_confirmed_at
+        });
+        
+        if (!session?.user?.email_confirmed_at) {
+          toast({
+            title: "Verification Email Sent",
+            description: "Please check your email to confirm your account. Check your spam folder if you don't see it.",
+            duration: 8000,
+          });
+        }
+      }
+
+      if (event === 'USER_UPDATED') {
+        console.log('User updated event, email confirmation status:', {
+          email: session?.user?.email,
+          confirmed: !!session?.user?.email_confirmed_at
+        });
       }
 
       if (!isPasswordRecovery) {
@@ -136,6 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isPasswordRecovery,
     isTester,
     setIsGuest,
+    resendConfirmationEmail,
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface LoginProps {
   onGuestAccess?: () => void;
@@ -26,8 +29,12 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const navigate = useNavigate();
   const [showGuestDialog, setShowGuestDialog] = useState(false);
   const [showHomeGuestDialog, setShowHomeGuestDialog] = useState(false);
+  const [showResendDialog, setShowResendDialog] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const { resendConfirmationEmail } = useAuth();
 
   useEffect(() => {
     const {
@@ -38,7 +45,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         sessionExists: !!session,
         userId: session?.user?.id,
         userEmail: session?.user?.email,
-        eventType: event
+        eventType: event,
+        emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No'
       });
       
       setIsLoading(true);
@@ -49,6 +57,14 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         } else if (event === 'SIGNED_IN') {
           toast.success('Successfully signed in!');
           navigate('/landing');
+        } else if (event === 'SIGNED_UP') {
+          // Check if email confirmation is required
+          if (!session?.user?.email_confirmed_at) {
+            toast.info('Please check your email to verify your account before signing in');
+          } else {
+            toast.success('Account created successfully!');
+            navigate('/landing');
+          }
         } else if (event === 'USER_UPDATED') {
           toast.success('Your profile has been updated successfully');
           navigate('/landing');
@@ -76,7 +92,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
                 setError('Invalid email or password. Please check your credentials and try again.');
                 break;
               case 'Email not confirmed':
-                setError('Please verify your email address before signing in.');
+                setError('Please verify your email address before signing in. Click "Resend Confirmation Email" below.');
                 break;
               case 'Too many requests':
                 setError('Too many login attempts. Please try again later.');
@@ -109,7 +125,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     }
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, resendConfirmationEmail]);
 
   const handleGuestAccess = () => {
     setShowGuestDialog(true);
@@ -117,6 +133,28 @@ const Login = ({ onGuestAccess }: LoginProps) => {
 
   const handleHomeClick = () => {
     setShowHomeGuestDialog(true);
+  };
+
+  const handleResendEmail = () => {
+    setShowResendDialog(true);
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!resendEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await resendConfirmationEmail(resendEmail);
+      setShowResendDialog(false);
+      setResendEmail('');
+    } catch (error) {
+      console.error('Failed to resend confirmation:', error);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const confirmGuestAccess = () => {
@@ -159,6 +197,16 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
+            {error.includes('verify your email') && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2 bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold transition-all duration-300"
+                onClick={handleResendEmail}
+              >
+                Resend Confirmation Email
+              </Button>
+            )}
           </Alert>
         )}
         {isLoading && (
@@ -194,6 +242,15 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           }}
           providers={[]}
         />
+        <div className="mt-4 text-center">
+          <Button 
+            variant="link" 
+            className="text-warcrow-gold hover:text-warcrow-gold/80"
+            onClick={handleResendEmail}
+          >
+            Didn't receive confirmation email?
+          </Button>
+        </div>
       </div>
 
       <AlertDialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
@@ -231,6 +288,36 @@ const Login = ({ onGuestAccess }: LoginProps) => {
               className="bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold text-warcrow-background border border-warcrow-gold"
             >
               Continue to Home
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showResendDialog} onOpenChange={setShowResendDialog}>
+        <AlertDialogContent className="bg-warcrow-accent border-warcrow-gold">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-warcrow-text">Resend Confirmation Email</AlertDialogTitle>
+            <AlertDialogDescription className="text-warcrow-text/80">
+              Enter your email address to receive a new confirmation email.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input 
+              type="email" 
+              placeholder="Your email address" 
+              value={resendEmail} 
+              onChange={(e) => setResendEmail(e.target.value)}
+              className="bg-warcrow-background border-warcrow-gold text-warcrow-text"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-warcrow-accent hover:bg-warcrow-gold hover:text-warcrow-background border border-warcrow-gold text-warcrow-gold">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleResendConfirmation}
+              className="bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold text-warcrow-background border border-warcrow-gold"
+              disabled={isResending || !resendEmail}
+            >
+              {isResending ? 'Sending...' : 'Send Confirmation Email'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
