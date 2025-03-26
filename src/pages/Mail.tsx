@@ -1,17 +1,30 @@
+
 import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, AlertTriangleIcon, MailIcon, RefreshCw } from "lucide-react";
+import { 
+  InfoIcon, 
+  AlertTriangleIcon, 
+  MailIcon, 
+  RefreshCw, 
+  ArrowLeft,
+  CheckCircle,
+  Settings,
+  MailWarning 
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { resendAllPendingConfirmationEmails } from "@/utils/emailUtils";
+import { useNavigate } from "react-router-dom";
 
 const Mail = () => {
+  const navigate = useNavigate();
   const [testEmail, setTestEmail] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
   const [customSubject, setCustomSubject] = React.useState('Test Email from Warcrow Army');
@@ -158,376 +171,482 @@ const Mail = () => {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Email Testing Dashboard</h1>
-      
-      <Tabs defaultValue="resend" className="mb-8">
-        <TabsList>
-          <TabsTrigger value="resend">Resend Edge Function</TabsTrigger>
-          <TabsTrigger value="supabase">Supabase Auth Email</TabsTrigger>
-          <TabsTrigger value="config">Configuration</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced Settings</TabsTrigger>
-          <TabsTrigger value="admin">Admin Actions</TabsTrigger>
-        </TabsList>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="container mx-auto p-4 md:p-8">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => navigate('/admin')}
+            className="mr-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+            Email Management
+          </h1>
+        </div>
         
-        <TabsContent value="resend">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Send Test Email (Resend Edge Function)</h2>
-            
-            {domainStatus && domainStatus.includes('not verified') && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertTriangleIcon className="h-4 w-4" />
-                <AlertTitle>Domain Not Verified</AlertTitle>
-                <AlertDescription>
-                  {domainStatus}. This will cause email sending to fail.
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => window.open('https://resend.com/domains', '_blank')}
-                  >
-                    Go to Resend Domains
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="testEmail">Test Email Address</Label>
-                <Input
-                  id="testEmail"
-                  type="email"
-                  placeholder="Enter test email address"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="customSubject">Email Subject</Label>
-                <Input
-                  id="customSubject"
-                  type="text"
-                  placeholder="Email subject"
-                  value={customSubject}
-                  onChange={(e) => setCustomSubject(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="customHtml">Email HTML Content</Label>
-                <textarea
-                  id="customHtml"
-                  placeholder="Enter HTML content for the email"
-                  value={customHtml}
-                  onChange={(e) => setCustomHtml(e.target.value)}
-                  className="w-full h-40 mt-1 px-3 py-2 border rounded-md border-input bg-background"
-                />
-              </div>
-              
-              {useDifferentSender && (
-                <div className="p-3 border rounded-md border-yellow-200 bg-yellow-50">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
-                    <span className="text-sm font-medium text-yellow-800">Using alternative sender</span>
-                  </div>
-                  
-                  <div className="space-y-3">
+        <Tabs defaultValue="resend" className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+            <TabsList className="w-full md:w-auto grid grid-cols-2 md:flex md:flex-wrap gap-2">
+              <TabsTrigger value="resend" className="md:flex-1">
+                <MailIcon className="mr-2 h-4 w-4" />
+                Resend API
+              </TabsTrigger>
+              <TabsTrigger value="supabase" className="md:flex-1">
+                <MailIcon className="mr-2 h-4 w-4" />
+                Supabase Auth Email
+              </TabsTrigger>
+              <TabsTrigger value="config" className="md:flex-1">
+                <Settings className="mr-2 h-4 w-4" />
+                Configuration
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="md:flex-1">
+                <MailWarning className="mr-2 h-4 w-4" />
+                Troubleshooting
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="md:flex-1">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Admin Actions
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="resend">
+            <Card className="bg-white dark:bg-gray-800 shadow-sm border-0">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800 dark:text-white">
+                  <MailIcon className="mr-2 h-5 w-5 text-blue-500" />
+                  Send Test Email (Resend Edge Function)
+                </h2>
+                
+                {domainStatus && domainStatus.includes('not verified') && (
+                  <Alert variant="destructive" className="mb-6 border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+                    <AlertTriangleIcon className="h-4 w-4" />
+                    <AlertTitle className="font-semibold">Domain Not Verified</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      {domainStatus}. This will cause email sending to fail.
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="mt-2 bg-white dark:bg-gray-800"
+                        onClick={() => window.open('https://resend.com/domains', '_blank')}
+                      >
+                        Go to Resend Domains
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <Label htmlFor="customFromEmail">From Email</Label>
+                      <Label htmlFor="testEmail" className="text-sm font-medium mb-1.5 block">
+                        Test Email Address
+                      </Label>
                       <Input
-                        id="customFromEmail"
+                        id="testEmail"
                         type="email"
-                        placeholder="sender@example.com"
-                        value={customFromEmail}
-                        onChange={(e) => setCustomFromEmail(e.target.value)}
-                        className="mt-1"
+                        placeholder="Enter test email address"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        className="w-full"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="customFromName">From Name</Label>
+                      <Label htmlFor="customSubject" className="text-sm font-medium mb-1.5 block">
+                        Email Subject
+                      </Label>
                       <Input
-                        id="customFromName"
+                        id="customSubject"
                         type="text"
-                        placeholder="Sender Name"
-                        value={customFromName}
-                        onChange={(e) => setCustomFromName(e.target.value)}
-                        className="mt-1"
+                        placeholder="Email subject"
+                        value={customSubject}
+                        onChange={(e) => setCustomSubject(e.target.value)}
+                        className="w-full"
                       />
                     </div>
                   </div>
-                </div>
-              )}
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="useDifferentSender" 
-                  checked={useDifferentSender}
-                  onCheckedChange={(checked) => {
-                    setUseDifferentSender(checked === true);
-                  }}
-                />
-                <Label 
-                  htmlFor="useDifferentSender"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Use Resend's default domain instead (for testing)
-                </Label>
-              </div>
-              
-              <Button 
-                onClick={handleSendTestEmail}
-                disabled={!testEmail || isSending}
-              >
-                {isSending ? 'Sending...' : 'Send Test Email'}
-              </Button>
-              
-              <Alert className="mt-4 bg-muted">
-                <InfoIcon className="h-4 w-4" />
-                <AlertDescription className="ml-2 text-sm">
-                  This uses the Edge Function to send emails via the Resend API directly.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="supabase">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Test Supabase Auth Email (SMTP)</h2>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="supabaseTestEmail">Test Email Address</Label>
-                <Input
-                  id="supabaseTestEmail"
-                  type="email"
-                  placeholder="Enter test email address"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <Button 
-                onClick={handleSendSupabaseTest}
-                disabled={!testEmail || isSending}
-              >
-                {isSending ? 'Sending...' : 'Send Supabase Password Reset'}
-              </Button>
-              
-              <Alert className="mt-4 bg-muted">
-                <InfoIcon className="h-4 w-4" />
-                <AlertDescription className="ml-2 text-sm">
-                  This sends a password reset email using Supabase Auth, which will use your custom SMTP settings.
-                  This is useful to test if your SMTP configuration is working correctly.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="config">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Email Configuration</h2>
-            <div className="space-y-4">
-              <Alert>
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Your Current SMTP Configuration:</h3>
-                  <p><strong>Sender Email:</strong> warcrowbuilderteam@updates.warcrowarmy.com</p>
-                  <p><strong>Sender Name:</strong> Warcrow Army Builder</p>
-                  <p><strong>SMTP Host:</strong> smtp.resend.com</p>
-                  <p><strong>SMTP Port:</strong> 465</p>
-                  <p><strong>Username:</strong> resend</p>
-                  <p><strong>Rate Limit:</strong> One email every 60 seconds</p>
-                </div>
-              </Alert>
-              
-              <div className="space-y-2 mt-4">
-                <h3 className="font-semibold">Troubleshooting Steps:</h3>
-                <ol className="list-decimal ml-5 space-y-2">
-                  <li>Verify your domain in Resend dashboard</li>
-                  <li>Ensure the password is correct in Supabase SMTP settings</li>
-                  <li>Check that port 465 is not blocked by your hosting provider</li>
-                  <li>Test both methods (Resend API and Supabase SMTP) to isolate the issue</li>
-                </ol>
-              </div>
-              
-              <div className="flex space-x-4 mt-6">
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates', '_blank')}
-                >
-                  Supabase Email Templates
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('https://resend.com/domains', '_blank')}
-                >
-                  Verify Domain in Resend
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('https://resend.com/logs', '_blank')}
-                >
-                  Resend Email Logs
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="advanced">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Advanced Troubleshooting</h2>
-            <div className="space-y-4">
-              <Alert className="bg-blue-50 border-blue-200 text-blue-800">
-                <InfoIcon className="h-4 w-4 text-blue-600" />
-                <AlertTitle>Resend Domain Status</AlertTitle>
-                <AlertDescription className="mt-2">
-                  {domainStatus ? domainStatus : 'Checking domain status...'}
-                </AlertDescription>
-              </Alert>
-              
-              <div className="space-y-2">
-                <h3 className="font-semibold">Common Issues and Solutions:</h3>
-                <div className="space-y-3 mt-2">
-                  <div className="p-3 border rounded-md">
-                    <h4 className="font-medium">Domain Verification Issues</h4>
-                    <p className="text-sm mt-1">
-                      If your domain shows as verified in Resend dashboard but you still get verification errors, try:
-                    </p>
-                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
-                      <li>Checking that the API key you're using has access to this domain</li>
-                      <li>Verifying DNS records are correctly set up (TXT and DKIM records)</li>
-                      <li>Testing with Resend's default domain as a workaround (see Advanced Settings tab)</li>
-                    </ul>
+                  
+                  <div>
+                    <Label htmlFor="customHtml" className="text-sm font-medium mb-1.5 block">
+                      Email HTML Content
+                    </Label>
+                    <Textarea
+                      id="customHtml"
+                      placeholder="Enter HTML content for the email"
+                      value={customHtml}
+                      onChange={(e) => setCustomHtml(e.target.value)}
+                      className="w-full h-40 font-mono text-sm"
+                    />
                   </div>
                   
-                  <div className="p-3 border rounded-md">
-                    <h4 className="font-medium">API Key Issues</h4>
-                    <p className="text-sm mt-1">
-                      If you're experiencing API key errors:
-                    </p>
-                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
-                      <li>Check that your API key is correctly set in Supabase edge function secrets</li>
-                      <li>Ensure your API key has the necessary permissions</li>
-                      <li>Create a new API key if the current one isn't working</li>
-                    </ul>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Checkbox 
+                      id="useDifferentSender" 
+                      checked={useDifferentSender}
+                      onCheckedChange={(checked) => {
+                        setUseDifferentSender(checked === true);
+                      }}
+                    />
+                    <Label 
+                      htmlFor="useDifferentSender"
+                      className="text-sm font-medium"
+                    >
+                      Use Resend's default domain instead (for testing)
+                    </Label>
                   </div>
                   
-                  <div className="p-3 border rounded-md">
-                    <h4 className="font-medium">SMTP vs. API Diagnostic</h4>
-                    <p className="text-sm mt-1">
-                      If one method works but the other doesn't:
-                    </p>
-                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
-                      <li>If Supabase Auth emails work but Resend API doesn't: Issue with Resend API key or domain verification</li>
-                      <li>If Resend API works but Supabase Auth doesn't: Issue with SMTP configuration in Supabase</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex space-x-4 mt-6">
-                <Button 
-                  variant="outline"
-                  onClick={checkDomainStatus}
-                >
-                  Refresh Domain Status
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('https://resend.com/api-keys', '_blank')}
-                >
-                  Manage Resend API Keys
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions', '_blank')}
-                >
-                  Supabase Secrets
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="admin">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Admin Email Actions</h2>
-            <div className="space-y-4">
-              <Alert className="bg-amber-50 text-amber-800 border-amber-200 mb-4">
-                <InfoIcon className="h-4 w-4 text-amber-600" />
-                <AlertTitle>Mass Email Operations</AlertTitle>
-                <AlertDescription className="mt-2">
-                  These operations affect multiple users. Use with caution.
-                </AlertDescription>
-              </Alert>
-              
-              <div className="border rounded-md p-4">
-                <h3 className="font-medium mb-2 flex items-center">
-                  <MailIcon className="h-4 w-4 mr-2" />
-                  Resend Confirmation Emails
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  This will resend confirmation emails to all users who have not yet confirmed their email addresses.
-                </p>
-                <Button 
-                  onClick={handleResendConfirmationEmails}
-                  disabled={isResendingConfirmations}
-                  className="w-full sm:w-auto"
-                  variant="default"
-                >
-                  {isResendingConfirmations ? (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <MailIcon className="mr-2 h-4 w-4" />
-                      Resend All Confirmation Emails
-                    </>
+                  {useDifferentSender && (
+                    <div className="p-4 border rounded-md border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 space-y-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <AlertTriangleIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Using alternative sender</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="customFromEmail" className="text-sm font-medium mb-1.5 block">
+                            From Email
+                          </Label>
+                          <Input
+                            id="customFromEmail"
+                            type="email"
+                            placeholder="sender@example.com"
+                            value={customFromEmail}
+                            onChange={(e) => setCustomFromEmail(e.target.value)}
+                            className="w-full"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="customFromName" className="text-sm font-medium mb-1.5 block">
+                            From Name
+                          </Label>
+                          <Input
+                            id="customFromName"
+                            type="text"
+                            placeholder="Sender Name"
+                            value={customFromName}
+                            onChange={(e) => setCustomFromName(e.target.value)}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   )}
-                </Button>
+                  
+                  <Button 
+                    onClick={handleSendTestEmail}
+                    disabled={!testEmail || isSending}
+                    className="w-full md:w-auto"
+                  >
+                    {isSending ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <MailIcon className="mr-2 h-4 w-4" />
+                        Send Test Email
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Alert className="mt-4 bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
+                    <InfoIcon className="h-4 w-4 text-blue-500" />
+                    <AlertDescription className="ml-2 text-sm">
+                      This uses the Edge Function to send emails via the Resend API directly.
+                    </AlertDescription>
+                  </Alert>
+                </div>
               </div>
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="supabase">
+            <Card className="bg-white dark:bg-gray-800 shadow-sm border-0">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800 dark:text-white">
+                  <MailIcon className="mr-2 h-5 w-5 text-blue-500" />
+                  Test Supabase Auth Email (SMTP)
+                </h2>
+                <div className="space-y-5">
+                  <div>
+                    <Label htmlFor="supabaseTestEmail" className="text-sm font-medium mb-1.5 block">
+                      Test Email Address
+                    </Label>
+                    <Input
+                      id="supabaseTestEmail"
+                      type="email"
+                      placeholder="Enter test email address"
+                      value={testEmail}
+                      onChange={(e) => setTestEmail(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  
+                  <Button 
+                    onClick={handleSendSupabaseTest}
+                    disabled={!testEmail || isSending}
+                    className="w-full md:w-auto"
+                  >
+                    {isSending ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <MailIcon className="mr-2 h-4 w-4" />
+                        Send Supabase Password Reset
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Alert className="mt-4 bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
+                    <InfoIcon className="h-4 w-4 text-blue-500" />
+                    <AlertDescription className="ml-2 text-sm">
+                      This sends a password reset email using Supabase Auth, which will use your custom SMTP settings.
+                      This is useful to test if your SMTP configuration is working correctly.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="config">
+            <Card className="bg-white dark:bg-gray-800 shadow-sm border-0">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800 dark:text-white">
+                  <Settings className="mr-2 h-5 w-5 text-blue-500" />
+                  Email Configuration
+                </h2>
+                <div className="space-y-5">
+                  <Alert className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm">
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-gray-800 dark:text-white">Your Current SMTP Configuration:</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        <p><span className="font-medium">Sender Email:</span> warcrowbuilderteam@updates.warcrowarmy.com</p>
+                        <p><span className="font-medium">Sender Name:</span> Warcrow Army Builder</p>
+                        <p><span className="font-medium">SMTP Host:</span> smtp.resend.com</p>
+                        <p><span className="font-medium">SMTP Port:</span> 465</p>
+                        <p><span className="font-medium">Username:</span> resend</p>
+                        <p><span className="font-medium">Rate Limit:</span> One email every 60 seconds</p>
+                      </div>
+                    </div>
+                  </Alert>
+                  
+                  <div className="space-y-3 mt-6">
+                    <h3 className="font-semibold text-gray-800 dark:text-white">Troubleshooting Steps:</h3>
+                    <ol className="list-decimal ml-5 space-y-2 text-sm">
+                      <li className="pl-2">Verify your domain in Resend dashboard</li>
+                      <li className="pl-2">Ensure the password is correct in Supabase SMTP settings</li>
+                      <li className="pl-2">Check that port 465 is not blocked by your hosting provider</li>
+                      <li className="pl-2">Test both methods (Resend API and Supabase SMTP) to isolate the issue</li>
+                    </ol>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3 mt-6">
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates', '_blank')}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      Supabase Email Templates
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.open('https://resend.com/domains', '_blank')}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      Verify Domain in Resend
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.open('https://resend.com/logs', '_blank')}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      Resend Email Logs
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="advanced">
+            <Card className="bg-white dark:bg-gray-800 shadow-sm border-0">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800 dark:text-white">
+                  <MailWarning className="mr-2 h-5 w-5 text-blue-500" />
+                  Advanced Troubleshooting
+                </h2>
+                <div className="space-y-5">
+                  <Alert className="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
+                    <InfoIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                    <AlertTitle className="font-semibold">Resend Domain Status</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      {domainStatus ? domainStatus : 'Checking domain status...'}
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-gray-800 dark:text-white">Common Issues and Solutions:</h3>
+                    <div className="space-y-4 mt-3">
+                      <div className="p-4 border rounded-md bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 shadow-sm">
+                        <h4 className="font-medium text-gray-800 dark:text-white">Domain Verification Issues</h4>
+                        <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+                          If your domain shows as verified in Resend dashboard but you still get verification errors, try:
+                        </p>
+                        <ul className="list-disc ml-5 text-sm mt-2 space-y-1 text-gray-600 dark:text-gray-300">
+                          <li>Checking that the API key you're using has access to this domain</li>
+                          <li>Verifying DNS records are correctly set up (TXT and DKIM records)</li>
+                          <li>Testing with Resend's default domain as a workaround (see Advanced Settings tab)</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="p-4 border rounded-md bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 shadow-sm">
+                        <h4 className="font-medium text-gray-800 dark:text-white">API Key Issues</h4>
+                        <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+                          If you're experiencing API key errors:
+                        </p>
+                        <ul className="list-disc ml-5 text-sm mt-2 space-y-1 text-gray-600 dark:text-gray-300">
+                          <li>Check that your API key is correctly set in Supabase edge function secrets</li>
+                          <li>Ensure your API key has the necessary permissions</li>
+                          <li>Create a new API key if the current one isn't working</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="p-4 border rounded-md bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 shadow-sm">
+                        <h4 className="font-medium text-gray-800 dark:text-white">SMTP vs. API Diagnostic</h4>
+                        <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+                          If one method works but the other doesn't:
+                        </p>
+                        <ul className="list-disc ml-5 text-sm mt-2 space-y-1 text-gray-600 dark:text-gray-300">
+                          <li>If Supabase Auth emails work but Resend API doesn't: Issue with Resend API key or domain verification</li>
+                          <li>If Resend API works but Supabase Auth doesn't: Issue with SMTP configuration in Supabase</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-3 mt-6">
+                    <Button 
+                      variant="outline"
+                      onClick={checkDomainStatus}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Refresh Domain Status
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.open('https://resend.com/api-keys', '_blank')}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      Manage Resend API Keys
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.open('https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions', '_blank')}
+                      className="bg-white dark:bg-gray-800"
+                    >
+                      Supabase Secrets
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="admin">
+            <Card className="bg-white dark:bg-gray-800 shadow-sm border-0">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800 dark:text-white">
+                  <RefreshCw className="mr-2 h-5 w-5 text-blue-500" />
+                  Admin Email Actions
+                </h2>
+                <div className="space-y-5">
+                  <Alert className="bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300 mb-4">
+                    <InfoIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <AlertTitle className="font-semibold">Mass Email Operations</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      These operations affect multiple users. Use with caution.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="border rounded-md p-5 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 shadow-sm">
+                    <h3 className="font-medium mb-3 flex items-center text-gray-800 dark:text-white">
+                      <MailIcon className="h-4 w-4 mr-2 text-blue-500" />
+                      Resend Confirmation Emails
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      This will resend confirmation emails to all users who have not yet confirmed their email addresses.
+                    </p>
+                    <Button 
+                      onClick={handleResendConfirmationEmails}
+                      disabled={isResendingConfirmations}
+                      className="w-full sm:w-auto"
+                      variant="default"
+                    >
+                      {isResendingConfirmations ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <MailIcon className="mr-2 h-4 w-4" />
+                          Resend All Confirmation Emails
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Understanding Email Flow</h2>
-        <div className="space-y-4">
-          <div className="border-l-4 border-blue-500 pl-4 py-2">
-            <h3 className="font-medium">Supabase Authentication Emails</h3>
-            <p className="text-sm mt-1">
-              Authentication emails (signup confirmation, password reset) use your custom SMTP settings in Supabase.
-              These emails are sent directly through smtp.resend.com using the credentials you provided.
-            </p>
+        <Card className="mt-8 bg-white dark:bg-gray-800 shadow-sm border-0">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+              <InfoIcon className="mr-2 h-5 w-5 text-blue-500" />
+              Understanding Email Flow
+            </h2>
+            <div className="space-y-5">
+              <div className="border-l-4 border-blue-500 pl-4 py-2">
+                <h3 className="font-medium text-gray-800 dark:text-white">Supabase Authentication Emails</h3>
+                <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+                  Authentication emails (signup confirmation, password reset) use your custom SMTP settings in Supabase.
+                  These emails are sent directly through smtp.resend.com using the credentials you provided.
+                </p>
+              </div>
+              
+              <div className="border-l-4 border-green-500 pl-4 py-2">
+                <h3 className="font-medium text-gray-800 dark:text-white">Application Custom Emails</h3>
+                <p className="text-sm mt-1 text-gray-600 dark:text-gray-300">
+                  Custom emails from your application use the Resend API via Edge Functions.
+                  These are sent using the API key, not the SMTP credentials.
+                </p>
+              </div>
+              
+              <Alert className="mt-4 bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300">
+                <InfoIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="ml-2 text-sm">
+                  If Supabase authentication emails aren't working but the Edge Function emails are,
+                  the issue is likely with your SMTP configuration in Supabase.
+                </AlertDescription>
+              </Alert>
+            </div>
           </div>
-          
-          <div className="border-l-4 border-green-500 pl-4 py-2">
-            <h3 className="font-medium">Application Custom Emails</h3>
-            <p className="text-sm mt-1">
-              Custom emails from your application use the Resend API via Edge Functions.
-              These are sent using the API key, not the SMTP credentials.
-            </p>
-          </div>
-          
-          <Alert className="mt-4 bg-amber-50 text-amber-900 border-amber-200">
-            <InfoIcon className="h-4 w-4 text-amber-500" />
-            <AlertDescription className="ml-2 text-sm">
-              If Supabase authentication emails aren't working but the Edge Function emails are,
-              the issue is likely with your SMTP configuration in Supabase.
-            </AlertDescription>
-          </Alert>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
