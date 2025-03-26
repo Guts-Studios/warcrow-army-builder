@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -6,11 +7,16 @@ import {
   checkDomainVerificationStatus, 
   resendAllPendingConfirmationEmails, 
   updateUserWabAdminStatus, 
-  getWabAdmins
+  getWabAdmins,
+  DomainVerificationResult
 } from "@/utils/email";
 
 const Mail = () => {
-  const [domainStatus, setDomainStatus] = useState({ verified: false, status: 'Checking...' });
+  const [domainStatus, setDomainStatus] = useState<DomainVerificationResult>({ 
+    verified: false, 
+    status: 'Checking...', 
+    domains: [] 
+  });
   const [adminList, setAdminList] = useState([]);
   const [userId, setUserId] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
