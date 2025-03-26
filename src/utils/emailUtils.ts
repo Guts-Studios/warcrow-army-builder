@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 interface EmailOptions {
-  type?: 'welcome' | 'reset_password' | 'confirmation';
+  type?: 'welcome' | 'reset_password';
   token?: string;
 }
 
@@ -74,36 +74,14 @@ export const testResendEmail = async () => {
   }
 };
 
-// Send a test confirmation email
-export const sendTestConfirmationEmail = async (email: string) => {
-  try {
-    await sendEmail(
-      [email],
-      'Test Confirmation Email from Warcrow Army',
-      `<h1>Account Confirmation Test</h1>
-      <p>This is a test email to verify that our email confirmation system is working properly.</p>
-      <p>In a real confirmation email, you would see a link to click to confirm your email address.</p>
-      <p>If you are receiving this test email, it means our email delivery system is functioning correctly.</p>`,
-      { type: 'confirmation' }
-    );
-    console.log('Test confirmation email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to send test confirmation email:', error);
-    throw error;
-  }
-};
-
-// Make test functions available globally for testing
+// Make test function available globally for testing
 declare global {
   interface Window {
     testResendEmail: typeof testResendEmail;
-    sendTestConfirmationEmail: typeof sendTestConfirmationEmail;
   }
 }
 
-// Add test functions to window object
+// Add test function to window object
 if (typeof window !== 'undefined') {
   window.testResendEmail = testResendEmail;
-  window.sendTestConfirmationEmail = sendTestConfirmationEmail;
 }
