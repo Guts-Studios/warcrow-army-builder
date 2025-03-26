@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const emailResponse = await resend.emails.send({
-      from: "Warcrow Army <onboarding@resend.dev>", // Using Resend's default domain
+      from: "Warcrow Army <updates@updates.warcrowarmy.com>", // Using your verified domain
       to: emailRequest.to,
       subject: emailRequest.subject,
       html: emailRequest.html,

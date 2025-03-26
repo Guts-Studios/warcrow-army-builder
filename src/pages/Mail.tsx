@@ -40,9 +40,10 @@ const Mail = () => {
       if (data?.error) {
         console.error('Resend API Error:', data.error);
         
-        // Check for domain verification error
         if (data.error.includes('domain is not verified')) {
-          toast.error('Domain verification error. Using Resend default domain instead.');
+          toast.error('Domain verification error. Please check the Resend dashboard.');
+        } else if (data.error.includes('rate limit')) {
+          toast.error('Rate limit exceeded. Please try again later.');
         } else {
           toast.error(`Resend error: ${data.error}`);
         }
@@ -84,8 +85,7 @@ const Mail = () => {
             {isSending ? 'Sending...' : 'Send Test Email'}
           </Button>
           <p className="text-sm text-gray-500 mt-2">
-            Note: This uses Resend's default domain (onboarding@resend.dev) for sending. 
-            To use your own domain, verify it in the Resend dashboard.
+            Using verified domain: updates@updates.warcrowarmy.com
           </p>
         </div>
       </Card>
