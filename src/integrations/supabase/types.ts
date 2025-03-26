@@ -404,6 +404,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_email: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          email: string
+        }[]
+      }
       is_wab_admin: {
         Args: {
           user_id: string

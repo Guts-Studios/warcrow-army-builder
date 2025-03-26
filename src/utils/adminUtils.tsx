@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import React from 'react';
 
@@ -91,8 +90,11 @@ interface AdminOnlyProps {
 export function AdminOnly(props: AdminOnlyProps) {
   const { children, isWabAdmin, fallback = null } = props;
   
-  // Simple debug console log to verify admin status (can be removed in production)
-  console.log('AdminOnly component - isWabAdmin:', isWabAdmin);
+  console.log('AdminOnly component - Access check:', { 
+    isWabAdmin, 
+    accessGranted: !!isWabAdmin,
+    componentDisplayed: isWabAdmin ? 'Admin content' : 'Fallback or null'
+  });
   
   if (!isWabAdmin) {
     return <>{fallback}</>;

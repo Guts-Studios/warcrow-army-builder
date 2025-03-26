@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 interface EmailOptions {
@@ -218,10 +217,10 @@ export const getWabAdmins = async (): Promise<any[]> => {
       return [];
     }
     
-    // Then for each admin, get their email via a separate service role query
+    // Then for each admin, get their email via the RPC function
     const adminsWithEmails = await Promise.all(
       data.map(async (admin) => {
-        // Using RPC call to get user email safely since we can't directly query auth.users
+        // Using RPC call to get user email safely
         const { data: userData, error: userError } = await supabase
           .rpc('get_user_email', { user_id: admin.id })
           .single();

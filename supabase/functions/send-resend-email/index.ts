@@ -15,10 +15,10 @@ interface EmailRequest {
   html: string;
   type?: 'welcome' | 'reset_password';
   token?: string;
-  fromEmail?: string; // Allow specifying the sender email
-  fromName?: string;  // Allow specifying the sender name
-  checkDomainOnly?: boolean; // Flag to only check domain verification status
-  resendAllPendingConfirmations?: boolean; // Flag to resend all pending confirmation emails
+  fromEmail?: string; 
+  fromName?: string;  
+  checkDomainOnly?: boolean; 
+  resendAllPendingConfirmations?: boolean; 
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -112,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
         
         // Fetch users with unconfirmed emails - using proper API endpoint for auth users
-        const response = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users?confirmed_at=null`, {
+        const response = await fetch(`${supabaseAdminUrl}/auth/v1/users?confirmed_at=is.null`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${supabaseServiceKey}`,
@@ -137,7 +137,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           try {
             // Send confirmation email through Supabase
-            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users/${user.id}/send-email-verification`, {
+            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/users/${user.id}/send-email-verification`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${supabaseServiceKey}`,
