@@ -52,12 +52,14 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
         <div className="space-y-4 order-2 md:order-1">
-          <UnitListSection
-            factionUnits={factionUnits}
-            quantities={quantities}
-            onAdd={handleAdd}
-            onRemove={handleRemove}
-          />
+          <div className="bg-warcrow-background/50 p-3 rounded-lg border border-warcrow-gold/30">
+            <UnitListSection
+              factionUnits={factionUnits}
+              quantities={quantities}
+              onAdd={handleAdd}
+              onRemove={handleRemove}
+            />
+          </div>
         </div>
 
         <div className="space-y-4 order-1 md:order-2">
