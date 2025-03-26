@@ -1,12 +1,16 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Play, User } from "lucide-react";
+import { Play, User, Shield } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { AdminOnly } from "@/utils/adminUtils";
 
 export const MainActions = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
+  const { isWabAdmin } = useAuth();
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
@@ -90,6 +94,16 @@ export const MainActions = () => {
             </Button>
           </>
         )}
+        <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
+          <Button
+            onClick={() => navigate('/admin')}
+            variant="outline"
+            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          >
+            <Shield className="mr-2 h-4 w-4" />
+            Admin
+          </Button>
+        </AdminOnly>
       </div>
     </>
   );

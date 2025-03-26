@@ -19,6 +19,7 @@ import SharedList from "@/pages/SharedList";
 import AboutUs from "@/pages/AboutUs";
 import Activity from "@/pages/Activity";
 import Landing from "@/pages/Landing";
+import Admin from "@/pages/Admin";
 
 export function AppRoutes() {
   return (
@@ -45,6 +46,7 @@ export function AppRoutes() {
       <Route path="/mail" element={<Mail />} />
       <Route path="/shared-list/:id" element={<SharedList />} />
       <Route path="/about" element={<AboutUs />} />
+      <Route path="/admin" element={<Admin />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
