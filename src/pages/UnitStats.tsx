@@ -13,6 +13,9 @@ const UnitStats = () => {
   const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(allUnits[0]);
   const [showSymbolBg, setShowSymbolBg] = useState<boolean>(true);
 
+  // Common background color for all symbols
+  const symbolBgColor = "rgba(40, 40, 40, 0.7)";
+
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <UnitStatsHeader />
@@ -35,31 +38,31 @@ const UnitStats = () => {
               <h2 className="text-xl font-bold text-warcrow-gold mb-2">Symbol Legend</h2>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={119} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={119} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Red</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={113} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={113} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Orange</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={57} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={57} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Green</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={55} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={55} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Black</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={56} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={56} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Blue</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={48} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={48} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Yellow</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GameSymbol code={49} size="xl" bgColor={showSymbolBg ? "rgba(40, 40, 40, 0.7)" : undefined} /> 
+                  <GameSymbol code={49} size="xl" bgColor={showSymbolBg ? symbolBgColor : undefined} /> 
                   <span>Star</span>
                 </div>
               </div>
@@ -94,7 +97,7 @@ const UnitStats = () => {
           {/* Unit Stat Card Column */}
           <div className="md:col-span-2">
             {selectedUnit ? (
-              <UnitStatCard unit={selectedUnit} />
+              <UnitStatCard unit={selectedUnit} showSymbolBg={showSymbolBg} symbolBgColor={symbolBgColor} />
             ) : (
               <div className="bg-black/40 rounded-lg p-8 border border-warcrow-gold/30 text-center">
                 <p className="text-warcrow-gold">Select a unit to view details</p>

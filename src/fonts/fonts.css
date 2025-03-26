@@ -38,14 +38,14 @@
   filter: saturate(1.2) contrast(1.1); /* Enhanced visibility */
 }
 
-/* Game symbol with enhanced visibility for dark symbols */
+/* Game symbol with enhanced visibility for dark symbols - removed special styling */
 .game-symbol-dark {
   font-family: 'Warcrow', sans-serif;
   font-feature-settings: "liga", "calt", "dlig";
   -webkit-font-feature-settings: "liga", "calt", "dlig";
   -moz-font-feature-settings: "liga", "calt", "dlig";
   font-variant-ligatures: common-ligatures discretionary-ligatures;
-  filter: contrast(1.5) brightness(1.2);
+  filter: saturate(1.2); /* Same filter as other symbols */
 }
 
 /* Game symbol with background for better visibility */
@@ -72,10 +72,9 @@
   filter: saturate(1.2); /* Slight saturation boost for all symbols */
 }
 
-/* Black symbol (7) */
+/* Black symbol (7) - removed special styling */
 .WC_7 {
-  color: #000;
-  filter: contrast(1.5) brightness(1.2);
+  /* Removed color and filter overrides to make it consistent with other symbols */
 }
 
 /* Other numeric character classes - removed text-shadow */
