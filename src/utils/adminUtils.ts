@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import React from 'react';
 
@@ -104,11 +103,15 @@ export const revokeWabAdmin = async (adminUserId: string, targetUserId: string):
  * @param showMessage Whether to show a toast message when access is denied
  * @returns React component for conditional rendering
  */
-export const AdminOnly: React.FC<{
-  children: React.ReactNode;
-  isWabAdmin: boolean;
-  fallback?: React.ReactNode;
-}> = ({ children, isWabAdmin, fallback = null }) => {
+export const AdminOnly = ({ 
+  children, 
+  isWabAdmin, 
+  fallback = null 
+}: { 
+  children: React.ReactNode; 
+  isWabAdmin: boolean; 
+  fallback?: React.ReactNode; 
+}) => {
   if (!isWabAdmin) {
     return <>{fallback}</>;
   }
