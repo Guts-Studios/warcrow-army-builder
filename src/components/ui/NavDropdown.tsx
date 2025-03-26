@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, Bell, ActivityIcon } from "lucide-react";
+import { Menu, Bell, ActivityIcon, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -8,6 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +18,7 @@ import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 export const NavDropdown = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
+  const [isWabAdmin, setIsWabAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -30,12 +33,13 @@ export const NavDropdown = () => {
       
       if (isPreviewMode) {
         setIsTester(true);
+        setIsWabAdmin(true);
         setIsAuthenticated(true);
         setUserId("preview-user-id");
         return;
       }
       
-      // Check auth status and tester role
+      // Check auth status and roles
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
       
@@ -44,14 +48,16 @@ export const NavDropdown = () => {
         try {
           const { data } = await supabase
             .from('profiles')
-            .select('tester')
+            .select('tester, wab_admin')
             .eq('id', session.user.id)
             .single();
           
           setIsTester(!!data?.tester);
+          setIsWabAdmin(!!data?.wab_admin);
         } catch (error) {
-          console.error('Error checking tester status:', error);
+          console.error('Error checking user roles:', error);
           setIsTester(false);
+          setIsWabAdmin(false);
         }
       }
     };
@@ -109,6 +115,7 @@ export const NavDropdown = () => {
           >
             Rules
           </DropdownMenuItem>
+          
           {(isTester || isPreview) && (
             <DropdownMenuItem 
               className="cursor-pointer hover:bg-warcrow-gold/10"
@@ -117,6 +124,32 @@ export const NavDropdown = () => {
               Profile
             </DropdownMenuItem>
           )}
+          
+          {/* Admin menu section */}
+          {isWabAdmin && (
+            <>
+              <DropdownMenuSeparator className="bg-warcrow-gold/20" />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-warcrow-gold/60">
+                  <ShieldAlert className="h-4 w-4 inline-block mr-2" />
+                  Admin Functions
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  className="cursor-pointer hover:bg-warcrow-gold/10"
+                  onClick={() => navigate('/mail')}
+                >
+                  Email Management
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer hover:bg-warcrow-gold/10"
+                  onClick={() => navigate('/admin')}
+                >
+                  Admin Dashboard
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
+          )}
+          
           <DropdownMenuItem 
             className="cursor-pointer hover:bg-warcrow-gold/10"
             onClick={() => navigate('/')}

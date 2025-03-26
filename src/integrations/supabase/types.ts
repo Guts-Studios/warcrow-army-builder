@@ -275,6 +275,7 @@ export type Database = {
           tester: boolean
           updated_at: string
           username: string | null
+          wab_admin: boolean | null
           wab_id: string
         }
         Insert: {
@@ -294,6 +295,7 @@ export type Database = {
           tester?: boolean
           updated_at?: string
           username?: string | null
+          wab_admin?: boolean | null
           wab_id: string
         }
         Update: {
@@ -313,6 +315,7 @@ export type Database = {
           tester?: boolean
           updated_at?: string
           username?: string | null
+          wab_admin?: boolean | null
           wab_id?: string
         }
         Relationships: []
@@ -400,6 +403,12 @@ export type Database = {
       generate_wap_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      is_wab_admin: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

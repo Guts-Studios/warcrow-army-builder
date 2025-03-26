@@ -8,7 +8,8 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Player, Mission } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { ArrowLeftCircle } from 'lucide-react';
+import { ArrowLeftCircle, Crown } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface GamePlayer {
   id: string;
@@ -29,6 +30,7 @@ const Play = () => {
   const { state, dispatch } = useGame();
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { isWabAdmin } = useAuth();
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                     window.location.hostname.endsWith('.lovableproject.com');
   
@@ -36,8 +38,8 @@ const Play = () => {
     const checkAccess = async () => {
       setIsLoading(true);
       
-      // If in preview mode, grant access
-      if (isPreview) {
+      // If in preview mode or user is a wab-admin, grant access immediately
+      if (isPreview || isWabAdmin) {
         setHasAccess(true);
         setIsLoading(false);
         return;
@@ -69,7 +71,7 @@ const Play = () => {
     };
 
     checkAccess();
-  }, [navigate, isPreview]);
+  }, [navigate, isPreview, isWabAdmin]);
   
   const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
@@ -144,6 +146,15 @@ const Play = () => {
         exit="exit"
         className="py-8"
       >
+        {isWabAdmin && (
+          <div className="container px-4 mb-6 flex justify-center">
+            <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-4 flex gap-4 items-center">
+              <Crown className="h-5 w-5 text-warcrow-gold" />
+              <span className="text-warcrow-gold">You have admin privileges for game setup</span>
+            </div>
+          </div>
+        )}
+        
         <GameSetup onComplete={handleSetupComplete} />
         
         <div className="container px-4 mt-6 flex justify-center">

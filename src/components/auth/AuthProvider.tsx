@@ -12,6 +12,7 @@ interface AuthContextType {
   isGuest: boolean;
   isPasswordRecovery: boolean;
   isTester: boolean;
+  isWabAdmin: boolean; // Added new admin role
   setIsGuest: (value: boolean) => void;
   resendConfirmationEmail: (email: string) => Promise<void>;
 }
@@ -21,6 +22,7 @@ export const AuthContext = React.createContext<AuthContextType>({
   isGuest: false,
   isPasswordRecovery: false,
   isTester: false,
+  isWabAdmin: false, // Added new admin role
   setIsGuest: () => {},
   resendConfirmationEmail: async () => {},
 });
@@ -32,6 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isGuest, setIsGuest] = React.useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
   const [isTester, setIsTester] = React.useState(false);
+  const [isWabAdmin, setIsWabAdmin] = React.useState(false); // Added new admin role state
   
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
@@ -76,9 +79,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (isPreview) {
-        console.log('Preview mode detected, setting as authenticated and tester');
+        console.log('Preview mode detected, setting as authenticated, tester, and wab-admin');
         setIsAuthenticated(true);
         setIsTester(true);
+        setIsWabAdmin(true); // In preview mode, also set wab-admin to true
         return;
       }
 
@@ -90,14 +94,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const { data } = await supabase
             .from('profiles')
-            .select('tester')
+            .select('tester, wab_admin') // Also select wab_admin status
             .eq('id', session.user.id)
             .single();
           
           setIsTester(!!data?.tester);
-          console.log('Tester role check:', data?.tester ? 'Tester' : 'Not tester');
+          setIsWabAdmin(!!data?.wab_admin); // Set the wab_admin state
+          console.log('Role checks:', { 
+            tester: data?.tester ? 'Tester' : 'Not tester',
+            wabAdmin: data?.wab_admin ? 'Admin' : 'Not admin'
+          });
         } catch (error) {
-          console.error('Error checking tester status:', error);
+          console.error('Error checking user roles:', error);
+          setIsTester(false);
+          setIsWabAdmin(false);
         }
       }
       
@@ -145,24 +155,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(!!session);
         
         if (session) {
-          const checkTesterStatus = async () => {
+          const checkUserRoles = async () => {
             try {
               const { data } = await supabase
                 .from('profiles')
-                .select('tester')
+                .select('tester, wab_admin') // Also check wab_admin status
                 .eq('id', session.user.id)
                 .single();
               
               setIsTester(!!data?.tester);
+              setIsWabAdmin(!!data?.wab_admin); // Update the wab_admin state
             } catch (error) {
-              console.error('Error checking tester status:', error);
+              console.error('Error checking user roles:', error);
               setIsTester(false);
+              setIsWabAdmin(false);
             }
           };
           
-          checkTesterStatus();
+          checkUserRoles();
         } else {
           setIsTester(false);
+          setIsWabAdmin(false);
         }
       }
     });
@@ -175,6 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isGuest,
     isPasswordRecovery,
     isTester,
+    isWabAdmin, // Include new wab_admin role in the context value
     setIsGuest,
     resendConfirmationEmail,
   };
