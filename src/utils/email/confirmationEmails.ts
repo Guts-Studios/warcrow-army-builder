@@ -64,10 +64,8 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     // Now, use Supabase's built-in email resend functionality
     console.log('Attempting to send Supabase authentication email via auth.resend...');
     
-    // Let's fetch any Supabase auth settings that might be relevant to diagnose the issue
-    const { data: authSettingsData, error: authSettingsError } = await supabase.rpc('get_auth_settings');
-    
-    console.log('Supabase auth settings response:', { data: authSettingsData, error: authSettingsError });
+    // Let's log any relevant auth settings for debugging, but don't try to call a non-existent RPC
+    console.log('Supabase auth settings: This would normally show auth settings if we had an RPC function for it');
     
     const { data: resendData, error: resendError } = await supabase.auth.resend({
       type: 'signup',
@@ -84,7 +82,6 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
         message: `Direct email sent but Supabase auth email failed: ${resendError.message}`,
         details: {
           directEmail: directEmailData,
-          authSettings: authSettingsData,
           resendError
         }
       };
@@ -96,7 +93,6 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
       message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, your Supabase SMTP settings likely need updating.`,
       details: {
         directEmail: directEmailData,
-        authSettings: authSettingsData,
         resendData
       }
     };
