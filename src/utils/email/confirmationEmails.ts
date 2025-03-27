@@ -50,6 +50,19 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     
     if (directEmailError) {
       console.error('Error sending direct test email:', directEmailError);
+      
+      if (directEmailError.message?.includes('API key is invalid')) {
+        toast.error('Invalid Resend API key detected. Please update it in Supabase SMTP settings.');
+        return {
+          success: false,
+          message: 'Your Resend API key is invalid. Please generate a new key at resend.com and update it in Supabase SMTP settings.',
+          details: {
+            errorType: 'invalid_api_key',
+            errorMessage: directEmailError.message
+          }
+        };
+      }
+      
       toast.error(`Failed to send direct test email: ${directEmailError.message}`);
       return {
         success: false,

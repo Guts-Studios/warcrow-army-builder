@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ const Mail = () => {
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [isResendingAll, setIsResendingAll] = useState(false);
   const [isTestingConfirmation, setIsTestingConfirmation] = useState(false);
+  const [isAPIKeyValid, setIsAPIKeyValid] = useState<boolean | null>(null);
 
   useEffect(() => {
     checkDomainStatus();
@@ -34,9 +36,19 @@ const Mail = () => {
     try {
       const status = await checkDomainVerificationStatus();
       setDomainStatus(status);
+      
+      // If we got a valid response, assume the API key is valid
+      setIsAPIKeyValid(true);
     } catch (error: any) {
       console.error("Failed to check domain status:", error);
-      toast.error(`Failed to check domain status: ${error.message}`);
+      
+      if (error.message?.includes('API key is invalid')) {
+        setIsAPIKeyValid(false);
+        toast.error('Invalid Resend API key detected. Please update it in Supabase.');
+      } else {
+        toast.error(`Failed to check domain status: ${error.message}`);
+      }
+      
       setDomainStatus({ verified: false, status: `Error: ${error.message}`, domains: [] });
     }
   };
@@ -48,7 +60,13 @@ const Mail = () => {
       toast.success(`Test email sent successfully${emailToUse ? ` to ${emailToUse}` : ''}!`);
     } catch (error: any) {
       console.error("Failed to send test email:", error);
-      toast.error(`Failed to send test email: ${error.message}`);
+      
+      if (error.message?.includes('API key is invalid')) {
+        setIsAPIKeyValid(false);
+        toast.error('Invalid Resend API key detected. Please update it in Supabase.');
+      } else {
+        toast.error(`Failed to send test email: ${error.message}`);
+      }
     }
   };
 
@@ -79,8 +97,12 @@ const Mail = () => {
       console.log("Test confirmation email result:", result);
       
       if (!result.success) {
+        if (result.details?.errorType === 'invalid_api_key') {
+          setIsAPIKeyValid(false);
+        }
         toast.error(result.message);
       } else {
+        setIsAPIKeyValid(true);
         toast.success("Test emails requested. Check your inbox for delivery results.");
         
         setTimeout(() => {
@@ -93,7 +115,13 @@ const Mail = () => {
       }
     } catch (error: any) {
       console.error("Failed to test confirmation email:", error);
-      toast.error(`Failed to test confirmation email: ${error.message}`);
+      
+      if (error.message?.includes('API key is invalid')) {
+        setIsAPIKeyValid(false);
+        toast.error('Invalid Resend API key detected. Please update it in Supabase.');
+      } else {
+        toast.error(`Failed to test confirmation email: ${error.message}`);
+      }
     } finally {
       setIsTestingConfirmation(false);
     }
@@ -115,6 +143,30 @@ const Mail = () => {
           </Button>
           <h1 className="text-2xl font-bold text-warcrow-gold">Mail Management</h1>
         </div>
+        
+        {isAPIKeyValid === false && (
+          <Card className="p-6 border border-red-500 shadow-sm bg-red-900/20 mb-6">
+            <h2 className="text-lg font-semibold mb-2 text-red-400">⚠️ Invalid Resend API Key Detected</h2>
+            <p className="text-sm text-warcrow-text mb-4">
+              Your Resend API key appears to be invalid. This will prevent email delivery.
+              Please update it by following these steps:
+            </p>
+            <ol className="text-sm text-warcrow-text list-decimal pl-5 space-y-1 mb-4">
+              <li>Go to <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Resend.com API Keys</a> and generate a new API key</li>
+              <li>Open your <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Supabase Edge Functions Settings</a></li>
+              <li>Update the RESEND_API_KEY with your new API key</li>
+              <li>Then go to <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Auth Templates</a> in Supabase</li>
+              <li>Toggle OFF and back ON the "Enable Custom SMTP" setting</li>
+              <li>Update the SMTP password with your new Resend API key</li>
+            </ol>
+            <Button 
+              onClick={checkDomainStatus}
+              className="w-full border-red-400 bg-red-900/30 text-red-400 hover:bg-red-900/50 hover:border-red-300"
+            >
+              Verify API Key Again
+            </Button>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
@@ -122,6 +174,7 @@ const Mail = () => {
             <div className="space-y-2 mb-4">
               <p className="text-warcrow-text">Status: <span className={domainStatus.verified ? "text-green-400" : "text-yellow-400"}>{domainStatus.status}</span></p>
               <p className="text-warcrow-text">Verified: <span className={domainStatus.verified ? "text-green-400" : "text-yellow-400"}>{domainStatus.verified ? 'Yes' : 'No'}</span></p>
+              <p className="text-warcrow-text">API Key: <span className={isAPIKeyValid === true ? "text-green-400" : isAPIKeyValid === false ? "text-red-400" : "text-yellow-400"}>{isAPIKeyValid === true ? 'Valid' : isAPIKeyValid === false ? 'Invalid' : 'Unknown'}</span></p>
             </div>
             <Button 
               onClick={checkDomainStatus} 
@@ -191,11 +244,11 @@ const Mail = () => {
                   <strong>Troubleshooting:</strong> If you receive only the direct test email but not the authentication email:
                 </p>
                 <ol className="text-xs text-warcrow-muted list-decimal pl-5 space-y-1">
-                  <li>Go to Supabase Dashboard → Authentication → Email Templates</li>
+                  <li>Go to <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Supabase Auth Templates</a></li>
                   <li>Scroll down to SMTP Settings</li>
                   <li>Toggle "Enable Custom SMTP" OFF</li>
                   <li>Save changes, then toggle it back ON</li>
-                  <li>Re-enter the SMTP settings and use your current Resend API key as the password</li>
+                  <li>Re-enter your current Resend API key as the password</li>
                   <li>Save changes and test again</li>
                 </ol>
               </div>

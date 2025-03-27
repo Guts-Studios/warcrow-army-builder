@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -116,7 +117,24 @@ const handler = async (req: Request): Promise<Response> => {
         console.log("RESEND_API_KEY present:", !!apiKey);
         
         if (!apiKey) {
-          throw new Error("RESEND_API_KEY is not configured");
+          throw new Error("RESEND_API_KEY is not configured in Supabase");
+        }
+        
+        // Test the API key by making a simple API call
+        try {
+          const keyTestResponse = await resend.emails.get('testing-key');
+          console.log("API key test response:", keyTestResponse);
+        } catch (keyError: any) {
+          // If we get a "not found" error, that's actually good - it means the API key is valid
+          // but the email ID doesn't exist (which is expected)
+          if (keyError.statusCode === 404) {
+            console.log("API key is valid (404 error on non-existent email ID is expected)");
+          } else if (keyError.statusCode === 400 && keyError.message?.includes("API key is invalid")) {
+            console.error("INVALID API KEY DETECTED:", keyError.message);
+            throw new Error("The Resend API key configured in Supabase is invalid. Please update it in the Supabase dashboard under Settings > Functions.");
+          } else {
+            console.error("Unknown API key test error:", keyError);
+          }
         }
         
         // Add more diagnostic information about the environment
@@ -124,6 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
           apiKeyPresent: !!apiKey,
           apiKeyLength: apiKey ? apiKey.length : 0,
           apiKeyPrefix: apiKey ? apiKey.substring(0, 3) + "..." : "none",
+          apiKeyLastUpdated: new Date().toISOString(),
           environment: {
             isDeno: typeof Deno !== 'undefined',
             denoVersion: Deno.version ? Deno.version.deno : 'unknown',
