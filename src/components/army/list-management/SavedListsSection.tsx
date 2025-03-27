@@ -53,9 +53,9 @@ const SavedListsSection = ({
               ) : (
                 <CloudOff className="h-4 w-4 text-gray-500" />
               )}
-              <span className="text-warcrow-text">{list.name}</span>
+              <span className="text-warcrow-gold font-medium">{list.name}</span>
               {list.wab_id && (
-                <span className="text-xs text-warcrow-gold/60">{list.wab_id.slice(0, 8)}</span>
+                <span className="text-xs text-warcrow-gold/70">{list.wab_id.slice(0, 8)}</span>
               )}
             </div>
             <div className="flex gap-2">
