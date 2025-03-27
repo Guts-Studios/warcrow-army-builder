@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Swords, ShieldCheck } from 'lucide-react';
+import { User, Swords, ShieldCheck, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import MissionSelector from './MissionSelector';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { fadeIn, slideInRight } from '@/lib/animations';
+import JoinCodeShare from './JoinCodeShare';
 
 interface Player {
   id: string;
@@ -54,6 +55,8 @@ const GameSetup: React.FC<GameSetupProps> = ({
     list: null,
   });
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [gameId, setGameId] = useState<string>(`game-${Date.now()}`);
 
   // Set player one information if currentUser is available
   useEffect(() => {
@@ -90,6 +93,10 @@ const GameSetup: React.FC<GameSetupProps> = ({
     if (step > 1) {
       setStep(step - 1);
     }
+  };
+
+  const handleInvitePlayer = () => {
+    setShowJoinModal(true);
   };
 
   const renderStepContent = () => {
@@ -265,7 +272,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
         )}
       </div>
       
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <Button
           variant="outline"
           onClick={goToPrevStep}
@@ -275,6 +282,17 @@ const GameSetup: React.FC<GameSetupProps> = ({
           Back
         </Button>
         
+        {step === 1 && currentUser?.wab_id && (
+          <Button
+            variant="outline"
+            onClick={handleInvitePlayer}
+            className="flex items-center gap-2"
+          >
+            <Users className="w-4 h-4" />
+            <span>Invite Player</span>
+          </Button>
+        )}
+        
         <Button
           onClick={goToNextStep}
           className="w-32 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
@@ -283,6 +301,13 @@ const GameSetup: React.FC<GameSetupProps> = ({
           {step === 3 ? 'Start Game' : 'Next'}
         </Button>
       </div>
+
+      {/* Join Code Modal */}
+      <JoinCodeShare 
+        gameId={gameId} 
+        isOpen={showJoinModal} 
+        onClose={() => setShowJoinModal(false)}
+      />
     </div>
   );
 };

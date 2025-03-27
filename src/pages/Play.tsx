@@ -9,8 +9,9 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Player, Mission } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { ArrowLeftCircle, Crown } from 'lucide-react';
+import { ArrowLeftCircle, Crown, Users, PlayCircle } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import JoinGame from '@/components/play/JoinGame';
 
 interface GamePlayer {
   id: string;
@@ -40,6 +41,7 @@ const Play = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const { isWabAdmin } = useAuth();
+  const [showJoinGame, setShowJoinGame] = useState(false);
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                     window.location.hostname.endsWith('.lovableproject.com');
   
@@ -169,7 +171,12 @@ const Play = () => {
       dispatch({ type: 'RESET_GAME' });
       // Also clear any stored game data
       localStorage.removeItem('warcrow_verified_players');
+      localStorage.removeItem('warcrow_joined_game');
     }
+  };
+
+  const toggleJoinGame = () => {
+    setShowJoinGame(!showJoinGame);
   };
   
   return (
@@ -189,12 +196,39 @@ const Play = () => {
             </div>
           </div>
         )}
-        
-        <GameSetup 
-          onComplete={handleSetupComplete} 
-          currentUser={currentUser}
-          isLoading={isLoading}
-        />
+
+        {!showJoinGame ? (
+          <>
+            <div className="container px-4 mb-6 flex justify-center">
+              <Button
+                onClick={toggleJoinGame}
+                className="mb-6 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
+              >
+                <Users className="h-5 w-5" />
+                <span>Join Existing Game</span>
+              </Button>
+            </div>
+            
+            <GameSetup 
+              onComplete={handleSetupComplete} 
+              currentUser={currentUser}
+              isLoading={isLoading}
+            />
+          </>
+        ) : (
+          <div className="container px-4 mb-6">
+            <div className="flex justify-center mb-6">
+              <Button
+                onClick={toggleJoinGame}
+                className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
+              >
+                <PlayCircle className="h-5 w-5" />
+                <span>Create New Game</span>
+              </Button>
+            </div>
+            <JoinGame />
+          </div>
+        )}
         
         <div className="container px-4 mt-6 flex justify-center">
           <button 

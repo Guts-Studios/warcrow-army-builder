@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PlayerInfo from '@/components/PlayerInfo';
 import { toast } from 'sonner';
-import { Map, Shield, ArrowLeftCircle, AlertCircle } from 'lucide-react';
+import { Map, Shield, ArrowLeftCircle, AlertCircle, Users } from 'lucide-react';
+import JoinCodeShare from '@/components/play/JoinCodeShare';
 
 const Deployment = () => {
   const navigate = useNavigate();
@@ -18,6 +19,18 @@ const Deployment = () => {
   const [initialInitiativePlayerId, setInitialInitiativePlayerId] = useState<string | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
+  const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
+
+  useEffect(() => {
+    // Check if this is a joined game
+    const joinedGameId = localStorage.getItem('warcrow_joined_game');
+    if (joinedGameId) {
+      // In a real implementation, we would fetch the game state from the database
+      console.log('Joined game with ID:', joinedGameId);
+      // Clear the joined game ID since we're now in the game
+      localStorage.removeItem('warcrow_joined_game');
+    }
+  }, []);
 
   // Function to handle selecting who deploys first
   const handleSelectFirstToDeploy = (playerId: string) => {
@@ -50,6 +63,11 @@ const Deployment = () => {
     setShowInitiativeDialog(true);
   };
 
+  // Function to show join code
+  const handleShowJoinCode = () => {
+    setShowJoinCodeDialog(true);
+  };
+
   // Function to render player info section 
   const renderPlayerInfo = (playerId: string, index: number) => {
     return (
@@ -70,6 +88,18 @@ const Deployment = () => {
       className="min-h-screen bg-warcrow-background text-warcrow-text container py-8 max-w-5xl mx-auto"
     >
       <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Deployment Phase</h1>
+      
+      {/* Invite player button */}
+      <div className="flex justify-center mb-8">
+        <Button
+          variant="outline"
+          onClick={handleShowJoinCode}
+          className="flex items-center gap-2"
+        >
+          <Users className="h-5 w-5" />
+          <span>Invite Opponent to Join</span>
+        </Button>
+      </div>
       
       {/* Mission Information */}
       <motion.div
@@ -244,6 +274,13 @@ const Deployment = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Join Code Dialog */}
+      <JoinCodeShare 
+        gameId={state.id} 
+        isOpen={showJoinCodeDialog} 
+        onClose={() => setShowJoinCodeDialog(false)}
+      />
     </motion.div>
   );
 };
