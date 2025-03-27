@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +7,10 @@ import {
   checkDomainVerificationStatus, 
   resendAllPendingConfirmationEmails, 
   DomainVerificationResult,
-  testConfirmationEmail
+  testConfirmationEmail,
+  testUserSignup
 } from "@/utils/email";
-import { ArrowLeft, AlertTriangle, ExternalLink, InfoIcon } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ExternalLink, InfoIcon, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -31,6 +31,10 @@ const Mail = () => {
   const [isSending, setIsSending] = useState(false);
   const [smtpMismatchDetected, setSmtpMismatchDetected] = useState(false);
   const [emailAlreadyConfirmed, setEmailAlreadyConfirmed] = useState(false);
+  
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [isTestingSignup, setIsTestingSignup] = useState(false);
 
   useEffect(() => {
     checkDomainStatus();
@@ -41,7 +45,6 @@ const Mail = () => {
       const status = await checkDomainVerificationStatus();
       setDomainStatus(status);
       
-      // If we got a valid response, assume the API key is valid
       setIsAPIKeyValid(true);
     } catch (error: any) {
       console.error("Failed to check domain status:", error);
@@ -60,12 +63,10 @@ const Mail = () => {
   const checkIfEmailConfirmed = async (email: string): Promise<boolean> => {
     try {
       const { data } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: email
-        }
+        email: email
       });
       
-      return data?.users?.some(user => user.email_confirmed_at) || false;
+      return data?.users?.some(user => user.user_metadata?.email_confirmed_at) || false;
     } catch (error) {
       console.error("Error checking if email is confirmed:", error);
       return false;
@@ -117,7 +118,6 @@ const Mail = () => {
     try {
       setIsTestingConfirmation(true);
       
-      // Check if the email is already confirmed
       const isConfirmed = await checkIfEmailConfirmed(confirmationEmail);
       setEmailAlreadyConfirmed(isConfirmed);
       
@@ -142,7 +142,6 @@ const Mail = () => {
         } else {
           toast.success("Test emails requested. Check your inbox for delivery results.");
           
-          // If the direct email sent but auth email fails, we likely have an SMTP issue
           if (result.details?.directEmail && !result.details?.resendData?.user) {
             setSmtpMismatchDetected(true);
             setTimeout(() => {
@@ -166,6 +165,39 @@ const Mail = () => {
       }
     } finally {
       setIsTestingConfirmation(false);
+    }
+  };
+
+  const handleTestUserSignup = async () => {
+    if (!signupEmail || !signupPassword) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    
+    if (signupPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
+    try {
+      setIsTestingSignup(true);
+      
+      const result = await testUserSignup(signupEmail, signupPassword);
+      console.log("Test user signup result:", result);
+      
+      if (!result.success) {
+        toast.error(result.message);
+      } else {
+        toast.success(result.message);
+        
+        setSignupEmail('');
+        setSignupPassword('');
+      }
+    } catch (error: any) {
+      console.error("Failed to test user signup:", error);
+      toast.error(`Failed to test signup: ${error.message}`);
+    } finally {
+      setIsTestingSignup(false);
     }
   };
 
@@ -323,7 +355,7 @@ const Mail = () => {
                   value={confirmationEmail}
                   onChange={(e) => {
                     setConfirmationEmail(e.target.value);
-                    setEmailAlreadyConfirmed(false); // Reset when email changes
+                    setEmailAlreadyConfirmed(false);
                   }}
                   className="w-full mb-4 bg-black border-warcrow-gold/30 text-warcrow-text"
                 />
@@ -350,6 +382,56 @@ const Mail = () => {
                   <li>Re-enter your current Resend API key as the password</li>
                   <li>Save changes and test again</li>
                 </ol>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test User Signup</h2>
+            <p className="text-sm text-warcrow-muted mb-4 text-center">
+              Test if new users can register with Supabase authentication.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="signupEmail" className="block text-sm font-medium text-warcrow-text mb-1">
+                  Email Address
+                </label>
+                <Input
+                  id="signupEmail"
+                  type="email"
+                  placeholder="Enter test email address"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  className="w-full mb-2 bg-black border-warcrow-gold/30 text-warcrow-text"
+                />
+              </div>
+              <div>
+                <label htmlFor="signupPassword" className="block text-sm font-medium text-warcrow-text mb-1">
+                  Password (min 6 characters)
+                </label>
+                <Input
+                  id="signupPassword"
+                  type="password"
+                  placeholder="Enter test password"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  className="w-full mb-4 bg-black border-warcrow-gold/30 text-warcrow-text"
+                />
+              </div>
+              <Button 
+                onClick={handleTestUserSignup}
+                className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                disabled={isTestingSignup || !signupEmail || !signupPassword || signupPassword.length < 6}
+              >
+                {isTestingSignup ? 'Testing Signup...' : 'Test User Signup'}
+              </Button>
+              <div className="space-y-2 mt-4">
+                <p className="text-xs text-warcrow-muted">
+                  <strong>Note:</strong> This will attempt to create a real test user in your Supabase project.
+                </p>
+                <p className="text-xs text-warcrow-muted">
+                  <strong>Troubleshooting:</strong> If signup fails but no error is shown, check the Supabase authentication logs.
+                </p>
               </div>
             </div>
           </Card>

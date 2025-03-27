@@ -1,33 +1,30 @@
 
-import { Database } from "@/integrations/supabase/types";
-
 export interface EmailOptions {
-  type?: 'welcome' | 'reset_password';
-  token?: string;
-  fromEmail?: string; 
-  fromName?: string;  
+  fromEmail?: string;
+  fromName?: string;
+  replyTo?: string;
 }
 
-export type WabAdmin = {
-  id: string;
-  username: string | null;
-  wab_id: string | null;
-  email: string;
-};
-
-export type DomainVerificationResult = {
-  verified: boolean;
-  status: string;
-  domains: any[];
-};
-
-export type ResendConfirmationResult = {
+export interface ResendConfirmationResult {
   success: boolean;
   message: string;
   details: any;
-};
+}
 
-export type AdminUpdateResult = {
-  success: boolean;
-  message: string;
-};
+export interface DomainVerificationResult {
+  verified: boolean;
+  status: string;
+  domains: Array<{
+    id: string;
+    name: string;
+    status: string;
+    created_at?: string;
+    region?: string;
+  }>;
+}
+
+// Re-export everything from the email functions for consistency
+export { testConfirmationEmail, resendAllPendingConfirmationEmails } from './confirmationEmails';
+export { testResendEmail } from './testEmail';
+export { checkDomainVerificationStatus } from './domainVerification';
+export { testUserSignup } from './confirmationEmails';

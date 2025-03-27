@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ResendConfirmationResult } from "./types";
@@ -22,12 +21,10 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     
     // First, check if this email is already confirmed in our system
     const { data: usersByEmail } = await supabase.auth.admin.listUsers({
-      filters: {
-        email: email
-      }
+      email: email
     });
     
-    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => user.email_confirmed_at);
+    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => user.user_metadata?.email_confirmed_at);
     
     if (emailAlreadyConfirmed) {
       console.log(`Email ${email} is already confirmed in the system`);
@@ -182,4 +179,88 @@ export const resendAllPendingConfirmationEmails = async (): Promise<ResendConfir
     message: 'For email delivery issues, try updating your SMTP password (Resend API key) in Supabase Authentication settings.',
     details: null
   };
+};
+
+/**
+ * Test signup functionality to see if new users can register
+ * @param email Test email to use for signup
+ * @param password Test password to use for signup
+ * @returns Promise with the result of the operation
+ */
+export const testUserSignup = async (email: string, password: string): Promise<ResendConfirmationResult> => {
+  if (!email || !email.includes('@')) {
+    return {
+      success: false,
+      message: 'Please provide a valid email address',
+      details: null
+    };
+  }
+  
+  if (!password || password.length < 6) {
+    return {
+      success: false,
+      message: 'Password must be at least 6 characters',
+      details: null
+    };
+  }
+  
+  try {
+    console.log(`Testing user signup with email: ${email}`);
+    
+    // Check if email already exists
+    const { data: existingUserData } = await supabase.auth.admin.listUsers({
+      email: email
+    });
+    
+    const emailExists = existingUserData?.users?.length > 0;
+    
+    if (emailExists) {
+      console.log(`Email ${email} already exists in the system`);
+      return {
+        success: false,
+        message: `The email ${email} is already registered. Please use a different email to test signup.`,
+        details: {
+          emailExists: true
+        }
+      };
+    }
+    
+    // Try to sign up a new user
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+      email,
+      password
+    });
+    
+    if (signupError) {
+      console.error('Error during signup test:', signupError);
+      return {
+        success: false,
+        message: `Signup failed: ${signupError.message}`,
+        details: signupError
+      };
+    }
+    
+    console.log('Signup test result:', signupData);
+    
+    // Check if confirmation email was sent
+    const emailConfirmationSent = !signupData.user?.email_confirmed_at;
+    
+    return {
+      success: true,
+      message: emailConfirmationSent 
+        ? `Signup successful! A confirmation email has been sent to ${email}.` 
+        : `Signup successful! The account was created but no confirmation email was needed.`,
+      details: {
+        user: signupData.user,
+        emailConfirmationSent
+      }
+    };
+  } catch (error) {
+    console.error('Error in testUserSignup:', error);
+    return {
+      success: false,
+      message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      details: null
+    };
+  }
 };
