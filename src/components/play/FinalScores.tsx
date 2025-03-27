@@ -24,6 +24,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FinalScoresProps {
   players: Player[];
@@ -38,6 +39,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
 }) => {
   const orderedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
   const [viewingList, setViewingList] = useState<Player | null>(null);
+  const isMobile = useIsMobile();
   
   // Helper function to safely get faction name
   const getFactionName = (player: Player): string => {
@@ -51,8 +53,8 @@ const FinalScores: React.FC<FinalScoresProps> = ({
   };
   
   return (
-    <motion.div className="space-y-6">
-      <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
+    <motion.div>
+      <Card className="p-4 sm:p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-warcrow-gold">Final Scores</h3>
           <Dialog>
@@ -91,40 +93,43 @@ const FinalScores: React.FC<FinalScoresProps> = ({
             </DialogContent>
           </Dialog>
         </div>
-        <Table className="w-full">
-          <TableCaption className="text-warcrow-muted">A summary of the final scores for each player.</TableCaption>
-          <TableHeader>
-            <TableRow className="border-warcrow-gold/20">
-              <TableHead className="min-w-[150px] text-warcrow-gold">Player</TableHead>
-              <TableHead className="min-w-[150px] text-warcrow-gold">Faction</TableHead>
-              <TableHead className="min-w-[100px] text-warcrow-gold">Final VP</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orderedPlayers.map((player) => (
-              <TableRow key={player.id || player.name} className="border-warcrow-gold/20 hover:bg-warcrow-accent/20">
-                <TableCell className="font-medium text-warcrow-text p-4">{player.name}</TableCell>
-                <TableCell className="text-warcrow-text p-4">{getFactionName(player)}</TableCell>
-                <TableCell className="p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-warcrow-gold">{player.score} VP</span>
-                    {player.list && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setViewingList(player)}
-                        className="ml-2 flex items-center text-xs text-warcrow-text hover:text-warcrow-gold"
-                      >
-                        <FileText className="mr-1 w-3 h-3" />
-                        List
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
+        
+        <div className="overflow-auto">
+          <Table className="w-full">
+            <TableCaption className="text-warcrow-muted">A summary of the final scores for each player.</TableCaption>
+            <TableHeader>
+              <TableRow className="border-warcrow-gold/20">
+                <TableHead className="text-warcrow-gold w-1/3">Player</TableHead>
+                <TableHead className="text-warcrow-gold w-1/3">Faction</TableHead>
+                <TableHead className="text-warcrow-gold w-1/3">Final VP</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {orderedPlayers.map((player) => (
+                <TableRow key={player.id || player.name} className="border-warcrow-gold/20 hover:bg-warcrow-accent/20">
+                  <TableCell className="font-medium text-warcrow-text p-3 sm:p-4">{player.name}</TableCell>
+                  <TableCell className="text-warcrow-text p-3 sm:p-4 break-words">{getFactionName(player)}</TableCell>
+                  <TableCell className="p-3 sm:p-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-medium text-warcrow-gold">{player.score} VP</span>
+                      {player.list && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setViewingList(player)}
+                          className={`flex items-center text-xs text-warcrow-text hover:text-warcrow-gold ${isMobile ? 'px-1' : ''}`}
+                        >
+                          <FileText className="mr-1 w-3 h-3" />
+                          <span>{isMobile ? '' : 'List'}</span>
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
       
       <Dialog open={!!viewingList} onOpenChange={(open) => !open && setViewingList(null)}>

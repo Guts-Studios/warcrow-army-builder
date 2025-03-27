@@ -62,19 +62,19 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
   };
 
   return (
-    <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
+    <Card className="p-4 sm:p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
       <div className="flex justify-between items-center mb-4 border-b border-warcrow-gold/20 pb-4">
         <h3 className="text-xl font-semibold text-warcrow-gold">Round-by-Round Breakdown</h3>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-hidden">
         <Table className="round-details-table w-full">
           <TableHeader>
             <TableRow className="bg-warcrow-accent/50">
-              <TableHead className="w-24 text-warcrow-gold">Round</TableHead>
-              <TableHead className="text-warcrow-gold min-w-[150px]">Player</TableHead>
-              {!isMobile && <TableHead className="text-warcrow-gold min-w-[250px]">Objectives</TableHead>}
-              <TableHead className="text-warcrow-gold min-w-[80px]">VP</TableHead>
+              <TableHead className="text-warcrow-gold min-w-[80px] w-[15%]">Round</TableHead>
+              <TableHead className="text-warcrow-gold min-w-[120px] w-[25%]">Player</TableHead>
+              {!isMobile && <TableHead className="text-warcrow-gold w-[45%]">Objectives</TableHead>}
+              <TableHead className="text-warcrow-gold min-w-[60px] w-[15%]">VP</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -92,7 +92,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     className={playerIndex % 2 === 0 ? 'bg-warcrow-background' : 'bg-warcrow-accent/30'}
                   >
                     {playerIndex === 0 && (
-                      <TableCell rowSpan={players.length} className="font-medium align-top border-r border-warcrow-gold/20 p-4">
+                      <TableCell rowSpan={players.length} className="font-medium align-top border-r border-warcrow-gold/20 p-3 sm:p-4">
                         <div className="flex flex-col">
                           <div className="flex items-center text-warcrow-gold">
                             <Clock className="w-4 h-4 mr-2" />
@@ -105,12 +105,12 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             className="text-sm text-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold mt-2 justify-start pl-0"
                           >
                             <Edit2 className="w-4 h-4 mr-1" />
-                            <span className={isMobile ? "text-xs" : ""}>Edit Round</span>
+                            <span className={isMobile ? "sr-only sm:not-sr-only" : ""}>Edit Round</span>
                           </Button>
                         </div>
                       </TableCell>
                     )}
-                    <TableCell className="font-medium text-warcrow-text p-4">
+                    <TableCell className="font-medium text-warcrow-text p-3 sm:p-4">
                       <div className="flex items-center gap-1">
                         {player.name}
                         {(hasInitiative || hasInitialInitiative) && (
@@ -129,7 +129,6 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                             <div key={objective.id} className="mt-1">
                               {objective.description || objective.objectiveType || 'Unknown'} 
                               {objective.value ? ` (${objective.value} VP)` : ''}
-                              {idx < objectives.length - 1 ? ', ' : ''}
                             </div>
                           ))}
                         </div>
@@ -138,15 +137,14 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                     
                     {/* Only show objectives column on desktop */}
                     {!isMobile && (
-                      <TableCell className="text-warcrow-muted p-4">
+                      <TableCell className="text-warcrow-muted p-3 sm:p-4">
                         {objectives.length > 0 ? (
                           <div className="text-sm">
                             {objectives.map((objective: GameEvent, idx) => (
-                              <span key={objective.id}>
+                              <div key={objective.id} className="mb-1">
                                 {objective.description || objective.objectiveType || 'Unknown'} 
                                 {objective.value ? ` (${objective.value} VP)` : ''}
-                                {idx < objectives.length - 1 ? ', ' : ''}
-                              </span>
+                              </div>
                             ))}
                           </div>
                         ) : (
@@ -155,7 +153,7 @@ const RoundDetails: React.FC<RoundDetailsProps> = ({
                       </TableCell>
                     )}
                     
-                    <TableCell className="text-warcrow-gold font-medium text-lg p-4">{roundScore} VP</TableCell>
+                    <TableCell className="text-warcrow-gold font-medium text-lg p-3 sm:p-4">{roundScore} VP</TableCell>
                   </TableRow>
                 );
               })

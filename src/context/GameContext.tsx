@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { GameState, GamePhase, Player, Mission, Unit, Turn, GameEvent } from '@/types/game';
 import { toast } from 'sonner';
@@ -21,6 +20,7 @@ type GameAction =
   | { type: 'UPDATE_TURNS'; payload: Turn[] }
   | { type: 'ADD_GAME_EVENT'; payload: GameEvent }
   | { type: 'UPDATE_SCORE'; payload: { playerId: string; score: number; roundNumber?: number } }
+  | { type: 'SET_GAME_END_TIME'; payload: number }
   | { type: 'RESET_GAME' };
 
 const initialState: GameState = {
@@ -46,9 +46,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         return { ...state, currentPhase: action.payload, gameStartTime: Date.now() };
       }
       if (action.payload === 'summary' && state.currentPhase === 'scoring') {
-        return { ...state, currentPhase: action.payload, gameEndTime: Date.now() };
+        return { 
+          ...state, 
+          currentPhase: action.payload, 
+          gameEndTime: state.gameEndTime || Date.now() 
+        };
       }
       return { ...state, currentPhase: action.payload };
+      
+    case 'SET_GAME_END_TIME':
+      return { ...state, gameEndTime: action.payload };
 
     case 'ADD_PLAYER':
       return {

@@ -31,14 +31,16 @@ const GameSummary: React.FC<GameSummaryProps> = ({ gameState, onEditRoundScore }
     >
       <GameSummaryHeader gameState={gameState} winner={winner} />
       
-      <FinalScores players={players} gameState={gameState} />
-      
-      <RoundDetails 
-        gameState={gameState}
-        players={players}
-        rounds={rounds}
-        onEditRoundScore={onEditRoundScore}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FinalScores players={players} gameState={gameState} />
+        
+        <RoundDetails 
+          gameState={gameState}
+          players={players}
+          rounds={rounds}
+          onEditRoundScore={onEditRoundScore}
+        />
+      </div>
     </motion.div>
   );
 };

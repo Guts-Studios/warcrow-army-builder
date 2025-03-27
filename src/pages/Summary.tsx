@@ -21,12 +21,20 @@ const Summary = () => {
       navigate('/play');
     }
     
+    // Set gameEndTime when arriving at summary page if not already set
+    if (!state.gameEndTime) {
+      dispatch({ 
+        type: 'SET_GAME_END_TIME', 
+        payload: Date.now() 
+      });
+    }
+    
     // Determine the current round based on game state
     const rounds = getAllRoundNumbersFromState(state);
     if (rounds.length > 0) {
       setCurrentRound(Math.max(...rounds));
     }
-  }, [state, navigate]);
+  }, [state, navigate, dispatch]);
   
   const handleNewGame = () => {
     dispatch({ type: 'RESET_GAME' });
@@ -44,25 +52,19 @@ const Summary = () => {
   
   return (
     <div className="min-h-screen py-6 bg-warcrow-background">
-      <Container>
+      <Container className="max-w-full px-4">
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate="visible"
           className="space-y-6"
         >
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <GameSummary 
-                gameState={state}
-                onEditRoundScore={handleEditRound}
-              />
-              <GameResults />
-            </div>
-            
-            <div className="space-y-6">
-              {/* Content for the right column if needed */}
-            </div>
+          <div className="grid grid-cols-1 gap-6">
+            <GameSummary 
+              gameState={state}
+              onEditRoundScore={handleEditRound}
+            />
+            <GameResults />
           </div>
           
           {/* Move the New Game button to the bottom of the page */}

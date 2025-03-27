@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -34,7 +33,6 @@ const Game = () => {
     }
   }, [state.currentPhase, navigate]);
   
-  // Add game timer effect
   useEffect(() => {
     let interval: number | undefined;
     
@@ -43,7 +41,6 @@ const Game = () => {
         const now = Date.now();
         const elapsed = now - state.gameStartTime!;
         
-        // Format time as HH:MM:SS
         const seconds = Math.floor((elapsed / 1000) % 60);
         const minutes = Math.floor((elapsed / 1000 / 60) % 60);
         const hours = Math.floor(elapsed / 1000 / 60 / 60);
@@ -61,6 +58,7 @@ const Game = () => {
   }, [state.gameStartTime]);
   
   const handleEndGame = () => {
+    dispatch({ type: 'SET_GAME_END_TIME', payload: Date.now() });
     dispatch({ type: 'SET_PHASE', payload: 'scoring' });
     navigate('/summary');
   };
