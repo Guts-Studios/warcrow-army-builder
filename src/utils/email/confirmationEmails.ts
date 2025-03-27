@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ResendConfirmationResult } from "./types";
+import { ResendConfirmationResult, SupabaseAdminUsersResponse, SupabaseUser } from "./types";
 
 /**
  * Test if a specific email account can receive Supabase confirmation emails
@@ -21,12 +20,13 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     console.log(`Testing confirmation email for: ${email}`);
     
     // First, check if this email is already confirmed in our system
-    const { data: usersByEmail } = await supabase.auth.admin.listUsers();
+    const { data } = await supabase.auth.admin.listUsers();
+    const usersByEmail = data as SupabaseAdminUsersResponse;
     
-    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => {
+    const emailAlreadyConfirmed = usersByEmail?.users?.some((user: SupabaseUser) => {
       // TypeScript safe way to check properties
       if (user.email === email && user.user_metadata) {
-        const metadata = user.user_metadata as Record<string, any>;
+        const metadata = user.user_metadata;
         return !!metadata.email_confirmed_at;
       }
       return false;
@@ -214,9 +214,10 @@ export const testUserSignup = async (email: string, password: string): Promise<R
     console.log(`Testing user signup with email: ${email}`);
     
     // Check if email already exists
-    const { data: existingUserData } = await supabase.auth.admin.listUsers();
+    const { data } = await supabase.auth.admin.listUsers();
+    const existingUserData = data as SupabaseAdminUsersResponse;
     
-    const emailExists = existingUserData?.users?.some(user => {
+    const emailExists = existingUserData?.users?.some((user: SupabaseUser) => {
       return user.email === email;
     });
     

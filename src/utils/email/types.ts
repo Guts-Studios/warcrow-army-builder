@@ -35,6 +35,24 @@ export interface WabAdmin {
   email: string;
 }
 
+// Define types for Supabase admin responses
+export interface SupabaseUserMetadata {
+  email_confirmed_at?: string;
+  [key: string]: any;
+}
+
+export interface SupabaseUser {
+  id: string;
+  email?: string;
+  user_metadata?: SupabaseUserMetadata;
+  [key: string]: any;
+}
+
+export interface SupabaseAdminUsersResponse {
+  users?: SupabaseUser[];
+  [key: string]: any;
+}
+
 // Re-export everything from the email functions for consistency
 export { testConfirmationEmail, resendAllPendingConfirmationEmails } from './confirmationEmails';
 export { testResendEmail } from './testEmail';

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,9 @@ import {
   resendAllPendingConfirmationEmails, 
   DomainVerificationResult,
   testConfirmationEmail,
-  testUserSignup
+  testUserSignup,
+  SupabaseUser,
+  SupabaseAdminUsersResponse
 } from "@/utils/email";
 import { ArrowLeft, AlertTriangle, ExternalLink, InfoIcon, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -62,11 +65,12 @@ const Mail = () => {
 
   const checkIfEmailConfirmed = async (email: string): Promise<boolean> => {
     try {
-      const { data } = await supabase.auth.admin.listUsers({
-        email: email
-      });
+      const { data } = await supabase.auth.admin.listUsers();
+      const userData = data as SupabaseAdminUsersResponse;
       
-      return data?.users?.some(user => user.user_metadata?.email_confirmed_at) || false;
+      return userData?.users?.some((user: SupabaseUser) => {
+        return user.email === email && user.user_metadata?.email_confirmed_at;
+      }) || false;
     } catch (error) {
       console.error("Error checking if email is confirmed:", error);
       return false;
