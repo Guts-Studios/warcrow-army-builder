@@ -1,4 +1,3 @@
-
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,14 +55,13 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           navigate('/reset-password');
         } else if (event === 'SIGNED_IN') {
           toast.success('Successfully signed in!');
-          navigate('/landing');
+          navigate('/');
         } else if (event === 'USER_UPDATED') {
-          // Check if email confirmation is required
           if (!session?.user?.email_confirmed_at) {
             toast.info('Please check your email to verify your account before signing in');
           } else {
             toast.success('Account created successfully!');
-            navigate('/landing');
+            navigate('/');
           }
         } else if (event === 'SIGNED_OUT') {
           setError(null);
@@ -72,7 +70,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           if (currentSession) {
             toast.success('Successfully signed in!');
-            navigate('/landing');
+            navigate('/');
           }
         }
 
@@ -160,7 +158,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     if (onGuestAccess) {
       onGuestAccess();
     }
-    navigate('/landing');
+    navigate('/');
   };
 
   return (
