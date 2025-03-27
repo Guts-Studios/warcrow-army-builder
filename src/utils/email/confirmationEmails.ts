@@ -4,54 +4,6 @@ import { toast } from "sonner";
 import { ResendConfirmationResult } from "./types";
 
 /**
- * Resend confirmation emails to all users with unconfirmed email addresses
- * @returns Promise with the result of the operation
- */
-export const resendAllPendingConfirmationEmails = async (): Promise<ResendConfirmationResult> => {
-  try {
-    console.log('Fetching users with unconfirmed emails...');
-    
-    const { data, error } = await supabase.functions.invoke('send-resend-email', {
-      body: {
-        resendAllPendingConfirmations: true,
-        // Adding minimal required fields for the edge function
-        to: ['placeholder@example.com'],
-        subject: 'Confirmation',
-        html: '<p>Confirmation</p>'
-      }
-    });
-
-    if (error) {
-      console.error('Error fetching unconfirmed users:', error);
-      toast.error(`Failed to resend confirmation emails: ${error.message}`);
-      throw error;
-    }
-
-    console.log('Confirmation emails resend result:', data);
-    
-    // Show success toast with count of emails sent
-    if (data?.count) {
-      toast.success(`Sent ${data.count} confirmation emails successfully!`);
-    } else {
-      toast.info('No pending email confirmations found');
-    }
-    
-    return {
-      success: true,
-      message: `Confirmation emails sent to ${data?.count || 0} users`,
-      details: data
-    };
-  } catch (error) {
-    console.error('Failed to resend confirmation emails:', error);
-    return {
-      success: false,
-      message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      details: null
-    };
-  }
-};
-
-/**
  * Test if a specific email account can receive Supabase confirmation emails
  * @param email The email address to test
  * @returns Promise with the result of the operation
@@ -68,13 +20,11 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
   try {
     console.log(`Testing confirmation email for: ${email}`);
     
-    // Use the custom edge function instead of direct supabase.auth.resend
-    // This gives us more control and better logging
+    // First, send a direct test email using our edge function
     const { data, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
         testConfirmationEmail: true,
         email: email,
-        // Adding minimal required fields for the edge function
         to: [email],
         subject: 'Test Confirmation Email',
         html: '<p>Test confirmation email</p>'
@@ -92,13 +42,42 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     }
     
     console.log('Test confirmation email result:', data);
-    toast.success(`Test confirmation email sent to ${email}. Please check both inbox and spam folders.`);
     
-    return {
-      success: true,
-      message: `Test confirmation email sent to ${email}`,
-      details: data
-    };
+    // Now, use Supabase's built-in email resend functionality
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+      
+      if (resendError) {
+        console.warn('Supabase resend gave an error, but direct email was sent:', resendError);
+        toast.warning(`Direct test email sent, but there was an issue with Supabase's confirmation email: ${resendError.message}`);
+        return {
+          success: true,
+          message: `Direct test email sent to ${email}, but there was an issue with the confirmation email. Please check your Supabase SMTP settings.`,
+          details: {
+            directEmail: data,
+            confirmationError: resendError
+          }
+        };
+      }
+      
+      toast.success(`Test emails sent to ${email}. Please check both inbox and spam folders.`);
+      return {
+        success: true,
+        message: `Test emails sent to ${email}`,
+        details: data
+      };
+    } catch (resendError) {
+      console.warn('Failed to trigger Supabase confirmation email, but direct email was sent:', resendError);
+      toast.warning(`Direct test email sent, but there was an issue with Supabase's confirmation email system.`);
+      return {
+        success: true,
+        message: `Direct test email sent to ${email}, but there was an issue with the confirmation email system.`,
+        details: data
+      };
+    }
   } catch (error) {
     console.error('Error in testConfirmationEmail:', error);
     return {
@@ -107,4 +86,18 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
       details: null
     };
   }
+};
+
+/**
+ * Resend confirmation emails to all users with unconfirmed email addresses
+ * This functionality will be handled by Supabase directly if you use
+ * the admin interface. This is just a placeholder for now.
+ */
+export const resendAllPendingConfirmationEmails = async (): Promise<ResendConfirmationResult> => {
+  toast.info('This functionality should be handled in the Supabase Dashboard under Authentication > Users.');
+  return {
+    success: true,
+    message: 'Please use the Supabase Dashboard to manage confirmation emails for all users.',
+    details: null
+  };
 };

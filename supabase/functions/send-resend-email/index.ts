@@ -112,16 +112,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`Testing confirmation email delivery to: ${emailRequest.email}`);
       
       try {
-        // Need to use service role key to access auth API
-        const supabaseUrl = Deno.env.get('SUPABASE_URL');
-        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        
-        if (!supabaseUrl || !serviceRoleKey) {
-          throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
-        }
-        
-        // Send an email directly using Resend to verify email deliverability
-        const directEmailResult = await resend.emails.send({
+        // Send a direct test email using Resend to verify basic email functionality
+        const testEmailResult = await resend.emails.send({
           from: "Warcrow Army <updates@updates.warcrowarmy.com>",
           to: [emailRequest.email],
           subject: "Email Deliverability Test",
@@ -129,210 +121,22 @@ const handler = async (req: Request): Promise<Response> => {
             <h1>Email Deliverability Test</h1>
             <p>This is a test email to verify that we can send emails to your account.</p>
             <p>If you are seeing this, it means that our system can successfully deliver emails to you.</p>
-            <p>Next, we will try to send a confirmation email using Supabase's authentication system.</p>
+            <p>Next, please check your regular Supabase confirmation email that should arrive separately.</p>
+            <p>If you don't receive the confirmation email, please make sure that:</p>
+            <ul>
+              <li>You've correctly set up Resend as your SMTP provider in Supabase</li>
+              <li>Your domain is verified in Resend</li>
+              <li>The Supabase auth settings are configured to send confirmation emails</li>
+            </ul>
           `,
         });
         
-        console.log("Direct email test result:", directEmailResult);
-        
-        // Now attempt to send a confirmation email through Supabase
-        console.log(`Sending Supabase confirmation email to: ${emailRequest.email}`);
-        
-        // First check if user exists
-        const userCheckResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users?email=${encodeURIComponent(emailRequest.email)}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${serviceRoleKey}`,
-            'apikey': serviceRoleKey,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!userCheckResponse.ok) {
-          const errorText = await userCheckResponse.text();
-          console.error(`Failed to check if user exists: ${userCheckResponse.status} ${errorText}`);
-          return new Response(
-            JSON.stringify({ 
-              error: `Failed to check if user exists: ${userCheckResponse.status}`,
-              details: errorText,
-              timestamp: new Date().toISOString()
-            }),
-            {
-              status: 500,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            }
-          );
-        }
-        
-        const userCheckData = await userCheckResponse.json();
-        console.log("User check data:", JSON.stringify(userCheckData));
-        
-        const users = userCheckData.users || [];
-        let userId = null;
-        
-        if (users.length > 0) {
-          userId = users[0].id;
-          console.log(`Found existing user: ${userId}`);
-          
-          // FIXED: Send confirmation email to existing user - using correct endpoint
-          const resendResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/send-magic-link`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${serviceRoleKey}`,
-              'apikey': serviceRoleKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: emailRequest.email
-            })
-          });
-          
-          if (!resendResponse.ok) {
-            const errorText = await resendResponse.text();
-            console.error(`Failed to send magic link to ${emailRequest.email}: ${resendResponse.status} ${errorText}`);
-            
-            // Try alternative approach with email confirmation
-            console.log("Trying alternative authentication email approach");
-            const alternativeResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/generate-link`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${serviceRoleKey}`,
-                'apikey': serviceRoleKey,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: "signup",
-                email: emailRequest.email
-              })
-            });
-            
-            if (!alternativeResponse.ok) {
-              const altErrorText = await alternativeResponse.text();
-              console.error(`Failed to generate authentication link: ${alternativeResponse.status} ${altErrorText}`);
-              return new Response(
-                JSON.stringify({ 
-                  error: `Failed to send confirmation email: ${resendResponse.status}`,
-                  details: errorText,
-                  directEmailSent: !!directEmailResult.id,
-                  timestamp: new Date().toISOString()
-                }),
-                {
-                  status: 500,
-                  headers: { ...corsHeaders, "Content-Type": "application/json" },
-                }
-              );
-            }
-            
-            const alternativeData = await alternativeResponse.json();
-            console.log("Alternative authentication link generated:", JSON.stringify(alternativeData));
-          } else {
-            console.log(`Successfully sent magic link to ${emailRequest.email}`);
-          }
-        } else {
-          console.log(`User ${emailRequest.email} not found, creating invite`);
-          
-          // User doesn't exist, create an invite
-          const createUserResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${serviceRoleKey}`,
-              'apikey': serviceRoleKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: emailRequest.email,
-              email_confirm: true,
-              user_metadata: {
-                invited_at: new Date().toISOString()
-              },
-              app_metadata: {
-                provider: "email"
-              }
-            })
-          });
-          
-          if (!createUserResponse.ok) {
-            const errorText = await createUserResponse.text();
-            console.error(`Failed to create user invite: ${createUserResponse.status} ${errorText}`);
-            return new Response(
-              JSON.stringify({ 
-                error: `Failed to create user invite: ${createUserResponse.status}`,
-                details: errorText,
-                directEmailSent: !!directEmailResult.id,
-                timestamp: new Date().toISOString()
-              }),
-              {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-              }
-            );
-          }
-          
-          const createUserData = await createUserResponse.json();
-          console.log("Created user invite:", JSON.stringify(createUserData));
-          
-          userId = createUserData.id;
-          
-          // Send invite email to new user
-          const inviteResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/send-magic-link`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${serviceRoleKey}`,
-              'apikey': serviceRoleKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: emailRequest.email
-            })
-          });
-          
-          if (!inviteResponse.ok) {
-            const errorText = await inviteResponse.text();
-            console.error(`Failed to send invite email: ${inviteResponse.status} ${errorText}`);
-            
-            // Try alternative approach for new user
-            console.log("Trying alternative invite approach");
-            const alternativeResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/generate-link`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${serviceRoleKey}`,
-                'apikey': serviceRoleKey,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: "signup",
-                email: emailRequest.email
-              })
-            });
-            
-            if (!alternativeResponse.ok) {
-              const altErrorText = await alternativeResponse.text();
-              console.error(`Failed to generate authentication link: ${alternativeResponse.status} ${altErrorText}`);
-              return new Response(
-                JSON.stringify({ 
-                  error: `Failed to send invite email: ${inviteResponse.status}`,
-                  details: errorText,
-                  directEmailSent: !!directEmailResult.id,
-                  timestamp: new Date().toISOString()
-                }),
-                {
-                  status: 500,
-                  headers: { ...corsHeaders, "Content-Type": "application/json" },
-                }
-              );
-            }
-            
-            const alternativeData = await alternativeResponse.json();
-            console.log("Alternative authentication link generated:", JSON.stringify(alternativeData));
-          } else {
-            console.log(`Successfully sent invite email to new user ${emailRequest.email}`);
-          }
-        }
+        console.log("Direct test email result:", testEmailResult);
         
         return new Response(JSON.stringify({
           success: true,
-          message: `Test confirmation email sent to ${emailRequest.email}`,
-          directEmailSent: !!directEmailResult.id,
+          message: `Test email sent to ${emailRequest.email}. If you're using Resend as Supabase's SMTP provider, confirmation emails should be handled automatically by Supabase.`,
+          directEmailSent: !!testEmailResult.id,
           timestamp: new Date().toISOString()
         }), {
           status: 200,
@@ -348,130 +152,6 @@ const handler = async (req: Request): Promise<Response> => {
         return new Response(
           JSON.stringify({ 
             error: confirmError.message || 'Unknown error',
-            timestamp: new Date().toISOString()
-          }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
-      }
-    }
-
-    // Handle resending all pending confirmation emails
-    if (emailRequest.resendAllPendingConfirmations) {
-      console.log('Attempting to resend all pending confirmation emails');
-      
-      try {
-        // Need to use service role key to access user data
-        const supabaseAdminUrl = Deno.env.get('SUPABASE_URL');
-        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        
-        if (!supabaseAdminUrl || !supabaseServiceKey) {
-          throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
-        }
-        
-        // Fetch users with unconfirmed emails - using proper API endpoint for auth users
-        const response = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users?email_confirmed=is.null`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'apikey': supabaseServiceKey,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to fetch users: ${response.status} ${errorText}`);
-        }
-        
-        const responseData = await response.json();
-        const unconfirmedUsers = responseData.users || [];
-        console.log(`Found ${unconfirmedUsers.length} users with unconfirmed emails`);
-        
-        // Resend confirmation emails
-        const results = [];
-        for (const user of unconfirmedUsers) {
-          console.log(`Resending confirmation email to ${user.email}`);
-          
-          try {
-            // Use the correct endpoint for sending magic links
-            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users/${user.id}/send-magic-link`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${supabaseServiceKey}`,
-                'apikey': supabaseServiceKey,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email: user.email
-              })
-            });
-            
-            if (!resendResponse.ok) {
-              // Try alternative approach
-              console.log(`Magic link approach failed for ${user.email}, trying generate-link`);
-              const alternativeResponse = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users/${user.id}/generate-link`, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${supabaseServiceKey}`,
-                  'apikey': supabaseServiceKey,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  type: "signup",
-                  email: user.email
-                })
-              });
-              
-              if (!alternativeResponse.ok) {
-                const altErrorText = await alternativeResponse.text();
-                console.error(`Failed to generate link for ${user.email}: ${alternativeResponse.status} ${altErrorText}`);
-                results.push({
-                  email: user.email,
-                  success: false,
-                  error: `${alternativeResponse.status}: ${altErrorText}`
-                });
-              } else {
-                console.log(`Successfully generated link for ${user.email}`);
-                results.push({
-                  email: user.email,
-                  success: true,
-                  method: "generate-link"
-                });
-              }
-            } else {
-              console.log(`Successfully resent magic link to ${user.email}`);
-              results.push({
-                email: user.email,
-                success: true,
-                method: "magic-link"
-              });
-            }
-          } catch (sendError) {
-            console.error(`Error sending to ${user.email}:`, sendError);
-            results.push({
-              email: user.email,
-              success: false,
-              error: sendError.message || 'Unknown error'
-            });
-          }
-        }
-        
-        return new Response(JSON.stringify({
-          count: unconfirmedUsers.length,
-          results: results,
-          timestamp: new Date().toISOString()
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      } catch (error) {
-        console.error('Failed to process resend confirmation request:', error);
-        return new Response(
-          JSON.stringify({ 
-            error: error.message || 'Unknown error',
             timestamp: new Date().toISOString()
           }),
           {
