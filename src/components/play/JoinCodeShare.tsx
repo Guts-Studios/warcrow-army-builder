@@ -36,9 +36,11 @@ const JoinCodeShare: React.FC<JoinCodeShareProps> = ({ gameId, isOpen, onClose }
     const newCode = generateJoinCode();
     
     try {
+      console.log("Generating new join code for game:", gameId);
       const success = await saveJoinCode(gameId, newCode);
       if (success) {
         setJoinCode(newCode);
+        console.log("Successfully generated join code:", newCode);
       } else {
         toast.error("Failed to generate join code. Please try again.");
       }
@@ -104,7 +106,7 @@ const JoinCodeShare: React.FC<JoinCodeShareProps> = ({ gameId, isOpen, onClose }
           </div>
           
           <div className="text-center text-sm text-warcrow-text/70">
-            This code will expire in 1 hour
+            This code will expire in 24 hours
           </div>
         </div>
         

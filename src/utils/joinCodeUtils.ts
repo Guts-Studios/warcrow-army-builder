@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 // Generate a 6-character alphanumeric code
 export const generateJoinCode = (): string => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed similar looking characters
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ23456789'; // Removed similar looking characters
   let result = '';
   
   for (let i = 0; i < 6; i++) {
@@ -17,13 +17,19 @@ export const generateJoinCode = (): string => {
 // Save a game join code in Supabase
 export const saveJoinCode = async (gameId: string, joinCode: string): Promise<boolean> => {
   try {
+    console.log("Saving join code:", {
+      code: joinCode,
+      game_id: gameId,
+      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString() // 24 hour expiration
+    });
+    
     // Use a direct insert instead of the RPC function
     const { error } = await supabase
       .from('game_join_codes')
       .insert({
         code: joinCode,
         game_id: gameId,
-        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString() // 24 hour expiration (was 1 hour)
+        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString() // 24 hour expiration
       });
 
     if (error) {
@@ -31,6 +37,7 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
       return false;
     }
     
+    console.log("Successfully saved join code", joinCode, "for game", gameId);
     return true;
   } catch (err) {
     console.error("Error in saveJoinCode:", err);
@@ -41,19 +48,37 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
 // Retrieve a game by join code
 export const getGameByJoinCode = async (joinCode: string): Promise<string | null> => {
   try {
-    console.log("Looking up join code:", joinCode);
+    // Normalize the join code by removing any dashes
+    const normalizedCode = joinCode.replace(/-/g, '');
+    console.log("Looking up join code (normalized):", normalizedCode);
     
-    // First check if the code exists at all
+    // First get all join codes to debug
+    const { data: allCodes, error: listError } = await supabase
+      .from('game_join_codes')
+      .select('code, expires_at, used, game_id')
+      .limit(10);
+      
+    if (!listError && allCodes) {
+      console.log("Recent join codes in database:", allCodes.map(c => ({
+        code: c.code,
+        expires: new Date(c.expires_at).toLocaleString(),
+        isExpired: new Date(c.expires_at) < new Date(),
+        used: c.used
+      })));
+    }
+    
+    // Check if the code exists at all
     const { data: codeExists, error: lookupError } = await supabase
       .from('game_join_codes')
       .select('code, expires_at, used')
-      .eq('code', joinCode)
+      .eq('code', normalizedCode)
       .single();
     
     if (lookupError) {
       console.error("Error looking up join code:", lookupError);
       if (lookupError.code === 'PGRST116') {
         // Code doesn't exist
+        console.log(`Join code "${normalizedCode}" not found in database`);
         toast.error("Invalid join code. Please check and try again.");
       } else {
         toast.error("Error checking join code. Please try again.");
@@ -62,16 +87,20 @@ export const getGameByJoinCode = async (joinCode: string): Promise<string | null
     }
     
     if (!codeExists) {
+      console.log(`Join code "${normalizedCode}" not found in database (no lookup error)`);
       toast.error("Invalid join code. Please check and try again.");
       return null;
     }
     
     // Check if the code is expired
-    if (new Date(codeExists.expires_at) < new Date()) {
+    const now = new Date();
+    const expiryDate = new Date(codeExists.expires_at);
+    if (expiryDate < now) {
       console.error("Join code expired:", {
-        code: joinCode,
-        expiry: codeExists.expires_at,
-        now: new Date().toISOString(),
+        code: normalizedCode,
+        expiry: expiryDate.toLocaleString(),
+        now: now.toLocaleString(),
+        difference: `${Math.floor((now.getTime() - expiryDate.getTime()) / 1000 / 60)} minutes ago`
       });
       toast.error("This join code has expired. Please ask for a new code.");
       return null;
@@ -79,7 +108,7 @@ export const getGameByJoinCode = async (joinCode: string): Promise<string | null
     
     // Check if the code has been used
     if (codeExists.used) {
-      console.error("Join code already used:", joinCode);
+      console.error("Join code already used:", normalizedCode);
       toast.error("This join code has already been used. Please ask for a new code.");
       return null;
     }
@@ -89,7 +118,7 @@ export const getGameByJoinCode = async (joinCode: string): Promise<string | null
     const { data, error } = await supabase
       .from('game_join_codes')
       .select('game_id')
-      .eq('code', joinCode)
+      .eq('code', normalizedCode)
       .single();
 
     if (error || !data) {
@@ -103,7 +132,7 @@ export const getGameByJoinCode = async (joinCode: string): Promise<string | null
       const { error: updateError } = await supabase
         .from('game_join_codes')
         .update({ used: true })
-        .eq('code', joinCode);
+        .eq('code', normalizedCode);
       
       if (updateError) {
         console.error("Error marking join code as used:", updateError);
@@ -111,6 +140,7 @@ export const getGameByJoinCode = async (joinCode: string): Promise<string | null
       }
       
       console.log("Successfully joined game with ID:", data.game_id);
+      toast.success("Join code valid! Connecting to game...");
     }
     
     return data.game_id;

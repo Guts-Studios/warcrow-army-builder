@@ -20,15 +20,20 @@ const JoinGame: React.FC = () => {
     // Remove non-alphanumeric characters and convert to uppercase
     const sanitizedCode = e.target.value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
     
-    // Remove dashes for processing
-    const processedCode = sanitizedCode.replace(/-/g, '');
-    
-    // Format with a dash in the middle if long enough (XXX-XXX)
-    if (processedCode.length > 3) {
-      const formattedCode = `${processedCode.slice(0, 3)}-${processedCode.slice(3, 6)}`;
-      setJoinCode(formattedCode);
-    } else {
+    // Process the code - if it has a dash already, leave it as is
+    if (sanitizedCode.includes('-')) {
       setJoinCode(sanitizedCode);
+    } else {
+      // Remove any existing dashes
+      const processedCode = sanitizedCode.replace(/-/g, '');
+      
+      // Format with a dash in the middle if long enough (XXX-XXX)
+      if (processedCode.length > 3) {
+        const formattedCode = `${processedCode.slice(0, 3)}-${processedCode.slice(3, 6)}`;
+        setJoinCode(formattedCode);
+      } else {
+        setJoinCode(sanitizedCode);
+      }
     }
   };
 
@@ -45,13 +50,15 @@ const JoinGame: React.FC = () => {
     setPreviousAttempt(processedCode);
     
     try {
+      console.log("Attempting to join game with code:", joinCode, "processed as:", processedCode);
       const gameId = await getGameByJoinCode(processedCode);
       
       if (gameId) {
-        toast.success("Join code valid! Connecting to game...");
         // Store the joined game id in local storage
         localStorage.setItem('warcrow_joined_game', gameId);
         navigate('/deployment');
+      } else {
+        console.log("No game ID returned for code:", processedCode);
       }
     } catch (err) {
       console.error("Error joining game:", err);
