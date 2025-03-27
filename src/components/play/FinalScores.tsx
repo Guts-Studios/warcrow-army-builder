@@ -91,21 +91,21 @@ const FinalScores: React.FC<FinalScoresProps> = ({
             </DialogContent>
           </Dialog>
         </div>
-        <Table>
+        <Table className="w-full">
           <TableCaption className="text-warcrow-muted">A summary of the final scores for each player.</TableCaption>
           <TableHeader>
             <TableRow className="border-warcrow-gold/20">
-              <TableHead className="w-[100px] text-warcrow-gold">Player</TableHead>
-              <TableHead className="text-warcrow-gold">Faction</TableHead>
-              <TableHead className="text-warcrow-gold">Final VP</TableHead>
+              <TableHead className="min-w-[150px] text-warcrow-gold">Player</TableHead>
+              <TableHead className="min-w-[150px] text-warcrow-gold">Faction</TableHead>
+              <TableHead className="min-w-[100px] text-warcrow-gold">Final VP</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orderedPlayers.map((player) => (
               <TableRow key={player.id || player.name} className="border-warcrow-gold/20 hover:bg-warcrow-accent/20">
-                <TableCell className="font-medium text-warcrow-text">{player.name}</TableCell>
-                <TableCell className="text-warcrow-text">{getFactionName(player)}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium text-warcrow-text p-4">{player.name}</TableCell>
+                <TableCell className="text-warcrow-text p-4">{getFactionName(player)}</TableCell>
+                <TableCell className="p-4">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-warcrow-gold">{player.score} VP</span>
                     {player.list && (

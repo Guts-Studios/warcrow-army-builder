@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,6 +98,21 @@
 /* Remove hover effect for TableRow */
 .round-details-table tr:hover {
   background-color: inherit !important;
+}
+
+/* Table cell improvements */
+.round-details-table td, .round-details-table th {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Table responsiveness */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
 }
 
 /* Modify the default TableRow hover behavior */
