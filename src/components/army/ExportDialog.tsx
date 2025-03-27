@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -73,13 +74,13 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          className="bg-black border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
         >
           <FileText className="h-4 w-4 mr-2" />
           Export to Text
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-accent max-h-[90vh] min-h-[500px]">
+      <DialogContent className="bg-warcrow-background border-warcrow-gold/50">
         <DialogHeader>
           <DialogTitle className="text-warcrow-gold">Export Army List</DialogTitle>
         </DialogHeader>

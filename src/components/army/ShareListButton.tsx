@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -185,7 +186,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          className="bg-black border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
           size="sm"
         >
           <Share2 className="h-4 w-4 mr-1" />
@@ -212,7 +213,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
             <Button 
               onClick={copyToClipboard}
               variant="outline"
-              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
@@ -229,7 +230,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
               <Button
                 onClick={() => printList(false)} 
                 variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 <Printer className="h-4 w-4 mr-2" />
                 Print Full List
@@ -237,7 +238,7 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
               <Button
                 onClick={() => printList(true)}
                 variant="outline"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 <Printer className="h-4 w-4 mr-2" />
                 Print Courtesy List

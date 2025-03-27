@@ -77,7 +77,7 @@ export const ArmyListsSection = ({ onListSelect }: ArmyListsSectionProps) => {
         <Button
           onClick={() => onListSelect(list)}
           variant="outline"
-          className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+          className="bg-black border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
         >
           <Eye className="h-4 w-4 mr-1" />
           View

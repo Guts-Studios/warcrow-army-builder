@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { decodeUrlToList } from "@/utils/shareListUtils";
@@ -234,7 +235,7 @@ const SharedList = () => {
                 onClick={() => printList(false)} 
                 variant="outline"
                 size="sm"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 <Printer className="h-4 w-4 mr-1" />
                 Full List
@@ -243,7 +244,7 @@ const SharedList = () => {
                 onClick={() => printList(true)}
                 variant="outline"
                 size="sm"
-                className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black transition-colors"
+                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 <Printer className="h-4 w-4 mr-1" />
                 Courtesy List
