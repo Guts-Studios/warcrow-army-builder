@@ -23,6 +23,18 @@ export interface DomainVerificationResult {
   }>;
 }
 
+export interface AdminUpdateResult {
+  success: boolean;
+  message: string;
+}
+
+export interface WabAdmin {
+  id: string;
+  username: string;
+  wab_id?: string;
+  email: string;
+}
+
 // Re-export everything from the email functions for consistency
 export { testConfirmationEmail, resendAllPendingConfirmationEmails } from './confirmationEmails';
 export { testResendEmail } from './testEmail';

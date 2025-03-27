@@ -1,56 +1,34 @@
 
+// Update the send email utility to fix the type errors
 import { supabase } from "@/integrations/supabase/client";
 import { EmailOptions } from "./types";
 
 export const sendEmail = async (
-  to: string[], 
-  subject: string, 
-  html: string, 
-  options: EmailOptions = {}
+  to: string[],
+  subject: string,
+  html: string,
+  options?: EmailOptions
 ) => {
   try {
-    console.log('Preparing to send email:', {
-      to,
-      subject,
-      options,
-      provider: 'Resend'
-    });
-    
     const { data, error } = await supabase.functions.invoke('send-resend-email', {
       body: {
         to,
         subject,
         html,
-        type: options.type,
-        token: options.token,
-        fromEmail: options.fromEmail,
-        fromName: options.fromName
+        fromEmail: options?.fromEmail,
+        fromName: options?.fromName,
+        replyTo: options?.replyTo
       }
     });
 
     if (error) {
-      console.error('Edge Function Error:', {
-        error,
-        message: error.message,
-        details: error.details,
-        status: error.status
-      });
+      console.error('Error sending email:', error);
       throw error;
     }
 
-    console.log('Email sent successfully:', {
-      data,
-      timestamp: new Date().toISOString(),
-      provider: 'Resend'
-    });
-    
     return data;
   } catch (error) {
-    console.error('Email Send Failure:', {
-      error,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
+    console.error('Unexpected error sending email:', error);
     throw error;
   }
 };

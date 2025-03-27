@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ResendConfirmationResult } from "./types";
@@ -21,7 +22,7 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     
     // First, check if this email is already confirmed in our system
     const { data: usersByEmail } = await supabase.auth.admin.listUsers({
-      email: email
+      filter: `email.eq.${email}`
     });
     
     const emailAlreadyConfirmed = usersByEmail?.users?.some(user => user.user_metadata?.email_confirmed_at);
@@ -209,7 +210,7 @@ export const testUserSignup = async (email: string, password: string): Promise<R
     
     // Check if email already exists
     const { data: existingUserData } = await supabase.auth.admin.listUsers({
-      email: email
+      filter: `email.eq.${email}`
     });
     
     const emailExists = existingUserData?.users?.length > 0;

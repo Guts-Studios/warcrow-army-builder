@@ -8,7 +8,8 @@ import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { updateUserWabAdminStatus, getWabAdmins, WabAdmin } from "@/utils/email";
+import { updateUserWabAdminStatus, getWabAdmins } from "@/utils/email/adminManagement";
+import { WabAdmin } from "@/utils/email/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const Admin = () => {
