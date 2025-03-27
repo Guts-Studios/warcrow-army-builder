@@ -1,11 +1,17 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { File, Check, X, Pencil } from 'lucide-react';
+import { File, Check, X, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
 import { Unit } from '@/types/game';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ListMetadata {
   title?: string;
@@ -27,6 +33,7 @@ const ListUploader: React.FC<ListUploaderProps> = ({
 }) => {
   const [listText, setListText] = useState<string>('');
   const [isManualInput, setIsManualInput] = useState(!hasUploadedList);
+  const [isOpen, setIsOpen] = useState(false);
 
   const parseList = (content: string): { units: Unit[], metadata: ListMetadata } => {
     const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -124,6 +131,7 @@ const ListUploader: React.FC<ListUploaderProps> = ({
     
     onListUpload(playerId, listText, units, metadata);
     setIsManualInput(false);
+    setIsOpen(false);
     toast.success(`List saved successfully! Found ${units.length} units.`);
   };
 
@@ -161,33 +169,56 @@ const ListUploader: React.FC<ListUploaderProps> = ({
         variants={fadeIn}
         initial="hidden"
         animate="visible"
-        className="border rounded-lg p-4 space-y-4"
       >
-        <div className="flex justify-between items-center">
-          <h3 className="font-medium">Enter Army List</h3>
-          {hasUploadedList && (
-            <button
-              onClick={() => setIsManualInput(false)}
-              className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center"
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full flex justify-between items-center bg-warcrow-background border-warcrow-accent text-warcrow-text"
             >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <Textarea
-          value={listText}
-          onChange={(e) => setListText(e.target.value)}
-          className="w-full h-40 p-3 border rounded-md text-sm font-mono"
-          placeholder="Paste or type your army list here..."
-        />
-        <div className="flex justify-end">
-          <Button
-            onClick={handleManualSubmit}
-            variant="default"
+              <span>{hasUploadedList ? "Edit Army List" : "Enter Army List"}</span>
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4 ml-2" />
+              ) : (
+                <ChevronDown className="h-4 w-4 ml-2" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="w-full max-w-[400px] p-4 space-y-4 bg-warcrow-background border-warcrow-accent text-warcrow-text"
+            align="start"
           >
-            Save List
-          </Button>
-        </div>
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium text-warcrow-gold">Enter Army List</h3>
+              {hasUploadedList && (
+                <button
+                  onClick={() => {
+                    setIsManualInput(false);
+                    setIsOpen(false);
+                  }}
+                  className="w-6 h-6 rounded-full bg-warcrow-accent flex items-center justify-center text-warcrow-text"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <Textarea
+              value={listText}
+              onChange={(e) => setListText(e.target.value)}
+              className="w-full h-40 p-3 border rounded-md text-sm font-mono bg-warcrow-background border-warcrow-accent text-warcrow-text"
+              placeholder="Paste or type your army list here..."
+            />
+            <div className="flex justify-end">
+              <Button
+                onClick={handleManualSubmit}
+                variant="default"
+                className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+              >
+                Save List
+              </Button>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </motion.div>
     );
   }
@@ -197,25 +228,45 @@ const ListUploader: React.FC<ListUploaderProps> = ({
       variants={fadeIn}
       initial="hidden"
       animate="visible"
-      className="border rounded-lg p-4 space-y-4"
     >
-      <div className="flex justify-between items-center">
-        <h3 className="font-medium">Enter Army List</h3>
-      </div>
-      <Textarea
-        value={listText}
-        onChange={(e) => setListText(e.target.value)}
-        className="w-full h-40 p-3 border rounded-md text-sm font-mono"
-        placeholder="Paste or type your army list here..."
-      />
-      <div className="flex justify-end">
-        <Button
-          onClick={handleManualSubmit}
-          variant="default"
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="w-full flex justify-between items-center bg-warcrow-background border-warcrow-accent text-warcrow-text"
+          >
+            <span>Enter Army List</span>
+            {isOpen ? (
+              <ChevronUp className="h-4 w-4 ml-2" />
+            ) : (
+              <ChevronDown className="h-4 w-4 ml-2" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          className="w-full max-w-[400px] p-4 space-y-4 bg-warcrow-background border-warcrow-accent text-warcrow-text"
+          align="start"
         >
-          Save List
-        </Button>
-      </div>
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium text-warcrow-gold">Enter Army List</h3>
+          </div>
+          <Textarea
+            value={listText}
+            onChange={(e) => setListText(e.target.value)}
+            className="w-full h-40 p-3 border rounded-md text-sm font-mono bg-warcrow-background border-warcrow-accent text-warcrow-text"
+            placeholder="Paste or type your army list here..."
+          />
+          <div className="flex justify-end">
+            <Button
+              onClick={handleManualSubmit}
+              variant="default"
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+            >
+              Save List
+            </Button>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </motion.div>
   );
 };
