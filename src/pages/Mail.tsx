@@ -10,7 +10,7 @@ import {
   DomainVerificationResult,
   testConfirmationEmail
 } from "@/utils/email";
-import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -28,6 +28,7 @@ const Mail = () => {
   const [isTestingConfirmation, setIsTestingConfirmation] = useState(false);
   const [isAPIKeyValid, setIsAPIKeyValid] = useState<boolean | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [smtpMismatchDetected, setSmtpMismatchDetected] = useState(false);
 
   useEffect(() => {
     checkDomainStatus();
@@ -110,13 +111,17 @@ const Mail = () => {
         setIsAPIKeyValid(true);
         toast.success("Test emails requested. Check your inbox for delivery results.");
         
-        setTimeout(() => {
-          toast.info("If you only received the direct test email but not the Supabase authentication email, your SMTP settings likely need updating.");
-        }, 1000);
-        
-        setTimeout(() => {
-          toast.info("Try updating your SMTP password in Authentication → Email Templates by toggling SMTP OFF then ON again.");
-        }, 2000);
+        // If the direct email sent but auth email fails, we likely have an SMTP issue
+        if (result.details?.directEmail && !result.details?.resendData?.user) {
+          setSmtpMismatchDetected(true);
+          setTimeout(() => {
+            toast.warning("⚠️ SMTP SETUP ISSUE DETECTED: Your direct email works but Supabase authentication emails don't.");
+          }, 1000);
+          
+          setTimeout(() => {
+            toast.info("You need to update your SMTP settings in Supabase Auth Templates to use the same Resend API key.");
+          }, 2000);
+        }
       }
     } catch (error: any) {
       console.error("Failed to test confirmation email:", error);
@@ -170,6 +175,35 @@ const Mail = () => {
               className="w-full border-red-400 bg-red-900/30 text-red-400 hover:bg-red-900/50 hover:border-red-300"
             >
               Verify API Key Again
+            </Button>
+          </Card>
+        )}
+
+        {smtpMismatchDetected && (
+          <Card className="p-6 border border-yellow-500 shadow-sm bg-yellow-900/20 mb-6">
+            <div className="flex items-start mb-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2 mt-0.5" />
+              <h2 className="text-lg font-semibold text-yellow-400">SMTP Configuration Issue Detected</h2>
+            </div>
+            <p className="text-sm text-warcrow-text mb-4">
+              Your Edge Function Resend API key is working, but Supabase authentication emails are not being delivered.
+              This means your SMTP settings in Supabase Auth Templates need to be updated with the same Resend API key.
+            </p>
+            <ol className="text-sm text-warcrow-text list-decimal pl-5 space-y-1 mb-4">
+              <li>Go to <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline flex items-center">Supabase Auth Templates <ExternalLink className="h-3 w-3 ml-1" /></a></li>
+              <li>Scroll down to SMTP Settings and click "Edit"</li>
+              <li>Toggle OFF "Enable Custom SMTP" and save</li>
+              <li>Toggle back ON "Enable Custom SMTP"</li>
+              <li>Make sure host is "smtp.resend.com" and port is "465" with SSL enabled</li>
+              <li>Username should be "resend"</li>
+              <li>For the SMTP password, enter the SAME Resend API key you used in Edge Functions</li>
+              <li>Save changes and test confirmation emails again</li>
+            </ol>
+            <Button 
+              onClick={() => setSmtpMismatchDetected(false)}
+              className="w-full border-yellow-400 bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50 hover:border-yellow-300"
+            >
+              I've Updated SMTP Settings
             </Button>
           </Card>
         )}

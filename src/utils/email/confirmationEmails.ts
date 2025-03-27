@@ -38,11 +38,15 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
             <li>The SMTP settings in Supabase need to be reconfigured</li>
             <li>Authentication emails are disabled in Supabase settings</li>
           </ul>
-          <p>Try updating your SMTP password in Supabase by:</p>
+          <p><strong>IMPORTANT:</strong> The API key was updated in Edge Functions, but you still need to update it in SMTP settings.</p>
+          <p>Update your SMTP settings in Supabase by:</p>
           <ol>
             <li>Going to Authentication → Email Templates → SMTP Settings</li>
             <li>Toggle OFF and then back ON "Enable Custom SMTP"</li>
-            <li>Re-enter your current Resend API key as the password</li>
+            <li>For SMTP password, enter your current Resend API key (same one used for Edge Functions)</li>
+            <li>The host should be set to "smtp.resend.com" and port to "465" with SSL enabled</li>
+            <li>The username should be "resend"</li>
+            <li>Save changes and test again</li>
           </ol>
         `
       }
@@ -103,7 +107,7 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
       toast.error(`Failed to send Supabase authentication email: ${resendError.message}`);
       return {
         success: false,
-        message: `Direct email sent but Supabase auth email failed: ${resendError.message}`,
+        message: `Direct email sent but Supabase auth email failed: ${resendError.message}. Please update SMTP settings in Supabase Authentication → Email Templates → SMTP Settings.`,
         details: {
           directEmail: directEmailData,
           resendError
@@ -112,9 +116,11 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     }
     
     toast.success(`Supabase authentication email requested for ${email}. Check both inbox and spam folders.`);
+    toast.info('IMPORTANT: If you only receive the direct test email but not the authentication email, you MUST update the SMTP settings in Supabase Authentication → Email Templates with the same Resend API key');
+    
     return {
       success: true,
-      message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, your Supabase SMTP settings likely need updating.`,
+      message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, your Supabase SMTP settings need updating.`,
       details: {
         directEmail: directEmailData,
         resendData
@@ -140,6 +146,7 @@ export const resendAllPendingConfirmationEmails = async (): Promise<ResendConfir
   
   // Add some guidance for SMTP settings
   toast.info('If confirmation emails are not being received, check your SMTP settings in Authentication > Email Templates.');
+  toast.warning('IMPORTANT: Make sure your SMTP password in Supabase Auth Templates is updated with the same Resend API key used in Edge Functions');
   
   return {
     success: true,
