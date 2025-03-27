@@ -108,4 +108,3 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     };
   }
 };
-

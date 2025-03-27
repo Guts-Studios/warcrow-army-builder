@@ -174,14 +174,15 @@ const handler = async (req: Request): Promise<Response> => {
           userId = users[0].id;
           console.log(`Found existing user: ${userId}`);
           
-          // Send confirmation email to existing user
+          // Send confirmation email to existing user - use the correct endpoint path
           const resendResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/send-email-verification`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${serviceRoleKey}`,
               'apikey': serviceRoleKey,
               'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({})
           });
           
           if (!resendResponse.ok) {
@@ -254,7 +255,8 @@ const handler = async (req: Request): Promise<Response> => {
               'Authorization': `Bearer ${serviceRoleKey}`,
               'apikey': serviceRoleKey,
               'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({})
           });
           
           if (!inviteResponse.ok) {
@@ -351,7 +353,8 @@ const handler = async (req: Request): Promise<Response> => {
                 'Authorization': `Bearer ${supabaseServiceKey}`,
                 'apikey': supabaseServiceKey,
                 'Content-Type': 'application/json',
-              }
+              },
+              body: JSON.stringify({})
             });
             
             if (!resendResponse.ok) {
