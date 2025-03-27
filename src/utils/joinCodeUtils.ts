@@ -79,37 +79,57 @@ export const formatJoinCode = (code: string): string => {
 // Send invitation to friend
 export const inviteFriendToGame = async (friendId: string, gameId: string, senderName: string): Promise<boolean> => {
   try {
+    // Get the current user's ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error("No authenticated user found");
+      return false;
+    }
+    
+    // Generate and save the join code
     const joinCode = generateJoinCode();
     const success = await saveJoinCode(gameId, joinCode);
     
     if (!success) {
-      toast.error("Failed to generate invitation code");
+      console.error("Failed to generate invitation code");
       return false;
     }
     
-    // Send notification to the friend
-    const { error } = await supabase.from('notifications').insert({
-      recipient_id: friendId,
-      type: 'game_invitation',
-      content: {
-        message: "invited you to join a game",
-        sender_name: senderName,
-        game_id: gameId,
-        join_code: joinCode
-      }
+    console.log("Sending game invitation to friend:", {
+      friendId,
+      gameId,
+      joinCode,
+      senderName,
+      senderId: user.id
     });
+    
+    // Send notification to the friend
+    const { data, error } = await supabase.from('notifications')
+      .insert({
+        recipient_id: friendId,
+        sender_id: user.id,
+        type: 'game_invitation',
+        content: {
+          message: "invited you to join a game",
+          sender_name: senderName,
+          game_id: gameId,
+          join_code: joinCode
+        }
+      })
+      .select();
     
     if (error) {
       console.error("Error sending game invitation:", error);
-      toast.error("Failed to send invitation to friend");
+      if (error.code === '42501') {
+        console.error("Permission denied. This might be an RLS policy issue.");
+      }
       return false;
     }
     
-    toast.success("Game invitation sent successfully");
+    console.log("Game invitation sent successfully:", data);
     return true;
   } catch (err) {
     console.error("Error inviting friend to game:", err);
-    toast.error("Failed to invite friend");
     return false;
   }
 };
