@@ -171,7 +171,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 3/277/2025 BIG ISSUE: Email provider crapped out and we are having issues with email confirmations being sent. If you are making a new account, please be patient and we will get confirmation emails sent out once we have the issue fixed. 
+            - 3/27/2025 5:54 PM Mountain Time SIGN UPS FIXED!! Also we're in Milwaukee looking forward to Adepticon! New features opening soon!
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
