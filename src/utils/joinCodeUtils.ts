@@ -23,7 +23,7 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
       .insert({
         code: joinCode,
         game_id: gameId,
-        expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
+        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString() // 24 hour expiration (was 1 hour)
       });
 
     if (error) {
@@ -41,31 +41,82 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
 // Retrieve a game by join code
 export const getGameByJoinCode = async (joinCode: string): Promise<string | null> => {
   try {
-    // Use a direct query instead of the RPC function
+    console.log("Looking up join code:", joinCode);
+    
+    // First check if the code exists at all
+    const { data: codeExists, error: lookupError } = await supabase
+      .from('game_join_codes')
+      .select('code, expires_at, used')
+      .eq('code', joinCode)
+      .single();
+    
+    if (lookupError) {
+      console.error("Error looking up join code:", lookupError);
+      if (lookupError.code === 'PGRST116') {
+        // Code doesn't exist
+        toast.error("Invalid join code. Please check and try again.");
+      } else {
+        toast.error("Error checking join code. Please try again.");
+      }
+      return null;
+    }
+    
+    if (!codeExists) {
+      toast.error("Invalid join code. Please check and try again.");
+      return null;
+    }
+    
+    // Check if the code is expired
+    if (new Date(codeExists.expires_at) < new Date()) {
+      console.error("Join code expired:", {
+        code: joinCode,
+        expiry: codeExists.expires_at,
+        now: new Date().toISOString(),
+      });
+      toast.error("This join code has expired. Please ask for a new code.");
+      return null;
+    }
+    
+    // Check if the code has been used
+    if (codeExists.used) {
+      console.error("Join code already used:", joinCode);
+      toast.error("This join code has already been used. Please ask for a new code.");
+      return null;
+    }
+    
+    // If we got here, the code is valid, not expired, and not used
+    // Now get the game ID and mark the code as used
     const { data, error } = await supabase
       .from('game_join_codes')
       .select('game_id')
       .eq('code', joinCode)
-      .gt('expires_at', new Date().toISOString())
-      .eq('used', false)
       .single();
 
     if (error || !data) {
       console.error("Error retrieving game by join code:", error);
+      toast.error("Error retrieving game data. Please try again.");
       return null;
     }
     
     // Mark the code as used
     if (data.game_id) {
-      await supabase
+      const { error: updateError } = await supabase
         .from('game_join_codes')
         .update({ used: true })
         .eq('code', joinCode);
+      
+      if (updateError) {
+        console.error("Error marking join code as used:", updateError);
+        // Don't return null here, we still want the user to join the game even if marking the code as used fails
+      }
+      
+      console.log("Successfully joined game with ID:", data.game_id);
     }
     
     return data.game_id;
   } catch (err) {
     console.error("Error in getGameByJoinCode:", err);
+    toast.error("An unexpected error occurred. Please try again.");
     return null;
   }
 };
@@ -83,6 +134,7 @@ export const inviteFriendToGame = async (friendId: string, gameId: string, sende
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       console.error("No authenticated user found");
+      toast.error("You must be logged in to invite friends.");
       return false;
     }
     
@@ -92,6 +144,7 @@ export const inviteFriendToGame = async (friendId: string, gameId: string, sende
     
     if (!success) {
       console.error("Failed to generate invitation code");
+      toast.error("Failed to generate invite code. Please try again.");
       return false;
     }
     
@@ -122,6 +175,9 @@ export const inviteFriendToGame = async (friendId: string, gameId: string, sende
       console.error("Error sending game invitation:", error);
       if (error.code === '42501') {
         console.error("Permission denied. This might be an RLS policy issue.");
+        toast.error("Permission denied. You might not have access to send invitations.");
+      } else {
+        toast.error("Failed to send invitation. Please try again.");
       }
       return false;
     }
@@ -130,6 +186,7 @@ export const inviteFriendToGame = async (friendId: string, gameId: string, sende
     return true;
   } catch (err) {
     console.error("Error inviting friend to game:", err);
+    toast.error("An error occurred while sending the invitation.");
     return false;
   }
 };

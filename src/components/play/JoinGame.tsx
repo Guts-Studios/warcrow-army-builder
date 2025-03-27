@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
-import { ArrowRightCircle, Loader2 } from 'lucide-react';
+import { ArrowRightCircle, Loader2, RefreshCw } from 'lucide-react';
 import { fadeIn } from '@/lib/animations';
 import { getGameByJoinCode } from '@/utils/joinCodeUtils';
 import { toast } from 'sonner';
@@ -14,6 +14,7 @@ const JoinGame: React.FC = () => {
   const navigate = useNavigate();
   const [joinCode, setJoinCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [previousAttempt, setPreviousAttempt] = useState('');
 
   const handleJoinCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Remove non-alphanumeric characters and convert to uppercase
@@ -41,6 +42,7 @@ const JoinGame: React.FC = () => {
     }
     
     setIsLoading(true);
+    setPreviousAttempt(processedCode);
     
     try {
       const gameId = await getGameByJoinCode(processedCode);
@@ -50,8 +52,6 @@ const JoinGame: React.FC = () => {
         // Store the joined game id in local storage
         localStorage.setItem('warcrow_joined_game', gameId);
         navigate('/deployment');
-      } else {
-        toast.error("Invalid or expired join code. Please check and try again.");
       }
     } catch (err) {
       console.error("Error joining game:", err);
@@ -59,6 +59,11 @@ const JoinGame: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClearCode = () => {
+    setJoinCode('');
+    setPreviousAttempt('');
   };
 
   return (
@@ -78,14 +83,25 @@ const JoinGame: React.FC = () => {
           >
             Enter Join Code
           </Label>
-          <Input
-            id="join-code-input"
-            value={joinCode}
-            onChange={handleJoinCodeChange}
-            placeholder="XXX-XXX"
-            className="h-12 text-center text-lg font-mono tracking-widest bg-warcrow-background border-warcrow-gold/40 text-warcrow-gold"
-            maxLength={7} // 6 chars + 1 dash
-          />
+          <div className="relative">
+            <Input
+              id="join-code-input"
+              value={joinCode}
+              onChange={handleJoinCodeChange}
+              placeholder="XXX-XXX"
+              className="h-12 text-center text-lg font-mono tracking-widest bg-warcrow-background border-warcrow-gold/40 text-warcrow-gold pr-10"
+              maxLength={7} // 6 chars + 1 dash
+            />
+            {joinCode && (
+              <button 
+                onClick={handleClearCode}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-warcrow-text/70 hover:text-warcrow-gold"
+                aria-label="Clear input"
+              >
+                <RefreshCw className="h-5 w-5" />
+              </button>
+            )}
+          </div>
           <p className="text-xs text-warcrow-text/70 text-center">
             Enter the 6-character code shared by your opponent
           </p>
@@ -93,7 +109,7 @@ const JoinGame: React.FC = () => {
         
         <Button
           onClick={handleJoinGame}
-          disabled={isLoading || joinCode.replace(/-/g, '').length !== 6}
+          disabled={isLoading || joinCode.replace(/-/g, '').length !== 6 || joinCode.replace(/-/g, '') === previousAttempt}
           className="w-full h-12 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center justify-center gap-2"
         >
           {isLoading ? (
