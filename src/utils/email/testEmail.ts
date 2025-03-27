@@ -6,18 +6,21 @@ import { toast } from "sonner";
 export const testResendEmail = async (email?: string, useDefaultDomain = false) => {
   try {
     console.log("Starting test email procedure...");
+    console.log("API key testing initiated");
+    
     const options: EmailOptions = {};
     
     if (useDefaultDomain) {
       options.fromEmail = 'onboarding@resend.dev';
       options.fromName = 'Warcrow Test';
-      console.log("Using default Resend domain");
+      console.log("Using default Resend domain (onboarding@resend.dev)");
     } else {
-      console.log("Using custom domain");
+      console.log("Using custom domain (updates@updates.warcrowarmy.com)");
     }
     
     const testEmailAddress = email || 'caldwejf@gmail.com';
     console.log(`Sending test email to: ${testEmailAddress}`);
+    console.log("Preparing to call sendEmail function...");
     
     const result = await sendEmail(
       [testEmailAddress],
@@ -53,7 +56,9 @@ export const testResendEmail = async (email?: string, useDefaultDomain = false) 
     let errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
     if (errorMessage.includes('API key is invalid') || errorMessage.includes('invalid API key')) {
+      console.error('API key invalid error detected in catch block');
       toast.error('Please update your Resend API key in BOTH places: 1) Supabase Edge Functions Settings and 2) Auth Templates SMTP Settings');
+      toast.info('Make sure your API key starts with "re_" and has no extra spaces');
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('Failed to send a request to the Edge Function')) {
       toast.error('Network error connecting to Supabase Edge Function. This is likely a temporary issue. Please try again later.');
     } else {
