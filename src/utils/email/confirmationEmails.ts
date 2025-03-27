@@ -32,7 +32,18 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
           <p>This is a direct test email to verify that we can use Resend to deliver emails to your account.</p>
           <p>If you are seeing this, it means our direct email system works.</p>
           <p>You should also receive a separate Supabase authentication email.</p>
-          <p>If you don't receive the authentication email, please check your Supabase SMTP settings.</p>
+          <p>If you don't receive the authentication email, it's likely because:</p>
+          <ul>
+            <li>The Resend API key in Supabase SMTP settings is outdated or incorrect</li>
+            <li>The SMTP settings in Supabase need to be reconfigured</li>
+            <li>Authentication emails are disabled in Supabase settings</li>
+          </ul>
+          <p>Try updating your SMTP password in Supabase by:</p>
+          <ol>
+            <li>Going to Authentication → Email Templates → SMTP Settings</li>
+            <li>Toggle OFF and then back ON "Enable Custom SMTP"</li>
+            <li>Re-enter your current Resend API key as the password</li>
+          </ol>
         `
       }
     });
@@ -52,6 +63,12 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     
     // Now, use Supabase's built-in email resend functionality
     console.log('Attempting to send Supabase authentication email via auth.resend...');
+    
+    // Let's fetch any Supabase auth settings that might be relevant to diagnose the issue
+    const { data: authSettingsData, error: authSettingsError } = await supabase.rpc('get_auth_settings');
+    
+    console.log('Supabase auth settings response:', { data: authSettingsData, error: authSettingsError });
+    
     const { data: resendData, error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email: email,
@@ -67,6 +84,7 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
         message: `Direct email sent but Supabase auth email failed: ${resendError.message}`,
         details: {
           directEmail: directEmailData,
+          authSettings: authSettingsData,
           resendError
         }
       };
@@ -75,9 +93,10 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     toast.success(`Supabase authentication email requested for ${email}. Check both inbox and spam folders.`);
     return {
       success: true,
-      message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, check your Supabase SMTP settings.`,
+      message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, your Supabase SMTP settings likely need updating.`,
       details: {
         directEmail: directEmailData,
+        authSettings: authSettingsData,
         resendData
       }
     };
@@ -98,9 +117,13 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
  */
 export const resendAllPendingConfirmationEmails = async (): Promise<ResendConfirmationResult> => {
   toast.info('This functionality should be handled in the Supabase Dashboard under Authentication > Users.');
+  
+  // Add some guidance for SMTP settings
+  toast.info('If confirmation emails are not being received, check your SMTP settings in Authentication > Email Templates.');
+  
   return {
     success: true,
-    message: 'Please use the Supabase Dashboard to manage confirmation emails for all users.',
+    message: 'For email delivery issues, try updating your SMTP password (Resend API key) in Supabase Authentication settings.',
     details: null
   };
 };

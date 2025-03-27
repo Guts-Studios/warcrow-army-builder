@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +80,16 @@ const Mail = () => {
       
       if (!result.success) {
         toast.error(result.message);
+      } else {
+        toast.success("Test emails requested. Check your inbox for delivery results.");
+        
+        setTimeout(() => {
+          toast.info("If you only received the direct test email but not the Supabase authentication email, your SMTP settings likely need updating.");
+        }, 1000);
+        
+        setTimeout(() => {
+          toast.info("Try updating your SMTP password in Authentication → Email Templates by toggling SMTP OFF then ON again.");
+        }, 2000);
       }
     } catch (error: any) {
       console.error("Failed to test confirmation email:", error);
@@ -177,10 +186,19 @@ const Mail = () => {
               >
                 {isTestingConfirmation ? 'Sending...' : 'Test Authentication Emails'}
               </Button>
-              <p className="text-xs text-warcrow-muted mt-2">
-                If you receive only the direct test email but not the authentication email, 
-                you may need to update your Supabase SMTP settings with your current Resend API key.
-              </p>
+              <div className="space-y-2 mt-4">
+                <p className="text-xs text-warcrow-muted">
+                  <strong>Troubleshooting:</strong> If you receive only the direct test email but not the authentication email:
+                </p>
+                <ol className="text-xs text-warcrow-muted list-decimal pl-5 space-y-1">
+                  <li>Go to Supabase Dashboard → Authentication → Email Templates</li>
+                  <li>Scroll down to SMTP Settings</li>
+                  <li>Toggle "Enable Custom SMTP" OFF</li>
+                  <li>Save changes, then toggle it back ON</li>
+                  <li>Re-enter the SMTP settings and use your current Resend API key as the password</li>
+                  <li>Save changes and test again</li>
+                </ol>
+              </div>
             </div>
           </Card>
 

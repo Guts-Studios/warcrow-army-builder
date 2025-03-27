@@ -120,6 +120,19 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error("RESEND_API_KEY is not configured");
         }
         
+        // Add more diagnostic information about the environment
+        const diagnosticInfo = {
+          apiKeyPresent: !!apiKey,
+          apiKeyLength: apiKey ? apiKey.length : 0,
+          apiKeyPrefix: apiKey ? apiKey.substring(0, 3) + "..." : "none",
+          environment: {
+            isDeno: typeof Deno !== 'undefined',
+            denoVersion: Deno.version ? Deno.version.deno : 'unknown',
+          }
+        };
+        
+        console.log("Diagnostic information:", diagnosticInfo);
+        
         // Send a direct test email using Resend to verify basic email functionality
         const testEmailResult = await resend.emails.send({
           from: "Warcrow Army <updates@updates.warcrowarmy.com>",
@@ -147,6 +160,7 @@ const handler = async (req: Request): Promise<Response> => {
           message: `Test email sent to ${emailRequest.email}. If you're using Resend as Supabase's SMTP provider, you should also receive a Supabase authentication email.`,
           directEmailSent: !!testEmailResult.id,
           timestamp: new Date().toISOString(),
+          diagnostics: diagnosticInfo,
           resendApiInfo: {
             present: !!apiKey,
             keyLength: apiKey ? apiKey.length : 0,
