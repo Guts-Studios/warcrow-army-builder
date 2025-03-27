@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Check, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface VerifiedPlayer {
   wab_id: string;
@@ -154,36 +155,36 @@ const GameResults = () => {
   
   if (verifiedPlayers.length === 0) {
     return (
-      <Card>
+      <Card className="border border-warcrow-gold/40 bg-warcrow-background">
         <CardHeader>
-          <CardTitle>Game Results</CardTitle>
+          <CardTitle className="text-warcrow-gold">Game Results</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No verified players in this game. Results will not be recorded.</p>
+          <p className="text-warcrow-muted">No verified players in this game. Results will not be recorded.</p>
         </CardContent>
       </Card>
     );
   }
   
   return (
-    <Card>
+    <Card className="border border-warcrow-gold/40 bg-warcrow-background">
       <CardHeader>
-        <CardTitle>Game Results</CardTitle>
+        <CardTitle className="text-warcrow-gold">Game Results</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {winners.length > 0 && (
           <div>
-            <h3 className="font-medium text-lg mb-2">Winner{winners.length > 1 ? 's' : ''}</h3>
+            <h3 className="font-medium text-lg mb-2 text-warcrow-text">Winner{winners.length > 1 ? 's' : ''}</h3>
             {winners.map(({ id, player }) => {
               const isVerified = verifiedPlayers.some(vp => vp.wab_id === player.wab_id);
               return (
                 <div key={id} className="flex items-center gap-2 mb-1">
                   <Check className="text-green-500 w-4 h-4" />
-                  <span>{player.name} - {player.score} points</span>
+                  <span className="text-warcrow-text">{player.name} - <span className="text-warcrow-gold">{player.score} points</span></span>
                   {isVerified && (
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                    <Badge className="bg-warcrow-gold text-warcrow-background text-xs font-medium">
                       Verified
-                    </span>
+                    </Badge>
                   )}
                 </div>
               );
@@ -193,17 +194,17 @@ const GameResults = () => {
         
         {losers.length > 0 && (
           <div>
-            <h3 className="font-medium text-lg mb-2">Loser{losers.length > 1 ? 's' : ''}</h3>
+            <h3 className="font-medium text-lg mb-2 text-warcrow-text">Loser{losers.length > 1 ? 's' : ''}</h3>
             {losers.map(({ id, player }) => {
               const isVerified = verifiedPlayers.some(vp => vp.wab_id === player.wab_id);
               return (
                 <div key={id} className="flex items-center gap-2 mb-1">
                   <X className="text-red-500 w-4 h-4" />
-                  <span>{player.name} - {player.score} points</span>
+                  <span className="text-warcrow-text">{player.name} - <span className="text-warcrow-text/80">{player.score} points</span></span>
                   {isVerified && (
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                    <Badge className="bg-warcrow-gold text-warcrow-background text-xs font-medium">
                       Verified
-                    </span>
+                    </Badge>
                   )}
                 </div>
               );
@@ -211,17 +212,17 @@ const GameResults = () => {
           </div>
         )}
         
-        <Separator />
+        <Separator className="bg-warcrow-gold/20" />
         
         <div>
-          <p className="mb-4">
+          <p className="mb-4 text-warcrow-text/80">
             Recording results will update the win/loss record for all verified players in this game.
           </p>
           
           <Button
             onClick={recordResults}
             disabled={recordingResults || recordingComplete}
-            className="w-full"
+            className="w-full bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 disabled:opacity-50"
           >
             {recordingResults ? 'Recording...' : recordingComplete ? 'Results Recorded' : 'Record Results'}
           </Button>

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface FinalScoresProps {
   players: Player[];
@@ -51,31 +52,35 @@ const FinalScores: React.FC<FinalScoresProps> = ({
   
   return (
     <motion.div className="space-y-6">
-      <Card className="p-6 border border-border/40 shadow-sm">
+      <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-warcrow-background">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-primary">Final Scores</h3>
+          <h3 className="text-xl font-semibold text-warcrow-gold">Final Scores</h3>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-warcrow-gold/50 text-warcrow-text hover:bg-warcrow-accent hover:text-warcrow-gold"
+              >
                 <ListChecks className="mr-2 h-4 w-4" />
                 View Army Lists
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh]">
+            <DialogContent className="max-w-3xl max-h-[90vh] bg-warcrow-background border border-warcrow-gold/30">
               <DialogHeader>
-                <DialogTitle>Army Lists</DialogTitle>
+                <DialogTitle className="text-warcrow-gold">Army Lists</DialogTitle>
               </DialogHeader>
               <ScrollArea className="max-h-[70vh] mt-4">
                 <Accordion type="single" collapsible className="w-full">
                   {orderedPlayers.map((player) => (
                     player.list && player.id && (
-                      <AccordionItem key={player.id} value={player.id}>
-                        <AccordionTrigger className="font-medium">
+                      <AccordionItem key={player.id} value={player.id} className="border-warcrow-gold/20">
+                        <AccordionTrigger className="font-medium text-warcrow-text hover:text-warcrow-gold">
                           {player.name}'s Army - {getFactionName(player)}
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className="bg-muted/50 rounded-md p-4 my-2 overflow-auto max-h-[400px]">
-                            <pre className="whitespace-pre-wrap text-sm font-mono">{player.list}</pre>
+                          <div className="bg-warcrow-accent/30 rounded-md p-4 my-2 overflow-auto max-h-[400px]">
+                            <pre className="whitespace-pre-wrap text-sm font-mono text-warcrow-text">{player.list}</pre>
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -87,28 +92,28 @@ const FinalScores: React.FC<FinalScoresProps> = ({
           </Dialog>
         </div>
         <Table>
-          <TableCaption>A summary of the final scores for each player.</TableCaption>
+          <TableCaption className="text-warcrow-muted">A summary of the final scores for each player.</TableCaption>
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Player</TableHead>
-              <TableHead>Faction</TableHead>
-              <TableHead>Final VP</TableHead>
+            <TableRow className="border-warcrow-gold/20">
+              <TableHead className="w-[100px] text-warcrow-gold">Player</TableHead>
+              <TableHead className="text-warcrow-gold">Faction</TableHead>
+              <TableHead className="text-warcrow-gold">Final VP</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orderedPlayers.map((player) => (
-              <TableRow key={player.id || player.name}>
-                <TableCell className="font-medium">{player.name}</TableCell>
-                <TableCell>{getFactionName(player)}</TableCell>
+              <TableRow key={player.id || player.name} className="border-warcrow-gold/20 hover:bg-warcrow-accent/20">
+                <TableCell className="font-medium text-warcrow-text">{player.name}</TableCell>
+                <TableCell className="text-warcrow-text">{getFactionName(player)}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{player.score} VP</span>
+                    <span className="font-medium text-warcrow-gold">{player.score} VP</span>
                     {player.list && (
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => setViewingList(player)}
-                        className="ml-2 flex items-center text-xs"
+                        className="ml-2 flex items-center text-xs text-warcrow-text hover:text-warcrow-gold"
                       >
                         <FileText className="mr-1 w-3 h-3" />
                         List
@@ -123,16 +128,16 @@ const FinalScores: React.FC<FinalScoresProps> = ({
       </Card>
       
       <Dialog open={!!viewingList} onOpenChange={(open) => !open && setViewingList(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+        <DialogContent className="max-w-3xl max-h-[90vh] bg-warcrow-background border border-warcrow-gold/30">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-warcrow-gold">
               {viewingList?.name}'s Army List - {viewingList ? getFactionName(viewingList) : 'Unknown Faction'}
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh] mt-4">
             {viewingList?.list && (
-              <div className="bg-muted/50 rounded-md p-4 my-2">
-                <pre className="whitespace-pre-wrap text-sm font-mono">{viewingList.list}</pre>
+              <div className="bg-warcrow-accent/30 rounded-md p-4 my-2">
+                <pre className="whitespace-pre-wrap text-sm font-mono text-warcrow-text">{viewingList.list}</pre>
               </div>
             )}
           </ScrollArea>
