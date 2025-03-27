@@ -8,6 +8,7 @@ import GameResults from '@/components/play/GameResults';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { getAllRoundNumbersFromState } from '@/utils/gameUtils';
+import { Button } from '@/components/ui/button';
 
 const Summary = () => {
   const navigate = useNavigate();
@@ -60,15 +61,18 @@ const Summary = () => {
             </div>
             
             <div className="space-y-6">
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={handleNewGame}
-                  className="px-6 py-3 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 rounded-lg transition-colors font-medium"
-                >
-                  Start New Game
-                </button>
-              </div>
+              {/* Content for the right column if needed */}
             </div>
+          </div>
+          
+          {/* Move the New Game button to the bottom of the page */}
+          <div className="flex justify-center mt-16 pt-8 border-t border-warcrow-gold/20">
+            <Button
+              onClick={handleNewGame}
+              className="px-6 py-3 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 rounded-lg transition-colors font-medium"
+            >
+              Start New Game
+            </Button>
           </div>
         </motion.div>
       </Container>

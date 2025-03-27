@@ -64,7 +64,7 @@ Final Scores: ${orderedPlayers.map(p => `${p.name}: ${p.score} VP`).join(', ')}
           variant="outline" 
           size="sm" 
           onClick={handleShare}
-          className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold"
+          className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
         >
           <Share2 className="mr-2 w-4 h-4" />
           Share

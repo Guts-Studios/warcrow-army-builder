@@ -60,7 +60,7 @@ const FinalScores: React.FC<FinalScoresProps> = ({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="border-warcrow-gold/50 text-warcrow-text hover:bg-warcrow-accent hover:text-warcrow-gold"
+                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 <ListChecks className="mr-2 h-4 w-4" />
                 View Army Lists
