@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Swords, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -17,13 +17,29 @@ interface Player {
   name: string;
   faction: Faction | null;
   list: string | null;
+  wab_id?: string;
+  verified?: boolean;
+  avatar_url?: string;
+}
+
+interface UserProfile {
+  id: string;
+  username: string;
+  wab_id: string;
+  avatar_url?: string;
 }
 
 interface GameSetupProps {
   onComplete: (players: Player[], mission: Mission) => void;
+  currentUser?: UserProfile | null;
+  isLoading?: boolean;
 }
 
-const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
+const GameSetup: React.FC<GameSetupProps> = ({ 
+  onComplete, 
+  currentUser, 
+  isLoading = false 
+}) => {
   const [step, setStep] = useState<number>(1);
   const [playerOne, setPlayerOne] = useState<Player>({
     id: 'player-1',
@@ -38,6 +54,19 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
     list: null,
   });
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+
+  // Set player one information if currentUser is available
+  useEffect(() => {
+    if (currentUser && !isLoading) {
+      setPlayerOne(prev => ({
+        ...prev,
+        name: currentUser.username,
+        wab_id: currentUser.wab_id,
+        verified: true,
+        avatar_url: currentUser.avatar_url
+      }));
+    }
+  }, [currentUser, isLoading]);
 
   const goToNextStep = () => {
     if (step === 1) {
@@ -81,7 +110,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
               <div className="space-y-4">
                 <Label htmlFor="player-one-name" className="text-base font-medium flex items-center gap-2 text-warcrow-text">
                   <User className="w-5 h-5 text-warcrow-gold" />
-                  <span>Player One</span>
+                  <span>Player One {currentUser ? '(You)' : ''}</span>
                 </Label>
                 <Input
                   id="player-one-name"
@@ -89,7 +118,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
                   value={playerOne.name}
                   onChange={(e) => setPlayerOne({ ...playerOne, name: e.target.value })}
                   className="h-12 bg-warcrow-accent border-warcrow-gold/40 text-warcrow-text focus-visible:ring-warcrow-gold"
+                  disabled={isLoading}
                 />
+                {playerOne.wab_id && (
+                  <div className="text-xs text-warcrow-gold">
+                    WAB ID: {playerOne.wab_id} {playerOne.verified && '✓'}
+                  </div>
+                )}
               </div>
               
               <div className="space-y-4">
@@ -221,7 +256,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
       </div>
       
       <div className="mb-8 min-h-[400px]">
-        {renderStepContent()}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[400px]">
+            <div className="animate-pulse text-warcrow-gold">Loading user data...</div>
+          </div>
+        ) : (
+          renderStepContent()
+        )}
       </div>
       
       <div className="flex justify-between">
@@ -237,6 +278,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onComplete }) => {
         <Button
           onClick={goToNextStep}
           className="w-32 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
+          disabled={isLoading}
         >
           {step === 3 ? 'Start Game' : 'Next'}
         </Button>

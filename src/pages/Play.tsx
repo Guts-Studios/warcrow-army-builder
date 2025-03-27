@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -25,40 +26,74 @@ interface GamePlayer {
   avatar_url?: string;
 }
 
+interface UserProfile {
+  id: string;
+  username: string;
+  wab_id: string;
+  avatar_url?: string;
+}
+
 const Play = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const { isWabAdmin } = useAuth();
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                     window.location.hostname.endsWith('.lovableproject.com');
   
   useEffect(() => {
-    const checkAccess = async () => {
+    const checkAccessAndProfile = async () => {
       setIsLoading(true);
       
       // If in preview mode or user is a wab-admin, grant access immediately
       if (isPreview || isWabAdmin) {
         setHasAccess(true);
+        
+        // If in preview mode, set a dummy user for testing
+        if (isPreview) {
+          setCurrentUser({
+            id: 'preview-user-id',
+            username: 'Preview User',
+            wab_id: 'WAB-PREV-DEMO-1234',
+            avatar_url: undefined
+          });
+        }
+        
         setIsLoading(false);
         return;
       }
 
-      // Check if user has tester role
+      // Check if user has tester role and fetch their profile
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Fetch user's role and profile in a single query
         const { data, error } = await supabase
           .from('profiles')
-          .select('tester')
+          .select('id, username, tester, wab_id, avatar_url')
           .eq('id', session.user.id)
           .single();
           
-        if (!error && data && data.tester) {
-          setHasAccess(true);
+        if (!error && data) {
+          if (data.tester) {
+            setHasAccess(true);
+            
+            // Set the current user profile
+            setCurrentUser({
+              id: data.id,
+              username: data.username || session.user.email?.split('@')[0] || 'Player',
+              wab_id: data.wab_id,
+              avatar_url: data.avatar_url
+            });
+          } else {
+            setHasAccess(false);
+            toast.error("You don't have access to this feature");
+            navigate('/');
+          }
         } else {
           setHasAccess(false);
-          toast.error("You don't have access to this feature");
+          toast.error("Error loading user profile");
           navigate('/');
         }
       } else {
@@ -70,7 +105,7 @@ const Play = () => {
       setIsLoading(false);
     };
 
-    checkAccess();
+    checkAccessAndProfile();
   }, [navigate, isPreview, isWabAdmin]);
   
   const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
@@ -155,7 +190,11 @@ const Play = () => {
           </div>
         )}
         
-        <GameSetup onComplete={handleSetupComplete} />
+        <GameSetup 
+          onComplete={handleSetupComplete} 
+          currentUser={currentUser}
+          isLoading={isLoading}
+        />
         
         <div className="container px-4 mt-6 flex justify-center">
           <button 

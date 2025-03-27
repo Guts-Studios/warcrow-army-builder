@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import GameSetup from '@/components/play/GameSetup';
@@ -7,6 +7,7 @@ import { Player, Mission } from '@/types/game';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GamePlayer {
   id: string;
@@ -22,9 +23,55 @@ interface GamePlayer {
   avatar_url?: string;
 }
 
+interface UserProfile {
+  id: string;
+  username: string;
+  wab_id: string;
+  avatar_url?: string;
+}
+
 const Setup = () => {
   const navigate = useNavigate();
   const { dispatch } = useGame();
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch current user profile on component mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      setIsLoading(true);
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Fetch the user's profile
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('id, username, wab_id, avatar_url')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching user profile:', error);
+          } else if (profile) {
+            setCurrentUser({
+              id: profile.id,
+              username: profile.username || session.user.email?.split('@')[0] || 'Player',
+              wab_id: profile.wab_id,
+              avatar_url: profile.avatar_url
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching session or profile:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
@@ -75,7 +122,11 @@ const Setup = () => {
       exit="exit"
       className="min-h-screen py-8 bg-warcrow-background"
     >
-      <GameSetup onComplete={handleSetupComplete} />
+      <GameSetup 
+        onComplete={handleSetupComplete} 
+        currentUser={currentUser}
+        isLoading={isLoading}
+      />
     </motion.div>
   );
 };
