@@ -77,6 +77,8 @@ const Mail = () => {
     try {
       setIsTestingConfirmation(true);
       const result = await testConfirmationEmail(confirmationEmail);
+      console.log("Test confirmation email result:", result);
+      
       if (!result.success) {
         toast.error(result.message);
       }
@@ -149,10 +151,10 @@ const Mail = () => {
           </Card>
 
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test Authentication Email</h2>
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test Authentication Emails</h2>
             <p className="text-sm text-warcrow-muted mb-4 text-center">
-              Test Supabase's authentication email system by sending a test confirmation email.
-              This will use your configured SMTP settings (Resend).
+              Test Supabase's authentication email system by sending both a direct test email and 
+              a Supabase authentication email. This helps diagnose SMTP configuration issues.
             </p>
             <div className="space-y-4">
               <div>
@@ -173,8 +175,12 @@ const Mail = () => {
                 className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
                 disabled={isTestingConfirmation || !confirmationEmail}
               >
-                {isTestingConfirmation ? 'Sending...' : 'Send Authentication Email'}
+                {isTestingConfirmation ? 'Sending...' : 'Test Authentication Emails'}
               </Button>
+              <p className="text-xs text-warcrow-muted mt-2">
+                If you receive only the direct test email but not the authentication email, 
+                you may need to update your Supabase SMTP settings with your current Resend API key.
+              </p>
             </div>
           </Card>
 

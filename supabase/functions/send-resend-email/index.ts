@@ -112,21 +112,30 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`Testing confirmation email delivery to: ${emailRequest.email}`);
       
       try {
+        // Get the API key from environment
+        const apiKey = Deno.env.get("RESEND_API_KEY");
+        console.log("RESEND_API_KEY present:", !!apiKey);
+        
+        if (!apiKey) {
+          throw new Error("RESEND_API_KEY is not configured");
+        }
+        
         // Send a direct test email using Resend to verify basic email functionality
         const testEmailResult = await resend.emails.send({
           from: "Warcrow Army <updates@updates.warcrowarmy.com>",
           to: [emailRequest.email],
-          subject: "Email Deliverability Test",
-          html: `
+          subject: emailRequest.subject || "Email Deliverability Test",
+          html: emailRequest.html || `
             <h1>Email Deliverability Test</h1>
-            <p>This is a test email to verify that we can send emails to your account.</p>
+            <p>This is a test email to verify that we can send emails to your account using Resend directly.</p>
             <p>If you are seeing this, it means that our system can successfully deliver emails to you.</p>
-            <p>Next, please check your regular Supabase confirmation email that should arrive separately.</p>
-            <p>If you don't receive the confirmation email, please make sure that:</p>
+            <p>Next, please check if you receive a separate Supabase authentication email.</p>
+            <p>If you don't receive the Supabase authentication email, please make sure that:</p>
             <ul>
               <li>You've correctly set up Resend as your SMTP provider in Supabase</li>
               <li>Your domain is verified in Resend</li>
               <li>The Supabase auth settings are configured to send confirmation emails</li>
+              <li>The Resend API key in your Supabase SMTP settings is current and valid</li>
             </ul>
           `,
         });
@@ -135,9 +144,14 @@ const handler = async (req: Request): Promise<Response> => {
         
         return new Response(JSON.stringify({
           success: true,
-          message: `Test email sent to ${emailRequest.email}. If you're using Resend as Supabase's SMTP provider, confirmation emails should be handled automatically by Supabase.`,
+          message: `Test email sent to ${emailRequest.email}. If you're using Resend as Supabase's SMTP provider, you should also receive a Supabase authentication email.`,
           directEmailSent: !!testEmailResult.id,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          resendApiInfo: {
+            present: !!apiKey,
+            keyLength: apiKey ? apiKey.length : 0,
+            keyPrefix: apiKey ? apiKey.substring(0, 3) + "..." : "none"
+          }
         }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

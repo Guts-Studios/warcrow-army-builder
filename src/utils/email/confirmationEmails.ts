@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ResendConfirmationResult } from "./types";
@@ -19,28 +20,66 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
   try {
     console.log(`Testing confirmation email for: ${email}`);
     
-    // Use Supabase's built-in email resend functionality, which should
-    // use the configured SMTP settings (Resend in this case)
-    const { error } = await supabase.auth.resend({
+    // First, send a direct test email using our edge function to verify Resend is working correctly
+    const { data: directEmailData, error: directEmailError } = await supabase.functions.invoke('send-resend-email', {
+      body: {
+        testConfirmationEmail: true,
+        email: email,
+        to: [email],
+        subject: 'Warcrow - Email Delivery Test',
+        html: `
+          <h1>Email Delivery Test</h1>
+          <p>This is a direct test email to verify that we can use Resend to deliver emails to your account.</p>
+          <p>If you are seeing this, it means our direct email system works.</p>
+          <p>You should also receive a separate Supabase authentication email.</p>
+          <p>If you don't receive the authentication email, please check your Supabase SMTP settings.</p>
+        `
+      }
+    });
+    
+    if (directEmailError) {
+      console.error('Error sending direct test email:', directEmailError);
+      toast.error(`Failed to send direct test email: ${directEmailError.message}`);
+      return {
+        success: false,
+        message: `Error with direct email: ${directEmailError.message}`,
+        details: directEmailError
+      };
+    }
+    
+    console.log('Direct test email result:', directEmailData);
+    toast.success(`Direct test email sent to ${email}. Check your inbox.`);
+    
+    // Now, use Supabase's built-in email resend functionality
+    console.log('Attempting to send Supabase authentication email via auth.resend...');
+    const { data: resendData, error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email: email,
     });
     
-    if (error) {
-      console.error('Error sending confirmation email:', error);
-      toast.error(`Failed to send confirmation email: ${error.message}`);
+    console.log('Supabase auth.resend response:', { data: resendData, error: resendError });
+    
+    if (resendError) {
+      console.error('Error sending Supabase authentication email:', resendError);
+      toast.error(`Failed to send Supabase authentication email: ${resendError.message}`);
       return {
         success: false,
-        message: `Error: ${error.message}`,
-        details: error
+        message: `Direct email sent but Supabase auth email failed: ${resendError.message}`,
+        details: {
+          directEmail: directEmailData,
+          resendError
+        }
       };
     }
     
-    toast.success(`Confirmation email sent to ${email}. Please check both inbox and spam folders.`);
+    toast.success(`Supabase authentication email requested for ${email}. Check both inbox and spam folders.`);
     return {
       success: true,
-      message: `Confirmation email sent to ${email}`,
-      details: null
+      message: `Both test emails sent to ${email}. If you only received the direct test email but not the authentication email, check your Supabase SMTP settings.`,
+      details: {
+        directEmail: directEmailData,
+        resendData
+      }
     };
   } catch (error) {
     console.error('Error in testConfirmationEmail:', error);
