@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { RefreshCw, UserPlus, UserMinus } from "lucide-react";
+import { RefreshCw, UserPlus, UserMinus, GamepadIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useFriends } from '@/hooks/useFriends';
@@ -11,6 +11,7 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProfileSession } from '@/hooks/useProfileSession';
 import { FriendProfileDialog } from './FriendProfileDialog';
+import { inviteFriendToGame } from '@/utils/joinCodeUtils';
 
 interface Friend {
   id: string;
@@ -28,6 +29,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [showFriendProfile, setShowFriendProfile] = useState(false);
+  const [invitingFriendIds, setInvitingFriendIds] = useState<Record<string, boolean>>({});
   const isMobile = useIsMobile();
   const { profile } = useProfileContext();
   const { userId: currentUserId } = useProfileSession();
@@ -113,6 +115,39 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   const handleFriendClick = (friendId: string) => {
     setSelectedFriendId(friendId);
     setShowFriendProfile(true);
+  };
+
+  const handleInviteToGame = async (friend: Friend) => {
+    if (!profile) {
+      toast.error("You must be logged in to invite friends to a game.");
+      return;
+    }
+
+    // Set this friend as being invited (for loading state)
+    setInvitingFriendIds(prev => ({ ...prev, [friend.id]: true }));
+    
+    try {
+      // Create a placeholder gameId - in a real implementation, you might get this from the current game state
+      // or redirect to the game creation page
+      const gameId = 'profile-invite-' + Date.now(); 
+      const senderName = profile.username || 'A player';
+      
+      const success = await inviteFriendToGame(friend.id, gameId, senderName);
+      
+      if (success) {
+        toast.success(`Invitation sent to ${friend.username || 'friend'}`);
+      } else {
+        toast.error(`Failed to invite ${friend.username || 'friend'}`);
+      }
+    } catch (err) {
+      console.error("Error inviting friend to game:", err);
+      toast.error(`Failed to invite ${friend.username || 'friend'}`);
+    } finally {
+      // Reset this friend's inviting state after a delay
+      setTimeout(() => {
+        setInvitingFriendIds(prev => ({ ...prev, [friend.id]: false }));
+      }, 2000);
+    }
   };
 
   // Calculate display height based on number of friends (show up to 10 without scrolling)
@@ -220,16 +255,36 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
                       </div>
                     </div>
                     
-                    {isCurrentUser && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs ml-2"
-                        onClick={() => handleRemoveFriend(friend.friendship_id)}
-                      >
-                        <UserMinus className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <div className="flex gap-1">
+                      {isCurrentUser && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 h-7 px-2 py-1 text-xs"
+                            onClick={() => handleInviteToGame(friend)}
+                            disabled={!!invitingFriendIds[friend.id]}
+                          >
+                            {invitingFriendIds[friend.id] ? (
+                              "Invited"
+                            ) : (
+                              <span className="flex items-center">
+                                <GamepadIcon className="h-3 w-3" />
+                              </span>
+                            )}
+                          </Button>
+                        
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs"
+                            onClick={() => handleRemoveFriend(friend.friendship_id)}
+                          >
+                            <UserMinus className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </li>
                 ))
               ) : (
