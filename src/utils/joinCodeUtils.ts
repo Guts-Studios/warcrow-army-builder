@@ -75,3 +75,41 @@ export const formatJoinCode = (code: string): string => {
   if (code.length !== 6) return code;
   return `${code.substring(0, 3)}-${code.substring(3)}`;
 };
+
+// Send invitation to friend
+export const inviteFriendToGame = async (friendId: string, gameId: string, senderName: string): Promise<boolean> => {
+  try {
+    const joinCode = generateJoinCode();
+    const success = await saveJoinCode(gameId, joinCode);
+    
+    if (!success) {
+      toast.error("Failed to generate invitation code");
+      return false;
+    }
+    
+    // Send notification to the friend
+    const { error } = await supabase.from('notifications').insert({
+      recipient_id: friendId,
+      type: 'game_invitation',
+      content: {
+        message: "invited you to join a game",
+        sender_name: senderName,
+        game_id: gameId,
+        join_code: joinCode
+      }
+    });
+    
+    if (error) {
+      console.error("Error sending game invitation:", error);
+      toast.error("Failed to send invitation to friend");
+      return false;
+    }
+    
+    toast.success("Game invitation sent successfully");
+    return true;
+  } catch (err) {
+    console.error("Error inviting friend to game:", err);
+    toast.error("Failed to invite friend");
+    return false;
+  }
+};

@@ -8,18 +8,38 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PlayerInfo from '@/components/PlayerInfo';
 import { toast } from 'sonner';
-import { Map, Shield, ArrowLeftCircle, AlertCircle, Users } from 'lucide-react';
+import { Map, Shield, ArrowLeftCircle, AlertCircle, Users, UserPlus } from 'lucide-react';
 import JoinCodeShare from '@/components/play/JoinCodeShare';
+import FriendInviteDialog from '@/components/play/FriendInviteDialog';
+import { useFriends } from '@/hooks/useFriends';
+import { supabase } from '@/integrations/supabase/client';
 
 const Deployment = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Local state for deployment configuration
   const [initialInitiativePlayerId, setInitialInitiativePlayerId] = useState<string | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
   const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
+  const [showFriendInviteDialog, setShowFriendInviteDialog] = useState(false);
+  
+  // Get the user session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.id) {
+        setUserId(data.session.user.id);
+      }
+    };
+    
+    getSession();
+  }, []);
+  
+  // Get friends list if we have a user ID
+  const { friends, isLoading: isFriendsLoading } = useFriends(userId || 'preview-user-id');
 
   useEffect(() => {
     // Check if this is a joined game
@@ -67,6 +87,11 @@ const Deployment = () => {
   const handleShowJoinCode = () => {
     setShowJoinCodeDialog(true);
   };
+  
+  // Function to show friend invite dialog
+  const handleShowFriendInvite = () => {
+    setShowFriendInviteDialog(true);
+  };
 
   // Function to render player info section 
   const renderPlayerInfo = (playerId: string, index: number) => {
@@ -77,6 +102,18 @@ const Deployment = () => {
         index={index}
       />
     );
+  };
+  
+  // Get current player's name for sending invitations
+  const getCurrentPlayerName = () => {
+    if (!userId) return "A player";
+    
+    // Find the player that might correspond to the current user
+    const playerEntry = Object.entries(state.players).find(
+      ([_, player]) => player.wab_id && userId.includes(player.wab_id)
+    );
+    
+    return playerEntry ? playerEntry[1].name : "A player";
   };
 
   return (
@@ -89,16 +126,27 @@ const Deployment = () => {
     >
       <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Deployment Phase</h1>
       
-      {/* Invite player button */}
-      <div className="flex justify-center mb-8">
+      {/* Invite buttons row */}
+      <div className="flex justify-center mb-8 gap-4 flex-wrap">
         <Button
           variant="outline"
           onClick={handleShowJoinCode}
           className="flex items-center gap-2"
         >
           <Users className="h-5 w-5" />
-          <span>Invite Opponent to Join</span>
+          <span>Invite Player with Code</span>
         </Button>
+        
+        {userId && (
+          <Button
+            variant="outline"
+            onClick={handleShowFriendInvite}
+            className="flex items-center gap-2 border-warcrow-gold/50 bg-warcrow-background hover:bg-warcrow-gold/10"
+          >
+            <UserPlus className="h-5 w-5 text-warcrow-gold" />
+            <span className="text-warcrow-gold">Invite Friends</span>
+          </Button>
+        )}
       </div>
       
       {/* Mission Information */}
@@ -280,6 +328,16 @@ const Deployment = () => {
         gameId={state.id} 
         isOpen={showJoinCodeDialog} 
         onClose={() => setShowJoinCodeDialog(false)}
+      />
+      
+      {/* Friend Invite Dialog */}
+      <FriendInviteDialog
+        gameId={state.id}
+        playerName={getCurrentPlayerName()}
+        isOpen={showFriendInviteDialog}
+        onClose={() => setShowFriendInviteDialog(false)}
+        friends={friends}
+        isLoading={isFriendsLoading}
       />
     </motion.div>
   );
