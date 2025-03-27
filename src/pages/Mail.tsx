@@ -10,7 +10,7 @@ import {
   DomainVerificationResult,
   testConfirmationEmail
 } from "@/utils/email";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -27,6 +27,7 @@ const Mail = () => {
   const [isResendingAll, setIsResendingAll] = useState(false);
   const [isTestingConfirmation, setIsTestingConfirmation] = useState(false);
   const [isAPIKeyValid, setIsAPIKeyValid] = useState<boolean | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     checkDomainStatus();
@@ -55,9 +56,11 @@ const Mail = () => {
 
   const handleTestEmail = async () => {
     try {
+      setIsSending(true);
       const emailToUse = testEmail.trim() || undefined;
       await testResendEmail(emailToUse);
       toast.success(`Test email sent successfully${emailToUse ? ` to ${emailToUse}` : ''}!`);
+      setIsAPIKeyValid(true);
     } catch (error: any) {
       console.error("Failed to send test email:", error);
       
@@ -67,6 +70,8 @@ const Mail = () => {
       } else {
         toast.error(`Failed to send test email: ${error.message}`);
       }
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -146,18 +151,19 @@ const Mail = () => {
         
         {isAPIKeyValid === false && (
           <Card className="p-6 border border-red-500 shadow-sm bg-red-900/20 mb-6">
-            <h2 className="text-lg font-semibold mb-2 text-red-400">⚠️ Invalid Resend API Key Detected</h2>
+            <div className="flex items-start mb-2">
+              <AlertTriangle className="h-5 w-5 text-red-400 mr-2 mt-0.5" />
+              <h2 className="text-lg font-semibold text-red-400">Invalid Resend API Key Detected</h2>
+            </div>
             <p className="text-sm text-warcrow-text mb-4">
-              Your Resend API key appears to be invalid. This will prevent email delivery.
-              Please update it by following these steps:
+              Your Resend API key appears to be invalid. You need to update it in two places:
             </p>
             <ol className="text-sm text-warcrow-text list-decimal pl-5 space-y-1 mb-4">
-              <li>Go to <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Resend.com API Keys</a> and generate a new API key</li>
-              <li>Open your <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Supabase Edge Functions Settings</a></li>
-              <li>Update the RESEND_API_KEY with your new API key</li>
+              <li>First, go to <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Resend.com API Keys</a> and generate a new API key</li>
+              <li>Next, update the key in <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/settings/functions" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Supabase Edge Functions Settings</a> (RESEND_API_KEY)</li>
               <li>Then go to <a href="https://supabase.com/dashboard/project/odqyoncwqawdzhquxcmh/auth/templates" target="_blank" rel="noopener noreferrer" className="text-warcrow-gold underline">Auth Templates</a> in Supabase</li>
               <li>Toggle OFF and back ON the "Enable Custom SMTP" setting</li>
-              <li>Update the SMTP password with your new Resend API key</li>
+              <li>Update the SMTP password with the same new Resend API key</li>
             </ol>
             <Button 
               onClick={checkDomainStatus}
@@ -206,8 +212,9 @@ const Mail = () => {
               <Button 
                 onClick={handleTestEmail}
                 className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                disabled={isSending}
               >
-                Send Test Email
+                {isSending ? 'Sending...' : 'Send Test Email'}
               </Button>
             </div>
           </Card>

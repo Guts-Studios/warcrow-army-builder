@@ -2,7 +2,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Initialize Resend with API key from environment variables
+const resendApiKey = Deno.env.get("RESEND_API_KEY");
+const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,6 +36,22 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate API key first
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY is not configured in Supabase");
+      return new Response(
+        JSON.stringify({ 
+          error: "Resend API key is not configured",
+          timestamp: new Date().toISOString(),
+          details: "Please set the RESEND_API_KEY in Supabase Edge Function settings"
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const emailRequest: EmailRequest = await req.json();
     console.log('Received email request:', {
       to: emailRequest.to,
@@ -52,6 +70,35 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Domain verification check requested');
       
       try {
+        // Test the API key by making a simple API call
+        try {
+          const keyTestResponse = await resend.emails.get('testing-key');
+          console.log("API key test response:", keyTestResponse);
+        } catch (keyError: any) {
+          // If we get a "not found" error, that's actually good - it means the API key is valid
+          // but the email ID doesn't exist (which is expected)
+          if (keyError.statusCode === 404) {
+            console.log("API key is valid (404 error on non-existent email ID is expected)");
+          } else if (keyError.statusCode === 400 && keyError.message?.includes("API key is invalid")) {
+            console.error("INVALID API KEY DETECTED:", keyError.message);
+            return new Response(
+              JSON.stringify({ 
+                verified: false,
+                status: "The Resend API key is invalid. Please update it in Supabase Edge Functions settings.",
+                timestamp: new Date().toISOString(),
+                domains: [],
+                error: { message: keyError.message }
+              }),
+              {
+                status: 200, // We still return 200 since this is an expected error state
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              }
+            );
+          } else {
+            console.error("Unknown API key test error:", keyError);
+          }
+        }
+
         // Get all domains in the Resend account
         const domainsResponse = await resend.domains.list();
         
@@ -92,6 +139,24 @@ const handler = async (req: Request): Promise<Response> => {
         });
       } catch (domainError) {
         console.error('Failed to check domain verification status:', domainError);
+        
+        // Check if the error is related to an invalid API key
+        if (domainError.message?.includes('API key is invalid')) {
+          return new Response(
+            JSON.stringify({ 
+              verified: false,
+              status: "The Resend API key is invalid. Please update it in Supabase Edge Functions settings.",
+              timestamp: new Date().toISOString(),
+              domains: [],
+              error: { message: domainError.message }
+            }),
+            {
+              status: 200, // We still return 200 since this is an expected error state
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+        
         return new Response(
           JSON.stringify({ 
             verified: false,
@@ -195,6 +260,21 @@ const handler = async (req: Request): Promise<Response> => {
           stack: confirmError.stack
         });
         
+        // Check if the error is related to an invalid API key
+        if (confirmError.message?.includes('API key is invalid')) {
+          return new Response(
+            JSON.stringify({ 
+              success: false,
+              error: "The Resend API key is invalid. Please update it in Supabase Edge Functions settings.",
+              timestamp: new Date().toISOString()
+            }),
+            {
+              status: 200, // We still return 200 since this is an expected error state
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+        
         return new Response(
           JSON.stringify({ 
             error: confirmError.message || 'Unknown error',
@@ -263,6 +343,20 @@ const handler = async (req: Request): Promise<Response> => {
       }
     } catch (domainError) {
       console.error('Failed to check domain verification status:', domainError);
+      
+      // Check if the error is related to an invalid API key
+      if (domainError.message?.includes('API key is invalid')) {
+        return new Response(
+          JSON.stringify({ 
+            error: "The Resend API key is invalid. Please update it in Supabase Edge Functions settings.",
+            timestamp: new Date().toISOString()
+          }),
+          {
+            status: 200, // We still return 200 since this is an expected error state
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
     }
 
     const emailResponse = await resend.emails.send({
@@ -296,6 +390,20 @@ const handler = async (req: Request): Promise<Response> => {
       errorDetails = typeof error.response.data === 'string' 
         ? error.response.data 
         : JSON.stringify(error.response.data);
+    }
+    
+    // Check if the error is related to an invalid API key
+    if (error.message?.includes('API key is invalid')) {
+      return new Response(
+        JSON.stringify({ 
+          error: "The Resend API key is invalid. Please update it in Supabase Edge Functions settings.",
+          timestamp: new Date().toISOString()
+        }),
+        {
+          status: 200, // We still return 200 since this is an expected error state so frontend can handle it better
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     return new Response(

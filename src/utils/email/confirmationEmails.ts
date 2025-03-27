@@ -52,10 +52,10 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
       console.error('Error sending direct test email:', directEmailError);
       
       if (directEmailError.message?.includes('API key is invalid')) {
-        toast.error('Invalid Resend API key detected. Please update it in Supabase SMTP settings.');
+        toast.error('Invalid Resend API key detected. Please update it in Supabase Edge Functions settings.');
         return {
           success: false,
-          message: 'Your Resend API key is invalid. Please generate a new key at resend.com and update it in Supabase SMTP settings.',
+          message: 'Your Resend API key is invalid. Please generate a new key at resend.com and update it in Supabase Edge Functions settings.',
           details: {
             errorType: 'invalid_api_key',
             errorMessage: directEmailError.message
@@ -63,7 +63,7 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
         };
       }
       
-      toast.error(`Failed to send direct test email: ${directEmailError.message}`);
+      toast.error(`Failed to send test email: ${directEmailError.message}`);
       return {
         success: false,
         message: `Error with direct email: ${directEmailError.message}`,
@@ -72,13 +72,24 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     }
     
     console.log('Direct test email result:', directEmailData);
+    
+    // Check if the response indicates an invalid API key
+    if (directEmailData?.error?.message?.includes('API key is invalid')) {
+      toast.error('Invalid Resend API key detected. Please update it in Supabase Edge Functions settings.');
+      return {
+        success: false,
+        message: 'Your Resend API key is invalid. Please generate a new key at resend.com and update it in Supabase Edge Functions settings.',
+        details: {
+          errorType: 'invalid_api_key',
+          errorMessage: directEmailData.error.message
+        }
+      };
+    }
+    
     toast.success(`Direct test email sent to ${email}. Check your inbox.`);
     
     // Now, use Supabase's built-in email resend functionality
     console.log('Attempting to send Supabase authentication email via auth.resend...');
-    
-    // Let's log any relevant auth settings for debugging, but don't try to call a non-existent RPC
-    console.log('Supabase auth settings: This would normally show auth settings if we had an RPC function for it');
     
     const { data: resendData, error: resendError } = await supabase.auth.resend({
       type: 'signup',
