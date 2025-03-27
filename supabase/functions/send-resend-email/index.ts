@@ -19,7 +19,9 @@ interface EmailRequest {
   fromEmail?: string; 
   fromName?: string;  
   checkDomainOnly?: boolean; 
-  resendAllPendingConfirmations?: boolean; 
+  resendAllPendingConfirmations?: boolean;
+  testConfirmationEmail?: boolean;
+  email?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -40,7 +42,9 @@ const handler = async (req: Request): Promise<Response> => {
       fromEmail: emailRequest.fromEmail,
       fromName: emailRequest.fromName,
       checkDomainOnly: emailRequest.checkDomainOnly,
-      resendAllPendingConfirmations: emailRequest.resendAllPendingConfirmations
+      resendAllPendingConfirmations: emailRequest.resendAllPendingConfirmations,
+      testConfirmationEmail: emailRequest.testConfirmationEmail,
+      email: emailRequest.email
     });
 
     // Check if this is just a domain verification check
@@ -103,6 +107,205 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Handle specific test for confirmation email
+    if (emailRequest.testConfirmationEmail && emailRequest.email) {
+      console.log(`Testing confirmation email delivery to: ${emailRequest.email}`);
+      
+      try {
+        // Need to use service role key to access auth API
+        const supabaseUrl = Deno.env.get('SUPABASE_URL');
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!supabaseUrl || !serviceRoleKey) {
+          throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables');
+        }
+        
+        // Send an email directly using Resend to verify email deliverability
+        const directEmailResult = await resend.emails.send({
+          from: "Warcrow Army <updates@updates.warcrowarmy.com>",
+          to: [emailRequest.email],
+          subject: "Email Deliverability Test",
+          html: `
+            <h1>Email Deliverability Test</h1>
+            <p>This is a test email to verify that we can send emails to your account.</p>
+            <p>If you are seeing this, it means that our system can successfully deliver emails to you.</p>
+            <p>Next, we will try to send a confirmation email using Supabase's authentication system.</p>
+          `,
+        });
+        
+        console.log("Direct email test result:", directEmailResult);
+        
+        // Now attempt to send a confirmation email through Supabase
+        console.log(`Sending Supabase confirmation email to: ${emailRequest.email}`);
+        
+        // First check if user exists
+        const userCheckResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users?email=${encodeURIComponent(emailRequest.email)}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'apikey': serviceRoleKey,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!userCheckResponse.ok) {
+          const errorText = await userCheckResponse.text();
+          console.error(`Failed to check if user exists: ${userCheckResponse.status} ${errorText}`);
+          return new Response(
+            JSON.stringify({ 
+              error: `Failed to check if user exists: ${userCheckResponse.status}`,
+              details: errorText,
+              timestamp: new Date().toISOString()
+            }),
+            {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+        
+        const userCheckData = await userCheckResponse.json();
+        console.log("User check data:", JSON.stringify(userCheckData));
+        
+        const users = userCheckData.users || [];
+        let userId = null;
+        
+        if (users.length > 0) {
+          userId = users[0].id;
+          console.log(`Found existing user: ${userId}`);
+          
+          // Send confirmation email to existing user
+          const resendResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/send-email-verification`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${serviceRoleKey}`,
+              'apikey': serviceRoleKey,
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (!resendResponse.ok) {
+            const errorText = await resendResponse.text();
+            console.error(`Failed to resend confirmation email: ${resendResponse.status} ${errorText}`);
+            return new Response(
+              JSON.stringify({ 
+                error: `Failed to resend confirmation email: ${resendResponse.status}`,
+                details: errorText,
+                directEmailSent: !!directEmailResult.id,
+                timestamp: new Date().toISOString()
+              }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              }
+            );
+          }
+          
+          console.log(`Successfully sent confirmation email to existing user ${emailRequest.email}`);
+        } else {
+          console.log(`User ${emailRequest.email} not found, creating invite`);
+          
+          // User doesn't exist, create an invite
+          const createUserResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${serviceRoleKey}`,
+              'apikey': serviceRoleKey,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: emailRequest.email,
+              email_confirm: true,
+              user_metadata: {
+                invited_at: new Date().toISOString()
+              },
+              app_metadata: {
+                provider: "email"
+              }
+            })
+          });
+          
+          if (!createUserResponse.ok) {
+            const errorText = await createUserResponse.text();
+            console.error(`Failed to create user invite: ${createUserResponse.status} ${errorText}`);
+            return new Response(
+              JSON.stringify({ 
+                error: `Failed to create user invite: ${createUserResponse.status}`,
+                details: errorText,
+                directEmailSent: !!directEmailResult.id,
+                timestamp: new Date().toISOString()
+              }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              }
+            );
+          }
+          
+          const createUserData = await createUserResponse.json();
+          console.log("Created user invite:", JSON.stringify(createUserData));
+          
+          userId = createUserData.id;
+          
+          // Send invite email to new user
+          const inviteResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}/send-email-verification`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${serviceRoleKey}`,
+              'apikey': serviceRoleKey,
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (!inviteResponse.ok) {
+            const errorText = await inviteResponse.text();
+            console.error(`Failed to send invite email: ${inviteResponse.status} ${errorText}`);
+            return new Response(
+              JSON.stringify({ 
+                error: `Failed to send invite email: ${inviteResponse.status}`,
+                details: errorText,
+                directEmailSent: !!directEmailResult.id,
+                timestamp: new Date().toISOString()
+              }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              }
+            );
+          }
+          
+          console.log(`Successfully sent invite email to new user ${emailRequest.email}`);
+        }
+        
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Test confirmation email sent to ${emailRequest.email}`,
+          directEmailSent: !!directEmailResult.id,
+          timestamp: new Date().toISOString()
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (confirmError) {
+        console.error('Error in test confirmation email:', {
+          error: confirmError,
+          message: confirmError.message,
+          stack: confirmError.stack
+        });
+        
+        return new Response(
+          JSON.stringify({ 
+            error: confirmError.message || 'Unknown error',
+            timestamp: new Date().toISOString()
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
     // Handle resending all pending confirmation emails
     if (emailRequest.resendAllPendingConfirmations) {
       console.log('Attempting to resend all pending confirmation emails');
@@ -117,7 +320,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
         
         // Fetch users with unconfirmed emails - using proper API endpoint for auth users
-        const response = await fetch(`${supabaseAdminUrl}/auth/v1/users?confirmed_at=is.null`, {
+        const response = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users?email_confirmed=is.null`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${supabaseServiceKey}`,
@@ -142,7 +345,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           try {
             // Send confirmation email through Supabase
-            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/users/${user.id}/send-email-verification`, {
+            const resendResponse = await fetch(`${supabaseAdminUrl}/auth/v1/admin/users/${user.id}/send-email-verification`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${supabaseServiceKey}`,

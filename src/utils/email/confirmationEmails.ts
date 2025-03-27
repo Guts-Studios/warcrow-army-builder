@@ -68,9 +68,17 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
   try {
     console.log(`Testing confirmation email for: ${email}`);
     
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
+    // Use the custom edge function instead of direct supabase.auth.resend
+    // This gives us more control and better logging
+    const { data, error } = await supabase.functions.invoke('send-resend-email', {
+      body: {
+        testConfirmationEmail: true,
+        email: email,
+        // Adding minimal required fields for the edge function
+        to: [email],
+        subject: 'Test Confirmation Email',
+        html: '<p>Test confirmation email</p>'
+      }
     });
     
     if (error) {
@@ -83,13 +91,13 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
       };
     }
     
-    console.log('Test confirmation email sent successfully');
-    toast.success(`Test confirmation email sent to ${email}`);
+    console.log('Test confirmation email result:', data);
+    toast.success(`Test confirmation email sent to ${email}. Please check both inbox and spam folders.`);
     
     return {
       success: true,
       message: `Test confirmation email sent to ${email}`,
-      details: null
+      details: data
     };
   } catch (error) {
     console.error('Error in testConfirmationEmail:', error);
@@ -100,3 +108,4 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     };
   }
 };
+
