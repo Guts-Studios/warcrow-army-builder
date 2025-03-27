@@ -23,11 +23,14 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     // First, check if this email is already confirmed in our system
     const { data: usersByEmail } = await supabase.auth.admin.listUsers();
     
-    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => 
-      user.email === email && 
-      user.user_metadata && 
-      user.user_metadata.email_confirmed_at
-    );
+    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => {
+      // TypeScript safe way to check properties
+      if (user.email === email && user.user_metadata) {
+        const metadata = user.user_metadata as Record<string, any>;
+        return !!metadata.email_confirmed_at;
+      }
+      return false;
+    });
     
     if (emailAlreadyConfirmed) {
       console.log(`Email ${email} is already confirmed in the system`);
@@ -213,7 +216,9 @@ export const testUserSignup = async (email: string, password: string): Promise<R
     // Check if email already exists
     const { data: existingUserData } = await supabase.auth.admin.listUsers();
     
-    const emailExists = existingUserData?.users?.some(user => user.email === email);
+    const emailExists = existingUserData?.users?.some(user => {
+      return user.email === email;
+    });
     
     if (emailExists) {
       console.log(`Email ${email} already exists in the system`);
