@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -60,7 +61,11 @@ const handler = async (req: Request): Promise<Response> => {
           emailRequest.fromEmail.split('@')[1] : 
           defaultDomain;
           
-        const verifiedDomains = domainsResponse.data || [];
+        // Fix the domain verification check - properly access the domains data
+        const verifiedDomains = Array.isArray(domainsResponse.data) ? 
+          domainsResponse.data : 
+          (domainsResponse.data?.data || []);
+        
         const domainRecord = verifiedDomains.find(
           domain => domain.name === ourDomain
         );
@@ -232,9 +237,13 @@ const handler = async (req: Request): Promise<Response> => {
       const domainsResponse = await resend.domains.list();
       console.log('Verified domains in Resend account:', JSON.stringify(domainsResponse));
       
-      // Check if our domain is in the verified list
+      // Fix this check to properly access domain data
       const ourDomain = fromEmail.split('@')[1];
-      const isDomainVerified = domainsResponse.data?.some(
+      const verifiedDomains = Array.isArray(domainsResponse.data) ? 
+        domainsResponse.data : 
+        (domainsResponse.data?.data || []);
+        
+      const isDomainVerified = verifiedDomains.some(
         domain => domain.name === ourDomain && domain.status === 'verified'
       );
       
