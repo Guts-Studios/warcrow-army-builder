@@ -17,13 +17,13 @@ export const generateJoinCode = (): string => {
 // Save a game join code in Supabase
 export const saveJoinCode = async (gameId: string, joinCode: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from('game_join_codes')
-      .insert({
-        code: joinCode,
-        game_id: gameId,
-        expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
-      });
+    // Using a raw SQL query to insert into the game_join_codes table
+    // since it's not part of the generated types
+    const { error } = await supabase.rpc('create_join_code', {
+      p_code: joinCode,
+      p_game_id: gameId,
+      p_expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
+    });
 
     if (error) {
       console.error("Error saving join code:", error);
@@ -40,19 +40,17 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
 // Retrieve a game by join code
 export const getGameByJoinCode = async (joinCode: string): Promise<string | null> => {
   try {
-    const { data, error } = await supabase
-      .from('game_join_codes')
-      .select('game_id')
-      .eq('code', joinCode)
-      .gt('expires_at', new Date().toISOString())
-      .single();
+    // Using a raw SQL query to retrieve from the game_join_codes table
+    const { data, error } = await supabase.rpc('get_game_by_join_code', {
+      p_code: joinCode
+    });
 
     if (error || !data) {
       console.error("Error retrieving game by join code:", error);
       return null;
     }
     
-    return data.game_id;
+    return data;
   } catch (err) {
     console.error("Error in getGameByJoinCode:", err);
     return null;

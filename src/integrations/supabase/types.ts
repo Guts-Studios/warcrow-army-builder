@@ -182,6 +182,33 @@ export type Database = {
         }
         Relationships: []
       }
+      game_join_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          game_id: string
+          id: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          game_id: string
+          id?: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          game_id?: string
+          id?: string
+          used?: boolean
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: Json
