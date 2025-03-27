@@ -26,10 +26,10 @@ const InitiativeDialog: React.FC<InitiativeDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-warcrow-background border border-warcrow-gold/30">
         <DialogHeader>
-          <DialogTitle>Select Player with Initiative</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-warcrow-gold">Select Player with Initiative</DialogTitle>
+          <DialogDescription className="text-warcrow-text/80">
             Choose which player has initiative for round {currentRound}.
           </DialogDescription>
         </DialogHeader>
@@ -41,7 +41,12 @@ const InitiativeDialog: React.FC<InitiativeDialogProps> = ({
                 key={id}
                 type="button"
                 variant={initiativePlayerId === id ? "default" : "outline"}
-                className="h-auto py-6 flex flex-col items-center justify-center gap-2"
+                className={`
+                  h-auto py-6 flex flex-col items-center justify-center gap-2
+                  ${initiativePlayerId === id 
+                    ? "bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90" 
+                    : "bg-warcrow-accent border-warcrow-gold/50 text-warcrow-text hover:bg-warcrow-accent/70 hover:text-warcrow-gold"}
+                `}
                 onClick={() => setInitiativePlayerId(id)}
               >
                 {initiativePlayerId === id ? (
@@ -56,7 +61,10 @@ const InitiativeDialog: React.FC<InitiativeDialogProps> = ({
         </div>
         
         <div className="flex justify-end mt-2">
-          <Button onClick={onConfirm}>
+          <Button 
+            onClick={onConfirm}
+            className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
+          >
             Confirm Initiative
           </Button>
         </div>
