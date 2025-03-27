@@ -10,13 +10,14 @@ export * from './adminManagement';
 // Add global window declarations for browser testing
 import { testResendEmail } from './testEmail';
 import { checkDomainVerificationStatus } from './domainVerification';
-import { resendAllPendingConfirmationEmails } from './confirmationEmails';
+import { resendAllPendingConfirmationEmails, testConfirmationEmail } from './confirmationEmails';
 import { updateUserWabAdminStatus, getWabAdmins } from './adminManagement';
 
 if (typeof window !== 'undefined') {
   (window as any).testResendEmail = testResendEmail;
   (window as any).checkDomainVerificationStatus = checkDomainVerificationStatus;
   (window as any).resendAllPendingConfirmationEmails = resendAllPendingConfirmationEmails;
+  (window as any).testConfirmationEmail = testConfirmationEmail;
   (window as any).updateUserWabAdminStatus = updateUserWabAdminStatus;
   (window as any).getWabAdmins = getWabAdmins;
 }
@@ -26,6 +27,7 @@ declare global {
     testResendEmail: typeof testResendEmail;
     checkDomainVerificationStatus: typeof checkDomainVerificationStatus;
     resendAllPendingConfirmationEmails: typeof resendAllPendingConfirmationEmails;
+    testConfirmationEmail: typeof testConfirmationEmail;
     updateUserWabAdminStatus: typeof updateUserWabAdminStatus;
     getWabAdmins: typeof getWabAdmins;
   }

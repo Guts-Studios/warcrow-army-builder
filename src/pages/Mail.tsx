@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,8 @@ import {
   resendAllPendingConfirmationEmails, 
   updateUserWabAdminStatus, 
   getWabAdmins,
-  DomainVerificationResult
+  DomainVerificationResult,
+  testConfirmationEmail
 } from "@/utils/email";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,9 @@ const Mail = () => {
   const [userId, setUserId] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [testEmail, setTestEmail] = useState('');
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [isResendingAll, setIsResendingAll] = useState(false);
+  const [isTestingConfirmation, setIsTestingConfirmation] = useState(false);
 
   useEffect(() => {
     checkDomainStatus();
@@ -67,11 +70,36 @@ const Mail = () => {
 
   const handleResendConfirmations = async () => {
     try {
+      setIsResendingAll(true);
       const result = await resendAllPendingConfirmationEmails();
-      toast.success(result.message);
+      if (!result.success) {
+        toast.error(result.message);
+      }
     } catch (error: any) {
       console.error("Failed to resend confirmation emails:", error);
       toast.error(`Failed to resend confirmation emails: ${error.message}`);
+    } finally {
+      setIsResendingAll(false);
+    }
+  };
+
+  const handleTestConfirmationEmail = async () => {
+    if (!confirmationEmail) {
+      toast.error("Please enter an email address");
+      return;
+    }
+    
+    try {
+      setIsTestingConfirmation(true);
+      const result = await testConfirmationEmail(confirmationEmail);
+      if (!result.success) {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Failed to test confirmation email:", error);
+      toast.error(`Failed to test confirmation email: ${error.message}`);
+    } finally {
+      setIsTestingConfirmation(false);
     }
   };
 
@@ -150,13 +178,41 @@ const Mail = () => {
           </Card>
 
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test Confirmation Email</h2>
+            <p className="text-sm text-warcrow-muted mb-4">Test Supabase's confirmation email system by sending a test confirmation email to a specific address.</p>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="confirmationEmail" className="block text-sm font-medium text-warcrow-text mb-1">
+                  Email Address
+                </label>
+                <Input
+                  id="confirmationEmail"
+                  type="email"
+                  placeholder="Enter email address"
+                  value={confirmationEmail}
+                  onChange={(e) => setConfirmationEmail(e.target.value)}
+                  className="w-full mb-4 bg-black border-warcrow-gold/30 text-warcrow-text"
+                />
+              </div>
+              <Button 
+                onClick={handleTestConfirmationEmail}
+                className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                disabled={isTestingConfirmation || !confirmationEmail}
+              >
+                {isTestingConfirmation ? 'Sending...' : 'Send Test Confirmation Email'}
+              </Button>
+            </div>
+          </Card>
+
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
             <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Resend All Pending Confirmation Emails</h2>
             <p className="text-sm text-warcrow-muted mb-4">Resend confirmation emails to all users who haven't confirmed their accounts.</p>
             <Button 
               onClick={handleResendConfirmations}
               className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+              disabled={isResendingAll}
             >
-              Resend Confirmations
+              {isResendingAll ? 'Sending...' : 'Resend Confirmations'}
             </Button>
           </Card>
 
