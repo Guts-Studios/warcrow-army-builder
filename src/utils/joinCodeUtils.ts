@@ -17,12 +17,14 @@ export const generateJoinCode = (): string => {
 // Save a game join code in Supabase
 export const saveJoinCode = async (gameId: string, joinCode: string): Promise<boolean> => {
   try {
-    // Since the RPC function isn't in the TypeScript types, we'll use a raw query
-    const { error } = await supabase.rpc('create_join_code', {
-      p_code: joinCode,
-      p_game_id: gameId,
-      p_expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
-    }) as { error: any };
+    // Use a direct insert instead of the RPC function
+    const { error } = await supabase
+      .from('game_join_codes')
+      .insert({
+        code: joinCode,
+        game_id: gameId,
+        expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
+      });
 
     if (error) {
       console.error("Error saving join code:", error);
@@ -39,17 +41,29 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
 // Retrieve a game by join code
 export const getGameByJoinCode = async (joinCode: string): Promise<string | null> => {
   try {
-    // Since the RPC function isn't in the TypeScript types, we'll use a raw query with type casting
-    const { data, error } = await supabase.rpc('get_game_by_join_code', {
-      p_code: joinCode
-    }) as { data: string | null, error: any };
+    // Use a direct query instead of the RPC function
+    const { data, error } = await supabase
+      .from('game_join_codes')
+      .select('game_id')
+      .eq('code', joinCode)
+      .gt('expires_at', new Date().toISOString())
+      .eq('used', false)
+      .single();
 
     if (error || !data) {
       console.error("Error retrieving game by join code:", error);
       return null;
     }
     
-    return data;
+    // Mark the code as used
+    if (data.game_id) {
+      await supabase
+        .from('game_join_codes')
+        .update({ used: true })
+        .eq('code', joinCode);
+    }
+    
+    return data.game_id;
   } catch (err) {
     console.error("Error in getGameByJoinCode:", err);
     return null;
