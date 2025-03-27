@@ -10,8 +10,13 @@ import {
   getWabAdmins,
   DomainVerificationResult
 } from "@/utils/email";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/PageHeader";
 
 const Mail = () => {
+  const navigate = useNavigate();
   const [domainStatus, setDomainStatus] = useState<DomainVerificationResult>({ 
     verified: false, 
     status: 'Checking...', 
@@ -84,56 +89,110 @@ const Mail = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Mail Management</h1>
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+      <PageHeader title="Mail Management" />
+      
+      <div className="container mx-auto p-6">
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => navigate('/admin')}
+            className="mr-4 border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-2xl font-bold text-warcrow-gold">Mail Management</h1>
+        </div>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Domain Verification Status</h2>
-        <p>Status: {domainStatus.status}</p>
-        <p>Verified: {domainStatus.verified ? 'Yes' : 'No'}</p>
-        <Button onClick={checkDomainStatus} className="mt-2">Check Again</Button>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Domain Verification Status</h2>
+            <div className="space-y-2 mb-4">
+              <p className="text-warcrow-text">Status: <span className={domainStatus.verified ? "text-green-400" : "text-yellow-400"}>{domainStatus.status}</span></p>
+              <p className="text-warcrow-text">Verified: <span className={domainStatus.verified ? "text-green-400" : "text-yellow-400"}>{domainStatus.verified ? 'Yes' : 'No'}</span></p>
+            </div>
+            <Button 
+              onClick={checkDomainStatus} 
+              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+            >
+              Check Again
+            </Button>
+          </Card>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Send Test Email</h2>
-        <Button onClick={handleTestEmail}>Send Test Email</Button>
-      </div>
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Send Test Email</h2>
+            <p className="text-sm text-warcrow-muted mb-4">Send a test email to verify your email configuration is working correctly.</p>
+            <Button 
+              onClick={handleTestEmail}
+              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+            >
+              Send Test Email
+            </Button>
+          </Card>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Resend All Pending Confirmation Emails</h2>
-        <Button onClick={handleResendConfirmations}>Resend Confirmations</Button>
-      </div>
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Resend All Pending Confirmation Emails</h2>
+            <p className="text-sm text-warcrow-muted mb-4">Resend confirmation emails to all users who haven't confirmed their accounts.</p>
+            <Button 
+              onClick={handleResendConfirmations}
+              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+            >
+              Resend Confirmations
+            </Button>
+          </Card>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Update User Admin Status</h2>
-        <input
-          type="text"
-          placeholder="User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-          className="border p-2 mr-2"
-        />
-        <label>
-          <input
-            type="checkbox"
-            checked={isAdmin}
-            onChange={(e) => setIsAdmin(e.target.checked)}
-            className="mr-1"
-          />
-          Is Admin
-        </label>
-        <Button onClick={handleUpdateAdminStatus} className="ml-2">Update Status</Button>
-      </div>
+          <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Update User Admin Status</h2>
+            <div className="space-y-4">
+              <div className="flex flex-col space-y-2">
+                <label className="text-warcrow-text">User ID</label>
+                <input
+                  type="text"
+                  placeholder="User ID"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text p-2 rounded-md focus:border-warcrow-gold focus:outline-none"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isAdmin"
+                  checked={isAdmin}
+                  onChange={(e) => setIsAdmin(e.target.checked)}
+                  className="rounded border-warcrow-gold/30 bg-black text-warcrow-gold focus:ring-warcrow-gold"
+                />
+                <label htmlFor="isAdmin" className="text-warcrow-text">Is Admin</label>
+              </div>
+              
+              <Button 
+                onClick={handleUpdateAdminStatus}
+                className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+              >
+                Update Status
+              </Button>
+            </div>
+          </Card>
+        </div>
 
-      <div>
-        <h2 className="text-lg font-semibold mb-2">Current Admins</h2>
-        <ul>
-          {adminList.map((admin) => (
-            <li key={admin.id}>
-              {admin.username} ({admin.email}) - ID: {admin.id}
-            </li>
-          ))}
-        </ul>
+        <Card className="mt-6 p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+          <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Current Admins</h2>
+          {adminList.length > 0 ? (
+            <ul className="space-y-2">
+              {adminList.map((admin) => (
+                <li key={admin.id} className="border-b border-warcrow-gold/20 pb-2">
+                  <span className="font-medium text-warcrow-gold">{admin.username}</span> 
+                  <span className="text-warcrow-muted"> ({admin.email})</span> 
+                  <span className="text-warcrow-muted"> - ID: {admin.id}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-warcrow-muted italic">No admins found</p>
+          )}
+        </Card>
       </div>
     </div>
   );
