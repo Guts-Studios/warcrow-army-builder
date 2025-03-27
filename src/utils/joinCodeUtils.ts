@@ -17,13 +17,12 @@ export const generateJoinCode = (): string => {
 // Save a game join code in Supabase
 export const saveJoinCode = async (gameId: string, joinCode: string): Promise<boolean> => {
   try {
-    // Using a raw SQL query to insert into the game_join_codes table
-    // since it's not part of the generated types
+    // Since the RPC function isn't in the TypeScript types, we'll use a raw query
     const { error } = await supabase.rpc('create_join_code', {
       p_code: joinCode,
       p_game_id: gameId,
       p_expires_at: new Date(Date.now() + 1000 * 60 * 60).toISOString() // 1 hour expiration
-    });
+    }) as { error: any };
 
     if (error) {
       console.error("Error saving join code:", error);
@@ -40,10 +39,10 @@ export const saveJoinCode = async (gameId: string, joinCode: string): Promise<bo
 // Retrieve a game by join code
 export const getGameByJoinCode = async (joinCode: string): Promise<string | null> => {
   try {
-    // Using a raw SQL query to retrieve from the game_join_codes table
+    // Since the RPC function isn't in the TypeScript types, we'll use a raw query with type casting
     const { data, error } = await supabase.rpc('get_game_by_join_code', {
       p_code: joinCode
-    });
+    }) as { data: string | null, error: any };
 
     if (error || !data) {
       console.error("Error retrieving game by join code:", error);
