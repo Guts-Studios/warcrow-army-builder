@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Trash2, CloudOff, Cloud } from "lucide-react";
 import { SavedList } from "@/types/army";
@@ -33,6 +34,8 @@ const SavedListsSection = ({
 
   if (uniqueLists.length === 0) return null;
 
+  console.log("Rendering SavedListsSection with lists:", uniqueLists);
+
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
       <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
@@ -51,10 +54,16 @@ const SavedListsSection = ({
                 <CloudOff className="h-4 w-4 text-gray-500" />
               )}
               <span className="text-warcrow-text">{list.name}</span>
+              {list.wab_id && (
+                <span className="text-xs text-warcrow-gold/60">{list.wab_id.slice(0, 8)}</span>
+              )}
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={() => onLoadList(list)}
+                onClick={() => {
+                  console.log("Loading list:", list);
+                  onLoadList(list);
+                }}
                 variant="outline"
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
               >

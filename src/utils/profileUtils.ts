@@ -7,6 +7,11 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
   try {
     console.log("Utility: Fetching lists by WAB ID:", wabId);
     
+    if (!wabId || wabId.trim() === '') {
+      console.log("Utility: No WAB ID provided");
+      return [];
+    }
+    
     // First method: Try directly using the WAB ID from the army_lists table
     const { data: directLists, error: directError } = await supabase
       .from('army_lists')
@@ -15,6 +20,8 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
     
     if (directError) {
       console.error("Utility: Error fetching lists directly by WAB ID:", directError);
+    } else {
+      console.log("Utility: Direct query by WAB ID returned:", directLists?.length || 0, "lists");
     }
     
     if (directLists && directLists.length > 0) {

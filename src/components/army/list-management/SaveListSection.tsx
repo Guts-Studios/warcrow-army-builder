@@ -60,7 +60,9 @@ const SaveListSection = ({
         return;
       }
 
-      const { error } = await supabase
+      console.log("Saving list with WAB ID:", wab_id);
+      
+      const { data, error } = await supabase
         .from('army_lists')
         .insert({
           name: listName,
@@ -68,10 +70,15 @@ const SaveListSection = ({
           units: selectedUnits,
           user_id: user.id,
           wab_id: wab_id
-        });
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving to cloud:', error);
+        throw error;
+      }
 
+      console.log("List saved successfully:", data);
       toast.success("List saved to cloud successfully!");
       
       // Refresh the page after successful cloud save

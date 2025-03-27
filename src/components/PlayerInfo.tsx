@@ -73,7 +73,8 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
       }
     });
     
-    if (wab_id.length >= 12) {
+    if (wab_id && wab_id.length >= 12) {
+      console.log("WAB ID changed to valid length, fetching lists");
       fetchLists(wab_id);
     }
   };
@@ -109,18 +110,15 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
   useEffect(() => {
     if (playerWabId) {
       console.log("WAB ID entered:", playerWabId);
-      fetchLists(playerWabId);
     }
   }, [playerWabId]);
 
   useEffect(() => {
-    const knownWabIds = ['WAB-TKBD-EKWZ-WX0M', 'WAB-1234-ABCD-5678'];
-    
-    if (playerWabId && knownWabIds.includes(playerWabId)) {
-      console.log("Loading immediate lists for known WAB ID:", playerWabId);
-      fetchLists(playerWabId);
+    if (player?.verified && player?.wab_id && !isLoadingSavedLists && savedLists.length === 0) {
+      console.log("Player is verified, automatically fetching lists");
+      fetchLists(player.wab_id);
     }
-  }, [playerWabId]);
+  }, [player?.verified, player?.wab_id, isLoadingSavedLists, savedLists.length]);
 
   const verifyWabId = async () => {
     if (!playerWabId) return;

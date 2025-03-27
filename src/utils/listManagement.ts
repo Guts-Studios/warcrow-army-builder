@@ -1,3 +1,4 @@
+
 import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchListsByWabId } from "./profileUtils";
@@ -12,7 +13,9 @@ export const fetchSavedLists = async (wabId?: string) => {
     
     // If a WAB ID is provided, fetch lists by that WAB ID
     if (wabId) {
+      console.log("Fetching cloud lists by WAB ID:", wabId);
       cloudLists = await fetchListsByWabId(wabId);
+      console.log("Found cloud lists by WAB ID:", cloudLists.length);
     } else {
       // Otherwise, try to get the current user's lists
       const { data: { session } } = await supabase.auth.getSession();
@@ -23,8 +26,9 @@ export const fetchSavedLists = async (wabId?: string) => {
           .eq("user_id", session.user.id);
           
         if (error) {
-          console.error("Error fetching cloud lists:", error);
+          console.error("Error fetching cloud lists by user ID:", error);
         } else if (data) {
+          console.log("Found cloud lists by user ID:", data.length);
           cloudLists = data.map((list: any) => ({
             id: list.id,
             name: list.name,
@@ -38,7 +42,9 @@ export const fetchSavedLists = async (wabId?: string) => {
       }
     }
 
-    return [...parsedLocalLists, ...cloudLists];
+    const combinedLists = [...parsedLocalLists, ...cloudLists];
+    console.log("Combined list count:", combinedLists.length);
+    return combinedLists;
   } catch (error) {
     console.error("Error in fetchSavedLists:", error);
     return parsedLocalLists;
