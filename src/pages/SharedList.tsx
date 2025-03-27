@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { decodeUrlToList } from "@/utils/shareListUtils";
@@ -17,6 +16,7 @@ const SharedList = () => {
   useEffect(() => {
     if (!listCode) {
       setError("No list code provided");
+      console.error("No list code in params:", listCode);
       return;
     }
     
@@ -24,6 +24,7 @@ const SharedList = () => {
       const decodedList = decodeUrlToList(listCode);
       if (!decodedList) {
         setError("Invalid list data");
+        console.error("Failed to decode list data for code:", listCode);
         return;
       }
       

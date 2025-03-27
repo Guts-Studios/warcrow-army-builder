@@ -23,6 +23,7 @@ export const encodeListToUrl = (list: SavedList): string => {
  */
 export const decodeUrlToList = (encodedUrl: string): SavedList | null => {
   try {
+    console.log("Attempting to decode:", encodedUrl);
     // Decompress the data
     const jsonString = decompress(encodedUrl);
     const listData = JSON.parse(jsonString);
@@ -49,5 +50,6 @@ export const decodeUrlToList = (encodedUrl: string): SavedList | null => {
 export const generateShareableLink = (list: SavedList): string => {
   const encodedList = encodeListToUrl(list);
   const baseUrl = window.location.origin;
+  // Ensure the path format matches the routes configuration
   return `${baseUrl}/shared-list/${encodedList}`;
 };

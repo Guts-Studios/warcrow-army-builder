@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -24,7 +23,6 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  // Create a temporary SavedList for sharing
   const tempList: SavedList = {
     id: `temp-${Date.now()}`,
     name: listName || "Untitled List",
@@ -41,7 +39,6 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
       setCopied(true);
       toast.success("Link copied to clipboard");
       
-      // Reset copied state after 2 seconds
       setTimeout(() => {
         setCopied(false);
       }, 2000);
@@ -52,12 +49,9 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
   };
 
   const printList = (courtesyList = false) => {
-    // Filter out scout/ambusher units if printing courtesy list
     const filteredUnits = courtesyList 
       ? selectedUnits.filter(unit => {
-          // Check if the unit has either "Scout" or "Ambusher" keywords
           const hasHiddenKeyword = Array.isArray(unit.keywords) && unit.keywords.some(keyword => {
-            // Handle both string keywords and keyword objects
             if (typeof keyword === 'string') {
               return keyword.toLowerCase() === 'scout' || keyword.toLowerCase() === 'ambusher';
             } else if (keyword && typeof keyword === 'object' && 'name' in keyword) {
@@ -70,27 +64,23 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
         })
       : selectedUnits;
 
-    // Calculate totals for ALL units, regardless of filtering
     const totalPoints = selectedUnits.reduce((sum, unit) => 
       sum + (unit.pointsCost * (unit.quantity || 1)), 0);
     
     const totalCommand = selectedUnits.reduce((sum, unit) => 
       sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
 
-    // Create a new window for printing
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast.error("Failed to open print window. Check your popup blocker.");
       return;
     }
 
-    // Get faction name
     const getFactionName = () => {
       const factionData = factions.find(f => f.id === faction);
       return factionData?.name || "Unknown Faction";
     };
 
-    // Add print content
     printWindow.document.write(`
       <html>
         <head>
@@ -178,21 +168,17 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
       </html>
     `);
 
-    // Trigger print and close window after printing
     printWindow.document.close();
     printWindow.addEventListener('load', () => {
       printWindow.focus();
       printWindow.print();
-      // Close window after print
       printWindow.onafterprint = function() {
         printWindow.close();
       };
     });
   };
 
-  // Export to text functionality
   const generateExportText = () => {
-    // Sort units to put High Command first
     const sortedUnits = [...selectedUnits].sort((a, b) => {
       if (a.highCommand && !b.highCommand) return -1;
       if (!a.highCommand && b.highCommand) return 1;
@@ -201,7 +187,6 @@ const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButt
     
     const factionName = factions.find(f => f.id === faction)?.name || "Unknown Faction";
 
-    // Generate list text
     const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${sortedUnits
       .map((unit) => {
         const highCommandLabel = unit.highCommand ? " [High Command]" : "";
