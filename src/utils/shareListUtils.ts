@@ -6,13 +6,24 @@ import { compress, decompress } from "./compressionUtils";
  * Encodes a list into a URL-safe string with compression
  */
 export const encodeListToUrl = (list: SavedList): string => {
-  // Convert list to a serialized string
-  const listData = JSON.stringify({
+  // Only include essential data for sharing
+  const minimalList = {
     name: list.name,
     faction: list.faction,
-    units: list.units,
+    units: list.units.map(unit => ({
+      id: unit.id,
+      name: unit.name,
+      pointsCost: unit.pointsCost,
+      command: unit.command || 0,
+      highCommand: unit.highCommand || false,
+      quantity: unit.quantity || 1,
+      keywords: unit.keywords || []
+    })),
     created_at: list.created_at
-  });
+  };
+  
+  // Convert list to a serialized string
+  const listData = JSON.stringify(minimalList);
   
   // Compress and encode the data
   return compress(listData);
@@ -39,7 +50,12 @@ export const decodeUrlToList = (encodedUrl: string): SavedList | null => {
       id: `temp-${Date.now()}`,
       name: listData.name,
       faction: listData.faction,
-      units: listData.units,
+      units: listData.units.map(unit => ({
+        ...unit,
+        quantity: unit.quantity || 1,
+        highCommand: !!unit.highCommand,
+        command: unit.command || 0
+      })),
       created_at: listData.created_at || new Date().toISOString()
     };
     
