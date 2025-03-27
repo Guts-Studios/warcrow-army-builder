@@ -83,7 +83,7 @@ const SharedList = () => {
     
     const totalCommand = listData.units.reduce((sum, unit) => 
       sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
-
+    
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast.error("Failed to open print window. Check your popup blocker.");

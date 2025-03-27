@@ -45,7 +45,7 @@ export function AppRoutes() {
       <Route path="/summary/:gameId" element={<Summary />} />
       <Route path="/missions" element={<Missions />} />
       <Route path="/mail" element={<Mail />} />
-      <Route path="/shared-list/:id" element={<SharedList />} />
+      <Route path="/shared-list/:listCode" element={<SharedList />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="*" element={<NotFound />} />
