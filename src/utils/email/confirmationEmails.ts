@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ResendConfirmationResult } from "./types";
@@ -20,64 +19,29 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
   try {
     console.log(`Testing confirmation email for: ${email}`);
     
-    // First, send a direct test email using our edge function
-    const { data, error } = await supabase.functions.invoke('send-resend-email', {
-      body: {
-        testConfirmationEmail: true,
-        email: email,
-        to: [email],
-        subject: 'Test Confirmation Email',
-        html: '<p>Test confirmation email</p>'
-      }
+    // Use Supabase's built-in email resend functionality, which should
+    // use the configured SMTP settings (Resend in this case)
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
     });
     
     if (error) {
-      console.error('Error sending test confirmation email:', error);
-      toast.error(`Failed to send test confirmation email: ${error.message}`);
+      console.error('Error sending confirmation email:', error);
+      toast.error(`Failed to send confirmation email: ${error.message}`);
       return {
         success: false,
-        message: error.message,
+        message: `Error: ${error.message}`,
         details: error
       };
     }
     
-    console.log('Test confirmation email result:', data);
-    
-    // Now, use Supabase's built-in email resend functionality
-    try {
-      const { error: resendError } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-      });
-      
-      if (resendError) {
-        console.warn('Supabase resend gave an error, but direct email was sent:', resendError);
-        toast.warning(`Direct test email sent, but there was an issue with Supabase's confirmation email: ${resendError.message}`);
-        return {
-          success: true,
-          message: `Direct test email sent to ${email}, but there was an issue with the confirmation email. Please check your Supabase SMTP settings.`,
-          details: {
-            directEmail: data,
-            confirmationError: resendError
-          }
-        };
-      }
-      
-      toast.success(`Test emails sent to ${email}. Please check both inbox and spam folders.`);
-      return {
-        success: true,
-        message: `Test emails sent to ${email}`,
-        details: data
-      };
-    } catch (resendError) {
-      console.warn('Failed to trigger Supabase confirmation email, but direct email was sent:', resendError);
-      toast.warning(`Direct test email sent, but there was an issue with Supabase's confirmation email system.`);
-      return {
-        success: true,
-        message: `Direct test email sent to ${email}, but there was an issue with the confirmation email system.`,
-        details: data
-      };
-    }
+    toast.success(`Confirmation email sent to ${email}. Please check both inbox and spam folders.`);
+    return {
+      success: true,
+      message: `Confirmation email sent to ${email}`,
+      details: null
+    };
   } catch (error) {
     console.error('Error in testConfirmationEmail:', error);
     return {

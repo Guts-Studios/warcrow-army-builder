@@ -149,8 +149,11 @@ const Mail = () => {
           </Card>
 
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test Confirmation Email</h2>
-            <p className="text-sm text-warcrow-muted mb-4 text-center">Test Supabase's confirmation email system by sending a test confirmation email to a specific address.</p>
+            <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Test Authentication Email</h2>
+            <p className="text-sm text-warcrow-muted mb-4 text-center">
+              Test Supabase's authentication email system by sending a test confirmation email.
+              This will use your configured SMTP settings (Resend).
+            </p>
             <div className="space-y-4">
               <div>
                 <label htmlFor="confirmationEmail" className="block text-sm font-medium text-warcrow-text mb-1">
@@ -170,7 +173,7 @@ const Mail = () => {
                 className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
                 disabled={isTestingConfirmation || !confirmationEmail}
               >
-                {isTestingConfirmation ? 'Sending...' : 'Send Test Confirmation Email'}
+                {isTestingConfirmation ? 'Sending...' : 'Send Authentication Email'}
               </Button>
             </div>
           </Card>
