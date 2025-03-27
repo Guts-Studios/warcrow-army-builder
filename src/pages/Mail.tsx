@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { 
   testResendEmail, 
@@ -25,6 +26,7 @@ const Mail = () => {
   const [adminList, setAdminList] = useState([]);
   const [userId, setUserId] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
 
   useEffect(() => {
     checkDomainStatus();
@@ -54,8 +56,9 @@ const Mail = () => {
 
   const handleTestEmail = async () => {
     try {
-      await testResendEmail();
-      toast.success("Test email sent successfully!");
+      const emailToUse = testEmail.trim() || undefined;
+      await testResendEmail(emailToUse);
+      toast.success(`Test email sent successfully${emailToUse ? ` to ${emailToUse}` : ''}!`);
     } catch (error: any) {
       console.error("Failed to send test email:", error);
       toast.error(`Failed to send test email: ${error.message}`);
@@ -123,12 +126,27 @@ const Mail = () => {
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
             <h2 className="text-lg font-semibold mb-4 text-warcrow-gold">Send Test Email</h2>
             <p className="text-sm text-warcrow-muted mb-4">Send a test email to verify your email configuration is working correctly.</p>
-            <Button 
-              onClick={handleTestEmail}
-              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-            >
-              Send Test Email
-            </Button>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="testEmail" className="block text-sm font-medium text-warcrow-text mb-1">
+                  Email Address (optional)
+                </label>
+                <Input
+                  id="testEmail"
+                  type="email"
+                  placeholder="Enter email address"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="w-full mb-4 bg-black border-warcrow-gold/30 text-warcrow-text"
+                />
+              </div>
+              <Button 
+                onClick={handleTestEmail}
+                className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+              >
+                Send Test Email
+              </Button>
+            </div>
           </Card>
 
           <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">

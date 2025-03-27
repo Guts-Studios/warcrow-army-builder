@@ -2,7 +2,7 @@
 import { sendEmail } from "./sendEmail";
 import { EmailOptions } from "./types";
 
-export const testResendEmail = async (useDefaultDomain = false) => {
+export const testResendEmail = async (email?: string, useDefaultDomain = false) => {
   try {
     const options: EmailOptions = {};
     
@@ -12,7 +12,7 @@ export const testResendEmail = async (useDefaultDomain = false) => {
     }
     
     await sendEmail(
-      ['caldwejf@gmail.com'],
+      [email || 'caldwejf@gmail.com'],
       'Resend Test Email',
       '<h1>Test Email from Warcrow Army</h1><p>This is a test email sent via Resend to verify the email service is working.</p>',
       options
