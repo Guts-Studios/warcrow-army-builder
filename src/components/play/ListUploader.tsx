@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { File, Check, X, Pencil, ChevronDown, ChevronUp } from 'lucide-react';

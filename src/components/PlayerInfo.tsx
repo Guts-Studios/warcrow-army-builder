@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGame } from '@/context/GameContext';
 import { motion } from 'framer-motion';
@@ -6,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import FactionSelector from '@/components/play/FactionSelector';
 import ListUploader from '@/components/play/ListUploader';
 import { Unit, Faction, Player } from '@/types/game';
 import { supabase } from "@/integrations/supabase/client";
@@ -310,28 +310,22 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
           )}
         </div>
 
-        <div>
-          <Label>Nation (Optional)</Label>
-          <div className="mt-1">
-            <FactionSelector
-              selectedFaction={player?.faction as Faction | null}
-              onSelectFaction={handleFactionSelect}
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label>Saved Army Lists</Label>
+        <div className="bg-warcrow-accent rounded-lg p-4">
+          <Label className="text-lg font-semibold text-warcrow-gold mb-4 block">Saved Army Lists</Label>
           {isLoadingSavedLists ? (
             <p className="text-xs text-muted-foreground mt-1">Loading lists...</p>
           ) : savedLists.length > 0 ? (
             <Select onValueChange={handleSavedListSelect}>
-              <SelectTrigger className="w-full mt-1">
+              <SelectTrigger className="w-full mt-1 bg-warcrow-background border-warcrow-gold text-warcrow-text">
                 <SelectValue placeholder="Select a saved list" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-warcrow-background border-warcrow-gold">
                 {savedLists.map((list) => (
-                  <SelectItem key={list.id} value={list.id}>
+                  <SelectItem 
+                    key={list.id} 
+                    value={list.id}
+                    className="text-warcrow-gold font-medium hover:bg-warcrow-gold/10"
+                  >
                     {list.name} ({list.faction})
                   </SelectItem>
                 ))}
@@ -345,7 +339,7 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId, index }) => {
         </div>
 
         <div>
-          <Label>Army List (Optional)</Label>
+          <Label>Manually Enter List</Label>
           <div className="mt-1">
             <ListUploader
               playerId={playerId}
