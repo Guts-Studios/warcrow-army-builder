@@ -20,6 +20,20 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
   try {
     console.log(`Testing confirmation email for: ${email}`);
     
+    // First, check if this email is already confirmed in our system
+    const { data: usersByEmail } = await supabase.auth.admin.listUsers({
+      filters: {
+        email: email
+      }
+    });
+    
+    const emailAlreadyConfirmed = usersByEmail?.users?.some(user => user.email_confirmed_at);
+    
+    if (emailAlreadyConfirmed) {
+      console.log(`Email ${email} is already confirmed in the system`);
+      toast.info(`${email} is already confirmed in Supabase. You won't receive a confirmation email.`);
+    }
+    
     // First, send a direct test email using our edge function to verify Resend is working correctly
     const { data: directEmailData, error: directEmailError } = await supabase.functions.invoke('send-resend-email', {
       body: {
@@ -31,8 +45,11 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
           <h1>Email Delivery Test</h1>
           <p>This is a direct test email to verify that we can use Resend to deliver emails to your account.</p>
           <p>If you are seeing this, it means our direct email system works.</p>
-          <p>You should also receive a separate Supabase authentication email.</p>
-          <p>If you don't receive the authentication email, it's likely because:</p>
+          <p>${emailAlreadyConfirmed 
+            ? '<strong>Your email is already confirmed in Supabase, so you will NOT receive a confirmation email.</strong>' 
+            : 'You should also receive a separate Supabase authentication email.'}
+          </p>
+          <p>If you don't receive the authentication email (and your email is not yet confirmed), it's likely because:</p>
           <ul>
             <li>The Resend API key in Supabase SMTP settings is outdated or incorrect</li>
             <li>The SMTP settings in Supabase need to be reconfigured</li>
@@ -91,6 +108,18 @@ export const testConfirmationEmail = async (email: string): Promise<ResendConfir
     }
     
     toast.success(`Direct test email sent to ${email}. Check your inbox.`);
+    
+    // If email is already confirmed, we don't need to try sending a confirmation email
+    if (emailAlreadyConfirmed) {
+      return {
+        success: true,
+        message: `Direct test email sent to ${email}. Since this email is already confirmed, no confirmation email was sent.`,
+        details: {
+          directEmail: directEmailData,
+          emailAlreadyConfirmed: true
+        }
+      };
+    }
     
     // Now, use Supabase's built-in email resend functionality
     console.log('Attempting to send Supabase authentication email via auth.resend...');

@@ -10,10 +10,11 @@ import {
   DomainVerificationResult,
   testConfirmationEmail
 } from "@/utils/email";
-import { ArrowLeft, AlertTriangle, ExternalLink } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ExternalLink, InfoIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/common/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
 
 const Mail = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const Mail = () => {
   const [isAPIKeyValid, setIsAPIKeyValid] = useState<boolean | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [smtpMismatchDetected, setSmtpMismatchDetected] = useState(false);
+  const [emailAlreadyConfirmed, setEmailAlreadyConfirmed] = useState(false);
 
   useEffect(() => {
     checkDomainStatus();
@@ -52,6 +54,21 @@ const Mail = () => {
       }
       
       setDomainStatus({ verified: false, status: `Error: ${error.message}`, domains: [] });
+    }
+  };
+
+  const checkIfEmailConfirmed = async (email: string): Promise<boolean> => {
+    try {
+      const { data } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: email
+        }
+      });
+      
+      return data?.users?.some(user => user.email_confirmed_at) || false;
+    } catch (error) {
+      console.error("Error checking if email is confirmed:", error);
+      return false;
     }
   };
 
@@ -99,6 +116,15 @@ const Mail = () => {
     
     try {
       setIsTestingConfirmation(true);
+      
+      // Check if the email is already confirmed
+      const isConfirmed = await checkIfEmailConfirmed(confirmationEmail);
+      setEmailAlreadyConfirmed(isConfirmed);
+      
+      if (isConfirmed) {
+        toast.info(`${confirmationEmail} is already confirmed in Supabase. You'll only receive the direct test email.`);
+      }
+      
       const result = await testConfirmationEmail(confirmationEmail);
       console.log("Test confirmation email result:", result);
       
@@ -109,18 +135,24 @@ const Mail = () => {
         toast.error(result.message);
       } else {
         setIsAPIKeyValid(true);
-        toast.success("Test emails requested. Check your inbox for delivery results.");
         
-        // If the direct email sent but auth email fails, we likely have an SMTP issue
-        if (result.details?.directEmail && !result.details?.resendData?.user) {
-          setSmtpMismatchDetected(true);
-          setTimeout(() => {
-            toast.warning("⚠️ SMTP SETUP ISSUE DETECTED: Your direct email works but Supabase authentication emails don't.");
-          }, 1000);
+        if (result.details?.emailAlreadyConfirmed) {
+          toast.success("Direct test email sent. Check your inbox!");
+          toast.info("No confirmation email was sent because this email is already confirmed in Supabase.");
+        } else {
+          toast.success("Test emails requested. Check your inbox for delivery results.");
           
-          setTimeout(() => {
-            toast.info("You need to update your SMTP settings in Supabase Auth Templates to use the same Resend API key.");
-          }, 2000);
+          // If the direct email sent but auth email fails, we likely have an SMTP issue
+          if (result.details?.directEmail && !result.details?.resendData?.user) {
+            setSmtpMismatchDetected(true);
+            setTimeout(() => {
+              toast.warning("⚠️ SMTP SETUP ISSUE DETECTED: Your direct email works but Supabase authentication emails don't.");
+            }, 1000);
+            
+            setTimeout(() => {
+              toast.info("You need to update your SMTP settings in Supabase Auth Templates to use the same Resend API key.");
+            }, 2000);
+          }
         }
       }
     } catch (error: any) {
@@ -176,6 +208,26 @@ const Mail = () => {
             >
               Verify API Key Again
             </Button>
+          </Card>
+        )}
+
+        {emailAlreadyConfirmed && (
+          <Card className="p-6 border border-blue-500 shadow-sm bg-blue-900/20 mb-6">
+            <div className="flex items-start mb-2">
+              <InfoIcon className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
+              <h2 className="text-lg font-semibold text-blue-400">Email Already Confirmed</h2>
+            </div>
+            <p className="text-sm text-warcrow-text mb-4">
+              The email address "{confirmationEmail}" is already confirmed in Supabase. This means:
+            </p>
+            <ul className="text-sm text-warcrow-text list-disc pl-5 space-y-1 mb-4">
+              <li>You will receive the direct test email (which tests the Resend API connection)</li>
+              <li>You will NOT receive a confirmation email because your email is already verified</li>
+              <li>This is normal behavior - confirmation emails are only sent to unconfirmed email addresses</li>
+            </ul>
+            <p className="text-sm text-warcrow-text mb-4">
+              To fully test both email types, use an email address that hasn't been confirmed in your Supabase project yet.
+            </p>
           </Card>
         )}
 
@@ -269,7 +321,10 @@ const Mail = () => {
                   type="email"
                   placeholder="Enter email address"
                   value={confirmationEmail}
-                  onChange={(e) => setConfirmationEmail(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmationEmail(e.target.value);
+                    setEmailAlreadyConfirmed(false); // Reset when email changes
+                  }}
                   className="w-full mb-4 bg-black border-warcrow-gold/30 text-warcrow-text"
                 />
               </div>
@@ -281,6 +336,9 @@ const Mail = () => {
                 {isTestingConfirmation ? 'Sending...' : 'Test Authentication Emails'}
               </Button>
               <div className="space-y-2 mt-4">
+                <p className="text-xs text-warcrow-muted">
+                  <strong>Note:</strong> If your email is already confirmed in Supabase, you will only receive the direct test email.
+                </p>
                 <p className="text-xs text-warcrow-muted">
                   <strong>Troubleshooting:</strong> If you receive only the direct test email but not the authentication email:
                 </p>
