@@ -34,7 +34,7 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
       .from('profiles')
       .select('id')
       .eq('wab_id', wabId)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to avoid errors when no rows are returned
     
     if (profileError) {
       console.error("Utility: Error fetching profile by WAB ID:", profileError);
