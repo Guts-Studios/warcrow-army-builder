@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -5,7 +6,7 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import PlayerInfo from '@/components/PlayerInfo';
+import PlayerInfo from '@/components/play/player/PlayerInfo';
 import { toast } from 'sonner';
 import { Map, Shield, ArrowLeftCircle, AlertCircle, Users, UserPlus } from 'lucide-react';
 import JoinCodeShare from '@/components/play/JoinCodeShare';
