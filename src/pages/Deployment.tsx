@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -10,13 +11,18 @@ import { toast } from 'sonner';
 import { Map, Shield, ArrowLeftCircle, AlertCircle, Users, UserPlus } from 'lucide-react';
 import JoinCodeShare from '@/components/play/JoinCodeShare';
 import FriendInviteDialog from '@/components/play/FriendInviteDialog';
+import MissionSelector from '@/components/play/MissionSelector';
 import { useFriends } from '@/hooks/useFriends';
 import { supabase } from '@/integrations/supabase/client';
+import { Mission, Player } from '@/types/game';
+import GameSetup from '@/components/play/GameSetup';
 
 const Deployment = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGame();
   const [userId, setUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   // Local state for deployment configuration
   const [initialInitiativePlayerId, setInitialInitiativePlayerId] = useState<string | null>(null);
@@ -24,13 +30,39 @@ const Deployment = () => {
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
   const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
   const [showFriendInviteDialog, setShowFriendInviteDialog] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   
   // Get the user session
   useEffect(() => {
     const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user?.id) {
-        setUserId(data.session.user.id);
+      setIsLoadingUser(true);
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user?.id) {
+          setUserId(data.session.user.id);
+          
+          // Fetch the user's profile
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('id, username, wab_id, avatar_url')
+            .eq('id', data.session.user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching user profile:', error);
+          } else if (profile) {
+            setCurrentUser({
+              id: profile.id,
+              username: profile.username || data.session.user.email?.split('@')[0] || 'Player',
+              wab_id: profile.wab_id,
+              avatar_url: profile.avatar_url
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching session or profile:', err);
+      } finally {
+        setIsLoadingUser(false);
       }
     };
     
@@ -79,6 +111,16 @@ const Deployment = () => {
 
   // Function to start the game
   const handleStartGame = () => {
+    if (Object.keys(state.players).length < 2) {
+      toast.error("You need at least two players to start a game");
+      return;
+    }
+
+    if (!state.mission) {
+      toast.error("You need to select a mission before starting the game");
+      return;
+    }
+
     setShowInitiativeDialog(true);
   };
 
@@ -90,6 +132,52 @@ const Deployment = () => {
   // Function to show friend invite dialog
   const handleShowFriendInvite = () => {
     setShowFriendInviteDialog(true);
+  };
+
+  // Function to handle mission selection
+  const handleMissionSelect = (mission: Mission) => {
+    setSelectedMission(mission);
+    dispatch({ type: 'SET_MISSION', payload: mission });
+    toast.success(`Selected mission: ${mission.name}`);
+  };
+
+  const handleSetupComplete = async (players: any[], mission: Mission) => {
+    console.log('Setting up game with mission:', mission);
+    
+    // Reset the game state first
+    dispatch({ type: 'RESET_GAME' });
+    
+    // Record the verified players' WAB IDs to track game stats later
+    const verifiedWabIds = players
+      .filter(p => p.verified && p.wab_id)
+      .map(p => ({ wab_id: p.wab_id, name: p.name }));
+    
+    if (verifiedWabIds.length > 0) {
+      // Store the verified WAB IDs in localStorage for later use when the game ends
+      localStorage.setItem('warcrow_verified_players', JSON.stringify(verifiedWabIds));
+    }
+    
+    // Add players to the game state with correct type
+    players.forEach(player => {
+      dispatch({
+        type: 'ADD_PLAYER',
+        payload: {
+          ...player,
+          score: 0, // Initialize score to 0
+          roundScores: {}, // Initialize roundScores as empty object
+          points: 0, // Add required field
+          objectivePoints: 0 // Add required field
+        } as Player
+      });
+    });
+
+    // Set the mission
+    dispatch({ type: 'SET_MISSION', payload: mission });
+
+    // Transition to deployment phase
+    dispatch({ type: 'SET_PHASE', payload: 'deployment' });
+
+    toast.success(`Game setup complete! Starting mission: ${mission.name}`);
   };
 
   // Function to render player info section 
@@ -115,6 +203,11 @@ const Deployment = () => {
     return playerEntry ? playerEntry[1].name : "A player";
   };
 
+  // Method to check if we have enough setup to show deployment options
+  const canShowDeployment = () => {
+    return Object.keys(state.players).length > 0 && state.mission !== null;
+  };
+
   return (
     <motion.div
       variants={fadeIn}
@@ -123,7 +216,18 @@ const Deployment = () => {
       exit="exit"
       className="min-h-screen bg-warcrow-background text-warcrow-text container py-8 max-w-5xl mx-auto"
     >
-      <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Deployment Phase</h1>
+      <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Game Setup</h1>
+      
+      {/* Player Setup Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Player Setup</h2>
+        <GameSetup
+          onStartGame={() => {}}
+          currentUser={currentUser}
+          isLoading={isLoadingUser}
+          onComplete={handleSetupComplete}
+        />
+      </div>
       
       {/* Invite buttons row */}
       <div className="flex justify-center mb-8 gap-4 flex-wrap">
@@ -148,135 +252,149 @@ const Deployment = () => {
         )}
       </div>
       
-      {/* Mission Information */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-4">
-          <div className="space-y-4 flex-1">
-            <div>
-              <h2 className="text-2xl font-semibold mb-2 text-warcrow-gold">
-                {state.mission?.name || "Mission"}
-              </h2>
-              <p className="text-warcrow-text/90 leading-relaxed">
-                {state.mission?.description || "No mission description available"}
-              </p>
-            </div>
-            
-            <div className="pt-2">
-              <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Objectives</h3>
-              <p className="text-warcrow-text/90 leading-relaxed">
-                {state.mission?.objectiveDescription || "No objectives defined"}
-              </p>
-            </div>
-            
-            {state.mission?.specialRules && state.mission.specialRules.length > 0 && (
+      {/* Mission Selection */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Select Mission</h2>
+        <MissionSelector onSelect={handleMissionSelect} />
+      </div>
+      
+      {/* Mission Information - Show only if mission is selected */}
+      {state.mission && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
+        >
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-4">
+            <div className="space-y-4 flex-1">
+              <div>
+                <h2 className="text-2xl font-semibold mb-2 text-warcrow-gold">
+                  {state.mission?.name || "Mission"}
+                </h2>
+                <p className="text-warcrow-text/90 leading-relaxed">
+                  {state.mission?.description || "No mission description available"}
+                </p>
+              </div>
+              
               <div className="pt-2">
-                <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Special Rules</h3>
-                <ul className="text-warcrow-text/90 list-disc pl-5 space-y-1">
-                  {state.mission.specialRules.map((rule, i) => (
-                    <li key={i} className="leading-relaxed">{rule}</li>
-                  ))}
-                </ul>
+                <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Objectives</h3>
+                <p className="text-warcrow-text/90 leading-relaxed">
+                  {state.mission?.objectiveDescription || "No objectives defined"}
+                </p>
+              </div>
+              
+              {state.mission?.specialRules && state.mission.specialRules.length > 0 && (
+                <div className="pt-2">
+                  <h3 className="font-medium mb-1 text-warcrow-gold text-lg">Special Rules</h3>
+                  <ul className="text-warcrow-text/90 list-disc pl-5 space-y-1">
+                    {state.mission.specialRules.map((rule, i) => (
+                      <li key={i} className="leading-relaxed">{rule}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            
+            {state.mission?.mapImage && (
+              <div className="flex-shrink-0">
+                <div 
+                  className="w-48 h-48 bg-warcrow-background border border-warcrow-gold/30 rounded-md overflow-hidden cursor-pointer shadow-md transition-transform hover:scale-105 hover:shadow-lg duration-300"
+                  onClick={() => setShowMap(true)}
+                >
+                  <img 
+                    src={state.mission.mapImage} 
+                    alt="Mission map" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="text-center mt-2 text-sm text-warcrow-gold flex justify-center items-center gap-1">
+                  <Map size={16} />
+                  <span>Click to expand</span>
+                </div>
               </div>
             )}
           </div>
-          
-          {state.mission?.mapImage && (
-            <div className="flex-shrink-0">
-              <div 
-                className="w-48 h-48 bg-warcrow-background border border-warcrow-gold/30 rounded-md overflow-hidden cursor-pointer shadow-md transition-transform hover:scale-105 hover:shadow-lg duration-300"
-                onClick={() => setShowMap(true)}
-              >
-                <img 
-                  src={state.mission.mapImage} 
-                  alt="Mission map" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="text-center mt-2 text-sm text-warcrow-gold flex justify-center items-center gap-1">
-                <Map size={16} />
-                <span>Click to expand</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
       
-      {/* Players' deployment sections */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
-      >
-        {Object.entries(state.players).map(([playerId, _], index) => 
-          renderPlayerInfo(playerId, index)
-        )}
-      </motion.div>
-      
-      {/* Deployment order Selection */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-warcrow-gold">Deployment Order</h2>
-        
-        <div className="bg-warcrow-background/50 rounded-md p-6 border border-warcrow-gold/20">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Shield className="text-warcrow-gold w-5 h-5" />
-            <h3 className="font-medium text-center text-warcrow-gold text-lg">Who deploys first?</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Object.entries(state.players).map(([playerId, player]) => (
-              <Button
-                key={playerId}
-                onClick={() => handleSelectFirstToDeploy(playerId)}
-                variant={state.firstToDeployPlayerId === playerId ? "default" : "outline"}
-                className={`py-6 flex flex-col gap-2 h-auto border border-warcrow-gold/30 ${
-                  state.firstToDeployPlayerId === playerId 
-                    ? "bg-warcrow-gold text-warcrow-background" 
-                    : "bg-warcrow-background text-warcrow-text hover:bg-warcrow-gold/20"
-                }`}
-              >
-                <span className="text-lg font-medium">{player.name}</span>
-                <span className="text-sm">Deploys First</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-      
-      {/* Start Game button - centered */}
-      <div className="flex justify-center mt-8 mb-8">
-        <Button
-          onClick={handleStartGame}
-          disabled={!state.firstToDeployPlayerId}
-          size="lg"
-          className={`px-10 py-6 text-lg ${
-            !state.firstToDeployPlayerId 
-              ? "bg-warcrow-accent/50 text-warcrow-text/50 cursor-not-allowed" 
-              : "bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
-          }`}
+      {/* Players' deployment sections - Only show if players exist */}
+      {canShowDeployment() && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
         >
-          Start Game
-        </Button>
-      </div>
+          {Object.entries(state.players).map(([playerId, _], index) => 
+            renderPlayerInfo(playerId, index)
+          )}
+        </motion.div>
+      )}
+      
+      {/* Deployment order Selection - Only show if players exist */}
+      {canShowDeployment() && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-warcrow-accent border border-warcrow-gold/30 rounded-xl p-6 mb-8 shadow-md"
+        >
+          <h2 className="text-2xl font-semibold mb-4 text-center text-warcrow-gold">Deployment Order</h2>
+          
+          <div className="bg-warcrow-background/50 rounded-md p-6 border border-warcrow-gold/20">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Shield className="text-warcrow-gold w-5 h-5" />
+              <h3 className="font-medium text-center text-warcrow-gold text-lg">Who deploys first?</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.entries(state.players).map(([playerId, player]) => (
+                <Button
+                  key={playerId}
+                  onClick={() => handleSelectFirstToDeploy(playerId)}
+                  variant={state.firstToDeployPlayerId === playerId ? "default" : "outline"}
+                  className={`py-6 flex flex-col gap-2 h-auto border border-warcrow-gold/30 ${
+                    state.firstToDeployPlayerId === playerId 
+                      ? "bg-warcrow-gold text-warcrow-background" 
+                      : "bg-warcrow-background text-warcrow-text hover:bg-warcrow-gold/20"
+                  }`}
+                >
+                  <span className="text-lg font-medium">{player.name}</span>
+                  <span className="text-sm">Deploys First</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+      
+      {/* Start Game button - centered - Only show if players exist and deployment player selected */}
+      {canShowDeployment() && (
+        <div className="flex justify-center mt-8 mb-8">
+          <Button
+            onClick={handleStartGame}
+            disabled={!state.firstToDeployPlayerId}
+            size="lg"
+            className={`px-10 py-6 text-lg ${
+              !state.firstToDeployPlayerId 
+                ? "bg-warcrow-accent/50 text-warcrow-text/50 cursor-not-allowed" 
+                : "bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
+            }`}
+          >
+            Start Game
+          </Button>
+        </div>
+      )}
       
       {/* Navigation back button */}
       <div className="flex justify-start mt-4 mb-6">
         <Button
           variant="outline"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/play')}
           className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
         >
           <ArrowLeftCircle size={18} />
-          <span>Back to Setup</span>
+          <span>Back to Play</span>
         </Button>
       </div>
       

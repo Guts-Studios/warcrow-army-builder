@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import GameSetup from '@/components/play/GameSetup';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
 import { Button } from '@/components/ui/button';
@@ -95,7 +94,7 @@ const Play = () => {
     checkAccessAndProfile();
   }, [navigate, isPreview, isWabAdmin]);
   
-  const handleStartGame = () => {
+  const handleHostGame = () => {
     // Reset the game state before navigation
     dispatch({ type: 'RESET_GAME' });
     navigate('/deployment');
@@ -150,10 +149,7 @@ const Play = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center w-full max-w-2xl">
             <Button
-              onClick={() => {
-                setShowJoinGame(false);
-                handleStartGame();
-              }}
+              onClick={handleHostGame}
               className={`py-8 flex-1 flex flex-col items-center gap-4 text-xl ${!showJoinGame ? 'bg-warcrow-gold text-warcrow-background' : 'bg-warcrow-background border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10'}`}
             >
               <PlayCircle className="h-12 w-12" />
