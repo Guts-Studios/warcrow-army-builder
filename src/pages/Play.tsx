@@ -197,35 +197,36 @@ const Play = () => {
           </div>
         )}
 
-        {!showJoinGame ? (
-          <>
-            <div className="container px-4 mb-6 flex justify-center">
-              <Button
-                onClick={toggleJoinGame}
-                className="mb-6 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
-              >
-                <Users className="h-5 w-5" />
-                <span>Join Existing Game</span>
-              </Button>
-            </div>
+        <div className="container px-4 mb-8 flex flex-col items-center justify-center">
+          <h1 className="text-3xl font-bold text-warcrow-gold mb-6">Warcrow Game Mode</h1>
+          
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center w-full max-w-2xl">
+            <Button
+              onClick={() => setShowJoinGame(false)}
+              className={`py-8 flex-1 flex flex-col items-center gap-4 text-xl ${!showJoinGame ? 'bg-warcrow-gold text-warcrow-background' : 'bg-warcrow-background border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10'}`}
+            >
+              <PlayCircle className="h-12 w-12" />
+              <span>Host Game</span>
+            </Button>
             
-            <GameSetup 
-              onComplete={handleSetupComplete} 
-              currentUser={currentUser}
-              isLoading={isLoading}
-            />
-          </>
+            <Button
+              onClick={() => setShowJoinGame(true)}
+              className={`py-8 flex-1 flex flex-col items-center gap-4 text-xl ${showJoinGame ? 'bg-warcrow-gold text-warcrow-background' : 'bg-warcrow-background border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10'}`}
+            >
+              <Users className="h-12 w-12" />
+              <span>Join Game</span>
+            </Button>
+          </div>
+        </div>
+
+        {!showJoinGame ? (
+          <GameSetup 
+            onComplete={handleSetupComplete} 
+            currentUser={currentUser}
+            isLoading={isLoading}
+          />
         ) : (
           <div className="container px-4 mb-6">
-            <div className="flex justify-center mb-6">
-              <Button
-                onClick={toggleJoinGame}
-                className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
-              >
-                <PlayCircle className="h-5 w-5" />
-                <span>Create New Game</span>
-              </Button>
-            </div>
             <JoinGame />
           </div>
         )}

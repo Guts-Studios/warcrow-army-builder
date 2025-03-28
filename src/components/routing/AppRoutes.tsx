@@ -25,7 +25,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/landing" element={<Landing />} />  {/* Added this route */}
+      <Route path="/landing" element={<Landing />} />
       <Route path="/builder" element={<Index />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/activity" element={<Activity />} />

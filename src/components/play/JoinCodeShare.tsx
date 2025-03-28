@@ -1,135 +1,85 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Copy, RefreshCw, Share2 } from 'lucide-react';
-import { formatJoinCode, generateJoinCode, saveJoinCode } from '@/utils/joinCodeUtils';
+import { Copy, Check, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatJoinCode } from '@/utils/joinCodeUtils';
 
 interface JoinCodeShareProps {
-  gameId: string;
-  isOpen: boolean;
-  onClose: () => void;
+  gameCode: string;
+  hostName: string;
 }
 
-const JoinCodeShare: React.FC<JoinCodeShareProps> = ({ gameId, isOpen, onClose }) => {
-  const [joinCode, setJoinCode] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && !joinCode) {
-      generateNewCode();
-    }
-  }, [isOpen]);
-
-  const generateNewCode = async () => {
-    setIsGenerating(true);
-    const newCode = generateJoinCode();
-    
-    try {
-      console.log("Generating new join code for game:", gameId);
-      const success = await saveJoinCode(gameId, newCode);
-      if (success) {
-        setJoinCode(newCode);
-        console.log("Successfully generated join code:", newCode);
-      } else {
-        toast.error("Failed to generate join code. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error generating join code:", err);
-      toast.error("An error occurred while generating the join code");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+const JoinCodeShare = ({ gameCode, hostName }: JoinCodeShareProps) => {
+  const [copied, setCopied] = useState(false);
+  const formattedCode = formatJoinCode(gameCode);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(formatJoinCode(joinCode))
-      .then(() => toast.success("Join code copied to clipboard"))
-      .catch(() => toast.error("Failed to copy join code"));
+    navigator.clipboard.writeText(gameCode);
+    setCopied(true);
+    toast.success('Game code copied to clipboard');
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
   };
 
-  const shareJoinCode = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Join my Warcrow game',
-          text: `Join my Warcrow game with code: ${formatJoinCode(joinCode)}`,
-        });
-      } else {
-        copyToClipboard();
-      }
-    } catch (err) {
-      console.error('Error sharing:', err);
+  const shareGame = () => {
+    const shareText = `Join my Warcrow game! Use code: ${gameCode} hosted by ${hostName}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join my Warcrow game',
+        text: shareText,
+      }).catch(err => {
+        console.error('Error sharing:', err);
+      });
+    } else {
       copyToClipboard();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md bg-warcrow-background border-warcrow-gold/30">
-        <DialogHeader>
-          <DialogTitle className="text-warcrow-gold">Invite Player to Join</DialogTitle>
-          <DialogDescription className="text-warcrow-text/90">
-            Share this code with your opponent to let them join the game.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="join-code" className="text-warcrow-text">Join Code</Label>
-            <div className="flex gap-2">
-              <Input
-                id="join-code"
-                value={formatJoinCode(joinCode)}
-                readOnly
-                className="text-center text-lg font-mono tracking-widest bg-black/30 border-warcrow-gold/50 text-warcrow-gold"
-              />
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={copyToClipboard}
-                className="flex-shrink-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
+    <Card className="bg-warcrow-background border-warcrow-gold/30">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-warcrow-gold">Game Invite Code</CardTitle>
+        <CardDescription>Share this code with friends so they can join your game</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col items-center justify-center p-4 bg-warcrow-accent/20 rounded-lg border border-warcrow-gold/30">
+          <div className="text-3xl font-bold tracking-wider text-warcrow-gold mb-2">
+            {formattedCode}
           </div>
-          
-          <div className="text-center text-sm text-warcrow-text/70">
-            This code will expire in 24 hours
+          <div className="text-sm text-warcrow-text/70">
+            Game hosted by <span className="font-medium">{hostName}</span>
           </div>
         </div>
         
-        <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={generateNewCode}
-            disabled={isGenerating}
-            className="w-full sm:w-auto"
+        <div className="flex gap-3">
+          <Button 
+            onClick={copyToClipboard} 
+            variant="outline" 
+            className="flex-1 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10"
           >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Generate New Code
+            {copied ? <Check className="mr-1 h-4 w-4" /> : <Copy className="mr-1 h-4 w-4" />}
+            {copied ? 'Copied' : 'Copy Code'}
           </Button>
-          <Button
-            className="w-full sm:w-auto bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/80"
-            onClick={shareJoinCode}
+          
+          <Button 
+            onClick={shareGame} 
+            className="flex-1 bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
           >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share Code
+            <Share2 className="mr-1 h-4 w-4" />
+            Share Invite
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </CardContent>
+      <CardFooter className="text-xs text-warcrow-text/60 pt-0">
+        Players can enter this code in the "Join Game" section to join your game
+      </CardFooter>
+    </Card>
   );
 };
 

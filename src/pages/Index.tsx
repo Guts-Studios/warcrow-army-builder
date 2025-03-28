@@ -3,6 +3,9 @@ import * as React from "react";
 import ArmyBuilder from "@/components/army/ArmyBuilder";
 import { supabase } from "@/integrations/supabase/client";
 import { NavDropdown } from "@/components/ui/NavDropdown";
+import { Link } from "react-router-dom";
+import { PlayCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [session, setSession] = React.useState(null);
@@ -36,6 +39,14 @@ const Index = () => {
               <h1 className="text-3xl font-bold text-warcrow-gold text-center">Army Builder</h1>
             </div>
             <div className="flex items-center gap-4">
+              <Link to="/play">
+                <Button 
+                  className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
+                >
+                  <PlayCircle className="h-5 w-5" />
+                  <span>Play Mode</span>
+                </Button>
+              </Link>
               <NavDropdown />
             </div>
           </div>
