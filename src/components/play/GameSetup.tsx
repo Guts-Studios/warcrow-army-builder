@@ -54,7 +54,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
     list: null,
   });
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
-  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
   const [gameId, setGameId] = useState<string>(`game-${Date.now()}`);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
   };
 
   const handleInvitePlayer = () => {
-    setShowJoinModal(true);
+    setShowJoinCodeDialog(true);
   };
 
   const renderStepContent = () => {
@@ -217,19 +217,6 @@ const GameSetup: React.FC<GameSetupProps> = ({
     }
   };
 
-  const JoinCodeShare = ({ 
-    gameId, 
-    isOpen, 
-    onClose 
-  }) => (
-    <JoinCodeShare 
-      gameId={gameId}
-      hostName={playerOne.name} 
-      isOpen={isOpen} 
-      onClose={onClose}
-    />
-  );
-
   return (
     <div className="max-w-3xl mx-auto px-4">
       <div className="mb-8">
@@ -315,8 +302,9 @@ const GameSetup: React.FC<GameSetupProps> = ({
 
       <JoinCodeShare 
         gameId={gameId} 
-        isOpen={showJoinModal} 
-        onClose={() => setShowJoinModal(false)}
+        hostName={playerOne.name}
+        isOpen={showJoinCodeDialog} 
+        onClose={() => setShowJoinCodeDialog(false)}
       />
     </div>
   );
