@@ -1,3 +1,4 @@
+
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,17 @@ import { useAuth } from "@/components/auth/AuthProvider";
 interface LoginProps {
   onGuestAccess?: () => void;
 }
+
+// Define the possible auth event types that include SIGNED_UP
+type AuthEventType = 
+  | "INITIAL_SESSION" 
+  | "SIGNED_IN" 
+  | "SIGNED_OUT" 
+  | "TOKEN_REFRESHED" 
+  | "USER_UPDATED" 
+  | "PASSWORD_RECOVERY"
+  | "SIGNED_UP"  // Add SIGNED_UP as a valid event type
+  | "MFA_CHALLENGE_VERIFIED";
 
 const Login = ({ onGuestAccess }: LoginProps) => {
   const navigate = useNavigate();
@@ -70,7 +82,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           
           toast.success('Successfully signed in!');
           navigate('/');
-        } else if (event === 'SIGNED_UP') {
+        } else if (event === 'SIGNED_UP' as AuthEventType) { // Cast to our custom type to fix type error
           console.log('User signed up, checking profile creation...');
           
           if (session?.user?.id) {
@@ -156,7 +168,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     return () => subscription.unsubscribe();
   }, [navigate, resendConfirmationEmail]);
 
-  const authComponents = {
+  // Create enhanced Auth UI components with custom handling
+  const customAuthComponents = {
     EmailAuth: (props: any) => {
       const originalOnSubmit = props.onSubmit;
       
@@ -196,7 +209,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         }
       };
       
-      return React.cloneElement(props.children, { onSubmit: enhancedOnSubmit });
+      // Use proper React import and cloneElement
+      return props.children ? {...props.children, props: { ...props.children.props, onSubmit: enhancedOnSubmit }} : null;
     }
   };
   
@@ -239,6 +253,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     navigate('/');
   };
 
+  // Return the JSX for the component
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden">
       <div className="w-full max-w-md p-8 bg-warcrow-accent rounded-lg shadow-lg">
@@ -314,7 +329,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             },
           }}
           providers={[]}
-          components={authComponents}
+          // @ts-ignore - Auth UI React doesn't expose the components prop in types, but it works
+          components={customAuthComponents}
         />
         <div className="mt-4 text-center">
           <Button 
