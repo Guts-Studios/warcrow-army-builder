@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -114,6 +113,11 @@ const Setup = () => {
     navigate('/deployment');
   };
 
+  const handleStartGame = () => {
+    // Navigate directly to deployment page
+    navigate('/deployment');
+  };
+
   return (
     <motion.div
       variants={fadeIn}
@@ -123,7 +127,7 @@ const Setup = () => {
       className="min-h-screen py-8 bg-warcrow-background"
     >
       <GameSetup 
-        onComplete={handleSetupComplete} 
+        onStartGame={handleStartGame}
         currentUser={currentUser}
         isLoading={isLoading}
       />

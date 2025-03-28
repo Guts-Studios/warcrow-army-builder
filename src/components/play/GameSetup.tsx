@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 import { toast } from 'sonner';
 import JoinCodeShare from './JoinCodeShare';
+import { Mission, Player } from '@/types/game';
 
 interface UserProfile {
   id: string;
@@ -14,14 +15,30 @@ interface UserProfile {
   avatar_url?: string;
 }
 
+interface GamePlayer {
+  id: string;
+  name: string;
+  faction: {
+    id: string;
+    name: string;
+    icon?: string;
+  } | null;
+  list: string | null;
+  wab_id?: string;
+  verified?: boolean;
+  avatar_url?: string;
+}
+
 interface GameSetupProps {
   onStartGame: () => void;
+  onComplete?: (players: GamePlayer[], mission: Mission) => Promise<void>;
   currentUser?: UserProfile | null;
   isLoading?: boolean;
 }
 
 const GameSetup: React.FC<GameSetupProps> = ({
   onStartGame,
+  onComplete,
   currentUser,
   isLoading = false
 }) => {
