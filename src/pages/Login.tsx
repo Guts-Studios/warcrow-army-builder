@@ -45,7 +45,9 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         userId: session?.user?.id,
         userEmail: session?.user?.email,
         eventType: event,
-        emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No'
+        emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No',
+        userMetadata: session?.user?.user_metadata,
+        appMetadata: session?.user?.app_metadata
       });
       
       setIsLoading(true);
@@ -54,8 +56,40 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         if (event === 'PASSWORD_RECOVERY') {
           navigate('/reset-password');
         } else if (event === 'SIGNED_IN') {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('wab_id')
+            .eq('id', session?.user?.id)
+            .maybeSingle();
+          
+          console.log('Profile check on sign in:', { 
+            profileData, 
+            hasWabId: !!profileData?.wab_id, 
+            profileError: profileError?.message
+          });
+          
           toast.success('Successfully signed in!');
           navigate('/');
+        } else if (event === 'SIGNED_UP') {
+          console.log('User signed up, checking profile creation...');
+          
+          if (session?.user?.id) {
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('wab_id')
+              .eq('id', session.user.id)
+              .maybeSingle();
+              
+            console.log('Profile after signup:', { 
+              profile, 
+              hasWabId: !!profile?.wab_id, 
+              error: profileError?.message 
+            });
+            
+            if (!profile?.wab_id) {
+              console.warn('Profile created but WAB ID is missing - trigger may not be working');
+            }
+          }
         } else if (event === 'USER_UPDATED') {
           if (!session?.user?.email_confirmed_at) {
             toast.info('Please check your email to verify your account before signing in');
@@ -122,6 +156,50 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     return () => subscription.unsubscribe();
   }, [navigate, resendConfirmationEmail]);
 
+  const authComponents = {
+    EmailAuth: (props: any) => {
+      const originalOnSubmit = props.onSubmit;
+      
+      const enhancedOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        const formData = new FormData(event.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        const view = props.authView || 'sign_in';
+        
+        if (view === 'sign_up') {
+          console.log('Sign up attempt for:', { email, viewType: view });
+          
+          try {
+            await originalOnSubmit(event);
+            
+            setTimeout(async () => {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session?.user) {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
+                
+                console.log('Profile check after signup:', { 
+                  hasProfile: !!profile, 
+                  wabId: profile?.wab_id,
+                  username: profile?.username
+                });
+              }
+            }, 2000);
+          } catch (error) {
+            console.error('Sign up error:', error);
+          }
+        } else {
+          await originalOnSubmit(event);
+        }
+      };
+      
+      return React.cloneElement(props.children, { onSubmit: enhancedOnSubmit });
+    }
+  };
+  
   const handleGuestAccess = () => {
     setShowGuestDialog(true);
   };
@@ -236,6 +314,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             },
           }}
           providers={[]}
+          components={authComponents}
         />
         <div className="mt-4 text-center">
           <Button 
