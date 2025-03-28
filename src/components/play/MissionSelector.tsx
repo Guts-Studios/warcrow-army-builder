@@ -6,11 +6,13 @@ import { Mission } from '@/types/game';
 
 interface MissionSelectorProps {
   selectedMission?: Mission | null;
-  onSelectMission?: (mission: Mission) => void;
+  onSelect?: (mission: Mission) => void; // Add this property to match the usage in Deployment.tsx
+  onSelectMission?: (mission: Mission) => void; // Keep this for backward compatibility
 }
 
 const MissionSelector: React.FC<MissionSelectorProps> = ({ 
   selectedMission: externalSelectedMission, 
+  onSelect,
   onSelectMission 
 }) => {
   const { state, dispatch } = useGame();
@@ -77,9 +79,14 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
   ];
 
   const handleMissionSelect = (mission: Mission) => {
-    if (onSelectMission) {
+    // Call either onSelect or onSelectMission (or both if provided)
+    if (onSelect) {
+      onSelect(mission);
+    } 
+    else if (onSelectMission) {
       onSelectMission(mission);
-    } else {
+    } 
+    else {
       dispatch({ type: 'SET_MISSION', payload: mission });
     }
   };
