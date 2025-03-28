@@ -7,25 +7,10 @@ import { toast } from "sonner";
 import GameSetup from '@/components/play/GameSetup';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
-import { Player, Mission } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { ArrowLeftCircle, Crown, Users, PlayCircle } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import JoinGame from '@/components/play/JoinGame';
-
-interface GamePlayer {
-  id: string;
-  name: string;
-  faction: {
-    id: string;
-    name: string;
-    icon?: string;
-  } | null;
-  list: string | null;
-  wab_id?: string;
-  verified?: boolean;
-  avatar_url?: string;
-}
 
 interface UserProfile {
   id: string;
@@ -36,7 +21,7 @@ interface UserProfile {
 
 const Play = () => {
   const navigate = useNavigate();
-  const { state, dispatch } = useGame();
+  const { dispatch } = useGame();
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -110,43 +95,9 @@ const Play = () => {
     checkAccessAndProfile();
   }, [navigate, isPreview, isWabAdmin]);
   
-  const handleSetupComplete = async (players: GamePlayer[], mission: Mission) => {
-    console.log('Setting up game with mission:', mission);
-    
-    // Reset the game state first
+  const handleStartGame = () => {
+    // Reset the game state before navigation
     dispatch({ type: 'RESET_GAME' });
-    
-    // Record the verified players' WAB IDs to track game stats later
-    const verifiedWabIds = players
-      .filter(p => p.verified && p.wab_id)
-      .map(p => ({ wab_id: p.wab_id, name: p.name }));
-    
-    if (verifiedWabIds.length > 0) {
-      // Store the verified WAB IDs in localStorage for later use when the game ends
-      localStorage.setItem('warcrow_verified_players', JSON.stringify(verifiedWabIds));
-    }
-    
-    // Add players to the game state with correct type
-    players.forEach(player => {
-      dispatch({
-        type: 'ADD_PLAYER',
-        payload: {
-          ...player,
-          score: 0, // Initialize score to 0
-          points: 0, // Add required field
-          objectivePoints: 0 // Add required field
-        } as Player
-      });
-    });
-
-    // Set the mission
-    dispatch({ type: 'SET_MISSION', payload: mission });
-
-    // Transition to deployment phase
-    dispatch({ type: 'SET_PHASE', payload: 'deployment' });
-
-    // Navigate to deployment page
-    toast.success(`Game setup complete! Starting mission: ${mission.name}`);
     navigate('/deployment');
   };
   
@@ -172,13 +123,10 @@ const Play = () => {
       // Also clear any stored game data
       localStorage.removeItem('warcrow_verified_players');
       localStorage.removeItem('warcrow_joined_game');
+      localStorage.removeItem('warcrow_host_name');
     }
   };
 
-  const toggleJoinGame = () => {
-    setShowJoinGame(!showJoinGame);
-  };
-  
   return (
     <div className="min-h-screen bg-warcrow-background">
       <motion.div
@@ -202,7 +150,10 @@ const Play = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center w-full max-w-2xl">
             <Button
-              onClick={() => setShowJoinGame(false)}
+              onClick={() => {
+                setShowJoinGame(false);
+                handleStartGame();
+              }}
               className={`py-8 flex-1 flex flex-col items-center gap-4 text-xl ${!showJoinGame ? 'bg-warcrow-gold text-warcrow-background' : 'bg-warcrow-background border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10'}`}
             >
               <PlayCircle className="h-12 w-12" />
@@ -219,13 +170,7 @@ const Play = () => {
           </div>
         </div>
 
-        {!showJoinGame ? (
-          <GameSetup 
-            onComplete={handleSetupComplete} 
-            currentUser={currentUser}
-            isLoading={isLoading}
-          />
-        ) : (
+        {showJoinGame && (
           <div className="container px-4 mb-6">
             <JoinGame />
           </div>
