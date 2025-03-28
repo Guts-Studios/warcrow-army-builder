@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -24,15 +23,13 @@ const Deployment = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  // Local state for deployment configuration
   const [initialInitiativePlayerId, setInitialInitiativePlayerId] = useState<string | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [showInitiativeDialog, setShowInitiativeDialog] = useState(false);
   const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
   const [showFriendInviteDialog, setShowFriendInviteDialog] = useState(false);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
-  
-  // Get the user session
+
   useEffect(() => {
     const getSession = async () => {
       setIsLoadingUser(true);
@@ -41,7 +38,6 @@ const Deployment = () => {
         if (data.session?.user?.id) {
           setUserId(data.session.user.id);
           
-          // Fetch the user's profile
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('id, username, wab_id, avatar_url')
@@ -68,34 +64,27 @@ const Deployment = () => {
     
     getSession();
   }, []);
-  
-  // Get friends list if we have a user ID
+
   const { friends, isLoading: isFriendsLoading } = useFriends(userId || 'preview-user-id');
 
   useEffect(() => {
-    // Check if this is a joined game
     const joinedGameId = localStorage.getItem('warcrow_joined_game');
     if (joinedGameId) {
-      // In a real implementation, we would fetch the game state from the database
       console.log('Joined game with ID:', joinedGameId);
-      // Clear the joined game ID since we're now in the game
       localStorage.removeItem('warcrow_joined_game');
     }
   }, []);
 
-  // Function to handle selecting who deploys first
   const handleSelectFirstToDeploy = (playerId: string) => {
     dispatch({ type: 'SET_FIRST_TO_DEPLOY', payload: playerId });
     toast.success(`${state.players[playerId].name} will deploy first`);
   };
 
-  // Function to select which player has initiative for the first turn
   const handleSelectInitiative = (playerId: string) => {
     dispatch({ type: 'SET_INITIAL_INITIATIVE', payload: playerId });
     setInitialInitiativePlayerId(playerId);
     setShowInitiativeDialog(false);
     
-    // Start the game with first turn and specified active player
     dispatch({ 
       type: 'START_TURN', 
       payload: { 
@@ -109,7 +98,6 @@ const Deployment = () => {
     navigate('/game');
   };
 
-  // Function to start the game
   const handleStartGame = () => {
     if (Object.keys(state.players).length < 2) {
       toast.error("You need at least two players to start a game");
@@ -124,17 +112,14 @@ const Deployment = () => {
     setShowInitiativeDialog(true);
   };
 
-  // Function to show join code
   const handleShowJoinCode = () => {
     setShowJoinCodeDialog(true);
   };
   
-  // Function to show friend invite dialog
   const handleShowFriendInvite = () => {
     setShowFriendInviteDialog(true);
   };
 
-  // Function to handle mission selection
   const handleMissionSelect = (mission: Mission) => {
     setSelectedMission(mission);
     dispatch({ type: 'SET_MISSION', payload: mission });
@@ -144,43 +129,35 @@ const Deployment = () => {
   const handleSetupComplete = async (players: any[], mission: Mission) => {
     console.log('Setting up game with mission:', mission);
     
-    // Reset the game state first
     dispatch({ type: 'RESET_GAME' });
     
-    // Record the verified players' WAB IDs to track game stats later
     const verifiedWabIds = players
       .filter(p => p.verified && p.wab_id)
       .map(p => ({ wab_id: p.wab_id, name: p.name }));
     
     if (verifiedWabIds.length > 0) {
-      // Store the verified WAB IDs in localStorage for later use when the game ends
       localStorage.setItem('warcrow_verified_players', JSON.stringify(verifiedWabIds));
     }
     
-    // Add players to the game state with correct type
     players.forEach(player => {
       dispatch({
         type: 'ADD_PLAYER',
         payload: {
           ...player,
-          score: 0, // Initialize score to 0
-          roundScores: {}, // Initialize roundScores as empty object
-          points: 0, // Add required field
-          objectivePoints: 0 // Add required field
+          score: 0,
+          roundScores: {},
+          points: 0,
+          objectivePoints: 0
         } as Player
       });
     });
 
-    // Set the mission
     dispatch({ type: 'SET_MISSION', payload: mission });
-
-    // Transition to deployment phase
     dispatch({ type: 'SET_PHASE', payload: 'deployment' });
 
     toast.success(`Game setup complete! Starting mission: ${mission.name}`);
   };
 
-  // Function to render player info section 
   const renderPlayerInfo = (playerId: string, index: number) => {
     return (
       <PlayerInfo
@@ -190,12 +167,10 @@ const Deployment = () => {
       />
     );
   };
-  
-  // Get current player's name for sending invitations
+
   const getCurrentPlayerName = () => {
     if (!userId) return "A player";
     
-    // Find the player that might correspond to the current user
     const playerEntry = Object.entries(state.players).find(
       ([_, player]) => player.wab_id && userId.includes(player.wab_id)
     );
@@ -203,7 +178,6 @@ const Deployment = () => {
     return playerEntry ? playerEntry[1].name : "A player";
   };
 
-  // Method to check if we have enough setup to show deployment options
   const canShowDeployment = () => {
     return Object.keys(state.players).length > 0 && state.mission !== null;
   };
@@ -218,7 +192,6 @@ const Deployment = () => {
     >
       <h1 className="text-3xl font-bold text-warcrow-gold text-center mb-8 tracking-wider">Game Setup</h1>
       
-      {/* Player Setup Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Player Setup</h2>
         <GameSetup
@@ -229,7 +202,6 @@ const Deployment = () => {
         />
       </div>
       
-      {/* Invite buttons row */}
       <div className="flex justify-center mb-8 gap-4 flex-wrap">
         <Button
           variant="outline"
@@ -252,13 +224,11 @@ const Deployment = () => {
         )}
       </div>
       
-      {/* Mission Selection */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-warcrow-gold mb-4">Select Mission</h2>
         <MissionSelector onSelect={handleMissionSelect} />
       </div>
       
-      {/* Mission Information - Show only if mission is selected */}
       {state.mission && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -317,7 +287,6 @@ const Deployment = () => {
         </motion.div>
       )}
       
-      {/* Players' deployment sections - Only show if players exist */}
       {canShowDeployment() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -331,7 +300,6 @@ const Deployment = () => {
         </motion.div>
       )}
       
-      {/* Deployment order Selection - Only show if players exist */}
       {canShowDeployment() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -368,7 +336,6 @@ const Deployment = () => {
         </motion.div>
       )}
       
-      {/* Start Game button - centered - Only show if players exist and deployment player selected */}
       {canShowDeployment() && (
         <div className="flex justify-center mt-8 mb-8">
           <Button
@@ -386,7 +353,6 @@ const Deployment = () => {
         </div>
       )}
       
-      {/* Navigation back button */}
       <div className="flex justify-start mt-4 mb-6">
         <Button
           variant="outline"
@@ -398,7 +364,6 @@ const Deployment = () => {
         </Button>
       </div>
       
-      {/* Map view dialog */}
       {state.mission?.mapImage && (
         <Dialog open={showMap} onOpenChange={setShowMap}>
           <DialogContent className="max-w-3xl bg-warcrow-background border-warcrow-gold/30">
@@ -416,7 +381,6 @@ const Deployment = () => {
         </Dialog>
       )}
 
-      {/* Initiative Selection Dialog */}
       <Dialog open={showInitiativeDialog} onOpenChange={setShowInitiativeDialog}>
         <DialogContent className="max-w-md bg-warcrow-background border-warcrow-gold/30">
           <DialogHeader>
@@ -440,7 +404,6 @@ const Deployment = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Join Code Dialog */}
       <JoinCodeShare 
         gameId={state.id} 
         hostName={getCurrentPlayerName()}
@@ -448,7 +411,6 @@ const Deployment = () => {
         onClose={() => setShowJoinCodeDialog(false)}
       />
       
-      {/* Friend Invite Dialog */}
       <FriendInviteDialog
         gameId={state.id}
         playerName={getCurrentPlayerName()}

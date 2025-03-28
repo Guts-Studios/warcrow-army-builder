@@ -43,6 +43,7 @@ const GameSetup: React.FC<GameSetupProps> = ({
   isLoading = false
 }) => {
   const [playerName, setPlayerName] = useState<string>('');
+  const [player2Name, setPlayer2Name] = useState<string>('Player 2');
   const [showJoinCodeDialog, setShowJoinCodeDialog] = useState(false);
   const [gameId] = useState<string>(`game-${Date.now()}`);
 
@@ -58,10 +59,45 @@ const GameSetup: React.FC<GameSetupProps> = ({
       return;
     }
     
-    // Store player name in local storage for use in deployment
+    // Store player names in local storage for use in deployment
     localStorage.setItem('warcrow_host_name', playerName);
+    localStorage.setItem('warcrow_player2_name', player2Name);
     
-    onStartGame();
+    if (onComplete) {
+      const players: GamePlayer[] = [
+        {
+          id: 'player-1',
+          name: playerName,
+          faction: null,
+          list: null,
+          verified: currentUser ? true : false,
+          wab_id: currentUser?.wab_id,
+          avatar_url: currentUser?.avatar_url
+        },
+        {
+          id: 'player-2',
+          name: player2Name,
+          faction: null,
+          list: null
+        }
+      ];
+      
+      // Use a default mission if none is selected yet
+      const defaultMission: Mission = {
+        id: 'take-positions',
+        name: 'Take Positions',
+        description: 'Control key strategic locations on the battlefield.',
+        objective: 'Control objectives',
+        objectiveDescription: 'Control the most objective markers'
+      };
+      
+      onComplete(players, defaultMission).catch(error => {
+        console.error('Error completing setup:', error);
+        toast.error('Failed to complete setup');
+      });
+    } else {
+      onStartGame();
+    }
   };
 
   return (
@@ -85,6 +121,20 @@ const GameSetup: React.FC<GameSetupProps> = ({
                 placeholder="Enter your name"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
+                className="h-12 bg-warcrow-accent border-warcrow-gold/40 text-warcrow-text focus-visible:ring-warcrow-gold"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <Label htmlFor="player2-name" className="text-base font-medium flex items-center gap-2 text-warcrow-text">
+                <User className="w-5 h-5 text-warcrow-gold" />
+                <span>Player 2 Name</span>
+              </Label>
+              <Input
+                id="player2-name"
+                placeholder="Enter player 2 name"
+                value={player2Name}
+                onChange={(e) => setPlayer2Name(e.target.value)}
                 className="h-12 bg-warcrow-accent border-warcrow-gold/40 text-warcrow-text focus-visible:ring-warcrow-gold"
               />
             </div>
