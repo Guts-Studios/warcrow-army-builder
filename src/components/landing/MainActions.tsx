@@ -75,7 +75,7 @@ export const MainActions = () => {
           <User className="mr-2 h-4 w-4" />
           Profile
         </Button>
-        {(isTester || isPreview) && (
+        {(isTester || isWabAdmin || isPreview) && (
           <>
             <Button
               onClick={() => navigate('/unit-stats')}

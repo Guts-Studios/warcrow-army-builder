@@ -6,9 +6,16 @@ import { NavDropdown } from "@/components/ui/NavDropdown";
 import { Link } from "react-router-dom";
 import { PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Index = () => {
   const [session, setSession] = React.useState(null);
+  const { isTester, isWabAdmin } = useAuth();
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                   window.location.hostname.endsWith('.lovableproject.com');
+  
+  // Check if user has permission to see the Play Mode
+  const canAccessPlayMode = isTester || isWabAdmin || isPreview;
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -39,14 +46,16 @@ const Index = () => {
               <h1 className="text-3xl font-bold text-warcrow-gold text-center">Army Builder</h1>
             </div>
             <div className="flex items-center gap-4">
-              <Link to="/play">
-                <Button 
-                  className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
-                >
-                  <PlayCircle className="h-5 w-5" />
-                  <span>Play Mode</span>
-                </Button>
-              </Link>
+              {canAccessPlayMode && (
+                <Link to="/play">
+                  <Button 
+                    className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
+                  >
+                    <PlayCircle className="h-5 w-5" />
+                    <span>Play Mode</span>
+                  </Button>
+                </Link>
+              )}
               <NavDropdown />
             </div>
           </div>
