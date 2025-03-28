@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, MessageSquare, FingerPrint } from "lucide-react";
+import { Loader2, MessageSquare, Fingerprint } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
@@ -61,7 +61,7 @@ export const FriendProfileDialog = ({
                 <div>{friendProfile?.username || "Unnamed User"}</div>
                 {friendProfile?.wab_id && (
                   <div className="text-xs flex items-center text-warcrow-gold/80">
-                    <FingerPrint className="h-3 w-3 mr-1" /> 
+                    <Fingerprint className="h-3 w-3 mr-1" /> 
                     {friendProfile.wab_id}
                   </div>
                 )}
