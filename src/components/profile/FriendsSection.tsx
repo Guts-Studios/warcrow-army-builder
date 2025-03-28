@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -34,7 +33,6 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   const { profile } = useProfileContext();
   const { userId: currentUserId } = useProfileSession();
   
-  // Use the useFriends hook to get actual friends data
   const { 
     friends, 
     isLoading, 
@@ -44,16 +42,13 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     rejectFriendRequest
   } = useFriends(userId);
 
-  // Create a list of friend IDs to track online status
   const friendIds = friends.map(friend => friend.id);
   
-  // Add current user to the tracked IDs to ensure their status is tracked
   const trackedIds = [...friendIds];
   if (currentUserId) {
     trackedIds.push(currentUserId);
   }
   
-  // Force refresh of online status every 30 seconds
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   useEffect(() => {
@@ -64,10 +59,8 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
     return () => clearInterval(intervalId);
   }, []);
   
-  // Track online status of all friends and current user
   const { onlineStatus } = useOnlineStatus(trackedIds);
 
-  // Check if this is the current user's profile
   useEffect(() => {
     if (profile && userId) {
       setIsCurrentUser(profile.id === userId);
@@ -75,9 +68,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
   }, [profile, userId]);
 
   const refreshFriends = () => {
-    // Manually force refresh the online status
     setRefreshTrigger(prev => prev + 1);
-    // This will trigger a refetch in the useFriends hook
     window.location.reload();
     toast.success("Refreshing friends list");
   };
@@ -123,12 +114,9 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
       return;
     }
 
-    // Set this friend as being invited (for loading state)
     setInvitingFriendIds(prev => ({ ...prev, [friend.id]: true }));
     
     try {
-      // Create a placeholder gameId - in a real implementation, you might get this from the current game state
-      // or redirect to the game creation page
       const gameId = 'profile-invite-' + Date.now(); 
       const senderName = profile.username || 'A player';
       
@@ -143,24 +131,20 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
       console.error("Error inviting friend to game:", err);
       toast.error(`Failed to invite ${friend.username || 'friend'}`);
     } finally {
-      // Reset this friend's inviting state after a delay
       setTimeout(() => {
         setInvitingFriendIds(prev => ({ ...prev, [friend.id]: false }));
       }, 2000);
     }
   };
 
-  // Calculate display height based on number of friends (show up to 10 without scrolling)
   const getListHeight = () => {
     if (isCompact) {
-      // For compact view
       const baseHeight = isMobile ? 240 : 320;
       return {
         maxHeight: `${baseHeight}px`,
         contentHeight: friends.length <= 10 ? 'auto' : `${isMobile ? 220 : 300}px`
       };
     } else {
-      // For full view - show up to 10 friends without scrolling
       return {
         maxHeight: 'none',
         contentHeight: friends.length <= 10 ? 'auto' : '400px'
@@ -170,7 +154,6 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
 
   const { maxHeight, contentHeight } = getListHeight();
 
-  // For debugging online status
   useEffect(() => {
     if (currentUserId) {
       console.log("Current user online status:", currentUserId, onlineStatus[currentUserId]);
@@ -295,7 +278,6 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
         )}
       </div>
 
-      {/* Friend Profile Dialog */}
       <FriendProfileDialog 
         friendId={selectedFriendId}
         isOpen={showFriendProfile}

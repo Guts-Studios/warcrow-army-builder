@@ -49,3 +49,44 @@ export const validateJoinCode = (code: string): boolean => {
   // Check if it's the right length and contains only allowed characters
   return cleanCode.length === 6 && /^[A-Z0-9]+$/.test(cleanCode);
 };
+
+/**
+ * Invites a friend to join a game by sending a notification
+ * @param friendId The ID of the friend to invite
+ * @param gameId The ID of the game
+ * @param senderName The name of the player sending the invitation
+ * @returns Promise resolving to success boolean
+ */
+export const inviteFriendToGame = async (
+  friendId: string, 
+  gameId: string, 
+  senderName: string
+): Promise<boolean> => {
+  try {
+    // Create a game code for this invite
+    const gameCode = generateJoinCode();
+    
+    // Store the game code in the database (this would be implemented in a real app)
+    // For now we'll simulate this with localStorage
+    const gameData = {
+      code: gameCode,
+      gameId,
+      sender: senderName,
+      timestamp: Date.now()
+    };
+    
+    // In a real implementation, we would:
+    // 1. Create a record in the game_join_codes table
+    // 2. Add a notification for the friend
+    // 3. Return success based on that operation
+    
+    // For now, just simulate success and store the invite locally
+    localStorage.setItem(`game_invite_${friendId}_${gameCode}`, JSON.stringify(gameData));
+    
+    console.log(`Invited friend ${friendId} to game ${gameId} with code ${gameCode}`);
+    return true;
+  } catch (error) {
+    console.error('Error inviting friend to game:', error);
+    return false;
+  }
+};

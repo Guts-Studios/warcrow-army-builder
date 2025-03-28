@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
@@ -326,6 +325,7 @@ const Deployment = () => {
       {/* Join Code Dialog */}
       <JoinCodeShare 
         gameId={state.id} 
+        hostName={getCurrentPlayerName()}
         isOpen={showJoinCodeDialog} 
         onClose={() => setShowJoinCodeDialog(false)}
       />

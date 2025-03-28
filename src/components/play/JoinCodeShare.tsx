@@ -8,12 +8,15 @@ import { toast } from 'sonner';
 import { formatJoinCode } from '@/utils/joinCodeUtils';
 
 interface JoinCodeShareProps {
-  gameCode: string;
-  hostName: string;
+  gameId: string;
+  hostName?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const JoinCodeShare = ({ gameCode, hostName }: JoinCodeShareProps) => {
+const JoinCodeShare = ({ gameId, hostName = "Host", isOpen, onClose }: JoinCodeShareProps) => {
   const [copied, setCopied] = useState(false);
+  const gameCode = gameId.slice(0, 6).toUpperCase(); // Use the first 6 chars of gameId as code for simplicity
   const formattedCode = formatJoinCode(gameCode);
 
   const copyToClipboard = () => {
@@ -40,6 +43,9 @@ const JoinCodeShare = ({ gameCode, hostName }: JoinCodeShareProps) => {
       copyToClipboard();
     }
   };
+
+  // If component is used as a modal/dialog and isOpen is false, don't render anything
+  if (isOpen === false) return null;
 
   return (
     <Card className="bg-warcrow-background border-warcrow-gold/30">
@@ -77,7 +83,20 @@ const JoinCodeShare = ({ gameCode, hostName }: JoinCodeShareProps) => {
         </div>
       </CardContent>
       <CardFooter className="text-xs text-warcrow-text/60 pt-0">
-        Players can enter this code in the "Join Game" section to join your game
+        {onClose && (
+          <Button 
+            onClick={onClose} 
+            variant="ghost" 
+            className="w-full mt-2 text-warcrow-text/70 hover:text-warcrow-text"
+          >
+            Close
+          </Button>
+        )}
+        {!onClose && (
+          <div className="w-full">
+            Players can enter this code in the "Join Game" section to join your game
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

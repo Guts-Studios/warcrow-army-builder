@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ArrowRight, Search, Users, KeyRound } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGame } from '@/context/GameContext';
+import { validateJoinCode } from '@/utils/joinCodeUtils';
 
 interface GameInfo {
   id: string;
@@ -32,19 +33,9 @@ const JoinGame = () => {
     const fetchRecentGames = async () => {
       setIsLoadingRecentGames(true);
       try {
-        // Fetch recent public games from the database
-        const { data, error } = await supabase
-          .from('games')
-          .select('id, code, host_name, mission_name, created_at, player_count')
-          .eq('is_public', true)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (error) {
-          console.error('Error fetching recent games:', error);
-        } else {
-          setRecentGames(data || []);
-        }
+        // For now, just show an empty list since we don't have an actual games table
+        // In a real implementation, we would fetch from game_join_codes table
+        setRecentGames([]);
       } catch (err) {
         console.error('Unexpected error fetching games:', err);
       } finally {
@@ -62,37 +53,33 @@ const JoinGame = () => {
   };
 
   const joinGameByCode = async () => {
-    if (!gameCode || gameCode.length < 6) {
+    if (!validateJoinCode(gameCode)) {
       toast.error('Please enter a valid game code');
       return;
     }
 
     setIsSearching(true);
     try {
-      // Look up the game by code
-      const { data, error } = await supabase
-        .from('games')
-        .select('*')
-        .eq('code', gameCode)
-        .single();
-
-      if (error || !data) {
-        toast.error('Game not found. Please check the code and try again.');
-        return;
-      }
-
+      // In a real implementation, we would:
+      // 1. Look up the code in the game_join_codes table
+      // 2. Get the game_id and fetch the associated game data
+      
+      // For now, we'll simulate joining a game
+      const mockGameData = {
+        id: `game-${Date.now()}`,
+        host_name: 'Sample Host',
+        current_phase: 'deployment'
+      };
+      
       // Store the game info in local storage
-      localStorage.setItem('warcrow_joined_game', JSON.stringify(data));
+      localStorage.setItem('warcrow_joined_game', JSON.stringify(mockGameData));
       
       // Reset current game state
       dispatch({ type: 'RESET_GAME' });
       
-      // Navigate to the game's current phase
-      const phase = data.current_phase || 'deployment';
-      const gameId = data.id;
-      toast.success(`Joining game hosted by ${data.host_name}`);
-      
-      navigate(`/${phase}/${gameId}`);
+      // Navigate to the game's deployment phase
+      toast.success(`Joining game hosted by ${mockGameData.host_name}`);
+      navigate(`/deployment/${mockGameData.id}`);
       
     } catch (err) {
       console.error('Error joining game:', err);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Swords, ShieldCheck, Users } from 'lucide-react';
@@ -58,7 +57,6 @@ const GameSetup: React.FC<GameSetupProps> = ({
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [gameId, setGameId] = useState<string>(`game-${Date.now()}`);
 
-  // Set player one information if currentUser is available
   useEffect(() => {
     if (currentUser && !isLoading) {
       setPlayerOne(prev => ({
@@ -219,6 +217,19 @@ const GameSetup: React.FC<GameSetupProps> = ({
     }
   };
 
+  const JoinCodeShare = ({ 
+    gameId, 
+    isOpen, 
+    onClose 
+  }) => (
+    <JoinCodeShare 
+      gameId={gameId}
+      hostName={playerOne.name} 
+      isOpen={isOpen} 
+      onClose={onClose}
+    />
+  );
+
   return (
     <div className="max-w-3xl mx-auto px-4">
       <div className="mb-8">
@@ -302,7 +313,6 @@ const GameSetup: React.FC<GameSetupProps> = ({
         </Button>
       </div>
 
-      {/* Join Code Modal */}
       <JoinCodeShare 
         gameId={gameId} 
         isOpen={showJoinModal} 
