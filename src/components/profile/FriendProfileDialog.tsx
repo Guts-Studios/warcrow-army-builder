@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquare, FingerPrint } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { useFriendProfileFetch } from "@/hooks/useFriendProfileFetch";
@@ -32,7 +32,13 @@ export const FriendProfileDialog = ({
     if (isError && error) {
       console.error("Error loading friend profile:", error);
     }
-  }, [isError, error]);
+    
+    // Log the profile data to verify WAB_ID is present
+    if (friendProfile) {
+      console.log("Friend profile loaded:", friendProfile);
+      console.log("Friend WAB_ID:", friendProfile.wab_id);
+    }
+  }, [isError, error, friendProfile]);
 
   if (!isOpen) return null;
 
@@ -51,7 +57,15 @@ export const FriendProfileDialog = ({
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold" />
             ) : (
-              friendProfile?.username || "Unnamed User"
+              <div>
+                <div>{friendProfile?.username || "Unnamed User"}</div>
+                {friendProfile?.wab_id && (
+                  <div className="text-xs flex items-center text-warcrow-gold/80">
+                    <FingerPrint className="h-3 w-3 mr-1" /> 
+                    {friendProfile.wab_id}
+                  </div>
+                )}
+              </div>
             )}
           </DialogTitle>
           <DialogDescription className="text-warcrow-text/80">
@@ -92,6 +106,20 @@ export const FriendProfileDialog = ({
                     id="username"
                     value={friendProfile?.username || "N/A"}
                     className="flex h-10 w-full rounded-md border border-warcrow-gold/30 bg-black/50 px-3 py-2 text-sm text-warcrow-text placeholder:text-warcrow-text/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="wabid" className="text-right text-sm font-medium leading-none text-warcrow-gold">
+                  WAB ID
+                </label>
+                <div className="col-span-3">
+                  <input
+                    type="text"
+                    id="wabid"
+                    value={friendProfile?.wab_id || "N/A"}
+                    className="flex h-10 w-full font-mono rounded-md border border-warcrow-gold/30 bg-black/50 px-3 py-2 text-sm text-warcrow-text placeholder:text-warcrow-text/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     disabled
                   />
                 </div>
