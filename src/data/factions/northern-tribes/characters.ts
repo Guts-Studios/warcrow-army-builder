@@ -231,7 +231,7 @@ export const northernTribesCharacters: Unit[] = [
     imageUrl: "/art/card/selika_card.jpg"
   },
   {
-    id: "tattoist",
+    id: "tattooist",
     name: "Tattoist",
     faction: "northern-tribes",
     pointsCost: 15,
