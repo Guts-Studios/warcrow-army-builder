@@ -34,6 +34,9 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
         <p className="text-warcrow-text text-sm md:text-base">
           This application is actively being developed with frequent updates and improvements.
           We appreciate your patience and feedback!
+
+          Try out the new Profile feature! Some pieces are not working 100% yet but the core 
+          part works which is helping us with Play Mode and a few other things.
         </p>
       </div>
     </div>
