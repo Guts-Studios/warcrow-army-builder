@@ -52,7 +52,7 @@ export const northernTribesSupports: Unit[] = [
     ],
     specialRules: [],
     highCommand: false,
-    imageUrl: "/art/card/tattoist_card.jpg"
+    imageUrl: "/art/card/tattooist_card.jpg"
   },
   {
     id: "coal",
