@@ -116,14 +116,13 @@ export const NavDropdown = () => {
             Rules
           </DropdownMenuItem>
           
-          {(isTester || isPreview) && (
-            <DropdownMenuItem 
-              className="cursor-pointer hover:bg-warcrow-gold/10"
-              onClick={() => navigate('/profile')}
-            >
-              Profile
-            </DropdownMenuItem>
-          )}
+          {/* Profile menu item - Available to all users now */}
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/profile')}
+          >
+            Profile
+          </DropdownMenuItem>
           
           {/* Admin menu section */}
           {isWabAdmin && (
