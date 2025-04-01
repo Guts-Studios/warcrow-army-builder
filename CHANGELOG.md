@@ -13,9 +13,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 
 ## [Unreleased]
-- Profile
+- Playmode
+- Game sync during play mode
 
-### [0.4.6] - 2025-03-12
+## [0.5.0] - 2025-03-31
+
+### Added
+- Profile is now added. You can add your firends send messages and now a special ID called WAB_ID that you can use to play games
+once Play Mode is finished up. Some features of the profile are still buggy but we are working on the important stuff first. 
+  
+
+## [0.4.6] - 2025-03-12
 
 ### Added 
 - Sÿenann are being added as we get the data
@@ -26,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Testing
 - Profile is in testing/development still
 
-### [0.4.5] - 2025-03-02
+## [0.4.5] - 2025-03-02
 
 ### Fixed
 - Broken code links to the art cards and portraits for Scions were fixed and improved card files
@@ -36,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added 
 -Scions now added with portraits. No art cards yet but soon!
   
-### [0.4.3] - 2025-02-37
+## [0.4.3] - 2025-02-37
 
 ### Added 
 - Currently devloping the Profile feature to showcase wins/losses and some fun information to share, an avatar, and your lists. Full feature list will be documented.
@@ -45,13 +53,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 -Saving a list locally would happen without a list name and creatre duplicate lists
 -Swapped versions and Github repos after some issues syncing up
 
-### [0.4.2] - 2025-02-20
+## [0.4.2] - 2025-02-20
 
 ### Added 
 - Missions Page with details and deployment cards
 - Updated navigation bar on several pages
 
-### [0.4.1] - 2025-01-27
+## [0.4.1] - 2025-01-27
 
 ### Added 
 - Better error handling on login and password change
@@ -60,7 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Confirmation emails working correctly again. Everyone sign on up!
 - Password reset is working now too!
 
-### [0.3.2] - 2025-01-26
+## [0.3.2] - 2025-01-26
 
 ### Added 
 - Full Rules Reference Section
