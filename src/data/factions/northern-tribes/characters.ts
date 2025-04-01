@@ -1,4 +1,3 @@
-
 import { Unit } from "../../../types/army";
 
 export const northernTribesCharacters: Unit[] = [
@@ -195,7 +194,6 @@ export const northernTribesCharacters: Unit[] = [
     highCommand: false,
     imageUrl: "/art/card/coal_card.jpg"
   },
-  // Adding new units from the updated sheet
   {
     id: "eskold-the-executioner",
     name: "Eskold the Executioner",
@@ -246,5 +244,24 @@ export const northernTribesCharacters: Unit[] = [
     specialRules: [],
     highCommand: false,
     imageUrl: "/art/card/tattoist_card.jpg"
+  },
+  {
+    id: "revenant",
+    name: "Revenant",
+    faction: "northern-tribes",
+    pointsCost: 40,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Orc", description: "Orc race" },
+      { name: "Elite", description: "Elite unit" },
+      { name: "Fearless", description: "Has the Fearless ability" },
+      { name: "Immovable", description: "Has the Immovable ability" },
+      { name: "Intimidating (1)", description: "Intimidates nearby enemies" },
+    ],
+    specialRules: ["Vulnerable"],
+    highCommand: false,
+    imageUrl: "/art/card/revenant_card.jpg"
   }
 ];
