@@ -109,5 +109,43 @@ export const syenannCharacters: Unit[] = [
     command: 1,
     imageUrl: "/art/card/alula_card.jpg",
     specialRules: ["Disarmed"],
-   }
+   },
+   {
+    id: "darach-wildling",
+    name: "Darach Wilding",
+    pointsCost: 35,
+    faction: "syenann",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    imageUrl: "/art/card/darach_wildling_card.jpg",
+    specialRules: ["Aim", "Ambusher"]
+  },
+  {
+    id: "oona",
+    name: "Oona",
+    pointsCost: 25,
+    faction: "syenann",
+    keywords: [
+      { name: "Ashen", description: "" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Nemourous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Intimidating (1)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Tinge", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    imageUrl: "/art/card/oona_card.jpg",
+    specialRules: ["Slowed"]
+  }
 ];
