@@ -232,7 +232,7 @@ export const northernTribesCharacters: Unit[] = [
   },
   {
     id: "tattooist",
-    name: "Tattoist",
+    name: "Tattooist",
     faction: "northern-tribes",
     pointsCost: 15,
     availability: 1,
