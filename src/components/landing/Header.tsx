@@ -33,9 +33,10 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
         <p className="text-warcrow-gold font-semibold mb-2 text-sm md:text-base">🚧 Still in Development</p>
         <p className="text-warcrow-text text-sm md:text-base">
           This application is actively being developed with frequent updates and improvements.
-          We appreciate your patience and feedback!/n/n
-
-          Try out the new Profile feature! Some pieces are not working 100% yet but the core 
+          We appreciate your patience and feedback!         
+        </p>
+        <p className="text-warcrow-text text-sm md:text-base">
+           Try out the new Profile feature! Some pieces are not working 100% yet but the core 
           part works which is helping us with Play Mode and a few other things.
         </p>
       </div>
