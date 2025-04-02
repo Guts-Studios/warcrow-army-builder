@@ -101,13 +101,14 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
                       <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
                       {unit.imageUrl ? (
                         <img 
                           src={unit.imageUrl} 
                           alt={unit.name} 
-                          className="w-full h-auto rounded-lg"
+                          className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
+                          loading="eager"
                         />
                       ) : (
                         <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
