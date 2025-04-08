@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -21,6 +22,7 @@ import NotFound from '@/pages/NotFound';
 import Mail from '@/pages/Mail';
 import Admin from '@/pages/Admin';
 import AdminAlerts from '@/pages/AdminAlerts';
+import Landing from '@/pages/Landing';
 
 export function AppRoutes() {
   return (
@@ -49,6 +51,7 @@ export function AppRoutes() {
       <Route path="/shared-list/:listCode" element={<SharedList />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/alerts" element={<AdminAlerts />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -46,7 +46,7 @@ export async function sendAdminAlert(alertData: AdminAlertData): Promise<AdminAl
     // Get all admin users
     const { data: admins, error: adminsError } = await supabase
       .from('profiles')
-      .select('id, email')
+      .select('id, wab_admin')
       .eq('wab_admin', true);
     
     if (adminsError) {
@@ -70,13 +70,7 @@ export async function sendAdminAlert(alertData: AdminAlertData): Promise<AdminAl
     const adminEmails: string[] = [];
     
     for (const admin of admins) {
-      // If email is directly available in profile
-      if (admin.email) {
-        adminEmails.push(admin.email);
-        continue;
-      }
-      
-      // Otherwise fetch from auth.users via RPC
+      // Fetch email from auth.users via RPC since it's not stored in profiles
       try {
         const { data: emailData, error: emailError } = await supabase.rpc(
           'get_user_email',
