@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, Users, Shield } from "lucide-react";
+import { Mail, ArrowLeft, Users, Shield, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -76,7 +76,7 @@ const Admin = () => {
             <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
               <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Email Management</h2>
               <p className="text-sm text-gray-300 mb-4 text-center">
@@ -88,6 +88,20 @@ const Admin = () => {
               >
                 <Mail className="mr-2 h-4 w-4" />
                 Go to Mail
+              </Button>
+            </div>
+            
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
+              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Admin Alerts</h2>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                Send alert notifications to administrators
+              </p>
+              <Button 
+                onClick={() => navigate('/admin/alerts')}
+                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Manage Alerts
               </Button>
             </div>
             

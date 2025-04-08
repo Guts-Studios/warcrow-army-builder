@@ -1,25 +1,26 @@
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-import { Route, Routes } from "react-router-dom";
-import Index from "@/pages/Index";
-import Profile from "@/pages/Profile";
-import Login from "@/pages/Login";
-import NotFound from "@/pages/NotFound";
-import ResetPassword from "@/pages/ResetPassword";
-import Rules from "@/pages/Rules";
-import UnitStats from "@/pages/UnitStats";
-import Game from "@/pages/Game";
-import Setup from "@/pages/Setup";
-import Play from "@/pages/Play";
-import Deployment from "@/pages/Deployment";
-import Scoring from "@/pages/Scoring";
-import Summary from "@/pages/Summary";
-import Missions from "@/pages/Missions";
-import Mail from "@/pages/Mail";
-import SharedList from "@/pages/SharedList";
-import AboutUs from "@/pages/AboutUs";
-import Activity from "@/pages/Activity";
-import Landing from "@/pages/Landing";
-import Admin from "@/pages/Admin";
+import Index from '@/pages/Index';
+import Play from '@/pages/Play';
+import SharedList from '@/pages/SharedList';
+import Setup from '@/pages/Setup';
+import Deployment from '@/pages/Deployment';
+import Game from '@/pages/Game';
+import Scoring from '@/pages/Scoring';
+import Summary from '@/pages/Summary';
+import Profile from '@/pages/Profile';
+import Missions from '@/pages/Missions';
+import UnitStats from '@/pages/UnitStats';
+import Activity from '@/pages/Activity';
+import Login from '@/pages/Login';
+import ResetPassword from '@/pages/ResetPassword';
+import Rules from '@/pages/Rules';
+import AboutUs from '@/pages/AboutUs';
+import NotFound from '@/pages/NotFound';
+import Mail from '@/pages/Mail';
+import Admin from '@/pages/Admin';
+import AdminAlerts from '@/pages/AdminAlerts';
 
 export function AppRoutes() {
   return (
