@@ -8,12 +8,14 @@ interface SymbolDetailsProps {
   customChar: string;
   fontSize: number;
   setFontSize: (size: number) => void;
+  symbolColor: string;
 }
 
 export const SymbolDetails: React.FC<SymbolDetailsProps> = ({ 
   customChar, 
   fontSize, 
-  setFontSize 
+  setFontSize,
+  symbolColor
 }) => {
   if (!customChar) {
     return (
@@ -31,7 +33,10 @@ export const SymbolDetails: React.FC<SymbolDetailsProps> = ({
         <div>
           <div 
             className="game-symbol bg-black/60 p-8 rounded-md border border-warcrow-gold/20 flex items-center justify-center mb-4"
-            style={{ fontSize: `${fontSize * 2}px` }}
+            style={{ 
+              fontSize: `${fontSize * 2}px`,
+              color: symbolColor 
+            }}
           >
             {customChar}
           </div>

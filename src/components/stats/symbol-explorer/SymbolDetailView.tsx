@@ -19,13 +19,16 @@ const SymbolDetailView: React.FC<SymbolDetailViewProps> = ({
   fontSize,
   setFontSize
 }) => {
+  // Extract values from the selected symbol config
   const customChar = selectedSymbolConfig?.fontChar || "";
+  const symbolColor = selectedSymbolConfig?.color || "#FFFFFF";
   
   return (
     <SymbolDetails 
       customChar={customChar} 
       fontSize={fontSize} 
       setFontSize={setFontSize} 
+      symbolColor={symbolColor}
     />
   );
 };
