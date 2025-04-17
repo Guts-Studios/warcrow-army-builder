@@ -83,9 +83,11 @@ export async function sendAdminAlert(alertData: AdminAlertData): Promise<AdminAl
           continue;
         }
         
-        if (emailData && emailData.length > 0) {
-          // Extract the email string from the data (which is an array of email objects)
-          adminEmails.push(emailData[0]);
+        if (emailData && emailData.length > 0 && emailData[0].email) {
+          // Extract the email string from the data object
+          adminEmails.push(emailData[0].email);
+        } else {
+          console.warn(`No email found for admin ${admin.id}`);
         }
       } catch (err) {
         console.error(`Failed to get email for admin ${admin.id}:`, err);
