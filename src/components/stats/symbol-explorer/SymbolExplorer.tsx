@@ -8,17 +8,35 @@ import { GameSymbol } from "@/components/stats/GameSymbol";
 import { NumericInput } from "./NumericInput";
 import { SymbolControls } from "./SymbolControls";
 
+interface PresetRange {
+  name: string;
+  start: number;
+  end: number;
+}
+
 const SymbolExplorer: React.FC = () => {
   const [customChar, setCustomChar] = useState<string>("");
   const [fontSize, setFontSize] = useState<number>(48);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
-  const [codeRange, setCodeRange] = useState<[number, number]>([57344, 57444]); // Default Warcrow font range
+  const [range, setRange] = useState<{ start: number; end: number }>({ 
+    start: 57344, 
+    end: 57444 
+  }); // Default Warcrow font range
+  
+  // Preset ranges for quick selection
+  const presetRanges: PresetRange[] = [
+    { name: "Warcrow", start: 57344, end: 57444 },
+    { name: "ASCII", start: 32, end: 126 },
+    { name: "Numbers", start: 48, end: 57 },
+    { name: "Latin", start: 65, end: 122 },
+    { name: "Symbols", start: 33, end: 47 }
+  ];
 
   // Generate array of symbol codes in the specified range
   const symbols = Array.from(
-    { length: codeRange[1] - codeRange[0] + 1 },
-    (_, i) => codeRange[0] + i
+    { length: range.end - range.start + 1 },
+    (_, i) => range.start + i
   );
 
   // Filter symbols based on search query (optional functionality)
@@ -34,10 +52,13 @@ const SymbolExplorer: React.FC = () => {
     setCustomChar(String.fromCharCode(code));
   };
 
-  const handleRangeChange = (start: number, end: number) => {
-    setCodeRange([start, end]);
-    setSelectedSymbol(null);
-    setCustomChar("");
+  const handleCustomCharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomChar(value.length > 0 ? value[0] : "");
+    if (value.length > 0) {
+      const code = value.charCodeAt(0);
+      setSelectedSymbol(code);
+    }
   };
 
   // If no symbol is selected initially, show the first one
@@ -63,8 +84,13 @@ const SymbolExplorer: React.FC = () => {
       </div>
 
       <SymbolControls 
-        codeRange={codeRange}
-        onRangeChange={handleRangeChange}
+        range={range}
+        setRange={setRange}
+        customChar={customChar}
+        onCustomCharChange={handleCustomCharChange}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        presetRanges={presetRanges}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
