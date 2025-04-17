@@ -20,7 +20,7 @@ const SymbolDetailView: React.FC<SymbolDetailViewProps> = ({
   setFontSize
 }) => {
   const customChar = selectedSymbolConfig?.fontChar || "";
-
+  
   return (
     <SymbolDetails 
       customChar={customChar} 

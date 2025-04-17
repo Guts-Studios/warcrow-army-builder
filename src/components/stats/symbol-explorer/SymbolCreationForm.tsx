@@ -6,6 +6,7 @@ import { Check, Plus } from "lucide-react";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SymbolConfig {
   symbol: string;
@@ -19,6 +20,45 @@ interface SymbolCreationFormProps {
   showAddForm: boolean;
   setShowAddForm: (show: boolean) => void;
 }
+
+// Predefined emoji options
+const emojiOptions = [
+  { value: "🔴", label: "🔴 Red Circle" },
+  { value: "🟠", label: "🟠 Orange Circle" },
+  { value: "🟡", label: "🟡 Yellow Circle" },
+  { value: "🟢", label: "🟢 Green Circle" },
+  { value: "🔵", label: "🔵 Blue Circle" },
+  { value: "⚫", label: "⚫ Black Circle" },
+  { value: "⭐", label: "⭐ Star" },
+  { value: "💥", label: "💥 Explosion" },
+  { value: "🔰", label: "🔰 Shield" },
+  { value: "🎯", label: "🎯 Target" },
+  { value: "🎲", label: "🎲 Dice" },
+  { value: "🧩", label: "🧩 Puzzle" },
+];
+
+// Warcrow font character options
+const fontCharOptions = [
+  { value: "0", label: "0" },
+  { value: "1", label: "1" },
+  { value: "2", label: "2" },
+  { value: "3", label: "3" },
+  { value: "4", label: "4" },
+  { value: "5", label: "5" },
+  { value: "6", label: "6" },
+  { value: "7", label: "7" },
+  { value: "8", label: "8" },
+  { value: "9", label: "9" },
+  { value: "a", label: "a" },
+  { value: "b", label: "b" },
+  { value: "c", label: "c" },
+  { value: "q", label: "q" },
+  { value: "w", label: "w" },
+  { value: "e", label: "e" },
+  { value: "r", label: "r" },
+  { value: "t", label: "t" },
+  { value: "y", label: "y" },
+];
 
 const SymbolCreationForm: React.FC<SymbolCreationFormProps> = ({
   symbols,
@@ -81,15 +121,35 @@ const SymbolCreationForm: React.FC<SymbolCreationFormProps> = ({
                     <FormItem>
                       <FormLabel className="text-warcrow-text">Emoji Symbol</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="🔵" 
-                          {...field} 
-                          className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
-                          required
-                        />
+                        <div className="flex flex-col space-y-2">
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold">
+                              <SelectValue placeholder="Select emoji" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-black border-warcrow-gold/30 text-warcrow-gold max-h-60">
+                              {emojiOptions.map((emoji) => (
+                                <SelectItem 
+                                  key={emoji.value} 
+                                  value={emoji.value}
+                                  className="hover:bg-warcrow-gold/10"
+                                >
+                                  {emoji.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input 
+                            placeholder="Or type custom emoji" 
+                            {...field} 
+                            className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
+                          />
+                        </div>
                       </FormControl>
                       <FormDescription className="text-warcrow-text/50 text-xs">
-                        Emoji to represent this symbol
+                        Choose or type an emoji to represent this symbol
                       </FormDescription>
                     </FormItem>
                   )}
@@ -102,16 +162,36 @@ const SymbolCreationForm: React.FC<SymbolCreationFormProps> = ({
                     <FormItem>
                       <FormLabel className="text-warcrow-text">Font Character</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="a" 
-                          {...field} 
-                          className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
-                          maxLength={1}
-                          required
-                        />
+                        <div className="flex flex-col space-y-2">
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold">
+                              <SelectValue placeholder="Select character" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-black border-warcrow-gold/30 text-warcrow-gold max-h-60">
+                              {fontCharOptions.map((char) => (
+                                <SelectItem 
+                                  key={char.value} 
+                                  value={char.value}
+                                  className="hover:bg-warcrow-gold/10"
+                                >
+                                  {char.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input 
+                            placeholder="Or type custom character" 
+                            {...field} 
+                            className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
+                            maxLength={1}
+                          />
+                        </div>
                       </FormControl>
                       <FormDescription className="text-warcrow-text/50 text-xs">
-                        Single character from Warcrow font
+                        Choose or type a single character from Warcrow font
                       </FormDescription>
                     </FormItem>
                   )}
