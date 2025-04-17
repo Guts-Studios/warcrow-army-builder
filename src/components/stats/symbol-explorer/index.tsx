@@ -1,5 +1,3 @@
 
-import React from 'react';
-
-// This is now just a placeholder as the symbol explorer functionality has been removed
-export const SymbolExplorer = () => null;
+import SymbolExplorer from './SymbolExplorer';
+export default SymbolExplorer;

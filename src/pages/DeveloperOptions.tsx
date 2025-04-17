@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Code, RefreshCw, Terminal, Database, Settings } from "lucide-react";
+import { ArrowLeft, Code, RefreshCw, Terminal, Database, Settings, BookKey } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SymbolExplorer from "@/components/stats/symbol-explorer/SymbolExplorer";
 
 const DeveloperOptions = () => {
   const navigate = useNavigate();
@@ -60,7 +62,7 @@ const DeveloperOptions = () => {
   return (
     <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex items-center mb-8">
             <Button 
               variant="outline" 
@@ -81,104 +83,125 @@ const DeveloperOptions = () => {
             </AlertDescription>
           </Alert>
           
-          <div className="grid grid-cols-1 gap-6">
-            {/* System Cache Section */}
-            <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-              <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
-                <RefreshCw className="h-5 w-5 mr-2" />
-                System Cache
-              </h2>
-              <p className="text-sm text-gray-300 mb-4">
-                Refresh system caches to apply recent changes or fix performance issues.
-              </p>
-              <Button 
-                onClick={handleRefreshCache}
-                className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Refreshing...' : 'Refresh Cache'}
-              </Button>
-            </Card>
-
-            {/* Debug Options Section */}
-            <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-              <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
-                <Terminal className="h-5 w-5 mr-2" />
-                Debug Options
-              </h2>
-              
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="debug-mode" className="text-warcrow-text">Debug Mode</Label>
-                    <p className="text-sm text-gray-400">
-                      Enable detailed error messages and debugging information.
-                    </p>
-                  </div>
-                  <Switch 
-                    id="debug-mode"
-                    checked={debugMode}
-                    onCheckedChange={toggleDebugMode}
-                  />
-                </div>
-                
-                <Separator className="bg-warcrow-gold/20" />
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="verbose-logging" className="text-warcrow-text">Verbose Logging</Label>
-                    <p className="text-sm text-gray-400">
-                      Enable extensive application logging for troubleshooting.
-                    </p>
-                  </div>
-                  <Switch 
-                    id="verbose-logging"
-                    checked={verboseLogging}
-                    onCheckedChange={toggleVerboseLogging}
-                  />
-                </div>
-                
-                <Separator className="bg-warcrow-gold/20" />
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="test-mode" className="text-warcrow-text">Test Mode</Label>
-                    <p className="text-sm text-gray-400">
-                      Run the application in test mode to bypass production safeguards.
-                    </p>
-                  </div>
-                  <Switch 
-                    id="test-mode"
-                    checked={testMode}
-                    onCheckedChange={toggleTestMode}
-                  />
-                </div>
-              </div>
-            </Card>
+          <Tabs defaultValue="system" className="mb-6">
+            <TabsList className="bg-black border border-warcrow-gold/30 mb-6">
+              <TabsTrigger value="system" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
+                <Settings className="h-4 w-4 mr-2" />
+                System Tools
+              </TabsTrigger>
+              <TabsTrigger value="symbols" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
+                <BookKey className="h-4 w-4 mr-2" />
+                Symbol Explorer
+              </TabsTrigger>
+            </TabsList>
             
-            {/* Database Tools Section */}
-            <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-              <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
-                <Database className="h-5 w-5 mr-2" />
-                Database Tools
-              </h2>
-              <p className="text-sm text-gray-300 mb-4">
-                Tools for database management and maintenance.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button 
-                  className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-                >
-                  Check Database Health
-                </Button>
-                <Button 
-                  className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-                >
-                  Run Database Vacuum
-                </Button>
+            <TabsContent value="system" className="mt-0">
+              <div className="grid grid-cols-1 gap-6">
+                {/* System Cache Section */}
+                <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+                  <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
+                    <RefreshCw className="h-5 w-5 mr-2" />
+                    System Cache
+                  </h2>
+                  <p className="text-sm text-gray-300 mb-4">
+                    Refresh system caches to apply recent changes or fix performance issues.
+                  </p>
+                  <Button 
+                    onClick={handleRefreshCache}
+                    className="w-full border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Refreshing...' : 'Refresh Cache'}
+                  </Button>
+                </Card>
+
+                {/* Debug Options Section */}
+                <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+                  <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
+                    <Terminal className="h-5 w-5 mr-2" />
+                    Debug Options
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="debug-mode" className="text-warcrow-text">Debug Mode</Label>
+                        <p className="text-sm text-gray-400">
+                          Enable detailed error messages and debugging information.
+                        </p>
+                      </div>
+                      <Switch 
+                        id="debug-mode"
+                        checked={debugMode}
+                        onCheckedChange={toggleDebugMode}
+                      />
+                    </div>
+                    
+                    <Separator className="bg-warcrow-gold/20" />
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="verbose-logging" className="text-warcrow-text">Verbose Logging</Label>
+                        <p className="text-sm text-gray-400">
+                          Enable extensive application logging for troubleshooting.
+                        </p>
+                      </div>
+                      <Switch 
+                        id="verbose-logging"
+                        checked={verboseLogging}
+                        onCheckedChange={toggleVerboseLogging}
+                      />
+                    </div>
+                    
+                    <Separator className="bg-warcrow-gold/20" />
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="test-mode" className="text-warcrow-text">Test Mode</Label>
+                        <p className="text-sm text-gray-400">
+                          Run the application in test mode to bypass production safeguards.
+                        </p>
+                      </div>
+                      <Switch 
+                        id="test-mode"
+                        checked={testMode}
+                        onCheckedChange={toggleTestMode}
+                      />
+                    </div>
+                  </div>
+                </Card>
+                
+                {/* Database Tools Section */}
+                <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+                  <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
+                    <Database className="h-5 w-5 mr-2" />
+                    Database Tools
+                  </h2>
+                  <p className="text-sm text-gray-300 mb-4">
+                    Tools for database management and maintenance.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button 
+                      className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                    >
+                      Check Database Health
+                    </Button>
+                    <Button 
+                      className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                    >
+                      Run Database Vacuum
+                    </Button>
+                  </div>
+                </Card>
               </div>
-            </Card>
-          </div>
+            </TabsContent>
+            
+            <TabsContent value="symbols" className="mt-0">
+              <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+                <SymbolExplorer />
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </AdminOnly>
