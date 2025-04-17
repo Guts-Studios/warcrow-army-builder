@@ -5,77 +5,56 @@ import { Button } from "@/components/ui/button";
 import { SymbolGrid } from "./SymbolGrid";
 import { SymbolDetails } from "./SymbolDetails";
 import { GameSymbol } from "@/components/stats/GameSymbol";
-import { NumericInput } from "./NumericInput";
-import { SymbolControls } from "./SymbolControls";
 
-interface PresetRange {
-  name: string;
-  start: number;
-  end: number;
+// Import the symbol configurations from UnitStatCard
+interface SymbolConfig {
+  symbol: string;
+  fontChar: string;
+  color: string;
 }
 
+// Define the symbol configurations that match what's in UnitStatCard.tsx
+const symbolConfigs: SymbolConfig[] = [
+  { symbol: '🔴', fontChar: 'w', color: '#FF3850' }, // Red symbol
+  { symbol: '🟠', fontChar: 'q', color: '#FF8C00' }, // Orange symbol
+  { symbol: '🟢', fontChar: '9', color: '#22C55E' }, // Green symbol
+  { symbol: '⚫', fontChar: '7', color: '#000000' }, // Black symbol
+  { symbol: '🔵', fontChar: '8', color: '#3B82F6' }, // Blue symbol
+  { symbol: '🟡', fontChar: '0', color: '#FACC15' }, // Yellow symbol
+  { symbol: '⭐', fontChar: '1', color: '#FFD700' }, // Star symbol
+];
+
 const SymbolExplorer: React.FC = () => {
-  const [customChar, setCustomChar] = useState<string>("");
   const [fontSize, setFontSize] = useState<number>(48);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
-  const [range, setRange] = useState<{ start: number; end: number }>({ 
-    start: 57344, 
-    end: 57444 
-  }); // Default Warcrow font range
-  
-  // Preset ranges for quick selection
-  const presetRanges: PresetRange[] = [
-    { name: "Warcrow", start: 57344, end: 57444 },
-    { name: "ASCII", start: 32, end: 126 },
-    { name: "Numbers", start: 48, end: 57 },
-    { name: "Latin", start: 65, end: 122 },
-    { name: "Symbols", start: 33, end: 47 }
-  ];
+  const [selectedSymbolConfig, setSelectedSymbolConfig] = useState<SymbolConfig | null>(null);
 
-  // Generate array of symbol codes in the specified range
-  const symbols = Array.from(
-    { length: range.end - range.start + 1 },
-    (_, i) => range.start + i
-  );
-
-  // Filter symbols based on search query (optional functionality)
+  // Filter symbols based on search query
   const filteredSymbols = searchQuery
-    ? symbols.filter((code) => {
-        const hexCode = code.toString(16).toUpperCase();
-        return hexCode.includes(searchQuery.toUpperCase());
+    ? symbolConfigs.filter((config) => {
+        return (
+          config.symbol.includes(searchQuery) || 
+          config.fontChar.includes(searchQuery) ||
+          config.color.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       })
-    : symbols;
-
-  const handleSymbolClick = (code: number) => {
-    setSelectedSymbol(code);
-    setCustomChar(String.fromCharCode(code));
-  };
-
-  const handleCustomCharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCustomChar(value.length > 0 ? value[0] : "");
-    if (value.length > 0) {
-      const code = value.charCodeAt(0);
-      setSelectedSymbol(code);
-    }
-  };
+    : symbolConfigs;
 
   // If no symbol is selected initially, show the first one
   useEffect(() => {
-    if (symbols.length > 0 && !selectedSymbol && !customChar) {
-      handleSymbolClick(symbols[0]);
+    if (symbolConfigs.length > 0 && !selectedSymbolConfig) {
+      setSelectedSymbolConfig(symbolConfigs[0]);
     }
-  }, [symbols, selectedSymbol, customChar]);
+  }, [selectedSymbolConfig]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-xl font-semibold text-warcrow-gold">Symbol Explorer</h2>
+        <h2 className="text-xl font-semibold text-warcrow-gold">Game Symbol Explorer</h2>
         <div className="relative w-full sm:w-64">
           <Input
             type="text"
-            placeholder="Search by hex code..."
+            placeholder="Search symbols..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-black/80 border border-warcrow-gold/30 text-warcrow-text focus:border-warcrow-gold"
@@ -83,32 +62,119 @@ const SymbolExplorer: React.FC = () => {
         </div>
       </div>
 
-      <SymbolControls 
-        range={range}
-        setRange={setRange}
-        customChar={customChar}
-        onCustomCharChange={handleCustomCharChange}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-        presetRanges={presetRanges}
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <SymbolGrid 
-            symbols={filteredSymbols}
-            selectedSymbol={selectedSymbol}
-            handleSymbolClick={handleSymbolClick}
-            fontSize={fontSize}
-          />
+          <div>
+            <h3 className="text-warcrow-gold/90 text-sm mb-3 font-medium">
+              Available Game Symbols <span className="text-warcrow-text/60 text-xs font-normal">({filteredSymbols.length} symbols)</span>
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+              {filteredSymbols.map((config, index) => (
+                <div
+                  key={index}
+                  className={`
+                    p-3 rounded-md border transition-all cursor-pointer flex flex-col items-center
+                    ${selectedSymbolConfig === config 
+                      ? "bg-warcrow-gold/20 border-warcrow-gold" 
+                      : "bg-black/60 border-warcrow-gold/30 hover:bg-warcrow-gold/10"}
+                  `}
+                  onClick={() => setSelectedSymbolConfig(config)}
+                >
+                  <div className="mb-2 flex items-center justify-center">
+                    <span 
+                      className="Warcrow-Family font-warcrow"
+                      style={{ 
+                        fontSize: `${fontSize}px`,
+                        color: config.color
+                      }}
+                    >
+                      {config.fontChar}
+                    </span>
+                  </div>
+                  <div className="text-xs text-warcrow-text text-center">{config.symbol}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         
         <div>
-          <SymbolDetails 
-            customChar={customChar}
-            fontSize={fontSize}
-            setFontSize={setFontSize}
-          />
+          {selectedSymbolConfig ? (
+            <div className="bg-black/40 p-6 rounded-lg border border-warcrow-gold/30">
+              <h3 className="text-warcrow-gold text-lg mb-4 font-medium">Symbol Details</h3>
+              
+              <div className="space-y-4">
+                <div 
+                  className="game-symbol bg-black/60 p-8 rounded-md border border-warcrow-gold/20 flex items-center justify-center mb-4"
+                  style={{ fontSize: `${fontSize * 1.5}px` }}
+                >
+                  <span 
+                    className="Warcrow-Family font-warcrow"
+                    style={{ color: selectedSymbolConfig.color }}
+                  >
+                    {selectedSymbolConfig.fontChar}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="text-sm text-warcrow-text/90 block mb-2">
+                    Font Size
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {[24, 36, 48, 60, 72].map((size) => (
+                      <Button 
+                        key={size}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setFontSize(size)}
+                        className={`
+                          ${fontSize === size 
+                            ? "bg-warcrow-gold/20 border-warcrow-gold text-warcrow-gold" 
+                            : "bg-black/60 border-warcrow-gold/30 text-warcrow-text hover:bg-warcrow-gold/10"}
+                        `}
+                      >
+                        {size}px
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-black/30 p-4 rounded-lg border border-warcrow-gold/20">
+                  <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Symbol Configuration</h4>
+                  <div className="space-y-2 text-warcrow-text">
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="text-warcrow-text/60">Symbol:</span>
+                      <span className="text-warcrow-gold col-span-2">{selectedSymbolConfig.symbol}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="text-warcrow-text/60">Font Character:</span>
+                      <span className="text-warcrow-gold col-span-2">{selectedSymbolConfig.fontChar}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="text-warcrow-text/60">Color:</span>
+                      <span className="text-warcrow-gold col-span-2" style={{display: 'flex', alignItems: 'center'}}>
+                        {selectedSymbolConfig.color}
+                        <span className="inline-block w-4 h-4 ml-2 rounded-full" style={{backgroundColor: selectedSymbolConfig.color}}></span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-black/30 p-4 rounded-lg border border-warcrow-gold/20">
+                  <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Usage Code</h4>
+                  <div className="space-y-2">
+                    <pre className="bg-black/60 p-3 rounded text-warcrow-gold block overflow-x-auto text-xs whitespace-pre-wrap">
+                      {`{ symbol: '${selectedSymbolConfig.symbol}', fontChar: '${selectedSymbolConfig.fontChar}', color: '${selectedSymbolConfig.color}' },`}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-black/40 p-8 rounded-lg border border-warcrow-gold/30 text-center">
+              <p className="text-warcrow-gold/80">Select a symbol to see details</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
