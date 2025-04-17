@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, Users, Shield, AlertTriangle } from "lucide-react";
+import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -76,7 +76,7 @@ const Admin = () => {
             <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
               <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Email Management</h2>
               <p className="text-sm text-gray-300 mb-4 text-center">
@@ -113,6 +113,20 @@ const Admin = () => {
               <div className="w-full">
                 <Shield className="h-5 w-5 mx-auto mb-2 text-warcrow-gold/80" />
               </div>
+            </div>
+            
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
+              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Developer Tools</h2>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                Advanced options for system configuration
+              </p>
+              <Button 
+                onClick={() => navigate('/admin/dev-options')}
+                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+              >
+                <Code className="mr-2 h-4 w-4" />
+                Developer Options
+              </Button>
             </div>
           </div>
 

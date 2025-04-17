@@ -22,6 +22,7 @@ import NotFound from '@/pages/NotFound';
 import Mail from '@/pages/Mail';
 import Admin from '@/pages/Admin';
 import AdminAlerts from '@/pages/AdminAlerts';
+import DeveloperOptions from '@/pages/DeveloperOptions';
 import Landing from '@/pages/Landing';
 
 export function AppRoutes() {
@@ -52,6 +53,7 @@ export function AppRoutes() {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/admin/alerts" element={<AdminAlerts />} />
+      <Route path="/admin/dev-options" element={<DeveloperOptions />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
