@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,12 @@ import { SymbolGrid } from "./SymbolGrid";
 import { SymbolDetails } from "./SymbolDetails";
 import { GameSymbol } from "@/components/stats/GameSymbol";
 
-// Import the symbol configurations from UnitStatCard
 interface SymbolConfig {
   symbol: string;
   fontChar: string;
   color: string;
 }
 
-// Define the symbol configurations that match what's in UnitStatCard.tsx
 const symbolConfigs: SymbolConfig[] = [
   { symbol: '🔴', fontChar: 'w', color: '#FF3850' }, // Red symbol
   { symbol: '🟠', fontChar: 'q', color: '#FF8C00' }, // Orange symbol
@@ -29,7 +26,6 @@ const SymbolExplorer: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSymbolConfig, setSelectedSymbolConfig] = useState<SymbolConfig | null>(null);
 
-  // Filter symbols based on search query
   const filteredSymbols = searchQuery
     ? symbolConfigs.filter((config) => {
         return (
@@ -40,7 +36,6 @@ const SymbolExplorer: React.FC = () => {
       })
     : symbolConfigs;
 
-  // If no symbol is selected initially, show the first one
   useEffect(() => {
     if (symbolConfigs.length > 0 && !selectedSymbolConfig) {
       setSelectedSymbolConfig(symbolConfigs[0]);
@@ -74,10 +69,10 @@ const SymbolExplorer: React.FC = () => {
                   key={index}
                   className={`
                     p-3 rounded-md border transition-all cursor-pointer flex flex-col items-center
-                    bg-white border-gray-300
+                    bg-[#F1F1F1] border-gray-300
                     ${selectedSymbolConfig === config 
                       ? "ring-2 ring-warcrow-gold" 
-                      : "hover:bg-gray-100"}
+                      : "hover:bg-gray-200"}
                   `}
                   onClick={() => setSelectedSymbolConfig(config)}
                 >
@@ -183,4 +178,3 @@ const SymbolExplorer: React.FC = () => {
 };
 
 export default SymbolExplorer;
-
