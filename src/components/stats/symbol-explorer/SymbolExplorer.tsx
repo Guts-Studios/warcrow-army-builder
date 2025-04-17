@@ -48,16 +48,16 @@ const SymbolExplorer: React.FC = () => {
   }, [selectedSymbolConfig]);
 
   return (
-    <div className="space-y-6 bg-white" style={{ backgroundColor: 'white' }}>
+    <div className="space-y-6 bg-black p-6 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-xl font-semibold text-black">Game Symbol Explorer</h2>
+        <h2 className="text-xl font-semibold text-warcrow-gold">Game Symbol Explorer</h2>
         <div className="relative w-full sm:w-64">
           <Input
             type="text"
             placeholder="Search symbols..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-white border border-gray-300 text-black focus:border-black"
+            className="bg-black/40 border border-warcrow-gold/30 text-white focus:border-warcrow-gold"
           />
         </div>
       </div>
@@ -65,8 +65,8 @@ const SymbolExplorer: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div>
-            <h3 className="text-black/90 text-sm mb-3 font-medium">
-              Available Game Symbols <span className="text-black/60 text-xs font-normal">({filteredSymbols.length} symbols)</span>
+            <h3 className="text-warcrow-text/90 text-sm mb-3 font-medium">
+              Available Game Symbols <span className="text-warcrow-text/60 text-xs font-normal">({filteredSymbols.length} symbols)</span>
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
               {filteredSymbols.map((config, index) => (
@@ -74,9 +74,10 @@ const SymbolExplorer: React.FC = () => {
                   key={index}
                   className={`
                     p-3 rounded-md border transition-all cursor-pointer flex flex-col items-center
+                    bg-white border-gray-300
                     ${selectedSymbolConfig === config 
-                      ? "bg-black/10 border-black" 
-                      : "bg-white border-gray-300 hover:bg-black/5"}
+                      ? "ring-2 ring-warcrow-gold" 
+                      : "hover:bg-gray-100"}
                   `}
                   onClick={() => setSelectedSymbolConfig(config)}
                 >
@@ -100,12 +101,12 @@ const SymbolExplorer: React.FC = () => {
         
         <div>
           {selectedSymbolConfig ? (
-            <div className="bg-white p-6 rounded-lg border border-gray-300">
-              <h3 className="text-black text-lg mb-4 font-medium">Symbol Details</h3>
+            <div className="bg-black/40 p-6 rounded-lg border border-warcrow-gold/30">
+              <h3 className="text-warcrow-gold text-lg mb-4 font-medium">Symbol Details</h3>
               
               <div className="space-y-4">
                 <div 
-                  className="game-symbol bg-gray-100 p-8 rounded-md border border-gray-200 flex items-center justify-center mb-4"
+                  className="bg-white p-8 rounded-md border border-gray-200 flex items-center justify-center mb-4"
                   style={{ fontSize: `${fontSize * 1.5}px` }}
                 >
                   <span 
@@ -117,7 +118,7 @@ const SymbolExplorer: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="text-sm text-black/90 block mb-2">
+                  <div className="text-sm text-warcrow-text/90 block mb-2">
                     Font Size
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -129,8 +130,8 @@ const SymbolExplorer: React.FC = () => {
                         onClick={() => setFontSize(size)}
                         className={`
                           ${fontSize === size 
-                            ? "bg-black/10 border-black text-black" 
-                            : "bg-white border-gray-300 text-black hover:bg-black/5"}
+                            ? "bg-warcrow-gold/20 border-warcrow-gold text-warcrow-gold" 
+                            : "bg-black/40 border-warcrow-gold/30 text-warcrow-text hover:bg-warcrow-gold/10"}
                         `}
                       >
                         {size}px
@@ -139,20 +140,20 @@ const SymbolExplorer: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-black/90 text-sm mb-3 font-medium">Symbol Configuration</h4>
-                  <div className="space-y-2 text-black">
+                <div className="bg-black/30 p-4 rounded-lg border border-warcrow-gold/20">
+                  <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Symbol Configuration</h4>
+                  <div className="space-y-2 text-warcrow-text">
                     <div className="grid grid-cols-3 gap-2">
-                      <span className="text-black/60">Symbol:</span>
-                      <span className="text-black col-span-2">{selectedSymbolConfig.symbol}</span>
+                      <span className="text-warcrow-text/60">Symbol:</span>
+                      <span className="text-warcrow-gold col-span-2">{selectedSymbolConfig.symbol}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
-                      <span className="text-black/60">Font Character:</span>
-                      <span className="text-black col-span-2">{selectedSymbolConfig.fontChar}</span>
+                      <span className="text-warcrow-text/60">Font Character:</span>
+                      <span className="text-warcrow-gold col-span-2">{selectedSymbolConfig.fontChar}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
-                      <span className="text-black/60">Color:</span>
-                      <span className="text-black col-span-2" style={{display: 'flex', alignItems: 'center'}}>
+                      <span className="text-warcrow-text/60">Color:</span>
+                      <span className="text-warcrow-gold col-span-2" style={{display: 'flex', alignItems: 'center'}}>
                         {selectedSymbolConfig.color}
                         <span className="inline-block w-4 h-4 ml-2 rounded-full" style={{backgroundColor: selectedSymbolConfig.color}}></span>
                       </span>
@@ -160,10 +161,10 @@ const SymbolExplorer: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="text-black/90 text-sm mb-3 font-medium">Usage Code</h4>
+                <div className="bg-black/30 p-4 rounded-lg border border-warcrow-gold/20">
+                  <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Usage Code</h4>
                   <div className="space-y-2">
-                    <pre className="bg-gray-100 p-3 rounded text-black block overflow-x-auto text-xs whitespace-pre-wrap">
+                    <pre className="bg-black/60 p-3 rounded text-warcrow-gold block overflow-x-auto text-xs whitespace-pre-wrap">
                       {`{ symbol: '${selectedSymbolConfig.symbol}', fontChar: '${selectedSymbolConfig.fontChar}', color: '${selectedSymbolConfig.color}' },`}
                     </pre>
                   </div>
@@ -171,8 +172,8 @@ const SymbolExplorer: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white p-8 rounded-lg border border-gray-300 text-center">
-              <p className="text-black/80">Select a symbol to see details</p>
+            <div className="bg-black/40 p-8 rounded-lg border border-warcrow-gold/30 text-center">
+              <p className="text-warcrow-text/80">Select a symbol to see details</p>
             </div>
           )}
         </div>
@@ -182,3 +183,4 @@ const SymbolExplorer: React.FC = () => {
 };
 
 export default SymbolExplorer;
+
