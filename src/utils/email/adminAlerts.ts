@@ -1,3 +1,4 @@
+
 import { sendEmail } from './sendEmail';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -83,6 +84,7 @@ export async function sendAdminAlert(alertData: AdminAlertData): Promise<AdminAl
         }
         
         if (emailData && emailData.length > 0) {
+          // Extract the email string from the data (which is an array of email objects)
           adminEmails.push(emailData[0]);
         }
       } catch (err) {
