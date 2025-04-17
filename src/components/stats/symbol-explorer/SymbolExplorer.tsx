@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ const SymbolExplorer: React.FC = () => {
                   key={index}
                   className={`
                     p-3 rounded-md border transition-all cursor-pointer flex flex-col items-center
-                    bg-[#F1F1F1] border-gray-300
+                    bg-[#F1F0FB] border-gray-300
                     ${selectedSymbolConfig === config 
                       ? "ring-2 ring-warcrow-gold" 
                       : "hover:bg-gray-200"}
