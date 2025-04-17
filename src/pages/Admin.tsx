@@ -76,53 +76,61 @@ const Admin = () => {
             <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Email Management</h2>
-              <p className="text-sm text-gray-300 mb-4 text-center">
-                Send emails and manage email templates for users
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center justify-between h-full">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Email Management</h2>
+                <p className="text-sm text-gray-300 mb-4 text-center">
+                  Send emails and manage email templates for users
+                </p>
+              </div>
               <Button 
                 onClick={() => navigate('/mail')}
-                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
               >
                 <Mail className="mr-2 h-4 w-4" />
                 Go to Mail
               </Button>
             </div>
             
-            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Admin Alerts</h2>
-              <p className="text-sm text-gray-300 mb-4 text-center">
-                Send alert notifications to administrators
-              </p>
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center justify-between h-full">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Admin Alerts</h2>
+                <p className="text-sm text-gray-300 mb-4 text-center">
+                  Send alert notifications to administrators
+                </p>
+              </div>
               <Button 
                 onClick={() => navigate('/admin/alerts')}
-                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
               >
                 <AlertTriangle className="mr-2 h-4 w-4" />
                 Manage Alerts
               </Button>
             </div>
             
-            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">User Management</h2>
-              <p className="text-sm text-gray-300 mb-4 text-center">
-                Manage user permissions and admin status
-              </p>
-              <div className="w-full">
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center justify-between h-full">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-warcrow-gold mb-4">User Management</h2>
+                <p className="text-sm text-gray-300 mb-4 text-center">
+                  Manage user permissions and admin status
+                </p>
+              </div>
+              <div className="w-full text-center">
                 <Shield className="h-5 w-5 mx-auto mb-2 text-warcrow-gold/80" />
               </div>
             </div>
             
-            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Developer Tools</h2>
-              <p className="text-sm text-gray-300 mb-4 text-center">
-                Advanced options for system configuration
-              </p>
+            <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6 flex flex-col items-center justify-between h-full">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Developer Tools</h2>
+                <p className="text-sm text-gray-300 mb-4 text-center">
+                  Advanced options for system configuration
+                </p>
+              </div>
               <Button 
                 onClick={() => navigate('/admin/dev-options')}
-                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors"
+                className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
               >
                 <Code className="mr-2 h-4 w-4" />
                 Developer Options
