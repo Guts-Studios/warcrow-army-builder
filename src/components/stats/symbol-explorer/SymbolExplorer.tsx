@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { SymbolGrid } from "./SymbolGrid";
 import { SymbolDetails } from "./SymbolDetails";
 import { GameSymbol } from "@/components/stats/GameSymbol";
+import { Plus, Check } from "lucide-react";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface SymbolConfig {
   symbol: string;
@@ -26,22 +30,49 @@ const SymbolExplorer: React.FC = () => {
   const [fontSize, setFontSize] = useState<number>(48);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSymbolConfig, setSelectedSymbolConfig] = useState<SymbolConfig | null>(null);
+  const [symbols, setSymbols] = useState<SymbolConfig[]>(symbolConfigs);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  // Form setup for creating new symbols
+  const form = useForm({
+    defaultValues: {
+      symbol: "",
+      fontChar: "",
+      color: "#FFFFFF",
+    },
+  });
 
   const filteredSymbols = searchQuery
-    ? symbolConfigs.filter((config) => {
+    ? symbols.filter((config) => {
         return (
           config.symbol.includes(searchQuery) || 
           config.fontChar.includes(searchQuery) ||
           config.color.toLowerCase().includes(searchQuery.toLowerCase())
         );
       })
-    : symbolConfigs;
+    : symbols;
 
   useEffect(() => {
-    if (symbolConfigs.length > 0 && !selectedSymbolConfig) {
-      setSelectedSymbolConfig(symbolConfigs[0]);
+    if (symbols.length > 0 && !selectedSymbolConfig) {
+      setSelectedSymbolConfig(symbols[0]);
     }
-  }, [selectedSymbolConfig]);
+  }, [selectedSymbolConfig, symbols]);
+
+  const handleAddSymbol = (values: SymbolConfig) => {
+    // Check if the fontChar already exists
+    if (symbols.some(s => s.fontChar === values.fontChar)) {
+      toast.error("A symbol with this font character already exists!");
+      return;
+    }
+
+    // Add the new symbol
+    const newSymbols = [...symbols, values];
+    setSymbols(newSymbols);
+    setSelectedSymbolConfig(values);
+    setShowAddForm(false);
+    toast.success("New symbol added successfully!");
+    form.reset();
+  };
 
   return (
     <div className="space-y-6 bg-black p-6 rounded-lg">
@@ -61,9 +92,116 @@ const SymbolExplorer: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div>
-            <h3 className="text-warcrow-text/90 text-sm mb-3 font-medium">
-              Available Game Symbols <span className="text-warcrow-text/60 text-xs font-normal">({filteredSymbols.length} symbols)</span>
-            </h3>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-warcrow-text/90 text-sm font-medium">
+                Available Game Symbols <span className="text-warcrow-text/60 text-xs font-normal">({filteredSymbols.length} symbols)</span>
+              </h3>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className={`
+                  ${showAddForm 
+                    ? "bg-warcrow-gold/20 border-warcrow-gold text-warcrow-gold" 
+                    : "bg-black/40 border-warcrow-gold/30 text-warcrow-text hover:bg-warcrow-gold/10"}
+                `}
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                {showAddForm ? <Check className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
+                {showAddForm ? "Close Form" : "Add Symbol"}
+              </Button>
+            </div>
+            
+            {showAddForm && (
+              <div className="bg-black/30 p-4 rounded-lg border border-warcrow-gold/20 mb-4">
+                <h4 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Create New Symbol</h4>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleAddSymbol)} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="symbol"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-warcrow-text">Emoji Symbol</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="🔵" 
+                                {...field} 
+                                className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
+                                required
+                              />
+                            </FormControl>
+                            <FormDescription className="text-warcrow-text/50 text-xs">
+                              Emoji to represent this symbol
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="fontChar"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-warcrow-text">Font Character</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="a" 
+                                {...field} 
+                                className="bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
+                                maxLength={1}
+                                required
+                              />
+                            </FormControl>
+                            <FormDescription className="text-warcrow-text/50 text-xs">
+                              Single character from Warcrow font
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="color"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-warcrow-text">Color</FormLabel>
+                            <div className="flex space-x-2">
+                              <FormControl>
+                                <Input 
+                                  type="color" 
+                                  {...field} 
+                                  className="w-12 h-10 p-1 bg-transparent"
+                                />
+                              </FormControl>
+                              <Input 
+                                type="text" 
+                                value={field.value} 
+                                onChange={field.onChange}
+                                className="flex-1 bg-black/60 border-warcrow-gold/30 text-warcrow-gold"
+                              />
+                            </div>
+                            <FormDescription className="text-warcrow-text/50 text-xs">
+                              Symbol color in hex format
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        type="submit" 
+                        className="bg-warcrow-gold/20 border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/30"
+                      >
+                        Add Symbol
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            )}
+            
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
               {filteredSymbols.map((config, index) => (
                 <div
@@ -102,7 +240,7 @@ const SymbolExplorer: React.FC = () => {
               
               <div className="space-y-4">
                 <div 
-                  className="bg-white p-8 rounded-md border border-gray-200 flex items-center justify-center mb-4"
+                  className="bg-[#F1F0FB] p-8 rounded-md border border-gray-300 flex items-center justify-center mb-4"
                   style={{ fontSize: `${fontSize * 1.5}px` }}
                 >
                   <span 
