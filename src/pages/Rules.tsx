@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +92,7 @@ const Rules = () => {
           {
             id: "damage-stress-states",
             title: "Damage, stress, states and other tokens",
-            content: "If your Character has tokens on their profile, do the following for each type of token:\n\n• Damage tokens. The Character keeps their damage tokens on their own profile. While joined to a unit they will be ignored. Damage tokens are only be taken into account again if the unit is destroyed or the Character abandons it.\n• Stress tokens. Compare the stress level between the Character and the unit and leave the higher of the two on the unit.\n• State tokens. Place the Characters state tokens on the unit. Since you can only have one token of each state, remove any repeated states. (See \"States\").\n• Effects tokens. If the Character has any number of effects tokens assigned to them (for example, spells), they are transferred to the unit's profile.\n• Activation token. Remove the activation token from the Character."
+            content: "If your Character has tokens on their profile, do the following for each type of token:\n\n• Damage tokens. The Character keeps their damage tokens on their own profile. While joined to a unit they will be ignored. Damage tokens are only be taken into account again if the unit is destroyed or the Character abandons it.\n• Stress tokens. Compare the stress level between the Character and the unit and leave the higher of the two on the unit.\n• State tokens. Place the Character's state tokens on the unit. Since you can only have one token of each state, remove any repeated states. (See \"States\").\n• Effects tokens. If the Character has any number of effects tokens assigned to them (for example, spells), they are transferred to the unit's profile.\n• Activation token. Remove the activation token from the Character."
           },
           {
             id: "character-game-profile",
@@ -136,16 +137,27 @@ const Rules = () => {
         ]
       };
 
-      return [...chaptersData, charactersChapter].map(chapter => ({
-        ...chapter,
-        sections: sectionsData
-          .filter((section) => section.chapter_id === chapter.id)
-          .map((section) => ({
-            id: section.id,
-            title: section.title,
-            content: section.content,
-          })),
-      }));
+      // Combine chapters and include their sections
+      const updatedChapters = [...chaptersData, charactersChapter].map(chapter => {
+        // For the Characters chapter, we already have the sections defined
+        if (chapter.id === "characters") {
+          return chapter;
+        }
+        
+        // For other chapters, find their sections from sectionsData
+        return {
+          ...chapter,
+          sections: sectionsData
+            .filter((section) => section.chapter_id === chapter.id)
+            .map((section) => ({
+              id: section.id,
+              title: section.title,
+              content: section.content,
+            })),
+        };
+      });
+
+      return updatedChapters;
     },
   });
 
