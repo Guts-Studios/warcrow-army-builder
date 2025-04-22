@@ -6,7 +6,9 @@ import { RulesSearch } from "@/components/rules/RulesSearch";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ChevronUp } from "lucide-react";
-import { NavDropdown } from "@/components/ui/NavDropdown";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CharacterReferences } from "@/components/rules/CharacterReferences";
 
 interface Section {
   id: string;
@@ -26,6 +28,7 @@ const Rules = () => {
   const [expandedChapter, setExpandedChapter] = React.useState<string>();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [caseSensitive, setCaseSensitive] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<string>("rulebook");
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -116,42 +119,47 @@ const Rules = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      {/* Navigation Header */}
-      <div className="bg-black/50 p-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-            <div className="flex flex-col md:flex-row items-center gap-4 mx-auto md:mx-0">
-              <img 
-                src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
-                alt="Warcrow Logo" 
-                className="h-16"
-              />
-              <h1 className="text-3xl font-bold text-warcrow-gold text-center md:text-left">Rules</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <NavDropdown />
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Rules" />
 
       <div className="container max-w-7xl mx-auto py-8 px-4">
-        <div className="space-y-4">
-          <RulesSearch
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            caseSensitive={caseSensitive}
-            setCaseSensitive={setCaseSensitive}
-          />
-          <ChapterNavigation
-            chapters={filteredChapters}
-            selectedSection={selectedSection}
-            setSelectedSection={setSelectedSection}
-            expandedChapter={expandedChapter}
-            setExpandedChapter={setExpandedChapter}
-            highlightText={highlightText}
-          />
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="w-full max-w-md mx-auto bg-black/30 border border-warcrow-gold/20">
+            <TabsTrigger 
+              value="rulebook" 
+              className="flex-1 data-[state=active]:text-warcrow-gold data-[state=active]:bg-black/50"
+            >
+              Rulebook
+            </TabsTrigger>
+            <TabsTrigger 
+              value="characters" 
+              className="flex-1 data-[state=active]:text-warcrow-gold data-[state=active]:bg-black/50"
+            >
+              Characters
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="rulebook" className="space-y-4">
+            <RulesSearch
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              caseSensitive={caseSensitive}
+              setCaseSensitive={setCaseSensitive}
+            />
+            <ChapterNavigation
+              chapters={filteredChapters}
+              selectedSection={selectedSection}
+              setSelectedSection={setSelectedSection}
+              expandedChapter={expandedChapter}
+              setExpandedChapter={setExpandedChapter}
+              highlightText={highlightText}
+            />
+          </TabsContent>
+          
+          <TabsContent value="characters">
+            <CharacterReferences />
+          </TabsContent>
+        </Tabs>
+        
         <Button
           onClick={scrollToTop}
           variant="outline"
