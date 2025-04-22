@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,10 +49,9 @@ const Rules = () => {
 
       if (sectionsError) throw sectionsError;
 
-      // Insert the new Characters under Stress and Morale chapter and its sections
       const charactersChapter = {
         id: "characters",
-        title: "Characters under Stress and Morale",
+        title: "Characters",
         sections: [
           {
             id: "characters-intro",
@@ -138,7 +136,6 @@ const Rules = () => {
         ]
       };
 
-      // Add the new chapter to the existing chapters
       return [...chaptersData, charactersChapter].map(chapter => ({
         ...chapter,
         sections: sectionsData
