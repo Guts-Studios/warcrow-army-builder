@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -148,7 +149,20 @@ const Rules = () => {
           })),
       }));
 
-      return [...typedChapters, charactersChapter];
+      // Find the index of the stress and morale chapter
+      const stressAndMoraleIndex = typedChapters.findIndex(chapter => 
+        chapter.title.toLowerCase().includes("stress and morale")
+      );
+
+      // Insert the characters chapter right after the stress and morale chapter
+      if (stressAndMoraleIndex !== -1) {
+        typedChapters.splice(stressAndMoraleIndex + 1, 0, charactersChapter);
+      } else {
+        // If stress and morale chapter not found, append at the end
+        typedChapters.push(charactersChapter);
+      }
+
+      return typedChapters;
     },
   });
 
