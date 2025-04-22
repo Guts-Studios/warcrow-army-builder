@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -12,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ShareListButtonProps {
   list: SavedList;
@@ -198,57 +198,59 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           <DialogTitle className="text-warcrow-gold">Share Army List</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 mt-4">
-          <p className="text-warcrow-text">
-            Share this link with others to let them view your "{list.name}" list without logging in:
-          </p>
-          
-          <div className="flex items-center gap-2">
-            <input 
-              type="text" 
-              value={shareableLink} 
-              readOnly
-              className="w-full p-2 bg-black/50 border border-warcrow-gold/30 rounded text-warcrow-gold"
-            />
-            <Button 
-              onClick={copyToClipboard}
-              variant="outline"
-              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-            >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
-          
-          <div className="text-sm text-warcrow-text/70 mt-2">
-            Anyone with this link can view your army list without needing to log in. 
-            <span className="text-warcrow-gold"> The link is now compressed for easier sharing.</span>
-          </div>
-
-          <div className="border-t border-warcrow-gold/20 pt-4 mt-4">
-            <h3 className="text-warcrow-gold font-medium mb-3">Print Options</h3>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <Button
-                onClick={() => printList(false)} 
+        <ScrollArea className="h-[60vh] pr-4">
+          <div className="space-y-4 mt-4">
+            <p className="text-warcrow-text">
+              Share this link with others to let them view your "{list.name}" list without logging in:
+            </p>
+            
+            <div className="flex items-center gap-2">
+              <input 
+                type="text" 
+                value={shareableLink} 
+                readOnly
+                className="w-full p-2 bg-black/50 border border-warcrow-gold/30 rounded text-warcrow-gold"
+              />
+              <Button 
+                onClick={copyToClipboard}
                 variant="outline"
                 className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Full List
-              </Button>
-              <Button
-                onClick={() => printList(true)}
-                variant="outline"
-                className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Courtesy List
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
-            <p className="text-xs text-warcrow-text/70 mt-2">
-              Courtesy List hides units with Scout or Ambusher keywords for tournament play.
-            </p>
+            
+            <div className="text-sm text-warcrow-text/70 mt-2">
+              Anyone with this link can view your army list without needing to log in. 
+              <span className="text-warcrow-gold"> The link is now compressed for easier sharing.</span>
+            </div>
+
+            <div className="border-t border-warcrow-gold/20 pt-4 mt-4">
+              <h3 className="text-warcrow-gold font-medium mb-3">Print Options</h3>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <Button
+                  onClick={() => printList(false)} 
+                  variant="outline"
+                  className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Full List
+                </Button>
+                <Button
+                  onClick={() => printList(true)}
+                  variant="outline"
+                  className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Courtesy List
+                </Button>
+              </div>
+              <p className="text-xs text-warcrow-text/70 mt-2">
+                Courtesy List hides units with Scout or Ambusher keywords for tournament play.
+              </p>
+            </div>
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
