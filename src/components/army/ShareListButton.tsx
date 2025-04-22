@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateShareableLink } from "@/utils/shareListUtils";
@@ -193,15 +194,15 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
           Share
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-gold/50">
+      <DialogContent className="bg-warcrow-background border-warcrow-gold/50 w-[95%] max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-warcrow-gold">Share Army List</DialogTitle>
+          <DialogTitle className="text-warcrow-gold text-lg">Share Army List</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="h-[60vh] pr-4">
-          <div className="space-y-4 mt-4">
-            <p className="text-warcrow-text">
-              Share this link with others to let them view your "{list.name}" list without logging in:
+        <ScrollArea className="h-[80vh] md:h-[60vh] pr-4">
+          <div className="space-y-3">
+            <p className="text-warcrow-text text-sm">
+              Share this link with others to let them view your "{list.name}" list:
             </p>
             
             <div className="flex items-center gap-2">
@@ -209,39 +210,42 @@ const ShareListButton = ({ list }: ShareListButtonProps) => {
                 type="text" 
                 value={shareableLink} 
                 readOnly
-                className="w-full p-2 bg-black/50 border border-warcrow-gold/30 rounded text-warcrow-gold"
+                className="w-full p-1.5 text-sm bg-black/50 border border-warcrow-gold/30 rounded text-warcrow-gold"
               />
               <Button 
                 onClick={copyToClipboard}
                 variant="outline"
+                size="sm"
                 className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
             
-            <div className="text-sm text-warcrow-text/70 mt-2">
+            <div className="text-xs text-warcrow-text/70">
               Anyone with this link can view your army list without needing to log in. 
               <span className="text-warcrow-gold"> The link is now compressed for easier sharing.</span>
             </div>
 
-            <div className="border-t border-warcrow-gold/20 pt-4 mt-4">
-              <h3 className="text-warcrow-gold font-medium mb-3">Print Options</h3>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="border-t border-warcrow-gold/20 pt-3 mt-3">
+              <h3 className="text-warcrow-gold font-medium text-sm mb-2">Print Options</h3>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={() => printList(false)} 
                   variant="outline"
+                  size="sm"
                   className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
                 >
-                  <Printer className="h-4 w-4 mr-2" />
+                  <Printer className="h-4 w-4 mr-1" />
                   Print Full List
                 </Button>
                 <Button
                   onClick={() => printList(true)}
                   variant="outline"
+                  size="sm"
                   className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
                 >
-                  <Printer className="h-4 w-4 mr-2" />
+                  <Printer className="h-4 w-4 mr-1" />
                   Print Courtesy List
                 </Button>
               </div>
