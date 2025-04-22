@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -137,27 +136,19 @@ const Rules = () => {
         ]
       };
 
-      // Combine chapters and include their sections
-      const updatedChapters = [...chaptersData, charactersChapter].map(chapter => {
-        // For the Characters chapter, we already have the sections defined
-        if (chapter.id === "characters") {
-          return chapter;
-        }
-        
-        // For other chapters, find their sections from sectionsData
-        return {
-          ...chapter,
-          sections: sectionsData
-            .filter((section) => section.chapter_id === chapter.id)
-            .map((section) => ({
-              id: section.id,
-              title: section.title,
-              content: section.content,
-            })),
-        };
-      });
+      const typedChapters: Chapter[] = chaptersData.map(chapter => ({
+        id: chapter.id,
+        title: chapter.title,
+        sections: sectionsData
+          .filter((section) => section.chapter_id === chapter.id)
+          .map((section) => ({
+            id: section.id,
+            title: section.title,
+            content: section.content,
+          })),
+      }));
 
-      return updatedChapters;
+      return [...typedChapters, charactersChapter];
     },
   });
 
