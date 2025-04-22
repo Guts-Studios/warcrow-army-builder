@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -7,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Clipboard, MessageSquare } from "lucide-react";
+import { Clipboard, MessageSquare, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TextHighlighter } from "./TextHighlighter";
 import { useSearch } from "@/contexts/SearchContext";
@@ -148,14 +149,14 @@ export const ChapterNavigation = ({
                           <ChevronRight className="h-3 w-3 mr-1 inline-block opacity-60" />
                         )}
                         <span className="break-words">
-                          {highlightText(section.title)}
+                          <TextHighlighter text={section.title} />
                         </span>
                       </Button>
                       {expandedSection === section.id && (
                         <div className="mt-4 mb-6 px-4 py-3 bg-black/20 rounded-lg">
                           <div className="flex justify-between items-start mb-4">
                             <h3 className="text-xl font-semibold text-warcrow-gold">
-                              {highlightText(section.title)}
+                              <TextHighlighter text={section.title} />
                             </h3>
                             <div className="flex gap-2">
                               <Button
@@ -179,7 +180,7 @@ export const ChapterNavigation = ({
                             </div>
                           </div>
                           <div className="text-warcrow-text text-base leading-relaxed whitespace-pre-wrap">
-                            {highlightText(section.content)}
+                            <TextHighlighter text={section.content} />
                           </div>
                         </div>
                       )}
