@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +19,11 @@ export const CharacterReferences = () => {
     "northern-tribes": northernTribesCharacters,
     "scions-of-yaldabaoth": scionsOfYaldabaothCharacters,
     "syenann": syenannCharacters
+  };
+
+  // Helper function to sort characters by points
+  const sortCharacters = (characters) => {
+    return [...characters].sort((a, b) => a.pointsCost - b.pointsCost);
   };
 
   return (
@@ -59,7 +63,7 @@ export const CharacterReferences = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {charactersByFaction[faction.id].map((character) => (
+                      {sortCharacters(charactersByFaction[faction.id]).map((character) => (
                         <TableRow key={character.id} className="border-warcrow-gold/30">
                           <TableCell className="font-medium text-warcrow-text">
                             {character.name}
