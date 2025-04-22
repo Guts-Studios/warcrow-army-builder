@@ -122,43 +122,21 @@ const Rules = () => {
       <PageHeader title="Rules" />
 
       <div className="container max-w-7xl mx-auto py-8 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="w-full max-w-md mx-auto bg-black/30 border border-warcrow-gold/20">
-            <TabsTrigger 
-              value="rulebook" 
-              className="flex-1 data-[state=active]:text-warcrow-gold data-[state=active]:bg-black/50"
-            >
-              Rulebook
-            </TabsTrigger>
-            <TabsTrigger 
-              value="characters" 
-              className="flex-1 data-[state=active]:text-warcrow-gold data-[state=active]:bg-black/50"
-            >
-              Characters
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="rulebook" className="space-y-4">
-            <RulesSearch
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              caseSensitive={caseSensitive}
-              setCaseSensitive={setCaseSensitive}
-            />
-            <ChapterNavigation
-              chapters={filteredChapters}
-              selectedSection={selectedSection}
-              setSelectedSection={setSelectedSection}
-              expandedChapter={expandedChapter}
-              setExpandedChapter={setExpandedChapter}
-              highlightText={highlightText}
-            />
-          </TabsContent>
-          
-          <TabsContent value="characters">
-            <CharacterReferences />
-          </TabsContent>
-        </Tabs>
+        <RulesSearch
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          caseSensitive={caseSensitive}
+          setCaseSensitive={setCaseSensitive}
+        />
+        
+        <ChapterNavigation
+          chapters={filteredChapters}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          expandedChapter={expandedChapter}
+          setExpandedChapter={setExpandedChapter}
+          highlightText={highlightText}
+        />
         
         <Button
           onClick={scrollToTop}
