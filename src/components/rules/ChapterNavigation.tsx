@@ -7,20 +7,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Clipboard, MessageSquare } from "lucide-react";
+import { Clipboard, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Chapter {
-  id: string;
-  title: string;
-  sections: Section[];
-}
-
-interface Section {
-  id: string;
-  title: string;
-  content: string;
-}
+import { TextHighlighter } from "./TextHighlighter";
+import { useSearch } from "@/contexts/SearchContext";
+import type { Chapter, Section } from "@/hooks/useRules";
 
 interface ChapterNavigationProps {
   chapters: Chapter[];
@@ -28,7 +19,6 @@ interface ChapterNavigationProps {
   setSelectedSection: (section: Section) => void;
   expandedChapter: string | undefined;
   setExpandedChapter: (chapterId: string | undefined) => void;
-  highlightText: (text: string) => React.ReactNode;
 }
 
 export const ChapterNavigation = ({
@@ -37,10 +27,10 @@ export const ChapterNavigation = ({
   setSelectedSection,
   expandedChapter,
   setExpandedChapter,
-  highlightText,
 }: ChapterNavigationProps) => {
   const { toast } = useToast();
   const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
+  const { searchTerm, caseSensitive } = useSearch();
 
   const handleChapterClick = (chapter: Chapter) => {
     if (chapter.sections.length > 0) {
@@ -81,6 +71,31 @@ export const ChapterNavigation = ({
     return chapterTitle === "Prepare the Game" && !sectionTitle.match(/^\d+\./);
   };
 
+  const filteredChapters = React.useMemo(() => {
+    if (!searchTerm) return chapters;
+
+    return chapters
+      .map((chapter) => ({
+        ...chapter,
+        sections: chapter.sections.filter(
+          (section) =>
+            (caseSensitive
+              ? section.title.includes(searchTerm)
+              : section.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (caseSensitive
+              ? section.content.includes(searchTerm)
+              : section.content.toLowerCase().includes(searchTerm.toLowerCase()))
+        ),
+      }))
+      .filter(
+        (chapter) =>
+          chapter.sections.length > 0 ||
+          (caseSensitive
+            ? chapter.title.includes(searchTerm)
+            : chapter.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+  }, [chapters, searchTerm, caseSensitive]);
+
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6 overflow-y-auto" style={{
       WebkitOverflowScrolling: 'touch',
@@ -94,7 +109,7 @@ export const ChapterNavigation = ({
           value={expandedChapter}
           onValueChange={setExpandedChapter}
         >
-          {chapters.map((chapter) => (
+          {filteredChapters.map((chapter) => (
             <AccordionItem 
               key={chapter.id} 
               value={chapter.id}
@@ -107,7 +122,7 @@ export const ChapterNavigation = ({
                   handleChapterClick(chapter);
                 }}
               >
-                {highlightText(chapter.title)}
+                <TextHighlighter text={chapter.title} />
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-1 pl-4">

@@ -1,22 +1,14 @@
+
 import * as React from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useSearch } from "@/contexts/SearchContext";
 
-interface RulesSearchProps {
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  caseSensitive: boolean;
-  setCaseSensitive: (value: boolean) => void;
-}
+export const RulesSearch = () => {
+  const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive } = useSearch();
 
-export const RulesSearch = ({
-  searchTerm,
-  setSearchTerm,
-  caseSensitive,
-  setCaseSensitive,
-}: RulesSearchProps) => {
   return (
     <div className="space-y-4">
       <div className="relative">
