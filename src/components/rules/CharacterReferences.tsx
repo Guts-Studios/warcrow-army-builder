@@ -52,6 +52,7 @@ export const CharacterReferences = () => {
                       <TableRow className="border-warcrow-gold/30">
                         <TableHead className="text-warcrow-gold">Name</TableHead>
                         <TableHead className="text-warcrow-gold">Points</TableHead>
+                        <TableHead className="text-warcrow-gold">AVB</TableHead>
                         <TableHead className="text-warcrow-gold">Command</TableHead>
                         <TableHead className="text-warcrow-gold">Keywords</TableHead>
                         <TableHead className="text-warcrow-gold">Special Rules</TableHead>
@@ -66,8 +67,9 @@ export const CharacterReferences = () => {
                               <Badge className="ml-2 bg-warcrow-gold text-black">High Command</Badge>
                             )}
                           </TableCell>
-                          <TableCell>{character.pointsCost}</TableCell>
-                          <TableCell>{character.command}</TableCell>
+                          <TableCell className="text-white">{character.pointsCost}</TableCell>
+                          <TableCell className="text-white">{character.AVB}</TableCell>
+                          <TableCell className="text-white">{character.command}</TableCell>
                           <TableCell>
                             <div className="flex flex-wrap gap-1">
                               {character.keywords?.map((keyword, index) => (
