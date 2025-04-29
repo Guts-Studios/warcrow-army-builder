@@ -264,7 +264,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 3/27/2025 5:54 PM Mountain Time SIGN UPS FIXED!! Also we're in Milwaukee looking forward to Adepticon! New features opening soon!
+            - 4/29/2025 Hey everyone! We took a quick break but working on Play Mode, fixing bugs, general optimization. Updates soon! 
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
