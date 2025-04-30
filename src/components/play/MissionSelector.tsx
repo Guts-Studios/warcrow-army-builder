@@ -75,6 +75,25 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj2', name: 'Safe Zone Bravo', value: 2 },
         { id: 'obj3', name: 'Safe Zone Charlie', value: 2 }
       ]
+    },
+    {
+      id: 'homebrew-community',
+      title: 'Homebrew: Color Control',
+      name: 'Homebrew: Color Control',
+      description: 'Control objectives of different colors, including your own and your opponent\'s.',
+      objective: 'Control colored objectives',
+      details: 'Preparation\nPlace 4 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling the center neutral objective (1).\n• 1 VP for controlling East neutral objective (2).\n• 1 VP for controlling your color objective.\n• 1 VP for controlling your opponent\'s color objective.\n\nEnd of the game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield. If you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nThis Homebrew mission was created by our Community member Anthony Pham, aka Viridian',
+      objectiveDescription: 'Control colored objectives for points',
+      turnCount: 5,
+      roundCount: 3,
+      specialRules: ['Colored objective markers', 'Higher value for center objective'],
+      mapImage: '/art/missions/take_positions.jpg', // Using existing image as placeholder
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Center Neutral', value: 2 },
+        { id: 'obj2', name: 'East Neutral', value: 1 },
+        { id: 'obj3', name: 'Your Color', value: 1 },
+        { id: 'obj4', name: 'Opponent Color', value: 1 }
+      ]
     }
   ];
 

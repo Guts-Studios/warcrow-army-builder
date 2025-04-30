@@ -6,6 +6,7 @@ const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
+  'Homebrew: Color Control': '/art/missions/take_positions.jpg', // Using existing image for now
 };
 
 // Map dice numbers to image paths
@@ -41,6 +42,8 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
       </div>
     );
   }
+
+  const isHomebrewMission = mission.title.toLowerCase().includes('homebrew');
 
   const formatText = (text: string) => {
     let formattedText = text;
@@ -88,9 +91,16 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
 
   return (
     <div className="space-y-6 bg-black/70 p-6 rounded-lg border border-warcrow-gold/20">
-      <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-        {mission.title}
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
+          {mission.title}
+        </h2>
+        {isHomebrewMission && (
+          <span className="px-2 py-1 text-xs bg-purple-800/40 text-purple-200 rounded-md border border-purple-600">
+            Community Created
+          </span>
+        )}
+      </div>
       <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
         <div className="text-warcrow-text whitespace-pre-wrap">
           {renderTextWithDice(mission.details)}
@@ -102,6 +112,11 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
           alt={`${mission.title} Mission`}
           className="w-full rounded-lg shadow-lg object-contain max-h-[400px]"
         />
+        {isHomebrewMission && (
+          <div className="mt-2 text-center italic text-purple-300/80 text-sm">
+            Mission image for illustration purposes only
+          </div>
+        )}
       </div>
     </div>
   );
