@@ -2,6 +2,7 @@
 import React from 'react';
 import { useGame } from '@/context/GameContext';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from "@/components/ui/badge";
 import { Mission } from '@/types/game';
 
 interface MissionSelectorProps {
@@ -36,7 +37,8 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj3', name: 'Charlie', value: 1 },
         { id: 'obj4', name: 'Delta', value: 1 },
         { id: 'obj5', name: 'Echo', value: 1 }
-      ]
+      ],
+      isOfficial: true
     },
     {
       id: 'consolidated-progress',
@@ -56,7 +58,8 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj3', name: 'Center', value: 3 },
         { id: 'obj4', name: 'Enemy Forward', value: 4 },
         { id: 'obj5', name: 'Enemy Base', value: 5 }
-      ]
+      ],
+      isOfficial: true
     },
     {
       id: 'fog-of-death',
@@ -74,7 +77,8 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj1', name: 'Safe Zone Alpha', value: 2 },
         { id: 'obj2', name: 'Safe Zone Bravo', value: 2 },
         { id: 'obj3', name: 'Safe Zone Charlie', value: 2 }
-      ]
+      ],
+      isOfficial: true
     },
     {
       id: 'community-breached-front',
@@ -93,7 +97,9 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj2', name: 'East Neutral', value: 1 },
         { id: 'obj3', name: 'Your Color', value: 1 },
         { id: 'obj4', name: 'Opponent Color', value: 1 }
-      ]
+      ],
+      isHomebrew: true,
+      communityCreator: 'Anthony Pham, aka Viridian'
     },
     {
       id: 'community-battle-lines',
@@ -113,7 +119,9 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'objB', name: 'Neutral B', value: 1 },
         { id: 'objC', name: 'Neutral C', value: 1 },
         { id: 'objS', name: 'Supply Chest', value: 0 }
-      ]
+      ],
+      isHomebrew: true,
+      communityCreator: 'Anthony Pham, aka Viridian'
     }
   ];
 
@@ -135,29 +143,48 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {missions.map((mission) => (
-        <Card 
-          key={mission.id}
-          className={`cursor-pointer transition-all h-full flex flex-col hover:border-warcrow-gold ${
-            activeMissionId === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : 'border-transparent'
-          }`}
-          onClick={() => handleMissionSelect(mission)}
-        >
-          <CardContent className="p-0 flex-1 flex flex-col bg-black/70 rounded-lg overflow-hidden">
-            <div className="w-full h-48 overflow-hidden">
-              <img 
-                src={mission.mapImage || '/placeholder.svg'} 
-                alt={mission.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-4 flex-1 flex flex-col bg-black/90">
-              <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
-              <p className="text-sm mt-1 text-warcrow-text/80">{mission.description}</p>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {missions.map((mission) => {
+        const isCommunityMission = mission.isHomebrew;
+        const isOfficialMission = mission.isOfficial;
+        
+        return (
+          <Card 
+            key={mission.id}
+            className={`cursor-pointer transition-all h-full flex flex-col hover:border-warcrow-gold ${
+              activeMissionId === mission.id ? 'border-warcrow-gold bg-warcrow-gold/10' : 'border-transparent'
+            }`}
+            onClick={() => handleMissionSelect(mission)}
+          >
+            <CardContent className="p-0 flex-1 flex flex-col bg-black/70 rounded-lg overflow-hidden">
+              <div className="w-full h-48 overflow-hidden">
+                <img 
+                  src={mission.mapImage || '/placeholder.svg'} 
+                  alt={mission.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-4 flex-1 flex flex-col bg-black/90">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-bold text-warcrow-gold">{mission.title}</h3>
+                  <div className="flex gap-1">
+                    {isOfficialMission && (
+                      <Badge variant="secondary" className="bg-warcrow-gold/20 text-warcrow-gold border-warcrow-gold/40 text-xs">
+                        Official
+                      </Badge>
+                    )}
+                    {isCommunityMission && (
+                      <Badge variant="outline" className="bg-purple-800/40 text-purple-200 border-purple-600 text-xs">
+                        Community
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm mt-1 text-warcrow-text/80">{mission.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   );
 };

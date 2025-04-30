@@ -1,6 +1,7 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mission } from "./types";
+import { Badge } from "@/components/ui/badge";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
@@ -47,6 +48,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   }
 
   const isCommunityMission = mission.isHomebrew;
+  const isOfficialMission = !mission.isHomebrew;
 
   const formatText = (text: string) => {
     let formattedText = text;
@@ -98,11 +100,18 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
           {mission.title}
         </h2>
-        {isCommunityMission && (
-          <span className="px-2 py-1 text-xs bg-purple-800/40 text-purple-200 rounded-md border border-purple-600">
-            Community Created
-          </span>
-        )}
+        <div className="flex gap-2">
+          {isOfficialMission && (
+            <Badge variant="secondary" className="bg-warcrow-gold/20 text-warcrow-gold border-warcrow-gold/40">
+              Official
+            </Badge>
+          )}
+          {isCommunityMission && (
+            <Badge variant="outline" className="bg-purple-800/40 text-purple-200 border-purple-600">
+              Community
+            </Badge>
+          )}
+        </div>
       </div>
       <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
         <div className="text-warcrow-text whitespace-pre-wrap">

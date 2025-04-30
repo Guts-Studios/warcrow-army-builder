@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Mission } from "./types";
+import { Badge } from "@/components/ui/badge";
 
 interface MissionListProps {
   missions: Mission[];
@@ -25,6 +26,7 @@ export const MissionList = ({
         <div className="space-y-2">
           {missions.map((mission) => {
             const isCommunityMission = mission.isHomebrew;
+            const isOfficialMission = !mission.isHomebrew;
             
             return (
               <Button
@@ -38,11 +40,18 @@ export const MissionList = ({
                 onClick={() => onSelectMission(mission)}
               >
                 {mission.title}
-                {isCommunityMission && (
-                  <span className="ml-2 px-2 py-0.5 text-xs bg-purple-800/40 text-purple-200 rounded-md">
-                    Community
-                  </span>
-                )}
+                <div className="ml-auto flex gap-2">
+                  {isOfficialMission && (
+                    <Badge variant="secondary" className="bg-warcrow-gold/20 text-warcrow-gold border-warcrow-gold/40">
+                      Official
+                    </Badge>
+                  )}
+                  {isCommunityMission && (
+                    <Badge variant="outline" className="bg-purple-800/40 text-purple-200 border-purple-600">
+                      Community
+                    </Badge>
+                  )}
+                </div>
               </Button>
             );
           })}

@@ -25,6 +25,14 @@ const Missions = () => {
           return;
         }
 
+        // Format official missions
+        const formattedMissions = data.map(mission => ({
+          id: mission.id,
+          title: mission.title,
+          details: mission.mission_details || '',
+          isHomebrew: false // Mark as official
+        }));
+
         // Add community missions
         const communityMissions = [
           {
@@ -42,12 +50,6 @@ const Missions = () => {
             communityCreator: 'Anthony Pham, aka Viridian'
           }
         ];
-
-        const formattedMissions = data.map(mission => ({
-          id: mission.id,
-          title: mission.title,
-          details: mission.mission_details || ''
-        }));
 
         // Add the community missions to the formatted missions
         formattedMissions.push(...communityMissions);

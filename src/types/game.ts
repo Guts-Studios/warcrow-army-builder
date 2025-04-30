@@ -53,6 +53,9 @@ export interface Mission {
   objectiveMarkers?: any[];
   turnCount?: number;
   roundCount?: number; // Adding roundCount property
+  isOfficial?: boolean; // Add isOfficial flag
+  isHomebrew?: boolean; // Add isHomebrew flag
+  communityCreator?: string; // Add communityCreator for attribution
 }
 
 export interface Unit {
