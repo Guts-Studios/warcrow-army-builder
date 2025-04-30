@@ -24,7 +24,7 @@ export const MissionList = ({
       ) : (
         <div className="space-y-2">
           {missions.map((mission) => {
-            const isHomebrewMission = mission.title.toLowerCase().includes('homebrew');
+            const isCommunityMission = mission.isHomebrew;
             
             return (
               <Button
@@ -34,11 +34,11 @@ export const MissionList = ({
                   selectedMission?.id === mission.id
                     ? "text-warcrow-gold bg-black/20"
                     : "text-warcrow-text hover:text-warcrow-gold hover:bg-black/20"
-                } ${isHomebrewMission ? "border-l-4 border-purple-600" : ""}`}
+                } ${isCommunityMission ? "border-l-4 border-purple-600" : ""}`}
                 onClick={() => onSelectMission(mission)}
               >
                 {mission.title}
-                {isHomebrewMission && (
+                {isCommunityMission && (
                   <span className="ml-2 px-2 py-0.5 text-xs bg-purple-800/40 text-purple-200 rounded-md">
                     Community
                   </span>
