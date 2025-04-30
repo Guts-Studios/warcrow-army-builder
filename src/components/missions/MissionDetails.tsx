@@ -89,7 +89,16 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   };
 
   const renderTextWithDice = (text: string) => {
-    const formattedText = formatText(text);
+    // Update the "Woods" section with the new text
+    let updatedText = text;
+    const woodsSectionOld = "Woods\nWoods in the blue deployment zone have the keywords:\nBlock LoS and Cover (7).";
+    const woodsSectionNew = "Woods\nWoods in the blue deployment zone have the keywords:\nBlock LoS and Cover (BLK).";
+    
+    if (updatedText.includes(woodsSectionOld)) {
+      updatedText = updatedText.replace(woodsSectionOld, woodsSectionNew);
+    }
+    
+    const formattedText = formatText(updatedText);
     const parts = formattedText.split(/(###DICE\[d[1-9]\]###)/g);
 
     return parts.map((part, index) => {
