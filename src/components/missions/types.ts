@@ -4,5 +4,6 @@ export interface Mission {
   title: string;
   details: string;
   isHomebrew?: boolean;
+  isOfficial?: boolean;
   communityCreator?: string; 
 }
