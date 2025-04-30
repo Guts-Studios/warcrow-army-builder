@@ -21,11 +21,11 @@ const MISSION_CARD_IMAGES: Record<string, string> = {
   'Tree Mother': '/art/missions/tree_mother_card.jpg',
 };
 
-// Map dice symbols to character codes for the Warcrow font
-const DICE_CODES: Record<string, number> = {
-  '[d1]': 49, // Character code for "1" in the Warcrow font (star symbol)
-  '[d7]': 55, // Character code for "7" in the Warcrow font (shield/defense symbol)
-  '[d9]': 57, // Character code for "9" in the Warcrow font (another shield variant)
+// Map dice symbols to character codes for the Warcrow font and their colors
+const DICE_CODES: Record<string, { code: number; color: string }> = {
+  '[d1]': { code: 49, color: '#FCD34D' }, // Yellow for star/success symbol
+  '[d7]': { code: 55, color: '#000000' }, // Black for shield/defense symbol
+  '[d9]': { code: 57, color: '#22C55E' }, // Green for another defense variant
 };
 
 const HIGHLIGHTED_WORDS = [
@@ -100,13 +100,16 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     return parts.map((part, index) => {
       const diceMatch = part.match(/###DICE\[d([1-9])\]###/);
       if (diceMatch) {
-        const diceCode = DICE_CODES[`[d${diceMatch[1]}]`];
+        const diceType = `[d${diceMatch[1]}]`;
+        const diceInfo = DICE_CODES[diceType];
+        
         return (
           <GameSymbol 
             key={index}
-            code={diceCode}
+            code={diceInfo.code}
             size="md"
             className="inline-block mx-1"
+            style={{ color: diceInfo.color }}
           />
         );
       }
