@@ -7,8 +7,9 @@ const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
-  'Breached Front': '/art/missions/breached_front.jpg', // Updated to use correct image
-  'Battle Lines': '/art/missions/battle_lines.jpg', // Updated to use correct image
+  'Tree Mother': '/art/missions/tree_mother.jpg', // Added the new Tree Mother mission image
+  'Breached Front': '/art/missions/breached_front.jpg',
+  'Battle Lines': '/art/missions/battle_lines.jpg',
 };
 
 // Map dice numbers to image paths
@@ -19,6 +20,8 @@ const DICE_IMAGES: Record<string, string> = {
   '[d4]': '/art/dice/d4.png',
   '[d5]': '/art/dice/d5.png',
   '[d6]': '/art/dice/d6.png',
+  '[d7]': '/art/dice/d1.png', // Using d1.png for d7 as placeholder
+  '[d9]': '/art/dice/d1.png', // Using d1.png for d9 as placeholder
 };
 
 const HIGHLIGHTED_WORDS = [
@@ -30,7 +33,13 @@ const HIGHLIGHTED_WORDS = [
   'Fog effects',
   'End of the game',
   'End of game',
-  'Special Rules'
+  'Special Rules',
+  'The Tree Mother',
+  'Event 1: The Tree Mother',
+  'Woods',
+  'Sÿena sprouts',
+  'Destroy a sprout',
+  'Return home'
 ];
 
 interface MissionDetailsProps {
@@ -70,10 +79,10 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
 
   const renderTextWithDice = (text: string) => {
     const formattedText = formatText(text);
-    const parts = formattedText.split(/(###DICE\[d[1-6]\]###)/g);
+    const parts = formattedText.split(/(###DICE\[d[1-9]\]###)/g);
 
     return parts.map((part, index) => {
-      const diceMatch = part.match(/###DICE\[d([1-6])\]###/);
+      const diceMatch = part.match(/###DICE\[d([1-9])\]###/);
       if (diceMatch) {
         const imagePath = DICE_IMAGES[`[d${diceMatch[1]}]`];
         return (

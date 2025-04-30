@@ -33,6 +33,15 @@ const Missions = () => {
           isHomebrew: false // Mark as official
         }));
 
+        // Add the Tree Mother official mission
+        formattedMissions.push({
+          id: 'official-tree-mother',
+          title: 'Tree Mother',
+          details: 'Preparation\nThe battlefield is 60x60 strides in size.\nGame size: 205 points.\n• Blue deployment zone: Sÿenann (defending side)\n• Red deployment zone: Raiders (attacking side)\nBefore starting the game, randomly place one of the\nfollowing tokens on each of the objectives:\n• Tinge token.\n• Damage token.\n• Command token.\n• Activation token.\nPlace Event 1 token in position 1 on the turn counter.\n\nThe Tree Mother\nTo represent the Tree Mother, use a 60mm base.\n\nRounds\n• The first round lasts 5 turns.\n• The second round lasts 4 turns.\n• The third round lasts 3 turns.\n• The fourth round lasts 2 turns.\n\nEvent 1: The Tree Mother\nWhen this event is triggered do the following:\n• Forest Protectors. A Nemorous Sÿenann Character\ncan be stressed so that the Mother Tree is considered\nan ally of the Sÿenann during its activation.\n• The Tree Mother is activated (use the behavior on\nits profile).\n• Advance the Event 1 token 3 positions (Mother Tree\nhas INI 3).\n\nScoring\nAt the end of the scenario:\n• Sÿenann (defending side):\n» 1 VP for each sÿena sprout that isn\'t destroyed\n» 1 VP if the Tree Mother has not been destroyed\n• Raiders (attacking side):\n» 1 VP for each sÿena sprout destroyed\n» 1 VP if the Tree Mother has been destroyed\n\nEnd of the game\nThe game ends when any of the following conditions are\nmet; at the end of round 4, when one of the companies\nhas no units on the battlefield, when all units of one of\nthe companies are demoralized, or if the Mother Tree\nand all 4 sÿena sprouts have been destroyed.\n\nWoods\nWoods in the blue deployment zone have the keywords:\nBlock LoS and Cover (7).\n\nSÿena sprouts\nEach brown objective represents a sÿena sprout.\n\nDestroy a sprout\nAny unit of the raiding faction can destroy a sprout by\nperforming the simple action destroy sprout. To do so,\nthe unit must meet the following requirements:\n• The raiding unit must be adjacent to the sÿena sprout.\n• The raiding unit cannot be locked in combat.\n• The Tree Mother must not be adjacent to the sprout.\nTo resolve the action:\n• The raiding unit must face off its attack (without\nactivating switches or adding modifiers) at the defense\nvalue [d7][d7][d9] If the Sÿenann control the target\n(sprout), they add BLOCK,BLOCK to the defense roll.\n• If the raiding unit rolls at least 1 uncanceled [d1], during\nresolution, destroy the sprout (flip the objective\nmarker so its brown side is not showing).\n\nReturn home\nWhen a Sÿenann unit is required to flee, it will do so by\nmoving towards the nearest battlefield edge (ignoring\nthe deployment zone condition).',
+          isHomebrew: false,
+          isOfficial: true
+        });
+
         // Add community missions
         const communityMissions = [
           {
