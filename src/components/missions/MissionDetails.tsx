@@ -22,10 +22,10 @@ const MISSION_CARD_IMAGES: Record<string, string> = {
 };
 
 // Map dice symbols to character codes for the Warcrow font and their colors
-const DICE_CODES: Record<string, { code: number; color: string }> = {
-  '[d1]': { code: 49, color: '#FCD34D' }, // Yellow for star/success symbol
-  '[d7]': { code: 55, color: '#000000' }, // Black for shield/defense symbol
-  '[d9]': { code: 57, color: '#22C55E' }, // Green for another defense variant
+const DICE_CODES: Record<string, { code: number; color: string; bgColor: string }> = {
+  '[d1]': { code: 49, color: '#FCD34D', bgColor: '#433519' }, // Yellow star/success with dark brown bg
+  '[d7]': { code: 55, color: '#000000', bgColor: '#d1d1d1' }, // Black shield/defense with light gray bg
+  '[d9]': { code: 57, color: '#22C55E', bgColor: '#1a3a28' }, // Green shield with dark green bg
 };
 
 const HIGHLIGHTED_WORDS = [
@@ -108,8 +108,11 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
             key={index}
             code={diceInfo.code}
             size="md"
-            className="inline-block mx-1"
-            style={{ color: diceInfo.color }}
+            className="inline-block mx-1 rounded px-1"
+            style={{ 
+              color: diceInfo.color,
+              backgroundColor: diceInfo.bgColor
+            }}
           />
         );
       }
