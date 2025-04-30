@@ -87,7 +87,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       turnCount: 5,
       roundCount: 3,
       specialRules: ['Colored objective markers', 'Higher value for center objective'],
-      mapImage: '/art/missions/take_positions.jpg', // Using existing image as placeholder
+      mapImage: '/art/missions/breached_front.jpg', // Updated path
       objectiveMarkers: [
         { id: 'obj1', name: 'Center Neutral', value: 2 },
         { id: 'obj2', name: 'East Neutral', value: 1 },
@@ -106,7 +106,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       turnCount: 5,
       roundCount: 3,
       specialRules: ['Colored objective markers', 'Supply Chest mechanics', 'Extra unit activation'],
-      mapImage: '/art/missions/take_positions.jpg', // Using existing image as placeholder
+      mapImage: '/art/missions/battle_lines.jpg', // Updated path
       objectiveMarkers: [
         { id: 'objA1', name: 'Your Color A', value: 1 },
         { id: 'objA2', name: 'Opponent Color A', value: 2 },
