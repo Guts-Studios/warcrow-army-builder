@@ -31,10 +31,10 @@ const Missions = () => {
           title: mission.title,
           details: mission.mission_details || '',
           isHomebrew: false, // Mark as official
-          isOfficial: true // This should now work with the updated Mission type
+          isOfficial: true
         }));
 
-        // Add the Tree Mother official mission
+        // Add the Tree Mother official mission with updated details
         formattedMissions.push({
           id: 'official-tree-mother',
           title: 'Tree Mother',
