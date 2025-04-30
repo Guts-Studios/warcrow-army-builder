@@ -107,7 +107,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
           <GameSymbol 
             key={index}
             code={diceInfo.code}
-            size="md"
+            size="xl" // Increased from "md" to "xl"
             className="inline-block mx-1 rounded px-1"
             style={{ 
               color: diceInfo.color,
