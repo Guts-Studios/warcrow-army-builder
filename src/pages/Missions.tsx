@@ -30,7 +30,8 @@ const Missions = () => {
           id: mission.id,
           title: mission.title,
           details: mission.mission_details || '',
-          isHomebrew: false // Mark as official
+          isHomebrew: false, // Mark as official
+          isOfficial: true // This should now work with the updated Mission type
         }));
 
         // Add the Tree Mother official mission
