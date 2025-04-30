@@ -6,7 +6,7 @@ const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
-  'Battle Lines': '/art/missions/take_positions.jpg', // Using existing image for now
+  'Breached Front': '/art/missions/take_positions.jpg', // Using existing image for now
 };
 
 // Map dice numbers to image paths

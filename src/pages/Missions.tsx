@@ -27,8 +27,8 @@ const Missions = () => {
 
         // Add community mission
         const communityMission = {
-          id: 'community-battle-lines',
-          title: 'Battle Lines',
+          id: 'community-breached-front',
+          title: 'Breached Front',
           details: 'Preparation\nPlace 4 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling the center neutral objective (1).\n• 1 VP for controlling East neutral objective (2).\n• 1 VP for controlling your color objective.\n• 1 VP for controlling your opponent\'s color objective.\n\nEnd of the game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield. If you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nThis mission was created by our Community member Anthony Pham, aka Viridian',
           isHomebrew: true,
           communityCreator: 'Anthony Pham, aka Viridian'
