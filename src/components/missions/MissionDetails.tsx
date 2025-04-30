@@ -2,6 +2,9 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mission } from "./types";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState } from "react";
+import { ZoomIn } from "lucide-react";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
@@ -53,6 +56,8 @@ interface MissionDetailsProps {
 }
 
 export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
+
   if (!mission) {
     return (
       <div className="text-warcrow-text text-center py-8 bg-black/50 rounded-md border border-warcrow-gold/10">
@@ -137,11 +142,21 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         {/* Display card image if available */}
         {hasCardImage && (
           <div className="mb-4">
-            <img
-              src={MISSION_CARD_IMAGES[mission.title]}
-              alt={`${mission.title} Mission Card`}
-              className="w-full rounded-lg shadow-lg object-contain max-h-[300px]"
-            />
+            <button 
+              onClick={() => setIsCardDialogOpen(true)}
+              className="relative group w-full cursor-pointer"
+            >
+              <img
+                src={MISSION_CARD_IMAGES[mission.title]}
+                alt={`${mission.title} Mission Card`}
+                className="w-full rounded-lg shadow-lg object-contain max-h-[300px] transition-opacity group-hover:opacity-90"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-black/70 p-3 rounded-full">
+                  <ZoomIn className="h-6 w-6 text-warcrow-gold" />
+                </div>
+              </div>
+            </button>
           </div>
         )}
         {/* Display mission image */}
@@ -156,6 +171,17 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
           </div>
         )}
       </div>
+      
+      {/* Dialog for enlarged card image */}
+      <Dialog open={isCardDialogOpen} onOpenChange={setIsCardDialogOpen}>
+        <DialogContent className="max-w-4xl p-1 bg-black border-warcrow-gold/30">
+          <img
+            src={hasCardImage ? MISSION_CARD_IMAGES[mission.title] : ''}
+            alt={`${mission.title} Mission Card (Enlarged)`}
+            className="w-full object-contain max-h-[80vh]"
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
