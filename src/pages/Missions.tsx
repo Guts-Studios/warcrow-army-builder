@@ -43,7 +43,7 @@ const Missions = () => {
           isOfficial: true
         });
 
-        // Add community missions
+        // Add community missions - Adding isOfficial: false to fix the TypeScript error
         const communityMissions = [
           {
             id: 'community-breached-front',
