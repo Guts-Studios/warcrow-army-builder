@@ -94,6 +94,26 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
         { id: 'obj3', name: 'Your Color', value: 1 },
         { id: 'obj4', name: 'Opponent Color', value: 1 }
       ]
+    },
+    {
+      id: 'community-battle-lines',
+      title: 'Battle Lines',
+      name: 'Battle Lines',
+      description: 'Strategic control of objectives with special Supply Chest mechanics.',
+      objective: 'Control various objectives and maintain supply lines',
+      details: 'Preparation\nPlace 6 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling your opponent\'s color objective (A).\n• 1 VP for controlling your color objective (A).\n• 1 VP for controlling each neutral objective (B or C).\n• 1 VP for controlling both neutral objectives (B and C).\n\nEnd of game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nSpecial Rules\nThe Supply Chest– Use a 30mm objective marker to represent the Supply Chest. Place the Supply chest as indicated by the Objective S on the map. The Supply Chest behaves like an objective, but the players start the game controlling their color supply chest. While you control your Supply Chest, once per Round after a unit activates, choose another unit within 20 strides of one of your color objectives that you control. This unit may activate and perform only one action, and it does not receive stress or an activation token. If your opponent controls a Supply Chest at the end of any round, remove the Supply Chest from the game.\n\nThis mission was created by our Community member Anthony Pham, aka Viridian',
+      objectiveDescription: 'Control colored and neutral objectives with supply chest mechanics',
+      turnCount: 5,
+      roundCount: 3,
+      specialRules: ['Colored objective markers', 'Supply Chest mechanics', 'Extra unit activation'],
+      mapImage: '/art/missions/take_positions.jpg', // Using existing image as placeholder
+      objectiveMarkers: [
+        { id: 'objA1', name: 'Your Color A', value: 1 },
+        { id: 'objA2', name: 'Opponent Color A', value: 2 },
+        { id: 'objB', name: 'Neutral B', value: 1 },
+        { id: 'objC', name: 'Neutral C', value: 1 },
+        { id: 'objS', name: 'Supply Chest', value: 0 }
+      ]
     }
   ];
 

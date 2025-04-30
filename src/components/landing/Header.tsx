@@ -32,7 +32,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <p className="text-warcrow-gold font-semibold mb-2 text-sm md:text-base">🚧 Still in Development!</p>
         <p className="text-warcrow-text text-sm md:text-base">
-          News 4/30: New community mission added! Check out "Breached Front" created by community member Anthony Pham. 
+          News 4/30: New community missions added! Check out "Breached Front" and "Battle Lines" created by community member Anthony Pham. 
           We're also smoothing out Play Mode and fixing rules issues. More updates coming soon!
         </p>       
       </div>

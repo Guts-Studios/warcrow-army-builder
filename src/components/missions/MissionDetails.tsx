@@ -7,6 +7,7 @@ const MISSION_IMAGES: Record<string, string> = {
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
   'Breached Front': '/art/missions/take_positions.jpg', // Using existing image for now
+  'Battle Lines': '/art/missions/take_positions.jpg', // Using existing image for now
 };
 
 // Map dice numbers to image paths
@@ -26,7 +27,9 @@ const HIGHLIGHTED_WORDS = [
   'Scoring',
   'Arcane artefact',
   'Fog effects',
-  'End of the game'
+  'End of the game',
+  'End of game',
+  'Special Rules'
 ];
 
 interface MissionDetailsProps {
