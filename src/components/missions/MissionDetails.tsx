@@ -7,9 +7,14 @@ const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
-  'Tree Mother': '/art/missions/tree_mother.jpg', // Added the new Tree Mother mission image
+  'Tree Mother': '/art/missions/tree_mother.jpg', // Main mission image
   'Breached Front': '/art/missions/breached_front.jpg',
   'Battle Lines': '/art/missions/battle_lines.jpg',
+};
+
+// Special card images for missions that have them
+const MISSION_CARD_IMAGES: Record<string, string> = {
+  'Tree Mother': '/art/missions/tree_mother_card.jpg',
 };
 
 // Map dice numbers to image paths
@@ -58,6 +63,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
 
   const isCommunityMission = mission.isHomebrew;
   const isOfficialMission = !mission.isHomebrew;
+  const hasCardImage = MISSION_CARD_IMAGES[mission.title] !== undefined;
 
   const formatText = (text: string) => {
     let formattedText = text;
@@ -128,6 +134,17 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         </div>
       </ScrollArea>
       <div className="w-full mt-6">
+        {/* Display card image if available */}
+        {hasCardImage && (
+          <div className="mb-4">
+            <img
+              src={MISSION_CARD_IMAGES[mission.title]}
+              alt={`${mission.title} Mission Card`}
+              className="w-full rounded-lg shadow-lg object-contain max-h-[300px]"
+            />
+          </div>
+        )}
+        {/* Display mission image */}
         <img
           src={MISSION_IMAGES[mission.title]}
           alt={`${mission.title} Mission`}
