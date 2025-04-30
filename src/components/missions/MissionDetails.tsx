@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { ZoomIn } from "lucide-react";
+import { GameSymbol } from "@/components/stats/GameSymbol";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
@@ -20,16 +21,11 @@ const MISSION_CARD_IMAGES: Record<string, string> = {
   'Tree Mother': '/art/missions/tree_mother_card.jpg',
 };
 
-// Map dice numbers to image paths
-const DICE_IMAGES: Record<string, string> = {
-  '[d1]': '/art/dice/d1.png',
-  '[d2]': '/art/dice/d2.png',
-  '[d3]': '/art/dice/d3.png',
-  '[d4]': '/art/dice/d4.png',
-  '[d5]': '/art/dice/d5.png',
-  '[d6]': '/art/dice/d6.png',
-  '[d7]': '/art/dice/d1.png', // Using d1.png for d7 as placeholder
-  '[d9]': '/art/dice/d1.png', // Using d1.png for d9 as placeholder
+// Map dice symbols to character codes for the Warcrow font
+const DICE_CODES: Record<string, number> = {
+  '[d1]': 49, // Character code for "1" in the Warcrow font (star symbol)
+  '[d7]': 55, // Character code for "7" in the Warcrow font (shield/defense symbol)
+  '[d9]': 57, // Character code for "9" in the Warcrow font (another shield variant)
 };
 
 const HIGHLIGHTED_WORDS = [
@@ -74,7 +70,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     let formattedText = text;
     
     // First replace dice placeholders with temporary markers
-    Object.keys(DICE_IMAGES).forEach(diceKey => {
+    Object.keys(DICE_CODES).forEach(diceKey => {
       const regex = new RegExp(`\\${diceKey}`, 'g');
       formattedText = formattedText.replace(regex, `###DICE${diceKey}###`);
     });
@@ -104,13 +100,13 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     return parts.map((part, index) => {
       const diceMatch = part.match(/###DICE\[d([1-9])\]###/);
       if (diceMatch) {
-        const imagePath = DICE_IMAGES[`[d${diceMatch[1]}]`];
+        const diceCode = DICE_CODES[`[d${diceMatch[1]}]`];
         return (
-          <img
+          <GameSymbol 
             key={index}
-            src={imagePath}
-            alt={`Dice ${diceMatch[1]}`}
-            className="inline-block mx-1 h-5 w-5 align-middle"
+            code={diceCode}
+            size="md"
+            className="inline-block mx-1"
           />
         );
       }
