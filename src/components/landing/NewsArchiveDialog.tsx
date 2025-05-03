@@ -35,6 +35,36 @@ export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) 
     }
   };
 
+  // Function to format news content with highlighted date
+  const formatNewsContent = (content: string): React.ReactNode => {
+    if (!content) return '';
+
+    // Look for date patterns like "5/3/25:" or similar date formats
+    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+    
+    if (dateRegex.test(content)) {
+      const parts = content.split(dateRegex);
+      return (
+        <>
+          {parts.map((part, i) => {
+            // If this part matches the date pattern, highlight it
+            if (dateRegex.test(part)) {
+              return (
+                <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
+                  {part}
+                </span>
+              );
+            }
+            return <span key={i}>{part}</span>;
+          })}
+        </>
+      );
+    }
+    
+    // If no date found, just return the content
+    return content;
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -59,7 +89,7 @@ export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) 
                 {formatDate(item.date)}
               </div>
               <div className="text-warcrow-text text-sm">
-                {t(item.key)}
+                {formatNewsContent(t(item.key))}
               </div>
             </div>
           ))}
