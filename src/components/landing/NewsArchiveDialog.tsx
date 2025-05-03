@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { newsItems } from "@/data/newsArchive";
 import { format } from "date-fns";
-import { es } from "date-fns/locale/es";
+// Remove the problematic import and use a simpler date formatting approach
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -15,7 +15,24 @@ export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) 
   
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return format(date, "PPP", { locale: language === 'es' ? es : undefined });
+    
+    // Format the date based on the selected language without using locale imports
+    if (language === 'es') {
+      // Spanish date format (manually formatted)
+      const day = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      
+      const monthNames = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      ];
+      
+      return `${day} de ${monthNames[month]} de ${year}`;
+    } else {
+      // English date format using date-fns without locale
+      return format(date, 'MMMM d, yyyy');
+    }
   };
 
   return (
