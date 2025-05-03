@@ -17,7 +17,9 @@ const Rules = () => {
   const { t } = useLanguage();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
+      <div className="text-warcrow-gold text-xl">{t('loading')}</div>
+    </div>;
   }
 
   return (
