@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,9 +42,9 @@ export const useRules = () => {
           section.title.toLowerCase().includes("line of sight"));
       }
       
-      // If we found the Line of Sight section, update its content
+      // If we found the Line of Sight section, update its content, but without color formatting
       if (lineOfSightSection) {
-        lineOfSightSection.content = `${lineOfSightSection.content}\n\n<span style="color: #ea384c;">When calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.</span>`;
+        lineOfSightSection.content = `${lineOfSightSection.content}\n\nWhen calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.`;
       }
 
       const charactersChapter = {
