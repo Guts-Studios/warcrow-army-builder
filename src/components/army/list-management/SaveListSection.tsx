@@ -17,6 +17,7 @@ interface SaveListSectionProps {
   onSaveList: () => void;
   selectedUnits: any[];
   selectedFaction: string;
+  refreshSavedLists?: () => void;
 }
 
 const SaveListSection = ({ 
@@ -24,7 +25,8 @@ const SaveListSection = ({
   onListNameChange, 
   onSaveList,
   selectedUnits,
-  selectedFaction
+  selectedFaction,
+  refreshSavedLists
 }: SaveListSectionProps) => {
   const handleCloudSave = async () => {
     try {
@@ -81,18 +83,12 @@ const SaveListSection = ({
       console.log("List saved successfully:", data);
       toast.success("List saved to cloud successfully!");
       
-      // Instead of refreshing the page, let's trigger the onSaveList function
-      // This will update the local state just like local save does
+      // Update the local state like local save does
       onSaveList();
       
-      // Also fetch updated lists for any components that need them
-      const { data: updatedLists } = await supabase
-        .from('army_lists')
-        .select('*')
-        .eq('user_id', user.id);
-        
-      if (updatedLists) {
-        console.log("Lists updated:", updatedLists.length);
+      // Call the refreshSavedLists function if it exists to update the saved lists
+      if (refreshSavedLists) {
+        refreshSavedLists();
       }
     } catch (error) {
       console.error('Error saving to cloud:', error);

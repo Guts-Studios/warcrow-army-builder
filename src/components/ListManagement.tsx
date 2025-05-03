@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { SavedList } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,54 @@ const ListManagement = ({
   selectedUnits,
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
+  const [localSavedLists, setLocalSavedLists] = useState<SavedList[]>(savedLists);
+
+  const refreshSavedLists = async () => {
+    try {
+      // Get user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
+      // Fetch updated lists from Supabase
+      const { data: cloudLists, error } = await supabase
+        .from('army_lists')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Error fetching lists:', error);
+        return;
+      }
+
+      // Get local lists from localStorage
+      const localLists: SavedList[] = JSON.parse(localStorage.getItem('armyLists') || '[]');
+      
+      // Combine cloud and local lists, with cloud lists taking precedence
+      const combinedLists = [...localLists];
+      
+      // Add cloud lists that don't already exist in local lists
+      if (cloudLists) {
+        cloudLists.forEach(cloudList => {
+          const index = combinedLists.findIndex(list => 
+            list.name === cloudList.name && list.faction === cloudList.faction
+          );
+          
+          if (index !== -1) {
+            // Update existing entry
+            combinedLists[index] = cloudList;
+          } else {
+            // Add new entry
+            combinedLists.push(cloudList);
+          }
+        });
+      }
+      
+      setLocalSavedLists(combinedLists);
+    } catch (error) {
+      console.error('Error refreshing lists:', error);
+    }
+  };
 
   const handleDeleteList = async (listId: string) => {
     const listToRemove = savedLists.find((list) => list.id === listId);
@@ -75,8 +124,8 @@ const ListManagement = ({
       // Close the delete dialog
       setListToDelete(null);
       
-      // Refresh the page to update the lists
-      window.location.reload();
+      // Update the local state instead of refreshing the page
+      setLocalSavedLists(updatedLists);
     } catch (error) {
       console.error('Error during list deletion:', error);
       toast.error("An error occurred while deleting the lists");
@@ -94,6 +143,7 @@ const ListManagement = ({
           onSaveList={onSaveList}
           selectedUnits={selectedUnits}
           selectedFaction={selectedFaction}
+          refreshSavedLists={refreshSavedLists}
         />
         <CurrentListDisplay currentListName={currentListName} />
       </div>
@@ -108,6 +158,7 @@ const ListManagement = ({
             onSaveList={onSaveList}
             selectedUnits={selectedUnits}
             selectedFaction={selectedFaction}
+            refreshSavedLists={refreshSavedLists}
           />
           <div className="mt-2">
             <CurrentListDisplay currentListName={currentListName} />
@@ -116,7 +167,7 @@ const ListManagement = ({
       </div>
 
       <SavedListsSection
-        savedLists={savedLists}
+        savedLists={localSavedLists.length > 0 ? localSavedLists : savedLists}
         selectedFaction={selectedFaction}
         onLoadList={onLoadList}
         onDeleteClick={(listId) => setListToDelete(listId)}
