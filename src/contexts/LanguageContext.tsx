@@ -39,7 +39,177 @@ const translations: Translations = {
     en: 'Case sensitive',
     es: 'Distinguir mayúsculas',
   },
-  // Add more translations as needed
+  // Landing page
+  home: {
+    en: 'Home',
+    es: 'Inicio',
+  },
+  buildArmy: {
+    en: 'Build Army',
+    es: 'Construir Ejército',
+  },
+  rules: {
+    en: 'Rules',
+    es: 'Reglas',
+  },
+  missions: {
+    en: 'Missions',
+    es: 'Misiones',
+  },
+  login: {
+    en: 'Login',
+    es: 'Iniciar Sesión',
+  },
+  signUp: {
+    en: 'Sign Up',
+    es: 'Registrarse',
+  },
+  profile: {
+    en: 'Profile',
+    es: 'Perfil',
+  },
+  logout: {
+    en: 'Logout',
+    es: 'Cerrar Sesión',
+  },
+  // Army builder
+  yourArmy: {
+    en: 'Your Army',
+    es: 'Tu Ejército',
+  },
+  totalPoints: {
+    en: 'Total Points',
+    es: 'Puntos Totales',
+  },
+  availablePoints: {
+    en: 'Available Points',
+    es: 'Puntos Disponibles',
+  },
+  selectFaction: {
+    en: 'Select Faction',
+    es: 'Seleccionar Facción',
+  },
+  save: {
+    en: 'Save',
+    es: 'Guardar',
+  },
+  delete: {
+    en: 'Delete',
+    es: 'Eliminar',
+  },
+  edit: {
+    en: 'Edit',
+    es: 'Editar',
+  },
+  cancel: {
+    en: 'Cancel',
+    es: 'Cancelar',
+  },
+  // Factions
+  hegemony: {
+    en: 'Hegemony of Embersig',
+    es: 'Hegemonía de Embersig'
+  },
+  tribes: {
+    en: 'Northern Tribes',
+    es: 'Tribus del Norte'
+  },
+  scions: {
+    en: 'Scions of Yaldabaoth',
+    es: 'Vástagos de Yaldabaoth'
+  },
+  syenann: {
+    en: 'Syenann',
+    es: 'Syenann'
+  },
+  // About page
+  aboutUs: {
+    en: 'About Us',
+    es: 'Sobre Nosotros'
+  },
+  supportProject: {
+    en: 'Support Our Project',
+    es: 'Apoya Nuestro Proyecto'
+  },
+  ourMission: {
+    en: 'Our Mission',
+    es: 'Nuestra Misión'
+  },
+  contactUs: {
+    en: 'Contact Us',
+    es: 'Contáctanos'
+  },
+  ourSupporters: {
+    en: 'Our Supporters',
+    es: 'Nuestros Patrocinadores'
+  },
+  // Activity page
+  activityFeed: {
+    en: 'Activity Feed',
+    es: 'Actividad Reciente'
+  },
+  allActivity: {
+    en: 'All Activity',
+    es: 'Toda la Actividad'
+  },
+  listUpdates: {
+    en: 'List Updates',
+    es: 'Actualizaciones de Listas'
+  },
+  friendUpdates: {
+    en: 'Friend Updates',
+    es: 'Actualizaciones de Amigos'
+  },
+  backToProfile: {
+    en: 'Back to Profile',
+    es: 'Volver al Perfil'
+  },
+  // Play mode
+  createGame: {
+    en: 'Create Game',
+    es: 'Crear Partida'
+  },
+  joinGame: {
+    en: 'Join Game',
+    es: 'Unirse a Partida'
+  },
+  playerName: {
+    en: 'Player Name',
+    es: 'Nombre del Jugador'
+  },
+  selectMission: {
+    en: 'Select Mission',
+    es: 'Seleccionar Misión'
+  },
+  selectList: {
+    en: 'Select List',
+    es: 'Seleccionar Lista'
+  },
+  startGame: {
+    en: 'Start Game',
+    es: 'Iniciar Partida'
+  },
+  // Misc
+  loading: {
+    en: 'Loading...',
+    es: 'Cargando...'
+  },
+  noResults: {
+    en: 'No results found',
+    es: 'No se encontraron resultados'
+  },
+  error: {
+    en: 'Error',
+    es: 'Error'
+  },
+  success: {
+    en: 'Success',
+    es: 'Éxito'
+  },
+  comingSoon: {
+    en: 'Coming Soon',
+    es: 'Próximamente'
+  }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

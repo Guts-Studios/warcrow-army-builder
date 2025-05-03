@@ -25,6 +25,8 @@ import { MainActions } from "@/components/landing/MainActions";
 import { SecondaryActions } from "@/components/landing/SecondaryActions";
 import { Footer } from "@/components/landing/Footer";
 import { getLatestVersion } from "@/utils/version";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const fetchUserCount = async () => {
   const { count, error } = await supabase
@@ -44,6 +46,7 @@ const Landing = () => {
   const [isGuest, setIsGuest] = useState(false);
   const [showTesterDialog, setShowTesterDialog] = useState(false);
   const latestVersion = getLatestVersion(changelogContent);
+  const { t, language } = useLanguage();
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
@@ -85,6 +88,9 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <Header 
           latestVersion={latestVersion} 
@@ -100,12 +106,14 @@ const Landing = () => {
               variant="link"
               className="text-warcrow-gold hover:text-warcrow-gold/80"
             >
-              View Changelog
+              {language === 'en' ? "View Changelog" : "Ver Registro de Cambios"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-warcrow-gold">Changelog</DialogTitle>
+              <DialogTitle className="text-warcrow-gold">
+                {language === 'en' ? "Changelog" : "Registro de Cambios"}
+              </DialogTitle>
             </DialogHeader>
             <div className="whitespace-pre-wrap font-mono text-sm">
               {changelogContent}
@@ -116,24 +124,37 @@ const Landing = () => {
         <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
           <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-warcrow-gold">Testers Only</AlertDialogTitle>
+              <AlertDialogTitle className="text-warcrow-gold">
+                {language === 'en' ? "Testers Only" : "Solo para Probadores"}
+              </AlertDialogTitle>
               <AlertDialogDescription className="text-warcrow-text">
-                This feature is currently only available to testers. Please contact us if you'd like to become a tester.
+                {language === 'en' ? 
+                  "This feature is currently only available to testers. Please contact us if you'd like to become a tester." :
+                  "Esta función actualmente solo está disponible para probadores. Contáctanos si deseas convertirte en probador."
+                }
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
-              Close
+              {t('cancel')}
             </AlertDialogCancel>
           </AlertDialogContent>
         </AlertDialog>
 
         <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
-          <p>Have ideas, issues, love, or hate to share?</p>
+          <p>
+            {language === 'en' ?
+              "Have ideas, issues, love, or hate to share?" :
+              "¿Tienes ideas, problemas, comentarios positivos o negativos para compartir?"
+            }
+          </p>
           <a 
             href="mailto:warcrowarmy@gmail.com"
             className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
           >
-            Contact us at warcrowarmy@gmail.com
+            {language === 'en' ?
+              "Contact us at warcrowarmy@gmail.com" :
+              "Contáctanos en warcrowarmy@gmail.com"
+            }
           </a>
         </div>
       </div>
