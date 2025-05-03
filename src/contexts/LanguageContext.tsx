@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 type Language = 'en' | 'es';
 
@@ -194,6 +194,18 @@ const translations: Translations = {
     en: 'Loading...',
     es: 'Cargando...'
   },
+  loadingMissions: {
+    en: 'Loading missions...',
+    es: 'Cargando misiones...'
+  },
+  loadingMissionDetails: {
+    en: 'Loading mission details...',
+    es: 'Cargando detalles de la misión...'
+  },
+  selectMissionToView: {
+    en: 'Select a mission to view details',
+    es: 'Selecciona una misión para ver detalles'
+  },
   noResults: {
     en: 'No results found',
     es: 'No se encontraron resultados'
@@ -209,13 +221,49 @@ const translations: Translations = {
   comingSoon: {
     en: 'Coming Soon',
     es: 'Próximamente'
+  },
+  // Mission page specific
+  official: {
+    en: 'Official',
+    es: 'Oficial'
+  },
+  community: {
+    en: 'Community',
+    es: 'Comunidad'
+  },
+  mission: {
+    en: 'Mission',
+    es: 'Misión'
+  },
+  missionCard: {
+    en: 'Mission Card',
+    es: 'Carta de Misión'
+  },
+  missionCardEnlarged: {
+    en: 'Mission Card (Enlarged)',
+    es: 'Carta de Misión (Ampliada)'
+  },
+  missionCreatedBy: {
+    en: 'Mission created by',
+    es: 'Misión creada por'
   }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  // Check if there's a saved language preference
+  const getSavedLanguage = (): Language => {
+    const savedLanguage = localStorage.getItem('language');
+    return (savedLanguage === 'en' || savedLanguage === 'es') ? savedLanguage as Language : 'en';
+  };
+
+  const [language, setLanguage] = useState<Language>(getSavedLanguage());
+
+  // Save language preference when it changes
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
 
   const t = (key: string): string => {
     if (!translations[key]) {

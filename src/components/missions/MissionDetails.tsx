@@ -6,6 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { ZoomIn } from "lucide-react";
 import { GameSymbol } from "@/components/stats/GameSymbol";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
@@ -49,15 +50,17 @@ const HIGHLIGHTED_WORDS = [
 interface MissionDetailsProps {
   mission: Mission | null;
   isLoading: boolean;
+  language?: string;
 }
 
 export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
+  const { t } = useLanguage();
 
   if (!mission) {
     return (
       <div className="text-warcrow-text text-center py-8 bg-black/50 rounded-md border border-warcrow-gold/10">
-        {isLoading ? "Loading mission details..." : "Select a mission to view details"}
+        {isLoading ? t('loadingMissionDetails') : t('selectMissionToView')}
       </div>
     );
   }
@@ -134,12 +137,12 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         <div className="flex gap-2">
           {isOfficialMission && (
             <Badge variant="secondary" className="bg-warcrow-gold/20 text-warcrow-gold border-warcrow-gold/40">
-              Official
+              {t('official')}
             </Badge>
           )}
           {isCommunityMission && (
             <Badge variant="outline" className="bg-purple-800/40 text-purple-200 border-purple-600">
-              Community
+              {t('community')}
             </Badge>
           )}
         </div>
@@ -159,7 +162,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
             >
               <img
                 src={MISSION_CARD_IMAGES[mission.title]}
-                alt={`${mission.title} Mission Card`}
+                alt={`${mission.title} ${t('missionCard')}`}
                 className="w-full rounded-lg shadow-lg object-contain max-h-[300px] transition-opacity group-hover:opacity-90"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -173,12 +176,12 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         {/* Display mission image */}
         <img
           src={MISSION_IMAGES[mission.title]}
-          alt={`${mission.title} Mission`}
+          alt={`${mission.title} ${t('mission')}`}
           className="w-full rounded-lg shadow-lg object-contain max-h-[400px]"
         />
         {isCommunityMission && mission.communityCreator && (
           <div className="mt-2 text-center italic text-purple-300/80 text-sm">
-            Mission created by {mission.communityCreator}
+            {t('missionCreatedBy')} {mission.communityCreator}
           </div>
         )}
       </div>
@@ -188,7 +191,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         <DialogContent className="max-w-4xl p-1 bg-black border-warcrow-gold/30">
           <img
             src={hasCardImage ? MISSION_CARD_IMAGES[mission.title] : ''}
-            alt={`${mission.title} Mission Card (Enlarged)`}
+            alt={`${mission.title} ${t('missionCardEnlarged')}`}
             className="w-full object-contain max-h-[80vh]"
           />
         </DialogContent>

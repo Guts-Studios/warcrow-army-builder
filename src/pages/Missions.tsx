@@ -1,14 +1,17 @@
+
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { MissionHeader } from "@/components/missions/MissionHeader";
 import { MissionList } from "@/components/missions/MissionList";
 import { MissionDetails } from "@/components/missions/MissionDetails";
 import type { Mission } from "@/components/missions/types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Missions = () => {
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
   const [missions, setMissions] = React.useState<Mission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const { language } = useLanguage();
 
   React.useEffect(() => {
     const fetchMissions = async () => {
@@ -89,9 +92,10 @@ const Missions = () => {
             selectedMission={selectedMission}
             onSelectMission={setSelectedMission}
             isLoading={isLoading}
+            language={language}
           />
           <div className="md:col-span-2">
-            <MissionDetails mission={selectedMission} isLoading={isLoading} />
+            <MissionDetails mission={selectedMission} isLoading={isLoading} language={language} />
           </div>
         </div>
       </div>

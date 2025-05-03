@@ -1,7 +1,11 @@
 
 import { NavDropdown } from "@/components/ui/NavDropdown";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 export const MissionHeader = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="bg-black/50 p-4">
       <div className="container mx-auto">
@@ -12,9 +16,10 @@ export const MissionHeader = () => {
               alt="Warcrow Logo" 
               className="h-16"
             />
-            <h1 className="text-3xl font-bold text-warcrow-gold text-center">Missions</h1>
+            <h1 className="text-3xl font-bold text-warcrow-gold text-center">{t('missions')}</h1>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <NavDropdown />
           </div>
         </div>
