@@ -71,13 +71,19 @@ const ListManagement = ({
       // Add cloud lists that don't already exist in local lists
       if (cloudLists) {
         cloudLists.forEach(cloudList => {
+          // Parse units properly to ensure they're the correct SelectedUnit[] type
+          const parsedUnits = Array.isArray(cloudList.units) 
+            ? cloudList.units 
+            : (typeof cloudList.units === 'string' 
+                ? JSON.parse(cloudList.units) 
+                : []);
+                
           // Convert the units from JSON to SelectedUnit array
-          // This is where we fix the type error
           const processedList: SavedList = {
             id: cloudList.id,
             name: cloudList.name,
             faction: cloudList.faction,
-            units: Array.isArray(cloudList.units) ? cloudList.units : [],
+            units: parsedUnits,
             created_at: cloudList.created_at,
             user_id: cloudList.user_id,
             wab_id: cloudList.wab_id
