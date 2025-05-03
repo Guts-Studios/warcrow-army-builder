@@ -47,6 +47,14 @@ export const useRules = () => {
       if (lineOfSightSection) {
         lineOfSightSection.content = `${lineOfSightSection.content}\n\nWhen calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.\n\n[[red]]When calculating the LoS to a unit, the troops that make it up do not block the LoS to other members of the same unit. For example, when tracing LoS over an Orc Hunter unit, those in front do not block the LoS to those behind.[[/red]]`;
       }
+      
+      // Find the "Activate a unit and move" section and update it
+      const activateAndMoveSection = sectionsData.find(section => 
+        section.title.toLowerCase().includes("activate a unit and move"));
+      
+      if (activateAndMoveSection) {
+        activateAndMoveSection.content = `${activateAndMoveSection.content}\n\n[...] Keep in mind that:\n\n[[red]]Your unit can perform the move action and stand still.[[/red]]`;
+      }
 
       const charactersChapter = {
         id: "characters",
