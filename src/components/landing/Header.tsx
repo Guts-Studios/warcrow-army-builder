@@ -1,6 +1,7 @@
 
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
+import NewsArchiveDialog from "./NewsArchiveDialog";
 
 interface HeaderProps {
   latestVersion: string;
@@ -33,7 +34,10 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
         )}
       </p>
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
-        <p className="text-warcrow-gold font-semibold mb-2 text-sm md:text-base">🚧 {t('inDevelopment')}</p>
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-warcrow-gold font-semibold text-sm md:text-base">{t('inDevelopment')}</p>
+          <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
+        </div>
         <p className="text-warcrow-text text-sm md:text-base">
           {t('recentNews')}
         </p>       

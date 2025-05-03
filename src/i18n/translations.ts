@@ -1,4 +1,3 @@
-
 type Translation = {
   en: string;
   es: string;
@@ -267,6 +266,22 @@ export const translations: TranslationsType = {
   recentNews: {
     en: 'News 5/3/25: Due to a lot of community feedback, we are adding in the Spanish translations in right this second. The button should be on all pages for testing then later in Profile only is the plan. We are already replacing the shitty art cards with High Res cards and fixing some bugs like the Add Friend button being gone. Keep emailing or dropping suggestions in the Discord and we\'ll get to it!',
     es: 'Noticias 5/3/25: Debido a muchos comentarios de la comunidad, estamos agregando las traducciones al español en este momento. El botón debería estar en todas las páginas para pruebas y luego solo en Perfil es el plan. Ya estamos reemplazando las tarjetas de arte de mala calidad con tarjetas de alta resolución y solucionando algunos errores como la desaparición del botón Agregar Amigo. ¡Continúa enviando correos electrónicos o sugerencias en Discord y las atenderemos!'
+  },
+  previousNews: {
+    en: 'News 4/30/25: New community missions added! Check out "Breached Front" and "Battle Lines" created by community member Anthony Pham. We\'re also smoothing out Play Mode and fixing rules issues. More updates coming soon!',
+    es: 'Noticias 4/30/25: ¡Nuevas misiones comunitarias añadidas! Echa un vistazo a "Frente Violado" y "Líneas de Batalla" creadas por el miembro de la comunidad Anthony Pham. También estamos perfeccionando el Modo de Juego y arreglando problemas de reglas. ¡Más actualizaciones próximamente!'
+  },
+  newsArchive: {
+    en: 'News Archive',
+    es: 'Archivo de Noticias'
+  },
+  viewOlderNews: {
+    en: 'View Older News',
+    es: 'Ver Noticias Anteriores'
+  },
+  closeArchive: {
+    en: 'Close Archive',
+    es: 'Cerrar Archivo'
   },
   signedAsGuest: {
     en: 'Signed in as Guest',
