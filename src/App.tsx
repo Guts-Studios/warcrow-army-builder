@@ -1,16 +1,20 @@
+
 import * as React from 'react';
 import { ProvidersWrapper } from "@/components/providers/ProvidersWrapper";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AppRoutes } from "@/components/routing/AppRoutes";
 import { Toaster as SonnerToaster } from "sonner";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 function App() {
   return (
     <div className="dark">
       <ProvidersWrapper>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </LanguageProvider>
       </ProvidersWrapper>
       
       <SonnerToaster 

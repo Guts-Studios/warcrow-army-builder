@@ -7,10 +7,13 @@ import { Link } from "react-router-dom";
 import { PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const Index = () => {
   const [session, setSession] = React.useState(null);
   const { isTester, isWabAdmin } = useAuth();
+  const { t } = useLanguage();
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
   
@@ -43,7 +46,7 @@ const Index = () => {
                 alt="Warcrow Logo" 
                 className="h-16"
               />
-              <h1 className="text-3xl font-bold text-warcrow-gold text-center">Army Builder</h1>
+              <h1 className="text-3xl font-bold text-warcrow-gold text-center">{t('appTitle')}</h1>
             </div>
             <div className="flex items-center gap-4">
               {canAccessPlayMode && (
@@ -52,10 +55,11 @@ const Index = () => {
                     className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90 flex items-center gap-2"
                   >
                     <PlayCircle className="h-5 w-5" />
-                    <span>Play Mode</span>
+                    <span>{t('playMode')}</span>
                   </Button>
                 </Link>
               )}
+              <LanguageSwitcher />
               <NavDropdown />
             </div>
           </div>

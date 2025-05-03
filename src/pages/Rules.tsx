@@ -6,12 +6,15 @@ import { ScrollToTopButton } from "@/components/rules/ScrollToTopButton";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { useRules } from "@/hooks/useRules";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Section } from "@/hooks/useRules";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
   const [expandedChapter, setExpandedChapter] = React.useState<string>();
   const { data: chapters = [], isLoading } = useRules();
+  const { t } = useLanguage();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -19,8 +22,11 @@ const Rules = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title="Rules" />
+      <PageHeader title={t('rulesTitle')} />
       <div className="container max-w-7xl mx-auto py-8 px-4">
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
         <SearchProvider>
           <RulesSearch />
           <ChapterNavigation

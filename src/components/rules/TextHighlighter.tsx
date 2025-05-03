@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useSearch } from "@/contexts/SearchContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TextHighlighterProps {
   text: string;
@@ -8,6 +9,7 @@ interface TextHighlighterProps {
 
 export const TextHighlighter = ({ text }: TextHighlighterProps) => {
   const { searchTerm, caseSensitive } = useSearch();
+  const { language } = useLanguage();
 
   // Handle custom formatting first
   const processFormattedText = (inputText: string): React.ReactNode[] => {
