@@ -81,14 +81,17 @@ const SaveListSection = ({
       console.log("List saved successfully:", data);
       toast.success("List saved to cloud successfully!");
       
-      // Remove the page refresh - just fetch updated lists instead
+      // Instead of refreshing the page, let's trigger the onSaveList function
+      // This will update the local state just like local save does
+      onSaveList();
+      
+      // Also fetch updated lists for any components that need them
       const { data: updatedLists } = await supabase
         .from('army_lists')
         .select('*')
         .eq('user_id', user.id);
         
       if (updatedLists) {
-        // Update any state as needed without refreshing
         console.log("Lists updated:", updatedLists.length);
       }
     } catch (error) {
