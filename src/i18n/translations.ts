@@ -1,4 +1,3 @@
-
 type Translation = {
   en: string;
   es: string;
@@ -261,8 +260,8 @@ export const translations: TranslationsType = {
     es: '¡Actualmente sirviendo a {count} usuarios y creciendo!'
   },
   inDevelopment: {
-    en: 'Still in Development!',
-    es: '¡Todavía en Desarrollo!'
+    en: 'Current News',
+    es: 'Noticias Actuales'
   },
   recentNews: {
     en: 'News 4/30: New community missions added! Check out "Breached Front" and "Battle Lines" created by community member Anthony Pham. We\'re also smoothing out Play Mode and fixing rules issues. More updates coming soon!',
