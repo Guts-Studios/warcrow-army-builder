@@ -12,7 +12,15 @@ interface ArmyBuilderProps {
 
 const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
   const location = useLocation();
-  const [selectedFaction, setSelectedFaction] = useState("northern-tribes");
+  const [selectedFaction, setSelectedFaction] = useState(() => {
+    // Try to get the faction from localStorage first
+    const savedFaction = localStorage.getItem("warcrow_last_faction");
+    const state = location.state as { selectedFaction?: string; loadList?: SavedList };
+    
+    // Priority: 1. Navigation state, 2. localStorage, 3. Default
+    return state?.selectedFaction || savedFaction || "northern-tribes";
+  });
+  
   const state = location.state as { selectedFaction?: string; loadList?: SavedList };
 
   useEffect(() => {
@@ -22,9 +30,11 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
     }
   }, [state]);
 
-  const handleFactionChange = (factionId: string) => {
+  const handleFactionChange = useCallback((factionId: string) => {
     setSelectedFaction(factionId);
-  };
+    // Save the selected faction to localStorage
+    localStorage.setItem("warcrow_last_faction", factionId);
+  }, []);
 
   return (
     <div className="space-y-8">

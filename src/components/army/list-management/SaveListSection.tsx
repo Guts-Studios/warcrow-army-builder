@@ -81,8 +81,16 @@ const SaveListSection = ({
       console.log("List saved successfully:", data);
       toast.success("List saved to cloud successfully!");
       
-      // Refresh the page after successful cloud save
-      window.location.reload();
+      // Remove the page refresh - just fetch updated lists instead
+      const { data: updatedLists } = await supabase
+        .from('army_lists')
+        .select('*')
+        .eq('user_id', user.id);
+        
+      if (updatedLists) {
+        // Update any state as needed without refreshing
+        console.log("Lists updated:", updatedLists.length);
+      }
     } catch (error) {
       console.error('Error saving to cloud:', error);
       toast.error("Failed to save list to cloud");
