@@ -9,25 +9,86 @@ interface TextHighlighterProps {
 export const TextHighlighter = ({ text }: TextHighlighterProps) => {
   const { searchTerm, caseSensitive } = useSearch();
 
-  if (!searchTerm) return <>{text}</>;
+  // Handle custom formatting first
+  const processFormattedText = (inputText: string): React.ReactNode[] => {
+    // Look for special formatting markers
+    const parts = inputText.split(/(\[\[red\]\]|\[\[\/red\]\])/);
+    const result: React.ReactNode[] = [];
+    
+    let isRed = false;
+    let key = 0;
+    
+    for (const part of parts) {
+      if (part === "[[red]]") {
+        isRed = true;
+      } else if (part === "[[/red]]") {
+        isRed = false;
+      } else if (part) {
+        // If we're in search mode, highlight search terms
+        if (searchTerm) {
+          const searchRegex = new RegExp(`(${searchTerm})`, caseSensitive ? "g" : "gi");
+          const searchParts = part.split(searchRegex);
+          
+          const formattedPart = (
+            <span 
+              key={key++} 
+              style={isRed ? { color: '#ea384c' } : undefined}
+            >
+              {searchParts.map((searchPart, i) => 
+                searchPart.toLowerCase() === searchTerm.toLowerCase() ? (
+                  <span key={i} className="bg-yellow-500/30">
+                    {searchPart}
+                  </span>
+                ) : (
+                  searchPart
+                )
+              )}
+            </span>
+          );
+          
+          result.push(formattedPart);
+        } else {
+          // No search term, just handle the red formatting
+          result.push(
+            <span 
+              key={key++} 
+              style={isRed ? { color: '#ea384c' } : undefined}
+            >
+              {part}
+            </span>
+          );
+        }
+      }
+    }
+    
+    return result;
+  };
 
-  const searchRegex = new RegExp(
-    `(${searchTerm})`,
-    caseSensitive ? "g" : "gi"
-  );
-  const parts = text.split(searchRegex);
-  
-  return (
-    <>
-      {parts.map((part, i) =>
-        part.toLowerCase() === searchTerm.toLowerCase() ? (
-          <span key={i} className="bg-yellow-500/30">
-            {part}
-          </span>
-        ) : (
-          part
-        )
-      )}
-    </>
-  );
+  // If there's no special formatting and no search term, just return the plain text
+  if (!text.includes("[[red]]") && !searchTerm) {
+    return <>{text}</>;
+  }
+
+  // If there's no special formatting but there is a search term, use the previous search highlighting
+  if (!text.includes("[[red]]")) {
+    const searchRegex = new RegExp(`(${searchTerm})`, caseSensitive ? "g" : "gi");
+    const parts = text.split(searchRegex);
+    
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.toLowerCase() === searchTerm.toLowerCase() ? (
+            <span key={i} className="bg-yellow-500/30">
+              {part}
+            </span>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
+  }
+
+  // Handle both special formatting and possibly search term
+  return <>{processFormattedText(text)}</>;
 };

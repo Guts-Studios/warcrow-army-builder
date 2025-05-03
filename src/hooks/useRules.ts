@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,9 +43,9 @@ export const useRules = () => {
           section.title.toLowerCase().includes("line of sight"));
       }
       
-      // If we found the Line of Sight section, update its content, but without color formatting
+      // If we found the Line of Sight section, update its content with our custom formatted text
       if (lineOfSightSection) {
-        lineOfSightSection.content = `${lineOfSightSection.content}\n\nWhen calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.`;
+        lineOfSightSection.content = `${lineOfSightSection.content}\n\nWhen calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.\n\n[[red]]When calculating the LoS to a unit, the troops that make it up do not block the LoS to other members of the same unit. For example, when tracing LoS over an Orc Hunter unit, those in front do not block the LoS to those behind.[[/red]]`;
       }
 
       const charactersChapter = {
