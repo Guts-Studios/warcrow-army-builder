@@ -71,16 +71,28 @@ const ListManagement = ({
       // Add cloud lists that don't already exist in local lists
       if (cloudLists) {
         cloudLists.forEach(cloudList => {
+          // Convert the units from JSON to SelectedUnit array
+          // This is where we fix the type error
+          const processedList: SavedList = {
+            id: cloudList.id,
+            name: cloudList.name,
+            faction: cloudList.faction,
+            units: Array.isArray(cloudList.units) ? cloudList.units : [],
+            created_at: cloudList.created_at,
+            user_id: cloudList.user_id,
+            wab_id: cloudList.wab_id
+          };
+          
           const index = combinedLists.findIndex(list => 
-            list.name === cloudList.name && list.faction === cloudList.faction
+            list.name === processedList.name && list.faction === processedList.faction
           );
           
           if (index !== -1) {
             // Update existing entry
-            combinedLists[index] = cloudList;
+            combinedLists[index] = processedList;
           } else {
             // Add new entry
-            combinedLists.push(cloudList);
+            combinedLists.push(processedList);
           }
         });
       }
