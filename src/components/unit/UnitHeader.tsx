@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import AvatarPortrait from "./header/AvatarPortrait";
 import UnitTitle from "./header/UnitTitle";
@@ -18,7 +19,7 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
         <UnitTitle 
           mainName={mainName}
           subtitle={subtitle}
-          command={unit.command}
+          command={Boolean(unit.command)}
         />
         <CharacteristicsSection 
           keywords={unit.keywords}
