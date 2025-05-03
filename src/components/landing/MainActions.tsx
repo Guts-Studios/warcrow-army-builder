@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import { Play, User, Shield } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const MainActions = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
   const { isWabAdmin } = useAuth();
+  const { t } = useLanguage();
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
 
@@ -48,7 +50,7 @@ export const MainActions = () => {
           onClick={() => navigate('/builder')}
           className="w-full md:w-auto bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors px-8 py-2 text-lg"
         >
-          Start Building
+          {t('startBuilding')}
         </Button>
       </div>
 
@@ -58,14 +60,14 @@ export const MainActions = () => {
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
-          Rules Reference
+          {t('rulesReference')}
         </Button>
         <Button
           onClick={() => navigate('/missions')}
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
-          Missions
+          {t('missions')}
         </Button>
         <Button
           onClick={() => navigate('/profile')}
@@ -73,7 +75,7 @@ export const MainActions = () => {
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
           <User className="mr-2 h-4 w-4" />
-          Profile
+          {t('profile')}
         </Button>
         {(isTester || isWabAdmin || isPreview) && (
           <>
@@ -82,7 +84,7 @@ export const MainActions = () => {
               variant="outline"
               className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
             >
-              Unit Stats
+              {t('unitStats')}
             </Button>
             <Button
               onClick={() => navigate('/play')}
@@ -90,7 +92,7 @@ export const MainActions = () => {
               className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
             >
               <Play className="mr-2 h-4 w-4" />
-              Play Mode
+              {t('playMode')}
             </Button>
           </>
         )}
@@ -101,7 +103,7 @@ export const MainActions = () => {
             className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
           >
             <Shield className="mr-2 h-4 w-4" />
-            Admin
+            {t('admin')}
           </Button>
         </AdminOnly>
       </div>

@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Trash2, CloudOff, Cloud } from "lucide-react";
 import { SavedList } from "@/types/army";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SavedListsSectionProps {
   savedLists: SavedList[];
@@ -16,6 +17,8 @@ const SavedListsSection = ({
   onLoadList, 
   onDeleteClick 
 }: SavedListsSectionProps) => {
+  const { t } = useLanguage();
+  
   // Filter lists by faction first
   const filteredLists = savedLists.filter((list) => list.faction === selectedFaction);
   
@@ -39,7 +42,7 @@ const SavedListsSection = ({
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
       <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
-        Saved Lists
+        {t('savedLists')}
       </h3>
       <div className="space-y-2">
         {uniqueLists.map((list) => (
@@ -67,7 +70,7 @@ const SavedListsSection = ({
                 variant="outline"
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
               >
-                Load
+                {t('loadList')}
               </Button>
               <Button
                 onClick={() => onDeleteClick(list.id)}

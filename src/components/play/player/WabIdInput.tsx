@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WabIdInputProps {
   playerWabId: string;
@@ -20,6 +21,8 @@ const WabIdInput: React.FC<WabIdInputProps> = ({
   isVerified,
   index
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <div>
       <Label htmlFor={`player-wabid-${index}`}>WAB ID</Label>
@@ -40,11 +43,11 @@ const WabIdInput: React.FC<WabIdInputProps> = ({
               : "bg-warcrow-gold text-warcrow-background"
           } disabled:opacity-50`}
         >
-          {isVerifying ? "..." : isVerified ? "✓" : "Verify"}
+          {isVerifying ? "..." : isVerified ? "✓" : t('verify')}
         </button>
       </div>
       {isVerified && (
-        <p className="text-xs text-green-500 mt-1">ID verified</p>
+        <p className="text-xs text-green-500 mt-1">{t('idVerified')}</p>
       )}
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 type Language = 'en' | 'es';
@@ -319,7 +318,100 @@ const translations: Translations = {
   logoAlt: {
     en: 'Warcrow Logo',
     es: 'Logo de Warcrow'
-  }
+  },
+  // Buttons
+  startBuilding: {
+    en: 'Start Building',
+    es: 'Comenzar a Construir'
+  },
+  rulesReference: {
+    en: 'Rules Reference',
+    es: 'Referencia de Reglas'
+  },
+  profile: {
+    en: 'Profile',
+    es: 'Perfil'
+  },
+  unitStats: {
+    en: 'Unit Stats',
+    es: 'Estadísticas de Unidades'
+  },
+  playMode: {
+    en: 'Play Mode',
+    es: 'Modo de Juego'
+  },
+  admin: {
+    en: 'Admin',
+    es: 'Administrador'
+  },
+  signedAsGuest: {
+    en: 'Signed in as Guest',
+    es: 'Conectado como Invitado'
+  },
+  signOut: {
+    en: 'Sign Out',
+    es: 'Cerrar Sesión'
+  },
+  buyCoffee: {
+    en: 'Buy us Coffee!',
+    es: '¡Invítanos a un Café!'
+  },
+  viewChangelog: {
+    en: 'View Changelog',
+    es: 'Ver Registro de Cambios'
+  },
+  armyBuilder: {
+    en: 'Army Builder',
+    es: 'Constructor de Ejércitos'
+  },
+  loadList: {
+    en: 'Load',
+    es: 'Cargar'
+  },
+  deleteList: {
+    en: 'Delete',
+    es: 'Eliminar'
+  },
+  newList: {
+    en: 'New List',
+    es: 'Nueva Lista'
+  },
+  saveListLocally: {
+    en: 'Save List Locally',
+    es: 'Guardar Lista Localmente'
+  },
+  cloudSave: {
+    en: 'Cloud Save',
+    es: 'Guardar en la Nube'
+  },
+  enterListName: {
+    en: 'Enter list name',
+    es: 'Ingrese nombre de la lista'
+  },
+  savedLists: {
+    en: 'Saved Lists',
+    es: 'Listas Guardadas'
+  },
+  cancel: {
+    en: 'Cancel',
+    es: 'Cancelar'
+  },
+  verify: {
+    en: 'Verify',
+    es: 'Verificar'
+  },
+  idVerified: {
+    en: 'ID verified',
+    es: 'ID verificada'
+  },
+  backToProfile: {
+    en: 'Back to Profile',
+    es: 'Volver al Perfil'
+  },
+  scrollToTop: {
+    en: 'Scroll to top',
+    es: 'Volver arriba'
+  },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

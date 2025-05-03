@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SaveListSectionProps {
   listName: string;
@@ -28,6 +29,8 @@ const SaveListSection = ({
   selectedFaction,
   refreshSavedLists
 }: SaveListSectionProps) => {
+  const { t } = useLanguage();
+  
   const handleCloudSave = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -99,7 +102,7 @@ const SaveListSection = ({
   return (
     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full">
       <Input
-        placeholder="Enter list name"
+        placeholder={t('enterListName')}
         value={listName}
         onChange={(e) => onListNameChange(e.target.value)}
         className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold order-1 md:order-3"
@@ -112,7 +115,7 @@ const SaveListSection = ({
               className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-2 md:order-1"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save List Locally
+              {t('saveListLocally')}
             </Button>
           </TooltipTrigger>
           <TooltipContent 
@@ -132,7 +135,7 @@ const SaveListSection = ({
               disabled={!supabase.auth.getUser()}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
-              Cloud Save
+              {t('cloudSave')}
             </Button>
           </TooltipTrigger>
           <TooltipContent 
