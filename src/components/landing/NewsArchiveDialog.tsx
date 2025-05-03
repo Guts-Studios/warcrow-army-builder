@@ -39,8 +39,8 @@ export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) 
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return '';
 
-    // Look for date patterns like "5/3/25:" or similar date formats
-    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+    // Look for date patterns like "News 5/3/25:" or similar date formats with the word "News" before
+    const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
     
     if (dateRegex.test(content)) {
       const parts = content.split(dateRegex);

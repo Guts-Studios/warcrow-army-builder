@@ -12,6 +12,36 @@ interface HeaderProps {
 export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderProps) => {
   const { t } = useLanguage();
   
+  // Function to format news content with highlighted date, same as in NewsArchiveDialog
+  const formatNewsContent = (content: string): React.ReactNode => {
+    if (!content) return '';
+
+    // Look for date patterns like "News 5/3/25:" or similar date formats with the word "News" before
+    const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+    
+    if (dateRegex.test(content)) {
+      const parts = content.split(dateRegex);
+      return (
+        <>
+          {parts.map((part, i) => {
+            // If this part matches the date pattern, highlight it
+            if (dateRegex.test(part)) {
+              return (
+                <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
+                  {part}
+                </span>
+              );
+            }
+            return <span key={i}>{part}</span>;
+          })}
+        </>
+      );
+    }
+    
+    // If no date found, just return the content
+    return content;
+  };
+  
   return (
     <div className="text-center space-y-6 md:space-y-8">
       <img 
@@ -39,7 +69,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
           <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
         </div>
         <p className="text-warcrow-text text-sm md:text-base">
-          {t('recentNews')}
+          {formatNewsContent(t('recentNews'))}
         </p>       
       </div>
     </div>
