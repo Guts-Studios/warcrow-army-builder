@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,7 +45,7 @@ const Landing = () => {
   const [isGuest, setIsGuest] = useState(false);
   const [showTesterDialog, setShowTesterDialog] = useState(false);
   const latestVersion = getLatestVersion(changelogContent);
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
@@ -106,13 +105,13 @@ const Landing = () => {
               variant="link"
               className="text-warcrow-gold hover:text-warcrow-gold/80"
             >
-              {language === 'en' ? "View Changelog" : "Ver Registro de Cambios"}
+              {t('viewChangelog')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-warcrow-gold">
-                {language === 'en' ? "Changelog" : "Registro de Cambios"}
+                {t('changelog')}
               </DialogTitle>
             </DialogHeader>
             <div className="whitespace-pre-wrap font-mono text-sm">
@@ -125,13 +124,10 @@ const Landing = () => {
           <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-warcrow-gold">
-                {language === 'en' ? "Testers Only" : "Solo para Probadores"}
+                {t('testersOnly')}
               </AlertDialogTitle>
               <AlertDialogDescription className="text-warcrow-text">
-                {language === 'en' ? 
-                  "This feature is currently only available to testers. Please contact us if you'd like to become a tester." :
-                  "Esta función actualmente solo está disponible para probadores. Contáctanos si deseas convertirte en probador."
-                }
+                {t('testersOnlyDescription')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
@@ -142,19 +138,13 @@ const Landing = () => {
 
         <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
           <p>
-            {language === 'en' ?
-              "Have ideas, issues, love, or hate to share?" :
-              "¿Tienes ideas, problemas, comentarios positivos o negativos para compartir?"
-            }
+            {t('haveFeedback')}
           </p>
           <a 
             href="mailto:warcrowarmy@gmail.com"
             className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
           >
-            {language === 'en' ?
-              "Contact us at warcrowarmy@gmail.com" :
-              "Contáctanos en warcrowarmy@gmail.com"
-            }
+            {t('contactEmail')}
           </a>
         </div>
       </div>
