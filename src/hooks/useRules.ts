@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -30,6 +31,22 @@ export const useRules = () => {
         .order("order_index");
 
       if (sectionsError) throw sectionsError;
+
+      // Find the basic concepts chapter and line of sight section
+      const basicConceptsChapter = chaptersData.find(chapter => 
+        chapter.title.toLowerCase().includes("basic concepts"));
+      
+      let lineOfSightSection = null;
+      if (basicConceptsChapter) {
+        lineOfSightSection = sectionsData.find(section => 
+          section.chapter_id === basicConceptsChapter.id && 
+          section.title.toLowerCase().includes("line of sight"));
+      }
+      
+      // If we found the Line of Sight section, update its content
+      if (lineOfSightSection) {
+        lineOfSightSection.content = `${lineOfSightSection.content}\n\n<span style="color: #ea384c;">When calculating LoS, keep in mind that:\n\nA troop always has LOS towards itself and adjacent troops.</span>`;
+      }
 
       const charactersChapter = {
         id: "characters",
