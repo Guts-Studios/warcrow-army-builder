@@ -7,7 +7,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const AboutUs = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">

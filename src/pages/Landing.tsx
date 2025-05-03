@@ -88,7 +88,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 z-50">
         <LanguageSwitcher />
       </div>
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
