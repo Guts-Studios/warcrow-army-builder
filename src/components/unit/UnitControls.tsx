@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 
@@ -11,7 +12,7 @@ interface UnitControlsProps {
 
 const UnitControls = ({ quantity, availability, pointsCost, onAdd, onRemove }: UnitControlsProps) => {
   return (
-    <div className="flex items-center justify-end mt-2">
+    <div className="flex items-center justify-end">
       <div className="flex items-center space-x-2">
         <Button
           variant="outline"

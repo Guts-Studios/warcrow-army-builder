@@ -50,9 +50,9 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
         onOpenChange={setShowHighCommandAlert} 
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20 md:pb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pb-20 md:pb-16">
         <div className="space-y-4 order-2 md:order-1">
-          <div className="bg-warcrow-background/50 p-3 rounded-lg border border-warcrow-gold/30">
+          <div className="bg-warcrow-background/50 p-2 md:p-3 rounded-lg border border-warcrow-gold/30">
             <UnitListSection
               factionUnits={factionUnits}
               quantities={quantities}
@@ -63,7 +63,7 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
         </div>
 
         <div className="space-y-4 order-1 md:order-2">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <ListManagement
               listName={listName}
               currentListName={currentListName}

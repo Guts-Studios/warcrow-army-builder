@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
@@ -16,8 +17,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="bg-warcrow-accent rounded-lg p-4 space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex-1">
           <UnitHeader 
             unit={unit} 
@@ -25,7 +26,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
             portraitUrl={unit.imageUrl}
           />
         </div>
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
           <span className="text-warcrow-gold font-semibold">
             {unit.pointsCost} pts
           </span>
