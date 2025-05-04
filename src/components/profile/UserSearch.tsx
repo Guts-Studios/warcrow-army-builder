@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -66,13 +67,17 @@ export const UserSearch = () => {
     try {
       setPendingFriends(prev => ({ ...prev, [recipientId]: true }));
       
-      const { data: existingFriendship, error: checkError } = await supabase
+      // Check if friendship already exists
+      const { data: checkResult, error: checkError } = await supabase
         .from("friendships")
         .select()
         .or(`and(sender_id.eq.${currentUserId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${currentUserId})`)
         .maybeSingle();
       
       if (checkError) throw checkError;
+      
+      // Store the result in a local variable to avoid scope issues
+      const existingFriendship = checkResult;
       
       if (existingFriendship) {
         toast.info("Already connected", {

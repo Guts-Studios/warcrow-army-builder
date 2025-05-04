@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useProfileSession } from "@/hooks/useProfileSession";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { AddFriendButton } from "./AddFriendButton";
+import { UserSearch } from "./UserSearch";
 
 interface ProfileContentProps {
   isOnline?: boolean;
@@ -77,14 +78,17 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text bg-gradient-to-b from-black/60 to-transparent overflow-auto pb-8 md:pb-12">
       <PageHeader title="Profile">
         {isAuthenticated && (
-          <Button
-            variant="outline"
-            className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
-            onClick={() => navigate("/activity")}
-          >
-            <ActivityIcon className="h-4 w-4 mr-2" />
-            Activity Feed
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+              onClick={() => navigate("/activity")}
+            >
+              <ActivityIcon className="h-4 w-4 mr-2" />
+              Activity Feed
+            </Button>
+            <UserSearch />
+          </div>
         )}
       </PageHeader>
 
