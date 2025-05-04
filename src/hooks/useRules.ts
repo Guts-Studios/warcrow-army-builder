@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { rulesTranslations } from "@/i18n/rules"; // Add import for rulesTranslations
 
 export interface Section {
   id: string;
@@ -481,14 +482,14 @@ export const useRules = () => {
         let title = chapter.title;
         const titleKey = chapter.title.toLowerCase().replace(/\s+/g, '');
         if (language === 'es') {
-          // For Spanish language, convert chapter titles directly
-          const translationKey = chapter.title.toLowerCase().replace(/\s+/g, '');
-          const translationEntry = Object.entries(rulesTranslations).find(([key]) => {
-            return key.toLowerCase() === translationKey.toLowerCase();
-          });
+          // For Spanish language, check if we have a translation in rulesTranslations
+          const translationKey = Object.keys(rulesTranslations).find(key => 
+            key.toLowerCase() === titleKey.toLowerCase() || 
+            (rulesTranslations[key]?.en?.toLowerCase() === chapter.title.toLowerCase())
+          );
           
-          if (translationEntry) {
-            title = translationEntry[1].es;
+          if (translationKey && rulesTranslations[translationKey]?.es) {
+            title = rulesTranslations[translationKey].es;
           }
         }
 
