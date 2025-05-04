@@ -2,23 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
-import { CalendarIcon, Pencil, Save, Plus, Trash2, Languages } from "lucide-react";
 import { format } from "date-fns";
 import { updateNewsItem, createNewsItem, deleteNewsItem, translateToSpanish, fetchNewsItems } from "@/utils/newsUtils";
-
-interface NewsFormData {
-  id: string;
-  date: string;
-  key: string;
-  contentEn: string;
-  contentEs: string;
-}
+import { NewsForm, NewsFormData } from './news/NewsForm';
+import { NewsList } from './news/NewsList';
 
 export const NewsManager = () => {
   const { t } = useLanguage();
@@ -242,218 +233,28 @@ export const NewsManager = () => {
 
       {/* New News Form */}
       {isAddingNew && (
-        <div className="mb-6 p-4 border border-warcrow-gold/20 rounded-lg">
-          <h3 className="text-warcrow-gold mb-3 text-sm font-medium">Add New News</h3>
-          
-          <div className="space-y-4">
-            <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">Date</label>
-              <div className="relative">
-                <Input
-                  type="date"
-                  value={newNews.date}
-                  onChange={(e) => handleNewNewsChange('date', e.target.value)}
-                  className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                />
-                <CalendarIcon className="absolute right-3 top-3 h-4 w-4 text-warcrow-gold/60" />
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">ID</label>
-              <Input
-                value={newNews.id}
-                onChange={(e) => handleNewNewsChange('id', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                placeholder="news-yyyy-mm-dd"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">Key</label>
-              <Input
-                value={newNews.key}
-                onChange={(e) => handleNewNewsChange('key', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                placeholder="Translation key"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">English Content</label>
-              <Textarea
-                value={newNews.contentEn}
-                onChange={(e) => handleNewNewsChange('contentEn', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                placeholder="News content in English"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-sm text-warcrow-text">Spanish Content</label>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleTranslateToSpanish(null)}
-                  className="h-7 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
-                >
-                  <Languages className="h-3.5 w-3.5 mr-1" />
-                  Auto-translate
-                </Button>
-              </div>
-              <Textarea
-                value={newNews.contentEs}
-                onChange={(e) => handleNewNewsChange('contentEs', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                placeholder="News content in Spanish"
-              />
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsAddingNew(false)}
-                className="border-warcrow-gold/30 text-warcrow-text"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSaveNewNews}
-                className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save News
-              </Button>
-            </div>
-          </div>
-        </div>
+        <NewsForm
+          formData={newNews}
+          isNew={true}
+          onCancel={() => setIsAddingNew(false)}
+          onSave={handleSaveNewNews}
+          onChange={handleNewNewsChange}
+          onTranslate={() => handleTranslateToSpanish(null)}
+        />
       )}
 
       {/* News List */}
-      {isLoading ? (
-        <div className="text-center py-8 text-warcrow-gold/60">
-          Loading news data...
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {newsData.length === 0 ? (
-            <div className="text-center py-8 text-warcrow-gold/60">
-              No news items found. Add your first news item.
-            </div>
-          ) : (
-            newsData.map((news, index) => (
-              <div 
-                key={news.id}
-                className="p-4 border border-warcrow-gold/20 rounded-lg"
-              >
-                {editingIndex === index ? (
-                  <div className="space-y-3">
-                    <div className="flex flex-col">
-                      <label className="text-sm text-warcrow-text mb-1">Date</label>
-                      <div className="relative">
-                        <Input
-                          type="date"
-                          value={news.date}
-                          onChange={(e) => handleInputChange(index, 'date', e.target.value)}
-                          className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                        />
-                        <CalendarIcon className="absolute right-3 top-3 h-4 w-4 text-warcrow-gold/60" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <label className="text-sm text-warcrow-text mb-1">English Content</label>
-                      <Textarea
-                        value={news.contentEn}
-                        onChange={(e) => handleInputChange(index, 'contentEn', e.target.value)}
-                        className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                      />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="text-sm text-warcrow-text">Spanish Content</label>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleTranslateToSpanish(index)}
-                          className="h-7 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
-                        >
-                          <Languages className="h-3.5 w-3.5 mr-1" />
-                          Auto-translate
-                        </Button>
-                      </div>
-                      <Textarea
-                        value={news.contentEs}
-                        onChange={(e) => handleInputChange(index, 'contentEs', e.target.value)}
-                        className="bg-black border-warcrow-gold/30 text-warcrow-text"
-                      />
-                    </div>
-
-                    <div className="flex justify-end space-x-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={handleCancelEdit}
-                        className="border-warcrow-gold/30 text-warcrow-text"
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        onClick={() => handleSaveNews(index)}
-                        className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-                      >
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-warcrow-gold font-semibold">{news.date}</span>
-                        <span className="text-warcrow-text/60 text-sm">({news.id})</span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditClick(index)}
-                          className="h-8 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
-                        >
-                          <Pencil className="h-3.5 w-3.5 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteNews(index)}
-                          className="h-8 border-red-500/30 text-red-500 hover:bg-red-500/20 hover:border-red-500/50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 space-y-2">
-                      <div>
-                        <p className="text-xs text-warcrow-gold/70 mb-1">English:</p>
-                        <p className="text-sm text-warcrow-text">{news.contentEn}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-warcrow-gold/70 mb-1">Spanish:</p>
-                        <p className="text-sm text-warcrow-text">{news.contentEs}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      )}
+      <NewsList
+        isLoading={isLoading}
+        newsData={newsData}
+        editingIndex={editingIndex}
+        onEditClick={handleEditClick}
+        onCancelEdit={handleCancelEdit}
+        onDeleteNews={handleDeleteNews}
+        onSaveNews={handleSaveNews}
+        onInputChange={handleInputChange}
+        onTranslate={handleTranslateToSpanish}
+      />
     </Card>
   );
 };
