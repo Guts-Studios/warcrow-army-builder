@@ -167,6 +167,57 @@ export const rulesTranslations = {
     en: 'Independent Units',
     es: 'Unidades Independientes'
   },
+  // Miniatures specific subsections - adding these new translations
+  miniatureTypes: {
+    en: 'Miniature Types',
+    es: 'Tipos de Miniaturas'
+  },
+  miniatureScale: {
+    en: 'Miniature Scale',
+    es: 'Escala de Miniaturas'
+  },
+  miniatureBases: {
+    en: 'Miniature Bases',
+    es: 'Bases de Miniaturas'
+  },
+  miniatureAssembly: {
+    en: 'Miniature Assembly',
+    es: 'Ensamblaje de Miniaturas'
+  },
+  miniaturePainting: {
+    en: 'Miniature Painting',
+    es: 'Pintado de Miniaturas'
+  },
+  // Additional troop subsections
+  troopTypes: {
+    en: 'Troop Types',
+    es: 'Tipos de Tropas'
+  },
+  troopEquipment: {
+    en: 'Troop Equipment',
+    es: 'Equipo de Tropas'
+  },
+  troopUpgrades: {
+    en: 'Troop Upgrades',
+    es: 'Mejoras de Tropas'
+  },
+  // Additional unit subsections
+  unitOrganization: {
+    en: 'Unit Organization',
+    es: 'Organización de Unidades'
+  },
+  unitCommanders: {
+    en: 'Unit Commanders',
+    es: 'Comandantes de Unidades'
+  },
+  unitSpecialists: {
+    en: 'Unit Specialists',
+    es: 'Especialistas de Unidades'
+  },
+  unitBanners: {
+    en: 'Unit Banners',
+    es: 'Estandartes de Unidades'
+  },
   // UI elements
   loading: {
     en: 'Loading...',
@@ -221,4 +272,3 @@ export const rulesTranslations = {
     es: '{count} resultados encontrados'
   }
 };
-
