@@ -336,5 +336,115 @@ export const unitTranslations = {
   'drago': {
     en: 'Drago',
     es: 'Drago'
+  },
+  
+  // Full unit name translations
+  'unit.nadezhda_lazard_champion_of_embersig': {
+    en: 'Nadezhda Lazard, Champion of Embersig',
+    es: 'Nadezhda Lazard, Campeona de Embersig'
+  },
+  'unit.marhael_the_refused': {
+    en: 'Marhael the Refused',
+    es: 'Marhael el Rechazado'
+  },
+  'unit.trabor_slepmund': {
+    en: 'Trabor Slepmund',
+    es: 'Trabor Slepmund'
+  },
+  'unit.war_surgeon': {
+    en: 'War Surgeon',
+    es: 'Cirujano de Guerra'
+  },
+  'unit.frostfire_herald': {
+    en: 'Frostfire Herald',
+    es: 'Heraldo de Fuego Helado'
+  },
+  'unit.gunnery_corporal': {
+    en: 'Gunnery Corporal',
+    es: 'Cabo Artillero'
+  },
+  'unit.iriavik_restless_pup': {
+    en: 'Iriavik, Restless Pup',
+    es: 'Iriavik, Cachorro Inquieto'
+  },
+  'unit.eskold_the_executioner': {
+    en: 'Eskold the Executioner',
+    es: 'Eskold el Verdugo'
+  },
+  'unit.njord_the_merciless': {
+    en: 'Njord the Merciless',
+    es: 'Njord el Despiadado'
+  },
+  'unit.grand_captain': {
+    en: 'Grand Captain',
+    es: 'Gran Capitán'
+  },
+  'unit.black_legion_bucklemen': {
+    en: 'Black Legion Bucklemen',
+    es: 'Soldados con Rodela de la Legión Negra'
+  },
+  'unit.black_legion_arquebusiers': {
+    en: 'Black Legion Arquebusiers',
+    es: 'Arcabuceros de la Legión Negra'
+  },
+  'unit.tundra_marauders': {
+    en: 'Tundra Marauders',
+    es: 'Merodeadores de la Tundra'
+  },
+  'unit.marked_marksmen': {
+    en: 'Marked Marksmen',
+    es: 'Tiradores Marcados'
+  },
+  'unit.intact': {
+    en: 'Intact',
+    es: 'Intactos'
+  },
+  'unit.marked': {
+    en: 'Marked',
+    es: 'Marcados'
+  },
+  'unit.pioneer': {
+    en: 'Pioneer',
+    es: 'Pionero'
+  },
+  'unit.protectors_of_the_forest': {
+    en: 'Protectors of the Forest',
+    es: 'Protectores del Bosque'
+  },
+  'unit.shadows_of_the_yew': {
+    en: 'Shadows of the Yew',
+    es: 'Sombras del Tejo'
+  },
+  'unit.wisemane': {
+    en: 'Wisemane',
+    es: 'Crinessabio'
+  },
+  'unit.wrathmane': {
+    en: 'Wrathmane',
+    es: 'Crinesira'
+  },
+  'unit.orc_hunters': {
+    en: 'Orc Hunters',
+    es: 'Cazadores Orcos'
+  },
+  'unit.agressors': {
+    en: 'Agressors',
+    es: 'Agresores'
+  },
+  'unit.naergon_caladren': {
+    en: 'Naergon Caladren',
+    es: 'Naergon Caladren'
+  },
+  'unit.nayra_caladren': {
+    en: 'Nayra Caladren',
+    es: 'Nayra Caladren'
+  },
+  'unit.progenitor_sculptor': {
+    en: 'Progenitor Sculptor',
+    es: 'Escultor Progenitor'
+  },
+  'unit.mk-os_automata': {
+    en: 'MK-OS Automata',
+    es: 'Autómata MK-OS'
   }
 };

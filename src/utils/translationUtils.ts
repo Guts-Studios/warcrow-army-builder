@@ -1,4 +1,3 @@
-
 import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
@@ -51,17 +50,23 @@ export const useTranslateKeyword = () => {
   };
   
   const translateUnitName = (name: string): string => {
-    // Check if this is a character name that needs translation
-    // Character names are often proper nouns and might not need translation,
-    // but titles and descriptive parts might need to be translated
+    // First check if there's a direct translation for the full unit name
+    const unitKey = `unit.${name.toLowerCase().replace(/\s+/g, '_')}`;
+    const directTranslation = t(unitKey);
     
-    // First check if there's a direct translation for the full name
-    const directTranslation = t(`unit.${name.toLowerCase().replace(/\s+/g, '_')}`);
-    if (directTranslation !== `unit.${name.toLowerCase().replace(/\s+/g, '_')}`) {
+    // If we have a direct translation that isn't just returning the key, use it
+    if (directTranslation !== unitKey) {
       return directTranslation;
     }
     
-    // Check for common titles or descriptors that might need translation
+    // Check for a specific translation of the full name
+    const fullNameKey = name.toLowerCase();
+    const fullNameTranslation = t(fullNameKey);
+    if (fullNameTranslation !== fullNameKey) {
+      return fullNameTranslation;
+    }
+    
+    // Otherwise, try to translate common parts of the name
     const titlePatterns = [
       "the", "of", "champion", "master", "lord", "lady", "commander", 
       "captain", "hero", "warrior", "guardian", "protector"

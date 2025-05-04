@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnitTitleProps {
   mainName: string;
@@ -9,6 +10,8 @@ interface UnitTitleProps {
 }
 
 const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 flex-wrap">
@@ -16,7 +19,7 @@ const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) =>
           {mainName}
         </h3>
         {command && (
-          <Badge className="bg-warcrow-gold text-black text-xs py-0 px-1">Command</Badge>
+          <Badge className="bg-warcrow-gold text-black text-xs py-0 px-1">{t('command')}</Badge>
         )}
       </div>
       {subtitle && (
