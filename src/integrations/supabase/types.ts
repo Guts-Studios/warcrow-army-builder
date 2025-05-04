@@ -386,6 +386,7 @@ export type Database = {
           id: string
           order_index: number
           title: string
+          title_es: string | null
           updated_at: string
         }
         Insert: {
@@ -393,6 +394,7 @@ export type Database = {
           id?: string
           order_index: number
           title: string
+          title_es?: string | null
           updated_at?: string
         }
         Update: {
@@ -400,6 +402,7 @@ export type Database = {
           id?: string
           order_index?: number
           title?: string
+          title_es?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -408,31 +411,37 @@ export type Database = {
         Row: {
           chapter_id: string
           content: string
+          content_es: string | null
           created_at: string
           id: string
           mission_details: string | null
           order_index: number
           title: string
+          title_es: string | null
           updated_at: string
         }
         Insert: {
           chapter_id: string
           content: string
+          content_es?: string | null
           created_at?: string
           id?: string
           mission_details?: string | null
           order_index: number
           title: string
+          title_es?: string | null
           updated_at?: string
         }
         Update: {
           chapter_id?: string
           content?: string
+          content_es?: string | null
           created_at?: string
           id?: string
           mission_details?: string | null
           order_index?: number
           title?: string
+          title_es?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -450,6 +459,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rules_translations_completeness: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          content_type: string
+          item_id: string
+          english_title: string
+          spanish_title: string
+          has_spanish_title: boolean
+          has_spanish_content: boolean
+        }[]
+      }
       check_username_exists: {
         Args: { username_to_check: string }
         Returns: boolean
