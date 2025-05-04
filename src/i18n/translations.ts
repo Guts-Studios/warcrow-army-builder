@@ -4,7 +4,7 @@ import { commonTranslations } from './common';
 import { authTranslations } from './auth';
 import { armyTranslations } from './army';
 import { factionTranslations } from './factions';
-import { rulesUITranslations, rulesTranslations } from './rules/index';
+import { rulesTranslations } from './rules/index';
 import { missionTranslations } from './missions';
 import { playTranslations } from './play';
 import { landingTranslations } from './landing';
@@ -19,7 +19,7 @@ export const translations: TranslationsType = {
   ...authTranslations,
   ...armyTranslations,
   ...factionTranslations,
-  ...rulesUITranslations,
+  ...rulesTranslations,
   ...missionTranslations,
   ...playTranslations,
   ...landingTranslations,
