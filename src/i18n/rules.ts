@@ -111,3 +111,4 @@ export const rulesTranslations = {
     es: 'Compartir en Discord'
   }
 };
+

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -614,13 +615,15 @@ export const useRules = () => {
             (translatedChapter.id === "stress-morale" && chapter.id.includes("stress")) ||
             (translatedChapter.id === "prepare-game" && chapter.id.includes("prepare")) ||
             (translatedChapter.id === "game-round" && chapter.id.includes("round")) ||
+            (translatedChapter.id === "skills" && chapter.id.includes("skill")) ||
             (translatedChapter.id === "magic-prayers" && chapter.id.includes("magic")) ||
             (translatedChapter.id === "terrain-cover" && chapter.id.includes("terrain")) ||
+            (translatedChapter.id === "combat" && chapter.id.includes("combat")) ||
             (translatedChapter.id === "characters" && chapter.id.includes("character")) ||
             (translatedChapter.id === "line-of-sight-movement" && (chapter.id.includes("sight") || chapter.id.includes("movement"))) ||
-            (translatedChapter.id === "miniatures" && chapter.id.includes("miniature")) ||
-            (translatedChapter.id === "troops" && chapter.id.includes("troop")) ||
-            (translatedChapter.id === "units" && chapter.id.includes("unit"))
+            (translatedChapter.id === "miniatures" && (chapter.title.toLowerCase().includes("miniature") || chapter.title === "Miniatures")) ||
+            (translatedChapter.id === "troops" && (chapter.title.toLowerCase().includes("troop") || chapter.title === "Troops")) ||
+            (translatedChapter.id === "units" && (chapter.title.toLowerCase().includes("unit") || chapter.title === "Units"))
           );
           
           // If we found a matching chapter, replace it
