@@ -7,6 +7,7 @@ import { useProfileFetch } from "./useProfileFetch";
 import { useProfileUpdate } from "./useProfileUpdate";
 import { useProfileNavigation } from "./useProfileNavigation";
 import { ensureWabId } from "@/utils/wabIdUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useProfileData = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +24,7 @@ export const useProfileData = () => {
     avatar_url: "",
     wab_id: "",
   });
+  const [isFriendRequestSent, setIsFriendRequestSent] = useState(false);
 
   // Get session information with session checked status
   const { isAuthenticated, usePreviewData, userId, sessionChecked } = useProfileSession();
@@ -89,6 +91,63 @@ export const useProfileData = () => {
     }
   }, [isError, error]);
 
+  // Add sendFriendRequest function
+  const sendFriendRequest = async (recipientId: string) => {
+    try {
+      if (!userId) {
+        toast.error("You must be logged in to add friends");
+        return;
+      }
+
+      // Check if friendship already exists
+      const { data: existingFriendship, error: checkError } = await supabase
+        .from("friendships")
+        .select()
+        .or(`and(sender_id.eq.${userId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${userId})`)
+        .maybeSingle();
+      
+      if (checkError) throw checkError;
+      
+      if (existingFriendship) {
+        toast.info("Already connected", {
+          description: "You already have a friendship or pending request with this user",
+        });
+        return;
+      }
+      
+      // Send friend request
+      const { error: insertError } = await supabase
+        .from("friendships")
+        .insert({
+          sender_id: userId,
+          recipient_id: recipientId,
+          status: "pending"
+        });
+      
+      if (insertError) throw insertError;
+      
+      // Create notification
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          recipient_id: recipientId,
+          sender_id: userId,
+          type: "friend_request",
+          content: { message: "sent you a friend request" }
+        });
+      
+      if (notificationError) throw notificationError;
+      
+      setIsFriendRequestSent(true);
+      toast.success("Friend request sent!");
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+      toast.error("Failed to send friend request");
+      return Promise.reject(error);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -118,6 +177,9 @@ export const useProfileData = () => {
     handleInputChange,
     handleSubmit,
     handleAvatarUpdate,
-    handleListSelect
+    handleListSelect,
+    // Add the missing properties to the return object
+    sendFriendRequest,
+    isFriendRequestSent
   };
 };

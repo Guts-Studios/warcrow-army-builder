@@ -114,11 +114,9 @@ export const UserSearch = () => {
       });
     } finally {
       // Keep the button disabled after successful request
-      if (!existingFriendship) {
-        setTimeout(() => {
-          setPendingFriends(prev => ({ ...prev, [recipientId]: false }));
-        }, 2000);
-      }
+      setTimeout(() => {
+        setPendingFriends(prev => ({ ...prev, [recipientId]: false }));
+      }, 2000);
     }
   };
 
