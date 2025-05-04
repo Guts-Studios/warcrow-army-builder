@@ -1,4 +1,5 @@
 
+
 export const rulesTranslations = {
   rulesTitle: {
     en: 'Rules',
@@ -57,6 +58,10 @@ export const rulesTranslations = {
     en: 'Special Rules',
     es: 'Reglas Especiales'
   },
+  characters: {
+    en: 'Characters',
+    es: 'Personajes'
+  },
   // UI elements
   loading: {
     en: 'Loading...',
@@ -93,9 +98,6 @@ export const rulesTranslations = {
   shareToDiscord: {
     en: 'Share to Discord',
     es: 'Compartir en Discord'
-  },
-  characters: {
-    en: 'Characters',
-    es: 'Personajes'
   }
 };
+
