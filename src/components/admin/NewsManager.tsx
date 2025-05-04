@@ -10,6 +10,7 @@ import { NewsItem, newsItems } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
 import { CalendarIcon, Pencil, Save, Plus, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { updateNewsItem, createNewsItem, deleteNewsItem } from "@/utils/newsUtils";
 
 interface NewsFormData {
   id: string;
@@ -98,17 +99,26 @@ export const NewsManager = () => {
     }
   };
 
-  const handleSaveNews = (index: number) => {
+  const handleSaveNews = async (index: number) => {
     const newsItem = newsData[index];
     
-    // Here we would update the translations and newsItems
-    // This is a mock implementation
-    toast.success(`News "${newsItem.id}" updated successfully`);
+    // Send update to the backend
+    const success = await updateNewsItem({
+      id: newsItem.id,
+      date: newsItem.date,
+      key: newsItem.key,
+      content: {
+        en: newsItem.contentEn,
+        es: newsItem.contentEs
+      }
+    });
     
-    // In a real implementation, you would persist these changes to your data source
-    console.log("Updated news:", newsItem);
-    
-    setEditingIndex(null);
+    if (success) {
+      toast.success(`News "${newsItem.id}" updated successfully`);
+      setEditingIndex(null);
+    } else {
+      toast.error("Failed to update news");
+    }
   };
 
   const handleAddNewNews = () => {
@@ -116,43 +126,68 @@ export const NewsManager = () => {
     setEditingIndex(null);
   };
 
-  const handleSaveNewNews = () => {
+  const handleSaveNewNews = async () => {
     // Validate new news
     if (!newNews.date || !newNews.contentEn || !newNews.contentEs) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    // Here we would add the new news to translations and newsItems
-    // This is a mock implementation
-    const updatedNewsData = [newNews, ...newsData];
-    setNewsData(updatedNewsData);
-    
-    toast.success(`New news "${newNews.id}" added successfully`);
-    
-    // In a real implementation, you would persist these changes to your data source
-    console.log("Added news:", newNews);
-    
-    // Reset form
-    setIsAddingNew(false);
-    setNewNews({
-      id: "",
-      date: format(new Date(), 'yyyy-MM-dd'),
-      key: "",
-      contentEn: "",
-      contentEs: ""
+    // Send create request to the backend
+    const success = await createNewsItem({
+      id: newNews.id,
+      date: newNews.date,
+      key: newNews.key,
+      content: {
+        en: newNews.contentEn,
+        es: newNews.contentEs
+      }
     });
-  };
-
-  const handleDeleteNews = (index: number) => {
-    if (window.confirm("Are you sure you want to delete this news item?")) {
-      const updatedNewsData = newsData.filter((_, i) => i !== index);
+    
+    if (success) {
+      // Update local state with new news item
+      const updatedNewsData = [
+        {
+          id: newNews.id,
+          date: newNews.date,
+          key: newNews.key,
+          contentEn: newNews.contentEn,
+          contentEs: newNews.contentEs
+        },
+        ...newsData
+      ];
       setNewsData(updatedNewsData);
       
-      toast.success("News deleted successfully");
+      toast.success(`New news "${newNews.id}" added successfully`);
       
-      // In a real implementation, you would persist these changes to your data source
-      console.log("Deleted news:", newsData[index]);
+      // Reset form
+      setIsAddingNew(false);
+      setNewNews({
+        id: "",
+        date: format(new Date(), 'yyyy-MM-dd'),
+        key: "",
+        contentEn: "",
+        contentEs: ""
+      });
+    } else {
+      toast.error("Failed to create news");
+    }
+  };
+
+  const handleDeleteNews = async (index: number) => {
+    if (window.confirm("Are you sure you want to delete this news item?")) {
+      const newsToDelete = newsData[index];
+      
+      // Send delete request to the backend
+      const success = await deleteNewsItem(newsToDelete.id);
+      
+      if (success) {
+        const updatedNewsData = newsData.filter((_, i) => i !== index);
+        setNewsData(updatedNewsData);
+        toast.success("News deleted successfully");
+      } else {
+        toast.error("Failed to delete news");
+      }
     }
   };
 

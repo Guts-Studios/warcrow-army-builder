@@ -21,3 +21,33 @@ export const newsItems: NewsItem[] = [
   },
   // Add more news items as they come in
 ];
+
+// Function to add a new news item
+export const addNewsItem = (id: string, date: string, key: string) => {
+  // Add news item to the beginning of the array (newest first)
+  newsItems.unshift({
+    id,
+    date,
+    key
+  });
+};
+
+// Function to update an existing news item
+export const updateNewsItemInArchive = (id: string, date: string, key: string) => {
+  const index = newsItems.findIndex(item => item.id === id);
+  if (index !== -1) {
+    newsItems[index] = {
+      id,
+      date,
+      key
+    };
+  }
+};
+
+// Function to delete a news item
+export const deleteNewsItemFromArchive = (id: string) => {
+  const index = newsItems.findIndex(item => item.id === id);
+  if (index !== -1) {
+    newsItems.splice(index, 1);
+  }
+};

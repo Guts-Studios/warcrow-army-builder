@@ -18,10 +18,21 @@ interface UpdateNewsRequest {
 export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
     // In a real implementation, you would update the database
-    // Here's a placeholder for the API call
+    // and update the translations object
     
-    // For now, this is a simulation
-    console.log("Updating news item:", newsData);
+    // For now, this is a simulation - we're updating the in-memory translations
+    if (translations[newsData.key]) {
+      translations[newsData.key].en = newsData.content.en;
+      translations[newsData.key].es = newsData.content.es;
+      console.log("Updated translations for key:", newsData.key, translations[newsData.key]);
+    } else {
+      // Create new translation entry if it doesn't exist
+      translations[newsData.key] = {
+        en: newsData.content.en,
+        es: newsData.content.es
+      };
+      console.log("Created new translation key:", newsData.key, translations[newsData.key]);
+    }
     
     // Simulate successful update
     return true;
@@ -34,10 +45,15 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
 export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
     // In a real implementation, you would add to the database
-    // Here's a placeholder for the API call
+    // and update the translations object
     
-    // For now, this is a simulation
-    console.log("Creating new news item:", newsData);
+    // Add the translation
+    translations[newsData.key] = {
+      en: newsData.content.en,
+      es: newsData.content.es
+    };
+    
+    console.log("Creating new news item with translations:", newsData);
     
     // Simulate successful creation
     return true;
@@ -50,7 +66,7 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
 export const deleteNewsItem = async (id: string): Promise<boolean> => {
   try {
     // In a real implementation, you would delete from the database
-    // Here's a placeholder for the API call
+    // and remove from translations object if needed
     
     // For now, this is a simulation
     console.log("Deleting news item:", id);
