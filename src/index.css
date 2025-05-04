@@ -1,8 +1,7 @@
-
+@import './fonts/fonts.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './fonts/fonts.css';
 
 @layer base {
   :root {
@@ -149,4 +148,3 @@
   max-height: 80vh;
   overflow-y: auto;
 }
-

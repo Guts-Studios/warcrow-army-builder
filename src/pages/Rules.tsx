@@ -24,7 +24,7 @@ const Rules = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={t('rulesTitle')}>
+      <PageHeader title="Rules">
         <LanguageSwitcher />
       </PageHeader>
       <div className="container max-w-7xl mx-auto py-8 px-4">
