@@ -1,5 +1,4 @@
 
-
 export const rulesTranslations = {
   rulesTitle: {
     en: 'Rules',
@@ -62,6 +61,10 @@ export const rulesTranslations = {
     en: 'Characters',
     es: 'Personajes'
   },
+  miniatures: {
+    en: 'Miniatures',
+    es: 'Miniaturas'
+  },
   // UI elements
   loading: {
     en: 'Loading...',
@@ -100,4 +103,3 @@ export const rulesTranslations = {
     es: 'Compartir en Discord'
   }
 };
-

@@ -1,8 +1,7 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { rulesTranslations } from "@/i18n/rules"; // Add import for rulesTranslations
+import { rulesTranslations } from "@/i18n/rules";
 
 export interface Section {
   id: string;
@@ -411,6 +410,39 @@ const lineOfSightAndMovementChapterES = {
   ]
 };
 
+// Spanish translations for miniatures chapter
+const miniaturesChapterES = {
+  id: "miniatures",
+  title: "Miniaturas",
+  sections: [
+    {
+      id: "miniatures-intro",
+      title: "Miniaturas",
+      content: "Las miniaturas son representaciones físicas de las unidades y personajes en el campo de batalla. Cada miniatura tiene características específicas que la definen en el juego."
+    },
+    {
+      id: "miniature-bases",
+      title: "Bases de Miniaturas",
+      content: "Las bases de las miniaturas son importantes para determinar:\n\n• Línea de visión\n• Formación\n• Movimiento\n• Contacto en combate\n\nLas reglas oficiales establecen tamaños específicos de bases para cada tipo de unidad."
+    },
+    {
+      id: "miniature-scale",
+      title: "Escala de Miniaturas",
+      content: "WARCROW utiliza miniaturas a escala 32 mm. Esto significa que una miniatura de 1.8 m de altura sería representada por una figura de aproximadamente 32 mm de altura desde los pies hasta los ojos.\n\nEsta escala es importante para mantener la consistencia en el juego y asegurar que las reglas de medición funcionen como se espera."
+    },
+    {
+      id: "wysiwyg",
+      title: "Lo Que Ves Es Lo Que Obtienes",
+      content: "En WARCROW se aplica la regla de \"Lo Que Ves Es Lo Que Obtienes\" (WYSIWYG, por sus siglas en inglés). Esto significa que las miniaturas deben estar equipadas con las armas y equipo que representan en el juego.\n\nSi tu miniatura tiene un arco, en el juego debe utilizar un arco. Si tiene una espada, debe utilizar una espada en las reglas."
+    },
+    {
+      id: "painting-customization",
+      title: "Pintura y Personalización",
+      content: "Se anima a los jugadores a pintar y personalizar sus miniaturas para darles una apariencia única. La pintura de las miniaturas no afecta las reglas del juego, pero mejora la experiencia visual y estética.\n\nLas conversiones de miniaturas están permitidas siempre que:\n\n• Mantengan el tamaño y silueta aproximados de la miniatura original\n• Sea claro qué unidad representan\n• Respeten las reglas de WYSIWYG para el armamento"
+    }
+  ]
+};
+
 export const useRules = () => {
   const { language } = useLanguage();
 
@@ -474,7 +506,8 @@ export const useRules = () => {
         terrainAndCoverChapterES,
         combatChapterES,
         charactersChapterES,
-        lineOfSightAndMovementChapterES
+        lineOfSightAndMovementChapterES,
+        miniaturesChapterES // Added the miniatures chapter
       ];
       
       const typedChapters: Chapter[] = chaptersData.map(chapter => {
@@ -521,7 +554,8 @@ export const useRules = () => {
             (translatedChapter.id === "magic-prayers" && chapter.id.includes("magic")) ||
             (translatedChapter.id === "terrain-cover" && chapter.id.includes("terrain")) ||
             (translatedChapter.id === "characters" && chapter.id.includes("character")) ||
-            (translatedChapter.id === "line-of-sight-movement" && (chapter.id.includes("sight") || chapter.id.includes("movement")))
+            (translatedChapter.id === "line-of-sight-movement" && (chapter.id.includes("sight") || chapter.id.includes("movement"))) ||
+            (translatedChapter.id === "miniatures" && chapter.id.includes("miniature"))
           );
           
           // If we found a matching chapter, replace it
