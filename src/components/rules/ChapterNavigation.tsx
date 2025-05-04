@@ -71,7 +71,8 @@ export const ChapterNavigation = ({
   };
 
   const isSubsection = (chapterTitle: string, sectionTitle: string) => {
-    return chapterTitle === t("prepareTheGame") && !sectionTitle.match(/^\d+\./);
+    // Add Terms and Keywords to the list of chapters that can have subsections
+    return (chapterTitle === t("prepareTheGame") || chapterTitle === t("termsAndKeywords")) && !sectionTitle.match(/^\d+\./);
   };
 
   const filteredChapters = React.useMemo(() => {

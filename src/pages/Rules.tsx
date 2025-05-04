@@ -16,6 +16,21 @@ const Rules = () => {
   const { data: chapters = [], isLoading } = useRules();
   const { t } = useLanguage();
 
+  // This useEffect helps ensure that if we have a Terms and Keywords chapter, we expand it by default
+  React.useEffect(() => {
+    if (chapters.length > 0 && !expandedChapter) {
+      // Find the Terms and Keywords chapter if it exists
+      const termsChapter = chapters.find(chapter => chapter.title === t('termsAndKeywords'));
+      if (termsChapter) {
+        setExpandedChapter(termsChapter.id);
+        // If it has sections, select the first one (likely the "FAQ V 1.2.1" section)
+        if (termsChapter.sections.length > 0) {
+          setSelectedSection(termsChapter.sections[0]);
+        }
+      }
+    }
+  }, [chapters, expandedChapter, t]);
+
   if (isLoading) {
     return <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
       <div className="text-warcrow-gold text-xl">{t('loading')}</div>
