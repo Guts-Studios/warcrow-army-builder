@@ -15,6 +15,52 @@ interface UpdateNewsRequest {
   content: NewsTranslation;
 }
 
+// Function to auto-translate English text to Spanish (mock implementation)
+export const translateToSpanish = (englishText: string): string => {
+  // This is a simplified mock translation function
+  // In a real application, you would use a translation service like Google Translate API
+  
+  // For now, we'll just do some basic word replacements as an example
+  const commonTranslations: Record<string, string> = {
+    'News': 'Noticias',
+    'update': 'actualización',
+    'unit': 'unidad',
+    'units': 'unidades',
+    'added': 'añadido',
+    'profiles': 'perfiles',
+    'for': 'para',
+    'have': 'han',
+    'been': 'sido',
+    'The': 'El',
+    'next': 'próximo',
+    'include': 'incluirá',
+    'will': 'va a',
+    'Play': 'Modo de Juego',
+    'Mode': 'Modo',
+    'now': 'ahora',
+    'includes': 'incluye',
+    'tournament': 'torneo',
+    'missions': 'misiones',
+    'Try': 'Prueba',
+    'them': 'las',
+    'out': '',
+    'and': 'y',
+    'share': 'comparte',
+    'your': 'tu',
+    'feedback': 'opinión'
+  };
+  
+  let translatedText = englishText;
+  
+  // Replace words based on our simple dictionary
+  Object.keys(commonTranslations).forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'g');
+    translatedText = translatedText.replace(regex, commonTranslations[word]);
+  });
+  
+  return translatedText;
+};
+
 export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
     // In a real implementation, you would update the database

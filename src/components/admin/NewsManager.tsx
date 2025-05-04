@@ -8,9 +8,9 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { NewsItem, newsItems } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
-import { CalendarIcon, Pencil, Save, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon, Pencil, Save, Plus, Trash2, Languages } from "lucide-react";
 import { format } from "date-fns";
-import { updateNewsItem, createNewsItem, deleteNewsItem } from "@/utils/newsUtils";
+import { updateNewsItem, createNewsItem, deleteNewsItem, translateToSpanish } from "@/utils/newsUtils";
 
 interface NewsFormData {
   id: string;
@@ -191,6 +191,30 @@ export const NewsManager = () => {
     }
   };
 
+  const handleTranslateToSpanish = (index: number | null) => {
+    if (index === null && !isAddingNew) return;
+    
+    if (isAddingNew) {
+      // Translate the new news content
+      const translatedText = translateToSpanish(newNews.contentEn);
+      setNewNews({
+        ...newNews,
+        contentEs: translatedText
+      });
+      toast.success("Spanish translation updated");
+    } else if (index !== null) {
+      // Translate the existing news content
+      const updatedNewsData = [...newsData];
+      const translatedText = translateToSpanish(updatedNewsData[index].contentEn);
+      updatedNewsData[index] = {
+        ...updatedNewsData[index],
+        contentEs: translatedText
+      };
+      setNewsData(updatedNewsData);
+      toast.success("Spanish translation updated");
+    }
+  };
+
   return (
     <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
       <div className="flex justify-between items-center mb-4">
@@ -256,7 +280,18 @@ export const NewsManager = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">Spanish Content</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm text-warcrow-text">Spanish Content</label>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleTranslateToSpanish(null)}
+                  className="h-7 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
+                >
+                  <Languages className="h-3.5 w-3.5 mr-1" />
+                  Auto-translate
+                </Button>
+              </div>
               <Textarea
                 value={newNews.contentEs}
                 onChange={(e) => handleNewNewsChange('contentEs', e.target.value)}
@@ -317,7 +352,18 @@ export const NewsManager = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-sm text-warcrow-text mb-1">Spanish Content</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-sm text-warcrow-text">Spanish Content</label>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleTranslateToSpanish(index)}
+                      className="h-7 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
+                    >
+                      <Languages className="h-3.5 w-3.5 mr-1" />
+                      Auto-translate
+                    </Button>
+                  </div>
                   <Textarea
                     value={news.contentEs}
                     onChange={(e) => handleInputChange(index, 'contentEs', e.target.value)}
