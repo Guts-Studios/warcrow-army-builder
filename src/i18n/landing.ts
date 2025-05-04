@@ -50,12 +50,12 @@ export const landingTranslations = {
     es: 'Últimas Actualizaciones'
   },
   recentNews: {
-    en: 'News 5/3/25: New unit profiles for Scions of Yaldabaoth have been added. The next update will include the Varank units.',
-    es: 'Noticias 5/3/25: Se han añadido nuevos perfiles de unidades para los Vástagos de Yaldabaoth. La próxima actualización incluirá las unidades Varank.'
+    en: 'New unit profiles for Embersig are now available! Check them out in the army builder.',
+    es: '¡Ya están disponibles los nuevos perfiles de unidades para Embersig! Échales un vistazo en el constructor de ejércitos.'
   },
   previousNews: {
-    en: 'News 4/30/25: Play Mode now includes tournament missions. Try them out and share your feedback!',
-    es: 'Noticias 4/30/25: El Modo de Juego ahora incluye misiones de torneo. ¡Pruébalas y comparte tu opinión!'
+    en: 'The play mode now supports dice rolling and mission tracking. Give it a try!',
+    es: 'El modo de juego ahora permite tiradas de dados y seguimiento de misiones. ¡Pruébalo!'
   },
   viewOlderNews: {
     en: 'View Older News',

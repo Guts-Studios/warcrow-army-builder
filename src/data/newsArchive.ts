@@ -10,15 +10,14 @@ export type NewsItem = {
 // Store news items in reverse chronological order (newest first)
 export const newsItems: NewsItem[] = [
   {
-    id: "news-2025-05-03",
-    date: "2025-05-03",
+    id: "news-embersig-profiles",
+    date: "2025-04-15",
     key: "recentNews",
   },
   {
-    id: "news-2025-04-30",
-    date: "2025-04-30",
+    id: "news-play-mode-dice",
+    date: "2025-03-28",
     key: "previousNews",
   },
   // Add more news items as they come in
 ];
-
