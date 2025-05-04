@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -12,6 +11,7 @@ import { Clipboard, MessageSquare, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TextHighlighter } from "./TextHighlighter";
 import { useSearch } from "@/contexts/SearchContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Chapter, Section } from "@/hooks/useRules";
 
 interface ChapterNavigationProps {
@@ -32,6 +32,7 @@ export const ChapterNavigation = ({
   const { toast } = useToast();
   const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
   const { searchTerm, caseSensitive } = useSearch();
+  const { t } = useLanguage();
 
   const handleChapterClick = (chapter: Chapter) => {
     if (chapter.sections.length > 0) {
@@ -45,13 +46,13 @@ export const ChapterNavigation = ({
     try {
       await navigator.clipboard.writeText(textToCopy);
       toast({
-        title: "Copied to clipboard",
-        description: "The section text has been copied to your clipboard.",
+        title: t("copiedToClipboard"),
+        description: t("sectionTextCopied"),
       });
     } catch (err) {
       toast({
-        title: "Failed to copy",
-        description: "Could not copy text to clipboard.",
+        title: t("failedToCopy"),
+        description: t("couldNotCopyText"),
         variant: "destructive",
       });
     }
@@ -63,13 +64,13 @@ export const ChapterNavigation = ({
     
     window.open(discordUrl, '_blank');
     toast({
-      title: "Opening Discord",
-      description: "Discord is opening in a new window...",
+      title: t("openingDiscord"),
+      description: t("discordOpeningInNewWindow"),
     });
   };
 
   const isSubsection = (chapterTitle: string, sectionTitle: string) => {
-    return chapterTitle === "Prepare the Game" && !sectionTitle.match(/^\d+\./);
+    return chapterTitle === t("prepareTheGame") && !sectionTitle.match(/^\d+\./);
   };
 
   const filteredChapters = React.useMemo(() => {
@@ -164,7 +165,7 @@ export const ChapterNavigation = ({
                                 size="icon"
                                 onClick={() => handleCopyText(section)}
                                 className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                                title="Copy section text"
+                                title={t("copySectionText")}
                               >
                                 <Clipboard className="h-4 w-4" />
                               </Button>
@@ -173,7 +174,7 @@ export const ChapterNavigation = ({
                                 size="icon"
                                 onClick={() => handleDiscordShare(section)}
                                 className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-black/20"
-                                title="Share to Discord"
+                                title={t("shareToDiscord")}
                               >
                                 <MessageSquare className="h-4 w-4" />
                               </Button>
