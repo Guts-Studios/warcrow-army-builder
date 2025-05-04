@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,7 +32,12 @@ export const NewsManager = () => {
     contentEs: ""
   });
 
+  // Load news data whenever newsItems changes
   useEffect(() => {
+    loadNewsData();
+  }, []);
+
+  const loadNewsData = () => {
     // Load news data from translations and newsItems
     const loadedNewsData = newsItems.map(item => {
       const translationKey = item.key;
@@ -50,7 +54,7 @@ export const NewsManager = () => {
     });
     
     setNewsData(loadedNewsData);
-  }, []);
+  };
 
   const handleEditClick = (index: number) => {
     setEditingIndex(index);
@@ -116,6 +120,8 @@ export const NewsManager = () => {
     if (success) {
       toast.success(`News "${newsItem.id}" updated successfully`);
       setEditingIndex(null);
+      // Reload news data to ensure display is up-to-date
+      loadNewsData();
     } else {
       toast.error("Failed to update news");
     }
@@ -145,19 +151,6 @@ export const NewsManager = () => {
     });
     
     if (success) {
-      // Update local state with new news item
-      const updatedNewsData = [
-        {
-          id: newNews.id,
-          date: newNews.date,
-          key: newNews.key,
-          contentEn: newNews.contentEn,
-          contentEs: newNews.contentEs
-        },
-        ...newsData
-      ];
-      setNewsData(updatedNewsData);
-      
       toast.success(`New news "${newNews.id}" added successfully`);
       
       // Reset form
@@ -169,6 +162,9 @@ export const NewsManager = () => {
         contentEn: "",
         contentEs: ""
       });
+      
+      // Reload news data to include the new item
+      loadNewsData();
     } else {
       toast.error("Failed to create news");
     }
@@ -182,9 +178,9 @@ export const NewsManager = () => {
       const success = await deleteNewsItem(newsToDelete.id);
       
       if (success) {
-        const updatedNewsData = newsData.filter((_, i) => i !== index);
-        setNewsData(updatedNewsData);
         toast.success("News deleted successfully");
+        // Reload news data after deletion
+        loadNewsData();
       } else {
         toast.error("Failed to delete news");
       }

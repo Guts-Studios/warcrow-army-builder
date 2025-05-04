@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NewsItem } from "@/data/newsArchive";
+import { NewsItem, addNewsItem, updateNewsItemInArchive, deleteNewsItemFromArchive } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
 
 interface NewsTranslation {
@@ -80,6 +80,13 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
       console.log("Created new translation key:", newsData.key, translations[newsData.key]);
     }
     
+    // Update the news archive
+    const updated = updateNewsItemInArchive(newsData.id, newsData.date, newsData.key);
+    if (!updated) {
+      // If not found in archive, add it
+      addNewsItem(newsData.id, newsData.date, newsData.key);
+    }
+    
     // Simulate successful update
     return true;
   } catch (error) {
@@ -99,6 +106,9 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
       es: newsData.content.es
     };
     
+    // Add to the news archive
+    addNewsItem(newsData.id, newsData.date, newsData.key);
+    
     console.log("Creating new news item with translations:", newsData);
     
     // Simulate successful creation
@@ -114,11 +124,13 @@ export const deleteNewsItem = async (id: string): Promise<boolean> => {
     // In a real implementation, you would delete from the database
     // and remove from translations object if needed
     
-    // For now, this is a simulation
-    console.log("Deleting news item:", id);
+    // Remove from the news archive
+    const deleted = deleteNewsItemFromArchive(id);
+    
+    console.log("Deleting news item:", id, deleted ? "success" : "not found");
     
     // Simulate successful deletion
-    return true;
+    return deleted;
   } catch (error) {
     console.error("Error deleting news item:", error);
     return false;

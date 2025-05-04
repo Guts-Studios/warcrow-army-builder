@@ -41,7 +41,9 @@ export const updateNewsItemInArchive = (id: string, date: string, key: string) =
       date,
       key
     };
+    return true;
   }
+  return false;
 };
 
 // Function to delete a news item
@@ -49,5 +51,7 @@ export const deleteNewsItemFromArchive = (id: string) => {
   const index = newsItems.findIndex(item => item.id === id);
   if (index !== -1) {
     newsItems.splice(index, 1);
+    return true;
   }
+  return false;
 };
