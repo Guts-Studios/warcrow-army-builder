@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText } from "lucide-react";
+import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText, BookOpen } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { updateUserWabAdminStatus, getWabAdmins } from "@/utils/email/adminManag
 import { WabAdmin } from "@/utils/email/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NewsManager from "@/components/admin/NewsManager";
+import RulesVerifier from "@/components/admin/RulesVerifier";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -66,6 +67,8 @@ const Admin = () => {
     switch (activeTab) {
       case 'news':
         return <NewsManager />;
+      case 'rules':
+        return <RulesVerifier />;
       case 'dashboard':
       default:
         return (
@@ -218,12 +221,12 @@ const Admin = () => {
             <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
           </div>
           
-          <div className="flex space-x-2 mb-6 border-b border-warcrow-gold/20 pb-2">
+          <div className="flex flex-wrap space-x-2 mb-6 border-b border-warcrow-gold/20 pb-2">
             <Button
               variant={activeTab === 'dashboard' ? 'default' : 'outline'}
               className={activeTab === 'dashboard' 
-                ? "bg-warcrow-gold text-black" 
-                : "border-warcrow-gold/30 text-warcrow-gold"}
+                ? "bg-warcrow-gold text-black mb-2" 
+                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
               onClick={() => setActiveTab('dashboard')}
             >
               Dashboard
@@ -231,12 +234,22 @@ const Admin = () => {
             <Button
               variant={activeTab === 'news' ? 'default' : 'outline'}
               className={activeTab === 'news' 
-                ? "bg-warcrow-gold text-black" 
-                : "border-warcrow-gold/30 text-warcrow-gold"}
+                ? "bg-warcrow-gold text-black mb-2" 
+                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
               onClick={() => setActiveTab('news')}
             >
               <FileText className="h-4 w-4 mr-2" />
               News Management
+            </Button>
+            <Button
+              variant={activeTab === 'rules' ? 'default' : 'outline'}
+              className={activeTab === 'rules' 
+                ? "bg-warcrow-gold text-black mb-2" 
+                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
+              onClick={() => setActiveTab('rules')}
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Rules Verifier
             </Button>
           </div>
           
