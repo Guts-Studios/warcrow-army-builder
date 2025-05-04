@@ -5,6 +5,7 @@ import UnitControls from "./unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UnitCardKeywords from "./unit/card/UnitCardKeywords";
 import UnitCardImage from "./unit/card/UnitCardImage";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnitCardProps {
   unit: Unit;
@@ -15,6 +16,7 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
@@ -28,7 +30,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
           <span className="text-warcrow-gold font-semibold">
-            {unit.pointsCost} pts
+            {unit.pointsCost} {t('pts')}
           </span>
           <UnitControls 
             quantity={quantity} 

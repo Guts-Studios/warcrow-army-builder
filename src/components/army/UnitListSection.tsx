@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { characteristicDefinitions } from "@/data/characteristicDefinitions";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface UnitListSectionProps {
   factionUnits: Unit[];
@@ -21,6 +23,10 @@ const UnitListSection = ({
   onAdd,
   onRemove 
 }: UnitListSectionProps) => {
+  const { t } = useLanguage();
+  const { translateKeyword } = useTranslateKeyword();
+  const { language } = useLanguage();
+  
   const [sortBy, setSortBy] = useState<SortOption>("points-asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -141,6 +147,14 @@ const UnitListSection = ({
     setSearchQuery("");
   };
 
+  // Function to translate and display characteristics/keywords
+  const displayKeyword = (keywordText: string): string => {
+    if (language === 'es') {
+      return translateKeyword(keywordText);
+    }
+    return keywordText;
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex flex-col gap-3">
@@ -148,7 +162,7 @@ const UnitListSection = ({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             type="text"
-            placeholder="Search units by name, keywords, or special rules..."
+            placeholder={t('searchUnits')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 bg-warcrow-accent/50 border-warcrow-gold/70 text-warcrow-text placeholder:text-warcrow-muted"
@@ -166,7 +180,7 @@ const UnitListSection = ({
           <div className="p-3 bg-warcrow-background/80 border border-warcrow-gold/30 rounded-md space-y-3">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-warcrow-gold">Filter by Characteristics</h3>
+                <h3 className="text-sm font-semibold text-warcrow-gold">{t('filterByCharacteristics')}</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {allCharacteristics.map(characteristic => (
@@ -181,7 +195,7 @@ const UnitListSection = ({
                       htmlFor={`characteristic-${characteristic}`}
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-warcrow-text"
                     >
-                      {characteristic}
+                      {displayKeyword(characteristic)}
                     </label>
                   </div>
                 ))}
@@ -193,7 +207,7 @@ const UnitListSection = ({
                 className="w-full flex items-center justify-between text-sm font-semibold text-warcrow-gold py-1 hover:text-warcrow-gold/80"
                 onClick={() => setShowKeywords(!showKeywords)}
               >
-                <span>Filter by Keywords</span>
+                <span>{t('filterByKeywords')}</span>
                 {showKeywords ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </button>
               
@@ -211,7 +225,7 @@ const UnitListSection = ({
                         htmlFor={`keyword-${keyword}`}
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-warcrow-text"
                       >
-                        {keyword}
+                        {displayKeyword(keyword)}
                       </label>
                     </div>
                   ))}
@@ -225,7 +239,7 @@ const UnitListSection = ({
                   onClick={clearAllFilters}
                   className="text-xs text-warcrow-gold hover:underline"
                 >
-                  Clear all filters
+                  {t('clearAllFilters')}
                 </button>
               </div>
             )}
@@ -249,12 +263,12 @@ const UnitListSection = ({
         </div>
       ) : (
         <div className="py-8 text-center">
-          <p className="text-warcrow-muted">No units match your search criteria.</p>
+          <p className="text-warcrow-muted">{t('noUnitsMatch')}</p>
           <button 
             onClick={clearAllFilters}
             className="mt-2 text-warcrow-gold hover:underline"
           >
-            Clear all filters
+            {t('clearAllFilters')}
           </button>
         </div>
       )}

@@ -10,6 +10,7 @@ import { playTranslations } from './play';
 import { landingTranslations } from './landing';
 import { aboutTranslations } from './about';
 import { activityTranslations } from './activity';
+import { unitTranslations } from './units';
 
 // Combine all translation categories
 export const translations: TranslationsType = {
@@ -23,4 +24,5 @@ export const translations: TranslationsType = {
   ...landingTranslations,
   ...aboutTranslations,
   ...activityTranslations,
+  ...unitTranslations,
 };

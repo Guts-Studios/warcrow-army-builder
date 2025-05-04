@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SelectedUnitsProps {
   selectedUnits: SelectedUnit[];
@@ -22,6 +23,8 @@ interface SelectedUnitsProps {
 }
 
 const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
+  const { t } = useLanguage();
+  
   // Sort units to put High Command first
   const sortedUnits = [...selectedUnits].sort((a, b) => {
     if (a.highCommand && !b.highCommand) return -1;
@@ -68,7 +71,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Command Points: {unit.command}</p>
+                            <p>{t('commandPoints')}: {unit.command}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -80,14 +83,14 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                             <Check className="h-4 w-4 text-warcrow-gold" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>High Command</p>
+                            <p>{t('highCommand')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     )}
                   </div>
                   <span className="text-warcrow-muted">
-                    ({unit.pointsCost * unit.quantity} pts)
+                    ({unit.pointsCost * unit.quantity} {t('pts')})
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -102,7 +105,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
-                      <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
+                      <DialogTitle className="sr-only">{unit.name} {t('cardImage')}</DialogTitle>
                       {unit.imageUrl ? (
                         <img 
                           src={unit.imageUrl} 
@@ -112,7 +115,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                         />
                       ) : (
                         <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
-                          Card image coming soon
+                          {t('cardImage')} coming soon
                         </div>
                       )}
                     </DialogContent>
@@ -131,17 +134,17 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
           </div>
         </ScrollArea>
         {selectedUnits.length === 0 && (
-          <p className="text-warcrow-muted text-center py-4">No units selected</p>
+          <p className="text-warcrow-muted text-center py-4">{t('noUnitsSelected')}</p>
         )}
       </div>
       
       {selectedUnits.length > 0 && (
         <div className="flex justify-end pt-2 gap-4 border-t border-warcrow-background mt-2">
           <span className="text-warcrow-gold">
-            Command: {totalCommand}
+            {t('command')}: {totalCommand}
           </span>
           <span className="text-warcrow-gold">
-            Total Points: {totalPoints}
+            {t('totalPoints')}: {totalPoints}
           </span>
         </div>
       )}

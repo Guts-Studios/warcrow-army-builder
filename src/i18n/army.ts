@@ -60,4 +60,12 @@ export const armyTranslations = {
     en: 'ID verified',
     es: 'ID verificada'
   },
+  noUnitsSelected: {
+    en: 'No units selected',
+    es: 'No hay unidades seleccionadas'
+  },
+  command: {
+    en: 'Command',
+    es: 'Mando'
+  }
 };
