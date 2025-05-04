@@ -6,6 +6,7 @@ import { Search, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProfileAvatar } from "./ProfileAvatar";
+import { useProfileSession } from "@/hooks/useProfileSession";
 
 interface SearchResult {
   id: string;
@@ -14,15 +15,13 @@ interface SearchResult {
   avatar_url: string | null;
 }
 
-interface UserSearchProps {
-  currentUserId: string;
-}
-
-export const UserSearch = ({ currentUserId }: UserSearchProps) => {
+export const UserSearch = () => {
+  const { userId: currentUserId } = useProfileSession();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [pendingFriends, setPendingFriends] = useState<Record<string, boolean>>({});
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +64,8 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
 
   const sendFriendRequest = async (recipientId: string, username: string | null) => {
     try {
+      setPendingFriends(prev => ({ ...prev, [recipientId]: true }));
+      
       const { data: existingFriendship, error: checkError } = await supabase
         .from("friendships")
         .select()
@@ -111,8 +112,19 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
       toast.error("Failed to send friend request", {
         position: "top-right"
       });
+    } finally {
+      // Keep the button disabled after successful request
+      if (!existingFriendship) {
+        setTimeout(() => {
+          setPendingFriends(prev => ({ ...prev, [recipientId]: false }));
+        }, 2000);
+      }
     }
   };
+
+  if (!currentUserId) {
+    return null; // Don't show search if user is not logged in
+  }
 
   return (
     <>
@@ -173,10 +185,11 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
                   <Button 
                     onClick={() => sendFriendRequest(user.id, user.username)}
                     size="sm"
+                    disabled={pendingFriends[user.id]}
                     className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
                   >
                     <UserPlus className="h-4 w-4 mr-1" />
-                    Add
+                    {pendingFriends[user.id] ? "Sent" : "Add"}
                   </Button>
                 </div>
               ))

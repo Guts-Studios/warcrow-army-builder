@@ -8,13 +8,16 @@ interface ProfileContextType {
   formData: ProfileFormData;
   isEditing: boolean;
   isLoading: boolean;
-  error: Error | null; // Added error property
+  error: Error | null;
   updateProfile: any;
   setIsEditing: (value: boolean) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleAvatarUpdate: (url: string) => void;
   handleListSelect: (list: SavedList) => void;
+  // Add friend-related functions
+  sendFriendRequest: (recipientId: string) => Promise<void>;
+  isFriendRequestSent: boolean;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);

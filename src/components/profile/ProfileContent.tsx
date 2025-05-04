@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useProfileSession } from "@/hooks/useProfileSession";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
+import { AddFriendButton } from "./AddFriendButton";
 
 interface ProfileContentProps {
   isOnline?: boolean;
@@ -36,7 +37,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
   } = useProfileContext();
   
   const navigate = useNavigate();
-  const { isAuthenticated } = useProfileSession();
+  const { isAuthenticated, userId: sessionUserId } = useProfileSession();
   const [copied, setCopied] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const isMobile = useIsMobile();
@@ -130,6 +131,11 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                   )}
                   
                   <div className="flex flex-wrap justify-center gap-2">
+                    {/* Add Friend button - Show only if not the current user's profile */}
+                    {profile?.id && isAuthenticated && profile.id !== sessionUserId && (
+                      <AddFriendButton targetUserId={profile.id} />
+                    )}
+
                     {!isEditing && (
                       <Button 
                         onClick={() => setIsEditing(true)}
