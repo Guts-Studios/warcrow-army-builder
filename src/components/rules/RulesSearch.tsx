@@ -7,7 +7,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const RulesSearch = () => {
-  const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive, searchResults } = useSearch();
+  const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive, searchResults, setSearchResults } = useSearch();
   const [focused, setFocused] = useState(false);
   const { t } = useLanguage();
 

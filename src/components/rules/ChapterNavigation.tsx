@@ -32,7 +32,7 @@ export const ChapterNavigation = ({
 }: ChapterNavigationProps) => {
   const { toast } = useToast();
   const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
-  const { searchTerm, caseSensitive } = useSearch();
+  const { searchTerm, caseSensitive, setSearchResults } = useSearch();
   const { t } = useLanguage();
 
   const handleChapterClick = (chapter: Chapter) => {
@@ -77,7 +77,7 @@ export const ChapterNavigation = ({
   const filteredChapters = React.useMemo(() => {
     if (!searchTerm) return chapters;
 
-    return chapters
+    const filtered = chapters
       .map((chapter) => ({
         ...chapter,
         sections: chapter.sections.filter(
@@ -97,7 +97,17 @@ export const ChapterNavigation = ({
             ? chapter.title.includes(searchTerm)
             : chapter.title.toLowerCase().includes(searchTerm.toLowerCase()))
       );
-  }, [chapters, searchTerm, caseSensitive]);
+
+    // Calculate total search results
+    const totalResults = filtered.reduce((count, chapter) => {
+      return count + chapter.sections.length;
+    }, 0);
+    
+    // Update the search results count in context
+    setSearchResults(totalResults);
+    
+    return filtered;
+  }, [chapters, searchTerm, caseSensitive, setSearchResults]);
 
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] md:h-[calc(100vh-16rem)] bg-warcrow-accent/20 rounded-lg p-6 overflow-y-auto" style={{
