@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CircleDollarSign } from "lucide-react";
+import { Circle } from "lucide-react";
 
 interface UnitTitleProps {
   mainName: string;
@@ -21,7 +21,7 @@ const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) =>
         </h3>
         {command && (
           <div className="flex items-center">
-            <CircleDollarSign 
+            <Circle 
               size={16} 
               className="text-warcrow-gold" 
               fill="rgba(255, 215, 0, 0.3)" 
