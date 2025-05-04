@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,27 +99,6 @@ const Landing = () => {
         />
         <MainActions />
         <SecondaryActions isGuest={isGuest} onSignOut={handleSignOut} />
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="link"
-              className="text-warcrow-gold hover:text-warcrow-gold/80"
-            >
-              {t('viewChangelog')}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-warcrow-gold">
-                {t('changelog')}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="whitespace-pre-wrap font-mono text-sm">
-              {changelogContent}
-            </div>
-          </DialogContent>
-        </Dialog>
 
         <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
           <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">

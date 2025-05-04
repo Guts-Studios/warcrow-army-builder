@@ -2,6 +2,14 @@
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import changelogContent from '../../../CHANGELOG.md?raw';
 
 interface HeaderProps {
   latestVersion: string;
@@ -70,7 +78,31 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
         </div>
         <p className="text-warcrow-text text-sm md:text-base">
           {formatNewsContent(t('recentNews'))}
-        </p>       
+        </p>
+        
+        {/* Changelog button and dialog - moved from Landing.tsx */}
+        <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="link"
+                className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm"
+              >
+                {t('viewChangelog')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-warcrow-gold">
+                  {t('changelog')}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="whitespace-pre-wrap font-mono text-sm">
+                {changelogContent}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );
