@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import UnitCardKeywords from "./unit/card/UnitCardKeywords";
 import UnitCardImage from "./unit/card/UnitCardImage";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface UnitCardProps {
   unit: Unit;
@@ -16,7 +17,11 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { translateUnitName } = useTranslateKeyword();
+  
+  // Translate unit name if in Spanish
+  const displayName = language === 'es' ? translateUnitName(unit.name) : unit.name;
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
@@ -24,7 +29,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         <div className="flex-1">
           <UnitHeader 
             unit={unit} 
-            mainName={unit.name}
+            mainName={displayName}
             portraitUrl={unit.imageUrl}
           />
         </div>

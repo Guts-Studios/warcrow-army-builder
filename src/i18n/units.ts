@@ -244,5 +244,97 @@ export const unitTranslations = {
   cp: {
     en: 'CP',
     es: 'PM'
+  },
+
+  // Character titles and common name components
+  the: {
+    en: 'the',
+    es: 'el'
+  },
+  of: {
+    en: 'of',
+    es: 'de'
+  },
+  champion: {
+    en: 'Champion',
+    es: 'Campeón'
+  },
+  master: {
+    en: 'Master',
+    es: 'Maestro'
+  },
+  lord: {
+    en: 'Lord',
+    es: 'Señor'
+  },
+  lady: {
+    en: 'Lady',
+    es: 'Dama'
+  },
+  commander: {
+    en: 'Commander',
+    es: 'Comandante'
+  },
+  captain: {
+    en: 'Captain',
+    es: 'Capitán'
+  },
+  hero: {
+    en: 'Hero',
+    es: 'Héroe'
+  },
+  warrior: {
+    en: 'Warrior',
+    es: 'Guerrero'
+  },
+  guardian: {
+    en: 'Guardian',
+    es: 'Guardián'
+  },
+  protector: {
+    en: 'Protector',
+    es: 'Protector'
+  },
+  
+  // Specific character names or titles translations
+  'champion of embersig': {
+    en: 'Champion of Embersig',
+    es: 'Campeón de Embersig'
+  },
+  'the refused': {
+    en: 'the Refused',
+    es: 'el Rechazado'
+  },
+  'the anvil': {
+    en: 'the Anvil',
+    es: 'el Yunque'
+  },
+  'war surgeon': {
+    en: 'War Surgeon',
+    es: 'Cirujano de Guerra'
+  },
+  'frostfire herald': {
+    en: 'Frostfire Herald',
+    es: 'Heraldo de Fuego Helado'
+  },
+  'gunnery corporal': {
+    en: 'Gunnery Corporal',
+    es: 'Cabo Artillero'
+  },
+  'restless pup': {
+    en: 'Restless Pup',
+    es: 'Cachorro Inquieto'
+  },
+  'the executioner': {
+    en: 'the Executioner',
+    es: 'el Verdugo'
+  },
+  'the merciless': {
+    en: 'the Merciless',
+    es: 'el Despiadado'
+  },
+  'drago': {
+    en: 'Drago',
+    es: 'Drago'
   }
 };

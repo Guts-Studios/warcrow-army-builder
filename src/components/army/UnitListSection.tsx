@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface SelectedUnitsProps {
   selectedUnits: SelectedUnit[];
@@ -23,7 +24,8 @@ interface SelectedUnitsProps {
 }
 
 const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { translateUnitName } = useTranslateKeyword();
   
   // Sort units to put High Command first
   const sortedUnits = [...selectedUnits].sort((a, b) => {
@@ -44,8 +46,10 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
 
   const formatUnitDisplay = (name: string, quantity: number | undefined) => {
     if (!name || typeof quantity !== 'number') return "";
+    // Translate unit name if in Spanish
+    const displayName = language === 'es' ? translateUnitName(name) : name;
     const displayQuantity = Math.min(quantity, 9);
-    return `${name} x${displayQuantity}`;
+    return `${displayName} x${displayQuantity}`;
   };
 
   return (
@@ -105,11 +109,11 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
-                      <DialogTitle className="sr-only">{unit.name} {t('cardImage')}</DialogTitle>
+                      <DialogTitle className="sr-only">{language === 'es' ? translateUnitName(unit.name) : unit.name} {t('cardImage')}</DialogTitle>
                       {unit.imageUrl ? (
                         <img 
                           src={unit.imageUrl} 
-                          alt={unit.name} 
+                          alt={language === 'es' ? translateUnitName(unit.name) : unit.name} 
                           className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
                           loading="eager"
                         />
