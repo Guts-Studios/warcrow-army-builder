@@ -1,17 +1,8 @@
 import { Chapter } from "@/hooks/useRules";
+import { RulesTranslation } from "../types";
 
 // Define the structure for rules translations
-export interface RulesTranslation {
-  [key: string]: any;
-  en: {
-    chapters: Chapter[];
-  };
-  es: {
-    chapters: Chapter[];
-  };
-}
-
-export const rulesTranslations: RulesTranslation = {
+export const rulesTranslations = {
   en: {
     chapters: [
       {

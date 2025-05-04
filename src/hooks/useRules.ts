@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -405,46 +404,4 @@ const lineOfSightAndMovementChapterES = {
     },
     {
       id: "movement-details",
-      title: "Detalles del Movimiento",
-      content: "El movimiento en WARCROW se mide en pasos:\n\n• Cada unidad tiene un valor de MOV que indica cuántos pasos puede moverse.\n\n• El terreno difícil reduce la velocidad (cada paso cuenta como 2).\n\n• Una unidad siempre debe terminar su movimiento en formación.\n\n• Las unidades pueden realizar dos acciones de movimiento en la misma activación."
-    }
-  ]
-};
-
-export const useRules = () => {
-  const { language } = useLanguage();
-  
-  const fetchRules = async () => {
-    // Here we would normally fetch from the database
-    // But for now we'll use the hardcoded data
-    
-    // English chapters
-    if (language === 'en') {
-      return rulesTranslations.en;
-    }
-    
-    // Spanish chapters (hardcoded for now)
-    if (language === 'es') {
-      return [
-        basicConceptsChapterES,
-        stressAndMoraleChapterES,
-        prepareTheGameChapterES,
-        gameRoundChapterES,
-        skillsChapterES,
-        magicAndPrayersChapterES,
-        terrainAndCoverChapterES,
-        combatChapterES,
-        charactersChapterES,
-        lineOfSightAndMovementChapterES
-      ];
-    }
-    
-    // Default to English
-    return rulesTranslations.en;
-  };
-
-  return useQuery({
-    queryKey: ['rules', language],
-    queryFn: fetchRules
-  });
-};
+      title: "
