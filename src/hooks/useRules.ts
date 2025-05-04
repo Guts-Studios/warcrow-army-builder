@@ -112,6 +112,9 @@ export const useRules = () => {
         }
       }
 
+      console.log("Language:", language);
+      console.log("Chapters:", typedChapters);
+      
       return typedChapters;
     },
   });

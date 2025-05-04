@@ -16,6 +16,12 @@ const Rules = () => {
   const { data: chapters = [], isLoading } = useRules();
   const { t } = useLanguage();
 
+  // Add debugging to help troubleshoot translation issues
+  React.useEffect(() => {
+    console.log("Rules page loaded");
+    console.log("Chapters data:", chapters);
+  }, [chapters]);
+
   if (isLoading) {
     return <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
       <div className="text-warcrow-gold text-xl">{t('loading')}</div>
