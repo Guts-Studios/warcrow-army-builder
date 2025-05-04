@@ -49,8 +49,32 @@ export const basicRulesTranslations = {
     es: 'Formación y Movimiento'
   },
   combat: {
-    en: 'Combat\n\nFollow these steps to resolve the combat:\n\n1. Your unit must perform positioning maneuvers if any of its troops are not engaged in combat. (See section "Positioning maneuvers").\n2. Select a melee attack from your unit profile.\n3. All troops in your unit participate in the attack, just as all troops in the enemy unit defend.\n4. Your opponent gathers the defense roll indicated on their combat panel based on the number of troops in their unit. If the unit includes a Character, it may add dice or automatic symbols to the roll. (See "Characters"). At this point they must declare whether their unit is stressed to add their modifier to the defense roll. If your opponent decides not to do this, they won't be able to change their mind later.\n5. Gather your attack dice pool. Take the dice indicated on your unit's combat panel based on the number of troops currently in it. If your unit includes a Character, they may add dice or automatic symbols to the roll. (See "Characters"). Declare now if your unit is stressed to add the modifier to its attack roll.\n6. Resolve a Face to Face roll between your attack roll and your opponent's defense roll.\n7. Your opponent receives as much damage as Success remains on your roll and vice versa, your unit receives as much damage as Success remains on your opponent's roll.\n\n(FAQ V 1.2.1)',
-    es: 'Combate\n\nSigue estos pasos para resolver el combate:\n\n1. Tu unidad debe realizar maniobras de posicionamiento si alguna de sus tropas no está involucrada en combate. (Ver sección "Maniobras de posicionamiento").\n2. Selecciona un ataque cuerpo a cuerpo del perfil de tu unidad.\n3. Todas las tropas de tu unidad participan en el ataque, así como todas las tropas de la unidad enemiga defienden.\n4. Tu oponente reúne la tirada de defensa indicada en su panel de combate según el número de tropas en su unidad. Si la unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver "Personajes"). En este momento deben declarar si su unidad está estresada para añadir su modificador a la tirada de defensa. Si tu oponente decide no hacerlo, no podrá cambiar de opinión más tarde.\n5. Reúne tu reserva de dados de ataque. Toma los dados indicados en el panel de combate de tu unidad según el número de tropas que tenga actualmente. Si tu unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver "Personajes"). Declara ahora si tu unidad está estresada para añadir el modificador a su tirada de ataque.\n6. Resuelve una tirada Enfrentada entre tu tirada de ataque y la tirada de defensa de tu oponente.\n7. Tu oponente recibe tanto daño como Éxitos queden en tu tirada y viceversa, tu unidad recibe tanto daño como Éxitos queden en la tirada de tu oponente.\n\n(FAQ V 1.2.1)'
+    en: `Combat
+
+Follow these steps to resolve the combat:
+
+1. Your unit must perform positioning maneuvers if any of its troops are not engaged in combat. (See section "Positioning maneuvers").
+2. Select a melee attack from your unit profile.
+3. All troops in your unit participate in the attack, just as all troops in the enemy unit defend.
+4. Your opponent gathers the defense roll indicated on their combat panel based on the number of troops in their unit. If the unit includes a Character, it may add dice or automatic symbols to the roll. (See "Characters"). At this point they must declare whether their unit is stressed to add their modifier to the defense roll. If your opponent decides not to do this, they won't be able to change their mind later.
+5. Gather your attack dice pool. Take the dice indicated on your unit's combat panel based on the number of troops currently in it. If your unit includes a Character, they may add dice or automatic symbols to the roll. (See "Characters"). Declare now if your unit is stressed to add the modifier to its attack roll.
+6. Resolve a Face to Face roll between your attack roll and your opponent's defense roll.
+7. Your opponent receives as much damage as Success remains on your roll and vice versa, your unit receives as much damage as Success remains on your opponent's roll.
+
+(FAQ V 1.2.1)`,
+    es: `Combate
+
+Sigue estos pasos para resolver el combate:
+
+1. Tu unidad debe realizar maniobras de posicionamiento si alguna de sus tropas no está involucrada en combate. (Ver sección "Maniobras de posicionamiento").
+2. Selecciona un ataque cuerpo a cuerpo del perfil de tu unidad.
+3. Todas las tropas de tu unidad participan en el ataque, así como todas las tropas de la unidad enemiga defienden.
+4. Tu oponente reúne la tirada de defensa indicada en su panel de combate según el número de tropas en su unidad. Si la unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver "Personajes"). En este momento deben declarar si su unidad está estresada para añadir su modificador a la tirada de defensa. Si tu oponente decide no hacerlo, no podrá cambiar de opinión más tarde.
+5. Reúne tu reserva de dados de ataque. Toma los dados indicados en el panel de combate de tu unidad según el número de tropas que tenga actualmente. Si tu unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver "Personajes"). Declara ahora si tu unidad está estresada para añadir el modificador a su tirada de ataque.
+6. Resuelve una tirada Enfrentada entre tu tirada de ataque y la tirada de defensa de tu oponente.
+7. Tu oponente recibe tanto daño como Éxitos queden en tu tirada y viceversa, tu unidad recibe tanto daño como Éxitos queden en la tirada de tu oponente.
+
+(FAQ V 1.2.1)`
   },
   specialRules: {
     en: 'Special Rules',
