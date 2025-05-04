@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import changelogContent from '../../../CHANGELOG.md?raw';
+import { format } from "date-fns";
 
 interface HeaderProps {
   latestVersion: string;
@@ -20,6 +21,7 @@ interface HeaderProps {
 
 export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderProps) => {
   const { t } = useLanguage();
+  const todaysDate = format(new Date(), 'MM/dd/yy');
   
   // Function to format news content with highlighted date, same as in NewsArchiveDialog
   const formatNewsContent = (content: string): React.ReactNode => {
@@ -74,7 +76,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
       </p>
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
-          <p className="text-warcrow-gold font-semibold text-sm md:text-base">{t('inDevelopment')}</p>
+          <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
           <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
         </div>
         <p className="text-warcrow-text text-sm md:text-base">
