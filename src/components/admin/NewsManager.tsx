@@ -97,15 +97,6 @@ export const NewsManager = () => {
         id: `news-${formattedDate}`,
       }));
     }
-    
-    // Auto-generate key if empty
-    if (field === 'contentEn' && !newNews.key) {
-      const key = `news${new Date().getTime()}`;
-      setNewNews(prev => ({
-        ...prev,
-        key,
-      }));
-    }
   };
 
   const handleSaveNews = async (index: number) => {
@@ -135,6 +126,31 @@ export const NewsManager = () => {
   const handleAddNewNews = () => {
     setIsAddingNew(true);
     setEditingIndex(null);
+    
+    // Auto-generate initial ID based on today's date
+    const today = new Date();
+    const formattedDate = format(today, 'yyyyMMdd');
+    
+    setNewNews({
+      id: `news-${formattedDate}`,
+      date: format(today, 'yyyy-MM-dd'),
+      key: `news${Date.now()}`,
+      contentEn: "",
+      contentEs: ""
+    });
+  };
+
+  const handleGenerateIdKey = () => {
+    const formattedDate = newNews.date.replace(/-/g, '');
+    const timestamp = Date.now();
+    
+    setNewNews(prev => ({
+      ...prev,
+      id: `news-${formattedDate}`,
+      key: `news${timestamp}`
+    }));
+    
+    toast.success("ID and Key generated");
   };
 
   const handleSaveNewNews = async () => {
@@ -142,6 +158,23 @@ export const NewsManager = () => {
     if (!newNews.date || !newNews.contentEn || !newNews.contentEs) {
       toast.error("Please fill in all required fields");
       return;
+    }
+
+    // Auto-generate key if empty
+    if (!newNews.key) {
+      setNewNews(prev => ({
+        ...prev,
+        key: `news${Date.now()}`
+      }));
+    }
+
+    // Auto-generate ID if empty
+    if (!newNews.id) {
+      const formattedDate = newNews.date.replace(/-/g, '');
+      setNewNews(prev => ({
+        ...prev,
+        id: `news-${formattedDate}`
+      }));
     }
 
     // Send create request to Supabase
@@ -240,6 +273,7 @@ export const NewsManager = () => {
           onSave={handleSaveNewNews}
           onChange={handleNewNewsChange}
           onTranslate={() => handleTranslateToSpanish(null)}
+          onGenerateIdKey={handleGenerateIdKey}
         />
       )}
 

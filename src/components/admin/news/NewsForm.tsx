@@ -21,6 +21,7 @@ interface NewsFormProps {
   onSave: () => void;
   onChange: (field: keyof NewsFormData, value: string) => void;
   onTranslate: () => void;
+  onGenerateIdKey?: () => void;
 }
 
 export const NewsForm = ({
@@ -29,7 +30,8 @@ export const NewsForm = ({
   onCancel,
   onSave,
   onChange,
-  onTranslate
+  onTranslate,
+  onGenerateIdKey
 }: NewsFormProps) => {
   return (
     <div className="p-4 border border-warcrow-gold/20 rounded-lg">
@@ -54,7 +56,19 @@ export const NewsForm = ({
         {isNew && (
           <>
             <div className="flex flex-col">
-              <label className="text-sm text-warcrow-text mb-1">ID</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm text-warcrow-text">ID</label>
+                {onGenerateIdKey && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={onGenerateIdKey}
+                    className="h-7 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/30"
+                  >
+                    Auto-generate ID & Key
+                  </Button>
+                )}
+              </div>
               <Input
                 value={formData.id}
                 onChange={(e) => onChange('id', e.target.value)}
