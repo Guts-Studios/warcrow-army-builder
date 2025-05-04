@@ -15,11 +15,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Playmode
 - Game sync during play mode
+  
+## [0.5.3] - 2025-05-03
+- Spanish translation support being added in live so we might miss some spots but will make sure we have full coverage. Spanish language cards soon.
+- Replaced cards with High Res cards
+- Fixed miscellaneous bugs
+
+### In Progress
+- Working on the social system and adding friends and also the notification system. We were informed of various issues and are working on them
 
 ## [0.5.0] - 2025-03-31
 
 ### Added
-- Profile is now added. You can add your firends send messages and now a special ID called WAB_ID that you can use to play games
+- Profile is now added. You can add your friends send messages and now a special ID called WAB_ID that you can use to play games
 once Play Mode is finished up. Some features of the profile are still buggy but we are working on the important stuff first. 
   
 
