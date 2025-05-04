@@ -1,3 +1,4 @@
+
 export const landingTranslations = {
   // Common elements
   welcomeMessage: {
