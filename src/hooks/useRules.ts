@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -139,6 +138,11 @@ const gameRoundChapterES = {
       id: "activate-move",
       title: "Activar una unidad y mover",
       content: "Cuando activas una unidad, puedes moverla hasta su valor de MOV en pasos. El movimiento debe seguir estas reglas:\n\n• No puedes mover a través de otras unidades o terreno infranqueable\n• Debes mantener la formación al final del movimiento\n• No puedes separar la unidad en grupos\n\n[...] Ten en cuenta que:\n\n[[red]]Tu unidad puede realizar la acción de movimiento y permanecer inmóvil.[[/red]]"
+    },
+    {
+      id: "combat",
+      title: "Combat",
+      content: "Sigue estos pasos para resolver el combate:\n\n1. Tu unidad debe realizar maniobras de posicionamiento si alguna de sus tropas no está involucrada en el combate. (Ver sección \"Maniobras de posicionamiento\").\n2. Selecciona un ataque cuerpo a cuerpo de tu perfil de unidad.\n3. Todas las tropas de tu unidad participan en el ataque, así como todas las tropas de la unidad enemiga defienden.\n4. Tu oponente reúne la tirada de defensa indicada en su panel de combate según el número de tropas en su unidad. Si la unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver \"Personajes\"). En este punto deben declarar si su unidad está estresada para añadir su modificador a la tirada de defensa. Si tu oponente decide no hacerlo, no podrá cambiar de opinión más tarde.\n5. Reúne tu reserva de dados de ataque. Toma los dados indicados en el panel de combate de tu unidad según el número de tropas que hay actualmente en ella. Si tu unidad incluye un Personaje, puede añadir dados o símbolos automáticos a la tirada. (Ver \"Personajes\"). Declara ahora si tu unidad está estresada para añadir el modificador a su tirada de ataque.\n6. Resuelve una tirada Cara a Cara entre tu tirada de ataque y la tirada de defensa de tu oponente.\n7. Tu oponente recibe tanto daño como Éxitos queden en tu tirada y viceversa, tu unidad recibe tanto daño como Éxitos queden en la tirada de tu oponente.\n\n(FAQ V 1.2.1)"
     },
     {
       id: "end-phase",
@@ -569,9 +573,9 @@ export const useRules = () => {
         combatChapterES,
         charactersChapterES,
         lineOfSightAndMovementChapterES,
-        miniaturesChapterES, // Added the miniatures chapter
-        troopsChapterES,     // Added the troops chapter
-        unitsChapterES       // Added the units chapter
+        miniaturesChapterES, 
+        troopsChapterES,     
+        unitsChapterES       
       ];
       
       const typedChapters: Chapter[] = chaptersData.map(chapter => {
