@@ -412,19 +412,19 @@ const lineOfSightAndMovementChapterES = {
 };
 
 export const useRules = () => {
-  const { languageCode } = useLanguage();
+  const { language } = useLanguage();
   
   const fetchRules = async () => {
     // Here we would normally fetch from the database
     // But for now we'll use the hardcoded data
     
     // English chapters
-    if (languageCode === 'en') {
-      return rulesTranslations.en.chapters;
+    if (language === 'en') {
+      return rulesTranslations.en;
     }
     
     // Spanish chapters (hardcoded for now)
-    if (languageCode === 'es') {
+    if (language === 'es') {
       return [
         basicConceptsChapterES,
         stressAndMoraleChapterES,
@@ -440,11 +440,11 @@ export const useRules = () => {
     }
     
     // Default to English
-    return rulesTranslations.en.chapters;
+    return rulesTranslations.en;
   };
 
   return useQuery({
-    queryKey: ['rules', languageCode],
+    queryKey: ['rules', language],
     queryFn: fetchRules
   });
 };
