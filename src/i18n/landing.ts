@@ -1,5 +1,5 @@
-
 export const landingTranslations = {
+  // Common elements
   welcomeMessage: {
     en: 'Welcome to WARCROW',
     es: 'Bienvenido a WARCROW',

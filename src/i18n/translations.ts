@@ -11,6 +11,7 @@ import { landingTranslations } from './landing';
 import { aboutTranslations } from './about';
 import { activityTranslations } from './activity';
 import { unitTranslations } from './units';
+import { profileTranslations } from './profile';
 
 // Combine all translation categories
 export const translations: TranslationsType = {
@@ -25,4 +26,5 @@ export const translations: TranslationsType = {
   ...aboutTranslations,
   ...activityTranslations,
   ...unitTranslations,
+  ...profileTranslations,
 };

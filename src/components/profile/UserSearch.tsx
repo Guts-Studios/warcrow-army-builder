@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SearchResult {
   id: string;
@@ -18,6 +18,7 @@ interface SearchResult {
 
 export const UserSearch = () => {
   const { userId: currentUserId } = useProfileSession();
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -43,19 +44,20 @@ export const UserSearch = () => {
       setSearchResults(data || []);
       
       if (data && data.length === 0) {
-        toast.info("No users found", {
-          description: "Try a different username or WAB ID",
+        toast.info(t('noResults'), {
+          description: t('tryDifferent'),
           position: "top-right"
         });
       } else if (data && data.length > 0) {
-        toast.success(`Found ${data.length} user${data.length > 1 ? 's' : ''}`, {
+        const countMessage = data.length > 1 ? t('foundUsersPlural').replace('{count}', String(data.length)) : t('foundUsers').replace('{count}', String(data.length));
+        toast.success(countMessage, {
           position: "top-right",
           duration: 2000
         });
       }
     } catch (error) {
       console.error("Error searching users:", error);
-      toast.error("Failed to search users", {
+      toast.error(t('failedToSend'), {
         position: "top-right"
       });
     } finally {
@@ -80,13 +82,14 @@ export const UserSearch = () => {
       const existingFriendship = checkResult;
       
       if (existingFriendship) {
-        toast.info("Already connected", {
-          description: "You already have a friendship or pending request with this user",
+        toast.info(t('alreadyFriends'), {
+          description: t('friendRequestExisting'),
           position: "top-right"
         });
         return;
       }
       
+      // Send friend request
       const { error: insertError } = await supabase
         .from("friendships")
         .insert({
@@ -97,6 +100,7 @@ export const UserSearch = () => {
       
       if (insertError) throw insertError;
       
+      // Create notification
       const { error: notificationError } = await supabase
         .from("notifications")
         .insert({
@@ -108,13 +112,13 @@ export const UserSearch = () => {
       
       if (notificationError) throw notificationError;
       
-      toast.success("Friend request sent!", {
-        description: `Request sent to ${username || "user"}`,
+      toast.success(t('requestSent'), {
+        description: t('requestSentTo').replace('{username}', username || t('anonymous')),
         position: "top-right"
       });
     } catch (error) {
       console.error("Error sending friend request:", error);
-      toast.error("Failed to send friend request", {
+      toast.error(t('failedToSend'), {
         position: "top-right"
       });
     } finally {
@@ -137,19 +141,19 @@ export const UserSearch = () => {
         className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
       >
         <Search className="h-4 w-4 mr-2" />
-        Find Friends
+        {t('findFriends')}
       </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="bg-black/90 border-warcrow-gold text-warcrow-text">
           <DialogHeader>
-            <DialogTitle className="text-warcrow-gold">Find Players</DialogTitle>
+            <DialogTitle className="text-warcrow-gold">{t('findFriends')}</DialogTitle>
           </DialogHeader>
           
           <form onSubmit={handleSearch} className="space-y-4 mt-2">
             <div className="flex gap-2">
               <Input
-                placeholder="Search by WAB ID or username"
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
@@ -167,7 +171,7 @@ export const UserSearch = () => {
           <div className="mt-4 space-y-2">
             {searchResults.length === 0 ? (
               <p className="text-warcrow-text/60 text-center">
-                {isSearching ? "Searching..." : "No results found"}
+                {isSearching ? t('searching') : t('noResults')}
               </p>
             ) : (
               searchResults.map((user) => (
@@ -181,7 +185,7 @@ export const UserSearch = () => {
                       size="sm"
                     />
                     <div>
-                      <div className="font-medium">{user.username || "Anonymous User"}</div>
+                      <div className="font-medium">{user.username || t('anonymous')}</div>
                       <div className="text-sm text-warcrow-gold/60">{user.wab_id}</div>
                     </div>
                   </div>
@@ -192,7 +196,7 @@ export const UserSearch = () => {
                     className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
                   >
                     <UserPlus className="h-4 w-4 mr-1" />
-                    {pendingFriends[user.id] ? "Sent" : "Add"}
+                    {pendingFriends[user.id] ? t('sent') : t('addFriend')}
                   </Button>
                 </div>
               ))

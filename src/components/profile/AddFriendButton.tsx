@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useProfileContext } from "@/context/ProfileContext"; // Fix the import path
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AddFriendButtonProps {
   targetUserId: string;
@@ -18,6 +19,7 @@ export const AddFriendButton = ({ targetUserId, variant = "outline", size = "def
   const { userId: currentUserId } = useProfileSession();
   const [isLoading, setIsLoading] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const { t } = useLanguage();
 
   // Skip if viewing own profile
   if (currentUserId === targetUserId) {
@@ -26,7 +28,7 @@ export const AddFriendButton = ({ targetUserId, variant = "outline", size = "def
 
   const handleSendRequest = async () => {
     if (!currentUserId) {
-      toast.error("You must be logged in to add friends");
+      toast.error(t('loginRequired'));
       return;
     }
 
@@ -42,8 +44,8 @@ export const AddFriendButton = ({ targetUserId, variant = "outline", size = "def
       if (checkError) throw checkError;
       
       if (existingFriendship) {
-        toast.info("Already connected", {
-          description: "You already have a friendship or pending request with this user",
+        toast.info(t('alreadyFriends'), {
+          description: t('friendRequestExisting'),
         });
         return;
       }
@@ -71,11 +73,11 @@ export const AddFriendButton = ({ targetUserId, variant = "outline", size = "def
       
       if (notificationError) throw notificationError;
       
-      toast.success("Friend request sent!");
+      toast.success(t('requestSent'));
       setRequestSent(true);
     } catch (error) {
       console.error("Error sending friend request:", error);
-      toast.error("Failed to send friend request");
+      toast.error(t('failedToSend'));
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +92,7 @@ export const AddFriendButton = ({ targetUserId, variant = "outline", size = "def
       disabled={isLoading || requestSent}
     >
       <UserPlus className="h-4 w-4 mr-2" />
-      {requestSent ? "Request Sent" : "Add Friend"}
+      {requestSent ? t('friendRequestSent') : t('addFriend')}
     </Button>
   );
 };
