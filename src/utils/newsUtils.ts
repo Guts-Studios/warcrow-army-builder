@@ -1,11 +1,22 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { NewsItem, addNewsItem, updateNewsItemInArchive, deleteNewsItemFromArchive } from "@/data/newsArchive";
+import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
 
 interface NewsTranslation {
   en: string;
   es: string;
+}
+
+interface NewsItemDB {
+  id: string;
+  news_id: string;
+  date: string;
+  translation_key: string;
+  content_en: string;
+  content_es: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface UpdateNewsRequest {
@@ -14,6 +25,15 @@ interface UpdateNewsRequest {
   key: string;
   content: NewsTranslation;
 }
+
+// Function to convert database item to app format
+const convertToNewsItem = (dbItem: NewsItemDB): NewsItem => {
+  return {
+    id: dbItem.news_id,
+    date: dbItem.date,
+    key: dbItem.translation_key
+  };
+};
 
 // Function to auto-translate English text to Spanish (mock implementation)
 export const translateToSpanish = (englishText: string): string => {
@@ -61,89 +81,140 @@ export const translateToSpanish = (englishText: string): string => {
   return translatedText;
 };
 
-export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
+// Function to fetch all news items from the database
+export const fetchNewsItems = async (): Promise<NewsItem[]> => {
   try {
-    // In a real implementation, you would update the database
-    // and update the translations object
+    const { data, error } = await supabase
+      .from('news_items')
+      .select('*')
+      .order('date', { ascending: false });
     
-    // For now, this is a simulation - we're updating the in-memory translations
-    if (translations[newsData.key]) {
-      translations[newsData.key].en = newsData.content.en;
-      translations[newsData.key].es = newsData.content.es;
-      console.log("Updated translations for key:", newsData.key, translations[newsData.key]);
-    } else {
-      // Create new translation entry if it doesn't exist
-      translations[newsData.key] = {
-        en: newsData.content.en,
-        es: newsData.content.es
+    if (error) {
+      console.error('Error fetching news items:', error);
+      return [];
+    }
+    
+    // Update the in-memory translations for each news item
+    data.forEach(item => {
+      translations[item.translation_key] = {
+        en: item.content_en,
+        es: item.content_es
       };
-      console.log("Created new translation key:", newsData.key, translations[newsData.key]);
-    }
+    });
     
-    // Update the news archive
-    const updated = updateNewsItemInArchive(newsData.id, newsData.date, newsData.key);
-    if (!updated) {
-      // If not found in archive, add it
-      addNewsItem(newsData.id, newsData.date, newsData.key);
-    }
-    
-    // Simulate successful update
-    return true;
+    // Convert to app format
+    return data.map(convertToNewsItem);
   } catch (error) {
-    console.error("Error updating news item:", error);
-    return false;
+    console.error('Error in fetchNewsItems:', error);
+    return [];
   }
 };
 
-export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
+// Function to update a news item
+export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
-    // In a real implementation, you would add to the database
-    // and update the translations object
+    // Update the database
+    const { error } = await supabase
+      .from('news_items')
+      .update({
+        date: newsData.date,
+        translation_key: newsData.key,
+        content_en: newsData.content.en,
+        content_es: newsData.content.es,
+      })
+      .eq('news_id', newsData.id);
     
-    // Add the translation
+    if (error) {
+      console.error('Error updating news item in database:', error);
+      return false;
+    }
+    
+    // Also update local translations cache
     translations[newsData.key] = {
       en: newsData.content.en,
       es: newsData.content.es
     };
     
-    // Add to the news archive
-    addNewsItem(newsData.id, newsData.date, newsData.key);
-    
-    console.log("Creating new news item with translations:", newsData);
-    
-    // Simulate successful creation
+    console.log('Updated news item successfully:', newsData);
     return true;
   } catch (error) {
-    console.error("Error creating news item:", error);
+    console.error('Error updating news item:', error);
     return false;
   }
 };
 
+// Function to create a new news item
+export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
+  try {
+    // Add to the database
+    const { error } = await supabase
+      .from('news_items')
+      .insert({
+        news_id: newsData.id,
+        date: newsData.date,
+        translation_key: newsData.key,
+        content_en: newsData.content.en,
+        content_es: newsData.content.es
+      });
+    
+    if (error) {
+      console.error('Error creating news item in database:', error);
+      return false;
+    }
+    
+    // Also update local translations cache
+    translations[newsData.key] = {
+      en: newsData.content.en,
+      es: newsData.content.es
+    };
+    
+    console.log('Created new news item successfully:', newsData);
+    return true;
+  } catch (error) {
+    console.error('Error creating news item:', error);
+    return false;
+  }
+};
+
+// Function to delete a news item
 export const deleteNewsItem = async (id: string): Promise<boolean> => {
   try {
-    // In a real implementation, you would delete from the database
-    // and remove from translations object if needed
+    // Delete from the database
+    const { error } = await supabase
+      .from('news_items')
+      .delete()
+      .eq('news_id', id);
     
-    // Remove from the news archive
-    const deleted = deleteNewsItemFromArchive(id);
+    if (error) {
+      console.error('Error deleting news item from database:', error);
+      return false;
+    }
     
-    console.log("Deleting news item:", id, deleted ? "success" : "not found");
-    
-    // Simulate successful deletion
-    return deleted;
+    console.log('Deleted news item successfully:', id);
+    return true;
   } catch (error) {
-    console.error("Error deleting news item:", error);
+    console.error('Error deleting news item:', error);
     return false;
   }
 };
 
-export const getAllNews = async (): Promise<NewsItem[]> => {
+// Function to get a single news item
+export const getNewsItem = async (id: string): Promise<NewsItem | null> => {
   try {
-    // In a real implementation, you would fetch from the database
-    // For now, return the static data
-    return [];
+    const { data, error } = await supabase
+      .from('news_items')
+      .select('*')
+      .eq('news_id', id)
+      .single();
+    
+    if (error || !data) {
+      console.error('Error fetching news item:', error);
+      return null;
+    }
+    
+    return convertToNewsItem(data);
   } catch (error) {
-    console.error("Error fetching news:", error);
-    return [];
+    console.error('Error in getNewsItem:', error);
+    return null;
   }
 };

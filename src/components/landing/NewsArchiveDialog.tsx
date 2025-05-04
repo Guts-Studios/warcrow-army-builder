@@ -2,9 +2,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { newsItems } from "@/data/newsArchive";
+import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
 import { format } from "date-fns";
-// Remove the problematic import and use a simpler date formatting approach
+import { useEffect, useState } from "react";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -12,6 +12,19 @@ interface NewsArchiveDialogProps {
 
 export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const { t, language } = useLanguage();
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadNews = async () => {
+      setLoading(true);
+      const loadedItems = await initializeNewsItems();
+      setItems(loadedItems);
+      setLoading(false);
+    };
+    
+    loadNews();
+  }, []);
   
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -83,16 +96,22 @@ export const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) 
         </DialogHeader>
         
         <div className="space-y-6 mt-4">
-          {newsItems.map((item) => (
-            <div key={item.id} className="border border-warcrow-gold/30 rounded-lg p-4">
-              <div className="text-warcrow-gold font-semibold mb-2">
-                {formatDate(item.date)}
+          {loading ? (
+            <div className="text-center p-4 text-warcrow-gold/60">Loading news...</div>
+          ) : items.length > 0 ? (
+            items.map((item) => (
+              <div key={item.id} className="border border-warcrow-gold/30 rounded-lg p-4">
+                <div className="text-warcrow-gold font-semibold mb-2">
+                  {formatDate(item.date)}
+                </div>
+                <div className="text-warcrow-text text-sm">
+                  {formatNewsContent(t(item.key))}
+                </div>
               </div>
-              <div className="text-warcrow-text text-sm">
-                {formatNewsContent(t(item.key))}
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="text-center p-4 text-warcrow-gold/60">No news items found.</div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

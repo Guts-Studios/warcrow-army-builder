@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
 
 interface HeaderProps {
   latestVersion: string;
@@ -22,6 +24,21 @@ interface HeaderProps {
 export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderProps) => {
   const { t } = useLanguage();
   const todaysDate = format(new Date(), 'MM/dd/yy');
+  const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadNews = async () => {
+      setIsLoading(true);
+      const items = await initializeNewsItems();
+      if (items && items.length > 0) {
+        setLatestNewsItem(items[0]); // Get the most recent news item
+      }
+      setIsLoading(false);
+    };
+    
+    loadNews();
+  }, []);
   
   // Function to format news content with highlighted date, same as in NewsArchiveDialog
   const formatNewsContent = (content: string): React.ReactNode => {
@@ -79,9 +96,15 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
           <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
         </div>
-        <p className="text-warcrow-text text-sm md:text-base">
-          {formatNewsContent(t('recentNews'))}
-        </p>
+        {isLoading ? (
+          <p className="text-warcrow-text/70 text-sm">Loading latest news...</p>
+        ) : latestNewsItem ? (
+          <p className="text-warcrow-text text-sm md:text-base">
+            {formatNewsContent(t(latestNewsItem.key))}
+          </p>
+        ) : (
+          <p className="text-warcrow-text/70 text-sm">No recent news available.</p>
+        )}
         
         {/* Changelog button and dialog - moved from Landing.tsx */}
         <div className="mt-3 pt-3 border-t border-warcrow-gold/20">

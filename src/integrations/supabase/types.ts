@@ -209,6 +209,39 @@ export type Database = {
         }
         Relationships: []
       }
+      news_items: {
+        Row: {
+          content_en: string
+          content_es: string
+          created_at: string
+          date: string
+          id: string
+          news_id: string
+          translation_key: string
+          updated_at: string
+        }
+        Insert: {
+          content_en: string
+          content_es: string
+          created_at?: string
+          date: string
+          id?: string
+          news_id: string
+          translation_key: string
+          updated_at?: string
+        }
+        Update: {
+          content_en?: string
+          content_es?: string
+          created_at?: string
+          date?: string
+          id?: string
+          news_id?: string
+          translation_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: Json
