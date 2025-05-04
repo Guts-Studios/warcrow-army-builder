@@ -2,11 +2,12 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CircleDollarSign } from "lucide-react";
 
 interface UnitTitleProps {
   mainName: string;
   subtitle?: string;
-  command?: boolean;
+  command?: boolean | number;
 }
 
 const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) => {
@@ -19,7 +20,17 @@ const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) =>
           {mainName}
         </h3>
         {command && (
-          <Badge className="bg-warcrow-gold text-black text-xs py-0 px-1">{t('command')}</Badge>
+          <div className="flex items-center">
+            <CircleDollarSign 
+              size={16} 
+              className="text-warcrow-gold" 
+              fill="rgba(255, 215, 0, 0.3)" 
+              strokeWidth={1.5}
+            />
+            {typeof command === 'number' && (
+              <span className="text-warcrow-gold text-xs font-bold ml-0.5">{command}</span>
+            )}
+          </div>
         )}
       </div>
       {subtitle && (
