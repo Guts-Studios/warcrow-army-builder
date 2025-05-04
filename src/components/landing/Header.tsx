@@ -2,6 +2,7 @@
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
