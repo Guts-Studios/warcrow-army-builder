@@ -395,7 +395,7 @@ const lineOfSightAndMovementChapterES = {
     {
       id: "formation-rules",
       title: "Reglas de Formación",
-      content: "Las unidades deben mantener formación para operar eficientemente:\n\n• Todas las miniaturas deben estar a un máximo de 2 pasos del líder de unidad.\n• Todas las miniaturas deben tener LdV hacia el líder de unidad.\n• Las unidades no pueden separarse en grupos.\n• El líder de unidad se escoge al inicio de la partida, pero puede cambiar durante el juego."
+      content: "Las unidades deben mantener formación para operar eficazmente:\n\n• Todas las miniaturas deben estar a un máximo de 2 pasos del líder de unidad.\n• Todas las miniaturas deben tener LdV hacia el líder de unidad.\n• Las unidades no pueden separarse en grupos.\n• El líder de unidad se escoge al inicio de la partida, pero puede cambiar durante el juego."
     },
     {
       id: "movement-details",
@@ -439,6 +439,67 @@ const miniaturesChapterES = {
       id: "painting-customization",
       title: "Pintura y Personalización",
       content: "Se anima a los jugadores a pintar y personalizar sus miniaturas para darles una apariencia única. La pintura de las miniaturas no afecta las reglas del juego, pero mejora la experiencia visual y estética.\n\nLas conversiones de miniaturas están permitidas siempre que:\n\n• Mantengan el tamaño y silueta aproximados de la miniatura original\n• Sea claro qué unidad representan\n• Respeten las reglas de WYSIWYG para el armamento"
+    }
+  ]
+};
+
+// Spanish translations for troops chapter
+const troopsChapterES = {
+  id: "troops",
+  title: "Tropas",
+  sections: [
+    {
+      id: "troops-intro",
+      title: "Tropas",
+      content: "Las tropas son los componentes básicos de tu ejército. Cada tropa representa a un soldado, monstruo o máquina de guerra en el campo de batalla."
+    },
+    {
+      id: "troop-types",
+      title: "Tipos de Tropas",
+      content: "En WARCROW existen diferentes tipos de tropas:\n\n• Infantería: Soldados a pie, la columna vertebral de la mayoría de los ejércitos.\n• Bestias: Criaturas y monstruos que complementan a las fuerzas humanoides.\n• Máquinas de Guerra: Artefactos y construcciones mecánicas o mágicas.\n• Personajes: Líderes, héroes y especialistas con habilidades únicas."
+    },
+    {
+      id: "troop-characteristics",
+      title: "Características de las Tropas",
+      content: "Cada tropa tiene características específicas que determinan sus capacidades en el campo de batalla:\n\n• Tamaño: Determina el tamaño físico de la miniatura y afecta a cómo interactúa con el terreno y la línea de visión.\n• Palabras clave: Identificadores especiales que determinan qué reglas afectan a la tropa.\n• Atributos: Valores numéricos que representan sus capacidades físicas y mentales."
+    },
+    {
+      id: "individual-vs-unit",
+      title: "Tropas Individuales y Unidades",
+      content: "Las tropas pueden actuar de forma individual o como parte de una unidad. Las tropas individuales son generalmente personajes o criaturas poderosas que pueden actuar por sí mismas. Las unidades están formadas por múltiples tropas que actúan como un solo grupo coordinado en el campo de batalla."
+    }
+  ]
+};
+
+// Spanish translations for units chapter
+const unitsChapterES = {
+  id: "units",
+  title: "Unidades",
+  sections: [
+    {
+      id: "units-intro",
+      title: "Unidades",
+      content: "Las unidades son grupos de tropas individuales que actúan como una sola entidad en el campo de batalla. Las unidades son la base organizativa de tu ejército en WARCROW."
+    },
+    {
+      id: "unit-formation",
+      title: "Formación de Unidades",
+      content: "Las unidades deben mantener una formación coherente para funcionar de manera eficaz:\n\n• Todas las tropas deben estar a un máximo de 2 pasos del líder de unidad.\n• Todas las tropas deben tener línea de visión hacia el líder de unidad.\n• Las tropas de una unidad no pueden separarse en diferentes grupos.\n\nMantener la formación es crucial para el movimiento y el combate."
+    },
+    {
+      id: "unit-activation",
+      title: "Activación de Unidades",
+      content: "Durante la fase de activación, las unidades se activan una por una, alternando entre los jugadores. Cuando una unidad se activa, puede realizar hasta dos acciones diferentes:\n\n• Movimiento\n• Ataque\n• Magia/Rezo\n• Habilidades especiales\n• Reagruparse\n• Asegurar objetivos"
+    },
+    {
+      id: "unit-composition",
+      title: "Composición de Unidades",
+      content: "Las unidades pueden estar compuestas por:\n\n• Tropas regulares: La parte principal de la unidad.\n• Especialistas: Tropas con equipo o habilidades especiales.\n• Líderes de unidad: Coordinan al resto de la unidad.\n• Personajes adjuntos: Personajes que se unen a la unidad para mejorar sus capacidades.\n\nLa composición de una unidad afecta a su eficacia en diferentes situaciones de combate."
+    },
+    {
+      id: "unit-coherency",
+      title: "Coherencia de Unidades",
+      content: "Mantener la coherencia de unidad es esencial. Si las tropas de una unidad pierden la coherencia (por ejemplo, debido a bajas en combate), deben intentar restablecer la formación durante su siguiente activación. Las unidades con tropas fuera de coherencia sufren penalizaciones a sus acciones."
     }
   ]
 };
@@ -507,7 +568,9 @@ export const useRules = () => {
         combatChapterES,
         charactersChapterES,
         lineOfSightAndMovementChapterES,
-        miniaturesChapterES // Added the miniatures chapter
+        miniaturesChapterES, // Added the miniatures chapter
+        troopsChapterES,     // Added the troops chapter
+        unitsChapterES       // Added the units chapter
       ];
       
       const typedChapters: Chapter[] = chaptersData.map(chapter => {
@@ -555,7 +618,9 @@ export const useRules = () => {
             (translatedChapter.id === "terrain-cover" && chapter.id.includes("terrain")) ||
             (translatedChapter.id === "characters" && chapter.id.includes("character")) ||
             (translatedChapter.id === "line-of-sight-movement" && (chapter.id.includes("sight") || chapter.id.includes("movement"))) ||
-            (translatedChapter.id === "miniatures" && chapter.id.includes("miniature"))
+            (translatedChapter.id === "miniatures" && chapter.id.includes("miniature")) ||
+            (translatedChapter.id === "troops" && chapter.id.includes("troop")) ||
+            (translatedChapter.id === "units" && chapter.id.includes("unit"))
           );
           
           // If we found a matching chapter, replace it

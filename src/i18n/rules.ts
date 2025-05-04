@@ -65,6 +65,14 @@ export const rulesTranslations = {
     en: 'Miniatures',
     es: 'Miniaturas'
   },
+  troops: {
+    en: 'Troops',
+    es: 'Tropas'
+  },
+  units: {
+    en: 'Units',
+    es: 'Unidades'
+  },
   // UI elements
   loading: {
     en: 'Loading...',
