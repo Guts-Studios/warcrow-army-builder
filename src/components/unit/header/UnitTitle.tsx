@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Circle } from "lucide-react";
+import Image from "react";
 
 interface UnitTitleProps {
   mainName: string;
@@ -21,11 +21,10 @@ const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) =>
         </h3>
         {command && (
           <div className="flex items-center">
-            <Circle 
-              size={16} 
-              className="text-warcrow-gold" 
-              fill="rgba(255, 215, 0, 0.3)" 
-              strokeWidth={1.5}
+            <img 
+              src="/lovable-uploads/323ab76c-4a3d-4214-ad66-6c28b76c843d.png"
+              alt="Command icon"
+              className="w-4 h-4"
             />
             {typeof command === 'number' && (
               <span className="text-warcrow-gold text-xs font-bold ml-0.5">{command}</span>
