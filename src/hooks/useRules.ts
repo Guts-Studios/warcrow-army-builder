@@ -308,27 +308,27 @@ const charactersChapterES = {
     {
       id: "join-a-unit",
       title: "Unirse a una Unidad",
-      content: "Los Personajes con la capacidad de unirse a una unidad tienen esto indicado en su perfil usando la palabra clave Unirse (X), donde \"X\" puede ser el nombre de una unidad, una característica, una palabra clave o varias grupos de ellos separados por líneas. (\"|\"). En el último caso, la unidad objetivo debe tener todos los palabras clave o características, o estar nombrada como al menos uno de los grupos\n\nLos Personajes que no tienen la palabra clave Unirse (X) no pueden unirse a ninguna unidad de ninguna manera.\n\nEjemplos:\n• Unirse (Infantería). El Personaje puede unirse a una unidad con la característica Infantería.\n• Unirse (Cazadores Orcos). El Personaje solo puede unirse a una unidad de \"Cazadores Orcos\".\n• Unirse (Infantería, Varank). El Personaje puede unirse a una unidad que tenga las características Infantería y Varank.\n• Unirse (Infantería, Ghent | Escudero). El Personaje puede unirse a una unidad que tenga las características Infantería y Ghent; o una unidad con la palabra clave Escudero.\n\nUna unidad no puede incluir más de un Personaje."
+      content: "Los Personajes con la capacidad de unirse a una unidad tienen esto indicado en su perfil usando la palabra clave Unirse (X), donde \"X\" puede ser el nombre de una unidad, una característica, una palabra clave o varios grupos de ellos separados por líneas. (\"|\"). En el último caso, la unidad objetivo debe tener todas las palabras clave o características, o estar nombrada como al menos uno de los grupos\n\nLos Personajes que no tienen la palabra clave Unirse (X) no pueden unirse a ninguna unidad de ninguna manera.\n\nEjemplos:\n• Unirse (Infantería). El Personaje puede unirse a una unidad con la característica Infantería.\n• Unirse (Cazadores Orcos). El Personaje solo puede unirse a una unidad de \"Cazadores Orcos\".\n• Unirse (Infantería, Varank). El Personaje puede unirse a una unidad que tenga las características Infantería y Varank.\n• Unirse (Infantería, Ghent | Escudero). El Personaje puede unirse a una unidad que tenga las características Infantería y Ghent; o una unidad con la palabra clave Escudero.\n\nUna unidad no puede incluir más de un Personaje."
     },
     {
       id: "chain-of-command",
       title: "Comando en Cadena",
-      content: "Los Personajes de tipo Oficial se convierten automáticamente en el líder de tropa del unidad a la que se unen."
+      content: "Los Personajes de tipo Oficial se convierten automáticamente en el líder de tropa de la unidad a la que se unen."
     },
     {
       id: "characters-joining-unit",
-      title: "Personajes uniendo a una unidad",
-      content: "Puedes unir un Personaje a una unidad durante la desplazamiento o durante su activación."
+      title: "Personajes uniéndose a una unidad",
+      content: "Puedes unir un Personaje a una unidad durante el despliegue o durante su activación."
     },
     {
       id: "join-during-deployment",
-      title: "A. Unirse durante el desplazamiento",
-      content: "Cuando estás a punto de desplegar tu Personaje, selecciona una de tus unidades ya desplegadas (que cumpla con los requisitos de su palabra clave Unirse y en la que no haya otro Personaje) y declara a tu oponente que tu Personaje está uniendo la unidad. Luego coloca el Personaje en el campo de batalla en formación con la unidad (puedes reubicar tropas para hacer espacio para ellos y asegurarte de que la unidad esté en formación).\n\nRecuerda que si el Personaje es de tipo Oficial, se convierte en el líder de tropa, por lo que las tropas de la unidad deben tener LdV hacia ellos y estar a 2 pasos.\n\nSi quieres desplegar tu Personaje con una unidad que esté desplegada en otro momento en el juego (por ejemplo, unidades de Cazador y Ambuscada), debes reservarlas ocultas y desplegarlas al mismo tiempo que desplegas la unidad."
+      title: "A. Unirse durante el despliegue",
+      content: "Cuando estás a punto de desplegar tu Personaje, selecciona una de tus unidades ya desplegadas (que cumpla con los requisitos de su palabra clave Unirse y en la que no haya otro Personaje) y declara a tu oponente que tu Personaje está uniéndose a la unidad. Luego coloca el Personaje en el campo de batalla en formación con la unidad (puedes reubicar tropas para hacer espacio para ellos y asegurarte de que la unidad esté en formación).\n\nRecuerda que si el Personaje es de tipo Oficial, se convierte en el líder de tropa, por lo que las tropas de la unidad deben tener LdV hacia ellos y estar a 2 pasos.\n\nSi quieres desplegar tu Personaje con una unidad que esté desplegada en otro momento en el juego (por ejemplo, unidades de Cazador y Emboscada), debes reservarlas ocultas y desplegarlas al mismo tiempo que despliegas la unidad."
     },
     {
       id: "join-during-activation",
       title: "B. Unirse durante la activación",
-      content: "Durante la activación, tu Personaje puede unirse a una unidad (que cumpla con los requisitos de su palabra clave Unirse) siempre que:\n\n• No haya otros Personajes en la unidad.\n• La unidad no esté desmotivada.\n\nSi estos requisitos se cumplen, declara a tu oponente que el Personaje está uniendo la unidad. El único movimiento que tu Personaje puede realizar es el de movimiento (puedes moverte dos veces) y debe terminar su activación en formación con su nueva unidad (teniendo LdV y a 2 pasos del líder de tropa).\n\nAl final de su activación, en el caso de un Oficial, tu Personaje se convierte automáticamente en el líder de tropa, por lo que puedes intercambiar su posición con el anterior líder de tropa de la unidad para que todas las tropas estén en formación con el Personaje."
+      content: "Durante la activación, tu Personaje puede unirse a una unidad (que cumpla con los requisitos de su palabra clave Unirse) siempre que:\n\n• No haya otros Personajes en la unidad.\n• La unidad no esté desmoralizada.\n\nSi estos requisitos se cumplen, declara a tu oponente que el Personaje está uniéndose a la unidad. El único movimiento que tu Personaje puede realizar es el de movimiento (puedes moverte dos veces) y debe terminar su activación en formación con su nueva unidad (teniendo LdV y a 2 pasos del líder de tropa).\n\nAl final de su activación, en el caso de un Oficial, tu Personaje se convierte automáticamente en el líder de tropa, por lo que puedes intercambiar su posición con el anterior líder de tropa de la unidad para que todas las tropas estén en formación con el Personaje."
     },
     {
       id: "damage-stress-states",
@@ -338,7 +338,7 @@ const charactersChapterES = {
     {
       id: "character-game-profile",
       title: "Perfil de juego de Personaje en unidades",
-      content: "Cuando un Personaje ha unido una unidad, debes usar su \"Perfil de juego de Personaje en unidad\". La unidad utilizará los valores que el Personaje comparte (por ejemplo, en el caso de los Oficiales, su WP).\n\nPara manejar esta unión más cómodamente, hemos diseñado las tarjetas con los perfiles de juego de tal manera que puedas colocar la tarjeta del Personaje debajo de la tarjeta de unidad, y por lo tanto, ambos perfiles se agruparán juntos.\n\nCuando estos valores sean absolutos, reemplazarán los de la unidad, mientras que si son modificadores (prefijados con \"+\") se añadirán a los de la unidad (aunque tenga un valor). Recuerda que cuando se modifica un lanzamiento, no puedes lanzar más de 3 dados de la misma color, por lo que ignora todos los dados de una color que excedan ese número."
+      content: "Cuando un Personaje ha unido una unidad, debes usar su \"Perfil de juego de Personaje en unidad\". La unidad utilizará los valores que el Personaje comparte (por ejemplo, en el caso de los Oficiales, su WP).\n\nPara manejar esta unión más cómodamente, hemos diseñado las tarjetas con los perfiles de juego de tal manera que puedas colocar la tarjeta del Personaje debajo de la tarjeta de unidad, y por lo tanto, ambos perfiles se agruparán juntos.\n\nCuando estos valores sean absolutos, reemplazarán los de la unidad, mientras que si son modificadores (prefijados con \"+\") se añadirán a los de la unidad (aunque tenga un valor). Recuerda que cuando se modifica un lanzamiento, no puedes lanzar más de 3 dados del mismo color, por lo que ignora todos los dados de un color que excedan ese número."
     },
     {
       id: "combat",
@@ -353,17 +353,17 @@ const charactersChapterES = {
     {
       id: "skills-and-spells",
       title: "Habilidades, habilidades pasivas y hechizos",
-      content: "La unidad puede usar las habilidades, habilidades de comando, habilidades pasivas y hechizos presentes en el \"Perfil de juego de Personaje en unidad\" como si fueran su propias, ya que es la unidad que activa y realiza las acciones."
+      content: "La unidad puede usar las habilidades, habilidades de comando, habilidades pasivas y hechizos presentes en el \"Perfil de juego de Personaje en unidad\" como si fueran sus propias, ya que es la unidad que activa y realiza las acciones."
     },
     {
       id: "characters-leaving-unit",
       title: "Personajes abandonando su unidad",
-      content: "Para que tu Personaje abandone su unidad, sigue estos pasos:\n\n• Declara a tu oponente que tu Personaje está abandonando la unidad.\n• Tu Personaje puede realizar el movimiento acción hasta dos veces (este movimiento no genera ataques oportunos)\n• Tu Personaje ha sido activado, por lo que coloca un Token de activación en su perfil.\n• Si el Personaje es un Oficial, puedes colocar al líder de tropa de la unidad en la posición que ocupaba el Personaje para que todas las otras tropas estén en formación.\n\nCuando un Personaje abandona una unidad, la unidad regresa a los valores originales de sus atributos. Si su nivel de estrés excede su nivel original MOR, realiza una prueba de WP. Si no pasa, la unidad está desmotivada y debe huir inmediatamente. (Ver \"Estrés y morale. Huir\").\n\nRecuerda, cada vez que un Personaje abandone su unidad (o sea eliminado del juego debido a que se elimina), debes designar a un nuevo líder de tropa para la unidad."
+      content: "Para que tu Personaje abandone su unidad, sigue estos pasos:\n\n• Declara a tu oponente que tu Personaje está abandonando la unidad.\n• Tu Personaje puede realizar la acción de movimiento hasta dos veces (este movimiento no genera ataques oportunos)\n• Tu Personaje ha sido activado, por lo que coloca un Token de activación en su perfil.\n• Si el Personaje es un Oficial, puedes colocar al líder de tropa de la unidad en la posición que ocupaba el Personaje para que todas las otras tropas estén en formación.\n\nCuando un Personaje abandona una unidad, la unidad regresa a los valores originales de sus atributos. Si su nivel de estrés excede su nivel original MOR, realiza una prueba de WP. Si no pasa, la unidad está desmoralizada y debe huir inmediatamente. (Ver \"Estrés y moral. Huir\").\n\nRecuerda, cada vez que un Personaje abandone su unidad (o sea eliminado del juego debido a que se elimina), debes designar a un nuevo líder de tropa para la unidad."
     },
     {
       id: "damage-stress-tokens-leaving",
       title: "Tokens de daño, estrés, estados y otros tokens",
-      content: "Si la unidad tiene tokens en su perfil, haz lo siguiente para cada tipo de token:\n\n• Tokens de daño. La unidad mantiene todos los tokens de daño. El Personaje solo mantiene los tokens de daño que tenía antes de unirse a la unidad.\n• Tokens de estrés. El Personaje recibe el mismo nivel de estrés que la unidad.\n• Tokens de estado. Coloca los mismos tokens de estado en tu Personaje que la unidad tiene.\n• Tokens de efectos. La unidad mantiene todos los tokens de efectos.\n\nLos Personajes no pueden unirse y unirse a una unidad (y viceversa) durante la misma activación."
+      content: "Si la unidad tiene tokens en su perfil, haz lo siguiente para cada tipo de token:\n\n• Tokens de daño. La unidad mantiene todos los tokens de daño. El Personaje solo mantiene los tokens de daño que tenía antes de unirse a la unidad.\n• Tokens de estrés. El Personaje recibe el mismo nivel de estrés que la unidad.\n• Tokens de estado. Coloca los mismos tokens de estado en tu Personaje que la unidad tiene.\n• Tokens de efectos. La unidad mantiene todos los tokens de efectos.\n\nLos Personajes no pueden unirse y abandonar una unidad (y viceversa) durante la misma activación."
     },
     {
       id: "assign-damage-characters",
