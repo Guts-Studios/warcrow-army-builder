@@ -4,7 +4,7 @@ import { commonTranslations } from './common';
 import { authTranslations } from './auth';
 import { armyTranslations } from './army';
 import { factionTranslations } from './factions';
-import { rulesTranslations } from './rules';
+import { rulesTranslations } from './rules/index';
 import { missionTranslations } from './missions';
 import { playTranslations } from './play';
 import { landingTranslations } from './landing';
