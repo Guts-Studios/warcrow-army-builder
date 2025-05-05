@@ -26,6 +26,7 @@ const Rules = () => {
   // Force refetch when language changes
   React.useEffect(() => {
     console.log("Language changed in Rules page:", language);
+    // Force refetch with invalidateQueries to ensure completely fresh data
     refetch();
   }, [language, refetch]);
 

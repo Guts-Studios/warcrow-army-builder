@@ -43,15 +43,17 @@ export const useRules = () => {
         // Get title based on selected language
         let title = chapter.title;
         
-        // IMPORTANT: Prioritize the database values for translations
+        // Special handling for Miniatures, Troops, Units in Spanish
         if (language === 'es') {
-          if (chapter.title_es) {
+          if (chapter.title === "Miniatures, Troops, Units") {
+            // Always use the hardcoded translation for this special chapter
+            // regardless of whether title_es exists in the database or not
+            title = "Miniaturas, Tropas, Unidades";
+            console.log("Using hardcoded translation for Miniatures chapter:", title);
+          } else if (chapter.title_es) {
+            // For other chapters, use the database translation if available
             title = chapter.title_es;
             console.log("Using Spanish title from database:", title);
-          } else if (chapter.title === "Miniatures, Troops, Units" && rulesTranslations.miniaturesTroopsUnits) {
-            // Fallback to hardcoded translation for this special case
-            title = rulesTranslations.miniaturesTroopsUnits.es;
-            console.log("Using fallback translation for Miniatures chapter:", title);
           }
         }
 
@@ -137,6 +139,6 @@ export const useRules = () => {
       return typedChapters;
     },
     refetchOnWindowFocus: true,
-    staleTime: 30 * 1000, // 30 seconds - reduced to make updates appear faster
+    staleTime: 10 * 1000, // 10 seconds - reduced to make updates appear faster
   });
 };
