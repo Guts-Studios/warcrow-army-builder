@@ -33,7 +33,13 @@ export const ChapterNavigation = ({
   const { toast } = useToast();
   const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
   const { searchTerm, caseSensitive, setSearchResults } = useSearch();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  // Log the chapter titles to debug translation issues
+  React.useEffect(() => {
+    console.log("ChapterNavigation rendered with language:", language);
+    console.log("Chapter titles:", chapters.map(c => ({ id: c.id, title: c.title })));
+  }, [chapters, language]);
 
   const handleChapterClick = (chapter: Chapter) => {
     if (chapter.sections.length > 0) {

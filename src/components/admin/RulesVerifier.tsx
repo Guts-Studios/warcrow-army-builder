@@ -182,6 +182,16 @@ export const RulesVerifier = () => {
           throw error;
         }
         
+        // Log success with detailed information
+        console.log(`Successfully updated chapter ${editingItem.id} with Spanish title:`, {
+          title: editingItem.title,
+          title_es: editingItem.title_es,
+          id: editingItem.id
+        });
+        
+        // Force immediate refetch of data
+        await fetchRulesData();
+        
         // Update local state for immediate UI feedback
         setChapters(prevChapters => 
           prevChapters.map(chapter => 
@@ -190,16 +200,6 @@ export const RulesVerifier = () => {
               chapter
           )
         );
-        
-        // Enhanced debug logging
-        console.log(`Updated chapter ${editingItem.id} with Spanish title:`, {
-          title: editingItem.title,
-          title_es: editingItem.title_es,
-          id: editingItem.id
-        });
-        
-        // Refresh translation status after update to ensure UI reflects the changes
-        setTimeout(() => fetchRulesData(), 500);
         
         toast.success('Chapter translation updated successfully');
       } else {

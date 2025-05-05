@@ -17,11 +17,26 @@ import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
   const [expandedChapter, setExpandedChapter] = React.useState<string>();
-  const { data: chapters = [], isLoading } = useRules();
-  const { t } = useLanguage();
+  const { data: chapters = [], isLoading, refetch } = useRules();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = React.useState<string>("rules");
+
+  // Force refetch when language changes
+  React.useEffect(() => {
+    console.log("Language changed in Rules page:", language);
+    refetch();
+  }, [language, refetch]);
+
+  // Log chapters to help with debugging
+  React.useEffect(() => {
+    if (chapters.length > 0) {
+      console.log("Rendered Rules page with chapters:", 
+        chapters.slice(0, 3).map(c => ({ id: c.id, title: c.title }))
+      );
+    }
+  }, [chapters]);
 
   // Handle tab change
   const handleTabChange = (value: string) => {

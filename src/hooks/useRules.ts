@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -44,14 +43,15 @@ export const useRules = () => {
         let title = chapter.title;
         if (language === 'es' && chapter.title_es) {
           title = chapter.title_es;
+          console.log("Using Spanish title from database:", title);
         }
 
-        // Log the chapter title for debugging
-        console.log(`Chapter title (${language}):`, { 
+        // Debug chapter data
+        console.log(`Chapter data (${language}):`, { 
           id: chapter.id,
-          title,
-          original: chapter.title,
-          es_title: chapter.title_es 
+          english_title: chapter.title,
+          spanish_title: chapter.title_es,
+          using_title: title
         });
 
         // Get sections for this chapter with proper language content
@@ -122,12 +122,12 @@ export const useRules = () => {
         }
       }
 
-      console.log("Language:", language);
-      console.log("Chapters:", typedChapters);
+      console.log("Processed chapters for language:", language);
+      console.log("First few chapter titles:", typedChapters.slice(0, 3).map(c => c.title));
       
       return typedChapters;
     },
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    staleTime: 60 * 1000, // 1 minute
   });
 };
