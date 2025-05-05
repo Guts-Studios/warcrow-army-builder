@@ -23,10 +23,6 @@ export const miniaturesRulesTranslations = {
   miniaturePainting: {
     en: 'Miniature Painting',
     es: 'Pintado de Miniaturas'
-  },
-  // Special chapter title
-  miniaturesTroopsUnits: {
-    en: 'Miniatures, Troops, Units',
-    es: 'Miniaturas, Tropas, Unidades'
-  },
+  }
+  // Removed special chapter title hardcoding
 };

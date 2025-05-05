@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { miniaturesRulesTranslations } from "@/i18n/rules/miniatures";
 
 export interface Section {
   id: string;
@@ -15,16 +14,6 @@ export interface Chapter {
   title: string;
   sections: Section[];
 }
-
-// Utility function to check if this is the special miniatures chapter
-const isSpecialMiniChapter = (title: string): boolean => {
-  return title === "Miniatures, Troops, Units";
-};
-
-// Get the hardcoded translation for the special chapter
-const getSpecialMiniChapterTranslation = (): string => {
-  return miniaturesRulesTranslations.miniaturesTroopsUnits.es;
-};
 
 export const useRules = () => {
   const { language } = useLanguage();
@@ -63,17 +52,10 @@ export const useRules = () => {
         // Get title based on selected language
         let title = chapter.title;
         
-        // Special handling for Miniatures, Troops, Units in Spanish
-        if (language === 'es') {
-          if (isSpecialMiniChapter(chapter.title)) {
-            // Always use the hardcoded translation for this special chapter
-            title = getSpecialMiniChapterTranslation();
-            console.log("Using hardcoded translation for Miniatures chapter:", title);
-          } else if (chapter.title_es) {
-            // For other chapters, use the database translation if available
-            title = chapter.title_es;
-            console.log("Using Spanish title from database:", title);
-          }
+        // Use Spanish title from database if available and Spanish is selected
+        if (language === 'es' && chapter.title_es) {
+          title = chapter.title_es;
+          console.log("Using Spanish title from database:", title);
         }
 
         // Debug chapter data
@@ -81,7 +63,6 @@ export const useRules = () => {
           id: chapter.id,
           english_title: chapter.title,
           spanish_title: chapter.title_es,
-          is_special: isSpecialMiniChapter(chapter.title),
           using_title: title
         });
 

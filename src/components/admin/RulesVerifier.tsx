@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { miniaturesRulesTranslations } from "@/i18n/rules/miniatures";
 
 type ChapterData = {
   id: string;
@@ -41,16 +40,6 @@ type TranslationStatus = {
   spanish_title: string | null;
   has_spanish_title: boolean;
   has_spanish_content: boolean;
-};
-
-// Special chapter identification function
-const isSpecialMiniChapter = (title: string): boolean => {
-  return title === "Miniatures, Troops, Units";
-};
-
-// Get hardcoded translation for special chapter
-const getSpecialMiniChapterTranslation = (): string => {
-  return miniaturesRulesTranslations.miniaturesTroopsUnits.es;
 };
 
 export const RulesVerifier = () => {
@@ -105,16 +94,7 @@ export const RulesVerifier = () => {
         );
         
         const sectionCount = chapterSections.length;
-        
-        // Special handling for Miniatures, Troops, Units
-        let chapterTranslated = Boolean(chapter.title_es);
-        
-        // If this is the special "Miniatures, Troops, Units" chapter
-        if (isSpecialMiniChapter(chapter.title)) {
-          // Mark it as translated as we use a hardcoded translation
-          chapterTranslated = true;
-          console.log("Special chapter 'Miniatures, Troops, Units' detected and marked as translated");
-        }
+        const chapterTranslated = Boolean(chapter.title_es);
         
         const allSectionsTranslated = chapterSections.every(
           section => Boolean(section.title_es) && Boolean(section.content_es)
@@ -135,23 +115,7 @@ export const RulesVerifier = () => {
         };
       });
       
-      // Update translation status to reflect the special chapter
-      if (translationData) {
-        const updatedTranslationStatus = translationData.map(item => {
-          if (item.content_type === 'chapter' && item.english_title === "Miniatures, Troops, Units") {
-            return {
-              ...item,
-              spanish_title: getSpecialMiniChapterTranslation(),
-              has_spanish_title: true
-            };
-          }
-          return item;
-        });
-        setTranslationStatus(updatedTranslationStatus);
-      } else {
-        setTranslationStatus([]);
-      }
-      
+      setTranslationStatus(translationData || []);
       setChapters(chaptersWithCount);
       setSections(sectionsWithTranslation);
       toast.success("Rules data loaded successfully");
@@ -189,19 +153,11 @@ export const RulesVerifier = () => {
   };
 
   const handleEditTranslation = (item: ChapterData | SectionData, type: 'chapter' | 'section') => {
-    // For the special Miniatures chapter, prepopulate with the hardcoded translation
-    let title_es = item.title_es || '';
-    
-    if (type === 'chapter' && isSpecialMiniChapter(item.title)) {
-      title_es = getSpecialMiniChapterTranslation();
-      console.log("Using hardcoded translation for special chapter:", title_es);
-    }
-    
     setEditingItem({
       id: item.id,
       type,
       title: item.title,
-      title_es: title_es,
+      title_es: item.title_es || '',
       content: type === 'section' ? (item as SectionData).content : undefined,
       content_es: type === 'section' ? (item as SectionData).content_es || '' : undefined
     });
@@ -216,37 +172,6 @@ export const RulesVerifier = () => {
       console.log("Saving translation:", editingItem);
       
       if (editingItem.type === 'chapter') {
-        // Special handling for "Miniatures, Troops, Units" chapter
-        if (isSpecialMiniChapter(editingItem.title)) {
-          console.log("Saving special chapter 'Miniatures, Troops, Units'");
-          // We don't need to save anything to the database since we're using the hardcoded translation
-          
-          // Update local state for immediate UI feedback
-          setChapters(prevChapters => 
-            prevChapters.map(chapter => 
-              chapter.id === editingItem.id ? 
-                {...chapter, title_es: editingItem.title_es, translationComplete: true} : 
-                chapter
-            )
-          );
-          
-          // Also update the translation status to reflect the hardcoded value
-          setTranslationStatus(prevStatus => 
-            prevStatus.map(item => 
-              (item.content_type === 'chapter' && item.item_id === editingItem.id) ?
-              {...item, spanish_title: editingItem.title_es, has_spanish_title: true} :
-              item
-            )
-          );
-          
-          toast.success('Chapter translation updated successfully (using hardcoded value)');
-          
-          // Close the dialog
-          setTranslationEditDialogOpen(false);
-          return;
-        }
-        
-        // Normal flow for other chapters
         console.log("Sending update to database for chapter:", {
           id: editingItem.id,
           title_es: editingItem.title_es
@@ -423,20 +348,7 @@ export const RulesVerifier = () => {
     try {
       const { data, error } = await supabase.rpc('check_rules_translations_completeness');
       if (error) throw error;
-      
-      // Update verification results to reflect hardcoded translations
-      const updatedData = data?.map(item => {
-        if (item.content_type === 'chapter' && item.english_title === "Miniatures, Troops, Units") {
-          return {
-            ...item,
-            spanish_title: getSpecialMiniChapterTranslation(),
-            has_spanish_title: true
-          };
-        }
-        return item;
-      });
-      
-      setTranslationStatus(updatedData || []);
+      setTranslationStatus(data || []);
       toast.success('Translation verification completed');
       setActiveTab('verify');
     } catch (error: any) {
@@ -447,7 +359,7 @@ export const RulesVerifier = () => {
     }
   };
 
-  // Now we properly filter missing translations, taking into account our special chapter
+  // Now we properly filter missing translations
   const missingTranslations = sections.filter(section => !section.translationComplete);
   
   const filteredSections = searchQuery ? 
@@ -459,9 +371,7 @@ export const RulesVerifier = () => {
   const filteredChapters = searchQuery ?
     chapters.filter(chapter => 
       chapter.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (chapter.title_es && chapter.title_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      // Also include our special chapter if searching for its translation
-      (isSpecialMiniChapter(chapter.title) && getSpecialMiniChapterTranslation().toLowerCase().includes(searchQuery.toLowerCase()))
+      (chapter.title_es && chapter.title_es.toLowerCase().includes(searchQuery.toLowerCase()))
     ) : chapters;
 
   const stats = getTranslationStatusSummary();
@@ -554,54 +464,44 @@ export const RulesVerifier = () => {
                     </TableHeader>
                     <TableBody>
                       {filteredChapters.length > 0 ? (
-                        filteredChapters.map((chapter) => {
-                          // Special handling for chapter display
-                          const displayedSpanishTitle = isSpecialMiniChapter(chapter.title) 
-                            ? getSpecialMiniChapterTranslation()
-                            : chapter.title_es;
-                          
-                          return (
-                            <TableRow key={chapter.id} className="border-warcrow-gold/20">
-                              <TableCell className="font-medium">{chapter.order_index}</TableCell>
-                              <TableCell className="font-medium text-warcrow-gold">{chapter.title}</TableCell>
-                              <TableCell className={`${displayedSpanishTitle ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
-                                {displayedSpanishTitle || "Missing translation"}
-                                {isSpecialMiniChapter(chapter.title) && (
-                                  <Badge className="ml-2 bg-blue-600">Hardcoded</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {chapter.sectionCount > 0 ? (
-                                  <Badge className="bg-green-600">{chapter.sectionCount}</Badge>
-                                ) : (
-                                  <Badge className="bg-amber-600">0</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {chapter.translationComplete ? (
-                                  <Badge className="bg-green-600 flex items-center gap-1">
-                                    <Check className="h-3 w-3" /> Complete
-                                  </Badge>
-                                ) : (
-                                  <Badge className="bg-red-600 flex items-center gap-1">
-                                    <X className="h-3 w-3" /> Incomplete
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="border-warcrow-gold/30 text-warcrow-gold"
-                                  onClick={() => handleEditTranslation(chapter, 'chapter')}
-                                >
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
+                        filteredChapters.map((chapter) => (
+                          <TableRow key={chapter.id} className="border-warcrow-gold/20">
+                            <TableCell className="font-medium">{chapter.order_index}</TableCell>
+                            <TableCell className="font-medium text-warcrow-gold">{chapter.title}</TableCell>
+                            <TableCell className={`${chapter.title_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                              {chapter.title_es || "Missing translation"}
+                            </TableCell>
+                            <TableCell>
+                              {chapter.sectionCount > 0 ? (
+                                <Badge className="bg-green-600">{chapter.sectionCount}</Badge>
+                              ) : (
+                                <Badge className="bg-amber-600">0</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {chapter.translationComplete ? (
+                                <Badge className="bg-green-600 flex items-center gap-1">
+                                  <Check className="h-3 w-3" /> Complete
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-red-600 flex items-center gap-1">
+                                  <X className="h-3 w-3" /> Incomplete
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-warcrow-gold/30 text-warcrow-gold"
+                                onClick={() => handleEditTranslation(chapter, 'chapter')}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
                       ) : (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-8">
@@ -747,31 +647,21 @@ export const RulesVerifier = () => {
                     
                     <h4 className="text-warcrow-gold/80 text-sm mt-4 mb-2">Chapters</h4>
                     <div className="space-y-2">
-                      {chapters.map(chapter => {
-                        // Special display for hardcoded translations
-                        const displayedTitle = isSpecialMiniChapter(chapter.title) 
-                          ? getSpecialMiniChapterTranslation()
-                          : chapter.title_es;
-                        
-                        return (
-                          <div key={chapter.id} className="flex items-center justify-between p-2 border border-warcrow-gold/20 rounded-md">
-                            <div>
-                              <p className="font-medium">{chapter.title}</p>
-                              <p className="text-sm text-warcrow-text/60">
-                                {displayedTitle || "No translation"}
-                                {isSpecialMiniChapter(chapter.title) && (
-                                  <span className="text-blue-400 ml-2">(Hardcoded)</span>
-                                )}
-                              </p>
-                            </div>
-                            {displayedTitle ? (
-                              <Badge className="bg-green-600">Translated</Badge>
-                            ) : (
-                              <Badge className="bg-red-600">Missing</Badge>
-                            )}
+                      {chapters.map(chapter => (
+                        <div key={chapter.id} className="flex items-center justify-between p-2 border border-warcrow-gold/20 rounded-md">
+                          <div>
+                            <p className="font-medium">{chapter.title}</p>
+                            <p className="text-sm text-warcrow-text/60">
+                              {chapter.title_es || "No translation"}
+                            </p>
                           </div>
-                        );
-                      })}
+                          {chapter.title_es ? (
+                            <Badge className="bg-green-600">Translated</Badge>
+                          ) : (
+                            <Badge className="bg-red-600">Missing</Badge>
+                          )}
+                        </div>
+                      ))}
                     </div>
                     
                     <h4 className="text-warcrow-gold/80 text-sm mt-4 mb-2">Sections</h4>
@@ -917,77 +807,4 @@ export const RulesVerifier = () => {
                 {editingItem.type === 'section' && editingItem.content && (
                   <div className="mt-2">
                     <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                      <div className="whitespace-pre-wrap">{editingItem.content}</div>
-                    </ScrollArea>
-                  </div>
-                )}
-              </div>
-              
-              <div className="grid gap-2">
-                <h3 className="font-medium text-warcrow-gold">Spanish</h3>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="title_es" className="text-sm text-warcrow-text/80">Title</label>
-                    <Input
-                      id="title_es"
-                      value={editingItem.title_es}
-                      onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
-                      placeholder="Translated title..."
-                      className="border-warcrow-gold/30 bg-black text-warcrow-text"
-                      disabled={isSpecialMiniChapter(editingItem.title) && editingItem.type === 'chapter'}
-                    />
-                    {isSpecialMiniChapter(editingItem.title) && editingItem.type === 'chapter' && (
-                      <p className="text-xs text-blue-400">
-                        This is a special chapter with a hardcoded translation.
-                      </p>
-                    )}
-                  </div>
-                  
-                  {editingItem.type === 'section' && (
-                    <div className="grid gap-2">
-                      <label htmlFor="content_es" className="text-sm text-warcrow-text/80">Content</label>
-                      <Textarea
-                        id="content_es"
-                        value={editingItem.content_es}
-                        onChange={(e) => setEditingItem({...editingItem, content_es: e.target.value})}
-                        placeholder="Translated content..."
-                        className="min-h-[200px] border-warcrow-gold/30 bg-black text-warcrow-text"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setTranslationEditDialogOpen(false)}
-              className="border-warcrow-gold/30 text-warcrow-gold"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={saveTranslation}
-              disabled={saveInProgress}
-              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
-            >
-              {saveInProgress ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Save Translation
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-};
+                      <div className="whitespace-pre-wrap">{editingItem.
