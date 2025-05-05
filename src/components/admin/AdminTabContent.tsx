@@ -10,6 +10,9 @@ interface AdminTabContentProps {
 }
 
 const AdminTabContent = ({ activeTab }: AdminTabContentProps) => {
+  // Enhanced logging to debug tab switching
+  console.log("AdminTabContent rendering with activeTab:", activeTab);
+  
   switch (activeTab) {
     case 'news':
       return <NewsManager />;

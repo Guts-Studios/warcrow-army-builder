@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -34,19 +33,29 @@ export const useRules = () => {
     queryFn: async () => {
       console.log("Fetching rules for language:", language);
       
+      // Fetch chapters data with explicit error handling
       const { data: chaptersData, error: chaptersError } = await supabase
         .from("rules_chapters")
         .select("*")
         .order("order_index");
 
-      if (chaptersError) throw chaptersError;
+      if (chaptersError) {
+        console.error("Error fetching chapters:", chaptersError);
+        throw chaptersError;
+      }
+      
+      console.log("Fetched chapters raw data:", chaptersData);
 
+      // Fetch sections data with explicit error handling
       const { data: sectionsData, error: sectionsError } = await supabase
         .from("rules_sections")
         .select("*")
         .order("order_index");
 
-      if (sectionsError) throw sectionsError;
+      if (sectionsError) {
+        console.error("Error fetching sections:", sectionsError);
+        throw sectionsError;
+      }
 
       // Create typed chapters based on the language selection
       const typedChapters: Chapter[] = chaptersData.map(chapter => {
@@ -149,6 +158,6 @@ export const useRules = () => {
       return typedChapters;
     },
     refetchOnWindowFocus: false,
-    staleTime: 10 * 1000, // 10 seconds - reduced to make updates appear faster
+    staleTime: 5 * 1000, // 5 seconds - reduced to make updates appear faster
   });
 };

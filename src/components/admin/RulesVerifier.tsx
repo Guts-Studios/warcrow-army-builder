@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -82,6 +81,8 @@ export const RulesVerifier = () => {
         .order("order_index");
         
       if (chaptersError) throw chaptersError;
+      
+      console.log("Fetched chapters data:", chaptersData);
       
       // Fetch sections
       const { data: sectionsData, error: sectionsError } = await supabase
@@ -246,93 +247,99 @@ export const RulesVerifier = () => {
         }
         
         // Normal flow for other chapters
-        const { error } = await supabase
+        console.log("Sending update to database for chapter:", {
+          id: editingItem.id,
+          title_es: editingItem.title_es
+        });
+        
+        const { data, error } = await supabase
           .from('rules_chapters')
           .update({ title_es: editingItem.title_es })
-          .eq('id', editingItem.id);
+          .eq('id', editingItem.id)
+          .select();  // Add select() to return the updated data
           
         if (error) {
           console.error("Update error:", error);
           throw error;
         }
         
-        // Ensure the data was actually saved by fetching the updated record
-        const { data: updatedChapter, error: fetchError } = await supabase
+        console.log("Update response data:", data);
+        
+        // Double-check the update
+        const { data: verifyData, error: verifyError } = await supabase
           .from('rules_chapters')
           .select('*')
           .eq('id', editingItem.id)
           .single();
           
-        if (fetchError) {
-          console.error("Error fetching updated chapter:", fetchError);
+        if (verifyError) {
+          console.error("Verification error:", verifyError);
         } else {
-          console.log("Verification - updated chapter data:", updatedChapter);
+          console.log("Verified database state after update:", verifyData);
+          // Force immediate update of local state with the verified data
+          setChapters(prevChapters => 
+            prevChapters.map(chapter => 
+              chapter.id === editingItem.id ? 
+                {
+                  ...chapter, 
+                  title_es: verifyData.title_es,
+                  translationComplete: Boolean(verifyData.title_es) && chapter.translationComplete
+                } : 
+                chapter
+            )
+          );
         }
-        
-        // Log success with detailed information
-        console.log(`Successfully updated chapter ${editingItem.id} with Spanish title:`, {
-          title: editingItem.title,
-          title_es: editingItem.title_es,
-          id: editingItem.id
-        });
-        
-        // Update local state for immediate UI feedback
-        setChapters(prevChapters => 
-          prevChapters.map(chapter => 
-            chapter.id === editingItem.id ? 
-              {...chapter, title_es: editingItem.title_es, translationComplete: Boolean(editingItem.title_es)} : 
-              chapter
-          )
-        );
         
         toast.success('Chapter translation updated successfully');
       } else {
-        const { error } = await supabase
+        // Section updates
+        console.log("Sending update to database for section:", {
+          id: editingItem.id,
+          title_es: editingItem.title_es,
+          content_es: editingItem.content_es?.substring(0, 50) + "..." // Log preview of content
+        });
+        
+        const { data, error } = await supabase
           .from('rules_sections')
           .update({ 
             title_es: editingItem.title_es,
             content_es: editingItem.content_es
           })
-          .eq('id', editingItem.id);
+          .eq('id', editingItem.id)
+          .select(); // Add select() to return the updated data
           
         if (error) {
           console.error("Update error:", error);
           throw error;
         }
         
-        // Verify the update was successful
-        const { data: updatedSection, error: fetchError } = await supabase
+        console.log("Update response data:", data);
+        
+        // Double-check the update
+        const { data: verifyData, error: verifyError } = await supabase
           .from('rules_sections')
           .select('*')
           .eq('id', editingItem.id)
           .single();
           
-        if (fetchError) {
-          console.error("Error fetching updated section:", fetchError);
+        if (verifyError) {
+          console.error("Verification error:", verifyError);
         } else {
-          console.log("Verification - updated section data:", updatedSection);
+          console.log("Verified database state after update:", verifyData);
+          // Force immediate update of local state with the verified data
+          setSections(prevSections => 
+            prevSections.map(section => 
+              section.id === editingItem.id ? 
+                {
+                  ...section, 
+                  title_es: verifyData.title_es, 
+                  content_es: verifyData.content_es,
+                  translationComplete: Boolean(verifyData.title_es) && Boolean(verifyData.content_es)
+                } : 
+                section
+            )
+          );
         }
-        
-        // Update local state with enhanced translationComplete calculation
-        setSections(prevSections => 
-          prevSections.map(section => 
-            section.id === editingItem.id ? 
-              {
-                ...section, 
-                title_es: editingItem.title_es, 
-                content_es: editingItem.content_es,
-                translationComplete: Boolean(editingItem.title_es) && Boolean(editingItem.content_es)
-              } : 
-              section
-          )
-        );
-        
-        console.log(`Updated section ${editingItem.id} with Spanish title/content:`, {
-          title: editingItem.title,
-          title_es: editingItem.title_es,
-          content_length: editingItem.content?.length || 0,
-          content_es_length: editingItem.content_es?.length || 0
-        });
         
         toast.success('Section translation updated successfully');
       }
@@ -340,11 +347,11 @@ export const RulesVerifier = () => {
       // Close the dialog after successful save
       setTranslationEditDialogOpen(false);
       
-      // Force another refetch after a short delay to make sure all data is refreshed
+      // Force a full refetch to ensure all data is synchronized
       setTimeout(() => {
-        console.log("Performing delayed refetch after save");
+        console.log("Performing full data refetch after save");
         fetchRulesData();
-      }, 1000);
+      }, 500);
     } catch (error: any) {
       console.error('Error updating translation:', error);
       toast.error(`Failed to update translation: ${error.message}`);
