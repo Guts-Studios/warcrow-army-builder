@@ -66,45 +66,55 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
           </DialogTitle>
           <DialogDescription>
             {editingItem.type === 'chapter' 
-              ? 'Translate the chapter title to Spanish.' 
-              : 'Translate the section title and content to Spanish.'}
+              ? 'Edit chapter title in English and Spanish.' 
+              : 'Edit section title and content in English and Spanish.'}
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <h3 className="font-medium text-warcrow-gold">English</h3>
-            <div className="flex items-center gap-2">
-              <p className="flex-1">{editingItem.title}</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => copyToClipboard(editingItem.title, 'title')}
-                className="flex items-center gap-1"
-              >
-                {titleCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {titleCopied ? "Copied" : "Copy"}
-              </Button>
-            </div>
-            {editingItem.type === 'section' && editingItem.content && (
-              <div className="mt-2">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-warcrow-text/70">Content</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => copyToClipboard(editingItem.content || '', 'content')}
-                    className="flex items-center gap-1"
-                  >
-                    {contentCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {contentCopied ? "Copied" : "Copy"}
-                  </Button>
-                </div>
-                <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                  <div className="whitespace-pre-wrap">{editingItem.content}</div>
-                </ScrollArea>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Edit title"
+                  value={editingItem.title}
+                  onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text flex-1"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => copyToClipboard(editingItem.title, 'title')}
+                  className="flex items-center gap-1"
+                >
+                  {titleCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {titleCopied ? "Copied" : "Copy"}
+                </Button>
               </div>
-            )}
+              {editingItem.type === 'section' && editingItem.content && (
+                <div className="mt-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-warcrow-text/70">Content</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => copyToClipboard(editingItem.content || '', 'content')}
+                      className="flex items-center gap-1"
+                    >
+                      {contentCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {contentCopied ? "Copied" : "Copy"}
+                    </Button>
+                  </div>
+                  <Textarea
+                    placeholder="Edit content"
+                    value={editingItem.content}
+                    onChange={(e) => setEditingItem({...editingItem, content: e.target.value})}
+                    className="h-[200px] border border-warcrow-gold/30 bg-black text-warcrow-text"
+                  />
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="grid gap-2">
@@ -143,7 +153,7 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
             className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
           >
             {saveInProgress ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Save Translation
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>

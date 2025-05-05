@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,6 +134,7 @@ export const useRulesVerifier = () => {
       if (editingItem.type === 'chapter') {
         console.log("Sending update to database for chapter:", {
           id: editingItem.id,
+          title: editingItem.title, // Update English title
           title_es: editingItem.title_es
         });
         
@@ -153,7 +153,7 @@ export const useRulesVerifier = () => {
         // Combine the current data with our updates
         const updateData = {
           id: editingItem.id,
-          title: currentChapter.title,
+          title: editingItem.title, // Update English title
           order_index: currentChapter.order_index,
           title_es: editingItem.title_es,
           updated_at: new Date().toISOString()
@@ -191,6 +191,7 @@ export const useRulesVerifier = () => {
               chapter.id === editingItem.id ? 
                 {
                   ...chapter, 
+                  title: verifyData.title, // Update English title in state
                   title_es: verifyData.title_es,
                   translationComplete: Boolean(verifyData.title_es && verifyData.title_es.trim() !== '') && chapter.translationComplete
                 } : 
@@ -203,14 +204,16 @@ export const useRulesVerifier = () => {
             toast.error("Database update failed - please try again");
           } else {
             console.log("SUCCESS: title_es was updated to:", verifyData.title_es);
-            toast.success('Chapter translation updated successfully');
+            toast.success('Chapter updated successfully');
           }
         }
       } else {
         // Section updates
         console.log("Sending update to database for section:", {
           id: editingItem.id,
+          title: editingItem.title, 
           title_es: editingItem.title_es,
+          content: editingItem.content?.substring(0, 50) + "...", // Log preview of content
           content_es: editingItem.content_es?.substring(0, 50) + "..." // Log preview of content
         });
         
@@ -230,8 +233,8 @@ export const useRulesVerifier = () => {
         const updateData = {
           id: editingItem.id,
           chapter_id: currentSection.chapter_id,
-          title: currentSection.title,
-          content: currentSection.content,
+          title: editingItem.title, // Update English title
+          content: editingItem.content, // Update English content
           order_index: currentSection.order_index,
           title_es: editingItem.title_es,
           content_es: editingItem.content_es,
@@ -270,6 +273,8 @@ export const useRulesVerifier = () => {
               section.id === editingItem.id ? 
                 {
                   ...section, 
+                  title: verifyData.title, // Update English title in state
+                  content: verifyData.content, // Update English content in state
                   title_es: verifyData.title_es, 
                   content_es: verifyData.content_es,
                   translationComplete: Boolean(verifyData.title_es && verifyData.title_es.trim() !== '') && 
@@ -284,7 +289,7 @@ export const useRulesVerifier = () => {
             toast.error("Database update failed - please try again");
           } else {
             console.log("SUCCESS: title_es was updated to:", verifyData.title_es);
-            toast.success('Section translation updated successfully');
+            toast.success('Section updated successfully');
           }
         }
       }
