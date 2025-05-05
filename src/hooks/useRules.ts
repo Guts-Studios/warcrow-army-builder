@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { rulesTranslations } from "@/i18n/rules";
+import { miniaturesRulesTranslations } from "@/i18n/rules/miniatures";
 
 export interface Section {
   id: string;
@@ -15,6 +15,16 @@ export interface Chapter {
   title: string;
   sections: Section[];
 }
+
+// Utility function to check if this is the special miniatures chapter
+const isSpecialMiniChapter = (title: string): boolean => {
+  return title === "Miniatures, Troops, Units";
+};
+
+// Get the hardcoded translation for the special chapter
+const getSpecialMiniChapterTranslation = (): string => {
+  return miniaturesRulesTranslations.miniaturesTroopsUnits.es;
+};
 
 export const useRules = () => {
   const { language } = useLanguage();
@@ -45,10 +55,10 @@ export const useRules = () => {
         
         // Special handling for Miniatures, Troops, Units in Spanish
         if (language === 'es') {
-          if (chapter.title === "Miniatures, Troops, Units") {
+          if (isSpecialMiniChapter(chapter.title)) {
             // Always use the hardcoded translation for this special chapter
             // regardless of whether title_es exists in the database or not
-            title = "Miniaturas, Tropas, Unidades";
+            title = getSpecialMiniChapterTranslation();
             console.log("Using hardcoded translation for Miniatures chapter:", title);
           } else if (chapter.title_es) {
             // For other chapters, use the database translation if available
@@ -62,6 +72,7 @@ export const useRules = () => {
           id: chapter.id,
           english_title: chapter.title,
           spanish_title: chapter.title_es,
+          is_special: isSpecialMiniChapter(chapter.title),
           using_title: title
         });
 
