@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -804,4 +805,105 @@ export const RulesVerifier = () => {
             All rules content is stored in Supabase and loaded directly from the database
           </p>
           <p className="flex items-center">
-            <Languages className="h-4 w-4 mr-
+            <Languages className="h-4 w-4 mr-2" />
+            Special hardcoded translations ensure critical content is always properly localized
+          </p>
+        </div>
+      </div>
+      
+      {/* Translation edit dialog */}
+      <Dialog open={translationEditDialogOpen} onOpenChange={setTranslationEditDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem?.type === 'chapter' ? 'Edit Chapter Translation' : 'Edit Section Translation'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingItem?.type === 'chapter' 
+                ? 'Translate the chapter title to Spanish.' 
+                : 'Translate the section title and content to Spanish.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingItem && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <h3 className="font-medium text-warcrow-gold">English</h3>
+                <p>{editingItem.title}</p>
+                {editingItem.type === 'section' && editingItem.content && (
+                  <div className="mt-2">
+                    <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+                      <div className="whitespace-pre-wrap">{editingItem.content}</div>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+              
+              <div className="grid gap-2">
+                <h3 className="font-medium text-warcrow-gold">Spanish</h3>
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <label htmlFor="title_es" className="text-sm text-warcrow-text/80">Title</label>
+                    <Input
+                      id="title_es"
+                      value={editingItem.title_es}
+                      onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
+                      placeholder="Translated title..."
+                      className="border-warcrow-gold/30 bg-black text-warcrow-text"
+                      disabled={isSpecialMiniChapter(editingItem.title) && editingItem.type === 'chapter'}
+                    />
+                    {isSpecialMiniChapter(editingItem.title) && editingItem.type === 'chapter' && (
+                      <p className="text-xs text-blue-400">
+                        This is a special chapter with a hardcoded translation.
+                      </p>
+                    )}
+                  </div>
+                  
+                  {editingItem.type === 'section' && (
+                    <div className="grid gap-2">
+                      <label htmlFor="content_es" className="text-sm text-warcrow-text/80">Content</label>
+                      <Textarea
+                        id="content_es"
+                        value={editingItem.content_es}
+                        onChange={(e) => setEditingItem({...editingItem, content_es: e.target.value})}
+                        placeholder="Translated content..."
+                        className="min-h-[200px] border-warcrow-gold/30 bg-black text-warcrow-text"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setTranslationEditDialogOpen(false)}
+              className="border-warcrow-gold/30 text-warcrow-gold"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveTranslation}
+              disabled={saveInProgress}
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+            >
+              {saveInProgress ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Save Translation
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+};

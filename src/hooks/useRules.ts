@@ -149,7 +149,7 @@ export const useRules = () => {
       
       return typedChapters;
     },
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     staleTime: 10 * 1000, // 10 seconds - reduced to make updates appear faster
   });
 };
