@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { FAQItem } from '@/components/faq/FAQItem';
@@ -119,11 +118,7 @@ const FAQ = () => {
       
       <Container className="py-8">
         <div className="max-w-4xl mx-auto">
-          <p className="mb-8 text-warcrow-text/80 text-lg">
-            {t('faqDescription') || "Welcome, traveler! If your path in Warcrow has brought you to a crossroads and you don't know how to continue, this is the place to find answers."}
-          </p>
-          
-          <div className="mt-10 space-y-6">
+          <div className="mt-6 space-y-6">
             {faqs.map((faq, index) => (
               <FAQItem 
                 key={index} 
