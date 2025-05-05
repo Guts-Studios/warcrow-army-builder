@@ -74,6 +74,8 @@ const FAQTranslationManager: React.FC = () => {
       const { error } = await supabase
         .from('faq_sections')
         .update({
+          section: editingItem.section,
+          content: editingItem.content,
           section_es: editingItem.section_es,
           content_es: editingItem.content_es,
         })
@@ -81,13 +83,15 @@ const FAQTranslationManager: React.FC = () => {
 
       if (error) throw error;
       
-      toast.success('Translation updated successfully');
+      toast.success('Content updated successfully');
       
       // Update local state with the saved changes
       setFaqItems(faqItems.map(item => 
         item.id === editingItem.id 
           ? { 
               ...item, 
+              section: editingItem.section,
+              content: editingItem.content,
               section_es: editingItem.section_es,
               content_es: editingItem.content_es,
             } 
@@ -96,8 +100,8 @@ const FAQTranslationManager: React.FC = () => {
       
       setTranslationEditDialogOpen(false);
     } catch (error) {
-      console.error('Error saving translation:', error);
-      toast.error('Failed to save translation');
+      console.error('Error saving content:', error);
+      toast.error('Failed to save content');
     } finally {
       setSaving(null);
     }
@@ -455,18 +459,19 @@ const FAQTranslationManager: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-warcrow-gold flex items-center">
               <Languages className="h-5 w-5 mr-2" />
-              Edit FAQ Translation
+              Edit FAQ Content
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 mt-2">
+          <div className="space-y-2 mt-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-warcrow-gold/80 text-sm mb-2">English Section</h3>
                 <Input 
                   value={editingItem?.section || ''} 
-                  disabled
-                  className="border border-warcrow-gold/30 bg-black/50 text-warcrow-text/80"
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, section: e.target.value} : null)}
+                  placeholder="Enter English section title..."
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold"
                 />
               </div>
               <div>
@@ -485,9 +490,10 @@ const FAQTranslationManager: React.FC = () => {
                 <h3 className="text-warcrow-gold/80 text-sm mb-2">English Content</h3>
                 <Textarea 
                   value={editingItem?.content || ''} 
-                  disabled
-                  rows={10}
-                  className="border border-warcrow-gold/30 bg-black/50 text-warcrow-text/80 h-[300px]"
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, content: e.target.value} : null)}
+                  placeholder="Enter English content..."
+                  rows={8}
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold h-[240px]"
                 />
               </div>
               <div>
@@ -496,8 +502,8 @@ const FAQTranslationManager: React.FC = () => {
                   value={editingItem?.content_es || ''} 
                   onChange={(e) => setEditingItem(prev => prev ? {...prev, content_es: e.target.value} : null)}
                   placeholder="Enter Spanish content..."
-                  rows={10}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold h-[300px]"
+                  rows={8}
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold h-[240px]"
                 />
               </div>
             </div>
@@ -507,8 +513,8 @@ const FAQTranslationManager: React.FC = () => {
             <Button variant="outline" onClick={() => setTranslationEditDialogOpen(false)} className="border-warcrow-gold/30">
               Cancel
             </Button>
-            <Button onClick={saveTranslation} disabled={loading} className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90">
-              {loading ? (
+            <Button onClick={saveTranslation} disabled={saving !== null} className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90">
+              {saving !== null ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
@@ -516,7 +522,7 @@ const FAQTranslationManager: React.FC = () => {
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Save Translation
+                  Save Content
                 </>
               )}
             </Button>
