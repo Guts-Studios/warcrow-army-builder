@@ -21,7 +21,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { searchTerm: unifiedSearchTerm, setSearchTerm: setUnifiedSearchTerm, searchInRules } = useUnifiedSearch();
+  const { searchTerm: unifiedSearchTerm, setSearchTerm: setUnifiedSearchTerm, searchInRules, searchResults } = useUnifiedSearch();
   const [searchQuery, setSearchQuery] = useState("");
   const [faqSections, setFaqSections] = useState<FAQItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,11 +65,17 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
     }
   }, [location.state]);
 
-  // Filter sections based on search query
-  const filteredSections = faqSections.filter(item => 
-    item.section.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter sections based on unified search results from FAQ
+  const filteredSections = searchQuery.trim() 
+    ? searchResults
+        .filter(result => result.source === "faq")
+        .map(result => ({
+          id: result.id,
+          section: result.title,
+          content: result.content,
+          order_index: 0
+        }))
+    : faqSections;
 
   // If we're showing this component in a tab, we don't need the full page wrapper
   if (!showHeader) {

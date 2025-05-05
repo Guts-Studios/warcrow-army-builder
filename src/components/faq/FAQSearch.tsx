@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
+import { useUnifiedSearch } from '@/contexts/UnifiedSearchContext';
 
 interface FAQSearchProps {
   searchQuery: string;
@@ -17,6 +18,10 @@ export const FAQSearch: React.FC<FAQSearchProps> = ({
 }) => {
   const { t } = useLanguage();
   const [focused, setFocused] = useState(false);
+  const { searchResults } = useUnifiedSearch();
+  
+  // Count only FAQ results
+  const faqResultsCount = searchResults.filter(result => result.source === "faq").length;
   
   return (
     <div className="mb-6 space-y-2">
@@ -30,7 +35,7 @@ export const FAQSearch: React.FC<FAQSearchProps> = ({
             className={`pl-10 pr-8 py-5 bg-black/20 border-warcrow-gold/30 text-warcrow-text placeholder:text-warcrow-text/50 focus:border-warcrow-gold focus:ring-1 focus:ring-warcrow-gold/50 ${
               focused ? "ring-1 ring-warcrow-gold/50" : ""
             }`}
-            placeholder={t("search")}
+            placeholder={t("searchRulesAndFAQ")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setFocused(true)}
@@ -50,9 +55,9 @@ export const FAQSearch: React.FC<FAQSearchProps> = ({
       
       {searchQuery && (
         <div className="text-sm text-warcrow-text/80">
-          {resultsCount === 0 
+          {faqResultsCount === 0 
             ? t("noSearchResults")
-            : t("searchResultsCount").replace('{count}', resultsCount.toString())}
+            : t("searchResultsCount").replace('{count}', faqResultsCount.toString())}
         </div>
       )}
     </div>

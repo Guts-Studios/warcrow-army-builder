@@ -28,20 +28,23 @@ export const fetchFAQSections = async (language: string = 'en'): Promise<FAQItem
 
   // Process data to use the translated fields if available
   const processedData = (data || []).map(item => {
+    // Create a copy of the original item
+    const processedItem = { ...item };
+    
     if (language === 'es') {
       // For Spanish, use Spanish content if available or fall back to English
-      const processedItem = {
-        ...item,
-        section: item.section_es || item.section,
-        content: item.content_es || item.content
-      };
+      if (item.section_es) {
+        processedItem.section = item.section_es;
+      }
+      
+      if (item.content_es) {
+        processedItem.content = item.content_es;
+      }
+      
       console.log(`Processed Spanish item: ${processedItem.section}`);
-      return processedItem;
     }
     
-    // For English or other languages, use default fields
-    console.log(`Using English item: ${item.section}`);
-    return item;
+    return processedItem;
   });
 
   console.log('Processed FAQ data:', processedData);

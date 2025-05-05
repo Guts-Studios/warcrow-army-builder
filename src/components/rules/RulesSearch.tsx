@@ -10,9 +10,12 @@ import { Button } from "@/components/ui/button";
 
 export const RulesSearch = () => {
   const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive, searchResults } = useSearch();
-  const { searchInFAQ } = useUnifiedSearch();
+  const { searchInFAQ, searchResults: unifiedResults } = useUnifiedSearch();
   const [focused, setFocused] = useState(false);
   const { t } = useLanguage();
+
+  // Count only rules results
+  const rulesResultsCount = unifiedResults.filter(result => result.source === "rules").length;
 
   // Update the unified search context when rules search changes
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +34,7 @@ export const RulesSearch = () => {
             className={`pl-10 pr-8 py-5 bg-black/20 border-warcrow-gold/30 text-warcrow-text placeholder:text-warcrow-text/50 focus:border-warcrow-gold focus:ring-1 focus:ring-warcrow-gold/50 ${
               focused ? "ring-1 ring-warcrow-gold/50" : ""
             }`}
-            placeholder={t("search")}
+            placeholder={t("searchRulesAndFAQ")}
             value={searchTerm}
             onChange={handleSearchChange}
             onFocus={() => setFocused(true)}
@@ -60,9 +63,9 @@ export const RulesSearch = () => {
       <div className="flex justify-between items-center">
         {searchTerm && (
           <div className="text-sm text-warcrow-text/80">
-            {searchResults === 0 
+            {rulesResultsCount === 0 
               ? t("noSearchResults")
-              : t("searchResultsCount").replace('{count}', searchResults.toString())}
+              : t("searchResultsCount").replace('{count}', rulesResultsCount.toString())}
           </div>
         )}
 

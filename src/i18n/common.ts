@@ -45,6 +45,10 @@ export const commonTranslations = {
     en: 'Search',
     es: 'Buscar',
   },
+  searchRulesAndFAQ: {
+    en: 'Search Rules and FAQ...',
+    es: 'Buscar Reglas y FAQ...',
+  },
   caseSensitive: {
     en: 'Case sensitive',
     es: 'Distinguir mayúsculas',
