@@ -48,18 +48,22 @@ export const useRulesVerifier = () => {
         );
         
         const sectionCount = chapterSections.length;
-        const chapterTranslated = Boolean(chapter.title_es && chapter.title_es.trim() !== '');
         
-        // Fix: properly check if all sections are translated
-        const allSectionsTranslated = chapterSections.length > 0 && chapterSections.every(
-          section => Boolean(section.title_es && section.title_es.trim() !== '') && 
-                   Boolean(section.content_es && section.content_es.trim() !== '')
-        );
+        // Check if chapter title is translated
+        const chapterTitleTranslated = Boolean(chapter.title_es && chapter.title_es.trim() !== '');
+        
+        // Chapter is complete if its title is translated and it has no sections,
+        // or if it has sections, then all sections must have their titles and content translated
+        const allSectionsTranslated = chapterSections.length === 0 || 
+          chapterSections.every(section => 
+            Boolean(section.title_es && section.title_es.trim() !== '') && 
+            Boolean(section.content_es && section.content_es.trim() !== '')
+          );
         
         return {
           ...chapter,
           sectionCount,
-          translationComplete: chapterTranslated && (sectionCount === 0 || allSectionsTranslated)
+          translationComplete: chapterTitleTranslated && allSectionsTranslated
         };
       });
       
