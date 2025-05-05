@@ -9,6 +9,9 @@ import { useRules } from "@/hooks/useRules";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Section } from "@/hooks/useRules";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { HelpCircle } from "lucide-react";
 
 const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
@@ -31,7 +34,19 @@ const Rules = () => {
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader title={t('rulesTitle')}>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2">
+          <Link to="/faq">
+            <Button 
+              variant="outline"
+              size="sm"
+              className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 transition-colors flex items-center gap-2"
+            >
+              <HelpCircle className="h-4 w-4" />
+              {t('frequently_asked_questions')}
+            </Button>
+          </Link>
+          <LanguageSwitcher />
+        </div>
       </PageHeader>
       <div className="container max-w-7xl mx-auto py-8 px-4">
         <SearchProvider>
