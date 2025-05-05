@@ -17,6 +17,7 @@ import Activity from '@/pages/Activity';
 import Login from '@/pages/Login';
 import ResetPassword from '@/pages/ResetPassword';
 import Rules from '@/pages/Rules';
+import FAQ from '@/pages/FAQ';
 import AboutUs from '@/pages/AboutUs';
 import NotFound from '@/pages/NotFound';
 import Mail from '@/pages/Mail';
@@ -36,6 +37,7 @@ export function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/rules" element={<Rules />} />
+      <Route path="/faq" element={<FAQ />} />
       <Route path="/unit-stats" element={<UnitStats />} />
       <Route path="/game" element={<Game />} />
       <Route path="/setup" element={<Setup />} />

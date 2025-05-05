@@ -61,4 +61,8 @@ export const commonTranslations = {
     en: 'Scroll to top',
     es: 'Volver arriba'
   },
+  faqTitle: {
+    en: 'Frequently Asked Questions',
+    es: 'Preguntas Frecuentes'
+  },
 };
