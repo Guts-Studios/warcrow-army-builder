@@ -43,23 +43,21 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       </div>
-      <div className={`text-warcrow-text ${isExpanded ? 'block' : 'line-clamp-2'}`}>
-        {/* If the content has bullet points (starts with -), render as a list */}
-        {content.includes('\n-') ? (
-          <ul className="list-disc space-y-1 ml-4">
-            {processedContent}
-          </ul>
-        ) : (
-          processedContent
-        )}
-      </div>
-      {!isExpanded && content.length > 150 && (
-        <button 
-          onClick={toggleExpand}
-          className="mt-2 text-sm text-warcrow-gold/70 hover:text-warcrow-gold transition-colors"
-        >
-          {t('faq_read_more') || "Read more"}
-        </button>
+      
+      {isExpanded ? (
+        <div className="text-warcrow-text mt-2">
+          {content.includes('\n-') ? (
+            <ul className="list-disc space-y-1 ml-4">
+              {processedContent}
+            </ul>
+          ) : (
+            processedContent
+          )}
+        </div>
+      ) : (
+        <div className="text-warcrow-text/70 line-clamp-1 italic text-sm">
+          {t('faq_click_to_expand') || "Click to view answer"}
+        </div>
       )}
     </div>
   );
