@@ -182,7 +182,7 @@ export const RulesVerifier = () => {
           throw error;
         }
         
-        // Also update local state for immediate UI feedback
+        // Update local state for immediate UI feedback
         setChapters(prevChapters => 
           prevChapters.map(chapter => 
             chapter.id === editingItem.id ? 
@@ -190,6 +190,9 @@ export const RulesVerifier = () => {
               chapter
           )
         );
+        
+        // Add debug logging
+        console.log(`Updated chapter ${editingItem.id} with Spanish title: ${editingItem.title_es}`);
         
         toast.success('Chapter translation updated successfully');
       } else {

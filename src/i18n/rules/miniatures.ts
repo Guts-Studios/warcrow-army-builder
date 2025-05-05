@@ -24,4 +24,9 @@ export const miniaturesRulesTranslations = {
     en: 'Miniature Painting',
     es: 'Pintado de Miniaturas'
   },
+  // Add the missing title translation
+  miniaturesTroopsUnits: {
+    en: 'Miniatures, Troops, Units',
+    es: 'Miniaturas, Tropas, Unidades'
+  },
 };
