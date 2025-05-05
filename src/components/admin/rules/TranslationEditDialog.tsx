@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { RefreshCw, Copy, CheckCircle } from "lucide-react";
+import { RefreshCw, Copy, CheckCircle, ClipboardCopy } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,75 +71,105 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <h3 className="font-medium text-warcrow-gold">English</h3>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Edit title"
-                  value={editingItem.title}
-                  onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-text flex-1"
-                />
+        <div className="grid gap-6 py-4">
+          {/* English section */}
+          <div className="grid gap-3">
+            <h3 className="font-medium text-warcrow-gold flex items-center gap-2">
+              English
+              <span className="text-xs text-warcrow-text/70">(source language)</span>
+            </h3>
+            
+            {/* English title */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label htmlFor="en-title" className="text-sm text-warcrow-text/70">Title</label>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={() => copyToClipboard(editingItem.title, 'title')}
-                  className="flex items-center gap-1"
+                  className="h-7 px-2 text-xs"
                 >
-                  {titleCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  {titleCopied ? "Copied" : "Copy"}
+                  {titleCopied ? (
+                    <><CheckCircle className="h-3.5 w-3.5 mr-1" />Copied</>
+                  ) : (
+                    <><ClipboardCopy className="h-3.5 w-3.5 mr-1" />Copy</>
+                  )}
                 </Button>
               </div>
-              {editingItem.type === 'section' && editingItem.content && (
-                <div className="mt-2">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-warcrow-text/70">Content</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => copyToClipboard(editingItem.content || '', 'content')}
-                      className="flex items-center gap-1"
-                    >
-                      {contentCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {contentCopied ? "Copied" : "Copy"}
-                    </Button>
-                  </div>
-                  <Textarea
-                    placeholder="Edit content"
-                    value={editingItem.content}
-                    onChange={(e) => setEditingItem({...editingItem, content: e.target.value})}
-                    className="h-[200px] border border-warcrow-gold/30 bg-black text-warcrow-text"
-                  />
-                </div>
-              )}
+              <Input
+                id="en-title"
+                placeholder="Edit title"
+                value={editingItem.title}
+                onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
+                className="border border-warcrow-gold/30 bg-black text-warcrow-text"
+              />
             </div>
+            
+            {/* English content (only for sections) */}
+            {editingItem.type === 'section' && editingItem.content && (
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="en-content" className="text-sm text-warcrow-text/70">Content</label>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => copyToClipboard(editingItem.content || '', 'content')}
+                    className="h-7 px-2 text-xs"
+                  >
+                    {contentCopied ? (
+                      <><CheckCircle className="h-3.5 w-3.5 mr-1" />Copied</>
+                    ) : (
+                      <><ClipboardCopy className="h-3.5 w-3.5 mr-1" />Copy</>
+                    )}
+                  </Button>
+                </div>
+                <Textarea
+                  id="en-content"
+                  placeholder="Edit content"
+                  value={editingItem.content}
+                  onChange={(e) => setEditingItem({...editingItem, content: e.target.value})}
+                  className="h-[180px] border border-warcrow-gold/30 bg-black text-warcrow-text resize-none"
+                />
+              </div>
+            )}
           </div>
           
-          <div className="grid gap-2">
-            <h3 className="font-medium text-warcrow-gold">Spanish</h3>
-            <Input
-              placeholder="Translate title"
-              value={editingItem.title_es}
-              onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
-              className="border border-warcrow-gold/30 bg-black text-warcrow-text"
-            />
+          {/* Spanish section */}
+          <div className="grid gap-3">
+            <h3 className="font-medium text-warcrow-gold flex items-center gap-2">
+              Spanish
+              <span className="text-xs text-warcrow-text/70">(translation)</span>
+            </h3>
             
+            {/* Spanish title */}
+            <div className="space-y-1.5">
+              <label htmlFor="es-title" className="text-sm text-warcrow-text/70">Title</label>
+              <Input
+                id="es-title"
+                placeholder="Translate title"
+                value={editingItem.title_es}
+                onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
+                className="border border-warcrow-gold/30 bg-black text-warcrow-text"
+              />
+            </div>
+            
+            {/* Spanish content (only for sections) */}
             {editingItem.type === 'section' && (
-              <div className="mt-2">
+              <div className="space-y-1.5">
+                <label htmlFor="es-content" className="text-sm text-warcrow-text/70">Content</label>
                 <Textarea
+                  id="es-content"
                   placeholder="Translate content"
                   value={editingItem.content_es}
                   onChange={(e) => setEditingItem({...editingItem, content_es: e.target.value})}
-                  className="h-[200px] border border-warcrow-gold/30 bg-black text-warcrow-text"
+                  className="h-[180px] border border-warcrow-gold/30 bg-black text-warcrow-text resize-none"
                 />
               </div>
             )}
           </div>
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
