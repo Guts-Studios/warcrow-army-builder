@@ -12,10 +12,23 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   
   const toggleExpand = () => setIsExpanded(!isExpanded);
   
-  // Process the answer to handle newlines and formatting
-  const processedAnswer = answer.split('\n').map((line, i) => (
-    <p key={i} className={i > 0 ? "mt-2" : ""}>{line}</p>
-  ));
+  // Process the answer to handle newlines, bullet points, and formatting
+  const processedAnswer = answer.split('\n').map((line, i) => {
+    // Check if the line is a bullet point
+    if (line.trim().startsWith('-')) {
+      return (
+        <li key={i} className="ml-6 list-disc mt-1">
+          {line.trim().substring(1).trim()}
+        </li>
+      );
+    }
+    // Regular paragraph
+    return (
+      <p key={i} className={i > 0 ? "mt-2" : ""}>
+        {line}
+      </p>
+    );
+  });
 
   return (
     <div className="border-b border-warcrow-gold/20 pb-4 mb-6 animate-fade-in">
@@ -29,7 +42,14 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
         </button>
       </div>
       <div className={`text-warcrow-text ${isExpanded ? 'block' : 'line-clamp-2'}`}>
-        {processedAnswer}
+        {/* If the answer has bullet points (starts with -), render as a list */}
+        {answer.includes('\n-') ? (
+          <ul className="list-disc space-y-1 ml-4">
+            {processedAnswer}
+          </ul>
+        ) : (
+          processedAnswer
+        )}
       </div>
       {!isExpanded && answer.length > 150 && (
         <button 

@@ -171,4 +171,221 @@ export const faqTranslations: TranslationsType = {
     en: 'At the beginning of the round, you must check the effects of the tinge with each of your units affected by it, and you must do it separately. If there are multiple units in your company with tinge tokens, you must roll for each one and apply the corresponding effects separately.',
     es: 'Al comienzo de la ronda, debes verificar los efectos del tinte con cada una de tus unidades afectadas por él, y debes hacerlo por separado. Si hay varias unidades en tu compañía con fichas de tinte, debes tirar por cada una y aplicar los efectos correspondientes por separado.',
   },
+  // Adding all the new FAQ items
+  faq_face_to_face: {
+    en: 'How do face to face rolls work in combat?',
+    es: '¿Cómo funcionan las tiradas cara a cara en combate?',
+  },
+  faq_face_to_face_answer: {
+    en: 'If during a face to face roll in combat one of the units disengages (for example, due to a switch), you must still resolve the face to face roll even though both units disengage during any of the steps.',
+    es: 'Si durante una tirada cara a cara en combate una de las unidades se desvincula (por ejemplo, debido a un cambio), aún debes resolver la tirada cara a cara aunque ambas unidades se desvinculen durante cualquiera de los pasos.',
+  },
+  faq_repeat_die: {
+    en: 'How do die repetitions work?',
+    es: '¿Cómo funcionan las repeticiones de dados?',
+  },
+  faq_repeat_die_answer: {
+    en: 'If you can repeat a die or a roll and your opponent has a skill that forces you to repeat as well, you resolve all your repetitions first (in the order you want) and then resolve the effects indicated by the skills of your opponent.',
+    es: 'Si puedes repetir un dado o una tirada y tu oponente tiene una habilidad que te obliga a repetir también, resuelves todas tus repeticiones primero (en el orden que quieras) y luego resuelves los efectos indicados por las habilidades de tu oponente.',
+  },
+  faq_engage: {
+    en: 'How does engaging with enemy units work?',
+    es: '¿Cómo funciona el enfrentamiento con unidades enemigas?',
+  },
+  faq_engage_answer: {
+    en: 'Skills like Tundra Marauder\'s Snow Leopard Tattoo allow you to Displace (X) and engage with enemy units. To engage you need your leader to come in contact with any troop of the enemy unit. If the leader of your unit cannot reach the enemy, you cannot engage with any other troop of the unit.',
+    es: 'Habilidades como el Tatuaje del Leopardo de las Nieves de los Merodeadores de la Tundra te permiten Desplazar (X) y enfrentarte con unidades enemigas. Para enfrentarte necesitas que tu líder entre en contacto con cualquier tropa de la unidad enemiga. Si el líder de tu unidad no puede alcanzar al enemigo, no puedes enfrentarte con ninguna otra tropa de la unidad.',
+  },
+  faq_lose_combat: {
+    en: 'What happens when you lose combat?',
+    es: '¿Qué sucede cuando pierdes el combate?',
+  },
+  faq_lose_combat_answer: {
+    en: 'You\'d lose the combat and therefore suffer 1 stress. However, you can benefit from the extra movement for destroying a unit.',
+    es: 'Perderías el combate y, por lo tanto, sufrirías 1 de estrés. Sin embargo, puedes beneficiarte del movimiento extra por destruir una unidad.',
+  },
+  faq_modifiers: {
+    en: 'How do multiple modifiers work?',
+    es: '¿Cómo funcionan múltiples modificadores?',
+  },
+  faq_modifiers_answer: {
+    en: 'If a unit has a modifier and so does the Character who joined it, you must stress for each of the modifiers separately if you want to activate different modifiers.',
+    es: 'Si una unidad tiene un modificador y también lo tiene el Personaje que se unió a ella, debes estresarte por cada uno de los modificadores por separado si quieres activar diferentes modificadores.',
+  },
+  faq_positioning: {
+    en: 'How do positioning maneuvers work?',
+    es: '¿Cómo funcionan las maniobras de posicionamiento?',
+  },
+  faq_positioning_answer: {
+    en: 'During positioning maneuvers, there is no maximum distance the models can displace to be engaged again with the enemy. If after finishing a combat only the leaders remain and they are distanced, this situation should not occur (see Updates).',
+    es: 'Durante las maniobras de posicionamiento, no hay una distancia máxima que los modelos puedan desplazar para volver a enfrentarse con el enemigo. Si después de terminar un combate solo quedan los líderes y están distanciados, esta situación no debería ocurrir (ver Actualizaciones).',
+  },
+  faq_remove_troops: {
+    en: 'Who decides which troops are removed as casualties?',
+    es: '¿Quién decide qué tropas se eliminan como bajas?',
+  },
+  faq_remove_troops_answer: {
+    en: 'The owner of the miniatures that suffer the damage decides which miniatures are removed when there are casualties.',
+    es: 'El dueño de las miniaturas que sufren el daño decide qué miniaturas se eliminan cuando hay bajas.',
+  },
+  faq_switches: {
+    en: 'How do combat switches work?',
+    es: '¿Cómo funcionan los cambios en combate?',
+  },
+  faq_switches_answer: {
+    en: 'If you eliminate a unit with the switches, the combat still resolves all the combat steps indicated in the rules. For Displace as a defensive switch, you move before the damage is distributed, but despite displacing and thus disengaging, the combat continues and resolves until the end. Displacement and placement switches do not prevent you from receiving damage.',
+    es: 'Si eliminas una unidad con los cambios, el combate aún resuelve todos los pasos de combate indicados en las reglas. Para Desplazar como un cambio defensivo, te mueves antes de que se distribuya el daño, pero a pesar de desplazarte y, por lo tanto, desvincularte, el combate continúa y se resuelve hasta el final. Los cambios de desplazamiento y colocación no evitan que recibas daño.',
+  },
+  faq_hostile_unit: {
+    en: 'How do ranged attacks against Hostile units work?',
+    es: '¿Cómo funcionan los ataques a distancia contra unidades Hostiles?',
+  },
+  faq_hostile_unit_answer: {
+    en: 'If the Hostile unit is engaged with an enemy unit, this unit suffers stress if you attack the Hostile unit with a ranged attack.',
+    es: 'Si la unidad Hostil está enfrentada a una unidad enemiga, esta unidad sufre estrés si atacas a la unidad Hostil con un ataque a distancia.',
+  },
+  faq_hold_shoot: {
+    en: 'How does Hold and shoot work?',
+    es: '¿Cómo funciona Mantener y disparar?',
+  },
+  faq_hold_shoot_answer: {
+    en: 'One of the conditions to be able to shoot (including Hold and shoot) is not being engaged. You must choose a moment in which you are not engaged with the charging unit. While Hold and shoot rules don\'t allow the use of switches, a unit that uses Hold and shoot can benefit from passive skills related to ranged attacks. If a unit with a joined Officer loses all of its troops due to Hold and shoot of the target the unit was charging, the Character must use their MOV to charge. Should they not be able to move to engage, the action ends immediately.',
+    es: 'Una de las condiciones para poder disparar (incluyendo Mantener y disparar) es no estar enfrentado. Debes elegir un momento en el que no estés enfrentado con la unidad que carga. Mientras que las reglas de Mantener y disparar no permiten el uso de cambios, una unidad que usa Mantener y disparar puede beneficiarse de habilidades pasivas relacionadas con ataques a distancia. Si una unidad con un Oficial unido pierde todas sus tropas debido a Mantener y disparar del objetivo al que la unidad estaba cargando, el Personaje debe usar su MOV para cargar. Si no pueden moverse para enfrentarse, la acción termina inmediatamente.',
+  },
+  faq_ranged_attack: {
+    en: 'How do skills affect ranged attacks?',
+    es: '¿Cómo afectan las habilidades a los ataques a distancia?',
+  },
+  faq_ranged_attack_answer: {
+    en: 'If, as part of the effects of a skill, you perform or resolve a ranged attack and the skill specifies a value for the ranged attack, you cannot use your unit\'s ranged attack switches. If it only states to make a ranged attack, you will have to use the ranged attack roll and, therefore, have its switches accessible.',
+    es: 'Si, como parte de los efectos de una habilidad, realizas o resuelves un ataque a distancia y la habilidad especifica un valor para el ataque a distancia, no puedes usar los cambios de ataque a distancia de tu unidad. Si solo indica hacer un ataque a distancia, tendrás que usar la tirada de ataque a distancia y, por lo tanto, tener sus cambios accesibles.',
+  },
+  faq_join_unit: {
+    en: 'How does joining units work?',
+    es: '¿Cómo funciona la unión de unidades?',
+  },
+  faq_join_unit_answer: {
+    en: 'If your Character joins a unit that has not activated during the round and you get to the "No one gets left behind" step, they can move since the Character removes their activation token when joining. If a Character with a ranged attack bonus joins a unit without a ranged attack, that bonus is not applied since the unit itself cannot perform a ranged attack. A Character who joined a unit is considered a member of the unit and not an independent unit. For a Support Character inside a unit with a bonus skill that affects a target within X strides, all measurements must be made from the leader of said unit.',
+    es: 'Si tu Personaje se une a una unidad que no se ha activado durante la ronda y llegas al paso "Nadie se queda atrás", pueden moverse ya que el Personaje elimina su ficha de activación al unirse. Si un Personaje con un bono de ataque a distancia se une a una unidad sin ataque a distancia, ese bono no se aplica ya que la unidad en sí no puede realizar un ataque a distancia. Un Personaje que se unió a una unidad se considera un miembro de la unidad y no una unidad independiente. Para un Personaje de Apoyo dentro de una unidad con una habilidad de bonificación que afecta a un objetivo dentro de X zancadas, todas las mediciones deben hacerse desde el líder de dicha unidad.',
+  },
+  faq_abandon_unit: {
+    en: 'What happens when a Character leaves a unit?',
+    es: '¿Qué sucede cuando un Personaje abandona una unidad?',
+  },
+  faq_abandon_unit_answer: {
+    en: 'When a Character leaves a unit, the unit does not receive an activation token. A Character leaving their unit can move through friendly troops that are part of the unit they are leaving.',
+    es: 'Cuando un Personaje abandona una unidad, la unidad no recibe una ficha de activación. Un Personaje que abandona su unidad puede moverse a través de tropas amigas que son parte de la unidad que está abandonando.',
+  },
+  faq_objective_control: {
+    en: 'Can demoralized units control objectives?',
+    es: '¿Pueden las unidades desmoralizadas controlar objetivos?',
+  },
+  faq_objective_control_answer: {
+    en: 'No. Demoralized units should not be considered for objective control (treat them as if they were not on the battlefield).',
+    es: 'No. Las unidades desmoralizadas no deben considerarse para el control de objetivos (trátalas como si no estuvieran en el campo de batalla).',
+  },
+  faq_command_skills: {
+    en: 'Can demoralized units use command skills?',
+    es: '¿Pueden las unidades desmoralizadas usar habilidades de mando?',
+  },
+  faq_command_skills_answer: {
+    en: 'No, demoralized units cannot use command skills (see Updates).',
+    es: 'No, las unidades desmoralizadas no pueden usar habilidades de mando (ver Actualizaciones).',
+  },
+  faq_disarmed: {
+    en: 'How do the disarmed and vulnerable states work?',
+    es: '¿Cómo funcionan los estados desarmado y vulnerable?',
+  },
+  faq_disarmed_answer: {
+    en: 'The states disarmed and vulnerable apply after rolling the dice and before the switches.',
+    es: 'Los estados desarmado y vulnerable se aplican después de tirar los dados y antes de los cambios.',
+  },
+  faq_frightened: {
+    en: 'How does the frightened state interact with WP tests?',
+    es: '¿Cómo interactúa el estado asustado con las pruebas de WP?',
+  },
+  faq_frightened_answer: {
+    en: 'When a unit has a skill that allows it to repeat its failed WP tests and then suffers the frightener state, the state must be applied whenever applicable. If the first roll is successful, repeat for frightened and you can use your ability to repeat later. If the first roll is unsuccessful: repeat for the skill and in case of success, repeat for frightened.',
+    es: 'Cuando una unidad tiene una habilidad que le permite repetir sus pruebas de WP fallidas y luego sufre el estado atemorizador, el estado debe aplicarse cuando sea aplicable. Si la primera tirada tiene éxito, repite para asustado y puedes usar tu habilidad para repetir más tarde. Si la primera tirada no tiene éxito: repite para la habilidad y en caso de éxito, repite para asustado.',
+  },
+  faq_traps: {
+    en: 'What happens when multiple Traps activate simultaneously?',
+    es: '¿Qué sucede cuando se activan varias Trampas simultáneamente?',
+  },
+  faq_traps_answer: {
+    en: 'If two Traps activate at the same time, the player with the initiative decides the order of activation of the Traps.',
+    es: 'Si dos Trampas se activan al mismo tiempo, el jugador con la iniciativa decide el orden de activación de las Trampas.',
+  },
+  faq_rugged: {
+    en: 'How does the Rugged keyword work?',
+    es: '¿Cómo funciona la palabra clave Robusto?',
+  },
+  faq_rugged_answer: {
+    en: 'If no \'X\' value is specified for Rugged, the effect applies to all units.',
+    es: 'Si no se especifica ningún valor \'X\' para Robusto, el efecto se aplica a todas las unidades.',
+  },
+  faq_war_surgeon: {
+    en: 'How does the War Surgeon\'s "Medic!" ability work?',
+    es: '¿Cómo funciona la habilidad "¡Médico!" del Cirujano de Guerra?',
+  },
+  faq_war_surgeon_answer: {
+    en: 'You should roll "Medic!" every time the unit is about to suffer damage, first during the switches step (all damage from switches should be added into one total), and then at the resolution.',
+    es: 'Deberías tirar "¡Médico!" cada vez que la unidad esté a punto de sufrir daño, primero durante el paso de los cambios (todo el daño de los cambios debe sumarse en un total), y luego en la resolución.',
+  },
+  faq_lady_telia: {
+    en: 'How does Lady Télia\'s "Headshot" skill work?',
+    es: '¿Cómo funciona la habilidad "Disparo a la cabeza" de Lady Télia?',
+  },
+  faq_lady_telia_answer: {
+    en: 'If Lady Télia performs her "Headshot" skill against an Elite Character inside a unit without Elite, this Character can apply Elite to their defense roll, since they are using their own profile and not the unit\'s. The Character should defend using their profile defense value as if they were alone and not joined to a unit (therefore including automatic symbols should they have any).',
+    es: 'Si Lady Télia realiza su habilidad "Disparo a la cabeza" contra un Personaje de Élite dentro de una unidad sin Élite, este Personaje puede aplicar Élite a su tirada de defensa, ya que está usando su propio perfil y no el de la unidad. El Personaje debe defenderse usando su valor de defensa de perfil como si estuvieran solos y no unidos a una unidad (por lo tanto, incluye símbolos automáticos si los tienen).',
+  },
+  faq_pioneers: {
+    en: 'How do the Pioneers\' abilities work?',
+    es: '¿Cómo funcionan las habilidades de los Pioneros?',
+  },
+  faq_pioneers_answer: {
+    en: 'If the Pioneers use their "Mortar" skill, and Lady Télia has joined the unit, they do not add her auto SUCCESS to that roll, as the skill specifies how to create the roll based on the number of troops. For the "Trench yourselves!" rule, there are two separate effects: the first has the condition of non-activation and the second always applies.',
+    es: 'Si los Pioneros usan su habilidad "Mortero", y Lady Télia se ha unido a la unidad, no añaden su ÉXITO automático a esa tirada, ya que la habilidad especifica cómo crear la tirada en función del número de tropas. Para la regla "¡Atrincheraos!", hay dos efectos separados: el primero tiene la condición de no activación y el segundo siempre se aplica.',
+  },
+  faq_bulwarks: {
+    en: 'Can Bulwarks taunt units already in combat?',
+    es: '¿Pueden los Baluartes provocar a unidades ya en combate?',
+  },
+  faq_bulwarks_answer: {
+    en: 'No, you cannot taunt a unit already engaged in combat, since charging is not an action a unit can perform while being engaged.',
+    es: 'No, no puedes provocar a una unidad ya enfrentada en combate, ya que cargar no es una acción que una unidad pueda realizar mientras está enfrentada.',
+  },
+  faq_trabor: {
+    en: 'How do Trabor\'s Automata work?',
+    es: '¿Cómo funcionan los Autómatas de Trabor?',
+  },
+  faq_trabor_answer: {
+    en: 'Automata use Trabor\'s MOV values and move only when Trabor does. The second person in the Automata chart refers exclusively to Trabor. Automata are Trabor\'s tokens from the Warcrow Adventures expansion pack, not considered a unit of 3 troops, therefore they do not need to stay in formation.',
+    es: 'Los Autómatas usan los valores de MOV de Trabor y se mueven solo cuando Trabor lo hace. La segunda persona en la tabla de Autómatas se refiere exclusivamente a Trabor. Los Autómatas son fichas de Trabor del paquete de expansión Warcrow Adventures, no se consideran una unidad de 3 tropas, por lo tanto no necesitan mantener una formación.',
+  },
+  faq_evoker: {
+    en: 'How do the Evoker\'s spells work?',
+    es: '¿Cómo funcionan los hechizos del Evocador?',
+  },
+  faq_evoker_answer: {
+    en: 'If a unit under the effects of Spirit of the Thermapleurus and the second alteration charges against an enemy unit and suffers stress due to Intimidating, the target of the charge flees and the charging unit loses the charge. For the Summon the rock spell\'s second alteration, the spell has a single target and the alteration grants the Remains active property to the effect: at the beginning of its activation, the target and all units within 5 strides suffer the slowed state. If the target never activates, nobody gets slowed.',
+    es: 'Si una unidad bajo los efectos de Espíritu del Thermapleurus y la segunda alteración carga contra una unidad enemiga y sufre estrés debido a Intimidante, el objetivo de la carga huye y la unidad que carga pierde la carga. Para la segunda alteración del hechizo Invocar la roca, el hechizo tiene un solo objetivo y la alteración otorga la propiedad Permanece activo al efecto: al comienzo de su activación, el objetivo y todas las unidades dentro de 5 zancadas sufren el estado ralentizado. Si el objetivo nunca se activa, nadie se ralentiza.',
+  },
+  faq_dice_symbols: {
+    en: 'How do dice and symbols work?',
+    es: '¿Cómo funcionan los dados y símbolos?',
+  },
+  faq_dice_symbols_answer: {
+    en: 'Dice symbols represent different outcomes and effects in the game. Each symbol has a specific meaning and impact on gameplay.',
+    es: 'Los símbolos de dados representan diferentes resultados y efectos en el juego. Cada símbolo tiene un significado específico y un impacto en la jugabilidad.',
+  },
+  faq_pass: {
+    en: 'What happens when you cannot activate any units?',
+    es: '¿Qué sucede cuando no puedes activar ninguna unidad?',
+  },
+  faq_pass_answer: {
+    en: 'If it\'s your activation and you don\'t have any units you can legally activate, you must pass.',
+    es: 'Si es tu activación y no tienes ninguna unidad que puedas activar legalmente, debes pasar.',
+  },
 };
