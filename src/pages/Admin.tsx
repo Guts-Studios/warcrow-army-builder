@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText, BookOpen, Languages } from "lucide-react";
+import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText, BookOpen, Languages, Translate } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -13,6 +14,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import NewsManager from "@/components/admin/NewsManager";
 import RulesVerifier from "@/components/admin/RulesVerifier";
 import FAQTranslationManager from "@/components/admin/FAQTranslationManager";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -243,26 +250,35 @@ const Admin = () => {
               <FileText className="h-4 w-4 mr-2" />
               News Management
             </Button>
-            <Button
-              variant={activeTab === 'rules' ? 'default' : 'outline'}
-              className={activeTab === 'rules' 
-                ? "bg-warcrow-gold text-black mb-2" 
-                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
-              onClick={() => setActiveTab('rules')}
-            >
-              <Languages className="h-4 w-4 mr-2" />
-              Rules Translations
-            </Button>
-            <Button
-              variant={activeTab === 'faq' ? 'default' : 'outline'}
-              className={activeTab === 'faq' 
-                ? "bg-warcrow-gold text-black mb-2" 
-                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
-              onClick={() => setActiveTab('faq')}
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              FAQ Translations
-            </Button>
+
+            {/* Replacing the two separate translation buttons with a dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-warcrow-gold/30 text-warcrow-gold mb-2"
+                >
+                  <Translate className="h-4 w-4 mr-2" />
+                  Translations
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black border border-warcrow-gold/30">
+                <DropdownMenuItem 
+                  className="text-warcrow-gold hover:bg-warcrow-gold/10 cursor-pointer"
+                  onClick={() => setActiveTab('rules')}
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  Rules Translations
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-warcrow-gold hover:bg-warcrow-gold/10 cursor-pointer"
+                  onClick={() => setActiveTab('faq')}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  FAQ Translations
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           
           {renderTabContent()}
