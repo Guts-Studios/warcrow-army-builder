@@ -22,6 +22,8 @@ export const useRules = () => {
   return useQuery({
     queryKey: ["rules", language],
     queryFn: async () => {
+      console.log("Fetching rules for language:", language);
+      
       const { data: chaptersData, error: chaptersError } = await supabase
         .from("rules_chapters")
         .select("*")
@@ -43,6 +45,14 @@ export const useRules = () => {
         if (language === 'es' && chapter.title_es) {
           title = chapter.title_es;
         }
+
+        // Log the chapter title for debugging
+        console.log(`Chapter title (${language}):`, { 
+          id: chapter.id,
+          title,
+          original: chapter.title,
+          es_title: chapter.title_es 
+        });
 
         // Get sections for this chapter with proper language content
         const chapterSections = sectionsData
@@ -117,5 +127,7 @@ export const useRules = () => {
       
       return typedChapters;
     },
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

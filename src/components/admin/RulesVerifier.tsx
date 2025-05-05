@@ -186,13 +186,20 @@ export const RulesVerifier = () => {
         setChapters(prevChapters => 
           prevChapters.map(chapter => 
             chapter.id === editingItem.id ? 
-              {...chapter, title_es: editingItem.title_es} : 
+              {...chapter, title_es: editingItem.title_es, translationComplete: Boolean(editingItem.title_es)} : 
               chapter
           )
         );
         
-        // Add debug logging
-        console.log(`Updated chapter ${editingItem.id} with Spanish title: ${editingItem.title_es}`);
+        // Enhanced debug logging
+        console.log(`Updated chapter ${editingItem.id} with Spanish title:`, {
+          title: editingItem.title,
+          title_es: editingItem.title_es,
+          id: editingItem.id
+        });
+        
+        // Refresh translation status after update to ensure UI reflects the changes
+        setTimeout(() => fetchRulesData(), 500);
         
         toast.success('Chapter translation updated successfully');
       } else {
@@ -209,20 +216,33 @@ export const RulesVerifier = () => {
           throw error;
         }
         
-        // Update local state
+        // Update local state with enhanced translationComplete calculation
         setSections(prevSections => 
           prevSections.map(section => 
             section.id === editingItem.id ? 
-              {...section, title_es: editingItem.title_es, content_es: editingItem.content_es} : 
+              {
+                ...section, 
+                title_es: editingItem.title_es, 
+                content_es: editingItem.content_es,
+                translationComplete: Boolean(editingItem.title_es) && Boolean(editingItem.content_es)
+              } : 
               section
           )
         );
         
+        console.log(`Updated section ${editingItem.id} with Spanish title/content:`, {
+          title: editingItem.title,
+          title_es: editingItem.title_es,
+          content_length: editingItem.content?.length || 0,
+          content_es_length: editingItem.content_es?.length || 0
+        });
+        
+        // Refresh translation status after update
+        setTimeout(() => fetchRulesData(), 500);
+        
         toast.success('Section translation updated successfully');
       }
       
-      // Refresh data to ensure all UI is up to date
-      await fetchRulesData();
       setTranslationEditDialogOpen(false);
     } catch (error: any) {
       console.error('Error updating translation:', error);
