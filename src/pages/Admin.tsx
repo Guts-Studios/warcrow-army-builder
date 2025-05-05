@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText, BookOpen, Languages, Translate } from "lucide-react";
+import { Mail, ArrowLeft, Users, Shield, AlertTriangle, Code, FileText, BookOpen, Languages } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
@@ -258,7 +257,7 @@ const Admin = () => {
                   variant="outline"
                   className="border-warcrow-gold/30 text-warcrow-gold mb-2"
                 >
-                  <Translate className="h-4 w-4 mr-2" />
+                  <Languages className="h-4 w-4 mr-2" />
                   Translations
                 </Button>
               </DropdownMenuTrigger>
