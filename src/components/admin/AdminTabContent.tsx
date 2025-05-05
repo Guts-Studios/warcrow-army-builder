@@ -2,7 +2,7 @@
 import React from 'react';
 import AdminDashboard from './dashboard/AdminDashboard';
 import NewsManager from './NewsManager';
-import RulesVerifier from './RulesVerifier';
+import { RulesVerifier } from './RulesVerifier';
 import FAQTranslationManager from './FAQTranslationManager';
 
 interface AdminTabContentProps {

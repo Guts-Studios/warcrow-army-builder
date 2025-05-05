@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { ChapterNavigation } from "@/components/rules/ChapterNavigation";
 import { RulesSearch } from "@/components/rules/RulesSearch";
@@ -26,7 +25,6 @@ const Rules = () => {
   // Force refetch when language changes
   React.useEffect(() => {
     console.log("Language changed in Rules page:", language);
-    // Force refetch with invalidateQueries to ensure completely fresh data
     refetch();
   }, [language, refetch]);
 
@@ -64,6 +62,7 @@ const Rules = () => {
     </div>;
   }
 
+  
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader title={activeTab === "rules" ? t('rulesTitle') : t('frequently_asked_questions')}>

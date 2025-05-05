@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,7 +56,6 @@ export const useRules = () => {
         if (language === 'es') {
           if (isSpecialMiniChapter(chapter.title)) {
             // Always use the hardcoded translation for this special chapter
-            // regardless of whether title_es exists in the database or not
             title = getSpecialMiniChapterTranslation();
             console.log("Using hardcoded translation for Miniatures chapter:", title);
           } else if (chapter.title_es) {

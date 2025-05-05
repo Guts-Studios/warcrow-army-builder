@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -232,7 +231,7 @@ export const RulesVerifier = () => {
           // Also update the translation status to reflect the hardcoded value
           setTranslationStatus(prevStatus => 
             prevStatus.map(item => 
-              (item.content_type === 'chapter' && item.english_title === "Miniatures, Troops, Units") ?
+              (item.content_type === 'chapter' && item.item_id === editingItem.id) ?
               {...item, spanish_title: editingItem.title_es, has_spanish_title: true} :
               item
             )
@@ -242,10 +241,6 @@ export const RulesVerifier = () => {
           
           // Close the dialog
           setTranslationEditDialogOpen(false);
-          
-          // Force a refresh of the data
-          setTimeout(() => fetchRulesData(), 500);
-          
           return;
         }
         
@@ -311,9 +306,6 @@ export const RulesVerifier = () => {
           content_length: editingItem.content?.length || 0,
           content_es_length: editingItem.content_es?.length || 0
         });
-        
-        // Refresh translation status after update
-        setTimeout(() => fetchRulesData(), 500);
         
         toast.success('Section translation updated successfully');
       }
