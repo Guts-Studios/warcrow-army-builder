@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -41,9 +42,17 @@ export const useRules = () => {
       const typedChapters: Chapter[] = chaptersData.map(chapter => {
         // Get title based on selected language
         let title = chapter.title;
-        if (language === 'es' && chapter.title_es) {
-          title = chapter.title_es;
-          console.log("Using Spanish title from database:", title);
+        
+        // IMPORTANT: Prioritize the database values for translations
+        if (language === 'es') {
+          if (chapter.title_es) {
+            title = chapter.title_es;
+            console.log("Using Spanish title from database:", title);
+          } else if (chapter.title === "Miniatures, Troops, Units" && rulesTranslations.miniaturesTroopsUnits) {
+            // Fallback to hardcoded translation for this special case
+            title = rulesTranslations.miniaturesTroopsUnits.es;
+            console.log("Using fallback translation for Miniatures chapter:", title);
+          }
         }
 
         // Debug chapter data
@@ -128,6 +137,6 @@ export const useRules = () => {
       return typedChapters;
     },
     refetchOnWindowFocus: true,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 30 * 1000, // 30 seconds - reduced to make updates appear faster
   });
 };

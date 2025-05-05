@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -243,7 +242,14 @@ export const RulesVerifier = () => {
         toast.success('Section translation updated successfully');
       }
       
+      // Close the dialog after successful save
       setTranslationEditDialogOpen(false);
+      
+      // Force another refetch after a short delay to make sure all data is refreshed
+      setTimeout(() => {
+        console.log("Performing delayed refetch after save");
+        fetchRulesData();
+      }, 1000);
     } catch (error: any) {
       console.error('Error updating translation:', error);
       toast.error(`Failed to update translation: ${error.message}`);
