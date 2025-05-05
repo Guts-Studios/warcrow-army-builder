@@ -65,4 +65,12 @@ export const commonTranslations = {
     en: 'Frequently Asked Questions',
     es: 'Preguntas Frecuentes'
   },
+  faqDescription: {
+    en: 'Find answers to common questions about Warcrow',
+    es: 'Encuentra respuestas a preguntas comunes sobre Warcrow'
+  },
+  frequently_asked_questions: {
+    en: 'FAQ',
+    es: 'FAQ'
+  },
 };

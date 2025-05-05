@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HelpCircle } from "lucide-react";
 
 interface SecondaryActionsProps {
   isGuest: boolean;
@@ -27,6 +28,14 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
         className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
       >
         {t('buyCoffee')}
+      </Button>
+      <Button
+        onClick={() => navigate('/faq')}
+        variant="outline"
+        className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-2"
+      >
+        <HelpCircle className="h-4 w-4" />
+        {t('faqTitle')}
       </Button>
     </div>
   );

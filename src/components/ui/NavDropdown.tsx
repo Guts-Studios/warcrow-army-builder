@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, Bell, ActivityIcon, ShieldAlert } from "lucide-react";
+import { Menu, Bell, ActivityIcon, ShieldAlert, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -116,6 +116,14 @@ export const NavDropdown = () => {
             Rules
           </DropdownMenuItem>
           
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10"
+            onClick={() => navigate('/faq')}
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            FAQ
+          </DropdownMenuItem>
+
           {/* Profile menu item - Available to all users now */}
           <DropdownMenuItem 
             className="cursor-pointer hover:bg-warcrow-gold/10"
