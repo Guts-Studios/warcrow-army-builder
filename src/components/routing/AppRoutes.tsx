@@ -37,7 +37,7 @@ export function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/rules" element={<Rules />} />
-      <Route path="/faq" element={<FAQ />} />
+      <Route path="/faq" element={<Rules />} /> {/* Use Rules component with faq tab active */}
       <Route path="/unit-stats" element={<UnitStats />} />
       <Route path="/game" element={<Game />} />
       <Route path="/setup" element={<Setup />} />

@@ -34,7 +34,7 @@ export const faqTranslations: TranslationsType = {
     en: 'Read more',
     es: 'Leer más',
   },
-
+  
   // FAQ questions
   faq_skill_properties: {
     en: 'What are skill properties?',

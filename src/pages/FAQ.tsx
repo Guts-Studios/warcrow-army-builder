@@ -12,7 +12,11 @@ import { FAQList } from '@/components/faq/FAQList';
 import { FAQSearch } from '@/components/faq/FAQSearch';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
 
-const FAQ = () => {
+interface FAQProps {
+  showHeader?: boolean;
+}
+
+const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,6 +48,32 @@ const FAQ = () => {
     item.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // If we're showing this component in a tab, we don't need the full page wrapper
+  if (!showHeader) {
+    return (
+      <>
+        {/* Search Component */}
+        <FAQSearch 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          resultsCount={filteredSections.length}
+        />
+        
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">
+            {error}
+          </div>
+        ) : (
+          <FAQList items={filteredSections} />
+        )}
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader title={t('frequently_asked_questions') || "FAQ"}>
@@ -51,7 +81,7 @@ const FAQ = () => {
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/rules')}
             className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-accent/20"
           >
             <ArrowLeft className="h-4 w-4" />
