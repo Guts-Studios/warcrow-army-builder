@@ -82,8 +82,8 @@ const Rules = () => {
             </SearchProvider>
           </TabsContent>
           
-          <TabsContent value="faq" className="mt-0">
-            <div className="max-w-4xl mx-auto">
+          <TabsContent value="faq" className="mt-0 w-full">
+            <div className="w-full">
               <FAQ showHeader={false} />
             </div>
           </TabsContent>

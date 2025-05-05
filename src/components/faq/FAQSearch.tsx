@@ -17,7 +17,7 @@ export const FAQSearch: React.FC<FAQSearchProps> = ({
   const { t } = useLanguage();
   
   return (
-    <div className="mb-8 relative">
+    <div className="mb-8 relative w-full">
       <div className="relative">
         <input
           type="text"
