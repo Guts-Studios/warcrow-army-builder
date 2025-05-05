@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -253,14 +252,33 @@ export const RulesVerifier = () => {
           title_es: editingItem.title_es
         });
         
-        // FIXED: Using upsert instead of update to ensure the record is created if it doesn't exist
+        // Fetch the current chapter data to get all required fields
+        const { data: currentChapter, error: fetchError } = await supabase
+          .from('rules_chapters')
+          .select('*')
+          .eq('id', editingItem.id)
+          .single();
+          
+        if (fetchError) {
+          console.error("Error fetching current chapter data:", fetchError);
+          throw fetchError;
+        }
+        
+        // Combine the current data with our updates
+        const updateData = {
+          id: editingItem.id,
+          title: currentChapter.title,
+          order_index: currentChapter.order_index,
+          title_es: editingItem.title_es,
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log("Full update data for chapter:", updateData);
+        
+        // Now perform the upsert with all required fields
         const { data, error } = await supabase
           .from('rules_chapters')
-          .upsert({ 
-            id: editingItem.id,
-            title_es: editingItem.title_es,
-            updated_at: new Date().toISOString()  // Force update timestamp
-          })
+          .upsert(updateData)
           .select();
           
         if (error) {
@@ -310,15 +328,36 @@ export const RulesVerifier = () => {
           content_es: editingItem.content_es?.substring(0, 50) + "..." // Log preview of content
         });
         
-        // FIXED: Using upsert instead of update to ensure the record is created if it doesn't exist
+        // Fetch the current section data to get all required fields
+        const { data: currentSection, error: fetchError } = await supabase
+          .from('rules_sections')
+          .select('*')
+          .eq('id', editingItem.id)
+          .single();
+          
+        if (fetchError) {
+          console.error("Error fetching current section data:", fetchError);
+          throw fetchError;
+        }
+        
+        // Combine the current data with our updates
+        const updateData = {
+          id: editingItem.id,
+          chapter_id: currentSection.chapter_id,
+          title: currentSection.title,
+          content: currentSection.content,
+          order_index: currentSection.order_index,
+          title_es: editingItem.title_es,
+          content_es: editingItem.content_es,
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log("Full update data for section:", updateData);
+        
+        // Now perform the upsert with all required fields
         const { data, error } = await supabase
           .from('rules_sections')
-          .upsert({ 
-            id: editingItem.id,
-            title_es: editingItem.title_es,
-            content_es: editingItem.content_es,
-            updated_at: new Date().toISOString()  // Force update timestamp
-          })
+          .upsert(updateData)
           .select();
           
         if (error) {
