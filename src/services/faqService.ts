@@ -21,5 +21,21 @@ export const fetchFAQSections = async (language: string = 'en'): Promise<FAQItem
     return [];
   }
 
-  return data || [];
+  // Process data to use the translated fields if available
+  return (data || []).map(item => {
+    let section = item.section;
+    let content = item.content;
+
+    // Use translated content if available and language is not English
+    if (language === 'es') {
+      section = item.section_es || item.section;
+      content = item.content_es || item.content;
+    }
+
+    return {
+      ...item,
+      section,
+      content
+    };
+  });
 };

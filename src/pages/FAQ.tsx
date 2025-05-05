@@ -13,7 +13,7 @@ import { FAQSearch } from '@/components/faq/FAQSearch';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
 
 const FAQ = () => {
-  const { t, currentLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [faqSections, setFaqSections] = useState<FAQItem[]>([]);
@@ -24,7 +24,7 @@ const FAQ = () => {
     const loadFAQSections = async () => {
       setLoading(true);
       try {
-        const sections = await fetchFAQSections(currentLanguage);
+        const sections = await fetchFAQSections(language);
         setFaqSections(sections);
         setError(null);
       } catch (err) {
@@ -36,7 +36,7 @@ const FAQ = () => {
     };
     
     loadFAQSections();
-  }, [currentLanguage]);
+  }, [language]);
 
   // Filter sections based on search query
   const filteredSections = faqSections.filter(item => 
