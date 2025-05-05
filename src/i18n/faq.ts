@@ -1,7 +1,36 @@
-
 import { TranslationsType } from './types';
 
 export const faqTranslations: TranslationsType = {
+  // FAQ page elements
+  faq_title: {
+    en: 'Frequently Asked Questions',
+    es: 'Preguntas Frecuentes',
+  },
+  faq_search_placeholder: {
+    en: 'Search FAQ...',
+    es: 'Buscar preguntas...',
+  },
+  faq_no_results: {
+    en: 'No results found',
+    es: 'No se encontraron resultados',
+  },
+  faq_results_count: {
+    en: 'results found',
+    es: 'resultados encontrados',
+  },
+  faq_loading: {
+    en: 'Loading FAQ...',
+    es: 'Cargando preguntas...',
+  },
+  faq_error: {
+    en: 'Failed to load FAQ data',
+    es: 'Error al cargar los datos de preguntas frecuentes',
+  },
+  faq_read_more: {
+    en: 'Read more',
+    es: 'Leer más',
+  },
+
   // FAQ questions
   faq_skill_properties: {
     en: 'What are skill properties?',

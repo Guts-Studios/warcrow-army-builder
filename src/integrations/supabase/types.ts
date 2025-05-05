@@ -75,6 +75,39 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_sections: {
+        Row: {
+          content: string
+          content_es: string | null
+          created_at: string
+          id: string
+          order_index: number
+          section: string
+          section_es: string | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_es?: string | null
+          created_at?: string
+          id?: string
+          order_index: number
+          section: string
+          section_es?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_es?: string | null
+          created_at?: string
+          id?: string
+          order_index?: number
+          section?: string
+          section_es?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       friend_activities: {
         Row: {
           activity_data: Json
