@@ -28,7 +28,7 @@ export const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       </div>
-      <div className={`text-warcrow-text ${isExpanded ? 'mt-2' : 'line-clamp-2'}`}>
+      <div className={`text-warcrow-text ${isExpanded ? 'block' : 'line-clamp-2'}`}>
         {processedAnswer}
       </div>
       {!isExpanded && answer.length > 150 && (
