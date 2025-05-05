@@ -53,6 +53,22 @@ export const commonTranslations = {
     en: 'No results found',
     es: 'No se encontraron resultados'
   },
+  noSearchResults: {
+    en: 'No search results found',
+    es: 'No se encontraron resultados de búsqueda'
+  },
+  searchResultsCount: {
+    en: '{count} results found',
+    es: '{count} resultados encontrados'
+  },
+  searchInRules: {
+    en: 'Search in Rules',
+    es: 'Buscar en Reglas'
+  },
+  searchInFAQ: {
+    en: 'Search in FAQ',
+    es: 'Buscar en FAQ'
+  },
   home: {
     en: 'Home',
     es: 'Inicio',
@@ -72,5 +88,9 @@ export const commonTranslations = {
   frequently_asked_questions: {
     en: 'FAQ',
     es: 'FAQ'
+  },
+  faq_click_to_expand: {
+    en: 'Click to view answer',
+    es: 'Haz clic para ver la respuesta'
   },
 };

@@ -1,15 +1,23 @@
 
 import { useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, BookOpenCheck } from "lucide-react";
 import { useSearch } from "@/contexts/SearchContext";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUnifiedSearch } from "@/contexts/UnifiedSearchContext";
+import { Button } from "@/components/ui/button";
 
 export const RulesSearch = () => {
-  const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive, searchResults, setSearchResults } = useSearch();
+  const { searchTerm, setSearchTerm, caseSensitive, setCaseSensitive, searchResults } = useSearch();
+  const { searchInFAQ } = useUnifiedSearch();
   const [focused, setFocused] = useState(false);
   const { t } = useLanguage();
+
+  // Update the unified search context when rules search changes
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="mb-6 space-y-2">
@@ -25,7 +33,7 @@ export const RulesSearch = () => {
             }`}
             placeholder={t("search")}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
@@ -49,13 +57,27 @@ export const RulesSearch = () => {
         </Toggle>
       </div>
       
-      {searchTerm && (
-        <div className="text-sm text-warcrow-text/80">
-          {searchResults === 0 
-            ? t("noSearchResults")
-            : t("searchResultsCount").replace('{count}', searchResults.toString())}
-        </div>
-      )}
+      <div className="flex justify-between items-center">
+        {searchTerm && (
+          <div className="text-sm text-warcrow-text/80">
+            {searchResults === 0 
+              ? t("noSearchResults")
+              : t("searchResultsCount").replace('{count}', searchResults.toString())}
+          </div>
+        )}
+
+        {searchTerm && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={searchInFAQ}
+            className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
+          >
+            <BookOpenCheck className="mr-1 h-3 w-3" />
+            {t("searchInFAQ")}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

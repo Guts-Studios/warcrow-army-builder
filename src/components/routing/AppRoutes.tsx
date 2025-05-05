@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 
 import Index from '@/pages/Index';
 import Play from '@/pages/Play';

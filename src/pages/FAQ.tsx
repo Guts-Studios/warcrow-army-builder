@@ -6,11 +6,12 @@ import { ScrollToTopButton } from "@/components/rules/ScrollToTopButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, BookOpen } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FAQList } from '@/components/faq/FAQList';
 import { FAQSearch } from '@/components/faq/FAQSearch';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
+import { useUnifiedSearch } from '@/contexts/UnifiedSearchContext';
 
 interface FAQProps {
   showHeader?: boolean;
@@ -19,11 +20,25 @@ interface FAQProps {
 const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { searchTerm: unifiedSearchTerm, setSearchTerm: setUnifiedSearchTerm, searchInRules } = useUnifiedSearch();
   const [searchQuery, setSearchQuery] = useState("");
   const [faqSections, setFaqSections] = useState<FAQItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Initialize the search query from the unified search context
+  useEffect(() => {
+    if (unifiedSearchTerm) {
+      setSearchQuery(unifiedSearchTerm);
+    }
+  }, [unifiedSearchTerm]);
+  
+  // Update unified search when local search changes
+  useEffect(() => {
+    setUnifiedSearchTerm(searchQuery);
+  }, [searchQuery, setUnifiedSearchTerm]);
+
   useEffect(() => {
     const loadFAQSections = async () => {
       setLoading(true);
@@ -42,6 +57,14 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
     loadFAQSections();
   }, [language]);
 
+  // Check if there's a search term in the location state
+  useEffect(() => {
+    const state = location.state as { searchTerm?: string } | null;
+    if (state?.searchTerm) {
+      setSearchQuery(state.searchTerm);
+    }
+  }, [location.state]);
+
   // Filter sections based on search query
   const filteredSections = faqSections.filter(item => 
     item.section.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -58,6 +81,20 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
           setSearchQuery={setSearchQuery}
           resultsCount={filteredSections.length}
         />
+        
+        {searchQuery && (
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={searchInRules}
+              className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
+            >
+              <BookOpen className="mr-1 h-3 w-3" />
+              {t("searchInRules")}
+            </Button>
+          </div>
+        )}
         
         {loading ? (
           <div className="text-center py-8">
@@ -98,6 +135,20 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
             setSearchQuery={setSearchQuery}
             resultsCount={filteredSections.length}
           />
+          
+          {searchQuery && (
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={searchInRules}
+                className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
+              >
+                <BookOpen className="mr-1 h-3 w-3" />
+                {t("searchInRules")}
+              </Button>
+            </div>
+          )}
           
           {loading ? (
             <div className="text-center py-8">

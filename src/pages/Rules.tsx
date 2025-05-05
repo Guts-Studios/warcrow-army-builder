@@ -12,6 +12,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import FAQ from "@/pages/FAQ"; // Import the FAQ component
+import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 
 const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
@@ -53,41 +54,43 @@ const Rules = () => {
         <LanguageSwitcher />
       </PageHeader>
       <div className="container max-w-7xl mx-auto py-4 px-4">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-warcrow-background/30 border border-warcrow-gold/30">
-            <TabsTrigger 
-              value="rules"
-              className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
-            >
-              {t('rulesTitle')}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="faq"
-              className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
-            >
-              {t('frequently_asked_questions')}
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="rules" className="mt-0">
-            <SearchProvider>
-              <RulesSearch />
-              <ChapterNavigation
-                chapters={chapters}
-                selectedSection={selectedSection}
-                setSelectedSection={setSelectedSection}
-                expandedChapter={expandedChapter}
-                setExpandedChapter={setExpandedChapter}
-              />
-            </SearchProvider>
-          </TabsContent>
-          
-          <TabsContent value="faq" className="mt-0 w-full">
-            <div className="w-full">
-              <FAQ showHeader={false} />
-            </div>
-          </TabsContent>
-        </Tabs>
+        <UnifiedSearchProvider>
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-warcrow-background/30 border border-warcrow-gold/30">
+              <TabsTrigger 
+                value="rules"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
+              >
+                {t('rulesTitle')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="faq"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
+              >
+                {t('frequently_asked_questions')}
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="rules" className="mt-0">
+              <SearchProvider>
+                <RulesSearch />
+                <ChapterNavigation
+                  chapters={chapters}
+                  selectedSection={selectedSection}
+                  setSelectedSection={setSelectedSection}
+                  expandedChapter={expandedChapter}
+                  setExpandedChapter={setExpandedChapter}
+                />
+              </SearchProvider>
+            </TabsContent>
+            
+            <TabsContent value="faq" className="mt-0 w-full">
+              <div className="w-full">
+                <FAQ showHeader={false} />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </UnifiedSearchProvider>
         <ScrollToTopButton />
       </div>
     </div>
