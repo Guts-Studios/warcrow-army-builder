@@ -13,6 +13,7 @@ import { WabAdmin } from "@/utils/email/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NewsManager from "@/components/admin/NewsManager";
 import RulesVerifier from "@/components/admin/RulesVerifier";
+import FAQTranslationManager from "@/components/admin/FAQTranslationManager";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -69,6 +70,8 @@ const Admin = () => {
         return <NewsManager />;
       case 'rules':
         return <RulesVerifier />;
+      case 'faq':
+        return <FAQTranslationManager />;
       case 'dashboard':
       default:
         return (
@@ -250,6 +253,16 @@ const Admin = () => {
             >
               <Languages className="h-4 w-4 mr-2" />
               Rules Translations
+            </Button>
+            <Button
+              variant={activeTab === 'faq' ? 'default' : 'outline'}
+              className={activeTab === 'faq' 
+                ? "bg-warcrow-gold text-black mb-2" 
+                : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
+              onClick={() => setActiveTab('faq')}
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              FAQ Translations
             </Button>
           </div>
           
