@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -87,31 +88,34 @@ export const RulesVerifier = () => {
         
       if (translationError) throw translationError;
       
-      // Count sections for each chapter
+      // Fix: Count sections for each chapter and check if all translations are complete
       const chaptersWithCount = chaptersData.map(chapter => {
         const chapterSections = sectionsData.filter(
           section => section.chapter_id === chapter.id
         );
         
         const sectionCount = chapterSections.length;
-        const chapterTranslated = Boolean(chapter.title_es);
+        const chapterTranslated = Boolean(chapter.title_es && chapter.title_es.trim() !== '');
         
-        const allSectionsTranslated = chapterSections.every(
-          section => Boolean(section.title_es) && Boolean(section.content_es)
+        // Fix: properly check if all sections are translated
+        const allSectionsTranslated = chapterSections.length > 0 && chapterSections.every(
+          section => Boolean(section.title_es && section.title_es.trim() !== '') && 
+                   Boolean(section.content_es && section.content_es.trim() !== '')
         );
         
         return {
           ...chapter,
           sectionCount,
-          translationComplete: chapterTranslated && allSectionsTranslated
+          translationComplete: chapterTranslated && (sectionCount === 0 || allSectionsTranslated)
         };
       });
       
-      // Add translation status to sections
+      // Fix: Add proper translation status to sections
       const sectionsWithTranslation = sectionsData.map(section => {
         return {
           ...section,
-          translationComplete: Boolean(section.title_es) && Boolean(section.content_es)
+          translationComplete: Boolean(section.title_es && section.title_es.trim() !== '') && 
+                              Boolean(section.content_es && section.content_es.trim() !== '')
         };
       });
       
@@ -146,9 +150,9 @@ export const RulesVerifier = () => {
       totalSections: sectionStatus.length,
       sectionsWithTitle,
       sectionsWithContent,
-      chapterCompletionRate: Math.round((chaptersWithTitle / chapterStatus.length) * 100),
-      sectionTitleCompletionRate: Math.round((sectionsWithTitle / sectionStatus.length) * 100),
-      sectionContentCompletionRate: Math.round((sectionsWithContent / sectionStatus.length) * 100)
+      chapterCompletionRate: Math.round((chaptersWithTitle / (chapterStatus.length || 1)) * 100),
+      sectionTitleCompletionRate: Math.round((sectionsWithTitle / (sectionStatus.length || 1)) * 100),
+      sectionContentCompletionRate: Math.round((sectionsWithContent / (sectionStatus.length || 1)) * 100)
     };
   };
 
@@ -231,7 +235,7 @@ export const RulesVerifier = () => {
                 {
                   ...chapter, 
                   title_es: verifyData.title_es,
-                  translationComplete: Boolean(verifyData.title_es) && chapter.translationComplete
+                  translationComplete: Boolean(verifyData.title_es && verifyData.title_es.trim() !== '') && chapter.translationComplete
                 } : 
                 chapter
             )
@@ -311,7 +315,8 @@ export const RulesVerifier = () => {
                   ...section, 
                   title_es: verifyData.title_es, 
                   content_es: verifyData.content_es,
-                  translationComplete: Boolean(verifyData.title_es) && Boolean(verifyData.content_es)
+                  translationComplete: Boolean(verifyData.title_es && verifyData.title_es.trim() !== '') && 
+                                     Boolean(verifyData.content_es && verifyData.content_es.trim() !== '')
                 } : 
                 section
             )
@@ -359,8 +364,13 @@ export const RulesVerifier = () => {
     }
   };
 
-  // Now we properly filter missing translations
-  const missingTranslations = sections.filter(section => !section.translationComplete);
+  // Fix: Properly filter missing translations
+  const missingTranslations = sections.filter(section => 
+    !section.translationComplete && (
+      !section.title_es || section.title_es.trim() === '' || 
+      !section.content_es || section.content_es.trim() === ''
+    )
+  );
   
   const filteredSections = searchQuery ? 
     sections.filter(section => 
@@ -729,8 +739,8 @@ export const RulesVerifier = () => {
                       <TableBody>
                         {missingTranslations.map(section => {
                           const chapter = chapters.find(c => c.id === section.chapter_id);
-                          const missingTitle = !section.title_es;
-                          const missingContent = !section.content_es;
+                          const missingTitle = !section.title_es || section.title_es.trim() === '';
+                          const missingContent = !section.content_es || section.content_es.trim() === '';
                           
                           return (
                             <TableRow key={section.id} className="border-warcrow-gold/20">
@@ -807,4 +817,54 @@ export const RulesVerifier = () => {
                 {editingItem.type === 'section' && editingItem.content && (
                   <div className="mt-2">
                     <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                      <div className="whitespace-pre-wrap">{editingItem.
+                      <div className="whitespace-pre-wrap">{editingItem.content}</div>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+              
+              <div className="grid gap-2">
+                <h3 className="font-medium text-warcrow-gold">Spanish</h3>
+                <Input
+                  placeholder="Translate title"
+                  value={editingItem.title_es}
+                  onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
+                  className="border border-warcrow-gold/30 bg-black text-warcrow-text"
+                />
+                
+                {editingItem.type === 'section' && (
+                  <div className="mt-2">
+                    <Textarea
+                      placeholder="Translate content"
+                      value={editingItem.content_es}
+                      onChange={(e) => setEditingItem({...editingItem, content_es: e.target.value})}
+                      className="h-[200px] border border-warcrow-gold/30 bg-black text-warcrow-text"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setTranslationEditDialogOpen(false)}
+              disabled={saveInProgress}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveTranslation}
+              disabled={saveInProgress}
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80"
+            >
+              {saveInProgress ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Save Translation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+};
