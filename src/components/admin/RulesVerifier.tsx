@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -255,6 +256,19 @@ export const RulesVerifier = () => {
           throw error;
         }
         
+        // Ensure the data was actually saved by fetching the updated record
+        const { data: updatedChapter, error: fetchError } = await supabase
+          .from('rules_chapters')
+          .select('*')
+          .eq('id', editingItem.id)
+          .single();
+          
+        if (fetchError) {
+          console.error("Error fetching updated chapter:", fetchError);
+        } else {
+          console.log("Verification - updated chapter data:", updatedChapter);
+        }
+        
         // Log success with detailed information
         console.log(`Successfully updated chapter ${editingItem.id} with Spanish title:`, {
           title: editingItem.title,
@@ -284,6 +298,19 @@ export const RulesVerifier = () => {
         if (error) {
           console.error("Update error:", error);
           throw error;
+        }
+        
+        // Verify the update was successful
+        const { data: updatedSection, error: fetchError } = await supabase
+          .from('rules_sections')
+          .select('*')
+          .eq('id', editingItem.id)
+          .single();
+          
+        if (fetchError) {
+          console.error("Error fetching updated section:", fetchError);
+        } else {
+          console.log("Verification - updated section data:", updatedSection);
         }
         
         // Update local state with enhanced translationComplete calculation
