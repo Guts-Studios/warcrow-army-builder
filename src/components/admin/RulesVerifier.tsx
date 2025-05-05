@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -252,11 +253,15 @@ export const RulesVerifier = () => {
           title_es: editingItem.title_es
         });
         
+        // FIXED: Using upsert instead of update to ensure the record is created if it doesn't exist
         const { data, error } = await supabase
           .from('rules_chapters')
-          .update({ title_es: editingItem.title_es })
-          .eq('id', editingItem.id)
-          .select();  // Add select() to return the updated data
+          .upsert({ 
+            id: editingItem.id,
+            title_es: editingItem.title_es,
+            updated_at: new Date().toISOString()  // Force update timestamp
+          })
+          .select();
           
         if (error) {
           console.error("Update error:", error);
@@ -265,7 +270,7 @@ export const RulesVerifier = () => {
         
         console.log("Update response data:", data);
         
-        // Double-check the update
+        // Double-check the update with a separate query
         const { data: verifyData, error: verifyError } = await supabase
           .from('rules_chapters')
           .select('*')
@@ -276,7 +281,7 @@ export const RulesVerifier = () => {
           console.error("Verification error:", verifyError);
         } else {
           console.log("Verified database state after update:", verifyData);
-          // Force immediate update of local state with the verified data
+          // Update local state with the verified data
           setChapters(prevChapters => 
             prevChapters.map(chapter => 
               chapter.id === editingItem.id ? 
@@ -288,9 +293,15 @@ export const RulesVerifier = () => {
                 chapter
             )
           );
+          
+          if (!verifyData.title_es) {
+            console.warn("WARNING: title_es is still null after update!");
+            toast.error("Database update failed - please try again");
+          } else {
+            console.log("SUCCESS: title_es was updated to:", verifyData.title_es);
+            toast.success('Chapter translation updated successfully');
+          }
         }
-        
-        toast.success('Chapter translation updated successfully');
       } else {
         // Section updates
         console.log("Sending update to database for section:", {
@@ -299,14 +310,16 @@ export const RulesVerifier = () => {
           content_es: editingItem.content_es?.substring(0, 50) + "..." // Log preview of content
         });
         
+        // FIXED: Using upsert instead of update to ensure the record is created if it doesn't exist
         const { data, error } = await supabase
           .from('rules_sections')
-          .update({ 
+          .upsert({ 
+            id: editingItem.id,
             title_es: editingItem.title_es,
-            content_es: editingItem.content_es
+            content_es: editingItem.content_es,
+            updated_at: new Date().toISOString()  // Force update timestamp
           })
-          .eq('id', editingItem.id)
-          .select(); // Add select() to return the updated data
+          .select();
           
         if (error) {
           console.error("Update error:", error);
@@ -315,7 +328,7 @@ export const RulesVerifier = () => {
         
         console.log("Update response data:", data);
         
-        // Double-check the update
+        // Double-check the update with a separate query
         const { data: verifyData, error: verifyError } = await supabase
           .from('rules_sections')
           .select('*')
@@ -326,7 +339,7 @@ export const RulesVerifier = () => {
           console.error("Verification error:", verifyError);
         } else {
           console.log("Verified database state after update:", verifyData);
-          // Force immediate update of local state with the verified data
+          // Update local state with the verified data
           setSections(prevSections => 
             prevSections.map(section => 
               section.id === editingItem.id ? 
@@ -339,9 +352,15 @@ export const RulesVerifier = () => {
                 section
             )
           );
+          
+          if (!verifyData.title_es) {
+            console.warn("WARNING: title_es is still null after update!");
+            toast.error("Database update failed - please try again");
+          } else {
+            console.log("SUCCESS: title_es was updated to:", verifyData.title_es);
+            toast.success('Section translation updated successfully');
+          }
         }
-        
-        toast.success('Section translation updated successfully');
       }
       
       // Close the dialog after successful save

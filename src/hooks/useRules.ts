@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -158,6 +159,6 @@ export const useRules = () => {
       return typedChapters;
     },
     refetchOnWindowFocus: false,
-    staleTime: 5 * 1000, // 5 seconds - reduced to make updates appear faster
+    staleTime: 0, // Reduced to 0 seconds to ensure fresh data on every query
   });
 };
