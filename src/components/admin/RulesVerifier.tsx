@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
@@ -59,6 +59,7 @@ export const RulesVerifier = () => {
   } | null>(null);
   const [translationEditDialogOpen, setTranslationEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [saveInProgress, setSaveInProgress] = useState(false);
   
   const fetchRulesData = async () => {
     setIsLoading(true);
@@ -166,15 +167,30 @@ export const RulesVerifier = () => {
   const saveTranslation = async () => {
     if (!editingItem) return;
 
-    setIsLoading(true);
+    setSaveInProgress(true);
     try {
+      console.log("Saving translation:", editingItem);
+      
       if (editingItem.type === 'chapter') {
         const { error } = await supabase
           .from('rules_chapters')
           .update({ title_es: editingItem.title_es })
           .eq('id', editingItem.id);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
+        
+        // Also update local state for immediate UI feedback
+        setChapters(prevChapters => 
+          prevChapters.map(chapter => 
+            chapter.id === editingItem.id ? 
+              {...chapter, title_es: editingItem.title_es} : 
+              chapter
+          )
+        );
+        
         toast.success('Chapter translation updated successfully');
       } else {
         const { error } = await supabase
@@ -185,18 +201,31 @@ export const RulesVerifier = () => {
           })
           .eq('id', editingItem.id);
           
-        if (error) throw error;
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
+        
+        // Update local state
+        setSections(prevSections => 
+          prevSections.map(section => 
+            section.id === editingItem.id ? 
+              {...section, title_es: editingItem.title_es, content_es: editingItem.content_es} : 
+              section
+          )
+        );
+        
         toast.success('Section translation updated successfully');
       }
       
-      // Refresh data
-      fetchRulesData();
+      // Refresh data to ensure all UI is up to date
+      await fetchRulesData();
       setTranslationEditDialogOpen(false);
     } catch (error: any) {
       console.error('Error updating translation:', error);
       toast.error(`Failed to update translation: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setSaveInProgress(false);
     }
   };
 
@@ -648,6 +677,9 @@ export const RulesVerifier = () => {
               <Languages className="h-5 w-5 mr-2" />
               {editingItem?.type === 'chapter' ? 'Edit Chapter Translation' : 'Edit Section Translation'}
             </DialogTitle>
+            <DialogDescription className="text-warcrow-text/60">
+              Update the translations for this {editingItem?.type}. Changes will be saved to the database.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 mt-2">
@@ -700,8 +732,12 @@ export const RulesVerifier = () => {
             <Button variant="outline" onClick={() => setTranslationEditDialogOpen(false)} className="border-warcrow-gold/30">
               Cancel
             </Button>
-            <Button onClick={saveTranslation} disabled={isLoading} className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90">
-              {isLoading ? (
+            <Button 
+              onClick={saveTranslation} 
+              disabled={saveInProgress} 
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+            >
+              {saveInProgress ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
