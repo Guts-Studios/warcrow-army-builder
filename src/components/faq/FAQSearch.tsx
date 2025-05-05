@@ -32,7 +32,7 @@ export const FAQSearch: React.FC<FAQSearchProps> = ({
         <div className="mt-2 text-sm text-warcrow-gold/70">
           {resultsCount === 0 
             ? t('noResults')
-            : `${resultsCount} ${resultsCount === 1 ? 'result' : 'results'} found`
+            : `${resultsCount} ${resultsCount === 1 ? t('result') : t('results')} ${t('found')}`
           }
         </div>
       )}

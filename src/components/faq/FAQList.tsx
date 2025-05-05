@@ -10,13 +10,19 @@ interface FAQListProps {
 export const FAQList: React.FC<FAQListProps> = ({ items }) => {
   return (
     <div className="mt-6 space-y-6">
-      {items.map((item) => (
-        <FAQItem 
-          key={item.id} 
-          section={item.section} 
-          content={item.content} 
-        />
-      ))}
+      {items.length === 0 ? (
+        <div className="text-center py-8 text-warcrow-gold/60">
+          No FAQ items found
+        </div>
+      ) : (
+        items.map((item) => (
+          <FAQItem 
+            key={item.id} 
+            section={item.section} 
+            content={item.content} 
+          />
+        ))
+      )}
     </div>
   );
 };

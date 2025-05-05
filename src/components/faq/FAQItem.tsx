@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FAQItemProps {
   section: string;
@@ -9,6 +10,7 @@ interface FAQItemProps {
 
 export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useLanguage();
   
   const toggleExpand = () => setIsExpanded(!isExpanded);
   
@@ -56,7 +58,7 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
           onClick={toggleExpand}
           className="mt-2 text-sm text-warcrow-gold/70 hover:text-warcrow-gold transition-colors"
         >
-          Read more
+          {t('faq_read_more') || "Read more"}
         </button>
       )}
     </div>

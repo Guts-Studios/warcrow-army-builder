@@ -71,7 +71,7 @@ const FAQ = () => {
           
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-pulse text-warcrow-gold">Loading...</div>
+              <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
             </div>
           ) : error ? (
             <div className="text-center py-8 text-red-500">
