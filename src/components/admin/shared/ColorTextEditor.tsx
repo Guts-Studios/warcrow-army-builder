@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bold, Italic, Underline, Highlighter, ColorPicker } from 'lucide-react';
+import { Bold, Italic, Underline, Highlighter, PaintBucket } from 'lucide-react';
 
 interface ColorTextEditorProps {
   value: string;
@@ -153,7 +153,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
               className="h-8 w-8 p-0 text-warcrow-text"
               title="Text Color"
             >
-              <ColorPicker className="h-4 w-4" />
+              <PaintBucket className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-0">
