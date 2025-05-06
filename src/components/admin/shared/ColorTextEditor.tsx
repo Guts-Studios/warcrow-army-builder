@@ -98,7 +98,8 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    applyFormatting('color');
+    // After setting the color, we need to apply it to the selected text
+    setTimeout(() => applyFormatting('color'), 0);
   };
 
   return (
