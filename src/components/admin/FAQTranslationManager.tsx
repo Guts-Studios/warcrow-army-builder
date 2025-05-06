@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,14 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Languages, RefreshCw, Check, AlertTriangle, Edit, X, CheckCircle } from 'lucide-react';
+import { Languages, RefreshCw, Check, AlertTriangle, Edit, X, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ColorTextEditor } from './shared/ColorTextEditor';
+import { FormattedTextPreview } from './shared/FormattedTextPreview';
 
 const FAQTranslationManager: React.FC = () => {
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
@@ -35,6 +35,7 @@ const FAQTranslationManager: React.FC = () => {
   } | null>(null);
   const [translationEditDialogOpen, setTranslationEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
     loadFAQItems();
@@ -161,6 +162,10 @@ const FAQTranslationManager: React.FC = () => {
   };
 
   const stats = getTranslationStatusSummary();
+
+  const togglePreviewMode = () => {
+    setPreviewMode(previewMode === 'edit' ? 'preview' : 'edit');
+  };
 
   if (loading && faqItems.length === 0) {
     return (
@@ -457,10 +462,28 @@ const FAQTranslationManager: React.FC = () => {
       <Dialog open={translationEditDialogOpen} onOpenChange={setTranslationEditDialogOpen}>
         <DialogContent className="bg-black border border-warcrow-gold/40 text-warcrow-text max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="text-warcrow-gold flex items-center">
-              <Languages className="h-5 w-5 mr-2" />
-              Edit FAQ Content
-            </DialogTitle>
+            <div className="flex justify-between items-center">
+              <DialogTitle className="text-warcrow-gold flex items-center">
+                <Languages className="h-5 w-5 mr-2" />
+                Edit FAQ Content
+              </DialogTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={togglePreviewMode}
+                className="flex items-center gap-1 text-xs border-warcrow-gold/30"
+              >
+                {previewMode === 'edit' ? (
+                  <>
+                    <Eye className="h-3.5 w-3.5" /> Preview
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="h-3.5 w-3.5" /> Edit Mode
+                  </>
+                )}
+              </Button>
+            </div>
           </DialogHeader>
           
           <div className="space-y-2 mt-2">
@@ -488,23 +511,37 @@ const FAQTranslationManager: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-warcrow-gold/80 text-sm mb-2">English Content</h3>
-                <Textarea 
-                  value={editingItem?.content || ''} 
-                  onChange={(e) => setEditingItem(prev => prev ? {...prev, content: e.target.value} : null)}
-                  placeholder="Enter English content..."
-                  rows={8}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold h-[240px]"
-                />
+                {previewMode === 'edit' ? (
+                  <ColorTextEditor 
+                    value={editingItem?.content || ''} 
+                    onChange={(value) => setEditingItem(prev => prev ? {...prev, content: value} : null)}
+                    placeholder="Enter English content..."
+                    rows={8}
+                    className="h-[240px]"
+                  />
+                ) : (
+                  <FormattedTextPreview 
+                    content={editingItem?.content || ''}
+                    className="h-[240px] overflow-y-auto"
+                  />
+                )}
               </div>
               <div>
                 <h3 className="text-warcrow-gold/80 text-sm mb-2">Spanish Content</h3>
-                <Textarea 
-                  value={editingItem?.content_es || ''} 
-                  onChange={(e) => setEditingItem(prev => prev ? {...prev, content_es: e.target.value} : null)}
-                  placeholder="Enter Spanish content..."
-                  rows={8}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold h-[240px]"
-                />
+                {previewMode === 'edit' ? (
+                  <ColorTextEditor 
+                    value={editingItem?.content_es || ''} 
+                    onChange={(value) => setEditingItem(prev => prev ? {...prev, content_es: value} : null)}
+                    placeholder="Enter Spanish content..."
+                    rows={8}
+                    className="h-[240px]"
+                  />
+                ) : (
+                  <FormattedTextPreview 
+                    content={editingItem?.content_es || ''}
+                    className="h-[240px] overflow-y-auto"
+                  />
+                )}
               </div>
             </div>
           </div>
