@@ -41,6 +41,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedColor, setSelectedColor] = useState<string>('inherit');
+  const [selectionInfo, setSelectionInfo] = useState<{ text: string, start: number, end: number } | null>(null);
 
   const getSelectedText = (): { text: string, start: number, end: number } => {
     if (!textareaRef.current) return { text: '', start: 0, end: 0 };
@@ -52,10 +53,18 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
     return { text, start, end };
   };
 
+  const saveSelectionInfo = () => {
+    const selection = getSelectedText();
+    if (selection.text) {
+      setSelectionInfo(selection);
+    }
+  };
+
   const applyFormatting = (format: string) => {
     if (!textareaRef.current) return;
     
-    const { text, start, end } = getSelectedText();
+    // Use the stored selection if available, otherwise get current selection
+    const { text, start, end } = selectionInfo || getSelectedText();
     if (!text) return;
     
     let formattedText = '';
@@ -92,14 +101,18 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
       if (textareaRef.current) {
         textareaRef.current.focus();
         textareaRef.current.setSelectionRange(start, start + formattedText.length);
+        setSelectionInfo(null); // Clear stored selection after applying
       }
     }, 0);
   };
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    // After setting the color, we need to apply it to the selected text
-    setTimeout(() => applyFormatting('color'), 0);
+    
+    // If we have stored selection info, apply the color immediately
+    if (selectionInfo && selectionInfo.text) {
+      setTimeout(() => applyFormatting('color'), 0);
+    }
   };
 
   return (
@@ -153,6 +166,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
               size="sm"
               className="h-8 w-8 p-0 text-warcrow-text"
               title="Text Color"
+              onClick={saveSelectionInfo}
             >
               <PaintBucket className="h-4 w-4" />
             </Button>
