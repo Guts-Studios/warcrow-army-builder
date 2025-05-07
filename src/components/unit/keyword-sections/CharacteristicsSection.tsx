@@ -1,3 +1,4 @@
+
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -21,7 +22,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
      "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-     "Construct", "Undead", "Mounted"].includes(k.name)
+     "Construct", "Undead", "Mounted", "Cavalry"].includes(k.name)
   );
 
   if (characteristics.length === 0 && !highCommand) return null;

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
@@ -41,7 +42,7 @@ const UnitListSection = ({
           .filter(k => 
             ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
              "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-             "Construct", "Undead", "Mounted", "High Command"].includes(
+             "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(
                typeof k === 'string' ? k : k.name
              )
           )
@@ -58,7 +59,7 @@ const UnitListSection = ({
           .filter(k => 
             !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
               "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-              "Construct", "Undead", "Mounted", "High Command"].includes(
+              "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(
                 typeof k === 'string' ? k : k.name
               )
           )

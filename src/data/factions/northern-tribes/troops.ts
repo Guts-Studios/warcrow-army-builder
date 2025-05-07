@@ -1,3 +1,4 @@
+
 import { Unit } from "../../../types/army";
 
 export const northernTribesTroops: Unit[] = [
@@ -88,9 +89,9 @@ export const northernTribesTroops: Unit[] = [
     availability: 2,
     command: 0,
     keywords: [
-      { name: "Calvary", description: "Calvary unit type" },
+      { name: "Cavalry", description: "Cavalry unit type" },
       { name: "Orc", description: "Northern Tribes Race" },  
-       { name: "Bloodlust", description: "Has Bloodlust" },
+      { name: "Bloodlust", description: "Has Bloodlust" },
       { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
       { name: "Raging", description: "Has Raging" }
     ],

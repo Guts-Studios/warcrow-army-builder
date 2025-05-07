@@ -1,3 +1,4 @@
+
 export const characteristicDefinitions: { [key: string]: string } = {
   "Human": "Members of the human race, the most numerous and adaptable species.",
   "Infantry": "Ground-based troops that form the backbone of most armies.",
@@ -15,5 +16,6 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Construct": "An artificial being or mechanical creation.",
   "Undead": "Reanimated beings or spirits from beyond the grave.",
   "Mounted": "Units that ride upon mounts such as horses or other creatures.",
-  "Calvary": "Units that ride upon mounts such as horses or other creatures."
+  "Cavalry": "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield."
 };
+

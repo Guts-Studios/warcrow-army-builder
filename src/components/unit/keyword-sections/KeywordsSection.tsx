@@ -21,7 +21,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
       "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-      "Construct", "Undead", "Mounted", "High Command"].includes(k.name)
+      "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(k.name)
   );
 
   if (filteredKeywords.length === 0) return null;
