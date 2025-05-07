@@ -12,6 +12,7 @@ export const useRulesVerifier = () => {
   const [translationEditDialogOpen, setTranslationEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [saveInProgress, setSaveInProgress] = useState(false);
+  const [verificationLanguage, setVerificationLanguage] = useState<'en' | 'es' | 'fr'>('en');
   
   const fetchRulesData = async () => {
     setIsLoading(true);
@@ -413,6 +414,24 @@ export const useRulesVerifier = () => {
 
   const stats = getTranslationStatusSummary();
 
+  const getLocalizedContent = (item: any) => {
+    if (verificationLanguage === 'es') {
+      return {
+        title: item.title_es || item.title,
+        content: item.content_es || item.content,
+      };
+    } else if (verificationLanguage === 'fr') {
+      return {
+        title: item.title_fr || item.title,
+        content: item.content_fr || item.content,
+      };
+    }
+    return {
+      title: item.title,
+      content: item.content,
+    };
+  };
+
   return {
     chapters,
     sections,
@@ -433,6 +452,9 @@ export const useRulesVerifier = () => {
     handleEditTranslation,
     saveTranslation,
     runVerification,
-    translateItem // Add this line
+    translateItem,
+    verificationLanguage,
+    setVerificationLanguage,
+    getLocalizedContent
   };
 };

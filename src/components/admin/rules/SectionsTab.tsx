@@ -12,6 +12,7 @@ interface SectionsTabProps {
   filteredSections: SectionData[];
   chapters: ChapterData[];
   handleEditTranslation: (item: SectionData, type: 'chapter' | 'section') => void;
+  verificationLanguage: 'en' | 'es' | 'fr';
 }
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({
@@ -19,6 +20,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
   filteredSections,
   chapters,
   handleEditTranslation,
+  verificationLanguage
 }) => {
   if (isLoading) {
     return (
@@ -56,7 +58,9 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
             <TableRow className="border-warcrow-gold/20">
               <TableHead className="text-warcrow-gold/80">Chapter</TableHead>
               <TableHead className="text-warcrow-gold/80">Section Title (EN)</TableHead>
-              <TableHead className="text-warcrow-gold/80">Spanish Title</TableHead>
+              <TableHead className="text-warcrow-gold/80">
+                {verificationLanguage === 'es' ? 'Spanish Title' : verificationLanguage === 'fr' ? 'French Title' : 'English Title'}
+              </TableHead>
               <TableHead className="text-warcrow-gold/80">Content</TableHead>
               <TableHead className="text-warcrow-gold/80">Status</TableHead>
               <TableHead className="text-warcrow-gold/80">Actions</TableHead>
@@ -66,15 +70,32 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
             {sortedSections.length > 0 ? (
               sortedSections.map((section) => {
                 const chapterTitle = chapters.find(c => c.id === section.chapter_id)?.title || 'Unknown';
+                
+                // Get the appropriate title and content based on verification language
+                const translatedTitle = verificationLanguage === 'es' 
+                  ? section.title_es 
+                  : verificationLanguage === 'fr' 
+                    ? section.title_fr 
+                    : null;
+                
+                const translatedContent = verificationLanguage === 'es' 
+                  ? section.content_es 
+                  : verificationLanguage === 'fr' 
+                    ? section.content_fr 
+                    : null;
+                
+                const hasTranslatedTitle = translatedTitle !== null && translatedTitle !== undefined;
+                const hasTranslatedContent = translatedContent !== null && translatedContent !== undefined;
+                
                 return (
                   <TableRow key={section.id} className="border-warcrow-gold/20">
                     <TableCell className="text-warcrow-text/80">{chapterTitle}</TableCell>
                     <TableCell className="font-medium text-warcrow-gold">{section.title}</TableCell>
-                    <TableCell className={`${section.title_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
-                      {section.title_es || "Missing translation"}
+                    <TableCell className={`${hasTranslatedTitle ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                      {hasTranslatedTitle ? translatedTitle : "Missing translation"}
                     </TableCell>
                     <TableCell>
-                      {section.content_es ? (
+                      {hasTranslatedContent ? (
                         <Badge className="bg-green-600">Translated</Badge>
                       ) : (
                         <Badge className="bg-red-600">Missing</Badge>

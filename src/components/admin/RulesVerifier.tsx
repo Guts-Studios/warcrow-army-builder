@@ -14,6 +14,7 @@ import { TranslationsTab } from './rules/TranslationsTab';
 import { VerifyTab } from './rules/VerifyTab';
 import { TranslationEditDialog } from './rules/TranslationEditDialog';
 import { useRulesVerifier } from './rules/useRulesVerifier';
+import { LanguageVerificationPanel } from './rules/LanguageVerificationPanel';
 
 export const RulesVerifier = () => {
   const {
@@ -34,7 +35,9 @@ export const RulesVerifier = () => {
     fetchRulesData,
     handleEditTranslation,
     saveTranslation,
-    runVerification
+    runVerification,
+    verificationLanguage,
+    setVerificationLanguage,
   } = useRulesVerifier();
 
   const [activeTab, setActiveTab] = useState<'chapters' | 'sections' | 'translations' | 'verify'>('chapters');
@@ -71,6 +74,12 @@ export const RulesVerifier = () => {
           </div>
         </div>
 
+        {/* Add Language Verification Panel */}
+        <LanguageVerificationPanel 
+          currentLanguage={verificationLanguage}
+          onLanguageChange={setVerificationLanguage}
+        />
+
         <div className="mb-4">
           <Input
             placeholder="Search rules content..."
@@ -103,6 +112,7 @@ export const RulesVerifier = () => {
               isLoading={isLoading}
               filteredChapters={filteredChapters}
               handleEditTranslation={handleEditTranslation}
+              verificationLanguage={verificationLanguage}
             />
           </TabsContent>
 
@@ -112,6 +122,7 @@ export const RulesVerifier = () => {
               filteredSections={filteredSections}
               chapters={chapters}
               handleEditTranslation={handleEditTranslation}
+              verificationLanguage={verificationLanguage}
             />
           </TabsContent>
 
@@ -141,7 +152,7 @@ export const RulesVerifier = () => {
           </p>
           <p className="flex items-center">
             <Languages className="h-4 w-4 mr-2" />
-            Special hardcoded translations ensure critical content is always properly localized
+            View translations in English, Spanish, or French to verify content
           </p>
         </div>
       </div>
