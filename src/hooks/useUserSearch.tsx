@@ -59,15 +59,23 @@ export const useUserSearch = () => {
             setSearchResults(userProfile ? [userProfile] : []);
             return;
           }
-        } catch (emailSearchError) {
-          console.error("Email search error:", emailSearchError);
+        } catch (emailSearchError: unknown) {
+          if (emailSearchError instanceof Error) {
+            console.error("Email search error:", emailSearchError.message);
+          } else {
+            console.error("Email search error:", emailSearchError);
+          }
           // If this fails, just return profile data
         }
       }
       
       setSearchResults(profileData || []);
-    } catch (error) {
-      console.error("Error searching users:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error searching users:", error.message);
+      } else {
+        console.error("Error searching users:", error);
+      }
       setSearchResults([]);
     } finally {
       setIsSearching(false);

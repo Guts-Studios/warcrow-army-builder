@@ -353,8 +353,10 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banned: boolean | null
           bio: string | null
           created_at: string
+          deactivated: boolean | null
           favorite_faction: string | null
           games_lost: number | null
           games_won: number | null
@@ -373,8 +375,10 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banned?: boolean | null
           bio?: string | null
           created_at?: string
+          deactivated?: boolean | null
           favorite_faction?: string | null
           games_lost?: number | null
           games_won?: number | null
@@ -393,8 +397,10 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banned?: boolean | null
           bio?: string | null
           created_at?: string
+          deactivated?: boolean | null
           favorite_faction?: string | null
           games_lost?: number | null
           games_won?: number | null
