@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Languages } from "lucide-react";
 import { EditingItem } from './types';
 import { ColorTextEditor } from "../shared/ColorTextEditor";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TranslationEditDialogProps {
   open: boolean;
