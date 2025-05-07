@@ -36,7 +36,7 @@ export const useUserSearch = () => {
       // If no results found, try to search by email
       if ((!profileData || profileData.length === 0) && query.includes('@')) {
         try {
-          // Use the function to get user by email - this requires admin privileges
+          // Use the function to get user by email
           const { data: emailData, error: emailError } = await supabase
             .rpc('get_user_email', { user_id: query });
             
@@ -47,17 +47,33 @@ export const useUserSearch = () => {
             return;
           }
           
-          if (emailData && typeof emailData === 'object' && 'email' in emailData) {
-            // Get the profile for this user
-            const { data: userProfile } = await supabase
-              .from("profiles")
-              .select("id, username, wab_id, avatar_url, banned, deactivated")
-              .eq("id", emailData.email)
-              .limit(1)
+          if (emailData) {
+            // We need to modify this part to correctly handle the email search
+            // First, use auth.users to find the user with this email
+            const { data: authUserData, error: authUserError } = await supabase
+              .from("auth.users")
+              .select("id")
+              .eq("email", query)
               .single();
-              
-            setSearchResults(userProfile ? [userProfile] : []);
-            return;
+
+            if (authUserError) {
+              console.error("Auth user search error:", authUserError);
+              setSearchResults(profileData || []);
+              return;
+            }
+
+            if (authUserData) {
+              // Then get the profile for this user
+              const { data: userProfile } = await supabase
+                .from("profiles")
+                .select("id, username, wab_id, avatar_url, banned, deactivated")
+                .eq("id", authUserData.id)
+                .limit(1)
+                .single();
+                
+              setSearchResults(userProfile ? [userProfile] : []);
+              return;
+            }
           }
         } catch (emailSearchError: unknown) {
           if (emailSearchError instanceof Error) {
@@ -66,6 +82,26 @@ export const useUserSearch = () => {
             console.error("Email search error:", emailSearchError);
           }
           // If this fails, just return profile data
+        }
+
+        // As a fallback, try to directly query profiles that might match the email pattern
+        try {
+          const { data: emailProfileData, error: emailProfileError } = await supabase
+            .from("profiles")
+            .select("id, username, wab_id, avatar_url, banned, deactivated")
+            .eq("id", query)
+            .limit(10);
+          
+          if (!emailProfileError && emailProfileData && emailProfileData.length > 0) {
+            setSearchResults(emailProfileData);
+            return;
+          }
+        } catch (directSearchError: unknown) {
+          if (directSearchError instanceof Error) {
+            console.error("Direct email search error:", directSearchError.message);
+          } else {
+            console.error("Direct email search error:", directSearchError);
+          }
         }
       }
       
