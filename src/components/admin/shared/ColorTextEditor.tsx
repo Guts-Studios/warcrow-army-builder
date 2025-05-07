@@ -42,6 +42,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedColor, setSelectedColor] = useState<string>('inherit');
   const [selectionInfo, setSelectionInfo] = useState<{ text: string, start: number, end: number } | null>(null);
+  const [activeFormatting, setActiveFormatting] = useState<string[]>([]);
 
   const getSelectedText = (): { text: string, start: number, end: number } => {
     if (!textareaRef.current) return { text: '', start: 0, end: 0 };
@@ -72,21 +73,26 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
     switch (format) {
       case 'bold':
         formattedText = `<strong>${text}</strong>`;
+        setActiveFormatting(prev => [...prev, 'bold']);
         break;
       case 'italic':
         formattedText = `<em>${text}</em>`;
+        setActiveFormatting(prev => [...prev, 'italic']);
         break;
       case 'underline':
         formattedText = `<u>${text}</u>`;
+        setActiveFormatting(prev => [...prev, 'underline']);
         break;
       case 'highlight':
         formattedText = `<mark>${text}</mark>`;
+        setActiveFormatting(prev => [...prev, 'highlight']);
         break;
       case 'color':
         if (selectedColor === 'inherit') {
           formattedText = text; // Remove color formatting
         } else {
           formattedText = `<span style="color:${selectedColor}">${text}</span>`;
+          setActiveFormatting(prev => [...prev, 'color']);
         }
         break;
       default:
@@ -115,6 +121,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
     }
   };
 
+  const isFormatActive = (format: string): boolean => {
+    return activeFormatting.includes(format);
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center space-x-1 p-1 bg-black/30 rounded border border-warcrow-gold/20">
@@ -122,7 +132,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-warcrow-text"
+          className={`h-8 w-8 p-0 ${isFormatActive('bold') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
           onClick={() => applyFormatting('bold')}
           title="Bold"
         >
@@ -132,7 +142,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-warcrow-text"
+          className={`h-8 w-8 p-0 ${isFormatActive('italic') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
           onClick={() => applyFormatting('italic')}
           title="Italic"
         >
@@ -142,7 +152,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-warcrow-text"
+          className={`h-8 w-8 p-0 ${isFormatActive('underline') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
           onClick={() => applyFormatting('underline')}
           title="Underline"
         >
@@ -152,7 +162,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 text-warcrow-text"
+          className={`h-8 w-8 p-0 ${isFormatActive('highlight') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
           onClick={() => applyFormatting('highlight')}
           title="Highlight"
         >
@@ -164,14 +174,14 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-warcrow-text"
+              className={`h-8 w-8 p-0 ${isFormatActive('color') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
               title="Text Color"
               onClick={saveSelectionInfo}
             >
               <PaintBucket className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-0">
+          <PopoverContent className="w-64 p-0 bg-black border border-warcrow-gold/30">
             <ScrollArea className="h-[200px]">
               <div className="p-2 grid grid-cols-3 gap-1">
                 {colorOptions.map((option) => (
@@ -189,7 +199,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
                     />
                     <span 
                       className="text-xs" 
-                      style={{ color: option.color === 'inherit' ? 'inherit' : option.color }}
+                      style={{ color: option.color === 'inherit' ? 'white' : option.color }}
                     >
                       {option.name}
                     </span>
@@ -207,7 +217,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className={`w-full border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold rounded-md p-2 ${className}`}
+        className={`w-full border border-warcrow-gold/30 bg-black text-white focus:border-warcrow-gold rounded-md p-2 ${className}`}
+        style={{
+          caretColor: 'white', // Make cursor visible
+        }}
       />
     </div>
   );

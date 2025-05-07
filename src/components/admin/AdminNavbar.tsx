@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Database, Home, MessageSquare, Users, Languages } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 interface AdminNavbarProps {
   activeTab: string;
@@ -10,12 +11,14 @@ interface AdminNavbarProps {
 }
 
 const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="border-b border-warcrow-gold/30 pb-2">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-warcrow-gold mb-4">Admin Dashboard</h1>
         <Button 
-          onClick={() => window.open('/', '_blank')}
+          onClick={() => navigate('/')}
           variant="outline"
           className="text-warcrow-gold border-warcrow-gold/30"
         >
