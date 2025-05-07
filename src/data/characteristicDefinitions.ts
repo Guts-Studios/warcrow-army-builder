@@ -15,4 +15,5 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Construct": "An artificial being or mechanical creation.",
   "Undead": "Reanimated beings or spirits from beyond the grave.",
   "Mounted": "Units that ride upon mounts such as horses or other creatures."
+  "Calvary": "Units that ride upon mounts such as horses or other creatures."
 };
