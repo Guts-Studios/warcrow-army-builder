@@ -1,4 +1,6 @@
+
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * This function takes a keyword or special rule string and returns the translated version
@@ -95,4 +97,64 @@ export const useTranslateKeyword = () => {
   };
   
   return { translateKeyword, translateSpecialRule, translateUnitName };
+};
+
+/**
+ * Batch translation utility for handling mass translations
+ * This can be used to translate multiple items at once and optionally save to database
+ */
+export const batchTranslate = async (
+  items: Array<{id: string, key: string, source: string}>,
+  targetLanguage: string,
+  saveToDatabase: boolean = false,
+  tableName: string = ''
+): Promise<Array<{id: string, key: string, source: string, translation: string}>> => {
+  try {
+    // For now, we're providing a manual batch translation approach
+    // A more advanced version could use a translation API
+
+    const results = items.map(item => ({
+      ...item,
+      translation: `[${targetLanguage}] ${item.source}` // Placeholder translation
+    }));
+
+    if (saveToDatabase && tableName) {
+      // Example of how you could save these to a database
+      // This would need to be customized based on your schema
+      for (const item of results) {
+        const columnName = `${targetLanguage}_content`;
+        
+        // Update the record with the translation
+        const { error } = await supabase
+          .from(tableName)
+          .update({ [columnName]: item.translation })
+          .eq('id', item.id);
+          
+        if (error) {
+          console.error(`Error updating translation for ${item.id}:`, error);
+        }
+      }
+    }
+    
+    return results;
+  } catch (error) {
+    console.error("Error in batch translation:", error);
+    return items.map(item => ({...item, translation: ''}));
+  }
+};
+
+/**
+ * Utility to find missing translations in the translations object
+ */
+export const findMissingTranslations = (translations: any, targetLanguage: string = 'es'): string[] => {
+  const missingKeys: string[] = [];
+  
+  Object.entries(translations).forEach(([key, value]: [string, any]) => {
+    // If the value doesn't have the target language or it's empty
+    if (!value[targetLanguage] || value[targetLanguage].trim() === '') {
+      missingKeys.push(key);
+    }
+  });
+  
+  return missingKeys;
 };

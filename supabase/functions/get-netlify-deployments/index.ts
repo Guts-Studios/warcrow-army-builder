@@ -24,6 +24,23 @@ async function createBuildFailureNotification(deploy: any) {
   try {
     console.log("Creating build failure notification for:", deploy.id);
     
+    // Check if this notification already exists to avoid duplicates
+    const { data: existingNotifications, error: checkError } = await supabase
+      .from('notifications')
+      .select('id')
+      .eq('type', 'build_failure')
+      .eq('content->deploy_id', deploy.id);
+    
+    if (checkError) {
+      console.error("Error checking for existing notifications:", checkError);
+    }
+    
+    // If notification already exists for this deploy, don't create another
+    if (existingNotifications && existingNotifications.length > 0) {
+      console.log(`Notification already exists for deploy ${deploy.id}, skipping`);
+      return;
+    }
+    
     // Get all admin users
     const { data: adminProfiles, error: adminsError } = await supabase
       .from('profiles')
@@ -142,26 +159,26 @@ serve(async (req) => {
       latestSuccessfulBuildTime = new Date(latestSuccessfulBuild.created_at);
     }
 
+    // Find the latest failed build
+    const latestFailedBuild = deploymentsData.find((deploy: any) => deploy.state === 'error');
+    const latestBuild = deploymentsData[0]; // First one should be the latest build due to sorting
+    
+    // Check if the latest build is a failure
+    const isLatestBuildFailed = latestBuild && latestBuild.state === 'error';
+    
     // Check for failed deployments and create notifications
-    const failedDeployments = deploymentsData.filter((deploy: any) => deploy.state === 'error');
-    for (const failedDeploy of failedDeployments) {
-      // Only create notifications for recent failures (last 30 minutes) 
-      // AND if they're newer than the latest successful build
-      const deployTime = new Date(failedDeploy.created_at).getTime();
-      const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-      
-      // Check if this failed build is newer than our last successful build
-      const isNewerThanLastSuccess = latestSuccessfulBuildTime 
-        ? deployTime > latestSuccessfulBuildTime.getTime() 
-        : true;
-      
-      if (deployTime > thirtyMinutesAgo && isNewerThanLastSuccess) {
-        console.log("Recent build failure detected:", failedDeploy.id);
-        await createBuildFailureNotification(failedDeploy);
-      }
+    if (isLatestBuildFailed) {
+      // If the latest build is a failure, create a notification
+      await createBuildFailureNotification(latestBuild);
+    } else {
+      // If the latest isn't a failure, we don't need to check further since builds are sorted by date
+      console.log("Latest build is successful, no need to create failure notifications");
     }
 
-    return new Response(JSON.stringify({ deployments }), {
+    return new Response(JSON.stringify({ 
+      deployments,
+      isLatestBuildFailed
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

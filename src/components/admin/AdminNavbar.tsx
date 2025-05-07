@@ -70,7 +70,7 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
               className="border-warcrow-gold/30 text-warcrow-gold mb-2"
             >
               <Languages className="h-4 w-4 mr-2" />
-              Translations
+              Content Management
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-black border border-warcrow-gold/30">

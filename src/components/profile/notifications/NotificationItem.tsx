@@ -37,7 +37,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
             {isBuildFailure && (
               <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
             )}
-            <span className={isBuildFailure ? "font-medium" : ""}>
+            <span className={isBuildFailure ? "font-medium text-red-400" : ""}>
               {formatNotificationContent(notification)}
             </span>
           </div>
