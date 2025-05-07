@@ -1,32 +1,38 @@
 
 import React from 'react';
-import AdminDashboard from './dashboard/AdminDashboard';
-import NewsManager from './NewsManager';
-import { RulesVerifier } from './RulesVerifier';
-import FAQTranslationManager from './FAQTranslationManager';
-import UserManagement from './UserManagement';
+import { AdminDashboard } from './dashboard/AdminDashboard';
+import { RulesVerifier } from '../admin/RulesVerifier';
+import { FAQTranslationManager } from './FAQTranslationManager';
+import { UserManagement } from './UserManagement';
+import { NewsManager } from './NewsManager';
+import { DeepLTest } from './rules/DeepLTest';
 
 interface AdminTabContentProps {
   activeTab: string;
 }
 
-const AdminTabContent = ({ activeTab }: AdminTabContentProps) => {
-  // Enhanced logging to debug tab switching
-  console.log("AdminTabContent rendering with activeTab:", activeTab);
-  
-  switch (activeTab) {
-    case 'news':
-      return <NewsManager />;
-    case 'rules':
-      return <RulesVerifier />;
-    case 'faq':
-      return <FAQTranslationManager />;
-    case 'users':
-      return <UserManagement />;
-    case 'dashboard':
-    default:
-      return <AdminDashboard />;
-  }
+const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
+  return (
+    <div className="mt-6">
+      {activeTab === 'dashboard' && <AdminDashboard />}
+      {activeTab === 'rules' && <RulesVerifier />}
+      {activeTab === 'faq' && <FAQTranslationManager />}
+      {activeTab === 'users' && <UserManagement />}
+      {activeTab === 'news' && <NewsManager />}
+      {activeTab === 'translations' && (
+        <div className="space-y-6">
+          <DeepLTest />
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Translation Tools</h2>
+            <p className="text-warcrow-text/80">
+              These tools help you manage translations for the entire application. 
+              You can test the DeepL API integration above, and also verify the Rules and FAQ translations.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default AdminTabContent;

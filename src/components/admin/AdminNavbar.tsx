@@ -1,97 +1,51 @@
 
 import React from 'react';
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Languages, BookOpen, Users } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Database, Home, MessageSquare, Users, Languages } from "lucide-react";
 
 interface AdminNavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
-  const navigate = useNavigate();
-
+const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) => {
   return (
-    <>
-      <div className="flex items-center mb-4">
+    <div className="border-b border-warcrow-gold/30 pb-2">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">Admin Dashboard</h1>
         <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={() => navigate('/')}
-          className="mr-4 border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+          onClick={() => window.open('/', '_blank')}
+          variant="outline"
+          className="text-warcrow-gold border-warcrow-gold/30"
         >
-          <ArrowLeft className="h-4 w-4" />
+          Back to Site
         </Button>
-        <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
       </div>
       
-      <div className="flex flex-wrap space-x-2 mb-6 border-b border-warcrow-gold/20 pb-2">
-        <Button
-          variant={activeTab === 'dashboard' ? 'default' : 'outline'}
-          className={activeTab === 'dashboard' 
-            ? "bg-warcrow-gold text-black mb-2" 
-            : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          Dashboard
-        </Button>
-        <Button
-          variant={activeTab === 'users' ? 'default' : 'outline'}
-          className={activeTab === 'users' 
-            ? "bg-warcrow-gold text-black mb-2" 
-            : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
-          onClick={() => setActiveTab('users')}
-        >
-          <Users className="h-4 w-4 mr-2" />
-          User Management
-        </Button>
-        <Button
-          variant={activeTab === 'news' ? 'default' : 'outline'}
-          className={activeTab === 'news' 
-            ? "bg-warcrow-gold text-black mb-2" 
-            : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
-          onClick={() => setActiveTab('news')}
-        >
-          <FileText className="h-4 w-4 mr-2" />
-          News Management
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="border-warcrow-gold/30 text-warcrow-gold mb-2"
-            >
-              <Languages className="h-4 w-4 mr-2" />
-              Content Management
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-black border border-warcrow-gold/30">
-            <DropdownMenuItem 
-              className="text-warcrow-gold hover:bg-warcrow-gold/10 cursor-pointer"
-              onClick={() => setActiveTab('rules')}
-            >
-              <Languages className="h-4 w-4 mr-2" />
-              Rules Translations
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="text-warcrow-gold hover:bg-warcrow-gold/10 cursor-pointer"
-              onClick={() => setActiveTab('faq')}
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              FAQ Translations
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-6 bg-black border border-warcrow-gold/30">
+          <TabsTrigger value="dashboard" className={activeTab === 'dashboard' ? "bg-warcrow-gold text-black" : ""}>
+            <Home className="h-4 w-4 mr-2" /> Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="rules" className={activeTab === 'rules' ? "bg-warcrow-gold text-black" : ""}>
+            <BookOpen className="h-4 w-4 mr-2" /> Rules
+          </TabsTrigger>
+          <TabsTrigger value="faq" className={activeTab === 'faq' ? "bg-warcrow-gold text-black" : ""}>
+            <MessageSquare className="h-4 w-4 mr-2" /> FAQ
+          </TabsTrigger>
+          <TabsTrigger value="users" className={activeTab === 'users' ? "bg-warcrow-gold text-black" : ""}>
+            <Users className="h-4 w-4 mr-2" /> Users
+          </TabsTrigger>
+          <TabsTrigger value="news" className={activeTab === 'news' ? "bg-warcrow-gold text-black" : ""}>
+            <Database className="h-4 w-4 mr-2" /> News
+          </TabsTrigger>
+          <TabsTrigger value="translations" className={activeTab === 'translations' ? "bg-warcrow-gold text-black" : ""}>
+            <Languages className="h-4 w-4 mr-2" /> Translations
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
   );
 };
 
