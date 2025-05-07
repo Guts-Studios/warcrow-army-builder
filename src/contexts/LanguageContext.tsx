@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { translations } from '@/i18n/translations';
 import { TranslationsType } from '@/i18n/types';
 
-type Language = 'en' | 'es';
+type Language = 'en' | 'es' | 'fr';
 
 type LanguageContextType = {
   language: Language;
@@ -17,7 +17,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Check if there's a saved language preference
   const getSavedLanguage = (): Language => {
     const savedLanguage = localStorage.getItem('language');
-    return (savedLanguage === 'en' || savedLanguage === 'es') ? savedLanguage as Language : 'en';
+    return (savedLanguage === 'en' || savedLanguage === 'es' || savedLanguage === 'fr') 
+      ? savedLanguage as Language 
+      : 'en';
   };
 
   const [language, setLanguage] = useState<Language>(getSavedLanguage());
@@ -32,7 +34,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       console.warn(`Translation key not found: ${key}`);
       return key;
     }
-    return translations[key][language];
+    return translations[key][language] || translations[key]['en']; // Fallback to English
   };
 
   return (

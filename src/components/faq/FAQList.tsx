@@ -23,13 +23,13 @@ export const FAQList: React.FC<FAQListProps> = ({ items }) => {
           let sectionText = item.section;
           let contentText = item.content;
           
-          if (language === 'es') {
-            if (item.section_es) sectionText = item.section_es;
-            if (item.content_es) contentText = item.content_es;
+          if (language === 'es' && item.section_es && item.content_es) {
+            sectionText = item.section_es;
+            contentText = item.content_es;
           }
-          else if (language === 'fr') {
-            if (item.section_fr) sectionText = item.section_fr;
-            if (item.content_fr) contentText = item.content_fr;
+          else if (language === 'fr' && item.section_fr && item.content_fr) {
+            sectionText = item.section_fr;
+            contentText = item.content_fr;
           }
           
           return (

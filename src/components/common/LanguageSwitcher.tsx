@@ -17,7 +17,7 @@ const LanguageSwitcher = () => {
       <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 transition-colors">
         <Globe className="h-4 w-4" />
         <span className="text-sm font-medium">
-          {language === 'en' ? 'English' : 'Español'}
+          {language === 'en' ? 'English' : language === 'es' ? 'Español' : 'Français'}
         </span>
         <ChevronDown className="h-3 w-3 opacity-70" />
       </DropdownMenuTrigger>
@@ -35,6 +35,13 @@ const LanguageSwitcher = () => {
         >
           Español
           {language === 'es' && <span className="h-1.5 w-1.5 rounded-full bg-warcrow-gold"></span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className={`flex justify-between items-center ${language === 'fr' ? 'text-warcrow-gold' : ''} hover:bg-warcrow-gold/10 focus:bg-warcrow-gold/10`}
+          onClick={() => setLanguage('fr')}
+        >
+          Français
+          {language === 'fr' && <span className="h-1.5 w-1.5 rounded-full bg-warcrow-gold"></span>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
