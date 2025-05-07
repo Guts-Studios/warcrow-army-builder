@@ -90,11 +90,11 @@ export const northernTribesTroops: Unit[] = [
     keywords: [
       { name: "Calvary", description: "Calvary unit type" },
       { name: "Orc", description: "Northern Tribes Race" },  
-       { name: "BLoodlust", description: "Has Bloodlust" },
+       { name: "Bloodlust", description: "Has Bloodlust" },
       { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
       { name: "Raging", description: "Has Raging" }
     ],
-    specialRules: ["Vulnerable"],
+    specialRules: ["Vulnerable", "Repeat a die"],
     highCommand: false,
     imageUrl: "/art/card/warg_riders_card.jpg"
   }
