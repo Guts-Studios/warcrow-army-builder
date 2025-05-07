@@ -66,7 +66,7 @@ const Rules = () => {
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={activeTab === "rules" ? t('rulesTitle') : t('frequently_asked_questions')}>
+      <PageHeader title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')}>
         <LanguageSwitcher />
       </PageHeader>
       <div className="container max-w-7xl mx-auto py-4 px-4">
@@ -83,7 +83,7 @@ const Rules = () => {
                 value="faq"
                 className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
               >
-                {t('frequently_asked_questions')}
+                {t('faqTitle')}
               </TabsTrigger>
             </TabsList>
             

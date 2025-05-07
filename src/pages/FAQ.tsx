@@ -123,7 +123,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={t('frequently_asked_questions') || "FAQ V 1.2.1"}>
+      <PageHeader title={t('faqTitle')}>
         <div className="flex items-center space-x-2">
           <Button 
             variant="outline" 
