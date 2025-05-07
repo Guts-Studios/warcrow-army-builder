@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Languages, BookOpen } from "lucide-react";
+import { ArrowLeft, FileText, Languages, BookOpen, Users } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -41,6 +41,16 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
           onClick={() => setActiveTab('dashboard')}
         >
           Dashboard
+        </Button>
+        <Button
+          variant={activeTab === 'users' ? 'default' : 'outline'}
+          className={activeTab === 'users' 
+            ? "bg-warcrow-gold text-black mb-2" 
+            : "border-warcrow-gold/30 text-warcrow-gold mb-2"}
+          onClick={() => setActiveTab('users')}
+        >
+          <Users className="h-4 w-4 mr-2" />
+          User Management
         </Button>
         <Button
           variant={activeTab === 'news' ? 'default' : 'outline'}

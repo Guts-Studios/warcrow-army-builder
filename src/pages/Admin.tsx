@@ -1,16 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminTabContent from "@/components/admin/AdminTabContent";
 
+interface LocationState {
+  initialTab?: string;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isWabAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const locationState = location.state as LocationState | null;
+  const [activeTab, setActiveTab] = useState(locationState?.initialTab || 'dashboard');
 
   React.useEffect(() => {
     // Redirect non-admin users who directly access this URL
@@ -18,7 +24,12 @@ const Admin = () => {
       toast.error("You don't have permission to access this page");
       navigate('/');
     }
-  }, [isWabAdmin, navigate]);
+    
+    // Set active tab if provided in location state
+    if (locationState?.initialTab) {
+      setActiveTab(locationState.initialTab);
+    }
+  }, [isWabAdmin, navigate, locationState]);
 
   return (
     <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>

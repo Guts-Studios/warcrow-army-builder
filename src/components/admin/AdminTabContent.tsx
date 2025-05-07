@@ -4,6 +4,7 @@ import AdminDashboard from './dashboard/AdminDashboard';
 import NewsManager from './NewsManager';
 import { RulesVerifier } from './RulesVerifier';
 import FAQTranslationManager from './FAQTranslationManager';
+import UserManagement from './UserManagement';
 
 interface AdminTabContentProps {
   activeTab: string;
@@ -20,6 +21,8 @@ const AdminTabContent = ({ activeTab }: AdminTabContentProps) => {
       return <RulesVerifier />;
     case 'faq':
       return <FAQTranslationManager />;
+    case 'users':
+      return <UserManagement />;
     case 'dashboard':
     default:
       return <AdminDashboard />;
