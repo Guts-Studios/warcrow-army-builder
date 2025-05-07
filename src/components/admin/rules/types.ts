@@ -3,6 +3,7 @@ export type ChapterData = {
   id: string;
   title: string;
   title_es: string | null;
+  title_fr?: string | null;
   order_index: number;
   sectionCount: number;
   translationComplete: boolean;
@@ -13,9 +14,11 @@ export type SectionData = {
   chapter_id: string;
   title: string;
   title_es: string | null;
-  content_es: string | null;
+  title_fr?: string | null;
   order_index: number;
   content: string;
+  content_es: string | null;
+  content_fr?: string | null;
   mission_details?: string | null;
   translationComplete: boolean;
 };
@@ -34,8 +37,10 @@ export type EditingItem = {
   type: 'chapter' | 'section';
   title: string;
   title_es: string;
+  title_fr?: string;
   content?: string;
   content_es?: string;
+  content_fr?: string;
 };
 
 export type TranslationStatusSummary = {
