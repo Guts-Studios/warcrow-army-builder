@@ -107,7 +107,7 @@ export const batchTranslate = async (
   items: Array<{id: string, key: string, source: string}>,
   targetLanguage: string,
   saveToDatabase: boolean = false,
-  tableName: string = ''
+  tableType: 'rules_chapters' | 'rules_sections' | 'faq_sections' = 'rules_sections'
 ): Promise<Array<{id: string, key: string, source: string, translation: string}>> => {
   try {
     // For now, we're providing a manual batch translation approach
@@ -118,15 +118,15 @@ export const batchTranslate = async (
       translation: `[${targetLanguage}] ${item.source}` // Placeholder translation
     }));
 
-    if (saveToDatabase && tableName) {
+    if (saveToDatabase && tableType) {
       // Example of how you could save these to a database
       // This would need to be customized based on your schema
       for (const item of results) {
         const columnName = `${targetLanguage}_content`;
         
-        // Update the record with the translation
+        // Update the record with the translation using the correct table type
         const { error } = await supabase
-          .from(tableName)
+          .from(tableType)
           .update({ [columnName]: item.translation })
           .eq('id', item.id);
           
