@@ -1,20 +1,29 @@
 
 import React from 'react';
-import { AdminDashboard } from './dashboard/AdminDashboard';
+import AdminDashboard from './dashboard/AdminDashboard';
 import { RulesVerifier } from '../admin/RulesVerifier';
-import { FAQTranslationManager } from './FAQTranslationManager';
-import { UserManagement } from './UserManagement';
+import FAQTranslationManager from './FAQTranslationManager';
+import UserManagement from './UserManagement';
 import { NewsManager } from './NewsManager';
 import { DeepLTest } from './rules/DeepLTest';
+import ApiStatus from './ApiStatus';
 
 interface AdminTabContentProps {
   activeTab: string;
 }
 
 const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
+  // Add console logging to help with debugging
+  console.log('AdminTabContent rendering with activeTab:', activeTab);
+  
   return (
     <div className="mt-6">
-      {activeTab === 'dashboard' && <AdminDashboard />}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-6">
+          <AdminDashboard />
+          <ApiStatus />
+        </div>
+      )}
       {activeTab === 'rules' && <RulesVerifier />}
       {activeTab === 'faq' && <FAQTranslationManager />}
       {activeTab === 'users' && <UserManagement />}
