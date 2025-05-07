@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ReloadIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon } from "lucide-react";
+import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -57,7 +57,7 @@ const ApiStatus: React.FC = () => {
       }
       
       return {
-        status: data && data.translations ? 'operational' : 'degraded',
+        status: data && data.translations ? 'operational' as ApiStatus : 'degraded' as ApiStatus,
         latency
       };
     } catch (error) {
@@ -82,7 +82,7 @@ const ApiStatus: React.FC = () => {
       }
       
       return {
-        status: 'operational',
+        status: 'operational' as ApiStatus,
         latency
       };
     } catch (error) {
@@ -107,7 +107,7 @@ const ApiStatus: React.FC = () => {
       }
       
       return {
-        status: 'operational',
+        status: 'operational' as ApiStatus,
         latency
       };
     } catch (error) {
@@ -196,7 +196,7 @@ const ApiStatus: React.FC = () => {
             disabled={isLoading}
             className="border-warcrow-gold/30 text-warcrow-gold"
           >
-            {isLoading ? <ReloadIcon className="h-4 w-4 mr-2 animate-spin" /> : <ReloadIcon className="h-4 w-4 mr-2" />}
+            {isLoading ? <LoaderIcon className="h-4 w-4 mr-2 animate-spin" /> : <LoaderIcon className="h-4 w-4 mr-2" />}
             Refresh
           </Button>
         </div>
