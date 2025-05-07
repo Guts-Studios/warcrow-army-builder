@@ -22,10 +22,10 @@ interface HeaderProps {
   latestVersion: string;
   userCount: number | null;
   isLoadingUserCount: boolean;
-  buildFailures?: any[];
+  latestFailedBuild?: any; // Changed from buildFailures to latestFailedBuild
 }
 
-export const Header = ({ latestVersion, userCount, isLoadingUserCount, buildFailures = [] }: HeaderProps) => {
+export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFailedBuild }: HeaderProps) => {
   const { t } = useLanguage();
   const { isWabAdmin } = useAuth();
   const todaysDate = format(new Date(), 'MM/dd/yy');
@@ -104,43 +104,24 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, buildFail
         )}
       </p>
       
-      {/* Admin-only Build Failure Alert in Header */}
-      {isWabAdmin && buildFailures.length > 0 && (
+      {/* Admin-only Build Failure Alert - Only shown if latest build failed AND user is admin */}
+      {isWabAdmin && latestFailedBuild && (
         <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
           <AlertTriangle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-200">
-            {buildFailures.length === 1 ? '1 Build Failed' : `${buildFailures.length} Builds Failed`}
+            Latest Build Failed
           </AlertTitle>
           <AlertDescription className="text-red-300 mt-1">
-            {buildFailures.slice(0, 1).map(failure => {
-              const content = typeof failure.content === 'string' 
-                ? JSON.parse(failure.content) 
-                : failure.content;
-                
-              return (
-                <div key={failure.id} className="mb-2">
-                  <p className="mb-1">{content.site_name} ({content.branch})</p>
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-blue-300 hover:text-blue-200"
-                    onClick={() => handleViewDeployment(content.deploy_url)}
-                  >
-                    View details
-                  </Button>
-                </div>
-              );
-            })}
-            {buildFailures.length > 1 && (
-              <p className="text-sm">
-                <Button 
-                  variant="link" 
-                  className="p-0 h-auto text-blue-300 hover:text-blue-200"
-                  onClick={() => window.location.href = '/deployment-management'}
-                >
-                  View all failed builds
-                </Button>
-              </p>
-            )}
+            <div className="mb-2">
+              <p className="mb-1">{latestFailedBuild.site_name} ({latestFailedBuild.branch})</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                onClick={() => handleViewDeployment(latestFailedBuild.deploy_url)}
+              >
+                View deployment details
+              </Button>
+            </div>
           </AlertDescription>
         </Alert>
       )}

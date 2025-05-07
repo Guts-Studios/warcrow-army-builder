@@ -111,28 +111,31 @@ const Landing = () => {
     enabled: !isGuest,
   });
 
-  // Fetch build failures if user is admin
+  // Only fetch build status if user is admin
   useEffect(() => {
-    const fetchBuildFailures = async () => {
+    const fetchBuildStatus = async () => {
       if (isWabAdmin) {
+        // Get build failure notifications for the notification system
         const { notifications, error } = await getBuildFailureNotifications();
         if (!error && notifications.length > 0) {
           setBuildFailures(notifications);
         }
         
-        // Check latest build status
+        // Check if the latest build specifically has failed
         const latestFailure = await checkLatestBuildStatus();
         console.log('checkLatestBuildStatus returned:', latestFailure);
         setLatestFailedBuild(latestFailure);
       }
     };
     
-    fetchBuildFailures();
+    fetchBuildStatus();
     
-    // Set up a refresh interval
-    const intervalId = setInterval(fetchBuildFailures, 120000); // Refresh every 2 minutes
+    // Set up a refresh interval only if user is admin
+    const intervalId = isWabAdmin ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
     
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [isWabAdmin]);
 
   useEffect(() => {
@@ -149,20 +152,14 @@ const Landing = () => {
     navigate('/login');
   };
 
-  const handleViewDeployment = (deployUrl: string) => {
-    if (deployUrl) {
-      window.open(deployUrl, '_blank');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="absolute top-4 right-4 z-50">
         <LanguageSwitcher />
       </div>
       
-      {/* Latest Build Failure Alert - only shown if the latest build failed */}
-      {latestFailedBuild && (
+      {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin */}
+      {isWabAdmin && latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
             <AlertTriangle className="h-5 w-5 text-red-300" />
@@ -173,7 +170,7 @@ const Landing = () => {
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-blue-300 hover:text-blue-200"
-                  onClick={() => handleViewDeployment(latestFailedBuild.deploy_url)}
+                  onClick={() => latestFailedBuild && window.open(latestFailedBuild.deploy_url, '_blank')}
                 >
                   View deployment details
                 </Button>
@@ -188,7 +185,7 @@ const Landing = () => {
           latestVersion={latestVersion} 
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
-          buildFailures={isWabAdmin ? buildFailures : []}
+          latestFailedBuild={latestFailedBuild}
         />
         <MainActions />
         <SecondaryActions isGuest={isGuest} onSignOut={handleSignOut} />
