@@ -3,17 +3,29 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Shield, Users } from "lucide-react";
+import { Shield, Users, Search, Trash2, Ban } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { updateUserWabAdminStatus, getWabAdmins } from "@/utils/email/adminManagement";
 import { WabAdmin } from "@/utils/email/types";
+import { useUserSearch } from "@/hooks/useUserSearch";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 const UserManagement = () => {
   const [adminList, setAdminList] = useState<WabAdmin[]>([]);
   const [userId, setUserId] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBanning, setIsBanning] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    searchResults, 
+    isSearching, 
+    searchUsers 
+  } = useUserSearch();
 
   useEffect(() => {
     // Fetch admin list when component mounts
@@ -49,6 +61,114 @@ const UserManagement = () => {
     }
   };
 
+  const handleSearch = () => {
+    if (searchQuery.trim().length >= 2) {
+      searchUsers(searchQuery);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleBanUser = async (userId: string, username: string | null) => {
+    if (!userId) return;
+
+    try {
+      setIsBanning(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to perform this action");
+        return;
+      }
+
+      // Check if user is admin
+      const { data: isAdmin, error: adminCheckError } = await supabase.rpc(
+        'is_wab_admin',
+        { user_id: session.user.id }
+      );
+
+      if (adminCheckError || !isAdmin) {
+        toast.error("You don't have permission to ban users");
+        return;
+      }
+
+      // Update profile to set banned status
+      const { error } = await supabase
+        .from('profiles')
+        .update({ banned: true })
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success(`User ${username || userId} has been banned`);
+      // Refresh search results
+      if (searchQuery) searchUsers(searchQuery);
+    } catch (error: any) {
+      console.error("Failed to ban user:", error);
+      toast.error(`Failed to ban user: ${error.message}`);
+    } finally {
+      setIsBanning(false);
+    }
+  };
+
+  const handleRemoveUser = async (userId: string, username: string | null) => {
+    if (!userId) return;
+
+    if (!confirm(`Are you sure you want to remove user ${username || userId}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setIsRemoving(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to perform this action");
+        return;
+      }
+
+      // Check if user is admin
+      const { data: isAdmin, error: adminCheckError } = await supabase.rpc(
+        'is_wab_admin',
+        { user_id: session.user.id }
+      );
+
+      if (adminCheckError || !isAdmin) {
+        toast.error("You don't have permission to remove users");
+        return;
+      }
+
+      // Delete user auth data - this requires the use of an admin function
+      // For safety, we're just disabling the account in the profile
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          deactivated: true,
+          username: `REMOVED_${Date.now()}_${username || ''}`.substring(0, 50),
+          bio: null,
+          avatar_url: null
+        })
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success(`User ${username || userId} has been removed`);
+      // Refresh search results
+      if (searchQuery) searchUsers(searchQuery);
+    } catch (error: any) {
+      console.error("Failed to remove user:", error);
+      toast.error(`Failed to remove user: ${error.message}`);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
   return (
     <>
       <div className="mb-6">
@@ -60,6 +180,103 @@ const UserManagement = () => {
           Manage user permissions and admin status across the platform.
         </p>
       </div>
+
+      {/* User Search Section */}
+      <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black mb-6">
+        <h2 className="text-lg font-semibold mb-4 text-warcrow-gold flex items-center">
+          <Search className="h-5 w-5 mr-2" />
+          Find Users
+        </h2>
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+            <Input
+              type="text"
+              placeholder="Search by email, username, or WAB ID"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-1 border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold focus:outline-none"
+            />
+            <Button 
+              onClick={handleSearch}
+              className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50"
+              disabled={isSearching}
+            >
+              {isSearching ? 'Searching...' : 'Search'}
+            </Button>
+          </div>
+          
+          {searchResults.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-warcrow-gold/20">
+                  <TableHead className="text-warcrow-gold/80">Username</TableHead>
+                  <TableHead className="text-warcrow-gold/80">WAB ID</TableHead>
+                  <TableHead className="text-warcrow-gold/80">User ID</TableHead>
+                  <TableHead className="text-warcrow-gold/80">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {searchResults.map((user) => (
+                  <TableRow key={user.id} className="border-warcrow-gold/20">
+                    <TableCell className="font-medium text-warcrow-gold">
+                      {user.username || 'No username'}
+                    </TableCell>
+                    <TableCell className="text-warcrow-muted">
+                      {user.wab_id || 'No WAB ID'}
+                    </TableCell>
+                    <TableCell className="text-warcrow-muted truncate max-w-[120px]">
+                      {user.id}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            setUserId(user.id);
+                            setIsAdmin(true);
+                          }}
+                          className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30"
+                        >
+                          <Shield className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleBanUser(user.id, user.username)}
+                          className="border-red-500/30 bg-black text-red-500 hover:bg-red-900/20"
+                          disabled={isBanning}
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleRemoveUser(user.id, user.username)}
+                          className="border-red-700/30 bg-black text-red-700 hover:bg-red-900/20"
+                          disabled={isRemoving}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+
+          {searchQuery && searchResults.length === 0 && !isSearching && (
+            <Alert className="bg-black border border-warcrow-gold/20 text-warcrow-gold">
+              <AlertTitle>No users found</AlertTitle>
+              <AlertDescription>
+                No users match your search criteria. Try a different search term.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      </Card>
 
       {/* Admin User Management Section */}
       <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black mb-6">

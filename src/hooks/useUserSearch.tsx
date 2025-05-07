@@ -7,6 +7,8 @@ interface SearchResult {
   username: string | null;
   wab_id: string | null;
   avatar_url: string | null;
+  banned?: boolean;
+  deactivated?: boolean;
 }
 
 export const useUserSearch = () => {
@@ -22,16 +24,48 @@ export const useUserSearch = () => {
 
     setIsSearching(true);
     try {
-      // Search by WAB ID or username
-      const { data, error } = await supabase
+      // First try to search by WAB ID or username
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("id, username, wab_id, avatar_url")
+        .select("id, username, wab_id, avatar_url, banned, deactivated")
         .or(`wab_id.ilike.%${query}%,username.ilike.%${query}%`)
         .limit(10);
       
-      if (error) throw error;
+      if (profileError) throw profileError;
       
-      setSearchResults(data || []);
+      // If no results found, try to search by email
+      if ((!profileData || profileData.length === 0) && query.includes('@')) {
+        try {
+          // Use the function to get user by email - this requires admin privileges
+          const { data: emailData, error: emailError } = await supabase
+            .rpc('get_user_by_email', { email_query: query });
+            
+          if (emailError) {
+            console.error("Email search error:", emailError);
+            // If this fails, just return profile data (which might be empty)
+            setSearchResults(profileData || []);
+            return;
+          }
+          
+          if (emailData && emailData.id) {
+            // Get the profile for this user
+            const { data: userProfile } = await supabase
+              .from("profiles")
+              .select("id, username, wab_id, avatar_url, banned, deactivated")
+              .eq("id", emailData.id)
+              .limit(1)
+              .single();
+              
+            setSearchResults(userProfile ? [userProfile] : []);
+            return;
+          }
+        } catch (emailSearchError) {
+          console.error("Email search error:", emailSearchError);
+          // If this fails, just return profile data
+        }
+      }
+      
+      setSearchResults(profileData || []);
     } catch (error) {
       console.error("Error searching users:", error);
       setSearchResults([]);

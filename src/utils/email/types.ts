@@ -1,4 +1,3 @@
-
 export interface EmailOptions {
   fromEmail?: string;
   fromName?: string;
@@ -30,9 +29,18 @@ export interface AdminUpdateResult {
 
 export interface WabAdmin {
   id: string;
-  username: string;
-  wab_id?: string;
+  username: string | null;
+  wab_id: string | null;
   email: string;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string | null;
+  wab_id: string | null;
+  avatar_url: string | null;
+  banned?: boolean;
+  deactivated?: boolean;
 }
 
 // Define types for Supabase admin responses
