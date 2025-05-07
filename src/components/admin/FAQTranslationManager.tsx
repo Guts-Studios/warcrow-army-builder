@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,13 +14,14 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Languages, RefreshCw, Check, AlertTriangle, Edit, X, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { Languages, RefreshCw, Check, AlertTriangle, Edit, X, CheckCircle, Eye, EyeOff, Wand2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorTextEditor } from './shared/ColorTextEditor';
 import { FormattedTextPreview } from './shared/FormattedTextPreview';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const FAQTranslationManager: React.FC = () => {
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
@@ -30,12 +32,16 @@ const FAQTranslationManager: React.FC = () => {
     id: string;
     section: string;
     section_es: string;
+    section_fr?: string;
     content: string;
     content_es: string;
+    content_fr?: string;
   } | null>(null);
   const [translationEditDialogOpen, setTranslationEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
+  const [targetLanguage, setTargetLanguage] = useState<'es' | 'fr'>('es');
+  const [translationInProgress, setTranslationInProgress] = useState(false);
 
   useEffect(() => {
     loadFAQItems();
@@ -61,8 +67,10 @@ const FAQTranslationManager: React.FC = () => {
       id: item.id,
       section: item.section,
       section_es: item.section_es || '',
+      section_fr: item.section_fr || '',
       content: item.content,
       content_es: item.content_es || '',
+      content_fr: item.content_fr || '',
     });
     setTranslationEditDialogOpen(true);
   };
@@ -72,14 +80,25 @@ const FAQTranslationManager: React.FC = () => {
 
     setSaving(editingItem.id);
     try {
+      const updateData: any = {
+        section: editingItem.section,
+        content: editingItem.content,
+        section_es: editingItem.section_es,
+        content_es: editingItem.content_es,
+      };
+      
+      // Add French content if available
+      if (editingItem.section_fr) {
+        updateData.section_fr = editingItem.section_fr;
+      }
+      
+      if (editingItem.content_fr) {
+        updateData.content_fr = editingItem.content_fr;
+      }
+      
       const { error } = await supabase
         .from('faq_sections')
-        .update({
-          section: editingItem.section,
-          content: editingItem.content,
-          section_es: editingItem.section_es,
-          content_es: editingItem.content_es,
-        })
+        .update(updateData)
         .eq('id', editingItem.id);
 
       if (error) throw error;
@@ -95,6 +114,8 @@ const FAQTranslationManager: React.FC = () => {
               content: editingItem.content,
               section_es: editingItem.section_es,
               content_es: editingItem.content_es,
+              section_fr: editingItem.section_fr,
+              content_fr: editingItem.content_fr,
             } 
           : item
       ));
@@ -107,6 +128,77 @@ const FAQTranslationManager: React.FC = () => {
       setSaving(null);
     }
   };
+  
+  const translateContent = async () => {
+    if (!editingItem) return;
+    
+    try {
+      setTranslationInProgress(true);
+      
+      const textsToTranslate = [];
+      
+      // Add title to array of texts to translate
+      if (editingItem.section) {
+        textsToTranslate.push(editingItem.section);
+      }
+      
+      // Add content to array of texts to translate
+      if (editingItem.content) {
+        textsToTranslate.push(editingItem.content);
+      }
+      
+      if (textsToTranslate.length === 0) {
+        toast.error("No content to translate");
+        return;
+      }
+      
+      // Call the DeepL API via Supabase edge function
+      const { data, error } = await supabase.functions.invoke('deepl-translate', {
+        body: {
+          texts: textsToTranslate,
+          targetLanguage: targetLanguage.toUpperCase(),
+          formality: 'more'
+        }
+      });
+      
+      if (error) {
+        console.error('Translation error:', error);
+        toast.error(`Translation failed: ${error.message}`);
+        return;
+      }
+      
+      if (data && data.translations && data.translations.length > 0) {
+        // Update the editingItem with translated content
+        const updatedItem = { ...editingItem };
+        
+        // Set section translation
+        if (targetLanguage === 'es') {
+          updatedItem.section_es = data.translations[0];
+        } else if (targetLanguage === 'fr') {
+          updatedItem.section_fr = data.translations[0];
+        }
+        
+        // Set content translation if it exists
+        if (data.translations.length > 1) {
+          if (targetLanguage === 'es') {
+            updatedItem.content_es = data.translations[1];
+          } else if (targetLanguage === 'fr') {
+            updatedItem.content_fr = data.translations[1];
+          }
+        }
+        
+        setEditingItem(updatedItem);
+        toast.success(`Translation to ${targetLanguage === 'es' ? 'Spanish' : 'French'} completed`);
+      } else {
+        toast.error("No translation returned");
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error("Translation failed");
+    } finally {
+      setTranslationInProgress(false);
+    }
+  };
 
   const runVerification = async () => {
     setLoading(true);
@@ -115,7 +207,9 @@ const FAQTranslationManager: React.FC = () => {
       const verifiedItems = faqItems.map(item => ({
         ...item,
         has_spanish_section: Boolean(item.section_es && item.section_es.trim() !== ''),
-        has_spanish_content: Boolean(item.content_es && item.content_es.trim() !== '')
+        has_spanish_content: Boolean(item.content_es && item.content_es.trim() !== ''),
+        has_french_section: Boolean(item.section_fr && item.section_fr?.trim() !== ''),
+        has_french_content: Boolean(item.content_fr && item.content_fr?.trim() !== '')
       }));
       
       setFaqItems(verifiedItems);
@@ -130,7 +224,12 @@ const FAQTranslationManager: React.FC = () => {
   };
 
   const isItemComplete = (item: FAQItem) => {
-    return Boolean(item.section_es) && Boolean(item.content_es);
+    const hasSpanish = Boolean(item.section_es) && Boolean(item.content_es);
+    const hasFrench = Boolean(item.section_fr) && Boolean(item.content_fr);
+    
+    // Item is complete if it has at least Spanish translations
+    // (French is considered optional for now)
+    return hasSpanish;
   };
 
   const filteredItems = searchQuery
@@ -138,26 +237,36 @@ const FAQTranslationManager: React.FC = () => {
         item =>
           item.section.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (item.section_es && item.section_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.section_fr && item.section_fr.toLowerCase().includes(searchQuery.toLowerCase())) ||
           item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (item.content_es && item.content_es.toLowerCase().includes(searchQuery.toLowerCase()))
+          (item.content_es && item.content_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.content_fr && item.content_fr.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : faqItems;
 
   const missingTranslations = faqItems.filter(item => !isItemComplete(item));
 
   const getTranslationStatusSummary = () => {
-    const itemsWithSection = faqItems.filter(item => Boolean(item.section_es)).length;
-    const itemsWithContent = faqItems.filter(item => Boolean(item.content_es)).length;
+    const itemsWithSpanishSection = faqItems.filter(item => Boolean(item.section_es)).length;
+    const itemsWithSpanishContent = faqItems.filter(item => Boolean(item.content_es)).length;
+    const itemsWithFrenchSection = faqItems.filter(item => Boolean(item.section_fr)).length;
+    const itemsWithFrenchContent = faqItems.filter(item => Boolean(item.content_fr)).length;
     const total = faqItems.length;
     
     return {
       totalItems: total,
-      itemsWithSection,
-      itemsWithContent,
-      sectionCompletionRate: Math.round((itemsWithSection / total) * 100),
-      contentCompletionRate: Math.round((itemsWithContent / total) * 100),
-      completeItems: faqItems.filter(item => isItemComplete(item)).length,
-      completeRate: Math.round((faqItems.filter(item => isItemComplete(item)).length / total) * 100)
+      itemsWithSpanishSection,
+      itemsWithSpanishContent,
+      itemsWithFrenchSection,
+      itemsWithFrenchContent,
+      spanishSectionCompletionRate: Math.round((itemsWithSpanishSection / total) * 100),
+      spanishContentCompletionRate: Math.round((itemsWithSpanishContent / total) * 100),
+      frenchSectionCompletionRate: Math.round((itemsWithFrenchSection / total) * 100),
+      frenchContentCompletionRate: Math.round((itemsWithFrenchContent / total) * 100),
+      spanishCompleteItems: faqItems.filter(item => Boolean(item.section_es) && Boolean(item.content_es)).length,
+      frenchCompleteItems: faqItems.filter(item => Boolean(item.section_fr) && Boolean(item.content_fr)).length,
+      spanishCompleteRate: Math.round((faqItems.filter(item => Boolean(item.section_es) && Boolean(item.content_es)).length / total) * 100),
+      frenchCompleteRate: Math.round((faqItems.filter(item => Boolean(item.section_fr) && Boolean(item.content_fr)).length / total) * 100)
     };
   };
 
@@ -166,6 +275,50 @@ const FAQTranslationManager: React.FC = () => {
   const togglePreviewMode = () => {
     setPreviewMode(previewMode === 'edit' ? 'preview' : 'edit');
   };
+  
+  // Get current content based on selected language
+  const getCurrentLanguageContent = () => {
+    if (!editingItem) return { section: '', content: '' };
+    
+    if (targetLanguage === 'es') {
+      return {
+        section: editingItem.section_es || '',
+        content: editingItem.content_es || ''
+      };
+    } else if (targetLanguage === 'fr') {
+      return {
+        section: editingItem.section_fr || '',
+        content: editingItem.content_fr || ''
+      };
+    }
+    
+    return { section: '', content: '' };
+  };
+  
+  // Update content for the selected language
+  const updateLanguageContent = (field: 'section' | 'content', value: string) => {
+    if (!editingItem) return;
+    
+    const updatedItem = { ...editingItem };
+    
+    if (targetLanguage === 'es') {
+      if (field === 'section') {
+        updatedItem.section_es = value;
+      } else {
+        updatedItem.content_es = value;
+      }
+    } else if (targetLanguage === 'fr') {
+      if (field === 'section') {
+        updatedItem.section_fr = value;
+      } else {
+        updatedItem.content_fr = value;
+      }
+    }
+    
+    setEditingItem(updatedItem);
+  };
+  
+  const currentLanguageContent = getCurrentLanguageContent();
 
   if (loading && faqItems.length === 0) {
     return (
@@ -310,21 +463,21 @@ const FAQTranslationManager: React.FC = () => {
           <TabsContent value="translations">
             <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="p-4 border border-warcrow-gold/30 bg-black">
-                <h3 className="text-warcrow-gold font-medium mb-2">Section Translations</h3>
+                <h3 className="text-warcrow-gold font-medium mb-2">Spanish Section Translations</h3>
                 <p className="text-2xl font-bold text-warcrow-text">
-                  {stats.itemsWithSection}/{stats.totalItems}
+                  {stats.itemsWithSpanishSection}/{stats.totalItems}
                   <span className="text-sm ml-2 font-normal">
-                    ({stats.sectionCompletionRate}%)
+                    ({stats.spanishSectionCompletionRate}%)
                   </span>
                 </p>
               </Card>
               
               <Card className="p-4 border border-warcrow-gold/30 bg-black">
-                <h3 className="text-warcrow-gold font-medium mb-2">Content Translations</h3>
+                <h3 className="text-warcrow-gold font-medium mb-2">French Section Translations</h3>
                 <p className="text-2xl font-bold text-warcrow-text">
-                  {stats.itemsWithContent}/{stats.totalItems}
+                  {stats.itemsWithFrenchSection}/{stats.totalItems}
                   <span className="text-sm ml-2 font-normal">
-                    ({stats.contentCompletionRate}%)
+                    ({stats.frenchSectionCompletionRate}%)
                   </span>
                 </p>
               </Card>
@@ -332,10 +485,8 @@ const FAQTranslationManager: React.FC = () => {
               <Card className="p-4 border border-warcrow-gold/30 bg-black">
                 <h3 className="text-warcrow-gold font-medium mb-2">Complete Items</h3>
                 <p className="text-2xl font-bold text-warcrow-text">
-                  {stats.completeItems}/{stats.totalItems}
-                  <span className="text-sm ml-2 font-normal">
-                    ({stats.completeRate}%)
-                  </span>
+                  <span className="mr-4">ES: {stats.spanishCompleteItems} ({stats.spanishCompleteRate}%)</span>
+                  <span>FR: {stats.frenchCompleteItems} ({stats.frenchCompleteRate}%)</span>
                 </p>
               </Card>
             </div>
@@ -353,15 +504,21 @@ const FAQTranslationManager: React.FC = () => {
                       <div className="flex-1">
                         <p className="font-medium">{item.section}</p>
                         <p className="text-sm text-warcrow-text/60">
-                          {item.section_es ? 
-                            <span className="text-green-500">• Section translated</span> : 
-                            <span className="text-red-500">• Section missing</span>
-                          }
+                          <span className={item.section_es ? "text-green-500" : "text-red-500"}>
+                            • ES Section {item.section_es ? "✓" : "✗"}
+                          </span>
                           {' '}
-                          {item.content_es ? 
-                            <span className="text-green-500">• Content translated</span> : 
-                            <span className="text-red-500">• Content missing</span>
-                          }
+                          <span className={item.content_es ? "text-green-500" : "text-red-500"}>
+                            • ES Content {item.content_es ? "✓" : "✗"}
+                          </span>
+                          {' '}
+                          <span className={item.section_fr ? "text-green-500" : "text-red-500"}>
+                            • FR Section {item.section_fr ? "✓" : "✗"}
+                          </span>
+                          {' '}
+                          <span className={item.content_fr ? "text-green-500" : "text-red-500"}>
+                            • FR Content {item.content_fr ? "✓" : "✗"}
+                          </span>
                         </p>
                       </div>
                       {isItemComplete(item) ? (
@@ -453,7 +610,7 @@ const FAQTranslationManager: React.FC = () => {
           </p>
           <p className="flex items-center">
             <Languages className="h-4 w-4 mr-2 text-blue-400" /> 
-            Spanish translations can now be managed directly from this interface
+            Spanish and French translations can now be managed directly from this interface
           </p>
         </div>
       </div>
@@ -467,22 +624,24 @@ const FAQTranslationManager: React.FC = () => {
                 <Languages className="h-5 w-5 mr-2" />
                 Edit FAQ Content
               </DialogTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={togglePreviewMode}
-                className="flex items-center gap-1 text-xs border-warcrow-gold/30"
-              >
-                {previewMode === 'edit' ? (
-                  <>
-                    <Eye className="h-3.5 w-3.5" /> Preview
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="h-3.5 w-3.5" /> Edit Mode
-                  </>
-                )}
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={togglePreviewMode}
+                  className="flex items-center gap-1 text-xs border-warcrow-gold/30"
+                >
+                  {previewMode === 'edit' ? (
+                    <>
+                      <Eye className="h-3.5 w-3.5" /> Preview
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="h-3.5 w-3.5" /> Edit Mode
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </DialogHeader>
           
@@ -498,11 +657,38 @@ const FAQTranslationManager: React.FC = () => {
                 />
               </div>
               <div>
-                <h3 className="text-warcrow-gold/80 text-sm mb-2">Spanish Section</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-warcrow-gold/80 text-sm flex items-center gap-1">
+                    <Select value={targetLanguage} onValueChange={(value) => setTargetLanguage(value as 'es' | 'fr')}>
+                      <SelectTrigger className="w-[130px] h-6 border-warcrow-gold/30 text-sm bg-black">
+                        <Languages className="h-3.5 w-3.5 mr-1" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border border-warcrow-gold/30">
+                        <SelectItem value="es">Spanish</SelectItem>
+                        <SelectItem value="fr">French</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-warcrow-text/70 ml-2">Section</span>
+                  </h3>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={translateContent}
+                    disabled={translationInProgress}
+                    className="h-6 px-2 text-xs border-warcrow-gold/30 text-warcrow-gold"
+                  >
+                    {translationInProgress ? (
+                      <><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Translating...</>
+                    ) : (
+                      <><Wand2 className="h-3 w-3 mr-1" />Translate</>
+                    )}
+                  </Button>
+                </div>
                 <Input 
-                  value={editingItem?.section_es || ''} 
-                  onChange={(e) => setEditingItem(prev => prev ? {...prev, section_es: e.target.value} : null)}
-                  placeholder="Enter Spanish section title..."
+                  value={currentLanguageContent.section || ''} 
+                  onChange={(e) => updateLanguageContent('section', e.target.value)}
+                  placeholder={`Enter ${targetLanguage === 'es' ? 'Spanish' : 'French'} section title...`}
                   className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold"
                 />
               </div>
@@ -527,18 +713,20 @@ const FAQTranslationManager: React.FC = () => {
                 )}
               </div>
               <div>
-                <h3 className="text-warcrow-gold/80 text-sm mb-2">Spanish Content</h3>
+                <h3 className="text-warcrow-gold/80 text-sm mb-2">
+                  {targetLanguage === 'es' ? 'Spanish' : 'French'} Content
+                </h3>
                 {previewMode === 'edit' ? (
                   <ColorTextEditor 
-                    value={editingItem?.content_es || ''} 
-                    onChange={(value) => setEditingItem(prev => prev ? {...prev, content_es: value} : null)}
-                    placeholder="Enter Spanish content..."
+                    value={currentLanguageContent.content || ''} 
+                    onChange={(value) => updateLanguageContent('content', value)}
+                    placeholder={`Enter ${targetLanguage === 'es' ? 'Spanish' : 'French'} content...`}
                     rows={8}
                     className="h-[240px]"
                   />
                 ) : (
                   <FormattedTextPreview 
-                    content={editingItem?.content_es || ''}
+                    content={currentLanguageContent.content || ''}
                     className="h-[240px] overflow-y-auto"
                   />
                 )}

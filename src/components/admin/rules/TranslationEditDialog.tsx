@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { RefreshCw, Copy, CheckCircle, ClipboardCopy, Eye, EyeOff } from "lucide-react";
+import { RefreshCw, Copy, CheckCircle, ClipboardCopy, Eye, EyeOff, Languages, Wand2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { type EditingItem } from './types';
 import { ColorTextEditor } from '../shared/ColorTextEditor';
 import { FormattedTextPreview } from '../shared/FormattedTextPreview';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TranslationEditDialogProps {
   open: boolean;
@@ -38,7 +40,9 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
   const [titleCopied, setTitleCopied] = useState(false);
   const [contentCopied, setContentCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
-
+  const [translationInProgress, setTranslationInProgress] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState<'es' | 'fr'>('es');
+  
   if (!editingItem) return null;
 
   const copyToClipboard = async (text: string, type: 'title' | 'content') => {
@@ -60,6 +64,78 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
     }
   };
 
+  const translateContent = async () => {
+    if (!editingItem) return;
+    
+    try {
+      setTranslationInProgress(true);
+      
+      const textsToTranslate = [];
+      
+      // Add title to array of texts to translate
+      if (editingItem.title) {
+        textsToTranslate.push(editingItem.title);
+      }
+      
+      // Add content to array of texts to translate if it exists
+      if (editingItem.content) {
+        textsToTranslate.push(editingItem.content);
+      }
+      
+      if (textsToTranslate.length === 0) {
+        toast.error("No content to translate");
+        return;
+      }
+      
+      // Call the DeepL API via Supabase edge function
+      const { data, error } = await supabase.functions.invoke('deepl-translate', {
+        body: {
+          texts: textsToTranslate,
+          targetLanguage: targetLanguage.toUpperCase(),
+          formality: 'more'
+        }
+      });
+      
+      if (error) {
+        console.error('Translation error:', error);
+        toast.error(`Translation failed: ${error.message}`);
+        return;
+      }
+      
+      if (data && data.translations && data.translations.length > 0) {
+        // Update the editingItem with translated content
+        const updatedItem = { ...editingItem };
+        
+        // Set title translation
+        if (targetLanguage === 'es') {
+          updatedItem.title_es = data.translations[0];
+        } else if (targetLanguage === 'fr') {
+          // Adding support for French
+          updatedItem.title_fr = data.translations[0];
+        }
+        
+        // Set content translation if it exists
+        if (data.translations.length > 1 && editingItem.content) {
+          if (targetLanguage === 'es') {
+            updatedItem.content_es = data.translations[1];
+          } else if (targetLanguage === 'fr') {
+            updatedItem.content_fr = data.translations[1];
+          }
+        }
+        
+        setEditingItem(updatedItem);
+        toast.success(`Translation to ${targetLanguage === 'es' ? 'Spanish' : 'French'} completed`);
+      } else {
+        toast.error("No translation returned");
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error("Translation failed");
+    } finally {
+      setTranslationInProgress(false);
+    }
+  };
+
   // Calculate appropriate textarea height based on content type
   const getTextareaHeight = () => {
     if (editingItem.type === 'section' && editingItem.content) {
@@ -73,6 +149,52 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
   const togglePreviewMode = () => {
     setPreviewMode(previewMode === 'edit' ? 'preview' : 'edit');
   };
+  
+  // Function to get content based on selected language
+  const getLanguageContent = () => {
+    if (targetLanguage === 'es') {
+      return {
+        title: editingItem.title_es || '',
+        content: editingItem.content_es || ''
+      };
+    } else if (targetLanguage === 'fr') {
+      return {
+        title: editingItem.title_fr || '',
+        content: editingItem.content_fr || ''
+      };
+    }
+    
+    // Default fallback
+    return {
+      title: editingItem.title_es || '',
+      content: editingItem.content_es || ''
+    };
+  };
+  
+  // Function to update content based on selected language
+  const updateLanguageContent = (field: 'title' | 'content', value: string) => {
+    if (!editingItem) return;
+    
+    const updatedItem = { ...editingItem };
+    
+    if (targetLanguage === 'es') {
+      if (field === 'title') {
+        updatedItem.title_es = value;
+      } else {
+        updatedItem.content_es = value;
+      }
+    } else if (targetLanguage === 'fr') {
+      if (field === 'title') {
+        updatedItem.title_fr = value;
+      } else {
+        updatedItem.content_fr = value;
+      }
+    }
+    
+    setEditingItem(updatedItem);
+  };
+  
+  const languageContent = getLanguageContent();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,27 +204,29 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
             <DialogTitle>
               {editingItem.type === 'chapter' ? 'Edit Chapter Translation' : 'Edit Section Translation'}
             </DialogTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={togglePreviewMode}
-              className="flex items-center gap-1 text-xs border-warcrow-gold/30"
-            >
-              {previewMode === 'edit' ? (
-                <>
-                  <Eye className="h-3.5 w-3.5" /> Preview
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-3.5 w-3.5" /> Edit Mode
-                </>
-              )}
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={togglePreviewMode}
+                className="flex items-center gap-1 text-xs border-warcrow-gold/30"
+              >
+                {previewMode === 'edit' ? (
+                  <>
+                    <Eye className="h-3.5 w-3.5" /> Preview
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="h-3.5 w-3.5" /> Edit Mode
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           <DialogDescription className="text-xs">
             {editingItem.type === 'chapter' 
-              ? 'Edit chapter title in English and Spanish. You can highlight text and apply formatting.' 
-              : 'Edit section title and content in English and Spanish. You can highlight text and apply formatting.'}
+              ? 'Edit chapter title in English and translation. You can highlight text and apply formatting.' 
+              : 'Edit section title and content in English and translation. You can highlight text and apply formatting.'}
           </DialogDescription>
         </DialogHeader>
         
@@ -178,40 +302,64 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
               )}
             </div>
             
-            {/* Spanish section */}
+            {/* Translation section */}
             <div className="space-y-3">
-              <h3 className="font-medium text-warcrow-gold text-sm flex items-center gap-1">
-                Spanish
-                <span className="text-xs text-warcrow-text/70">(translation)</span>
-              </h3>
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium text-warcrow-gold text-sm flex items-center gap-1">
+                  <Select value={targetLanguage} onValueChange={(value) => setTargetLanguage(value as 'es' | 'fr')}>
+                    <SelectTrigger className="w-[130px] h-6 border-warcrow-gold/30 text-sm bg-black">
+                      <Languages className="h-3.5 w-3.5 mr-1" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black border border-warcrow-gold/30">
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-xs text-warcrow-text/70 ml-2">(translation)</span>
+                </h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={translateContent}
+                  disabled={translationInProgress}
+                  className="h-7 px-2 text-xs border-warcrow-gold/30 text-warcrow-gold"
+                >
+                  {translationInProgress ? (
+                    <><RefreshCw className="h-3.5 w-3.5 mr-1 animate-spin" />Translating...</>
+                  ) : (
+                    <><Wand2 className="h-3.5 w-3.5 mr-1" />Translate</>
+                  )}
+                </Button>
+              </div>
               
-              {/* Spanish title */}
+              {/* Translated title */}
               <div className="space-y-1">
-                <label htmlFor="es-title" className="text-xs text-warcrow-text/70">Title</label>
+                <label htmlFor="translated-title" className="text-xs text-warcrow-text/70">Title</label>
                 <Input
-                  id="es-title"
-                  placeholder="Translate title"
-                  value={editingItem.title_es}
-                  onChange={(e) => setEditingItem({...editingItem, title_es: e.target.value})}
+                  id="translated-title"
+                  placeholder={`Translate title to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`}
+                  value={languageContent.title}
+                  onChange={(e) => updateLanguageContent('title', e.target.value)}
                   className="border border-warcrow-gold/30 bg-black text-warcrow-text"
                 />
               </div>
               
-              {/* Spanish content (only for sections) */}
+              {/* Translated content (only for sections) */}
               {editingItem.type === 'section' && (
                 <div className="space-y-1">
-                  <label htmlFor="es-content" className="text-xs text-warcrow-text/70">Content</label>
+                  <label htmlFor="translated-content" className="text-xs text-warcrow-text/70">Content</label>
                   {previewMode === 'edit' ? (
                     <ColorTextEditor
-                      id="es-content"
-                      value={editingItem.content_es}
-                      onChange={(value) => setEditingItem({...editingItem, content_es: value})}
-                      placeholder="Translate content"
+                      id="translated-content"
+                      value={languageContent.content}
+                      onChange={(value) => updateLanguageContent('content', value)}
+                      placeholder={`Translate content to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`}
                       className={getTextareaHeight()}
                     />
                   ) : (
                     <FormattedTextPreview 
-                      content={editingItem.content_es}
+                      content={languageContent.content}
                       className={getTextareaHeight()}
                     />
                   )}

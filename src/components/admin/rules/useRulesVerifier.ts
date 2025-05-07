@@ -325,6 +325,72 @@ export const useRulesVerifier = () => {
     }
   };
 
+  // Add translation functionality to the hook
+  const translateItem = async (item, targetLanguage = 'es') => {
+    const textsToTranslate = [];
+    
+    if (item.title) {
+      textsToTranslate.push(item.title);
+    }
+    
+    if (item.content) {
+      textsToTranslate.push(item.content);
+    }
+    
+    if (textsToTranslate.length === 0) {
+      toast.error("No content to translate");
+      return item;
+    }
+    
+    try {
+      // Call the DeepL API via Supabase edge function
+      const { data, error } = await supabase.functions.invoke('deepl-translate', {
+        body: {
+          texts: textsToTranslate,
+          targetLanguage: targetLanguage.toUpperCase(),
+          formality: 'more'
+        }
+      });
+      
+      if (error) {
+        console.error('Translation error:', error);
+        toast.error(`Translation failed: ${error.message}`);
+        return item;
+      }
+      
+      if (data && data.translations && data.translations.length > 0) {
+        // Create updated item with translations
+        const updatedItem = { ...item };
+        
+        // Set title translation
+        if (targetLanguage === 'es') {
+          updatedItem.title_es = data.translations[0];
+        } else if (targetLanguage === 'fr') {
+          updatedItem.title_fr = data.translations[0];
+        }
+        
+        // Set content translation if it exists
+        if (data.translations.length > 1 && item.content) {
+          if (targetLanguage === 'es') {
+            updatedItem.content_es = data.translations[1];
+          } else if (targetLanguage === 'fr') {
+            updatedItem.content_fr = data.translations[1];
+          }
+        }
+        
+        toast.success(`Translation to ${targetLanguage === 'es' ? 'Spanish' : 'French'} completed`);
+        return updatedItem;
+      } else {
+        toast.error("No translation returned");
+        return item;
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error("Translation failed");
+      return item;
+    }
+  };
+
   // Computed values based on state
   const missingTranslations = sections.filter(section => 
     !section.translationComplete && (
@@ -366,6 +432,7 @@ export const useRulesVerifier = () => {
     fetchRulesData,
     handleEditTranslation,
     saveTranslation,
-    runVerification
+    runVerification,
+    translateItem // Add this line
   };
 };
