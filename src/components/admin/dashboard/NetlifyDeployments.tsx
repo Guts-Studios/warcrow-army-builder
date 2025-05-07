@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +6,7 @@ import { Check, AlertTriangle, Clock, XCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DeploymentStatus {
   id: string;
@@ -112,6 +114,9 @@ const NetlifyDeployments: React.FC = () => {
     return `${deployment.site_name}: Production: ${deployment.branch} completed`;
   };
 
+  // Get limited deployments to show (latest 5)
+  const limitedDeployments = deployments.slice(0, 5);
+
   if (loading && !refreshing) {
     return (
       <Card className="bg-black/50 border border-warcrow-gold/30">
@@ -183,47 +188,51 @@ const NetlifyDeployments: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-sm text-warcrow-gold mb-2">Builds</p>
+          <p className="text-sm text-warcrow-gold mb-2">Latest 5 Builds</p>
           {deployments.length === 0 ? (
             <p className="text-center text-gray-400 py-2">No deployments found</p>
           ) : (
-            deployments.map(deployment => (
-              <div 
-                key={deployment.id}
-                className="border border-warcrow-gold/20 rounded-md p-3 hover:bg-warcrow-gold/5 transition-colors"
-              >
-                <div className="flex items-center mb-1">
-                  {getStatusIcon(deployment.state)}
-                  <span className="ml-2 font-medium text-warcrow-gold">
-                    {getDeploymentTitle(deployment)}
-                  </span>
-                </div>
-                
-                <div className="pl-6 text-sm text-gray-300 mb-1">
-                  {deployment.commit_message && (
-                    <p className="truncate">By {deployment.author}: {deployment.commit_message}</p>
-                  )}
-                </div>
-                
-                <div className="pl-6 flex items-center justify-between text-xs text-gray-400">
-                  <span>{formatDate(deployment.created_at)}</span>
-                  {deployment.deploy_time && (
-                    <span>Deployed in {deployment.deploy_time}</span>
-                  )}
-                </div>
-
-                <div className="pl-6 mt-1 text-xs">
-                  <a 
-                    href={deployment.deploy_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 hover:underline"
+            <ScrollArea className="h-72">
+              <div className="space-y-4 pr-4">
+                {limitedDeployments.map(deployment => (
+                  <div 
+                    key={deployment.id}
+                    className="border border-warcrow-gold/20 rounded-md p-3 hover:bg-warcrow-gold/5 transition-colors"
                   >
-                    Build details
-                  </a>
-                </div>
+                    <div className="flex items-center mb-1">
+                      {getStatusIcon(deployment.state)}
+                      <span className="ml-2 font-medium text-warcrow-gold">
+                        {getDeploymentTitle(deployment)}
+                      </span>
+                    </div>
+                    
+                    <div className="pl-6 text-sm text-gray-300 mb-1">
+                      {deployment.commit_message && (
+                        <p className="truncate">By {deployment.author}: {deployment.commit_message}</p>
+                      )}
+                    </div>
+                    
+                    <div className="pl-6 flex items-center justify-between text-xs text-gray-400">
+                      <span>{formatDate(deployment.created_at)}</span>
+                      {deployment.deploy_time && (
+                        <span>Deployed in {deployment.deploy_time}</span>
+                      )}
+                    </div>
+
+                    <div className="pl-6 mt-1 text-xs">
+                      <a 
+                        href={deployment.deploy_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 hover:underline"
+                      >
+                        Build details
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))
+            </ScrollArea>
           )}
         </div>
       </CardContent>

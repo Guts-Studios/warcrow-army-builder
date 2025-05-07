@@ -16,6 +16,9 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Track the latest successful build
+let latestSuccessfulBuildTime: Date | null = null;
+
 // Create a notification for admin users when a build fails
 async function createBuildFailureNotification(deploy: any) {
   try {
@@ -50,6 +53,7 @@ async function createBuildFailureNotification(deploy: any) {
         error_message: deploy.error_message,
         commit_message: deploy.title || deploy.commit_message || "",
         deploy_url: deploy.deploy_url,
+        created_at: deploy.created_at,
       }),
       read: false,
       created_at: new Date(),
@@ -113,8 +117,13 @@ serve(async (req) => {
 
     const deploymentsData = await deploymentsResponse.json();
     
+    // Sort deployments by creation date (newest first)
+    deploymentsData.sort((a: any, b: any) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    
     // Transform the data to match our frontend expectations
-    const deployments = deploymentsData.map(deploy => ({
+    const deployments = deploymentsData.map((deploy: any) => ({
       id: deploy.id,
       site_name: deploy.name || deploy.site_name || "warcrowarmy.com",
       created_at: deploy.created_at,
@@ -127,14 +136,26 @@ serve(async (req) => {
       deploy_time: deploy.deploy_time ? `${Math.floor(deploy.deploy_time / 60)}m ${deploy.deploy_time % 60}s` : null
     }));
 
+    // Check for the latest successful build
+    const latestSuccessfulBuild = deploymentsData.find((deploy: any) => deploy.state === 'ready');
+    if (latestSuccessfulBuild) {
+      latestSuccessfulBuildTime = new Date(latestSuccessfulBuild.created_at);
+    }
+
     // Check for failed deployments and create notifications
-    const failedDeployments = deploymentsData.filter(deploy => deploy.state === 'error');
+    const failedDeployments = deploymentsData.filter((deploy: any) => deploy.state === 'error');
     for (const failedDeploy of failedDeployments) {
-      // Only create notifications for recent failures (last 30 minutes)
+      // Only create notifications for recent failures (last 30 minutes) 
+      // AND if they're newer than the latest successful build
       const deployTime = new Date(failedDeploy.created_at).getTime();
       const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
       
-      if (deployTime > thirtyMinutesAgo) {
+      // Check if this failed build is newer than our last successful build
+      const isNewerThanLastSuccess = latestSuccessfulBuildTime 
+        ? deployTime > latestSuccessfulBuildTime.getTime() 
+        : true;
+      
+      if (deployTime > thirtyMinutesAgo && isNewerThanLastSuccess) {
         console.log("Recent build failure detected:", failedDeploy.id);
         await createBuildFailureNotification(failedDeploy);
       }

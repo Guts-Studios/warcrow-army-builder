@@ -37,7 +37,9 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
             {isBuildFailure && (
               <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
             )}
-            {formatNotificationContent(notification)}
+            <span className={isBuildFailure ? "font-medium" : ""}>
+              {formatNotificationContent(notification)}
+            </span>
           </div>
           {notification.read ? (
             <CheckCheck className="h-4 w-4 ml-2 text-green-500" />
@@ -48,6 +50,9 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
         
         {isBuildFailure && content?.deploy_url && (
           <div className="mt-1 text-xs">
+            {content?.error_message && (
+              <p className="text-red-400 mb-1">{content.error_message}</p>
+            )}
             <Button
               size="sm"
               variant="link"

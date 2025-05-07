@@ -45,11 +45,40 @@ const fetchUserCount = async () => {
   return count || 0;
 };
 
+// Function to check if the latest deployment is a failure
+const checkLatestBuildStatus = async () => {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
+    
+    if (error || !data || !data.deployments || data.deployments.length === 0) {
+      console.error('Error fetching deployments:', error);
+      return null;
+    }
+    
+    // Sort deployments by creation date to ensure we get the most recent first
+    const sortedDeployments = [...data.deployments].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    
+    // Check if the latest deployment is a failure
+    const latestDeployment = sortedDeployments[0];
+    if (latestDeployment.state === 'error') {
+      return latestDeployment;
+    }
+    
+    return null;
+  } catch (err) {
+    console.error('Error checking latest build status:', err);
+    return null;
+  }
+};
+
 const Landing = () => {
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
   const [showTesterDialog, setShowTesterDialog] = useState(false);
   const [buildFailures, setBuildFailures] = useState<any[]>([]);
+  const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
   const latestVersion = getLatestVersion(changelogContent);
   const { t } = useLanguage();
   const { isWabAdmin } = useAuth();
@@ -86,6 +115,10 @@ const Landing = () => {
         if (!error && notifications.length > 0) {
           setBuildFailures(notifications);
         }
+        
+        // Check latest build status
+        const latestFailure = await checkLatestBuildStatus();
+        setLatestFailedBuild(latestFailure);
       }
     };
     
@@ -122,6 +155,28 @@ const Landing = () => {
       <div className="absolute top-4 right-4 z-50">
         <LanguageSwitcher />
       </div>
+      
+      {/* Latest Build Failure Alert - visible to all users but only shows if the latest build is a failure */}
+      {latestFailedBuild && (
+        <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
+          <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
+            <AlertTriangle className="h-5 w-5 text-red-300" />
+            <AlertTitle className="text-red-100 text-lg font-bold">Latest Site Deployment Failed</AlertTitle>
+            <AlertDescription className="text-red-200">
+              <p className="mb-1">Site may be experiencing issues. {isWabAdmin ? "Please check deployment status." : "The team has been notified."}</p>
+              {isWabAdmin && (
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                  onClick={() => handleViewDeployment(latestFailedBuild.deploy_url)}
+                >
+                  View deployment details
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       
       {/* Build Failure Alerts for Admins */}
       {isWabAdmin && buildFailures.length > 0 && (
