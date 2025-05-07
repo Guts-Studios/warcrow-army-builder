@@ -178,35 +178,7 @@ const Landing = () => {
         </div>
       )}
       
-      {/* Build Failure Alerts for Admins */}
-      {isWabAdmin && buildFailures.length > 0 && (
-        <div className="fixed top-20 right-4 z-50 max-w-md w-full">
-          {buildFailures.map((failure, index) => {
-            // Parse content if it's a string
-            const content = typeof failure.content === 'string' 
-              ? JSON.parse(failure.content) 
-              : failure.content;
-            
-            return (
-              <Alert key={failure.id} variant="destructive" className="mb-2 bg-red-900/80 border-red-600 backdrop-blur-sm animate-pulse">
-                <AlertTriangle className="h-4 w-4 text-red-400" />
-                <AlertTitle className="text-red-200">Build Failed: {content?.site_name || 'Unknown site'}</AlertTitle>
-                <AlertDescription className="text-red-300 mt-1">
-                  <p className="mb-1">Branch: {content?.branch || 'unknown'}</p>
-                  <p className="mb-1 text-sm">{content?.error_message || 'Unknown error'}</p>
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-blue-300 hover:text-blue-200 text-sm"
-                    onClick={() => handleViewDeployment(content?.deploy_url)}
-                  >
-                    View details
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            );
-          })}
-        </div>
-      )}
+      {/* Removed the build failure alerts that were on the right side of the screen */}
       
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <Header 
