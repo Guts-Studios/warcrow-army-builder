@@ -76,10 +76,16 @@ export const fetchNotifications = async (userId: string, isPreviewId: boolean) =
       });
     }
     
-    // Check for build failure notifications and show special toast
-    const buildFailures = data ? data.filter(n => n.type === 'build_failure' && !n.read) : [];
-    if (buildFailures.length > 0) {
-      for (const failure of buildFailures) {
+    // Only show build failure notifications if they're recent (last 24 hours)
+    const recentBuildFailures = data ? data.filter(n => {
+      return n.type === 'build_failure' && 
+             !n.read && 
+             // Check if created within the last 24 hours
+             (new Date().getTime() - new Date(n.created_at).getTime() < 24 * 60 * 60 * 1000);
+    }) : [];
+    
+    if (recentBuildFailures.length > 0) {
+      for (const failure of recentBuildFailures) {
         try {
           const content = typeof failure.content === 'string' 
             ? JSON.parse(failure.content) 
@@ -183,7 +189,12 @@ export const getBuildFailureNotifications = async () => {
       return { notifications: [], error };
     }
     
-    return { notifications: data || [], error: null };
+    // Filter to only show notifications from the last 24 hours
+    const recentNotifications = data ? data.filter(notification => {
+      return new Date().getTime() - new Date(notification.created_at).getTime() < 24 * 60 * 60 * 1000;
+    }) : [];
+    
+    return { notifications: recentNotifications || [], error: null };
   } catch (err) {
     console.error("Error fetching build failure notifications:", err);
     return { notifications: [], error: err };

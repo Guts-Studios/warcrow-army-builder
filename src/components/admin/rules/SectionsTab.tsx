@@ -12,7 +12,7 @@ interface SectionsTabProps {
   filteredSections: SectionData[];
   chapters: ChapterData[];
   handleEditTranslation: (item: SectionData, type: 'chapter' | 'section') => void;
-  verificationLanguage: 'en' | 'es' | 'fr';
+  verificationLanguage: 'es' | 'fr';
 }
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({
@@ -59,7 +59,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
               <TableHead className="text-warcrow-gold/80">Chapter</TableHead>
               <TableHead className="text-warcrow-gold/80">Section Title (EN)</TableHead>
               <TableHead className="text-warcrow-gold/80">
-                {verificationLanguage === 'es' ? 'Spanish Title' : verificationLanguage === 'fr' ? 'French Title' : 'English Title'}
+                {verificationLanguage === 'es' ? 'Spanish Title' : 'French Title'}
               </TableHead>
               <TableHead className="text-warcrow-gold/80">Content</TableHead>
               <TableHead className="text-warcrow-gold/80">Status</TableHead>
@@ -74,15 +74,11 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
                 // Get the appropriate title and content based on verification language
                 const translatedTitle = verificationLanguage === 'es' 
                   ? section.title_es 
-                  : verificationLanguage === 'fr' 
-                    ? section.title_fr 
-                    : null;
+                  : section.title_fr;
                 
                 const translatedContent = verificationLanguage === 'es' 
                   ? section.content_es 
-                  : verificationLanguage === 'fr' 
-                    ? section.content_fr 
-                    : null;
+                  : section.content_fr;
                 
                 const hasTranslatedTitle = translatedTitle !== null && translatedTitle !== undefined;
                 const hasTranslatedContent = translatedContent !== null && translatedContent !== undefined;

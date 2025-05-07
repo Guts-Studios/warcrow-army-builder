@@ -32,6 +32,12 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Only show build failure alert if it's from the latest build
+  const shouldShowBuildFailure = isWabAdmin && latestFailedBuild && 
+    // Check if the build was in the last 24 hours
+    latestFailedBuild.created_at && 
+    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000);
+  
   useEffect(() => {
     const loadNews = async () => {
       setIsLoading(true);
@@ -52,7 +58,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
     }
   };
   
-  // Function to format news content with highlighted date, same as in NewsArchiveDialog
+  // Function to format news content with highlighted date
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return '';
 
@@ -104,8 +110,9 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
         )}
       </p>
       
-      {/* Admin-only Build Failure Alert - Only shown if latest build failed AND user is admin */}
-      {isWabAdmin && latestFailedBuild && (
+      {/* Admin-only Build Failure Alert - Only shown if latest build failed, 
+          is within last 24 hours, AND user is admin */}
+      {shouldShowBuildFailure && (
         <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
           <AlertTriangle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-200">

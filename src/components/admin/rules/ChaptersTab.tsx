@@ -11,7 +11,7 @@ interface ChaptersTabProps {
   isLoading: boolean;
   filteredChapters: ChapterData[];
   handleEditTranslation: (item: ChapterData, type: 'chapter' | 'section') => void;
-  verificationLanguage: 'en' | 'es' | 'fr';
+  verificationLanguage: 'es' | 'fr';
 }
 
 export const ChaptersTab: React.FC<ChaptersTabProps> = ({
@@ -42,7 +42,7 @@ export const ChaptersTab: React.FC<ChaptersTabProps> = ({
               <TableHead className="text-warcrow-gold/80">Order</TableHead>
               <TableHead className="text-warcrow-gold/80">Chapter Title (EN)</TableHead>
               <TableHead className="text-warcrow-gold/80">
-                {verificationLanguage === 'es' ? 'Spanish Title' : verificationLanguage === 'fr' ? 'French Title' : 'English Title'}
+                {verificationLanguage === 'es' ? 'Spanish Title' : 'French Title'}
               </TableHead>
               <TableHead className="text-warcrow-gold/80">Sections</TableHead>
               <TableHead className="text-warcrow-gold/80">Status</TableHead>
@@ -55,9 +55,7 @@ export const ChaptersTab: React.FC<ChaptersTabProps> = ({
                 // Get the appropriate title based on verification language
                 const translatedTitle = verificationLanguage === 'es' 
                   ? chapter.title_es 
-                  : verificationLanguage === 'fr' 
-                    ? chapter.title_fr 
-                    : null;
+                  : chapter.title_fr;
                 
                 const hasTranslation = translatedTitle !== null && translatedTitle !== undefined;
                 
