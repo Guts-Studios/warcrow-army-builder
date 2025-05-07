@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, AlertTriangle, Code, Shield, Users, GitBranch } from "lucide-react";
+import { Mail, AlertTriangle, Code, Shield, Users, Package } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import NetlifyDeployments from './NetlifyDeployments';
 
@@ -78,24 +78,24 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Netlify Deployments Module */}
+        {/* Netlify Deployments Module - Preview */}
         <NetlifyDeployments />
         
-        {/* Additional module could go here */}
+        {/* Deployment Management Link */}
         <Card className="bg-black/50 border border-warcrow-gold/30 h-full">
           <div className="p-6 flex flex-col items-center justify-between h-full">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Deployment Management</h2>
               <p className="text-sm text-gray-300 mb-4 text-center">
-                Manually trigger deployments and view build logs
+                Manually trigger deployments and view complete build history
               </p>
             </div>
             <Button 
-              onClick={() => window.open('https://app.netlify.com', '_blank')}
+              onClick={() => navigate('/admin/deployment')}
               className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
             >
-              <GitBranch className="mr-2 h-4 w-4" />
-              Open Netlify Dashboard
+              <Package className="mr-2 h-4 w-4" />
+              Manage Deployments
             </Button>
           </div>
         </Card>
