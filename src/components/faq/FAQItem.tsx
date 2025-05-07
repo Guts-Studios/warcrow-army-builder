@@ -32,6 +32,16 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
     );
   });
 
+  // Create a text-only version of the content for preview
+  const plainTextContent = content
+    .replace(/\n-/g, '. ') // Replace bullet points with periods
+    .replace(/\n/g, ' '); // Replace newlines with spaces
+
+  // Limit preview to around 100 characters
+  const contentPreview = plainTextContent.length > 100 
+    ? plainTextContent.substring(0, 100) + '...'
+    : plainTextContent;
+
   return (
     <div className="border-b border-warcrow-gold/20 pb-4 mb-6 animate-fade-in">
       <div 
@@ -55,8 +65,8 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
           )}
         </div>
       ) : (
-        <div className="text-warcrow-text/70 line-clamp-1 italic text-sm">
-          {t('faq_click_to_expand') || "Click to view answer"}
+        <div className="text-warcrow-text/70 line-clamp-2 text-sm">
+          {contentPreview}
         </div>
       )}
     </div>
