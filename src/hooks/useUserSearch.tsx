@@ -42,36 +42,35 @@ export const useUserSearch = () => {
             
           if (emailError) {
             console.error("Email search error:", emailError);
-            // If this fails, just return profile data (which might be empty)
-            setSearchResults(profileData || []);
+            // If this fails, just return empty results
+            setSearchResults([]);
             return;
           }
           
           if (emailData) {
-            // We need to modify this part to correctly handle the email search
-            // First, use auth.users to find the user with this email
-            const { data: authUserData, error: authUserError } = await supabase
-              .from("auth.users")
-              .select("id")
-              .eq("email", query)
-              .single();
-
-            if (authUserError) {
-              console.error("Auth user search error:", authUserError);
-              setSearchResults(profileData || []);
-              return;
-            }
-
-            if (authUserData) {
-              // Then get the profile for this user
-              const { data: userProfile } = await supabase
+            // Try to find the user profile by matching email
+            try {
+              // Direct query to find a profile with matching email-like ID
+              const { data: userProfile, error: profileError } = await supabase
                 .from("profiles")
                 .select("id, username, wab_id, avatar_url, banned, deactivated")
-                .eq("id", authUserData.id)
-                .limit(1)
+                .eq("id", query)
                 .single();
                 
-              setSearchResults(userProfile ? [userProfile] : []);
+              if (profileError) {
+                console.error("Profile search error:", profileError);
+                setSearchResults([]);
+              } else {
+                setSearchResults(userProfile ? [userProfile] : []);
+              }
+              return;
+            } catch (profileSearchError: unknown) {
+              if (profileSearchError instanceof Error) {
+                console.error("Profile search error:", profileSearchError.message);
+              } else {
+                console.error("Profile search error:", profileSearchError);
+              }
+              setSearchResults([]); // Safe fallback
               return;
             }
           }
@@ -81,7 +80,9 @@ export const useUserSearch = () => {
           } else {
             console.error("Email search error:", emailSearchError);
           }
-          // If this fails, just return profile data
+          // If this fails, return empty results
+          setSearchResults([]);
+          return;
         }
 
         // As a fallback, try to directly query profiles that might match the email pattern
@@ -92,8 +93,17 @@ export const useUserSearch = () => {
             .eq("id", query)
             .limit(10);
           
-          if (!emailProfileError && emailProfileData && emailProfileData.length > 0) {
+          if (emailProfileError) {
+            console.error("Direct email search error:", emailProfileError);
+            setSearchResults([]);
+            return;
+          }
+          
+          if (emailProfileData && emailProfileData.length > 0) {
             setSearchResults(emailProfileData);
+            return;
+          } else {
+            setSearchResults([]);
             return;
           }
         } catch (directSearchError: unknown) {
@@ -102,9 +112,12 @@ export const useUserSearch = () => {
           } else {
             console.error("Direct email search error:", directSearchError);
           }
+          setSearchResults([]);
+          return;
         }
       }
       
+      // If we reached here, return the results from the initial query
       setSearchResults(profileData || []);
     } catch (error: unknown) {
       if (error instanceof Error) {
