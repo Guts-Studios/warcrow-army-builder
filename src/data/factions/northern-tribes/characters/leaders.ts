@@ -80,7 +80,7 @@ export const northernTribesLeaders: Unit[] = [
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Varank", description: "Varank race" },
-      { name: "Join (Infantry, Varank| Calvary Warg)", description: "Can join Infantry Varank or Calvary Warg units" },
+      { name: "Join (Infantry, Varank| Cavalry Warg)", description: "Can join Infantry Varank or Calvary Warg units" },
       { name: "Elite", description: "Elite unit" },
     ],
     specialRules: [],
