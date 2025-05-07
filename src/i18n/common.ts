@@ -82,16 +82,16 @@ export const commonTranslations = {
     es: 'Volver arriba'
   },
   faqTitle: {
-    en: 'Frequently Asked Questions',
-    es: 'Preguntas Frecuentes'
+    en: 'FAQ V 1.2.1',
+    es: 'FAQ V 1.2.1'
   },
   faqDescription: {
     en: 'Find answers to common questions about Warcrow',
     es: 'Encuentra respuestas a preguntas comunes sobre Warcrow'
   },
   frequently_asked_questions: {
-    en: 'FAQ',
-    es: 'FAQ'
+    en: 'FAQ V 1.2.1',
+    es: 'FAQ V 1.2.1'
   },
   faq_click_to_expand: {
     en: 'Click to view answer',
