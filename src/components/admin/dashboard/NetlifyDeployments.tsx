@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, AlertTriangle, Clock, XCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DeploymentStatus {
   id: string;
@@ -28,64 +28,24 @@ const NetlifyDeployments: React.FC = () => {
   const fetchDeployments = async () => {
     try {
       setRefreshing(true);
-      // This would typically be a Supabase function call
-      // Here we're mocking the response for demonstration
-      // In a real implementation, you would fetch data from the Netlify API
+      setError(null);
       
-      // Simulated API response
-      const mockDeployments: DeploymentStatus[] = [
-        {
-          id: 'deploy-123',
-          site_name: 'warcrowarmy.com',
-          created_at: new Date().toISOString(),
-          state: 'building',
-          deploy_url: 'https://main--warcrow-army-builder.netlify.app',
-          commit_message: 'feat: Add deployment management page',
-          branch: 'main@235c160',
-          author: 'lovable-dev[bot]'
-        },
-        {
-          id: 'deploy-122',
-          site_name: 'warcrowarmy.com',
-          created_at: new Date(Date.now() - 1800000).toISOString(), // 30 minutes ago
-          state: 'ready',
-          deploy_url: 'https://deploy-preview--warcrow-army-builder.netlify.app',
-          commit_message: 'Add Netlify deployments module',
-          branch: 'main@2b00e5d',
-          author: 'lovable-dev[bot]',
-          deploy_time: '1m 17s'
-        },
-        {
-          id: 'deploy-121',
-          site_name: 'warcrowarmy.com',
-          created_at: new Date(Date.now() - 2400000).toISOString(), // 40 minutes ago
-          state: 'ready',
-          deploy_url: 'https://main--warcrow-army-builder.netlify.app',
-          commit_message: 'Added all Spanish cards',
-          branch: 'main@b15bed5',
-          author: 'jayroi',
-          deploy_time: '1m 1s'
-        },
-        {
-          id: 'deploy-120',
-          site_name: 'warcrowarmy.com',
-          created_at: new Date(Date.now() - 2700000).toISOString(), // 45 minutes ago
-          state: 'ready',
-          deploy_url: 'https://main--warcrow-army-builder.netlify.app',
-          commit_message: 'Refactor code',
-          branch: 'main@10878b8',
-          author: 'lovable-dev[bot]'
-        }
-      ];
-
-      // In production, replace with actual API call
-      // const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
-      // if (error) throw new Error(error.message);
+      // Call our Supabase Edge Function to fetch deployments
+      const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
       
-      setDeployments(mockDeployments);
+      if (error) {
+        console.error('Error fetching deployments:', error);
+        throw new Error(error.message || 'Failed to fetch deployment data');
+      }
+      
+      if (!data || !data.deployments) {
+        throw new Error('No deployment data returned');
+      }
+      
+      setDeployments(data.deployments);
       
       // Check for failed deployments and show a toast
-      const failedDeployment = mockDeployments.find(d => d.state === 'error');
+      const failedDeployment = data.deployments.find((d: DeploymentStatus) => d.state === 'error');
       if (failedDeployment) {
         toast.error(`Deployment failed: ${failedDeployment.error_message || 'Unknown error'}`, {
           description: `Branch: ${failedDeployment.branch}`,
@@ -94,7 +54,7 @@ const NetlifyDeployments: React.FC = () => {
 
     } catch (err) {
       console.error('Error fetching deployments:', err);
-      setError('Failed to fetch deployment data');
+      setError('Failed to fetch deployment data. Please check your Netlify API key and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
