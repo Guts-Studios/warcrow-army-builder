@@ -38,7 +38,7 @@ export const useUserSearch = () => {
         try {
           // Use the function to get user by email - this requires admin privileges
           const { data: emailData, error: emailError } = await supabase
-            .rpc('get_user_by_email', { email_query: query });
+            .rpc('get_user_email', { user_id: query });
             
           if (emailError) {
             console.error("Email search error:", emailError);
@@ -47,12 +47,12 @@ export const useUserSearch = () => {
             return;
           }
           
-          if (emailData && emailData.id) {
+          if (emailData && typeof emailData === 'object' && 'email' in emailData) {
             // Get the profile for this user
             const { data: userProfile } = await supabase
               .from("profiles")
               .select("id, username, wab_id, avatar_url, banned, deactivated")
-              .eq("id", emailData.id)
+              .eq("id", emailData.email)
               .limit(1)
               .single();
               

@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const UserManagement = () => {
   const [adminList, setAdminList] = useState<WabAdmin[]>([]);
-  const [userId, setUserId] = useState('');
+  const [userIdentifier, setUserIdentifier] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isBanning, setIsBanning] = useState(false);
@@ -43,14 +43,35 @@ const UserManagement = () => {
   };
 
   const handleUpdateAdminStatus = async () => {
-    if (!userId) {
-      toast.error("Please enter a User ID.");
+    if (!userIdentifier) {
+      toast.error("Please enter a User ID, Email, or WAB ID.");
       return;
     }
 
     try {
       setIsLoading(true);
-      const result = await updateUserWabAdminStatus(userId, isAdmin);
+      
+      // If the identifier is an email or WAB ID, we need to find the user ID first
+      let actualUserId = userIdentifier;
+      
+      if (userIdentifier.includes('@') || userIdentifier.includes('WAB-')) {
+        // Try to find the user by email or WAB ID
+        const { data: userData, error: searchError } = await supabase
+          .from("profiles")
+          .select("id")
+          .or(`wab_id.eq.${userIdentifier}${userIdentifier.includes('@') ? '' : ',email.eq.' + userIdentifier}`)
+          .limit(1)
+          .single();
+          
+        if (searchError || !userData) {
+          toast.error("User not found with the provided identifier");
+          return;
+        }
+        
+        actualUserId = userData.id;
+      }
+      
+      const result = await updateUserWabAdminStatus(actualUserId, isAdmin);
       toast.success(result.message);
       fetchAdminList(); // Refresh the admin list after update
     } catch (error: any) {
@@ -95,7 +116,8 @@ const UserManagement = () => {
         return;
       }
 
-      // Update profile to set banned status
+      // Update profile to set banned status 
+      // First check if the banned column exists, if not we'll need to add it
       const { error } = await supabase
         .from('profiles')
         .update({ banned: true })
@@ -142,8 +164,7 @@ const UserManagement = () => {
         return;
       }
 
-      // Delete user auth data - this requires the use of an admin function
-      // For safety, we're just disabling the account in the profile
+      // Update profile to set deactivated status
       const { error } = await supabase
         .from('profiles')
         .update({ 
@@ -234,7 +255,7 @@ const UserManagement = () => {
                           variant="outline" 
                           size="sm" 
                           onClick={() => {
-                            setUserId(user.id);
+                            setUserIdentifier(user.id);
                             setIsAdmin(true);
                           }}
                           className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30"
@@ -286,12 +307,12 @@ const UserManagement = () => {
         </h2>
         <div className="space-y-4">
           <div className="flex flex-col space-y-2">
-            <label className="text-warcrow-text">User ID</label>
+            <label className="text-warcrow-text">User ID, Email, or WAB ID</label>
             <Input
               type="text"
-              placeholder="User ID"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+              placeholder="Enter ID, Email, or WAB ID"
+              value={userIdentifier}
+              onChange={(e) => setUserIdentifier(e.target.value)}
               className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold focus:outline-none"
             />
           </div>
@@ -326,7 +347,7 @@ const UserManagement = () => {
               <TableRow className="border-warcrow-gold/20">
                 <TableHead className="text-warcrow-gold/80">Username</TableHead>
                 <TableHead className="text-warcrow-gold/80">Email</TableHead>
-                <TableHead className="text-warcrow-gold/80">ID</TableHead>
+                <TableHead className="text-warcrow-gold/80">WAB ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -334,7 +355,7 @@ const UserManagement = () => {
                 <TableRow key={admin.id} className="border-warcrow-gold/20">
                   <TableCell className="font-medium text-warcrow-gold">{admin.username}</TableCell>
                   <TableCell className="text-warcrow-muted">{admin.email}</TableCell>
-                  <TableCell className="text-warcrow-muted truncate max-w-[120px]">{admin.id}</TableCell>
+                  <TableCell className="text-warcrow-muted">{admin.wab_id}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

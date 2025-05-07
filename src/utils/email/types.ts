@@ -1,3 +1,4 @@
+
 export interface EmailOptions {
   fromEmail?: string;
   fromName?: string;
