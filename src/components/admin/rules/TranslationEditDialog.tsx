@@ -2,11 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { EditingItem } from './types';
+import { ColorTextEditor } from "../shared/ColorTextEditor";
 
 interface TranslationEditDialogProps {
   open: boolean;
@@ -67,22 +67,24 @@ export const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
               {/* English content (original) */}
               <div className="space-y-2">
                 <Label htmlFor="content-en" className="text-warcrow-gold">English Content:</Label>
-                <Textarea
+                <ColorTextEditor
                   id="content-en"
                   value={editingItem.content || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
-                  className="min-h-[150px] border border-warcrow-gold/30 bg-black text-warcrow-text"
+                  onChange={(value) => setEditingItem({ ...editingItem, content: value })}
+                  rows={8}
+                  placeholder="Enter content in English"
                 />
               </div>
               
               {/* Spanish content */}
               <div className="space-y-2">
                 <Label htmlFor="content-es" className="text-warcrow-gold">Spanish Content:</Label>
-                <Textarea
+                <ColorTextEditor
                   id="content-es"
                   value={editingItem.content_es || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, content_es: e.target.value })}
-                  className="min-h-[150px] border border-warcrow-gold/30 bg-black text-warcrow-text"
+                  onChange={(value) => setEditingItem({ ...editingItem, content_es: value })}
+                  rows={8}
+                  placeholder="Enter content in Spanish"
                 />
               </div>
             </>
