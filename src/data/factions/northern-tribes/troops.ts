@@ -82,7 +82,7 @@ export const northernTribesTroops: Unit[] = [
   },
   {
     id: "warg-riders",
-    name: "Warg Riderss",
+    name: "Warg Riders",
     faction: "northern-tribes",
     pointsCost: 35,
     availability: 2,
