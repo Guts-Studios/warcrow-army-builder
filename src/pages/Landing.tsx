@@ -156,7 +156,7 @@ const Landing = () => {
         <LanguageSwitcher />
       </div>
       
-      {/* Latest Build Failure Alert - visible to all users but only shows if the latest build is a failure */}
+      {/* Latest Build Failure Alert - only shown if the latest build failed */}
       {latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
