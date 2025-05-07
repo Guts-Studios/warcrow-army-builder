@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ChapterData, SectionData, TranslationStatus, EditingItem } from './types';
+import { Language } from './LanguageVerificationPanel';
 
 export const useRulesVerifier = () => {
   const [chapters, setChapters] = useState<ChapterData[]>([]);
@@ -12,7 +13,8 @@ export const useRulesVerifier = () => {
   const [translationEditDialogOpen, setTranslationEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [saveInProgress, setSaveInProgress] = useState(false);
-  const [verificationLanguage, setVerificationLanguage] = useState<'en' | 'es' | 'fr'>('en');
+  // Update to use only 'es' | 'fr' as the default
+  const [verificationLanguage, setVerificationLanguage] = useState<Language>('es');
   
   const fetchRulesData = async () => {
     setIsLoading(true);
@@ -426,6 +428,7 @@ export const useRulesVerifier = () => {
         content: item.content_fr || item.content,
       };
     }
+    // Fallback to English (this case shouldn't happen now)
     return {
       title: item.title,
       content: item.content,

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { TranslationsTab } from './rules/TranslationsTab';
 import { VerifyTab } from './rules/VerifyTab';
 import { TranslationEditDialog } from './rules/TranslationEditDialog';
 import { useRulesVerifier } from './rules/useRulesVerifier';
-import { LanguageVerificationPanel } from './rules/LanguageVerificationPanel';
+import { LanguageVerificationPanel, Language } from './rules/LanguageVerificationPanel';
 
 export const RulesVerifier = () => {
   const {
@@ -76,7 +75,7 @@ export const RulesVerifier = () => {
 
         {/* Add Language Verification Panel */}
         <LanguageVerificationPanel 
-          currentLanguage={verificationLanguage}
+          currentLanguage={verificationLanguage as Language}
           onLanguageChange={setVerificationLanguage}
         />
 
@@ -112,7 +111,7 @@ export const RulesVerifier = () => {
               isLoading={isLoading}
               filteredChapters={filteredChapters}
               handleEditTranslation={handleEditTranslation}
-              verificationLanguage={verificationLanguage}
+              verificationLanguage={verificationLanguage as Language}
             />
           </TabsContent>
 
@@ -122,7 +121,7 @@ export const RulesVerifier = () => {
               filteredSections={filteredSections}
               chapters={chapters}
               handleEditTranslation={handleEditTranslation}
-              verificationLanguage={verificationLanguage}
+              verificationLanguage={verificationLanguage as Language}
             />
           </TabsContent>
 

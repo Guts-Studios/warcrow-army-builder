@@ -5,7 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-type Language = 'es' | 'fr';
+// Update the Language type to ensure it only includes 'es' and 'fr'
+export type Language = 'es' | 'fr';
 
 interface LanguageVerificationPanelProps {
   onLanguageChange: (language: Language) => void;
