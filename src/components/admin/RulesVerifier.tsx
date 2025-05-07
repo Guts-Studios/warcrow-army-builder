@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +15,8 @@ import { VerifyTab } from './rules/VerifyTab';
 import { TranslationEditDialog } from './rules/TranslationEditDialog';
 import { useRulesVerifier } from './rules/useRulesVerifier';
 import { LanguageVerificationPanel, Language } from './rules/LanguageVerificationPanel';
+import { DeleteConfirmationDialog } from './rules/DeleteConfirmationDialog';
+import { AddItemDialog } from './rules/AddItemDialog';
 
 export const RulesVerifier = () => {
   const {
@@ -37,6 +40,18 @@ export const RulesVerifier = () => {
     runVerification,
     verificationLanguage,
     setVerificationLanguage,
+    // New management functions
+    handleDeleteItem,
+    confirmDelete,
+    deleteConfirmDialogOpen,
+    setDeleteConfirmDialogOpen,
+    deleteItem,
+    isDeleting,
+    showAddDialog,
+    addItemDialogOpen,
+    setAddItemDialogOpen,
+    addItemType,
+    saveNewItem
   } = useRulesVerifier();
 
   const [activeTab, setActiveTab] = useState<'chapters' | 'sections' | 'translations' | 'verify'>('chapters');
@@ -112,6 +127,8 @@ export const RulesVerifier = () => {
               filteredChapters={filteredChapters}
               handleEditTranslation={handleEditTranslation}
               verificationLanguage={verificationLanguage as Language}
+              handleDeleteItem={handleDeleteItem}
+              showAddDialog={showAddDialog}
             />
           </TabsContent>
 
@@ -122,6 +139,8 @@ export const RulesVerifier = () => {
               chapters={chapters}
               handleEditTranslation={handleEditTranslation}
               verificationLanguage={verificationLanguage as Language}
+              handleDeleteItem={handleDeleteItem}
+              showAddDialog={showAddDialog}
             />
           </TabsContent>
 
@@ -151,7 +170,7 @@ export const RulesVerifier = () => {
           </p>
           <p className="flex items-center">
             <Languages className="h-4 w-4 mr-2" />
-            View translations in English, Spanish, or French to verify content
+            View translations in Spanish or French to verify content
           </p>
         </div>
       </div>
@@ -164,6 +183,28 @@ export const RulesVerifier = () => {
         setEditingItem={setEditingItem}
         saveInProgress={saveInProgress}
         onSave={saveTranslation}
+      />
+
+      {/* Delete confirmation dialog */}
+      {deleteItem && (
+        <DeleteConfirmationDialog
+          open={deleteConfirmDialogOpen}
+          onOpenChange={setDeleteConfirmDialogOpen}
+          onConfirm={confirmDelete}
+          title={`Delete ${deleteItem.type}`}
+          description={`Are you sure you want to delete the ${deleteItem.type} "${deleteItem.title}"? This action cannot be undone.`}
+          isDeleting={isDeleting}
+        />
+      )}
+
+      {/* Add item dialog */}
+      <AddItemDialog
+        open={addItemDialogOpen}
+        onOpenChange={setAddItemDialogOpen}
+        type={addItemType}
+        chapters={chapters}
+        onSave={saveNewItem}
+        saveInProgress={saveInProgress}
       />
     </Card>
   );

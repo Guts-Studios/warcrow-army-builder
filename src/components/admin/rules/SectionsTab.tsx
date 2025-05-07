@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertTriangle, Check, Edit, RefreshCw, X } from "lucide-react";
+import { AlertTriangle, Check, Edit, Plus, RefreshCw, Trash, X } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ interface SectionsTabProps {
   chapters: ChapterData[];
   handleEditTranslation: (item: SectionData, type: 'chapter' | 'section') => void;
   verificationLanguage: 'es' | 'fr';
+  handleDeleteItem?: (item: SectionData, type: 'chapter' | 'section') => void;
+  showAddDialog?: (type: 'chapter' | 'section') => void;
 }
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({
@@ -20,7 +22,9 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
   filteredSections,
   chapters,
   handleEditTranslation,
-  verificationLanguage
+  verificationLanguage,
+  handleDeleteItem,
+  showAddDialog
 }) => {
   if (isLoading) {
     return (
@@ -47,10 +51,21 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
 
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-4 flex justify-between items-center">
         <p className="text-white text-sm">
           Found {filteredSections.length} sections across {chapters.length} chapters
         </p>
+        {showAddDialog && chapters.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => showAddDialog('section')}
+            className="border-warcrow-gold/30 text-warcrow-gold"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Section
+          </Button>
+        )}
       </div>
       <ScrollArea className="h-[400px]">
         <Table>
@@ -109,15 +124,29 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-warcrow-gold/30 text-warcrow-gold"
-                        onClick={() => handleEditTranslation(section, 'section')}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-warcrow-gold/30 text-warcrow-gold"
+                          onClick={() => handleEditTranslation(section, 'section')}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+
+                        {handleDeleteItem && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-red-500/30 text-red-500"
+                            onClick={() => handleDeleteItem(section, 'section')}
+                          >
+                            <Trash className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

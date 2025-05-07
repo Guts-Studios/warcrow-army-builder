@@ -16,6 +16,13 @@ export const useRulesVerifier = () => {
   // Update to use only 'es' | 'fr' as the default
   const [verificationLanguage, setVerificationLanguage] = useState<Language>('es');
   
+  // Dialog states for add/delete functionality
+  const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{id: string, type: 'chapter' | 'section', title: string} | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
+  const [addItemType, setAddItemType] = useState<'chapter' | 'section'>('chapter');
+  
   const fetchRulesData = async () => {
     setIsLoading(true);
     try {
@@ -394,6 +401,133 @@ export const useRulesVerifier = () => {
     }
   };
 
+  // New function to handle deletion of chapters and sections
+  const handleDeleteItem = (item: ChapterData | SectionData, type: 'chapter' | 'section') => {
+    setDeleteItem({
+      id: item.id,
+      type,
+      title: item.title
+    });
+    setDeleteConfirmDialogOpen(true);
+  };
+
+  // Execute the deletion after confirmation
+  const confirmDelete = async () => {
+    if (!deleteItem) return;
+    
+    setIsDeleting(true);
+    try {
+      const { type, id } = deleteItem;
+      
+      if (type === 'chapter') {
+        // First check if this chapter has sections
+        const chapterSections = sections.filter(section => section.chapter_id === id);
+        
+        if (chapterSections.length > 0) {
+          toast.error(`Cannot delete chapter "${deleteItem.title}" because it contains ${chapterSections.length} section(s). Delete the sections first.`);
+          setDeleteConfirmDialogOpen(false);
+          setIsDeleting(false);
+          return;
+        }
+        
+        // If no sections, proceed with deletion
+        const { error } = await supabase
+          .from('rules_chapters')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        // Update local state
+        setChapters(chapters.filter(chapter => chapter.id !== id));
+        toast.success(`Chapter "${deleteItem.title}" deleted successfully`);
+      } else {
+        const { error } = await supabase
+          .from('rules_sections')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        // Update local state
+        setSections(sections.filter(section => section.id !== id));
+        toast.success(`Section "${deleteItem.title}" deleted successfully`);
+      }
+      
+      // Close dialog
+      setDeleteConfirmDialogOpen(false);
+      // Refresh data
+      fetchRulesData();
+      
+    } catch (error: any) {
+      console.error(`Error deleting ${deleteItem.type}:`, error);
+      toast.error(`Failed to delete ${deleteItem.type}: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Show add dialog for chapters or sections
+  const showAddDialog = (type: 'chapter' | 'section') => {
+    setAddItemType(type);
+    setAddItemDialogOpen(true);
+  };
+
+  // Save new chapter or section
+  const saveNewItem = async (data: any) => {
+    setSaveInProgress(true);
+    try {
+      const timestamp = new Date().toISOString();
+      
+      if (addItemType === 'chapter') {
+        const newChapter = {
+          title: data.title,
+          order_index: data.order_index,
+          created_at: timestamp,
+          updated_at: timestamp
+        };
+        
+        const { data: savedChapter, error } = await supabase
+          .from('rules_chapters')
+          .insert(newChapter)
+          .select();
+          
+        if (error) throw error;
+        
+        toast.success(`Chapter "${data.title}" created successfully`);
+      } else {
+        const newSection = {
+          title: data.title,
+          content: data.content || '',
+          chapter_id: data.chapter_id,
+          order_index: data.order_index,
+          created_at: timestamp,
+          updated_at: timestamp
+        };
+        
+        const { data: savedSection, error } = await supabase
+          .from('rules_sections')
+          .insert(newSection)
+          .select();
+          
+        if (error) throw error;
+        
+        toast.success(`Section "${data.title}" created successfully`);
+      }
+      
+      // Close dialog
+      setAddItemDialogOpen(false);
+      // Refresh data
+      fetchRulesData();
+      
+    } catch (error: any) {
+      console.error(`Error creating ${addItemType}:`, error);
+      toast.error(`Failed to create ${addItemType}: ${error.message}`);
+    } finally {
+      setSaveInProgress(false);
+    }
+  };
+
   // Computed values based on state
   const missingTranslations = sections.filter(section => 
     !section.translationComplete && (
@@ -458,6 +592,18 @@ export const useRulesVerifier = () => {
     translateItem,
     verificationLanguage,
     setVerificationLanguage,
-    getLocalizedContent
+    getLocalizedContent,
+    // New management functions
+    handleDeleteItem,
+    confirmDelete,
+    deleteConfirmDialogOpen,
+    setDeleteConfirmDialogOpen,
+    deleteItem,
+    isDeleting,
+    showAddDialog,
+    addItemDialogOpen,
+    setAddItemDialogOpen,
+    addItemType,
+    saveNewItem
   };
 };
