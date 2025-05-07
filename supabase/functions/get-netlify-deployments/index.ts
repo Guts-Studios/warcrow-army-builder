@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const NETLIFY_API_KEY = Deno.env.get("NETLIFY_API_KEY");
 const NETLIFY_API_URL = "https://api.netlify.com/api/v1";
@@ -9,6 +10,66 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Create a Supabase client for the function
+const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Create a notification for admin users when a build fails
+async function createBuildFailureNotification(deploy: any) {
+  try {
+    console.log("Creating build failure notification for:", deploy.id);
+    
+    // Get all admin users
+    const { data: adminProfiles, error: adminsError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('wab_admin', true);
+    
+    if (adminsError) {
+      console.error("Error fetching admin users:", adminsError);
+      return;
+    }
+    
+    if (!adminProfiles || adminProfiles.length === 0) {
+      console.log("No admin users found to notify");
+      return;
+    }
+    
+    console.log(`Creating build failure notifications for ${adminProfiles.length} admin users`);
+    
+    // Create notifications for all admin users
+    const notifications = adminProfiles.map(profile => ({
+      recipient_id: profile.id,
+      type: 'build_failure',
+      content: JSON.stringify({
+        deploy_id: deploy.id,
+        site_name: deploy.name || deploy.site_name || "warcrowarmy.com",
+        branch: deploy.branch,
+        error_message: deploy.error_message,
+        commit_message: deploy.title || deploy.commit_message || "",
+        deploy_url: deploy.deploy_url,
+      }),
+      read: false,
+      created_at: new Date(),
+    }));
+    
+    if (notifications.length > 0) {
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert(notifications);
+      
+      if (notificationError) {
+        console.error("Error creating notifications:", notificationError);
+      } else {
+        console.log(`Successfully created ${notifications.length} build failure notifications`);
+      }
+    }
+  } catch (error) {
+    console.error("Error in createBuildFailureNotification:", error);
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -65,6 +126,19 @@ serve(async (req) => {
       error_message: deploy.error_message || null,
       deploy_time: deploy.deploy_time ? `${Math.floor(deploy.deploy_time / 60)}m ${deploy.deploy_time % 60}s` : null
     }));
+
+    // Check for failed deployments and create notifications
+    const failedDeployments = deploymentsData.filter(deploy => deploy.state === 'error');
+    for (const failedDeploy of failedDeployments) {
+      // Only create notifications for recent failures (last 30 minutes)
+      const deployTime = new Date(failedDeploy.created_at).getTime();
+      const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
+      
+      if (deployTime > thirtyMinutesAgo) {
+        console.log("Recent build failure detected:", failedDeploy.id);
+        await createBuildFailureNotification(failedDeploy);
+      }
+    }
 
     return new Response(JSON.stringify({ deployments }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

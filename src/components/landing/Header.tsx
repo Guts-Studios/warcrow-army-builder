@@ -3,6 +3,8 @@ import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,15 +16,18 @@ import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface HeaderProps {
   latestVersion: string;
   userCount: number | null;
   isLoadingUserCount: boolean;
+  buildFailures?: any[];
 }
 
-export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderProps) => {
+export const Header = ({ latestVersion, userCount, isLoadingUserCount, buildFailures = [] }: HeaderProps) => {
   const { t } = useLanguage();
+  const { isWabAdmin } = useAuth();
   const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +44,13 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
     
     loadNews();
   }, []);
+
+  // Function to handle viewing a deployment
+  const handleViewDeployment = (deployUrl: string) => {
+    if (deployUrl) {
+      window.open(deployUrl, '_blank');
+    }
+  };
   
   // Function to format news content with highlighted date, same as in NewsArchiveDialog
   const formatNewsContent = (content: string): React.ReactNode => {
@@ -91,6 +103,48 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount }: HeaderP
           t('userCountMessage').replace('{count}', String(userCount))
         )}
       </p>
+      
+      {/* Admin-only Build Failure Alert in Header */}
+      {isWabAdmin && buildFailures.length > 0 && (
+        <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
+          <AlertTriangle className="h-4 w-4 text-red-400" />
+          <AlertTitle className="text-red-200">
+            {buildFailures.length === 1 ? '1 Build Failed' : `${buildFailures.length} Builds Failed`}
+          </AlertTitle>
+          <AlertDescription className="text-red-300 mt-1">
+            {buildFailures.slice(0, 1).map(failure => {
+              const content = typeof failure.content === 'string' 
+                ? JSON.parse(failure.content) 
+                : failure.content;
+                
+              return (
+                <div key={failure.id} className="mb-2">
+                  <p className="mb-1">{content.site_name} ({content.branch})</p>
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                    onClick={() => handleViewDeployment(content.deploy_url)}
+                  >
+                    View details
+                  </Button>
+                </div>
+              );
+            })}
+            {buildFailures.length > 1 && (
+              <p className="text-sm">
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                  onClick={() => window.location.href = '/deployment-management'}
+                >
+                  View all failed builds
+                </Button>
+              </p>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>

@@ -24,6 +24,21 @@ export const formatNotificationContent = (notification: any) => {
     return `${senderName} commented on your profile`;
   }
   
+  if (notification.type === 'build_failure') {
+    try {
+      const content = typeof notification.content === 'string' 
+        ? JSON.parse(notification.content) 
+        : notification.content;
+      
+      const siteName = content?.site_name || 'Unknown site';
+      const branch = content?.branch || 'unknown branch';
+      return `Build failed: ${siteName} (${branch})`;
+    } catch (error) {
+      console.error("Error parsing build_failure notification:", error);
+      return "Build failure notification";
+    }
+  }
+  
   return notification.message || notification.content?.message || "New notification";
 };
 
@@ -59,6 +74,26 @@ export const fetchNotifications = async (userId: string, isPreviewId: boolean) =
         position: "top-right",
         duration: 3000
       });
+    }
+    
+    // Check for build failure notifications and show special toast
+    const buildFailures = data ? data.filter(n => n.type === 'build_failure' && !n.read) : [];
+    if (buildFailures.length > 0) {
+      for (const failure of buildFailures) {
+        try {
+          const content = typeof failure.content === 'string' 
+            ? JSON.parse(failure.content) 
+            : failure.content;
+          
+          toast.error(`Netlify build failed!`, {
+            description: `${content.site_name}: ${content.branch} - ${content.error_message || 'Unknown error'}`,
+            position: "top-right",
+            duration: 8000
+          });
+        } catch (err) {
+          console.error("Error parsing build failure notification:", err);
+        }
+      }
     }
     
     return { notifications: data || [], error: null };
@@ -130,5 +165,27 @@ export const markAllNotificationsAsRead = async (userId: string, isPreviewId: bo
       position: "top-right"
     });
     return { success: false, error: err };
+  }
+};
+
+// Check and return build failure notifications for admin display
+export const getBuildFailureNotifications = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('type', 'build_failure')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    
+    if (error) {
+      console.error("Error fetching build failure notifications:", error);
+      return { notifications: [], error };
+    }
+    
+    return { notifications: data || [], error: null };
+  } catch (err) {
+    console.error("Error fetching build failure notifications:", err);
+    return { notifications: [], error: err };
   }
 };

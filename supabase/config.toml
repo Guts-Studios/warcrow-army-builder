@@ -101,4 +101,3 @@ port = 54326
 
 [functions.get-netlify-deployments]
 # verify_jwt = true
-
