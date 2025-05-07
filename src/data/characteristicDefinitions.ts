@@ -16,4 +16,4 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Undead": "Reanimated beings or spirits from beyond the grave.",
   "Mounted": "Units that ride upon mounts such as horses or other creatures."
   "Calvary": "Units that ride upon mounts such as horses or other creatures."
-};
+}
