@@ -79,5 +79,23 @@ export const northernTribesTroops: Unit[] = [
     specialRules: ["Displace (3)", "Rugged", "Trap"],
     highCommand: false,
     imageUrl: "/art/card/tundra_marauders_card.jpg"
+  },
+  {
+    id: "warg-riders",
+    name: "Warg Riderss",
+    faction: "northern-tribes",
+    pointsCost: 35,
+    availability: 2,
+    command: 0,
+    keywords: [
+      { name: "Calvary", description: "Calvary unit type" },
+      { name: "Orc", description: "Northern Tribes Race" },  
+       { name: "BLoodlust", description: "Has Bloodlust" },
+      { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
+      { name: "Raging", description: "Has Raging" }
+    ],
+    specialRules: ["Vulnerable"],
+    highCommand: false,
+    imageUrl: "/art/card/warg_riders_card.jpg"
   }
 ];
