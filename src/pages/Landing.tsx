@@ -62,11 +62,15 @@ const checkLatestBuildStatus = async () => {
     
     // Check if the latest deployment is a failure
     const latestDeployment = sortedDeployments[0];
-    if (latestDeployment.state === 'error') {
-      return latestDeployment;
+    
+    // If the latest deployment was successful, we should return null (no failure)
+    if (latestDeployment.state !== 'error') {
+      console.log('Latest deployment was successful, not showing failure alert');
+      return null;
     }
     
-    return null;
+    console.log('Latest deployment failed, showing failure alert:', latestDeployment);
+    return latestDeployment;
   } catch (err) {
     console.error('Error checking latest build status:', err);
     return null;
@@ -118,6 +122,7 @@ const Landing = () => {
         
         // Check latest build status
         const latestFailure = await checkLatestBuildStatus();
+        console.log('checkLatestBuildStatus returned:', latestFailure);
         setLatestFailedBuild(latestFailure);
       }
     };
@@ -177,8 +182,6 @@ const Landing = () => {
           </Alert>
         </div>
       )}
-      
-      {/* Removed the build failure alerts that were on the right side of the screen */}
       
       <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
         <Header 
