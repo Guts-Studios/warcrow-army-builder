@@ -100,40 +100,136 @@ export const useTranslateKeyword = () => {
 };
 
 /**
+ * DeepL API wrapper for translating text
+ * This function handles translation using the DeepL API
+ */
+export const translateWithDeepL = async (
+  text: string,
+  targetLanguage: string = 'ES',
+  formality: 'default' | 'more' | 'less' = 'default'
+): Promise<string> => {
+  try {
+    const DEEPL_API_KEY = process.env.DEEPL_API_KEY || '';
+    
+    if (!DEEPL_API_KEY) {
+      console.error('DeepL API key is not configured');
+      return text;
+    }
+    
+    // Ensure proper language formatting (DeepL uses ES not es)
+    const formattedLang = targetLanguage.toUpperCase();
+    
+    const response = await fetch('https://api-free.deepl.com/v2/translate', {
+      method: 'POST',
+      headers: {
+        'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: [text],
+        target_lang: formattedLang,
+        formality: formality
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`DeepL API returned ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.translations[0].text;
+  } catch (error) {
+    console.error('Error in DeepL translation:', error);
+    return text; // Return original text as fallback
+  }
+};
+
+/**
  * Batch translation utility for handling mass translations
  * This can be used to translate multiple items at once and optionally save to database
+ * It now supports DeepL translation when available
  */
 export const batchTranslate = async (
   items: Array<{id: string, key: string, source: string}>,
   targetLanguage: string,
   saveToDatabase: boolean = false,
-  tableType: 'rules_chapters' | 'rules_sections' | 'faq_sections' = 'rules_sections'
+  tableType: 'rules_chapters' | 'rules_sections' | 'faq_sections' = 'rules_sections',
+  useDeepL: boolean = true
 ): Promise<Array<{id: string, key: string, source: string, translation: string}>> => {
   try {
-    // For now, we're providing a manual batch translation approach
-    // A more advanced version could use a translation API
-
-    const results = items.map(item => ({
-      ...item,
-      translation: `[${targetLanguage}] ${item.source}` // Placeholder translation
-    }));
+    console.log(`Starting batch translation of ${items.length} items to ${targetLanguage}`);
+    const results = [];
+    
+    // Process items in batches to avoid overloading the translation API
+    const batchSize = 10;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i/batchSize) + 1} of ${Math.ceil(items.length/batchSize)}`);
+      
+      // Translate each item in the batch
+      const batchResults = await Promise.all(
+        batch.map(async (item) => {
+          let translation = '';
+          
+          if (useDeepL) {
+            // Try to use DeepL for translation
+            try {
+              translation = await translateWithDeepL(item.source, targetLanguage);
+              console.log(`DeepL translation successful for item ${item.id}`);
+            } catch (error) {
+              console.error(`DeepL translation failed for item ${item.id}:`, error);
+              translation = `[${targetLanguage}] ${item.source}`; // Fallback
+            }
+          } else {
+            // Use placeholder translation if DeepL is not enabled
+            translation = `[${targetLanguage}] ${item.source}`;
+          }
+          
+          return {
+            ...item,
+            translation
+          };
+        })
+      );
+      
+      results.push(...batchResults);
+      
+      // Add a small delay between batches to avoid rate limiting
+      if (i + batchSize < items.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
 
     if (saveToDatabase && tableType) {
       // Example of how you could save these to a database
       // This would need to be customized based on your schema
       for (const item of results) {
-        const columnName = `${targetLanguage}_content`;
+        const columnName = `${targetLanguage.toLowerCase()}_content`;
         
-        // Update the record with the translation using the correct table type
-        const { error } = await supabase
-          .from(tableType)
-          .update({ [columnName]: item.translation })
-          .eq('id', item.id);
-          
-        if (error) {
-          console.error(`Error updating translation for ${item.id}:`, error);
+        if (tableType === 'rules_chapters') {
+          const columnName = `${targetLanguage.toLowerCase()}_title`;
+          const { error } = await supabase
+            .from(tableType)
+            .update({ [columnName]: item.translation })
+            .eq('id', item.id);
+            
+          if (error) {
+            console.error(`Error updating translation for ${item.id}:`, error);
+          }
+        } else {
+          // For rules_sections and faq_sections
+          const { error } = await supabase
+            .from(tableType)
+            .update({ [columnName]: item.translation })
+            .eq('id', item.id);
+            
+          if (error) {
+            console.error(`Error updating translation for ${item.id}:`, error);
+          }
         }
       }
+      
+      console.log(`Saved ${results.length} translations to database`);
     }
     
     return results;
