@@ -28,6 +28,21 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
     );
   }
 
+  // Sort sections by chapter title and then by section title
+  const sortedSections = [...filteredSections].sort((a, b) => {
+    const chapterA = chapters.find(c => c.id === a.chapter_id);
+    const chapterB = chapters.find(c => c.id === b.chapter_id);
+    
+    // First sort by chapter title
+    if (chapterA && chapterB) {
+      if (chapterA.title < chapterB.title) return -1;
+      if (chapterA.title > chapterB.title) return 1;
+    }
+    
+    // Then sort by section title
+    return a.title.localeCompare(b.title);
+  });
+
   return (
     <>
       <div className="mb-2">
@@ -48,8 +63,8 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSections.length > 0 ? (
-              filteredSections.map((section) => {
+            {sortedSections.length > 0 ? (
+              sortedSections.map((section) => {
                 const chapterTitle = chapters.find(c => c.id === section.chapter_id)?.title || 'Unknown';
                 return (
                   <TableRow key={section.id} className="border-warcrow-gold/20">
