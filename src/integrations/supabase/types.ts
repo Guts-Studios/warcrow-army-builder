@@ -79,31 +79,37 @@ export type Database = {
         Row: {
           content: string
           content_es: string | null
+          content_fr: string | null
           created_at: string
           id: string
           order_index: number
           section: string
           section_es: string | null
+          section_fr: string | null
           updated_at: string
         }
         Insert: {
           content: string
           content_es?: string | null
+          content_fr?: string | null
           created_at?: string
           id?: string
           order_index: number
           section: string
           section_es?: string | null
+          section_fr?: string | null
           updated_at?: string
         }
         Update: {
           content?: string
           content_es?: string | null
+          content_fr?: string | null
           created_at?: string
           id?: string
           order_index?: number
           section?: string
           section_es?: string | null
+          section_fr?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -426,6 +432,7 @@ export type Database = {
           order_index: number
           title: string
           title_es: string | null
+          title_fr: string | null
           updated_at: string
         }
         Insert: {
@@ -434,6 +441,7 @@ export type Database = {
           order_index: number
           title: string
           title_es?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Update: {
@@ -442,6 +450,7 @@ export type Database = {
           order_index?: number
           title?: string
           title_es?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -451,36 +460,42 @@ export type Database = {
           chapter_id: string
           content: string
           content_es: string | null
+          content_fr: string | null
           created_at: string
           id: string
           mission_details: string | null
           order_index: number
           title: string
           title_es: string | null
+          title_fr: string | null
           updated_at: string
         }
         Insert: {
           chapter_id: string
           content: string
           content_es?: string | null
+          content_fr?: string | null
           created_at?: string
           id?: string
           mission_details?: string | null
           order_index: number
           title: string
           title_es?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Update: {
           chapter_id?: string
           content?: string
           content_es?: string | null
+          content_fr?: string | null
           created_at?: string
           id?: string
           mission_details?: string | null
           order_index?: number
           title?: string
           title_es?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Relationships: [

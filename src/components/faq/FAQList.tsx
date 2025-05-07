@@ -9,7 +9,7 @@ interface FAQListProps {
 }
 
 export const FAQList: React.FC<FAQListProps> = ({ items }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   return (
     <div className="mt-6 space-y-6 w-full">
@@ -18,13 +18,28 @@ export const FAQList: React.FC<FAQListProps> = ({ items }) => {
           {t('noResults')}
         </div>
       ) : (
-        items.map((item) => (
-          <FAQItem 
-            key={item.id} 
-            section={item.section} 
-            content={item.content} 
-          />
-        ))
+        items.map((item) => {
+          // Select the appropriate language content
+          let sectionText = item.section;
+          let contentText = item.content;
+          
+          if (language === 'es') {
+            if (item.section_es) sectionText = item.section_es;
+            if (item.content_es) contentText = item.content_es;
+          }
+          else if (language === 'fr') {
+            if (item.section_fr) sectionText = item.section_fr;
+            if (item.content_fr) contentText = item.content_fr;
+          }
+          
+          return (
+            <FAQItem 
+              key={item.id} 
+              section={sectionText} 
+              content={contentText} 
+            />
+          );
+        })
       )}
     </div>
   );

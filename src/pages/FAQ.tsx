@@ -72,9 +72,13 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
         .map(result => ({
           id: result.id,
           section: result.title,
+          section_es: null,
+          section_fr: null,
           content: result.content,
+          content_es: null,
+          content_fr: null,
           order_index: 0
-        }))
+        } as FAQItem))
     : faqSections;
 
   // If we're showing this component in a tab, we don't need the full page wrapper
