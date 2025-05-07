@@ -94,7 +94,7 @@ export const northernTribesTroops: Unit[] = [
       { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
       { name: "Raging", description: "Has Raging" }
     ],
-    specialRules: ["Vulnerable", "Repeat a die"],
+    specialRules: ["Vulnerable", "Repeat a Die"],
     highCommand: false,
     imageUrl: "/art/card/warg_riders_card.jpg"
   }
