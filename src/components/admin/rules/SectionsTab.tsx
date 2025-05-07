@@ -48,7 +48,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
   return (
     <>
       <div className="mb-2">
-        <p className="text-warcrow-text/80 text-sm">
+        <p className="text-white text-sm">
           Found {filteredSections.length} sections across {chapters.length} chapters
         </p>
       </div>
@@ -89,9 +89,9 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
                 
                 return (
                   <TableRow key={section.id} className="border-warcrow-gold/20">
-                    <TableCell className="text-warcrow-text/80">{chapterTitle}</TableCell>
+                    <TableCell className="text-white">{chapterTitle}</TableCell>
                     <TableCell className="font-medium text-warcrow-gold">{section.title}</TableCell>
-                    <TableCell className={`${hasTranslatedTitle ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                    <TableCell className={`${hasTranslatedTitle ? 'text-white' : 'text-red-500 italic'}`}>
                       {hasTranslatedTitle ? translatedTitle : "Missing translation"}
                     </TableCell>
                     <TableCell>
@@ -130,7 +130,7 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
                   <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
-                  <p className="text-warcrow-text">No sections found matching search criteria</p>
+                  <p className="text-white">No sections found matching search criteria</p>
                 </TableCell>
               </TableRow>
             )}

@@ -25,7 +25,7 @@ export const LanguageVerificationPanel: React.FC<LanguageVerificationPanelProps>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-xs text-warcrow-text/70 mb-2">
+        <div className="text-xs text-white mb-2">
           Switch between languages to verify translations in the admin view
         </div>
         <RadioGroup 
@@ -35,15 +35,15 @@ export const LanguageVerificationPanel: React.FC<LanguageVerificationPanelProps>
         >
           <div className="flex items-center space-x-1">
             <RadioGroupItem value="en" id="lang-en" className="text-warcrow-gold" />
-            <Label htmlFor="lang-en" className="text-sm">English</Label>
+            <Label htmlFor="lang-en" className="text-sm text-white">English</Label>
           </div>
           <div className="flex items-center space-x-1">
             <RadioGroupItem value="es" id="lang-es" className="text-warcrow-gold" />
-            <Label htmlFor="lang-es" className="text-sm">Spanish</Label>
+            <Label htmlFor="lang-es" className="text-sm text-white">Spanish</Label>
           </div>
           <div className="flex items-center space-x-1">
             <RadioGroupItem value="fr" id="lang-fr" className="text-warcrow-gold" />
-            <Label htmlFor="lang-fr" className="text-sm">French</Label>
+            <Label htmlFor="lang-fr" className="text-sm text-white">French</Label>
           </div>
         </RadioGroup>
       </CardContent>

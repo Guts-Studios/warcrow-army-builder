@@ -31,7 +31,7 @@ export const ChaptersTab: React.FC<ChaptersTabProps> = ({
   return (
     <>
       <div className="mb-2">
-        <p className="text-warcrow-text/80 text-sm">
+        <p className="text-white text-sm">
           Found {filteredChapters.length} chapters
         </p>
       </div>
@@ -63,9 +63,9 @@ export const ChaptersTab: React.FC<ChaptersTabProps> = ({
                 
                 return (
                   <TableRow key={chapter.id} className="border-warcrow-gold/20">
-                    <TableCell className="font-medium">{chapter.order_index}</TableCell>
+                    <TableCell className="font-medium text-white">{chapter.order_index}</TableCell>
                     <TableCell className="font-medium text-warcrow-gold">{chapter.title}</TableCell>
-                    <TableCell className={`${hasTranslation ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                    <TableCell className={`${hasTranslation ? 'text-white' : 'text-red-500 italic'}`}>
                       {hasTranslation ? translatedTitle : "Missing translation"}
                     </TableCell>
                     <TableCell>
@@ -104,7 +104,7 @@ export const ChaptersTab: React.FC<ChaptersTabProps> = ({
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
                   <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
-                  <p className="text-warcrow-text">No chapters found matching search criteria</p>
+                  <p className="text-white">No chapters found matching search criteria</p>
                 </TableCell>
               </TableRow>
             )}
