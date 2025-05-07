@@ -14,6 +14,6 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Beast": "A creature or animal, often wild or trained for combat.",
   "Construct": "An artificial being or mechanical creation.",
   "Undead": "Reanimated beings or spirits from beyond the grave.",
-  "Mounted": "Units that ride upon mounts such as horses or other creatures."
+  "Mounted": "Units that ride upon mounts such as horses or other creatures.",
   "Calvary": "Units that ride upon mounts such as horses or other creatures."
-}
+};
