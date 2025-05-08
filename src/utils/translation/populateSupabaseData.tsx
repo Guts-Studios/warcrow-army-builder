@@ -197,10 +197,8 @@ const populateUnitData = async () => {
         typeof kw === 'string' ? kw : kw.name
       );
 
-      // Generate a UUID instead of using string IDs
-      // Remove any unit.id usage here as it might be a string format
+      // Don't include id field - let Supabase generate it automatically
       return {
-        // Don't include id field - let Supabase generate it automatically
         name: unit.name,
         description: "", // The Unit type doesn't have a description property
         faction: unit.faction,
@@ -249,16 +247,22 @@ const getUnitType = (keywords: any[]): string => {
   const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
   
   if (keywordNames.includes("Character")) {
+    // Check for "Named Character" type
+    if (keywordNames.some(k => ["High Command", "Colossal Company"].includes(k))) {
+      return "Named Character";
+    }
     return "Character";
   } else if (keywordNames.some(k => ["Cavalry", "Mounted"].includes(k))) {
     return "Cavalry";
   } else if (keywordNames.includes("Infantry")) {
-    return "Infantry";
+    return "Troop";
   } else if (keywordNames.includes("Beast")) {
     return "Beast";
   } else if (keywordNames.includes("Construct")) {
     return "Construct";
+  } else if (keywordNames.includes("Companion")) {
+    return "Companion";
   }
   
-  return "Infantry"; // Default type
+  return "Troop"; // Default type
 };
