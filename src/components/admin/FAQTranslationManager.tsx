@@ -397,48 +397,50 @@ const FAQTranslationManager: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-warcrow-gold/20">
-                    <TableHead className="text-warcrow-gold/80">Order</TableHead>
-                    <TableHead className="text-warcrow-gold/80">English Section</TableHead>
-                    <TableHead className="text-warcrow-gold/80">Spanish Section</TableHead>
-                    <TableHead className="text-warcrow-gold/80">Status</TableHead>
-                    <TableHead className="text-warcrow-gold/80">Actions</TableHead>
+                    <TableHead className="text-warcrow-gold/80 w-16">Order</TableHead>
+                    <TableHead className="text-warcrow-gold/80 w-1/3">English Section</TableHead>
+                    <TableHead className="text-warcrow-gold/80 w-1/3">Spanish Section</TableHead>
+                    <TableHead className="text-warcrow-gold/80 w-24">Status</TableHead>
+                    <TableHead className="text-warcrow-gold/80 w-24 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredItems.length > 0 ? (
                     filteredItems.map((item) => (
                       <TableRow key={item.id} className="border-warcrow-gold/20">
-                        <TableCell className="font-medium">{item.order_index}</TableCell>
-                        <TableCell className="font-medium text-warcrow-gold">
-                          {item.section}
+                        <TableCell className="font-medium w-16">{item.order_index}</TableCell>
+                        <TableCell className="font-medium text-warcrow-gold w-1/3">
+                          <div className="truncate max-w-xs">{item.section}</div>
                           <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
-                            {item.content.substring(0, 100)}...
+                            {item.content.substring(0, 60)}...
                           </div>
                         </TableCell>
-                        <TableCell className={`${item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
-                          {item.section_es || "Missing translation"}
+                        <TableCell className={`w-1/3 ${item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                          <div className="truncate max-w-xs">
+                            {item.section_es || "Missing translation"}
+                          </div>
                           {item.section_es && item.content_es && (
                             <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
-                              {item.content_es.substring(0, 100)}...
+                              {item.content_es.substring(0, 60)}...
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-24">
                           {isItemComplete(item) ? (
-                            <Badge className="bg-green-600 flex items-center gap-1">
+                            <Badge className="bg-green-600 flex items-center gap-1 whitespace-nowrap">
                               <Check className="h-3 w-3" /> Complete
                             </Badge>
                           ) : (
-                            <Badge className="bg-red-600 flex items-center gap-1">
+                            <Badge className="bg-red-600 flex items-center gap-1 whitespace-nowrap">
                               <X className="h-3 w-3" /> Incomplete
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-24 text-right">
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="border-warcrow-gold/30 text-warcrow-gold"
+                            className="border-warcrow-gold/30 text-warcrow-gold whitespace-nowrap"
                             onClick={() => handleEditTranslation(item)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
@@ -502,7 +504,7 @@ const FAQTranslationManager: React.FC = () => {
                   {faqItems.map(item => (
                     <div key={item.id} className="flex items-center justify-between p-2 border border-warcrow-gold/20 rounded-md">
                       <div className="flex-1">
-                        <p className="font-medium">{item.section}</p>
+                        <p className="font-medium truncate">{item.section}</p>
                         <p className="text-sm text-warcrow-text/60">
                           <span className={item.section_es ? "text-green-500" : "text-red-500"}>
                             • ES Section {item.section_es ? "✓" : "✗"}
@@ -521,13 +523,23 @@ const FAQTranslationManager: React.FC = () => {
                           </span>
                         </p>
                       </div>
-                      {isItemComplete(item) ? (
-                        <Badge className="bg-green-600">Complete</Badge>
-                      ) : item.section_es || item.content_es ? (
-                        <Badge className="bg-amber-600">Partial</Badge>
-                      ) : (
-                        <Badge className="bg-red-600">Missing</Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-warcrow-gold/30 text-warcrow-gold whitespace-nowrap"
+                          onClick={() => handleEditTranslation(item)}
+                        >
+                          <Edit className="h-3 w-3 mr-1" /> Edit
+                        </Button>
+                        {isItemComplete(item) ? (
+                          <Badge className="bg-green-600">Complete</Badge>
+                        ) : item.section_es || item.content_es ? (
+                          <Badge className="bg-amber-600">Partial</Badge>
+                        ) : (
+                          <Badge className="bg-red-600">Missing</Badge>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -555,9 +567,9 @@ const FAQTranslationManager: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-warcrow-gold/20">
-                      <TableHead className="text-warcrow-gold/80">Section</TableHead>
-                      <TableHead className="text-warcrow-gold/80">Missing</TableHead>
-                      <TableHead className="text-warcrow-gold/80">Actions</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-1/2">Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-1/4">Missing</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-1/4 text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -567,8 +579,10 @@ const FAQTranslationManager: React.FC = () => {
                       
                       return (
                         <TableRow key={item.id} className="border-warcrow-gold/20">
-                          <TableCell className="font-medium text-warcrow-gold">{item.section}</TableCell>
-                          <TableCell>
+                          <TableCell className="font-medium text-warcrow-gold w-1/2">
+                            <div className="truncate max-w-xs">{item.section}</div>
+                          </TableCell>
+                          <TableCell className="w-1/4">
                             {missingSection && missingContent ? (
                               <Badge variant="destructive">Section & Content</Badge>
                             ) : missingSection ? (
@@ -577,7 +591,7 @@ const FAQTranslationManager: React.FC = () => {
                               <Badge variant="destructive">Content</Badge>
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="w-1/4 text-right">
                             <Button
                               size="sm"
                               variant="outline"
@@ -759,3 +773,4 @@ const FAQTranslationManager: React.FC = () => {
 };
 
 export default FAQTranslationManager;
+

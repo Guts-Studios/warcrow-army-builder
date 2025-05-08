@@ -12,7 +12,7 @@ export const FAQList: React.FC<FAQListProps> = ({ items }) => {
   const { t, language } = useLanguage();
   
   return (
-    <div className="mt-6 space-y-6 w-full max-w-4xl mx-auto">
+    <div className="mt-6 space-y-6 w-full max-w-3xl mx-auto">
       {items.length === 0 ? (
         <div className="text-center py-8 text-warcrow-gold/60">
           {t('noResults')}

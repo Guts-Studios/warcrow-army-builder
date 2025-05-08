@@ -85,7 +85,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   // If we're showing this component in a tab, we don't need the full page wrapper
   if (!showHeader) {
     return (
-      <div className="w-full max-w-7xl mx-auto">
+      <div className="w-full max-w-3xl mx-auto">
         <SearchProvider>
           {/* Search Component */}
           <FAQSearch 
@@ -141,7 +141,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
       </PageHeader>
       
       <Container className="py-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <SearchProvider>
             {/* Search Component */}
             <FAQSearch 
