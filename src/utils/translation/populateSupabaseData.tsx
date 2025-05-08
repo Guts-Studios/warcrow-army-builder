@@ -197,8 +197,10 @@ const populateUnitData = async () => {
         typeof kw === 'string' ? kw : kw.name
       );
 
+      // Generate a UUID instead of using string IDs
+      // Remove any unit.id usage here as it might be a string format
       return {
-        id: unit.id,
+        // Don't include id field - let Supabase generate it automatically
         name: unit.name,
         description: "", // The Unit type doesn't have a description property
         faction: unit.faction,
@@ -220,9 +222,8 @@ const populateUnitData = async () => {
     for (let i = 0; i < unitData.length; i += batchSize) {
       const batch = unitData.slice(i, i + batchSize);
       console.log(`Uploading unit data batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(unitData.length/batchSize)}`);
-      const { error } = await supabase.from("unit_data").upsert(
-        batch,
-        { onConflict: "id" }
+      const { error } = await supabase.from("unit_data").insert(
+        batch
       );
 
       if (error) {
