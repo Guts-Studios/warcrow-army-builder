@@ -10,6 +10,11 @@ interface TextHighlighterProps {
 export const TextHighlighter = ({ text }: TextHighlighterProps) => {
   const { searchTerm, caseSensitive } = useSearch();
   const { language } = useLanguage();
+  
+  // Convert [[red]] syntax to HTML for rendering
+  const processRedSyntax = (input: string): string => {
+    return input.replace(/\[\[red\]\](.*?)\[\[\/red\]\]/g, '<span style="color: #ea384c">$1</span>');
+  };
 
   // If there's no search term and the text contains HTML, render it directly
   if (!searchTerm && (text.includes("<") || text.includes("[[red]]"))) {
@@ -71,11 +76,6 @@ export const TextHighlighter = ({ text }: TextHighlighterProps) => {
     }
     
     return result;
-  };
-
-  // Convert [[red]] syntax to HTML for rendering
-  const processRedSyntax = (input: string): string => {
-    return input.replace(/\[\[red\]\](.*?)\[\[\/red\]\]/g, '<span style="color: #ea384c">$1</span>');
   };
 
   // If there's no special formatting and no search term, just return the plain text
