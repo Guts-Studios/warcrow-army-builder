@@ -1,14 +1,14 @@
 
 import React from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
-  UserIcon,
+  LucideLayoutDashboard,
   BookOpen,
-  MessageSquareQuote,
-  LayoutDashboard,
-  AlertCircle,
-  Newspaper,
-  Database
+  HelpCircle,
+  Users,
+  Bell,
+  FileText,
+  Swords,
 } from "lucide-react";
 
 interface AdminNavbarProps {
@@ -16,49 +16,40 @@ interface AdminNavbarProps {
   setActiveTab: (tab: string) => void;
 }
 
-const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
+const AdminNavbar: React.FC<AdminNavbarProps> = ({
+  activeTab,
+  setActiveTab,
+}) => {
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <LucideLayoutDashboard className="h-4 w-4" /> },
+    { id: "rules", label: "Rules", icon: <BookOpen className="h-4 w-4" /> },
+    { id: "faq", label: "FAQ", icon: <HelpCircle className="h-4 w-4" /> },
+    { id: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
+    { id: "alerts", label: "Alerts", icon: <Bell className="h-4 w-4" /> },
+    { id: "news", label: "News", icon: <FileText className="h-4 w-4" /> },
+    { id: "units", label: "Units", icon: <Swords className="h-4 w-4" /> },
+  ];
+
   return (
-    <div className="sticky top-0 z-50 bg-warcrow-background border-b border-warcrow-gold/30 pb-2">
-      <h1 className="text-2xl font-semibold text-warcrow-gold mb-4">Admin Dashboard</h1>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="overflow-x-auto">
-        <TabsList className="grid grid-cols-7 w-full">
-          <TabsTrigger value="dashboard" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <LayoutDashboard className="h-4 w-4" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="rules" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">Rules</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="faq" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <MessageSquareQuote className="h-4 w-4" />
-            <span className="hidden sm:inline">FAQ</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="users" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <UserIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Users</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="alerts" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <AlertCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Alerts</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="news" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <Newspaper className="h-4 w-4" />
-            <span className="hidden sm:inline">News</span>
-          </TabsTrigger>
-          
-          <TabsTrigger value="units" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
-            <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">Units</span>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+    <div className="mb-8 admin-nav">
+      <div className="flex flex-wrap gap-2 justify-start">
+        {navItems.map((item) => (
+          <Button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            variant={activeTab === item.id ? "default" : "outline"}
+            className={
+              activeTab === item.id
+                ? "bg-warcrow-gold hover:bg-warcrow-gold/90 text-black"
+                : "border-warcrow-gold/30 bg-black/50 hover:bg-warcrow-gold/10"
+            }
+            size="sm"
+          >
+            {item.icon}
+            {item.label}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };

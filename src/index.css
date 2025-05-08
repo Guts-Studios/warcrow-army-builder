@@ -171,7 +171,7 @@ input, textarea, select {
   color: #fbbf24 !important; /* Gold color when active */
 }
 
-/* Improve button text contrast */
+/* Improve button text contrast - Fixed to not have blue text */
 button {
   color: #f4f4f5 !important; /* Very light gray for button text */
 }
@@ -183,8 +183,34 @@ button.text-black {
   color: #000 !important; /* Black text for gold buttons */
 }
 
+/* Buttons with gold outlines should have gold text */
+button.border-warcrow-gold,
+button.border-warcrow-gold\/30,
+button.border-warcrow-gold\/50 {
+  color: #ffd700 !important; /* Gold text for gold-outlined buttons */
+}
+
 /* Optimize cards and tables to avoid dark blue text */
 .card, 
 .table-container {
   color: #e4e4e7 !important;
+}
+
+/* Fix for admin navbar items to ensure gold text */
+.admin-nav button {
+  color: #ffd700 !important;
+}
+
+/* Fix admin button/tab text colors */
+[role="tab"] {
+  color: #e4e4e7 !important;
+}
+
+[role="tab"][data-state="active"] {
+  color: #ffd700 !important;
+}
+
+/* Ensure admin sidebar buttons have proper contrast */
+.admin-sidebar button {
+  color: #ffd700 !important;
 }

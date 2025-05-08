@@ -6,7 +6,7 @@ import { translations } from "@/i18n/translations";
 interface NewsTranslation {
   en: string;
   es: string;
-  fr: string; // Make sure fr is included here
+  fr: string; // French translation included
 }
 
 interface NewsItemDB {
@@ -16,7 +16,7 @@ interface NewsItemDB {
   translation_key: string;
   content_en: string;
   content_es: string;
-  content_fr: string; // Make sure fr is included here
+  content_fr: string; // French content included
   created_at: string;
   updated_at: string;
 }
@@ -143,17 +143,26 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       return [];
     }
     
+    // Handle existing data that might not have content_fr yet by adding it if missing
+    const processedData = data.map(item => {
+      // Ensure content_fr exists (using an empty string if it doesn't)
+      return {
+        ...item,
+        content_fr: (item as any).content_fr || ''
+      } as NewsItemDB;
+    });
+    
     // Update the in-memory translations for each news item
-    data.forEach(item => {
+    processedData.forEach(item => {
       translations[item.translation_key] = {
         en: item.content_en,
         es: item.content_es,
-        fr: item.content_fr || '' // Make sure to handle potential undefined content_fr
+        fr: item.content_fr // Use the processed content_fr
       };
     });
     
     // Convert to app format
-    return data.map(convertToNewsItem);
+    return processedData.map(convertToNewsItem);
   } catch (error) {
     console.error('Error in fetchNewsItems:', error);
     return [];
@@ -171,7 +180,7 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
         translation_key: newsData.key,
         content_en: newsData.content.en,
         content_es: newsData.content.es,
-        content_fr: newsData.content.fr || '',  // Add French content
+        content_fr: newsData.content.fr,  // Include French content
       })
       .eq('news_id', newsData.id);
     
@@ -184,7 +193,7 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
     translations[newsData.key] = {
       en: newsData.content.en,
       es: newsData.content.es,
-      fr: newsData.content.fr || '',  // Add French content
+      fr: newsData.content.fr,  // Include French content
     };
     
     console.log('Updated news item successfully:', newsData);
@@ -207,7 +216,7 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
         translation_key: newsData.key,
         content_en: newsData.content.en,
         content_es: newsData.content.es,
-        content_fr: newsData.content.fr || '',  // Add French content
+        content_fr: newsData.content.fr,  // Include French content
       });
     
     if (error) {
@@ -219,7 +228,7 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
     translations[newsData.key] = {
       en: newsData.content.en,
       es: newsData.content.es,
-      fr: newsData.content.fr || '',  // Add French content
+      fr: newsData.content.fr,  // Include French content
     };
     
     console.log('Created new news item successfully:', newsData);
@@ -265,8 +274,14 @@ export const getNewsItem = async (id: string): Promise<NewsItem | null> => {
       console.error('Error fetching news item:', error);
       return null;
     }
+
+    // Handle data that might not have content_fr yet
+    const processedItem = {
+      ...data,
+      content_fr: (data as any).content_fr || ''
+    } as NewsItemDB;
     
-    return convertToNewsItem(data);
+    return convertToNewsItem(processedItem);
   } catch (error) {
     console.error('Error in getNewsItem:', error);
     return null;
