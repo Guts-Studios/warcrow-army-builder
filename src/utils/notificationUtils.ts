@@ -76,29 +76,36 @@ export const fetchNotifications = async (userId: string, isPreviewId: boolean) =
       });
     }
     
-    // Only show build failure notifications if they're recent (last 24 hours)
+    // Only show the most recent build failure notification if it's from the last 24 hours and unread
+    let hasShownBuildFailureNotification = false;
     const recentBuildFailures = data ? data.filter(n => {
-      return n.type === 'build_failure' && 
+      const isRecent = n.type === 'build_failure' && 
              !n.read && 
              // Check if created within the last 24 hours
              (new Date().getTime() - new Date(n.created_at).getTime() < 24 * 60 * 60 * 1000);
+      
+      if (isRecent && !hasShownBuildFailureNotification) {
+        hasShownBuildFailureNotification = true;
+        return true;
+      }
+      return false;
     }) : [];
     
+    // Only show a toast for the most recent build failure notification
     if (recentBuildFailures.length > 0) {
-      for (const failure of recentBuildFailures) {
-        try {
-          const content = typeof failure.content === 'string' 
-            ? JSON.parse(failure.content) 
-            : failure.content;
-          
-          toast.error(`Netlify build failed!`, {
-            description: `${content.site_name}: ${content.branch} - ${content.error_message || 'Unknown error'}`,
-            position: "top-right",
-            duration: 8000
-          });
-        } catch (err) {
-          console.error("Error parsing build failure notification:", err);
-        }
+      const newestFailure = recentBuildFailures[0];
+      try {
+        const content = typeof newestFailure.content === 'string' 
+          ? JSON.parse(newestFailure.content) 
+          : newestFailure.content;
+        
+        toast.error(`Netlify build failed!`, {
+          description: `${content.site_name}: ${content.branch} - ${content.error_message || 'Unknown error'}`,
+          position: "top-right",
+          duration: 8000
+        });
+      } catch (err) {
+        console.error("Error parsing build failure notification:", err);
       }
     }
     

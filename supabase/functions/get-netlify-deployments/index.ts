@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -159,19 +158,18 @@ serve(async (req) => {
       latestSuccessfulBuildTime = new Date(latestSuccessfulBuild.created_at);
     }
 
-    // Find the latest failed build
-    const latestFailedBuild = deploymentsData.find((deploy: any) => deploy.state === 'error');
+    // Find the latest failed build - only looking at the most recent one
     const latestBuild = deploymentsData[0]; // First one should be the latest build due to sorting
     
-    // Check if the latest build is a failure
+    // Only send a notification if the latest build is a failure
+    // We're not keeping track of all failed builds, just the latest one
     const isLatestBuildFailed = latestBuild && latestBuild.state === 'error';
     
-    // Check for failed deployments and create notifications
+    // If the latest build is a failure, create/update the notification
     if (isLatestBuildFailed) {
-      // If the latest build is a failure, create a notification
+      // Only create a notification for the most recent failure
       await createBuildFailureNotification(latestBuild);
     } else {
-      // If the latest isn't a failure, we don't need to check further since builds are sorted by date
       console.log("Latest build is successful, no need to create failure notifications");
     }
 

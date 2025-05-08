@@ -26,6 +26,7 @@ const NetlifyDeployments: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [lastNotifiedDeploymentId, setLastNotifiedDeploymentId] = useState<string | null>(null);
 
   const fetchDeployments = async () => {
     try {
@@ -46,12 +47,28 @@ const NetlifyDeployments: React.FC = () => {
       
       setDeployments(data.deployments);
       
-      // Check for failed deployments and show a toast
-      const failedDeployment = data.deployments.find((d: DeploymentStatus) => d.state === 'error');
-      if (failedDeployment) {
-        toast.error(`Deployment failed: ${failedDeployment.error_message || 'Unknown error'}`, {
-          description: `Branch: ${failedDeployment.branch}`,
-        });
+      // Only show notifications for the latest deployment if we haven't shown it before
+      // and it's either a failure or a success
+      if (data.deployments && data.deployments.length > 0) {
+        const latestDeployment = data.deployments[0];
+        
+        // Only notify if this is a different deployment than we've already notified about
+        if (latestDeployment.id !== lastNotifiedDeploymentId) {
+          // Notification logic for the latest deployment only
+          if (latestDeployment.state === 'error') {
+            toast.error(`Deployment failed: ${latestDeployment.error_message || 'Unknown error'}`, {
+              description: `Branch: ${latestDeployment.branch}`,
+            });
+            setLastNotifiedDeploymentId(latestDeployment.id);
+          } 
+          else if (latestDeployment.state === 'ready') {
+            toast.success(`Deployment successful: ${latestDeployment.branch}`, {
+              description: `Deployed in ${latestDeployment.deploy_time || 'unknown time'}`,
+            });
+            setLastNotifiedDeploymentId(latestDeployment.id);
+          }
+          // Don't show notifications for "building" state
+        }
       }
 
     } catch (err) {
@@ -194,15 +211,23 @@ const NetlifyDeployments: React.FC = () => {
           ) : (
             <ScrollArea className="h-72">
               <div className="space-y-4 pr-4">
-                {limitedDeployments.map(deployment => (
+                {deployments.slice(0, 5).map(deployment => (
                   <div 
                     key={deployment.id}
                     className="border border-warcrow-gold/20 rounded-md p-3 hover:bg-warcrow-gold/5 transition-colors"
                   >
                     <div className="flex items-center mb-1">
-                      {getStatusIcon(deployment.state)}
+                      {deployment.state === 'ready' ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : deployment.state === 'error' ? (
+                        <XCircle className="h-4 w-4 text-red-500" />
+                      ) : deployment.state === 'building' ? (
+                        <Clock className="h-4 w-4 text-yellow-500" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-gray-500" />
+                      )}
                       <span className="ml-2 font-medium text-warcrow-gold">
-                        {getDeploymentTitle(deployment)}
+                        {deployment.site_name}: Production: {deployment.branch} {deployment.state === 'building' ? 'building' : 'completed'}
                       </span>
                     </div>
                     
