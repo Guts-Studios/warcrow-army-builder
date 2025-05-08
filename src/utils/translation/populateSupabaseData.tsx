@@ -200,7 +200,7 @@ const populateUnitData = async () => {
       return {
         id: unit.id,
         name: unit.name,
-        description: unit.description || "", 
+        description: unit.description || "", // Fixed: Add a fallback empty string if description is undefined
         faction: unit.faction,
         type: getUnitType(unit.keywords),
         points: unit.pointsCost,

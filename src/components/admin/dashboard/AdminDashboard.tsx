@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, AlertTriangle, Code, Shield, Users, Package, FileText, Languages } from "lucide-react";
+import { Mail, AlertTriangle, Code, Shield, Users, Package, FileText, Languages, Rocket } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import NetlifyDeployments from './NetlifyDeployments';
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 
@@ -110,24 +109,21 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* Netlify Deployments Module - Preview */}
-        <NetlifyDeployments />
-        
-        {/* Deployment Management Link */}
+        {/* System Management Link */}
         <Card className="bg-black/50 border border-warcrow-gold/30 h-full">
           <div className="p-6 flex flex-col items-center justify-between h-full">
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Deployment Management</h2>
+              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">System Management</h2>
               <p className="text-sm text-gray-300 mb-4 text-center">
-                Manually trigger deployments and view complete build history
+                Monitor deployments, API status, and manage application data
               </p>
             </div>
             <Button 
               onClick={() => navigate('/admin/deployment')}
               className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
             >
-              <Package className="mr-2 h-4 w-4" />
-              Manage Deployments
+              <Rocket className="mr-2 h-4 w-4" />
+              System Management
             </Button>
           </div>
         </Card>
@@ -147,6 +143,25 @@ const AdminDashboard = () => {
             >
               <FileText className="mr-2 h-4 w-4" />
               Edit Changelog
+            </Button>
+          </div>
+        </Card>
+        
+        {/* Translation Management Link */}
+        <Card className="bg-black/50 border border-warcrow-gold/30 h-full">
+          <div className="p-6 flex flex-col items-center justify-between h-full">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Translation Management</h2>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                Manage translations for rules, units, and user interface
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/admin', { state: { initialTab: 'rules' } })}
+              className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
+            >
+              <Languages className="mr-2 h-4 w-4" />
+              Manage Translations
             </Button>
           </div>
         </Card>

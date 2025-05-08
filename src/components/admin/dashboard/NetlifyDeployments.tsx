@@ -209,7 +209,7 @@ const NetlifyDeployments: React.FC = () => {
           {deployments.length === 0 ? (
             <p className="text-center text-gray-400 py-2">No deployments found</p>
           ) : (
-            <ScrollArea className="h-72">
+            <ScrollArea className="h-[400px]">
               <div className="space-y-4 pr-4">
                 {deployments.slice(0, 5).map(deployment => (
                   <div 
@@ -233,7 +233,7 @@ const NetlifyDeployments: React.FC = () => {
                     
                     <div className="pl-6 text-sm text-gray-300 mb-1">
                       {deployment.commit_message && (
-                        <p className="truncate">By {deployment.author}: {deployment.commit_message}</p>
+                        <p className="truncate max-w-full">{deployment.author ? `By ${deployment.author}: ` : ''}{deployment.commit_message}</p>
                       )}
                     </div>
                     
@@ -244,7 +244,14 @@ const NetlifyDeployments: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="pl-6 mt-1 text-xs">
+                    {deployment.error_message && (
+                      <div className="pl-6 mt-2 p-2 bg-red-900/20 border border-red-900/30 rounded text-xs text-red-400">
+                        <p className="font-semibold mb-1">Error:</p>
+                        <p className="whitespace-pre-wrap break-words">{deployment.error_message}</p>
+                      </div>
+                    )}
+
+                    <div className="pl-6 mt-2 text-xs">
                       <a 
                         href={deployment.deploy_url} 
                         target="_blank" 
