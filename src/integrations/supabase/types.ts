@@ -114,6 +114,36 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          content: string
+          content_es: string | null
+          content_fr: string | null
+          created_at: string | null
+          id: string
+          question: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          content_es?: string | null
+          content_fr?: string | null
+          created_at?: string | null
+          id?: string
+          question: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          content_es?: string | null
+          content_fr?: string | null
+          created_at?: string | null
+          id?: string
+          question?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       friend_activities: {
         Row: {
           activity_data: Json
@@ -507,6 +537,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      special_rules: {
+        Row: {
+          created_at: string | null
+          description: string
+          description_es: string | null
+          description_fr: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
