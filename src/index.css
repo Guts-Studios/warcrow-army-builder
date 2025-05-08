@@ -150,3 +150,41 @@
   overflow-y: auto;
 }
 
+/* Improved text colors for better readability */
+.text-warcrow-text {
+  color: #d4d4d8 !important; /* Lighter gray for better visibility on dark backgrounds */
+}
+
+/* Make table text more readable */
+table td, 
+table th {
+  color: #e4e4e7 !important; /* Light gray for better contrast */
+}
+
+/* Improve form elements readability */
+input, textarea, select {
+  color: #f4f4f5 !important; /* Very light gray, almost white */
+}
+
+/* Fix TabsTrigger text colors */
+.TabsTrigger[data-state="active"] {
+  color: #fbbf24 !important; /* Gold color when active */
+}
+
+/* Improve button text contrast */
+button {
+  color: #f4f4f5 !important; /* Very light gray for button text */
+}
+
+/* Exception for buttons with gold background */
+.bg-warcrow-gold button,
+button.bg-warcrow-gold,
+button.text-black {
+  color: #000 !important; /* Black text for gold buttons */
+}
+
+/* Optimize cards and tables to avoid dark blue text */
+.card, 
+.table-container {
+  color: #e4e4e7 !important;
+}

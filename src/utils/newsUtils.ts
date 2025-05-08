@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
@@ -5,7 +6,7 @@ import { translations } from "@/i18n/translations";
 interface NewsTranslation {
   en: string;
   es: string;
-  fr?: string;
+  fr: string; // Make sure fr is included here
 }
 
 interface NewsItemDB {
@@ -15,7 +16,7 @@ interface NewsItemDB {
   translation_key: string;
   content_en: string;
   content_es: string;
-  content_fr?: string;
+  content_fr: string; // Make sure fr is included here
   created_at: string;
   updated_at: string;
 }
@@ -147,7 +148,7 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       translations[item.translation_key] = {
         en: item.content_en,
         es: item.content_es,
-        fr: item.content_fr || ''
+        fr: item.content_fr || '' // Make sure to handle potential undefined content_fr
       };
     });
     

@@ -62,19 +62,19 @@ const UnitDataManager: React.FC = () => {
         onValueChange={handleTabChange}
       >
         <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="units" className="text-xs sm:text-sm">
+          <TabsTrigger value="units" className="text-xs sm:text-sm text-warcrow-text">
             Units
           </TabsTrigger>
-          <TabsTrigger value="unittable" className="text-xs sm:text-sm">
+          <TabsTrigger value="unittable" className="text-xs sm:text-sm text-warcrow-text">
             Unit Table
           </TabsTrigger>
-          <TabsTrigger value="keywords" className="text-xs sm:text-sm">
+          <TabsTrigger value="keywords" className="text-xs sm:text-sm text-warcrow-text">
             Keywords
           </TabsTrigger>
-          <TabsTrigger value="specialrules" className="text-xs sm:text-sm">
+          <TabsTrigger value="specialrules" className="text-xs sm:text-sm text-warcrow-text">
             Special Rules
           </TabsTrigger>
-          <TabsTrigger value="characteristics" className="text-xs sm:text-sm">
+          <TabsTrigger value="characteristics" className="text-xs sm:text-sm text-warcrow-text">
             Characteristics
           </TabsTrigger>
         </TabsList>
