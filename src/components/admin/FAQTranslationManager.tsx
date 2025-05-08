@@ -329,12 +329,12 @@ const FAQTranslationManager: React.FC = () => {
   }
 
   return (
-    <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+    <Card className="p-4 lg:p-6 border border-warcrow-gold/40 shadow-sm bg-black overflow-hidden">
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold text-warcrow-gold flex items-center">
             <Languages className="h-5 w-5 mr-2" />
-            FAQ Content Translation Manager
+            FAQ Content Translation
           </h2>
           <div className="flex space-x-2">
             <Button 
@@ -345,7 +345,7 @@ const FAQTranslationManager: React.FC = () => {
               className="border-warcrow-gold/30 text-warcrow-gold"
             >
               <CheckCircle className={`h-4 w-4 mr-2`} />
-              Verify Translations
+              Verify
             </Button>
             <Button 
               variant="outline" 
@@ -355,7 +355,7 @@ const FAQTranslationManager: React.FC = () => {
               className="border-warcrow-gold/30 text-warcrow-gold"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh Data
+              Refresh
             </Button>
           </div>
         </div>
@@ -393,72 +393,74 @@ const FAQTranslationManager: React.FC = () => {
                 Found {filteredItems.length} FAQ sections
               </p>
             </div>
-            <ScrollArea className="h-[400px]">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-warcrow-gold/20">
-                    <TableHead className="text-warcrow-gold/80 w-16">Order</TableHead>
-                    <TableHead className="text-warcrow-gold/80 w-1/3">English Section</TableHead>
-                    <TableHead className="text-warcrow-gold/80 w-1/3">Spanish Section</TableHead>
-                    <TableHead className="text-warcrow-gold/80 w-24">Status</TableHead>
-                    <TableHead className="text-warcrow-gold/80 w-24 text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredItems.length > 0 ? (
-                    filteredItems.map((item) => (
-                      <TableRow key={item.id} className="border-warcrow-gold/20">
-                        <TableCell className="font-medium w-16">{item.order_index}</TableCell>
-                        <TableCell className="font-medium text-warcrow-gold w-1/3">
-                          <div className="truncate max-w-xs">{item.section}</div>
-                          <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
-                            {item.content.substring(0, 60)}...
-                          </div>
-                        </TableCell>
-                        <TableCell className={`w-1/3 ${item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
-                          <div className="truncate max-w-xs">
-                            {item.section_es || "Missing translation"}
-                          </div>
-                          {item.section_es && item.content_es && (
+            <ScrollArea className="h-[400px] w-full">
+              <div className="w-full overflow-x-auto">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="border-warcrow-gold/20">
+                      <TableHead className="text-warcrow-gold/80 w-12">Order</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-1/3">English Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-1/3">Spanish Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-20">Status</TableHead>
+                      <TableHead className="text-warcrow-gold/80 w-24 text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredItems.length > 0 ? (
+                      filteredItems.map((item) => (
+                        <TableRow key={item.id} className="border-warcrow-gold/20">
+                          <TableCell className="font-medium w-12">{item.order_index}</TableCell>
+                          <TableCell className="font-medium text-warcrow-gold w-1/3">
+                            <div className="truncate max-w-xs">{item.section}</div>
                             <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
-                              {item.content_es.substring(0, 60)}...
+                              {item.content.substring(0, 40)}...
                             </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="w-24">
-                          {isItemComplete(item) ? (
-                            <Badge className="bg-green-600 flex items-center gap-1 whitespace-nowrap">
-                              <Check className="h-3 w-3" /> Complete
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-red-600 flex items-center gap-1 whitespace-nowrap">
-                              <X className="h-3 w-3" /> Incomplete
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="w-24 text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="border-warcrow-gold/30 text-warcrow-gold whitespace-nowrap"
-                            onClick={() => handleEditTranslation(item)}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
+                          </TableCell>
+                          <TableCell className={`w-1/3 ${item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
+                            <div className="truncate max-w-xs">
+                              {item.section_es || "Missing translation"}
+                            </div>
+                            {item.section_es && item.content_es && (
+                              <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
+                                {item.content_es.substring(0, 40)}...
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="w-20">
+                            {isItemComplete(item) ? (
+                              <Badge className="bg-green-600 flex items-center gap-1 whitespace-nowrap">
+                                <Check className="h-3 w-3" /> Complete
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-red-600 flex items-center gap-1 whitespace-nowrap">
+                                <X className="h-3 w-3" /> Incomplete
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="w-24 text-right">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="border-warcrow-gold/30 text-warcrow-gold whitespace-nowrap"
+                              onClick={() => handleEditTranslation(item)}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
+                          <p className="text-warcrow-text">No FAQ items found matching search criteria</p>
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
-                        <p className="text-warcrow-text">No FAQ items found matching search criteria</p>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </ScrollArea>
           </TabsContent>
 
@@ -523,7 +525,7 @@ const FAQTranslationManager: React.FC = () => {
                           </span>
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Button
                           size="sm"
                           variant="outline"
@@ -563,8 +565,8 @@ const FAQTranslationManager: React.FC = () => {
             </div>
 
             <ScrollArea className="h-[350px] rounded-md">
-              {missingTranslations.length > 0 ? (
-                <Table>
+              <div className="w-full overflow-x-auto">
+                <Table className="w-full">
                   <TableHeader>
                     <TableRow className="border-warcrow-gold/20">
                       <TableHead className="text-warcrow-gold/80 w-1/2">Section</TableHead>
@@ -573,46 +575,50 @@ const FAQTranslationManager: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {missingTranslations.map(item => {
-                      const missingSection = !item.section_es;
-                      const missingContent = !item.content_es;
-                      
-                      return (
-                        <TableRow key={item.id} className="border-warcrow-gold/20">
-                          <TableCell className="font-medium text-warcrow-gold w-1/2">
-                            <div className="truncate max-w-xs">{item.section}</div>
-                          </TableCell>
-                          <TableCell className="w-1/4">
-                            {missingSection && missingContent ? (
-                              <Badge variant="destructive">Section & Content</Badge>
-                            ) : missingSection ? (
-                              <Badge variant="destructive">Section</Badge>
-                            ) : (
-                              <Badge variant="destructive">Content</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="w-1/4 text-right">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-warcrow-gold/30 text-warcrow-gold"
-                              onClick={() => handleEditTranslation(item)}
-                            >
-                              <Edit className="h-3 w-3 mr-1" /> Translate
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {missingTranslations.length > 0 ? (
+                      missingTranslations.map(item => {
+                        const missingSection = !item.section_es;
+                        const missingContent = !item.content_es;
+                        
+                        return (
+                          <TableRow key={item.id} className="border-warcrow-gold/20">
+                            <TableCell className="font-medium text-warcrow-gold w-1/2">
+                              <div className="truncate max-w-xs">{item.section}</div>
+                            </TableCell>
+                            <TableCell className="w-1/4">
+                              {missingSection && missingContent ? (
+                                <Badge variant="destructive">Section & Content</Badge>
+                              ) : missingSection ? (
+                                <Badge variant="destructive">Section</Badge>
+                              ) : (
+                                <Badge variant="destructive">Content</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="w-1/4 text-right">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-warcrow-gold/30 text-warcrow-gold"
+                                onClick={() => handleEditTranslation(item)}
+                              >
+                                <Edit className="h-3 w-3 mr-1" /> Translate
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center py-16">
+                          <CheckCircle className="h-16 w-16 text-green-500 mb-4 mx-auto" />
+                          <p className="text-warcrow-gold text-xl font-medium">All items translated!</p>
+                          <p className="text-warcrow-text/60">Spanish translations are complete for all FAQ content.</p>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-                  <p className="text-warcrow-gold text-xl font-medium">All items translated!</p>
-                  <p className="text-warcrow-text/60">Spanish translations are complete for all FAQ content.</p>
-                </div>
-              )}
+              </div>
             </ScrollArea>
           </TabsContent>
         </Tabs>
@@ -621,10 +627,6 @@ const FAQTranslationManager: React.FC = () => {
           <p className="flex items-center">
             <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> 
             All FAQ content is stored in Supabase and loaded directly from the database
-          </p>
-          <p className="flex items-center">
-            <Languages className="h-4 w-4 mr-2 text-blue-400" /> 
-            Spanish and French translations can now be managed directly from this interface
           </p>
         </div>
       </div>
@@ -773,4 +775,3 @@ const FAQTranslationManager: React.FC = () => {
 };
 
 export default FAQTranslationManager;
-
