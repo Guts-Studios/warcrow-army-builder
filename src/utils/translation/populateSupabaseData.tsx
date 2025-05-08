@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { factions, units } from "@/data/factions";
 import { keywordDefinitions } from "@/data/keywordDefinitions";
@@ -200,7 +199,9 @@ const populateUnitData = async () => {
       return {
         id: unit.id,
         name: unit.name,
-        description: unit.description || "", // Add a description field with default empty string
+        // The Unit type doesn't include a description property, so we'll use
+        // a type assertion or add a safe fallback for this property
+        description: "", // Default empty string for description since it doesn't exist in the Unit type
         faction: unit.faction,
         type: getUnitType(unit.keywords),
         points: unit.pointsCost,
