@@ -1,50 +1,61 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Database, Home, MessageSquare, Users, Languages } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import {
+  UserIcon,
+  BookOpen,
+  MessageSquareQuote,
+  LayoutDashboard,
+  AlertCircle,
+  Newspaper,
+  Database
+} from "lucide-react";
 
 interface AdminNavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) => {
-  const navigate = useNavigate();
-  
+const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
   return (
-    <div className="border-b border-warcrow-gold/30 pb-2">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">Admin Dashboard</h1>
-        <Button 
-          onClick={() => navigate('/')}
-          variant="outline"
-          className="text-warcrow-gold border-warcrow-gold/30"
-        >
-          Back to Site
-        </Button>
-      </div>
+    <div className="sticky top-0 z-50 bg-warcrow-background border-b border-warcrow-gold/30 pb-2">
+      <h1 className="text-2xl font-semibold text-warcrow-gold mb-4">Admin Dashboard</h1>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-6 bg-black border border-warcrow-gold/30">
-          <TabsTrigger value="dashboard" className={activeTab === 'dashboard' ? "bg-warcrow-gold text-black" : ""}>
-            <Home className="h-4 w-4 mr-2" /> Dashboard
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="overflow-x-auto">
+        <TabsList className="grid grid-cols-7 w-full">
+          <TabsTrigger value="dashboard" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Dashboard</span>
           </TabsTrigger>
-          <TabsTrigger value="rules" className={activeTab === 'rules' ? "bg-warcrow-gold text-black" : ""}>
-            <BookOpen className="h-4 w-4 mr-2" /> Rules
+          
+          <TabsTrigger value="rules" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">Rules</span>
           </TabsTrigger>
-          <TabsTrigger value="faq" className={activeTab === 'faq' ? "bg-warcrow-gold text-black" : ""}>
-            <MessageSquare className="h-4 w-4 mr-2" /> FAQ
+          
+          <TabsTrigger value="faq" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <MessageSquareQuote className="h-4 w-4" />
+            <span className="hidden sm:inline">FAQ</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className={activeTab === 'users' ? "bg-warcrow-gold text-black" : ""}>
-            <Users className="h-4 w-4 mr-2" /> Users
+          
+          <TabsTrigger value="users" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <UserIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
-          <TabsTrigger value="news" className={activeTab === 'news' ? "bg-warcrow-gold text-black" : ""}>
-            <Database className="h-4 w-4 mr-2" /> News
+          
+          <TabsTrigger value="alerts" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <AlertCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Alerts</span>
           </TabsTrigger>
-          <TabsTrigger value="translations" className={activeTab === 'translations' ? "bg-warcrow-gold text-black" : ""}>
-            <Languages className="h-4 w-4 mr-2" /> Translations
+          
+          <TabsTrigger value="news" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <Newspaper className="h-4 w-4" />
+            <span className="hidden sm:inline">News</span>
+          </TabsTrigger>
+          
+          <TabsTrigger value="units" className="flex flex-col items-center sm:flex-row sm:gap-2 text-xs sm:text-sm">
+            <Database className="h-4 w-4" />
+            <span className="hidden sm:inline">Units</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

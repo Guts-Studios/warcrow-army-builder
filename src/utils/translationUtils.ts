@@ -1,3 +1,4 @@
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -146,13 +147,12 @@ export const translateWithDeepL = async (
 /**
  * Batch translation utility for handling mass translations
  * This can be used to translate multiple items at once and optionally save to database
- * It now supports DeepL translation when available
  */
 export const batchTranslate = async (
   items: Array<{id: string, key: string, source: string}>,
   targetLanguage: string,
   saveToDatabase: boolean = false,
-  tableType: 'rules_chapters' | 'rules_sections' | 'faq_sections' = 'rules_sections',
+  tableType: 'rules_chapters' | 'rules_sections' | 'faq_sections' | 'unit_keywords' | 'special_rules' | 'unit_characteristics' = 'rules_sections',
   useDeepL: boolean = true
 ): Promise<Array<{id: string, key: string, source: string, translation: string}>> => {
   try {
@@ -217,7 +217,7 @@ export const batchTranslate = async (
       // Dispatch progress event for other components to track
       if (typeof window !== 'undefined') {
         const progressEvent = new CustomEvent('translation-progress', {
-          detail: { completed: i + batch.length }
+          detail: { completed: i + batch.length, progress: Math.round((i + batch.length) / items.length * 100) }
         });
         window.dispatchEvent(progressEvent);
       }
@@ -231,14 +231,23 @@ export const batchTranslate = async (
         
         if (tableType === 'rules_chapters') {
           columnName = `title_${columnPrefix}`;
-        } else {
+        } else if (tableType === 'rules_sections') {
           // For either rules_sections or faq_sections
           // Use 'key' to determine whether to update section/title or content 
           if (item.key === 'section' || item.key === 'title') {
-            columnName = tableType === 'faq_sections' ? `section_${columnPrefix}` : `title_${columnPrefix}`;
+            columnName = `title_${columnPrefix}`;
           } else {
             columnName = `content_${columnPrefix}`;
           }
+        } else if (tableType === 'faq_sections') {
+          if (item.key === 'section') {
+            columnName = `section_${columnPrefix}`;
+          } else {
+            columnName = `content_${columnPrefix}`;
+          }
+        } else if (['unit_keywords', 'special_rules', 'unit_characteristics'].includes(tableType)) {
+          // For unit related tables
+          columnName = `description_${columnPrefix}`;
         }
         
         // Update the database with the translation
