@@ -329,8 +329,8 @@ const FAQTranslationManager: React.FC = () => {
   }
 
   return (
-    <Card className="p-4 lg:p-6 border border-warcrow-gold/40 shadow-sm bg-black overflow-hidden">
-      <div className="flex flex-col space-y-4">
+    <Card className="p-4 lg:p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+      <div className="flex flex-col space-y-4 max-w-[1024px] mx-auto">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold text-warcrow-gold flex items-center">
             <Languages className="h-5 w-5 mr-2" />
@@ -393,40 +393,40 @@ const FAQTranslationManager: React.FC = () => {
                 Found {filteredItems.length} FAQ sections
               </p>
             </div>
-            <ScrollArea className="h-[400px] w-full">
-              <div className="w-full overflow-x-auto">
-                <Table className="w-full">
+            <ScrollArea className="h-[400px]">
+              <div className="w-full overflow-auto">
+                <Table>
                   <TableHeader>
                     <TableRow className="border-warcrow-gold/20">
-                      <TableHead className="text-warcrow-gold/80 w-12">Order</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-1/3">English Section</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-1/3">Spanish Section</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-20">Status</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-24 text-right">Actions</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '10%' }}>Order</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '35%' }}>English Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '35%' }}>Spanish Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '10%' }}>Status</TableHead>
+                      <TableHead className="text-warcrow-gold/80 text-right" style={{ width: '10%' }}>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredItems.length > 0 ? (
                       filteredItems.map((item) => (
                         <TableRow key={item.id} className="border-warcrow-gold/20">
-                          <TableCell className="font-medium w-12">{item.order_index}</TableCell>
-                          <TableCell className="font-medium text-warcrow-gold w-1/3">
-                            <div className="truncate max-w-xs">{item.section}</div>
-                            <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
+                          <TableCell style={{ width: '10%' }}>{item.order_index}</TableCell>
+                          <TableCell style={{ width: '35%' }}>
+                            <div className="truncate max-w-[230px]">{item.section}</div>
+                            <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-[230px]">
                               {item.content.substring(0, 40)}...
                             </div>
                           </TableCell>
-                          <TableCell className={`w-1/3 ${item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'}`}>
-                            <div className="truncate max-w-xs">
+                          <TableCell className={item.section_es ? 'text-warcrow-text' : 'text-red-500 italic'} style={{ width: '35%' }}>
+                            <div className="truncate max-w-[230px]">
                               {item.section_es || "Missing translation"}
                             </div>
                             {item.section_es && item.content_es && (
-                              <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-xs">
+                              <div className="text-xs text-warcrow-text/70 mt-1 truncate max-w-[230px]">
                                 {item.content_es.substring(0, 40)}...
                               </div>
                             )}
                           </TableCell>
-                          <TableCell className="w-20">
+                          <TableCell style={{ width: '10%' }}>
                             {isItemComplete(item) ? (
                               <Badge className="bg-green-600 flex items-center gap-1 whitespace-nowrap">
                                 <Check className="h-3 w-3" /> Complete
@@ -437,14 +437,14 @@ const FAQTranslationManager: React.FC = () => {
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell className="w-24 text-right">
+                          <TableCell className="text-right" style={{ width: '10%' }}>
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="border-warcrow-gold/30 text-warcrow-gold whitespace-nowrap"
+                              className="border-warcrow-gold/30 text-warcrow-gold"
                               onClick={() => handleEditTranslation(item)}
                             >
-                              <Edit className="h-4 w-4 mr-2" />
+                              <Edit className="h-4 w-4 mr-1" />
                               Edit
                             </Button>
                           </TableCell>
@@ -505,7 +505,7 @@ const FAQTranslationManager: React.FC = () => {
                 <div className="space-y-2">
                   {faqItems.map(item => (
                     <div key={item.id} className="flex items-center justify-between p-2 border border-warcrow-gold/20 rounded-md">
-                      <div className="flex-1">
+                      <div className="flex-1 pr-4">
                         <p className="font-medium truncate">{item.section}</p>
                         <p className="text-sm text-warcrow-text/60">
                           <span className={item.section_es ? "text-green-500" : "text-red-500"}>
@@ -565,13 +565,13 @@ const FAQTranslationManager: React.FC = () => {
             </div>
 
             <ScrollArea className="h-[350px] rounded-md">
-              <div className="w-full overflow-x-auto">
-                <Table className="w-full">
+              <div className="w-full overflow-auto">
+                <Table>
                   <TableHeader>
                     <TableRow className="border-warcrow-gold/20">
-                      <TableHead className="text-warcrow-gold/80 w-1/2">Section</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-1/4">Missing</TableHead>
-                      <TableHead className="text-warcrow-gold/80 w-1/4 text-right">Actions</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '50%' }}>Section</TableHead>
+                      <TableHead className="text-warcrow-gold/80" style={{ width: '20%' }}>Missing</TableHead>
+                      <TableHead className="text-warcrow-gold/80 text-right" style={{ width: '30%' }}>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -582,10 +582,10 @@ const FAQTranslationManager: React.FC = () => {
                         
                         return (
                           <TableRow key={item.id} className="border-warcrow-gold/20">
-                            <TableCell className="font-medium text-warcrow-gold w-1/2">
-                              <div className="truncate max-w-xs">{item.section}</div>
+                            <TableCell style={{ width: '50%' }}>
+                              <div className="truncate max-w-[300px]">{item.section}</div>
                             </TableCell>
-                            <TableCell className="w-1/4">
+                            <TableCell style={{ width: '20%' }}>
                               {missingSection && missingContent ? (
                                 <Badge variant="destructive">Section & Content</Badge>
                               ) : missingSection ? (
@@ -594,7 +594,7 @@ const FAQTranslationManager: React.FC = () => {
                                 <Badge variant="destructive">Content</Badge>
                               )}
                             </TableCell>
-                            <TableCell className="w-1/4 text-right">
+                            <TableCell className="text-right" style={{ width: '30%' }}>
                               <Button
                                 size="sm"
                                 variant="outline"
