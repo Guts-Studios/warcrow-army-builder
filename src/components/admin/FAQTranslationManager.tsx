@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorTextEditor } from './shared/ColorTextEditor';
 import { FormattedTextPreview } from './shared/FormattedTextPreview';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { batchTranslate } from '@/utils/translationUtils';
 
 const FAQTranslationManager: React.FC = () => {
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
@@ -42,6 +43,10 @@ const FAQTranslationManager: React.FC = () => {
   const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
   const [targetLanguage, setTargetLanguage] = useState<'es' | 'fr'>('es');
   const [translationInProgress, setTranslationInProgress] = useState(false);
+  const [batchTranslationInProgress, setBatchTranslationInProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [translatedItems, setTranslatedItems] = useState(0);
 
   useEffect(() => {
     loadFAQItems();
@@ -200,6 +205,115 @@ const FAQTranslationManager: React.FC = () => {
     }
   };
 
+  const handleBatchTranslation = async () => {
+    const missingTranslations = getMissingTranslationItems();
+    if (missingTranslations.length === 0) {
+      toast.info(`All FAQ items are already translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
+      return;
+    }
+
+    setBatchTranslationInProgress(true);
+    setProgress(0);
+    setTotalItems(missingTranslations.length * 2); // Each item has section and content
+    setTranslatedItems(0);
+
+    try {
+      // Group all section titles and content for batch translation
+      const sectionsToTranslate = [];
+      const contentToTranslate = [];
+
+      // Gather all missing sections and content
+      for (const item of missingTranslations) {
+        // For each item, we need to check if section or content needs translation
+        const needsSection = targetLanguage === 'es' ? 
+          !item.section_es || item.section_es.trim() === '' : 
+          !item.section_fr || item.section_fr.trim() === '';
+          
+        const needsContent = targetLanguage === 'es' ? 
+          !item.content_es || item.content_es.trim() === '' : 
+          !item.content_fr || item.content_fr.trim() === '';
+        
+        if (needsSection) {
+          sectionsToTranslate.push({
+            id: item.id,
+            key: 'section',
+            source: item.section
+          });
+        } else {
+          // Skip but still count for progress
+          setTranslatedItems(prev => prev + 1);
+        }
+        
+        if (needsContent) {
+          contentToTranslate.push({
+            id: item.id,
+            key: 'content',
+            source: item.content
+          });
+        } else {
+          // Skip but still count for progress
+          setTranslatedItems(prev => prev + 1);
+        }
+      }
+
+      // Create a custom event for tracking progress
+      const progressEvent = new CustomEvent('translation-progress', {
+        detail: { completed: 0 }
+      });
+
+      // Translate sections
+      if (sectionsToTranslate.length > 0) {
+        const translatedSections = await batchTranslate(
+          sectionsToTranslate,
+          targetLanguage,
+          true,
+          'faq_sections',
+          true
+        );
+
+        // Update progress
+        setTranslatedItems(prev => prev + sectionsToTranslate.length);
+        setProgress(Math.round((translatedItems / totalItems) * 100));
+        
+        // Dispatch progress event for other components
+        progressEvent.detail.completed = translatedItems;
+        window.dispatchEvent(progressEvent);
+      }
+
+      // Translate content
+      if (contentToTranslate.length > 0) {
+        const translatedContent = await batchTranslate(
+          contentToTranslate,
+          targetLanguage,
+          true,
+          'faq_sections',
+          true
+        );
+
+        // Update progress
+        setTranslatedItems(prev => prev + contentToTranslate.length);
+        setProgress(Math.round((translatedItems / totalItems) * 100));
+        
+        // Dispatch progress event for other components
+        progressEvent.detail.completed = translatedItems;
+        window.dispatchEvent(progressEvent);
+      }
+
+      // Reload FAQ items to reflect changes
+      await loadFAQItems();
+      toast.success(`Successfully translated ${missingTranslations.length} FAQ items to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
+      
+      // Set active tab to verify to show results
+      setActiveTab('verify');
+      runVerification();
+    } catch (error: any) {
+      console.error('Batch translation error:', error);
+      toast.error(`Batch translation failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setBatchTranslationInProgress(false);
+    }
+  };
+
   const runVerification = async () => {
     setLoading(true);
     try {
@@ -232,6 +346,19 @@ const FAQTranslationManager: React.FC = () => {
     return hasSpanish;
   };
 
+  const getMissingTranslationItems = () => {
+    // Get items missing translations in the target language
+    return faqItems.filter(item => {
+      if (targetLanguage === 'es') {
+        return !item.section_es || item.section_es.trim() === '' || 
+               !item.content_es || item.content_es.trim() === '';
+      } else {
+        return !item.section_fr || item.section_fr.trim() === '' || 
+               !item.content_fr || item.content_fr.trim() === '';
+      }
+    });
+  };
+
   const filteredItems = searchQuery
     ? faqItems.filter(
         item =>
@@ -244,7 +371,7 @@ const FAQTranslationManager: React.FC = () => {
       )
     : faqItems;
 
-  const missingTranslations = faqItems.filter(item => !isItemComplete(item));
+  const missingTranslations = getMissingTranslationItems();
 
   const getTranslationStatusSummary = () => {
     const itemsWithSpanishSection = faqItems.filter(item => Boolean(item.section_es)).length;
@@ -368,6 +495,69 @@ const FAQTranslationManager: React.FC = () => {
             className="border border-warcrow-gold/30 bg-black text-warcrow-text"
           />
         </div>
+        
+        {/* Batch Translation Panel */}
+        <Card className="p-4 border border-warcrow-gold/30 bg-black mb-4">
+          <div className="flex flex-col space-y-2">
+            <h3 className="text-warcrow-gold font-medium flex items-center text-sm">
+              <Languages className="h-4 w-4 mr-2" />
+              Batch Translation
+            </h3>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Select value={targetLanguage} onValueChange={(value) => setTargetLanguage(value as 'es' | 'fr')}>
+                  <SelectTrigger className="w-[150px] border-warcrow-gold/30 bg-black">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black border border-warcrow-gold/30">
+                    <SelectItem value="es">Spanish</SelectItem>
+                    <SelectItem value="fr">French</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <span className="ml-2 text-warcrow-text/70 text-sm">
+                  {missingTranslations.length} items need translation
+                </span>
+              </div>
+              
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={handleBatchTranslation}
+                disabled={batchTranslationInProgress || missingTranslations.length === 0}
+                className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+              >
+                {batchTranslationInProgress ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Translating...
+                  </>
+                ) : (
+                  <>
+                    <Languages className="mr-2 h-4 w-4" />
+                    Translate All Missing Items
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            {batchTranslationInProgress && (
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-xs text-warcrow-text/70">Translation progress</span>
+                  <span className="text-xs font-medium text-warcrow-gold">
+                    {translatedItems} / {totalItems} items
+                  </span>
+                </div>
+                <Progress value={progress} className="h-1.5 bg-warcrow-gold/20" />
+                <p className="text-xs text-warcrow-text/60 mt-1">
+                  Using DeepL API to translate - this may take a few minutes...
+                </p>
+              </div>
+            )}
+          </div>
+        </Card>
         
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
           <TabsList className="mb-2">
@@ -577,8 +767,13 @@ const FAQTranslationManager: React.FC = () => {
                   <TableBody>
                     {missingTranslations.length > 0 ? (
                       missingTranslations.map(item => {
-                        const missingSection = !item.section_es;
-                        const missingContent = !item.content_es;
+                        const missingSection = targetLanguage === 'es' ? 
+                          !item.section_es || item.section_es.trim() === '' : 
+                          !item.section_fr || item.section_fr.trim() === '';
+                          
+                        const missingContent = targetLanguage === 'es' ? 
+                          !item.content_es || item.content_es.trim() === '' : 
+                          !item.content_fr || item.content_fr.trim() === '';
                         
                         return (
                           <TableRow key={item.id} className="border-warcrow-gold/20">

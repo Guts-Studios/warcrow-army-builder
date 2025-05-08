@@ -1,4 +1,3 @@
-
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -174,8 +173,24 @@ export const batchTranslate = async (
           if (useDeepL) {
             // Try to use DeepL for translation
             try {
-              translation = await translateWithDeepL(item.source, targetLanguage);
-              console.log(`DeepL translation successful for item ${item.id}`);
+              const { data, error } = await supabase.functions.invoke('deepl-translate', {
+                body: {
+                  texts: [item.source],
+                  targetLanguage: targetLanguage.toUpperCase(),
+                  formality: 'more'
+                }
+              });
+              
+              if (error) {
+                throw error;
+              }
+              
+              if (data && data.translations && data.translations.length > 0) {
+                translation = data.translations[0];
+                console.log(`DeepL translation successful for item ${item.id}`);
+              } else {
+                throw new Error('No translation returned from DeepL');
+              }
             } catch (error) {
               console.error(`DeepL translation failed for item ${item.id}:`, error);
               translation = `[${targetLanguage}] ${item.source}`; // Fallback
@@ -198,26 +213,36 @@ export const batchTranslate = async (
       if (i + batchSize < items.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
+      
+      // Dispatch progress event for other components to track
+      if (typeof window !== 'undefined') {
+        const progressEvent = new CustomEvent('translation-progress', {
+          detail: { completed: i + batch.length }
+        });
+        window.dispatchEvent(progressEvent);
+      }
     }
 
     if (saveToDatabase && tableType) {
-      // Example of how you could save these to a database
-      // This would need to be customized based on your schema
+      // Determine which fields to update based on the item key and table type
       for (const item of results) {
-        const columnName = `${targetLanguage.toLowerCase()}_content`;
+        let columnPrefix = targetLanguage.toLowerCase();
+        let columnName = '';
         
         if (tableType === 'rules_chapters') {
-          const columnName = `${targetLanguage.toLowerCase()}_title`;
-          const { error } = await supabase
-            .from(tableType)
-            .update({ [columnName]: item.translation })
-            .eq('id', item.id);
-            
-          if (error) {
-            console.error(`Error updating translation for ${item.id}:`, error);
-          }
+          columnName = `title_${columnPrefix}`;
         } else {
-          // For rules_sections and faq_sections
+          // For either rules_sections or faq_sections
+          // Use 'key' to determine whether to update section/title or content 
+          if (item.key === 'section' || item.key === 'title') {
+            columnName = tableType === 'faq_sections' ? `section_${columnPrefix}` : `title_${columnPrefix}`;
+          } else {
+            columnName = `content_${columnPrefix}`;
+          }
+        }
+        
+        // Update the database with the translation
+        try {
           const { error } = await supabase
             .from(tableType)
             .update({ [columnName]: item.translation })
@@ -226,6 +251,8 @@ export const batchTranslate = async (
           if (error) {
             console.error(`Error updating translation for ${item.id}:`, error);
           }
+        } catch (updateError) {
+          console.error(`Database update error for ${item.id}:`, updateError);
         }
       }
       
