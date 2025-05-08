@@ -22,6 +22,7 @@ import UnitSpecialRulesManager from "./units/UnitSpecialRulesManager";
 import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
 import DeepLUsageStats from "./units/DeepLUsageStats";
 import PopulateDataButton from "./units/PopulateDataButton";
+import UnitDataTable from "./units/UnitDataTable";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -63,23 +64,30 @@ const UnitDataManager: React.FC = () => {
         value={activeTab}
         onValueChange={handleTabChange}
       >
-        <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="units" className="text-xs sm:text-sm">
+        <TabsList className="grid grid-cols-5 mb-4">
+          <TabsTrigger value="units" className="text-xs sm:text-sm text-warcrow-text">
             Units
           </TabsTrigger>
-          <TabsTrigger value="keywords" className="text-xs sm:text-sm">
+          <TabsTrigger value="unittable" className="text-xs sm:text-sm text-warcrow-text">
+            Unit Table
+          </TabsTrigger>
+          <TabsTrigger value="keywords" className="text-xs sm:text-sm text-warcrow-text">
             Keywords
           </TabsTrigger>
-          <TabsTrigger value="specialrules" className="text-xs sm:text-sm">
+          <TabsTrigger value="specialrules" className="text-xs sm:text-sm text-warcrow-text">
             Special Rules
           </TabsTrigger>
-          <TabsTrigger value="characteristics" className="text-xs sm:text-sm">
+          <TabsTrigger value="characteristics" className="text-xs sm:text-sm text-warcrow-text">
             Characteristics
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="units" className="space-y-4">
           <UnitDataUploader />
+        </TabsContent>
+
+        <TabsContent value="unittable" className="space-y-4">
+          <UnitDataTable />
         </TabsContent>
 
         <TabsContent value="keywords" className="space-y-4">

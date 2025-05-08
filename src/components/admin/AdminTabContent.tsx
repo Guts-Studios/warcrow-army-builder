@@ -5,7 +5,7 @@ import RulesVerifier from '@/components/admin/RulesVerifier';
 import UserManagement from '@/components/admin/UserManagement';
 import NewsManager from '@/components/admin/NewsManager';
 import FAQTranslationManager from '@/components/admin/FAQTranslationManager';
-import UnitDataManager from '@/components/admin/UnitDataManager';
+import UnitDataManager from '@/components/admin/units/UnitDataManager';
 
 interface AdminTabContentProps {
   activeTab: string;
