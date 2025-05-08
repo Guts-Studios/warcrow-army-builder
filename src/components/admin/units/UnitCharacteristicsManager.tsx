@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,9 +32,7 @@ export interface CharacteristicItem {
   id: string;
   name: string;
   description: string;
-  name_es?: string;
   description_es?: string;
-  name_fr?: string;
   description_fr?: string;
   created_at?: string;
   updated_at?: string;

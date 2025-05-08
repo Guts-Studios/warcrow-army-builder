@@ -399,7 +399,7 @@ const FAQTranslationManager: React.FC = () => {
           }
           targetLanguage={activeTab}
           onCancel={handleCancelEdit}
-          onSave={handleUpdateTranslation}
+          onSave={(newTranslation: string) => handleUpdateTranslation(newTranslation)}
         />
       )}
     </div>

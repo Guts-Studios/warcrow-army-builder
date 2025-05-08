@@ -1,3 +1,4 @@
+
 import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
@@ -38,7 +39,7 @@ export const useTranslateKeyword = () => {
   
   const translateSpecialRule = (rule: string): string => {
     // Some special rules might have parameters like "Displace (4)"
-    if (rule.includes('(') && keyword.includes(')')) {
+    if (rule.includes('(') && rule.includes(')')) {
       const baseRule = rule.substring(0, rule.indexOf('(')).trim().toLowerCase();
       const parameters = rule.substring(rule.indexOf('('));
       
