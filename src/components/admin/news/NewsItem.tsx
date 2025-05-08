@@ -32,9 +32,9 @@ export const NewsItem: React.FC<NewsItemProps> = ({ english, spanish, french }) 
         className="w-full"
       >
         <TabsList className="grid grid-cols-3 max-w-[300px]">
-          <TabsTrigger value="en" className="text-warcrow-text">English</TabsTrigger>
-          <TabsTrigger value="es" className="text-warcrow-text">Spanish</TabsTrigger>
-          <TabsTrigger value="fr" className="text-warcrow-text">French</TabsTrigger>
+          <TabsTrigger value="en" className="text-warcrow-gold">English</TabsTrigger>
+          <TabsTrigger value="es" className="text-warcrow-gold">Spanish</TabsTrigger>
+          <TabsTrigger value="fr" className="text-warcrow-gold">French</TabsTrigger>
         </TabsList>
         
         <TabsContent value="en" className="pt-2 text-warcrow-text text-sm">

@@ -173,6 +173,9 @@ export const translateContent = async (
 // Function to fetch all news items from the database
 export const fetchNewsItems = async (): Promise<NewsItem[]> => {
   try {
+    // Log the start of the fetch process for debugging
+    console.log('Fetching news items from Supabase...');
+    
     const { data, error } = await supabase
       .from('news_items')
       .select('*')
@@ -183,13 +186,26 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       return [];
     }
     
-    // Handle existing data that might not have content_fr yet by adding it if missing
+    if (!data || data.length === 0) {
+      console.log('No news items found in database');
+      return [];
+    }
+    
+    console.log(`Found ${data.length} news items in database`);
+    
+    // Check if content_fr exists in the database schema
+    const hasFrenchContent = data.some(item => 'content_fr' in item);
+    console.log('Database has content_fr field:', hasFrenchContent);
+    
+    // Handle existing data that might not have content_fr yet
     const processedData = data.map(item => {
       // Ensure content_fr exists (using an empty string if it doesn't)
-      return {
+      const processedItem = {
         ...item,
-        content_fr: item.content_fr || ''
+        content_fr: 'content_fr' in item ? item.content_fr : ''
       } as NewsItemDB;
+      
+      return processedItem;
     });
     
     // Update the in-memory translations for each news item
@@ -322,7 +338,7 @@ export const getNewsItem = async (id: string): Promise<NewsItem | null> => {
     // Handle data that might not have content_fr yet
     const processedItem = {
       ...data,
-      content_fr: data.content_fr || ''
+      content_fr: 'content_fr' in data ? data.content_fr : ''
     } as NewsItemDB;
     
     return convertToNewsItem(processedItem);
