@@ -1,144 +1,189 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Save, FileText } from "lucide-react";
-import { toast } from "sonner";
+import { Upload, FilePlus, AlertCircle, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { ExtendedUnit } from '@/types/extendedUnit';
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+
+export interface UnitDataItem {
+  id: string;
+  name: string;
+  description: string;
+  faction: string;
+  type: string;
+  points: number;
+  characteristics: Record<string, any>;
+  keywords: string[];
+  special_rules: string[];
+  options: any[];
+  name_es?: string;
+  description_es?: string;
+  name_fr?: string;
+  description_fr?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const UnitDataUploader: React.FC = () => {
-  const [jsonContent, setJsonContent] = useState("");
-  const [units, setUnits] = useState<ExtendedUnit[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target?.result as string;
-        setJsonContent(content);
-        const parsedUnits = JSON.parse(content);
-        setUnits(Array.isArray(parsedUnits) ? parsedUnits : [parsedUnits]);
-        toast.success(`Successfully loaded ${Array.isArray(parsedUnits) ? parsedUnits.length : 1} units`);
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        toast.error("Failed to parse JSON file");
-      }
-    };
-    reader.readAsText(file);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [unitData, setUnitData] = useState<UnitDataItem[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
   };
 
-  const handleSaveToDatabase = async () => {
-    if (units.length === 0) {
-      toast.error("No units to save");
+  const handleUpload = async () => {
+    if (!file) {
+      toast.warning("Please select a file to upload");
       return;
     }
 
-    setIsLoading(true);
+    setUploading(true);
+    setUploadProgress(0);
+
     try {
-      // First save basic unit data
-      const basicUnitData = units.map(unit => ({
-        id: unit.id,
-        name: unit.name, 
-        cost: unit.cost,
-        type: unit.type,
-        stats: JSON.stringify(unit.stats),
-        keywords: unit.keywords ? unit.keywords.join(',') : '',
-        imageUrl: unit.imageUrl || null,
-        profiles: JSON.stringify(unit.profiles),
-        abilities: JSON.stringify(unit.abilities)
-      }));
-
-      const { error } = await supabase
-        .from('unit_data')
-        .upsert(basicUnitData, { onConflict: 'id' });
-
-      if (error) throw error;
-
-      // Process keywords
-      const allKeywords = units.flatMap(unit => unit.keywords || []);
-      const uniqueKeywords = [...new Set(allKeywords)];
+      const reader = new FileReader();
       
-      if (uniqueKeywords.length > 0) {
-        const keywordObjects = uniqueKeywords.map(keyword => ({
-          name: keyword,
-          description: '' // Empty description to be filled later
-        }));
-
-        const { error: keywordError } = await supabase
-          .from('unit_keywords')
-          .upsert(
-            keywordObjects.map(k => ({ name: k.name })), 
-            { onConflict: 'name' }
-          );
-
-        if (keywordError) throw keywordError;
-      }
-
-      toast.success(`Successfully saved ${units.length} units to database`);
+      reader.onload = async (e) => {
+        const data = JSON.parse(e.target?.result as string);
+        
+        if (!Array.isArray(data)) {
+          toast.error("Invalid file format. Expected an array of unit data.");
+          setUploading(false);
+          return;
+        }
+        
+        setUnitData(data);
+        
+        // Upload data to Supabase in batches
+        const batchSize = 10;
+        let processedItems = 0;
+        
+        for (let i = 0; i < data.length; i += batchSize) {
+          const batch = data.slice(i, i + batchSize);
+          
+          // Process each item in the batch
+          for (const unit of batch) {
+            try {
+              const { error } = await supabase
+                .from('unit_data')
+                .upsert({
+                  id: unit.id || crypto.randomUUID(),
+                  name: unit.name,
+                  description: unit.description || '',
+                  faction: unit.faction || '',
+                  type: unit.type || '',
+                  points: unit.points || 0,
+                  characteristics: unit.characteristics || {},
+                  keywords: unit.keywords || [],
+                  special_rules: unit.special_rules || [],
+                  options: unit.options || [],
+                  updated_at: new Date().toISOString()
+                });
+                
+              if (error) throw error;
+              
+            } catch (itemError) {
+              console.error("Error uploading unit:", unit.name, itemError);
+            }
+            
+            processedItems++;
+            const progress = Math.round((processedItems / data.length) * 100);
+            setUploadProgress(progress);
+          }
+        }
+        
+        toast.success(`Successfully uploaded ${processedItems} units`);
+      };
+      
+      reader.onerror = () => {
+        toast.error("Error reading file");
+        setUploading(false);
+      };
+      
+      reader.readAsText(file);
+      
     } catch (error: any) {
-      console.error("Error saving to database:", error);
-      toast.error(`Failed to save: ${error.message}`);
+      console.error("Upload error:", error);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setUploading(false);
     }
   };
 
   return (
-    <Card className="p-4 bg-black border-warcrow-gold/30">
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <h2 className="text-lg font-semibold text-warcrow-gold">Upload Unit Data</h2>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              className="border-warcrow-gold/50 text-warcrow-gold"
-              onClick={() => document.getElementById('unit-json-upload')?.click()}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload JSON
-              <input
-                id="unit-json-upload"
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-            </Button>
-            
-            <Button 
-              variant="default" 
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-              onClick={handleSaveToDatabase}
-              disabled={isLoading || units.length === 0}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {isLoading ? "Saving..." : "Save to Database"}
-            </Button>
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label className="text-sm text-warcrow-text/90">Unit JSON Data</label>
-            {units.length > 0 && (
-              <span className="text-xs text-warcrow-gold">{units.length} units loaded</span>
-            )}
-          </div>
-          <Textarea 
-            value={jsonContent}
-            onChange={(e) => setJsonContent(e.target.value)}
-            className="font-mono text-sm h-64 bg-black/70 border-warcrow-gold/30"
-            placeholder="Paste unit JSON data here or upload a file..."
-          />
-        </div>
+    <Card className="p-4 space-y-4 border border-warcrow-gold/30 shadow-sm bg-black">
+      <h3 className="text-lg font-semibold text-warcrow-gold flex items-center">
+        <FilePlus className="h-5 w-5 mr-2" />
+        Upload Unit Data
+      </h3>
+      
+      <div className="space-y-2">
+        <Input
+          type="file"
+          accept=".json"
+          onChange={handleFileChange}
+          className="text-sm border border-warcrow-gold/30 bg-black text-warcrow-text file:bg-warcrow-gold file:border-none file:text-black file:font-medium file:h-9 hover:file:bg-warcrow-gold/80"
+        />
+        {file && (
+          <Badge variant="secondary" className="text-xs">
+            Selected File: {file.name}
+          </Badge>
+        )}
       </div>
+
+      <Button
+        onClick={handleUpload}
+        disabled={uploading || !file}
+        className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+      >
+        {uploading ? (
+          <>
+            <Upload className="mr-2 h-4 w-4 animate-spin" />
+            Uploading...
+          </>
+        ) : (
+          <>
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Data
+          </>
+        )}
+      </Button>
+
+      {uploading && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-warcrow-text/80">
+            <span>Upload Progress:</span>
+            <span>{uploadProgress}%</span>
+          </div>
+          <Progress value={uploadProgress} className="h-2 bg-warcrow-gold/20" />
+        </div>
+      )}
+
+      {unitData.length > 0 && (
+        <div className="flex items-center text-sm text-green-500">
+          <Check className="h-4 w-4 mr-2" />
+          <span>
+            Successfully parsed {unitData.length} units from the file.
+          </span>
+        </div>
+      )}
+
+      {!uploading && unitData.length === 0 && file && (
+        <div className="flex items-center text-sm text-red-500">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <span>
+            Failed to parse unit data. Ensure the file is a valid JSON array.
+          </span>
+        </div>
+      )}
     </Card>
   );
 };

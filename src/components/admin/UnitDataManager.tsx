@@ -10,12 +10,12 @@ import {
   Upload,
   Save,
   Database,
-  Translate,
+  Languages,
   FileText,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { batchTranslate } from "@/utils/translationUtils";
+import { batchTranslate } from "@/utils/translation/batchTranslate";
 import UnitDataUploader from "./units/UnitDataUploader";
 import UnitKeywordsManager from "./units/UnitKeywordsManager";
 import UnitSpecialRulesManager from "./units/UnitSpecialRulesManager";

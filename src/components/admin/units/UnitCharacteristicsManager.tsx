@@ -1,37 +1,58 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Translate, Save, Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, Edit, Trash2, Languages, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { batchTranslate } from "@/utils/translationUtils";
+import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Progress } from "@/components/ui/progress";
+import { batchTranslate } from "@/utils/translation/batchTranslate";
 
-interface CharacteristicItem {
-  id?: string;
+// Define the interface for the characteristics
+export interface CharacteristicItem {
+  id: string;
   name: string;
   description: string;
+  name_es?: string;
   description_es?: string;
+  name_fr?: string;
   description_fr?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const UnitCharacteristicsManager: React.FC = () => {
   const [characteristics, setCharacteristics] = useState<CharacteristicItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [editingChar, setEditingChar] = useState<CharacteristicItem | null>(null);
-  const [translationInProgress, setTranslationInProgress] = useState(false);
-  const [translationProgress, setTranslationProgress] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedCharacteristic, setSelectedCharacteristic] = useState<CharacteristicItem | null>(null);
   const { language } = useLanguage();
-
+  
   useEffect(() => {
     fetchCharacteristics();
   }, []);
-
+  
   const fetchCharacteristics = async () => {
     setIsLoading(true);
     try {
@@ -39,244 +60,242 @@ const UnitCharacteristicsManager: React.FC = () => {
         .from('unit_characteristics')
         .select('*')
         .order('name');
-
+        
       if (error) throw error;
-      setCharacteristics(data || []);
+      
+      setCharacteristics(data as CharacteristicItem[]);
     } catch (error: any) {
       console.error("Error fetching characteristics:", error);
-      toast.error(`Failed to fetch characteristics: ${error.message}`);
+      toast.error(`Failed to load characteristics: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const startEditing = (char: CharacteristicItem) => {
-    setEditingChar({ ...char });
-  };
-
-  const saveCharacteristic = async () => {
-    if (!editingChar) return;
-    
+  const handleCreate = async () => {
+    setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('unit_characteristics')
-        .upsert({
-          id: editingChar.id,
-          name: editingChar.name,
-          description: editingChar.description,
-          description_es: editingChar.description_es,
-          description_fr: editingChar.description_fr
-        }, { onConflict: 'id' });
-
+        .insert({ 
+          name, 
+          description 
+        });
+        
       if (error) throw error;
       
-      setCharacteristics(characteristics.map(c => c.id === editingChar.id ? editingChar : c));
-      setEditingChar(null);
-      toast.success(`Saved characteristic: ${editingChar.name}`);
+      toast.success("Characteristic created successfully");
+      setOpen(false);
+      setName('');
+      setDescription('');
+      fetchCharacteristics();
     } catch (error: any) {
-      console.error("Error saving characteristic:", error);
-      toast.error(`Failed to save: ${error.message}`);
+      console.error("Error creating characteristic:", error);
+      toast.error(`Failed to create characteristic: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const translateAllCharacteristics = async (targetLanguage: string) => {
-    if (characteristics.length === 0) {
-      toast.error("No characteristics to translate");
-      return;
-    }
+  const handleEdit = (characteristic: CharacteristicItem) => {
+    setSelectedCharacteristic(characteristic);
+    setName(characteristic.name);
+    setDescription(characteristic.description);
+    setEditOpen(true);
+  };
 
-    setTranslationInProgress(true);
-    setTranslationProgress(0);
-    
+  const handleUpdate = async () => {
+    if (!selectedCharacteristic) return;
+
+    setIsLoading(true);
     try {
-      const itemsToTranslate = characteristics
-        .filter(c => c.description && (!c.description_es || targetLanguage === 'fr' && !c.description_fr))
-        .map(c => ({
-          id: c.id || '',
-          key: 'description',
-          source: c.description
-        }));
+      const { error } = await supabase
+        .from('unit_characteristics')
+        .update({ 
+          name, 
+          description 
+        })
+        .eq('id', selectedCharacteristic.id);
+        
+      if (error) throw error;
       
-      if (itemsToTranslate.length === 0) {
-        toast.info("All characteristics already have translations");
-        setTranslationInProgress(false);
-        return;
-      }
-
-      // Track progress
-      const total = itemsToTranslate.length;
-      let completed = 0;
-
-      // Process in batches
-      const batchSize = 10;
-      for (let i = 0; i < itemsToTranslate.length; i += batchSize) {
-        const batch = itemsToTranslate.slice(i, i + batchSize);
-        const results = await batchTranslate(batch, targetLanguage, true, 'unit_characteristics');
-        
-        completed += batch.length;
-        setTranslationProgress(Math.round((completed / total) * 100));
-        
-        // Small delay between batches
-        if (i + batchSize < itemsToTranslate.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-
-      await fetchCharacteristics(); // Refresh characteristic list
-      toast.success(`Successfully translated ${itemsToTranslate.length} characteristics`);
+      toast.success("Characteristic updated successfully");
+      setEditOpen(false);
+      setName('');
+      setDescription('');
+      setSelectedCharacteristic(null);
+      fetchCharacteristics();
     } catch (error: any) {
-      console.error("Error translating characteristics:", error);
-      toast.error(`Translation error: ${error.message}`);
+      console.error("Error updating characteristic:", error);
+      toast.error(`Failed to update characteristic: ${error.message}`);
     } finally {
-      setTranslationInProgress(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('unit_characteristics')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      toast.success("Characteristic deleted successfully");
+      fetchCharacteristics();
+    } catch (error: any) {
+      console.error("Error deleting characteristic:", error);
+      toast.error(`Failed to delete characteristic: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTranslate = async () => {
+    if (!selectedCharacteristic) return;
+
+    setIsLoading(true);
+    try {
+      // Translate using batchTranslate
+      const itemsToTranslate = [{
+        id: selectedCharacteristic.id,
+        key: 'description',
+        source: selectedCharacteristic.description
+      }];
+      
+      const translatedItems = await batchTranslate(itemsToTranslate, language, true, 'unit_characteristics');
+      
+      if (translatedItems && translatedItems.length > 0) {
+        toast.success("Characteristic translated successfully");
+        fetchCharacteristics();
+      } else {
+        toast.error("Translation failed");
+      }
+    } catch (error: any) {
+      console.error("Error translating characteristic:", error);
+      toast.error(`Translation failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="p-4 bg-black border-warcrow-gold/30">
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <h2 className="text-lg font-semibold text-warcrow-gold">Characteristics Management</h2>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              className="border-warcrow-gold/50 text-warcrow-gold"
-              onClick={() => translateAllCharacteristics('es')}
-              disabled={isLoading || translationInProgress}
-            >
-              <Translate className="h-4 w-4 mr-2" />
-              Translate to Spanish
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-warcrow-gold/50 text-warcrow-gold"
-              onClick={() => translateAllCharacteristics('fr')}
-              disabled={isLoading || translationInProgress}
-            >
-              <Translate className="h-4 w-4 mr-2" />
-              Translate to French
-            </Button>
-          </div>
-        </div>
-
-        {translationInProgress && (
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-warcrow-text/90">Translation progress</span>
-              <span className="text-sm font-medium text-warcrow-gold">{translationProgress}%</span>
-            </div>
-            <Progress value={translationProgress} className="h-1.5 bg-warcrow-gold/20" />
-          </div>
-        )}
-        
-        {editingChar && (
-          <Card className="p-4 border-warcrow-gold bg-black/70">
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Characteristic Name</label>
-                <Input 
-                  value={editingChar.name}
-                  onChange={(e) => setEditingChar({...editingChar, name: e.target.value})}
-                  className="bg-black border-warcrow-gold/50"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (English)</label>
-                <Textarea 
-                  value={editingChar.description}
-                  onChange={(e) => setEditingChar({...editingChar, description: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (Spanish)</label>
-                <Textarea 
-                  value={editingChar.description_es || ''}
-                  onChange={(e) => setEditingChar({...editingChar, description_es: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (French)</label>
-                <Textarea 
-                  value={editingChar.description_fr || ''}
-                  onChange={(e) => setEditingChar({...editingChar, description_fr: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div className="flex justify-end gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setEditingChar(null)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="default" 
-                  className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-                  onClick={saveCharacteristic}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-        
-        <div className="rounded border border-warcrow-gold/30 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
-                <TableHead className="text-warcrow-gold">Characteristic</TableHead>
-                <TableHead className="text-warcrow-gold">Description</TableHead>
-                <TableHead className="text-warcrow-gold">Spanish</TableHead>
-                <TableHead className="text-warcrow-gold">French</TableHead>
-                <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
-                </TableRow>
-              ) : characteristics.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">No characteristics found</TableCell>
-                </TableRow>
-              ) : (
-                characteristics.map((char) => (
-                  <TableRow key={char.id} className="hover:bg-warcrow-accent/5">
-                    <TableCell className="font-medium">{char.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{char.description}</TableCell>
-                    <TableCell>
-                      {char.description_es ? '✓' : '—'}
-                    </TableCell>
-                    <TableCell>
-                      {char.description_fr ? '✓' : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => startEditing(char)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+    <Card className="p-4 space-y-4 border border-warcrow-gold/30 shadow-sm bg-black">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-warcrow-gold">Unit Characteristics</h2>
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="border-warcrow-gold/30 text-warcrow-gold hover:border-warcrow-gold/50">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Characteristic
+        </Button>
       </div>
+      
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-black/30">
+            <TableHead className="w-[200px]">Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {characteristics.map((characteristic) => (
+            <TableRow key={characteristic.id}>
+              <TableCell className="font-medium">{characteristic.name}</TableCell>
+              <TableCell className="text-warcrow-text/80">{characteristic.description}</TableCell>
+              <TableCell className="text-right">
+                <Button variant="ghost" size="sm" onClick={() => handleEdit(characteristic)} className="text-warcrow-gold hover:bg-warcrow-accent/10">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => handleDelete(characteristic.id)} className="text-red-500 hover:bg-warcrow-accent/10">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setSelectedCharacteristic(characteristic);
+                    handleTranslate();
+                  }} 
+                  className="text-warcrow-gold hover:bg-warcrow-accent/10"
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  Translate
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-black border border-warcrow-gold/30">
+          <DialogHeader>
+            <DialogTitle className="text-warcrow-gold">Create Characteristic</DialogTitle>
+            <DialogDescription className="text-warcrow-text">
+              Add a new unit characteristic to the database.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right text-warcrow-text">
+                Name
+              </Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3 border-warcrow-gold/30 bg-black text-warcrow-text" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right text-warcrow-text">
+                Description
+              </Label>
+              <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="col-span-3 border-warcrow-gold/30 bg-black text-warcrow-text" />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary" className="border-warcrow-gold/30 text-warcrow-gold hover:border-warcrow-gold/50">Cancel</Button>
+            </DialogClose>
+            <Button type="submit" onClick={handleCreate} disabled={isLoading} className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black">
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-black border border-warcrow-gold/30">
+          <DialogHeader>
+            <DialogTitle className="text-warcrow-gold">Edit Characteristic</DialogTitle>
+            <DialogDescription className="text-warcrow-text">
+              Edit an existing unit characteristic in the database.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right text-warcrow-text">
+                Name
+              </Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3 border-warcrow-gold/30 bg-black text-warcrow-text" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right text-warcrow-text">
+                Description
+              </Label>
+              <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="col-span-3 border-warcrow-gold/30 bg-black text-warcrow-text" />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary" className="border-warcrow-gold/30 text-warcrow-gold hover:border-warcrow-gold/50">Cancel</Button>
+            </DialogClose>
+            <Button type="submit" onClick={handleUpdate} disabled={isLoading} className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black">
+              Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
