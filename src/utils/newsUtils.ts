@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
@@ -6,6 +5,7 @@ import { translations } from "@/i18n/translations";
 interface NewsTranslation {
   en: string;
   es: string;
+  fr?: string;
 }
 
 interface NewsItemDB {
@@ -15,6 +15,7 @@ interface NewsItemDB {
   translation_key: string;
   content_en: string;
   content_es: string;
+  content_fr?: string;
   created_at: string;
   updated_at: string;
 }
@@ -35,50 +36,97 @@ const convertToNewsItem = (dbItem: NewsItemDB): NewsItem => {
   };
 };
 
-// Function to auto-translate English text to Spanish (mock implementation)
-export const translateToSpanish = (englishText: string): string => {
-  // This is a simplified mock translation function
-  // In a real application, you would use a translation service like Google Translate API
+// Function to translate text using DeepL
+export const translateWithDeepL = async (
+  text: string, 
+  targetLanguage: string = 'ES'
+): Promise<string> => {
+  if (!text) return '';
   
-  // For now, we'll just do some basic word replacements as an example
-  const commonTranslations: Record<string, string> = {
-    'News': 'Noticias',
-    'update': 'actualización',
-    'unit': 'unidad',
-    'units': 'unidades',
-    'added': 'añadido',
-    'profiles': 'perfiles',
-    'for': 'para',
-    'have': 'han',
-    'been': 'sido',
-    'The': 'El',
-    'next': 'próximo',
-    'include': 'incluirá',
-    'will': 'va a',
-    'Play': 'Modo de Juego',
-    'Mode': 'Modo',
-    'now': 'ahora',
-    'includes': 'incluye',
-    'tournament': 'torneo',
-    'missions': 'misiones',
-    'Try': 'Prueba',
-    'them': 'las',
-    'out': '',
-    'and': 'y',
-    'share': 'comparte',
-    'your': 'tu',
-    'feedback': 'opinión'
-  };
+  try {
+    const { data, error } = await supabase.functions.invoke('deepl-translate', {
+      body: {
+        texts: [text],
+        targetLanguage: targetLanguage.toUpperCase(),
+        formality: 'more'
+      }
+    });
+
+    if (error) {
+      console.error('Error using DeepL translation:', error);
+      throw error;
+    }
+
+    if (data && data.translations && data.translations.length > 0) {
+      return data.translations[0];
+    }
+
+    throw new Error('No translation returned from DeepL');
+  } catch (error) {
+    console.error('Translation error:', error);
+    // Fallback to original text
+    return text;
+  }
+};
+
+// Function to auto-translate English text to Spanish and French
+export const translateContent = async (
+  englishText: string, 
+  targetLanguage: string = 'ES'
+): Promise<string> => {
+  if (!englishText) return '';
   
-  let translatedText = englishText;
-  
-  // Replace words based on our simple dictionary
-  Object.keys(commonTranslations).forEach(word => {
-    const regex = new RegExp(`\\b${word}\\b`, 'g');
-    translatedText = translatedText.replace(regex, commonTranslations[word]);
-  });
-  
-  return translatedText;
+  // Use DeepL for proper translation
+  try {
+    return await translateWithDeepL(englishText, targetLanguage);
+  } catch (error) {
+    console.error(`Failed to translate to ${targetLanguage}:`, error);
+    
+    // Fallback to simple mock translation for testing
+    if (targetLanguage.toLowerCase() === 'es') {
+      const commonTranslations: Record<string, string> = {
+        'News': 'Noticias',
+        'update': 'actualización',
+        'unit': 'unidad',
+        'units': 'unidades',
+        'added': 'añadido',
+        'profiles': 'perfiles',
+        'for': 'para',
+        'have': 'han',
+        'been': 'sido',
+        'The': 'El',
+        'next': 'próximo',
+        'include': 'incluirá',
+        'will': 'va a',
+        'Play': 'Modo de Juego',
+        'Mode': 'Modo',
+        'now': 'ahora',
+        'includes': 'incluye',
+        'tournament': 'torneo',
+        'missions': 'misiones',
+        'Try': 'Prueba',
+        'them': 'las',
+        'out': '',
+        'and': 'y',
+        'share': 'comparte',
+        'your': 'tu',
+        'feedback': 'opinión'
+      };
+      
+      let translatedText = englishText;
+      
+      // Replace words based on our simple dictionary
+      Object.keys(commonTranslations).forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'g');
+        translatedText = translatedText.replace(regex, commonTranslations[word]);
+      });
+      
+      return translatedText;
+    }
+    
+    // For French or other languages, return original text
+    return englishText;
+  }
 };
 
 // Function to fetch all news items from the database
@@ -98,7 +146,8 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
     data.forEach(item => {
       translations[item.translation_key] = {
         en: item.content_en,
-        es: item.content_es
+        es: item.content_es,
+        fr: item.content_fr || ''
       };
     });
     
@@ -121,6 +170,7 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
         translation_key: newsData.key,
         content_en: newsData.content.en,
         content_es: newsData.content.es,
+        content_fr: newsData.content.fr || '',  // Add French content
       })
       .eq('news_id', newsData.id);
     
@@ -132,7 +182,8 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
     // Also update local translations cache
     translations[newsData.key] = {
       en: newsData.content.en,
-      es: newsData.content.es
+      es: newsData.content.es,
+      fr: newsData.content.fr || '',  // Add French content
     };
     
     console.log('Updated news item successfully:', newsData);
@@ -154,7 +205,8 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
         date: newsData.date,
         translation_key: newsData.key,
         content_en: newsData.content.en,
-        content_es: newsData.content.es
+        content_es: newsData.content.es,
+        content_fr: newsData.content.fr || '',  // Add French content
       });
     
     if (error) {
@@ -165,7 +217,8 @@ export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
     // Also update local translations cache
     translations[newsData.key] = {
       en: newsData.content.en,
-      es: newsData.content.es
+      es: newsData.content.es,
+      fr: newsData.content.fr || '',  // Add French content
     };
     
     console.log('Created new news item successfully:', newsData);

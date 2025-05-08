@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/i18n/translations";
 import { format } from "date-fns";
-import { updateNewsItem, createNewsItem, deleteNewsItem, translateToSpanish, fetchNewsItems } from "@/utils/newsUtils";
+import { updateNewsItem, createNewsItem, deleteNewsItem, translateContent, fetchNewsItems } from "@/utils/newsUtils";
 import { NewsForm, NewsFormData } from './news/NewsForm';
 import { NewsList } from './news/NewsList';
 
@@ -22,7 +21,8 @@ export const NewsManager = () => {
     date: format(new Date(), 'yyyy-MM-dd'),
     key: "",
     contentEn: "",
-    contentEs: ""
+    contentEs: "",
+    contentFr: ""
   });
 
   // Load news data from Supabase
@@ -42,13 +42,15 @@ export const NewsManager = () => {
         const translationKey = item.key;
         const contentEn = translations[translationKey]?.en || "";
         const contentEs = translations[translationKey]?.es || "";
+        const contentFr = translations[translationKey]?.fr || "";
         
         return {
           id: item.id,
           date: item.date,
           key: translationKey,
           contentEn,
-          contentEs
+          contentEs,
+          contentFr
         };
       });
       
@@ -109,7 +111,8 @@ export const NewsManager = () => {
       key: newsItem.key,
       content: {
         en: newsItem.contentEn,
-        es: newsItem.contentEs
+        es: newsItem.contentEs,
+        fr: newsItem.contentFr
       }
     });
     
@@ -136,7 +139,8 @@ export const NewsManager = () => {
       date: format(today, 'yyyy-MM-dd'),
       key: `news${Date.now()}`,
       contentEn: "",
-      contentEs: ""
+      contentEs: "",
+      contentFr: ""
     });
   };
 
@@ -155,7 +159,7 @@ export const NewsManager = () => {
 
   const handleSaveNewNews = async () => {
     // Validate new news
-    if (!newNews.date || !newNews.contentEn || !newNews.contentEs) {
+    if (!newNews.date || !newNews.contentEn) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -184,7 +188,8 @@ export const NewsManager = () => {
       key: newNews.key,
       content: {
         en: newNews.contentEn,
-        es: newNews.contentEs
+        es: newNews.contentEs,
+        fr: newNews.contentFr
       }
     });
     
@@ -198,7 +203,8 @@ export const NewsManager = () => {
         date: format(new Date(), 'yyyy-MM-dd'),
         key: "",
         contentEn: "",
-        contentEs: ""
+        contentEs: "",
+        contentFr: ""
       });
       
       // Reload news data to include the new item
@@ -225,27 +231,43 @@ export const NewsManager = () => {
     }
   };
 
-  const handleTranslateToSpanish = (index: number | null) => {
+  const handleTranslateToLanguage = async (index: number | null, language: 'es' | 'fr') => {
     if (index === null && !isAddingNew) return;
     
-    if (isAddingNew) {
-      // Translate the new news content
-      const translatedText = translateToSpanish(newNews.contentEn);
-      setNewNews({
-        ...newNews,
-        contentEs: translatedText
-      });
-      toast.success("Spanish translation updated");
-    } else if (index !== null) {
-      // Translate the existing news content
-      const updatedNewsData = [...newsData];
-      const translatedText = translateToSpanish(updatedNewsData[index].contentEn);
-      updatedNewsData[index] = {
-        ...updatedNewsData[index],
-        contentEs: translatedText
-      };
-      setNewsData(updatedNewsData);
-      toast.success("Spanish translation updated");
+    const sourceText = isAddingNew 
+      ? newNews.contentEn 
+      : (index !== null ? newsData[index].contentEn : '');
+    
+    if (!sourceText) {
+      toast.warning("Please enter English content first");
+      return;
+    }
+    
+    toast.loading(`Translating to ${language === 'es' ? 'Spanish' : 'French'}...`);
+    
+    try {
+      const translatedText = await translateContent(sourceText, language.toUpperCase());
+      
+      if (isAddingNew) {
+        // Update new news form
+        setNewNews({
+          ...newNews,
+          [language === 'es' ? 'contentEs' : 'contentFr']: translatedText
+        });
+      } else if (index !== null) {
+        // Update existing news
+        const updatedNewsData = [...newsData];
+        updatedNewsData[index] = {
+          ...updatedNewsData[index],
+          [language === 'es' ? 'contentEs' : 'contentFr']: translatedText
+        };
+        setNewsData(updatedNewsData);
+      }
+      
+      toast.success(`${language === 'es' ? 'Spanish' : 'French'} translation updated`);
+    } catch (error) {
+      console.error(`Translation error for ${language}:`, error);
+      toast.error(`Failed to translate to ${language === 'es' ? 'Spanish' : 'French'}`);
     }
   };
 
@@ -272,7 +294,7 @@ export const NewsManager = () => {
           onCancel={() => setIsAddingNew(false)}
           onSave={handleSaveNewNews}
           onChange={handleNewNewsChange}
-          onTranslate={() => handleTranslateToSpanish(null)}
+          onTranslate={(language) => handleTranslateToLanguage(null, language)}
           onGenerateIdKey={handleGenerateIdKey}
         />
       )}
@@ -287,7 +309,7 @@ export const NewsManager = () => {
         onDeleteNews={handleDeleteNews}
         onSaveNews={handleSaveNews}
         onInputChange={handleInputChange}
-        onTranslate={handleTranslateToSpanish}
+        onTranslate={handleTranslateToLanguage}
       />
     </Card>
   );

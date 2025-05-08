@@ -31,6 +31,25 @@ interface UnitDataItem {
   special_rules: string[];
 }
 
+interface UnitDataResponseItem {
+  id: string;
+  name: string;
+  faction: string;
+  type: string;
+  points: number;
+  characteristics: any;
+  keywords: string[];
+  special_rules: string[];
+  description: string;
+  description_es: string;
+  description_fr: string;
+  name_es: string;
+  name_fr: string;
+  options: any[];
+  created_at: string;
+  updated_at: string;
+}
+
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +68,19 @@ const UnitDataTable: React.FC = () => {
 
       if (error) throw error;
       
-      setUnits(data || []);
+      // Convert Supabase response to UnitDataItem[]
+      const unitItems: UnitDataItem[] = (data || []).map((item: UnitDataResponseItem) => ({
+        id: item.id,
+        name: item.name,
+        faction: item.faction,
+        type: item.type,
+        points: item.points,
+        characteristics: item.characteristics || {},
+        keywords: item.keywords || [],
+        special_rules: item.special_rules || []
+      }));
+      
+      setUnits(unitItems);
       console.log('Fetched unit data:', data);
     } catch (error: any) {
       console.error("Error fetching unit data:", error);

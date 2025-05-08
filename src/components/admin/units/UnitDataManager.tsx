@@ -13,13 +13,13 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-import UnitDataUploader from "./units/UnitDataUploader";
-import UnitKeywordsManager from "./units/UnitKeywordsManager";
-import UnitSpecialRulesManager from "./units/UnitSpecialRulesManager";
-import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
-import DeepLUsageStats from "./units/DeepLUsageStats";
-import PopulateDataButton from "./units/PopulateDataButton";
-import UnitDataTable from "./units/UnitDataTable";
+import UnitDataUploader from "@/components/admin/units/UnitDataUploader";
+import UnitKeywordsManager from "@/components/admin/units/UnitKeywordsManager";
+import UnitSpecialRulesManager from "@/components/admin/units/UnitSpecialRulesManager";
+import UnitCharacteristicsManager from "@/components/admin/units/UnitCharacteristicsManager";
+import DeepLUsageStats from "@/components/admin/units/DeepLUsageStats";
+import PopulateDataButton from "@/components/admin/units/PopulateDataButton";
+import UnitDataTable from "@/components/admin/units/UnitDataTable";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
