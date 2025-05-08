@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 export const DeepLTest: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; translation?: string } | null>(null);
-  const [usageStats, setUsageStats] = useState<{ character_count: number; character_limit: number } | null>(null);
+  const [usageStats, setUsageStats] = useState<{ character_count: number; character_limit: number; usage_percentage: number } | null>(null);
   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
 
   const testDeepLIntegration = async () => {
@@ -151,7 +151,7 @@ export const DeepLTest: React.FC = () => {
             />
             
             <p className="mt-2 text-xs text-warcrow-text/70">
-              You have used {((usageStats.character_count / usageStats.character_limit) * 100).toFixed(1)}% of your DeepL free tier monthly limit.
+              You have used {parseFloat(usageStats.usage_percentage).toFixed(1)}% of your DeepL free tier monthly limit.
               {usageStats.character_limit - usageStats.character_count < 100000 && 
                 " You're getting close to your limit. Consider upgrading or limiting translations until next month."}
             </p>

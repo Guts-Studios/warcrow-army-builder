@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,6 +16,7 @@ import { useRulesVerifier } from './rules/useRulesVerifier';
 import { LanguageVerificationPanel, Language } from './rules/LanguageVerificationPanel';
 import { DeleteConfirmationDialog } from './rules/DeleteConfirmationDialog';
 import { AddItemDialog } from './rules/AddItemDialog';
+import BatchTranslationPanel from './rules/BatchTranslationPanel';
 
 export const RulesVerifier = () => {
   const {
@@ -40,7 +40,9 @@ export const RulesVerifier = () => {
     runVerification,
     verificationLanguage,
     setVerificationLanguage,
-    // New management functions
+    // Batch translation function
+    batchTranslateRules,
+    // Other management functions
     handleDeleteItem,
     confirmDelete,
     deleteConfirmDialogOpen,
@@ -92,6 +94,15 @@ export const RulesVerifier = () => {
         <LanguageVerificationPanel 
           currentLanguage={verificationLanguage as Language}
           onLanguageChange={setVerificationLanguage}
+        />
+
+        {/* Add Batch Translation Panel */}
+        <BatchTranslationPanel
+          chapters={chapters}
+          sections={sections}
+          targetLanguage={verificationLanguage as Language}
+          isLoading={isLoading}
+          onTranslate={batchTranslateRules}
         />
 
         <div className="mb-4">

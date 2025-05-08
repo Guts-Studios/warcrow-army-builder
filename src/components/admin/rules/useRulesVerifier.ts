@@ -569,6 +569,203 @@ export const useRulesVerifier = () => {
     };
   };
 
+  // Add batch translation function
+  const batchTranslateRules = async () => {
+    setIsLoading(true);
+    
+    try {
+      // First, get all missing translations
+      const missingChapterTranslations = chapters.filter(chapter => 
+        verificationLanguage === 'es' ? !chapter.title_es || chapter.title_es.trim() === '' :
+        verificationLanguage === 'fr' ? !chapter.title_fr || chapter.title_fr.trim() === '' : false
+      );
+
+      const missingSectionTranslations = sections.filter(section => 
+        verificationLanguage === 'es' ? 
+          !section.title_es || section.title_es.trim() === '' || !section.content_es || section.content_es.trim() === '' :
+        verificationLanguage === 'fr' ? 
+          !section.title_fr || section.title_fr.trim() === '' || !section.content_fr || section.content_fr.trim() === '' : 
+        false
+      );
+
+      // Set up total number of items to translate
+      const totalItems = missingChapterTranslations.length + missingSectionTranslations.length;
+      let completedItems = 0;
+      
+      // Custom event to report progress
+      const reportProgress = () => {
+        completedItems++;
+        const event = new CustomEvent('translation-progress', { 
+          detail: { completed: completedItems, total: totalItems } 
+        });
+        window.dispatchEvent(event);
+      };
+
+      console.log(`Starting batch translation of ${totalItems} items to ${verificationLanguage}`);
+      console.log(`- ${missingChapterTranslations.length} chapter titles`);
+      console.log(`- ${missingSectionTranslations.length} section content items`);
+      
+      // Translate chapter titles first - they're shorter
+      for (const chapter of missingChapterTranslations) {
+        try {
+          // Use DeepL to translate the chapter title
+          const { data, error } = await supabase.functions.invoke('deepl-translate', {
+            body: {
+              texts: [chapter.title],
+              targetLanguage: verificationLanguage.toUpperCase(),
+              formality: 'more'
+            }
+          });
+          
+          if (error) {
+            throw error;
+          }
+
+          if (data && data.translations && data.translations.length > 0) {
+            // Update the chapter title in the database
+            const translatedTitle = data.translations[0];
+            const updateField = verificationLanguage === 'es' ? 'title_es' : 'title_fr';
+            
+            const { error: updateError } = await supabase
+              .from('rules_chapters')
+              .update({ [updateField]: translatedTitle })
+              .eq('id', chapter.id);
+              
+            if (updateError) {
+              console.error(`Error updating chapter ${chapter.id}:`, updateError);
+            } else {
+              // Update local state
+              if (verificationLanguage === 'es') {
+                chapter.title_es = translatedTitle;
+              } else if (verificationLanguage === 'fr') {
+                chapter.title_fr = translatedTitle;
+              }
+            }
+          }
+          
+          // Report progress
+          reportProgress();
+          
+        } catch (error) {
+          console.error(`Error translating chapter ${chapter.id}:`, error);
+          reportProgress(); // still report progress even on error
+        }
+        
+        // Add a small delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // Now translate sections - these are more complex with title and content
+      for (const section of missingSectionTranslations) {
+        try {
+          const textsToTranslate = [];
+          
+          // Check if we need to translate the title
+          const needsTitle = verificationLanguage === 'es' ? 
+            !section.title_es || section.title_es.trim() === '' : 
+            !section.content_fr || section.content_fr.trim() === '';
+            
+          // Check if we need to translate the content
+          const needsContent = verificationLanguage === 'es' ? 
+            !section.content_es || section.content_es.trim() === '' : 
+            !section.content_fr || section.content_fr.trim() === '';
+            
+          // Add the texts we need to translate
+          if (needsTitle) {
+            textsToTranslate.push(section.title);
+          }
+          
+          if (needsContent) {
+            textsToTranslate.push(section.content || "");
+          }
+          
+          // If we have nothing to translate, skip this section
+          if (textsToTranslate.length === 0) {
+            reportProgress();
+            continue;
+          }
+          
+          // Use DeepL to translate the section title and content
+          const { data, error } = await supabase.functions.invoke('deepl-translate', {
+            body: {
+              texts: textsToTranslate,
+              targetLanguage: verificationLanguage.toUpperCase(),
+              formality: 'more'
+            }
+          });
+          
+          if (error) {
+            throw error;
+          }
+
+          if (data && data.translations && data.translations.length > 0) {
+            // Prepare the update object
+            const updateData: Record<string, any> = {};
+            let index = 0;
+            
+            if (needsTitle) {
+              const titleField = verificationLanguage === 'es' ? 'title_es' : 'title_fr';
+              updateData[titleField] = data.translations[index++];
+            }
+            
+            if (needsContent) {
+              const contentField = verificationLanguage === 'es' ? 'content_es' : 'content_fr';
+              updateData[contentField] = data.translations[index++];
+            }
+            
+            // Update the section in the database
+            const { error: updateError } = await supabase
+              .from('rules_sections')
+              .update(updateData)
+              .eq('id', section.id);
+              
+            if (updateError) {
+              console.error(`Error updating section ${section.id}:`, updateError);
+            } else {
+              // Update local state
+              if (needsTitle) {
+                if (verificationLanguage === 'es') {
+                  section.title_es = updateData['title_es'];
+                } else if (verificationLanguage === 'fr') {
+                  section.title_fr = updateData['title_fr'];
+                }
+              }
+              
+              if (needsContent) {
+                if (verificationLanguage === 'es') {
+                  section.content_es = updateData['content_es'];
+                } else if (verificationLanguage === 'fr') {
+                  section.content_fr = updateData['content_fr'];
+                }
+              }
+            }
+          }
+          
+          // Report progress
+          reportProgress();
+          
+        } catch (error) {
+          console.error(`Error translating section ${section.id}:`, error);
+          reportProgress(); // still report progress even on error
+        }
+        
+        // Add a small delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      // After all translations, refresh the data to ensure we're in sync
+      await fetchRulesData();
+      
+      toast.success(`Successfully translated ${totalItems} items to ${verificationLanguage === 'es' ? 'Spanish' : 'French'}`);
+      
+    } catch (error: any) {
+      console.error('Error during batch translation:', error);
+      toast.error(`Batch translation failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     chapters,
     sections,
@@ -604,6 +801,7 @@ export const useRulesVerifier = () => {
     addItemDialogOpen,
     setAddItemDialogOpen,
     addItemType,
-    saveNewItem
+    saveNewItem,
+    batchTranslateRules // Add the new batch translation function
   };
 };

@@ -30,7 +30,15 @@ async function getDeepLUsage() {
     }
 
     const data = await response.json();
-    return data;
+    
+    // Log for monitoring
+    console.log(`DeepL usage stats: ${data.character_count}/${data.character_limit} characters used`);
+    
+    return {
+      character_count: data.character_count,
+      character_limit: data.character_limit,
+      usage_percentage: (data.character_count / data.character_limit * 100).toFixed(2)
+    };
   } catch (error) {
     console.error('Error fetching DeepL usage stats:', error);
     throw error;
@@ -47,16 +55,18 @@ serve(async (req) => {
     const usageData = await getDeepLUsage();
     
     return new Response(
-      JSON.stringify({ 
-        character_count: usageData.character_count,
-        character_limit: usageData.character_limit 
-      }),
+      JSON.stringify(usageData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error in deepl-usage-stats function:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'An error occurred while fetching usage statistics' }),
+      JSON.stringify({ 
+        error: error.message || 'An error occurred while fetching usage statistics',
+        character_count: 0,
+        character_limit: 0,
+        usage_percentage: 0
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
