@@ -282,6 +282,7 @@ export type Database = {
         Row: {
           content_en: string
           content_es: string
+          content_fr: string | null
           created_at: string
           date: string
           id: string
@@ -292,6 +293,7 @@ export type Database = {
         Insert: {
           content_en: string
           content_es: string
+          content_fr?: string | null
           created_at?: string
           date: string
           id?: string
@@ -302,6 +304,7 @@ export type Database = {
         Update: {
           content_en?: string
           content_es?: string
+          content_fr?: string | null
           created_at?: string
           date?: string
           id?: string
