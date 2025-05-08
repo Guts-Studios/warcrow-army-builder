@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Mail, AlertTriangle, Code, Shield, Users, Package } from "lucide-react";
+import { Mail, AlertTriangle, Code, Shield, Users, Package, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import NetlifyDeployments from './NetlifyDeployments';
 
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Netlify Deployments Module - Preview */}
         <NetlifyDeployments />
         
@@ -96,6 +96,25 @@ const AdminDashboard = () => {
             >
               <Package className="mr-2 h-4 w-4" />
               Manage Deployments
+            </Button>
+          </div>
+        </Card>
+
+        {/* Changelog Editor Link - NEW */}
+        <Card className="bg-black/50 border border-warcrow-gold/30 h-full">
+          <div className="p-6 flex flex-col items-center justify-between h-full">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-warcrow-gold mb-4">Changelog Management</h2>
+              <p className="text-sm text-gray-300 mb-4 text-center">
+                Edit the project changelog to document version updates and features
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/admin/changelog')}
+              className="w-full bg-warcrow-gold hover:bg-warcrow-gold/80 text-black font-medium transition-colors mt-4"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Edit Changelog
             </Button>
           </div>
         </Card>
