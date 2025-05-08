@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Languages } from "lucide-react";
 import { ColorTextEditor } from "../shared/ColorTextEditor";
+import { FormattedTextPreview } from "../shared/FormattedTextPreview";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Chapter {
@@ -199,43 +200,53 @@ export const AddItemDialog: React.FC<AddItemDialogProps> = ({
           
           {/* Content fields (for sections only) - two columns */}
           {type === 'section' && (
-            <div className="grid grid-cols-2 gap-4">
-              {/* English content */}
-              <div className="space-y-2">
-                <Label htmlFor="content-en" className="text-warcrow-gold">English Content:</Label>
-                <ColorTextEditor
-                  id="content-en"
-                  value={newItem.content || ''}
-                  onChange={(value) => handleContentChange('content', value)}
-                  rows={12}
-                  placeholder="Enter content in English"
-                />
-              </div>
-              
-              {/* Spanish content with translate button */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="content-es" className="text-warcrow-gold">Spanish Content:</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleTranslate('content')}
-                    className="h-6 px-2 text-xs border-warcrow-gold/30 text-warcrow-gold"
-                  >
-                    <Languages className="h-3 w-3 mr-1" />
-                    Translate
-                  </Button>
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                {/* English content */}
+                <div className="space-y-2">
+                  <Label htmlFor="content-en" className="text-warcrow-gold">English Content:</Label>
+                  <ColorTextEditor
+                    id="content-en"
+                    value={newItem.content || ''}
+                    onChange={(value) => handleContentChange('content', value)}
+                    rows={12}
+                    placeholder="Enter content in English"
+                  />
+                  
+                  {/* Preview of the formatted content */}
+                  <Label className="text-warcrow-gold mt-2">Preview:</Label>
+                  <FormattedTextPreview content={newItem.content || ''} />
                 </div>
-                <ColorTextEditor
-                  id="content-es"
-                  value={newItem.content_es || ''}
-                  onChange={(value) => handleContentChange('content_es', value)}
-                  rows={12}
-                  placeholder="Enter content in Spanish"
-                />
+                
+                {/* Spanish content with translate button */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="content-es" className="text-warcrow-gold">Spanish Content:</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleTranslate('content')}
+                      className="h-6 px-2 text-xs border-warcrow-gold/30 text-warcrow-gold"
+                    >
+                      <Languages className="h-3 w-3 mr-1" />
+                      Translate
+                    </Button>
+                  </div>
+                  <ColorTextEditor
+                    id="content-es"
+                    value={newItem.content_es || ''}
+                    onChange={(value) => handleContentChange('content_es', value)}
+                    rows={12}
+                    placeholder="Enter content in Spanish"
+                  />
+                  
+                  {/* Preview of the formatted content */}
+                  <Label className="text-warcrow-gold mt-2">Preview:</Label>
+                  <FormattedTextPreview content={newItem.content_es || ''} />
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
         

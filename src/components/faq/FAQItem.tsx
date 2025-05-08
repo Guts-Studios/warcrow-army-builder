@@ -14,29 +14,16 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
   
   const toggleExpand = () => setIsExpanded(!isExpanded);
   
-  // Process the content to handle newlines, bullet points, and formatting
-  const processedContent = content.split('\n').map((line, i) => {
-    // Check if the line is a bullet point
-    if (line.trim().startsWith('-')) {
-      return (
-        <li key={i} className="ml-6 list-disc mt-1">
-          {line.trim().substring(1).trim()}
-        </li>
-      );
-    }
-    // Regular paragraph
-    return (
-      <p key={i} className={i > 0 ? "mt-2" : ""}>
-        {line}
-      </p>
-    );
-  });
-
   // Create a text-only version of the content for preview
-  const plainTextContent = content
-    .replace(/\n-/g, '. ') // Replace bullet points with periods
-    .replace(/\n/g, ' '); // Replace newlines with spaces
-
+  const stripHtml = (html: string) => {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+  
+  // Get plain text version for preview
+  const plainTextContent = stripHtml(content);
+  
   // Limit preview to around 100 characters
   const contentPreview = plainTextContent.length > 100 
     ? plainTextContent.substring(0, 100) + '...'
@@ -55,15 +42,10 @@ export const FAQItem: React.FC<FAQItemProps> = ({ section, content }) => {
       </div>
       
       {isExpanded ? (
-        <div className="text-warcrow-text mt-2">
-          {content.includes('\n-') ? (
-            <ul className="list-disc space-y-1 ml-4">
-              {processedContent}
-            </ul>
-          ) : (
-            processedContent
-          )}
-        </div>
+        <div 
+          className="text-warcrow-text mt-2"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
       ) : (
         <div className="text-warcrow-text/70 line-clamp-2 text-sm">
           {contentPreview}

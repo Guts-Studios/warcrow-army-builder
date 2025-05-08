@@ -11,7 +11,12 @@ export const TextHighlighter = ({ text }: TextHighlighterProps) => {
   const { searchTerm, caseSensitive } = useSearch();
   const { language } = useLanguage();
 
-  // Handle custom formatting first
+  // If there's no search term and the text contains HTML, render it directly
+  if (!searchTerm && (text.includes("<") && text.includes(">"))) {
+    return <div dangerouslySetInnerHTML={{ __html: text }} />;
+  }
+  
+  // Handle custom formatting first for the [[red]] syntax
   const processFormattedText = (inputText: string): React.ReactNode[] => {
     // Look for special formatting markers
     const parts = inputText.split(/(\[\[red\]\]|\[\[\/red\]\])/);
