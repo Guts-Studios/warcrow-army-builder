@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,7 +73,8 @@ const UnitDataUploader: React.FC = () => {
           // Process each item in the batch
           for (const unit of batch) {
             try {
-              const { error } = await supabase
+              // Using any to bypass the type checking temporarily since we know the table exists
+              const { error } = await (supabase as any)
                 .from('unit_data')
                 .upsert({
                   id: unit.id || crypto.randomUUID(),

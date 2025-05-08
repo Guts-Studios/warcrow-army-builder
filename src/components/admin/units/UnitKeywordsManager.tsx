@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,9 @@ const UnitKeywordsManager: React.FC = () => {
         .order('name');
 
       if (error) throw error;
-      setKeywords(data || []);
+      
+      // Use type assertion to safely convert the data to KeywordItem[]
+      setKeywords(data as unknown as KeywordItem[]);
     } catch (error: any) {
       console.error("Error fetching keywords:", error);
       toast.error(`Failed to fetch keywords: ${error.message}`);
@@ -144,7 +147,7 @@ const UnitKeywordsManager: React.FC = () => {
               onClick={() => translateAllKeywords('es')}
               disabled={isLoading || translationInProgress}
             >
-              <Translate className="h-4 w-4 mr-2" />
+              <Languages className="h-4 w-4 mr-2" />
               Translate to Spanish
             </Button>
             <Button 
@@ -153,7 +156,7 @@ const UnitKeywordsManager: React.FC = () => {
               onClick={() => translateAllKeywords('fr')}
               disabled={isLoading || translationInProgress}
             >
-              <Translate className="h-4 w-4 mr-2" />
+              <Languages className="h-4 w-4 mr-2" />
               Translate to French
             </Button>
           </div>

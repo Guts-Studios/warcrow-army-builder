@@ -568,6 +568,123 @@ export type Database = {
         }
         Relationships: []
       }
+      unit_characteristics: {
+        Row: {
+          created_at: string | null
+          description: string
+          description_es: string | null
+          description_fr: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      unit_data: {
+        Row: {
+          characteristics: Json
+          created_at: string | null
+          description: string
+          description_es: string | null
+          description_fr: string | null
+          faction: string
+          id: string
+          keywords: string[]
+          name: string
+          name_es: string | null
+          name_fr: string | null
+          options: Json
+          points: number
+          special_rules: string[]
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          characteristics?: Json
+          created_at?: string | null
+          description: string
+          description_es?: string | null
+          description_fr?: string | null
+          faction: string
+          id?: string
+          keywords?: string[]
+          name: string
+          name_es?: string | null
+          name_fr?: string | null
+          options?: Json
+          points?: number
+          special_rules?: string[]
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          characteristics?: Json
+          created_at?: string | null
+          description?: string
+          description_es?: string | null
+          description_fr?: string | null
+          faction?: string
+          id?: string
+          keywords?: string[]
+          name?: string
+          name_es?: string | null
+          name_fr?: string | null
+          options?: Json
+          points?: number
+          special_rules?: string[]
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      unit_keywords: {
+        Row: {
+          created_at: string | null
+          description: string
+          description_es: string | null
+          description_fr: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          description_es?: string | null
+          description_fr?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
