@@ -171,7 +171,16 @@ input, textarea, select {
   color: #fbbf24 !important; /* Gold color when active */
 }
 
-/* Improve button text contrast - Fixed to not have blue text */
+/* Language tab color fixes */
+[role="tab"] {
+  color: #e4e4e7 !important; /* Light gray for inactive tabs */
+}
+
+[role="tab"][data-state="active"] {
+  color: #ffd700 !important; /* Gold for active tabs */
+}
+
+/* Improve button text contrast - No blue text */
 button {
   color: #f4f4f5 !important; /* Very light gray for button text */
 }
@@ -201,16 +210,16 @@ button.border-warcrow-gold\/50 {
   color: #ffd700 !important;
 }
 
-/* Fix admin button/tab text colors */
-[role="tab"] {
-  color: #e4e4e7 !important;
-}
-
-[role="tab"][data-state="active"] {
+/* Ensure admin sidebar buttons have proper contrast */
+.admin-sidebar button {
   color: #ffd700 !important;
 }
 
-/* Ensure admin sidebar buttons have proper contrast */
-.admin-sidebar button {
+/* Fix tabs trigger text colors consistently */
+.TabsList .TabsTrigger {
+  color: #e4e4e7 !important;
+}
+
+.TabsList .TabsTrigger[data-state="active"] {
   color: #ffd700 !important;
 }

@@ -123,9 +123,49 @@ export const translateContent = async (
       });
       
       return translatedText;
+    } else if (targetLanguage.toLowerCase() === 'fr') {
+      // Simple fallback for French translation
+      const commonFrenchTranslations: Record<string, string> = {
+        'News': 'Nouvelles',
+        'update': 'mise à jour',
+        'unit': 'unité',
+        'units': 'unités',
+        'added': 'ajouté',
+        'profiles': 'profils',
+        'for': 'pour',
+        'have': 'ont',
+        'been': 'été',
+        'The': 'Le',
+        'next': 'prochain',
+        'include': 'inclura',
+        'will': 'va',
+        'Play': 'Mode de Jeu',
+        'Mode': 'Mode',
+        'now': 'maintenant',
+        'includes': 'inclut',
+        'tournament': 'tournoi',
+        'missions': 'missions',
+        'Try': 'Essayez',
+        'them': 'les',
+        'out': '',
+        'and': 'et',
+        'share': 'partagez',
+        'your': 'votre',
+        'feedback': 'avis'
+      };
+      
+      let translatedText = englishText;
+      
+      // Replace words based on our French dictionary
+      Object.keys(commonFrenchTranslations).forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'g');
+        translatedText = translatedText.replace(regex, commonFrenchTranslations[word]);
+      });
+      
+      return translatedText;
     }
     
-    // For French or other languages, return original text
+    // For other languages, return original text
     return englishText;
   }
 };
@@ -148,7 +188,7 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       // Ensure content_fr exists (using an empty string if it doesn't)
       return {
         ...item,
-        content_fr: (item as any).content_fr || ''
+        content_fr: item.content_fr || ''
       } as NewsItemDB;
     });
     
@@ -172,6 +212,8 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
 // Function to update a news item
 export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
+    console.log('Updating news with content:', newsData.content);
+    
     // Update the database
     const { error } = await supabase
       .from('news_items')
@@ -207,6 +249,8 @@ export const updateNewsItem = async (newsData: UpdateNewsRequest): Promise<boole
 // Function to create a new news item
 export const createNewsItem = async (newsData: UpdateNewsRequest): Promise<boolean> => {
   try {
+    console.log('Creating news with content:', newsData.content);
+    
     // Add to the database
     const { error } = await supabase
       .from('news_items')
@@ -278,7 +322,7 @@ export const getNewsItem = async (id: string): Promise<NewsItem | null> => {
     // Handle data that might not have content_fr yet
     const processedItem = {
       ...data,
-      content_fr: (data as any).content_fr || ''
+      content_fr: data.content_fr || ''
     } as NewsItemDB;
     
     return convertToNewsItem(processedItem);

@@ -46,7 +46,7 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({
             size="sm"
           >
             {item.icon}
-            {item.label}
+            <span className="ml-1">{item.label}</span>
           </Button>
         ))}
       </div>

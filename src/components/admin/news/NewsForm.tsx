@@ -93,9 +93,9 @@ export const NewsForm = ({
 
         <Tabs defaultValue="english" className="w-full">
           <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="english">English</TabsTrigger>
-            <TabsTrigger value="spanish">Spanish</TabsTrigger>
-            <TabsTrigger value="french">French</TabsTrigger>
+            <TabsTrigger value="english" className="text-warcrow-text">English</TabsTrigger>
+            <TabsTrigger value="spanish" className="text-warcrow-text">Spanish</TabsTrigger>
+            <TabsTrigger value="french" className="text-warcrow-text">French</TabsTrigger>
           </TabsList>
 
           <TabsContent value="english">

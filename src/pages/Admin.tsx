@@ -6,6 +6,7 @@ import { AdminOnly } from "@/utils/adminUtils";
 import { toast } from "sonner";
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminTabContent from "@/components/admin/AdminTabContent";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 interface LocationState {
   initialTab?: string;
@@ -35,6 +36,10 @@ const Admin = () => {
     <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
       <div className="min-h-screen bg-warcrow-background text-warcrow-text p-6">
         <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-warcrow-gold">Admin Dashboard</h1>
+            <NavDropdown />
+          </div>
           <AdminNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
           <AdminTabContent activeTab={activeTab} />
         </div>
