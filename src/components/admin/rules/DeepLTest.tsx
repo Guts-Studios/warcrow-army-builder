@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 export const DeepLTest: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; translation?: string } | null>(null);
-  const [usageStats, setUsageStats] = useState<{ character_count: number; character_limit: number; usage_percentage: number } | null>(null);
+  const [usageStats, setUsageStats] = useState<{ character_count: number; character_limit: number; usage_percentage: string } | null>(null);
   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
 
   const testDeepLIntegration = async () => {
@@ -146,7 +146,7 @@ export const DeepLTest: React.FC = () => {
             </div>
             
             <Progress 
-              value={(usageStats.character_count / usageStats.character_limit) * 100} 
+              value={parseFloat(usageStats.usage_percentage)} 
               className="h-2 bg-warcrow-gold/20" 
             />
             

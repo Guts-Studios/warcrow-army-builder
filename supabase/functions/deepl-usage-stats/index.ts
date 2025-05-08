@@ -34,10 +34,13 @@ async function getDeepLUsage() {
     // Log for monitoring
     console.log(`DeepL usage stats: ${data.character_count}/${data.character_limit} characters used`);
     
+    // Calculate the usage percentage and return as a string
+    const usagePercentage = (data.character_count / data.character_limit * 100).toFixed(2);
+    
     return {
       character_count: data.character_count,
       character_limit: data.character_limit,
-      usage_percentage: (data.character_count / data.character_limit * 100).toFixed(2)
+      usage_percentage: usagePercentage // Return as string
     };
   } catch (error) {
     console.error('Error fetching DeepL usage stats:', error);
@@ -65,7 +68,7 @@ serve(async (req) => {
         error: error.message || 'An error occurred while fetching usage statistics',
         character_count: 0,
         character_limit: 0,
-        usage_percentage: 0
+        usage_percentage: "0" // Return as string for error case too
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
