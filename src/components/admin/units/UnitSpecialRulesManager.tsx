@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Translate, Save, Pencil } from "lucide-react";
+import { Languages, Save, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { batchTranslate } from "@/utils/translationUtils";
+import { batchTranslate } from "@/utils/translation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Progress } from "@/components/ui/progress";
 
@@ -145,7 +145,7 @@ const UnitSpecialRulesManager: React.FC = () => {
               onClick={() => translateAllRules('es')}
               disabled={isLoading || translationInProgress}
             >
-              <Translate className="h-4 w-4 mr-2" />
+              <Languages className="h-4 w-4 mr-2" />
               Translate to Spanish
             </Button>
             <Button 
@@ -154,7 +154,7 @@ const UnitSpecialRulesManager: React.FC = () => {
               onClick={() => translateAllRules('fr')}
               disabled={isLoading || translationInProgress}
             >
-              <Translate className="h-4 w-4 mr-2" />
+              <Languages className="h-4 w-4 mr-2" />
               Translate to French
             </Button>
           </div>

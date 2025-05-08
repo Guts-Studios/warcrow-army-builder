@@ -55,6 +55,7 @@ const UnitCharacteristicsManager: React.FC = () => {
   const fetchCharacteristics = async () => {
     setIsLoading(true);
     try {
+      // Use the newly created unit_characteristics table
       const { data, error } = await supabase
         .from('unit_characteristics')
         .select('*')
