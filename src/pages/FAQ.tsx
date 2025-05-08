@@ -12,6 +12,7 @@ import { FAQList } from '@/components/faq/FAQList';
 import { FAQSearch } from '@/components/faq/FAQSearch';
 import { fetchFAQSections, FAQItem } from '@/services/faqService';
 import { useUnifiedSearch } from '@/contexts/UnifiedSearchContext';
+import { SearchProvider } from "@/contexts/SearchContext";
 
 interface FAQProps {
   showHeader?: boolean;
@@ -85,60 +86,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   if (!showHeader) {
     return (
       <div className="w-full max-w-7xl mx-auto">
-        {/* Search Component */}
-        <FAQSearch 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery}
-          resultsCount={filteredSections.length}
-        />
-        
-        {searchQuery && (
-          <div className="flex justify-end mb-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={searchInRules}
-              className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
-            >
-              <BookOpen className="mr-1 h-3 w-3" />
-              {t("searchInRules")}
-            </Button>
-          </div>
-        )}
-        
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-500">
-            {error}
-          </div>
-        ) : (
-          <FAQList items={filteredSections} />
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={t('faqTitle')}>
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate('/rules')}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-accent/20"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <LanguageSwitcher />
-        </div>
-      </PageHeader>
-      
-      <Container className="py-8">
-        <div className="max-w-7xl mx-auto">
+        <SearchProvider>
           {/* Search Component */}
           <FAQSearch 
             searchQuery={searchQuery} 
@@ -171,6 +119,63 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
           ) : (
             <FAQList items={filteredSections} />
           )}
+        </SearchProvider>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+      <PageHeader title={t('faqTitle')}>
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => navigate('/rules')}
+            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-accent/20"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <LanguageSwitcher />
+        </div>
+      </PageHeader>
+      
+      <Container className="py-8">
+        <div className="max-w-7xl mx-auto">
+          <SearchProvider>
+            {/* Search Component */}
+            <FAQSearch 
+              searchQuery={searchQuery} 
+              setSearchQuery={setSearchQuery}
+              resultsCount={filteredSections.length}
+            />
+            
+            {searchQuery && (
+              <div className="flex justify-end mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={searchInRules}
+                  className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
+                >
+                  <BookOpen className="mr-1 h-3 w-3" />
+                  {t("searchInRules")}
+                </Button>
+              </div>
+            )}
+            
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8 text-red-500">
+                {error}
+              </div>
+            ) : (
+              <FAQList items={filteredSections} />
+            )}
+          </SearchProvider>
         </div>
       </Container>
       <ScrollToTopButton />

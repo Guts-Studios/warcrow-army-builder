@@ -101,7 +101,7 @@ const Rules = () => {
             </TabsContent>
             
             <TabsContent value="faq" className="mt-0 w-full">
-              <div className="w-full">
+              <div className="w-full max-w-4xl mx-auto">
                 <FAQ showHeader={false} />
               </div>
             </TabsContent>
