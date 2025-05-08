@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { TextHighlighter } from '@/components/rules/TextHighlighter';
 
 interface FormattedTextPreviewProps {
   content: string;
@@ -8,9 +9,8 @@ interface FormattedTextPreviewProps {
 
 export const FormattedTextPreview: React.FC<FormattedTextPreviewProps> = ({ content, className = '' }) => {
   return (
-    <div 
-      className={`border border-warcrow-gold/20 rounded-md p-3 bg-black/20 ${className}`}
-      dangerouslySetInnerHTML={{ __html: content }}
-    />
+    <div className={`border border-warcrow-gold/20 rounded-md p-3 bg-black/20 ${className}`}>
+      <TextHighlighter text={content} />
+    </div>
   );
 };

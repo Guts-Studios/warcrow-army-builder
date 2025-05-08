@@ -1,5 +1,4 @@
-
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -43,6 +42,22 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
   const [selectedColor, setSelectedColor] = useState<string>('inherit');
   const [selectionInfo, setSelectionInfo] = useState<{ text: string, start: number, end: number } | null>(null);
   const [activeFormatting, setActiveFormatting] = useState<string[]>([]);
+
+  // Keep track of the selection when user clicks or selects text
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      if (textareaRef.current && 
+          document.activeElement === textareaRef.current &&
+          textareaRef.current.selectionStart !== textareaRef.current.selectionEnd) {
+        saveSelectionInfo();
+      }
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, []);
 
   const getSelectedText = (): { text: string, start: number, end: number } => {
     if (!textareaRef.current) return { text: '', start: 0, end: 0 };
@@ -106,7 +121,7 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
-        textareaRef.current.setSelectionRange(start, start + formattedText.length);
+        textareaRef.current.setSelectionRange(start + formattedText.length, start + formattedText.length);
         setSelectionInfo(null); // Clear stored selection after applying
       }
     }, 0);
@@ -117,7 +132,14 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
     
     // If we have stored selection info, apply the color immediately
     if (selectionInfo && selectionInfo.text) {
-      setTimeout(() => applyFormatting('color'), 0);
+      setTimeout(() => {
+        applyFormatting('color');
+      }, 0);
+    } else {
+      // If no text is selected, focus the textarea to encourage selection
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }
   };
 
@@ -133,7 +155,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           variant="ghost"
           size="sm"
           className={`h-8 w-8 p-0 ${isFormatActive('bold') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
-          onClick={() => applyFormatting('bold')}
+          onClick={() => {
+            saveSelectionInfo();
+            applyFormatting('bold');
+          }}
           title="Bold"
         >
           <Bold className="h-4 w-4" />
@@ -143,7 +168,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           variant="ghost"
           size="sm"
           className={`h-8 w-8 p-0 ${isFormatActive('italic') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
-          onClick={() => applyFormatting('italic')}
+          onClick={() => {
+            saveSelectionInfo();
+            applyFormatting('italic');
+          }}
           title="Italic"
         >
           <Italic className="h-4 w-4" />
@@ -153,7 +181,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           variant="ghost"
           size="sm"
           className={`h-8 w-8 p-0 ${isFormatActive('underline') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
-          onClick={() => applyFormatting('underline')}
+          onClick={() => {
+            saveSelectionInfo();
+            applyFormatting('underline');
+          }}
           title="Underline"
         >
           <Underline className="h-4 w-4" />
@@ -163,7 +194,10 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
           variant="ghost"
           size="sm"
           className={`h-8 w-8 p-0 ${isFormatActive('highlight') ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-text'}`}
-          onClick={() => applyFormatting('highlight')}
+          onClick={() => {
+            saveSelectionInfo();
+            applyFormatting('highlight');
+          }}
           title="Highlight"
         >
           <Highlighter className="h-4 w-4" />
@@ -221,6 +255,9 @@ export const ColorTextEditor: React.FC<ColorTextEditorProps> = ({
         style={{
           caretColor: 'white', // Make cursor visible
         }}
+        onMouseUp={saveSelectionInfo}
+        onKeyUp={saveSelectionInfo}
+        onClick={saveSelectionInfo}
       />
     </div>
   );

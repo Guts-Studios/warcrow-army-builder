@@ -12,8 +12,10 @@ export const TextHighlighter = ({ text }: TextHighlighterProps) => {
   const { language } = useLanguage();
 
   // If there's no search term and the text contains HTML, render it directly
-  if (!searchTerm && (text.includes("<") && text.includes(">"))) {
-    return <div dangerouslySetInnerHTML={{ __html: text }} />;
+  if (!searchTerm && (text.includes("<") || text.includes("[[red]]"))) {
+    // Process the [[red]] syntax before rendering HTML
+    const processedText = processRedSyntax(text);
+    return <div className="text-warcrow-text" dangerouslySetInnerHTML={{ __html: processedText }} />;
   }
   
   // Handle custom formatting first for the [[red]] syntax
@@ -69,6 +71,11 @@ export const TextHighlighter = ({ text }: TextHighlighterProps) => {
     }
     
     return result;
+  };
+
+  // Convert [[red]] syntax to HTML for rendering
+  const processRedSyntax = (input: string): string => {
+    return input.replace(/\[\[red\]\](.*?)\[\[\/red\]\]/g, '<span style="color: #ea384c">$1</span>');
   };
 
   // If there's no special formatting and no search term, just return the plain text
