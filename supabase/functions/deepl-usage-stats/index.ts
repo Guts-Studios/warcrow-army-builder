@@ -1,0 +1,63 @@
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const DEEPL_API_KEY = Deno.env.get('DEEPL_API_KEY');
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Handle DeepL usage statistics
+async function getDeepLUsage() {
+  try {
+    if (!DEEPL_API_KEY) {
+      throw new Error('DeepL API key is not configured');
+    }
+    
+    const response = await fetch('https://api-free.deepl.com/v2/usage', {
+      method: 'GET',
+      headers: {
+        'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`DeepL API returned ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching DeepL usage stats:', error);
+    throw error;
+  }
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const usageData = await getDeepLUsage();
+    
+    return new Response(
+      JSON.stringify({ 
+        character_count: usageData.character_count,
+        character_limit: usageData.character_limit 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error in deepl-usage-stats function:', error);
+    return new Response(
+      JSON.stringify({ error: error.message || 'An error occurred while fetching usage statistics' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});

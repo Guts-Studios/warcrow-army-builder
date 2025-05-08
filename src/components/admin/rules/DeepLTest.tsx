@@ -2,13 +2,16 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Check, X } from "lucide-react";
+import { Loader2, Check, X, BarChart } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 
 export const DeepLTest: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; translation?: string } | null>(null);
+  const [usageStats, setUsageStats] = useState<{ character_count: number; character_limit: number } | null>(null);
+  const [isLoadingUsage, setIsLoadingUsage] = useState(false);
 
   const testDeepLIntegration = async () => {
     setIsLoading(true);
@@ -60,6 +63,35 @@ export const DeepLTest: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const fetchUsageStatistics = async () => {
+    setIsLoadingUsage(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("deepl-usage-stats", {});
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        setUsageStats(data);
+        toast.success("DeepL usage statistics retrieved");
+      }
+      
+      console.log("DeepL API usage stats:", data);
+      
+    } catch (error: any) {
+      console.error("Failed to fetch DeepL usage stats:", error);
+      toast.error("Failed to get DeepL usage statistics");
+    } finally {
+      setIsLoadingUsage(false);
+    }
+  };
+  
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat().format(num);
+  };
   
   return (
     <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
@@ -70,7 +102,7 @@ export const DeepLTest: React.FC = () => {
           This will test if your DeepL API key is correctly configured and the translation function is working.
         </p>
         
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap gap-4">
           <Button 
             onClick={testDeepLIntegration} 
             disabled={isLoading}
@@ -83,7 +115,48 @@ export const DeepLTest: React.FC = () => {
               </>
             ) : "Test DeepL API"}
           </Button>
+          
+          <Button
+            onClick={fetchUsageStatistics}
+            disabled={isLoadingUsage}
+            variant="outline"
+            className="border-warcrow-gold/30 text-warcrow-gold"
+          >
+            {isLoadingUsage ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                <BarChart className="mr-2 h-4 w-4" />
+                Check Character Usage
+              </>
+            )}
+          </Button>
         </div>
+        
+        {usageStats && (
+          <div className="mt-4 p-4 rounded border border-warcrow-gold/30 bg-black/70">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm text-warcrow-text">DeepL API Character Usage:</span>
+              <span className="text-sm font-medium text-warcrow-gold">
+                {formatNumber(usageStats.character_count)} / {formatNumber(usageStats.character_limit)}
+              </span>
+            </div>
+            
+            <Progress 
+              value={(usageStats.character_count / usageStats.character_limit) * 100} 
+              className="h-2 bg-warcrow-gold/20" 
+            />
+            
+            <p className="mt-2 text-xs text-warcrow-text/70">
+              You have used {((usageStats.character_count / usageStats.character_limit) * 100).toFixed(1)}% of your DeepL free tier monthly limit.
+              {usageStats.character_limit - usageStats.character_count < 100000 && 
+                " You're getting close to your limit. Consider upgrading or limiting translations until next month."}
+            </p>
+          </div>
+        )}
         
         {testResult && (
           <div className={`mt-4 p-4 rounded border ${testResult.success ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20'}`}>

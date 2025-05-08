@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon } from "lucide-react";
+import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
@@ -16,8 +17,14 @@ interface ApiStatusItem {
   lastChecked: Date;
 }
 
+interface DeepLUsageStats {
+  character_count: number;
+  character_limit: number;
+}
+
 const ApiStatus: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingUsage, setIsLoadingUsage] = useState<boolean>(false);
   const [apiStatuses, setApiStatuses] = useState<ApiStatusItem[]>([
     {
       name: 'DeepL Translation API',
@@ -35,6 +42,7 @@ const ApiStatus: React.FC = () => {
       lastChecked: new Date()
     }
   ]);
+  const [deepLUsage, setDeepLUsage] = useState<DeepLUsageStats | null>(null);
 
   // Test DeepL API connection
   const testDeepLApi = async () => {
@@ -63,6 +71,27 @@ const ApiStatus: React.FC = () => {
     } catch (error) {
       console.error("DeepL API test failed:", error);
       return { status: 'down' as ApiStatus };
+    }
+  };
+
+  // Fetch DeepL usage statistics
+  const fetchDeepLUsage = async () => {
+    setIsLoadingUsage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("deepl-usage-stats", {});
+      
+      if (error) {
+        console.error("Error fetching DeepL usage stats:", error);
+        return null;
+      }
+      
+      setDeepLUsage(data as DeepLUsageStats);
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch DeepL usage:", error);
+      return null;
+    } finally {
+      setIsLoadingUsage(false);
     }
   };
 
@@ -151,6 +180,9 @@ const ApiStatus: React.FC = () => {
         }
       ]);
       
+      // Also update DeepL usage stats
+      fetchDeepLUsage();
+      
       toast.success("API status check complete");
     } catch (error) {
       console.error("Error checking API statuses:", error);
@@ -182,6 +214,11 @@ const ApiStatus: React.FC = () => {
   // Format time for display
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  // Format numbers with commas
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat().format(num);
   };
 
   return (
@@ -216,8 +253,48 @@ const ApiStatus: React.FC = () => {
                 <span>Last checked: {formatTime(api.lastChecked)}</span>
                 {api.latency && <span>Latency: {api.latency}ms</span>}
               </div>
+              
+              {api.name === 'DeepL Translation API' && deepLUsage && (
+                <div className="mt-3 pt-3 border-t border-warcrow-gold/10">
+                  <div className="flex justify-between mb-1 text-sm">
+                    <span className="text-warcrow-text/80">Character usage:</span>
+                    <span className="text-warcrow-gold/80">
+                      {formatNumber(deepLUsage.character_count)} / {formatNumber(deepLUsage.character_limit)}
+                    </span>
+                  </div>
+                  <Progress 
+                    value={(deepLUsage.character_count / deepLUsage.character_limit) * 100}
+                    className="h-1.5 bg-warcrow-gold/20"
+                  />
+                  <div className="flex justify-end mt-1">
+                    <span className="text-xs text-warcrow-text/70">
+                      {((deepLUsage.character_count / deepLUsage.character_limit) * 100).toFixed(1)}% used
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
+          
+          <Button
+            onClick={fetchDeepLUsage}
+            disabled={isLoadingUsage}
+            variant="outline"
+            size="sm"
+            className="w-full border-warcrow-gold/30 text-warcrow-gold"
+          >
+            {isLoadingUsage ? (
+              <>
+                <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
+                Updating DeepL Usage...
+              </>
+            ) : (
+              <>
+                <BarChart className="mr-2 h-4 w-4" />
+                Update DeepL Character Usage
+              </>
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>
