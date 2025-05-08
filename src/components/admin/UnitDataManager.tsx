@@ -21,6 +21,7 @@ import UnitKeywordsManager from "./units/UnitKeywordsManager";
 import UnitSpecialRulesManager from "./units/UnitSpecialRulesManager";
 import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
 import DeepLUsageStats from "./units/DeepLUsageStats";
+import PopulateDataButton from "./units/PopulateDataButton";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -50,7 +51,10 @@ const UnitDataManager: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-warcrow-gold">Unit Data Management</h1>
-        <DeepLUsageStats />
+        <div className="flex gap-3">
+          <PopulateDataButton />
+          <DeepLUsageStats />
+        </div>
       </div>
 
       <Tabs

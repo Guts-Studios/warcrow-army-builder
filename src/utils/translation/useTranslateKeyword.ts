@@ -1,98 +1,91 @@
 
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * This hook provides functions for translating keywords, special rules, and unit names
+ * Hook to translate keywords, special rules and unit names
  */
 export const useTranslateKeyword = () => {
-  const { t } = useLanguage();
-  
-  const translateKeyword = (keyword: string): string => {
-    // Handle keywords with parameters like "Join (Infantry, Orc)"
-    if (keyword.includes('(') && keyword.includes(')')) {
-      const baseKeyword = keyword.substring(0, keyword.indexOf('(')).trim().toLowerCase();
-      const paramStart = keyword.indexOf('(');
-      const paramEnd = keyword.lastIndexOf(')') + 1;
-      const parameters = keyword.substring(paramStart, paramEnd);
-      
-      // Extract parameters to translate them individually
-      const paramContent = parameters.substring(1, parameters.length - 1);
-      const paramItems = paramContent.split('|').map(item => item.trim());
-      
-      // Translate each parameter item
-      const translatedParams = paramItems.map(item => {
-        const paramParts = item.split(',').map(part => part.trim());
-        const translatedParts = paramParts.map(part => t(part.toLowerCase()));
-        return translatedParts.join(', ');
-      }).join(' | ');
-      
-      // Translate the base keyword
-      const translatedBase = t(baseKeyword);
-      
-      // Return translated keyword with parameters
-      return `${translatedBase} (${translatedParams})`;
-    }
-    
-    // Simple keyword translation
-    return t(keyword.toLowerCase());
-  };
-  
-  const translateSpecialRule = (rule: string): string => {
-    // Some special rules might have parameters like "Displace (4)"
-    if (rule.includes('(') && rule.includes(')')) {
-      const baseRule = rule.substring(0, rule.indexOf('(')).trim().toLowerCase();
-      const parameters = rule.substring(rule.indexOf('('));
-      
-      return `${t(baseRule)} ${parameters}`;
-    }
-    
-    return t(rule.toLowerCase());
-  };
-  
-  const translateUnitName = (name: string): string => {
-    // First check if there's a direct translation for the full unit name
-    const unitKey = `unit.${name.toLowerCase().replace(/\s+/g, '_')}`;
-    const directTranslation = t(unitKey);
-    
-    // If we have a direct translation that isn't just returning the key, use it
-    if (directTranslation !== unitKey) {
-      return directTranslation;
-    }
-    
-    // Check for a specific translation of the full name
-    const fullNameKey = name.toLowerCase();
-    const fullNameTranslation = t(fullNameKey);
-    if (fullNameTranslation !== fullNameKey) {
-      return fullNameTranslation;
-    }
-    
-    // Otherwise, try to translate common parts of the name
-    const titlePatterns = [
-      "the", "of", "champion", "master", "lord", "lady", "commander", 
-      "captain", "hero", "warrior", "guardian", "protector"
-    ];
-    
-    let translatedName = name;
-    
-    // For names with commas (like "Character Name, Title")
-    if (name.includes(',')) {
-      const [baseName, title] = name.split(',').map(part => part.trim());
-      const translatedTitle = t(title.toLowerCase());
-      translatedName = `${baseName}, ${translatedTitle}`;
-    } 
-    // For names with "the" or other common patterns
-    else {
-      titlePatterns.forEach(pattern => {
-        const lowerName = name.toLowerCase();
-        if (lowerName.includes(` ${pattern} `) || lowerName.startsWith(`${pattern} `)) {
-          const regex = new RegExp(`(^|\\s)${pattern}(\\s|$)`, 'i');
-          translatedName = name.replace(regex, (match) => ` ${t(pattern.toLowerCase())} `).trim();
+  const [keywordTranslations, setKeywordTranslations] = useState<Record<string, string>>({});
+  const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, string>>({});
+  const [unitNameTranslations, setUnitNameTranslations] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTranslations = async () => {
+      setIsLoading(true);
+      try {
+        // Load keyword translations
+        const { data: keywordData } = await supabase
+          .from('unit_keywords')
+          .select('name, description_es, description_fr');
+        
+        if (keywordData) {
+          const keywordMap: Record<string, string> = {};
+          keywordData.forEach(item => {
+            if (item.name && item.description_es) {
+              keywordMap[item.name] = item.description_es;
+            }
+          });
+          setKeywordTranslations(keywordMap);
         }
-      });
-    }
-    
-    return translatedName;
+
+        // Load special rule translations
+        const { data: ruleData } = await supabase
+          .from('special_rules')
+          .select('name, description_es, description_fr');
+        
+        if (ruleData) {
+          const ruleMap: Record<string, string> = {};
+          ruleData.forEach(item => {
+            if (item.name && item.description_es) {
+              ruleMap[item.name] = item.description_es;
+            }
+          });
+          setSpecialRuleTranslations(ruleMap);
+        }
+
+        // Load unit name translations
+        const { data: unitData } = await supabase
+          .from('unit_data')
+          .select('name, name_es, name_fr');
+        
+        if (unitData) {
+          const nameMap: Record<string, string> = {};
+          unitData.forEach(item => {
+            if (item.name && item.name_es) {
+              nameMap[item.name] = item.name_es;
+            }
+          });
+          setUnitNameTranslations(nameMap);
+        }
+
+      } catch (error) {
+        console.error("Error loading translations:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTranslations();
+  }, []);
+
+  const translateKeyword = (keyword: string): string => {
+    return keywordTranslations[keyword] || keyword;
   };
-  
-  return { translateKeyword, translateSpecialRule, translateUnitName };
+
+  const translateSpecialRule = (rule: string): string => {
+    return specialRuleTranslations[rule] || rule;
+  };
+
+  const translateUnitName = (name: string): string => {
+    return unitNameTranslations[name] || name;
+  };
+
+  return {
+    translateKeyword,
+    translateSpecialRule,
+    translateUnitName,
+    isLoading
+  };
 };
