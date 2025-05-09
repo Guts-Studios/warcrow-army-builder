@@ -27,6 +27,28 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     return rule.split('(')[0].trim();
   };
 
+  // Get only the rule name, not the description
+  const getTranslatedRuleName = (rule: string, lang: string) => {
+    const baseRule = getBaseRule(rule);
+    if (lang === 'en') return rule; // Keep original for English
+    
+    // Extract just the name from original rule (to handle any parameters in parentheses)
+    const ruleParams = rule.includes('(') ? rule.substring(rule.indexOf('(')) : '';
+    
+    // Get translated base rule name
+    let translatedName = translateSpecialRule(baseRule, lang);
+    
+    // If translatedName contains description text (like a sentence with spaces),
+    // it's likely returning the full description instead of just the name
+    if (translatedName.includes(' ') && translatedName.length > 30) {
+      // Fall back to the original rule name
+      return baseRule + ruleParams;
+    }
+    
+    // Append any parameters that were in the original rule
+    return translatedName + ruleParams;
+  };
+
   const RuleContent = ({ rule }: { rule: string }) => {
     const baseRule = getBaseRule(rule);
     
@@ -56,7 +78,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
               onClick={() => setOpenDialogRule(rule)}
             >
-              {rule}
+              {getTranslatedRuleName(rule, language)}
             </button>
           ) : (
             <TooltipProvider key={rule} delayDuration={0}>
@@ -66,7 +88,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
                     type="button"
                     className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/10 border border-warcrow-gold hover:bg-warcrow-gold/20 transition-colors text-warcrow-text"
                   >
-                    {rule}
+                    {getTranslatedRuleName(rule, language)}
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
@@ -98,7 +120,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
             >
               ✕
             </button>
-            <h3 className="text-lg font-semibold mb-4">{openDialogRule}</h3>
+            <h3 className="text-lg font-semibold mb-4">{getTranslatedRuleName(openDialogRule, language)}</h3>
             <div className="pt-2">
               <RuleContent rule={openDialogRule} />
             </div>
