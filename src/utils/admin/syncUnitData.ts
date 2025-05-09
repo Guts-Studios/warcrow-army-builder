@@ -195,9 +195,19 @@ const writeToStaticFilesRepo = async (fileName: string, content: string): Promis
     }
     
     // Now update or create the file
+    // Fix: Use TextEncoder to properly handle international characters
+    const encoder = new TextEncoder();
+    const contentBytes = encoder.encode(content);
+    // Convert to base64 using a method that supports non-Latin1 characters
+    const base64Content = btoa(
+      Array.from(contentBytes)
+        .map(byte => String.fromCharCode(byte))
+        .join('')
+    );
+    
     const payload = {
       message: commitMessage,
-      content: btoa(content), // Base64 encode the content
+      content: base64Content,
       sha: fileSha, // Include SHA if updating, omit if creating
       branch: branch
     };
