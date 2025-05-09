@@ -1,18 +1,31 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationItem, TranslatedText } from "@/utils/types/translationTypes";
 
-export async function batchTranslate(items: TranslationItem[]): Promise<TranslatedText[]> {
+// Helper function to handle translation with variegated parameter signatures
+export async function batchTranslate(
+  items: TranslationItem[] | string[], 
+  targetLanguage?: string,
+  sendProgress?: boolean,
+  tableName?: string
+): Promise<TranslatedText[] | string[]> {
   try {
-    const textsToTranslate = items.map(item => item.text);
-    const targetLanguage = items[0]?.targetLang?.toUpperCase() || 'ES';
+    // Handle string array input format (legacy support)
+    const textsToTranslate: string[] = Array.isArray(items) && typeof items[0] === 'string' 
+      ? items as string[]
+      : (items as TranslationItem[]).map(item => item.text);
+    
+    // Determine target language, with fallbacks
+    const targetLang = targetLanguage || 
+      (typeof items[0] !== 'string' && (items[0] as TranslationItem).targetLang) || 
+      'ES';
 
     // Call the DeepL API via Supabase edge function
     const { data, error } = await supabase.functions.invoke('deepl-translate', {
       body: {
         texts: textsToTranslate,
-        targetLanguage,
-        formality: 'more'
+        targetLanguage: targetLang.toUpperCase(),
+        formality: 'more',
+        ...(tableName && { tableName })
       }
     });
 
@@ -25,8 +38,13 @@ export async function batchTranslate(items: TranslationItem[]): Promise<Translat
       throw new Error("No translation data returned");
     }
 
-    // Map the translated texts back to the original items with their translation
-    return items.map((item, index) => ({
+    // If input was string array, return string array
+    if (typeof items[0] === 'string') {
+      return data.translations;
+    }
+
+    // Otherwise map the translated texts back to the original items with their translation
+    return (items as TranslationItem[]).map((item, index) => ({
       ...item,
       translation: data.translations[index] || ''
     }));
@@ -38,11 +56,11 @@ export async function batchTranslate(items: TranslationItem[]): Promise<Translat
 }
 
 // Helper function for simplifying translation calls
-export async function translateText(text: string, targetLang: string): Promise<string> {
+export async function translateText(text: string, targetLang: string = 'es'): Promise<string> {
   if (!text) return '';
   
   const items: TranslationItem[] = [{ text, targetLang }];
-  const result = await batchTranslate(items);
+  const result = await batchTranslate(items) as TranslatedText[];
   return result[0]?.translation || '';
 }
 

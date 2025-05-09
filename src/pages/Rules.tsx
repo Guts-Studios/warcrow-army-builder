@@ -72,16 +72,16 @@ const Rules = () => {
       <div className="container max-w-7xl mx-auto py-4 px-4">
         <UnifiedSearchProvider>
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-warcrow-background/30 border border-warcrow-gold/30">
+            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-black/70 border border-warcrow-gold/30">
               <TabsTrigger 
                 value="rules"
-                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none text-warcrow-text"
               >
                 {t('rulesTitle')}
               </TabsTrigger>
               <TabsTrigger 
                 value="faq"
-                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none text-warcrow-text"
               >
                 {t('faqTitle')}
               </TabsTrigger>

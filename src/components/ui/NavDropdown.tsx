@@ -75,14 +75,14 @@ export const NavDropdown = () => {
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
-            className="bg-black border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:text-warcrow-gold transition-colors"
+            className="bg-black/90 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:text-warcrow-gold transition-colors"
           >
             <Menu className="h-5 w-5" />
             <span className="ml-2">Navigation</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          className="w-56 bg-black border border-warcrow-gold/20 text-warcrow-text"
+          className="w-56 bg-black/90 border border-warcrow-gold/30 text-warcrow-text"
         >
           {(isAuthenticated || isPreview) && (
             <>
@@ -135,7 +135,7 @@ export const NavDropdown = () => {
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-warcrow-gold">
+                <DropdownMenuLabel className="text-warcrow-gold font-medium">
                   <ShieldAlert className="h-4 w-4 inline-block mr-2" />
                   Admin Functions
                 </DropdownMenuLabel>

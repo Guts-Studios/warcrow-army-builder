@@ -14,7 +14,7 @@ export const PageHeader = ({
   children 
 }: PageHeaderProps) => {
   return (
-    <div className="bg-black/80 border-b border-warcrow-gold/30 shadow-sm p-2 md:p-4">
+    <div className="bg-black/95 border-b border-warcrow-gold/50 shadow-md p-2 md:p-4">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 mx-auto md:mx-0">
