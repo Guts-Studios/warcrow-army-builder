@@ -8,6 +8,7 @@ export interface SyncStats {
   specialRules: number;
   characteristics: number;
   errors: string[];
+  files: { [key: string]: string }; // Store generated file content
 }
 
 /**
@@ -20,7 +21,8 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
     keywords: 0, 
     specialRules: 0,
     characteristics: 0,
-    errors: []
+    errors: [],
+    files: {}
   };
   
   try {
@@ -73,7 +75,7 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
       stats.characteristics = characteristics?.length || 0;
     }
 
-    // Generate files for different faction units
+    // 5. Generate files for different faction units
     if (units && units.length > 0) {
       // Group units by faction
       const factionGroups = units.reduce((acc, unit) => {
@@ -85,12 +87,32 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
         return acc;
       }, {} as Record<string, any[]>);
       
-      // In a full implementation, we would write to the file system here
-      // Since we can't directly write to the filesystem in the browser,
-      // we can provide downloadable files or a preview
-
+      // Generate files for each faction
+      for (const [faction, factionUnits] of Object.entries(factionGroups)) {
+        const fileName = `${faction}-units.json`;
+        const content = generateStaticDataFiles(factionUnits, 'units');
+        stats.files[fileName] = content;
+      }
+      
+      // Generate keywords file
+      if (keywords && keywords.length > 0) {
+        const content = generateStaticDataFiles(keywords, 'keywords');
+        stats.files['keywords.json'] = content;
+      }
+      
+      // Generate special rules file
+      if (specialRules && specialRules.length > 0) {
+        const content = generateStaticDataFiles(specialRules, 'special-rules');
+        stats.files['special-rules.json'] = content;
+      }
+      
+      // Generate characteristics file
+      if (characteristics && characteristics.length > 0) {
+        const content = generateStaticDataFiles(characteristics, 'characteristics');
+        stats.files['characteristics.json'] = content;
+      }
+      
       console.log("Unit data sync complete:", stats);
-      console.log("Faction groups:", factionGroups);
     }
 
     return stats;
@@ -102,11 +124,51 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
 };
 
 /**
- * In a real application, we would properly generate and write files
- * This function is a placeholder for that functionality
+ * Generates static data files for the specified data type
+ * In a production environment, this would write to the filesystem
+ * For this demo, we're returning the JSON content as a string
  */
-export const generateStaticDataFiles = (data: any, type: 'units' | 'keywords' | 'special-rules' | 'characteristics') => {
-  // This would generate the file content and write it to the file system
-  // For now, we'll just return the data as JSON
-  return JSON.stringify(data, null, 2);
+export const generateStaticDataFiles = (data: any, type: 'units' | 'keywords' | 'special-rules' | 'characteristics'): string => {
+  const formattedData = formatDataForExport(data, type);
+  return JSON.stringify(formattedData, null, 2);
+};
+
+/**
+ * Formats the data based on the type for export
+ */
+const formatDataForExport = (data: any[], type: 'units' | 'keywords' | 'special-rules' | 'characteristics'): any => {
+  switch (type) {
+    case 'units':
+      return data.map(unit => ({
+        id: unit.id,
+        name: unit.name,
+        faction: unit.faction,
+        pointsCost: unit.points,
+        type: unit.type,
+        keywords: unit.keywords,
+        specialRules: unit.special_rules,
+        characteristics: unit.characteristics
+      }));
+    
+    case 'keywords':
+      return data.reduce((acc: Record<string, string>, keyword) => {
+        acc[keyword.name] = keyword.description;
+        return acc;
+      }, {});
+      
+    case 'special-rules':
+      return data.reduce((acc: Record<string, string>, rule) => {
+        acc[rule.name] = rule.description;
+        return acc;
+      }, {});
+      
+    case 'characteristics':
+      return data.reduce((acc: Record<string, string>, char) => {
+        acc[char.name] = char.description;
+        return acc;
+      }, {});
+      
+    default:
+      return data;
+  }
 };
