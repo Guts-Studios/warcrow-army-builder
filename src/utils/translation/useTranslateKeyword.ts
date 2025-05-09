@@ -54,8 +54,8 @@ export const useTranslateKeyword = () => {
             translations[item.name] = { 'en': item.name };
           }
           
-          // Special rules might not have name_es/name_fr columns
-          // Just keep the rule name as is for non-English languages
+          // Use the same name for all languages if translations not available
+          // This ensures we don't lose the special rule name
           translations[item.name]['es'] = item.name;
           translations[item.name]['fr'] = item.name;
           
@@ -110,13 +110,25 @@ export const useTranslateKeyword = () => {
   };
 
   const translateKeywordDescription = (keyword: string, language: string): string => {
-    if (!keyword || language === 'en') return keywordTranslations[keyword]?.['en'] || '';
-    return keywordTranslations[keyword]?.[language] || keywordTranslations[keyword]?.['en'] || '';
+    // First try to get the description in the requested language
+    const descriptionInRequestedLanguage = keywordTranslations[keyword]?.[language];
+    
+    // If not found, fall back to English
+    const descriptionInEnglish = keywordTranslations[keyword]?.['en'];
+    
+    // Return whichever is available, or empty string if neither
+    return descriptionInRequestedLanguage || descriptionInEnglish || '';
   };
 
   const translateSpecialRuleDescription = (rule: string, language: string): string => {
-    if (!rule || language === 'en') return specialRuleTranslations[rule]?.['en'] || '';
-    return specialRuleTranslations[rule]?.[language] || specialRuleTranslations[rule]?.['en'] || '';
+    // First try to get the description in the requested language
+    const descriptionInRequestedLanguage = specialRuleTranslations[rule]?.[language];
+    
+    // If not found, fall back to English
+    const descriptionInEnglish = specialRuleTranslations[rule]?.['en'];
+    
+    // Return whichever is available, or empty string if neither
+    return descriptionInRequestedLanguage || descriptionInEnglish || '';
   };
   
   const translateUnitName = (name: string, language: string = 'en'): string => {
