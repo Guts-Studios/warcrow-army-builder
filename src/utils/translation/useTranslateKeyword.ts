@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -51,10 +50,10 @@ export const useTranslateKeyword = () => {
             descriptions[item.name] = { 'en': item.description || '' };
           }
           
-          // The special_rules table has name_es and name_fr columns in the database
-          // But our current data doesn't use them, so we fallback to the name
-          translations[item.name]['es'] = item.name_es || item.name;
-          translations[item.name]['fr'] = item.name_fr || item.name;
+          // Special rules might not have name_es/name_fr columns
+          // Just keep the rule name as is for non-English languages
+          translations[item.name]['es'] = item.name;
+          translations[item.name]['fr'] = item.name;
           
           if (item.description_es) descriptions[item.name]['es'] = item.description_es;
           if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;

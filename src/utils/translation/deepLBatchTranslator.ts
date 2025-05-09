@@ -9,6 +9,26 @@ interface TranslationBatch {
   table: string;
 }
 
+type ValidTable = 
+  "profiles" | 
+  "rules_chapters" | 
+  "army_lists" | 
+  "direct_messages" | 
+  "faq_sections" | 
+  "faqs" | 
+  "friend_activities" | 
+  "friendships" | 
+  "game_history" | 
+  "game_join_codes" | 
+  "news_items" | 
+  "notifications" | 
+  "profile_comments" | 
+  "rules_sections" | 
+  "special_rules" | 
+  "unit_characteristics" | 
+  "unit_data" | 
+  "unit_keywords";
+
 /**
  * Translates multiple pieces of content and updates database fields directly
  * Designed for admin translation workflows
@@ -71,9 +91,9 @@ export async function batchTranslateAndUpdate(
         validTranslationIndex++;
         
         if (translation) {
-          // Update the database
+          // Update the database - use type assertion to fix the type issue
           const { error: updateError } = await supabase
-            .from(table)
+            .from(table as ValidTable)
             .update({ [targetField]: translation })
             .eq('id', id);
             
