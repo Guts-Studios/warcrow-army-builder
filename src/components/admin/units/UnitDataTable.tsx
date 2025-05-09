@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { batchTranslate } from '@/utils/translation/batchTranslate';
+import { TranslatedText } from '@/utils/types/translationTypes';
 
 interface UnitDataItem {
   id: string;

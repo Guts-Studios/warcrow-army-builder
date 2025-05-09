@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Search, RefreshCw, Edit, Trash2, Save, X, Plus, Languages } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { batchTranslate } from '@/utils/translation/batchTranslate';
+import { TranslatedText } from '@/utils/types/translationTypes';
 
 interface KeywordItem {
   id: string;
