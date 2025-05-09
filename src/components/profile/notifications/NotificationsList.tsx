@@ -27,15 +27,19 @@ export const NotificationsList = ({
   
   return (
     <>
-      <ScrollArea className="max-h-64">
-        {notifications.map(notification => (
-          <NotificationItem 
-            key={notification.id}
-            notification={notification} 
-            onRead={onRead} 
-          />
-        ))}
-      </ScrollArea>
+      <div className="max-h-[320px] overflow-hidden">
+        <ScrollArea className="h-[320px] pr-2">
+          <div className="pb-1">
+            {notifications.map(notification => (
+              <NotificationItem 
+                key={notification.id}
+                notification={notification} 
+                onRead={onRead} 
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
       <DropdownMenuSeparator className="bg-warcrow-gold/20" />
       <div 
         className="text-center py-1.5 px-2 cursor-pointer hover:bg-warcrow-gold/10 data-[state=open]:bg-warcrow-gold/10"
