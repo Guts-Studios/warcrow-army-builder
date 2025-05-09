@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,6 +70,13 @@ factions.forEach(faction => {
   factionDisplayNames[faction.id] = faction.name;
 });
 
+// For backward compatibility with older faction keys
+const backwardCompatibilityFactions: Record<string, string> = {
+  hegemony: 'hegemony-of-embersig',
+  tribes: 'northern-tribes',
+  scions: 'scions-of-yaldabaoth'
+};
+
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +91,9 @@ const UnitDataTable: React.FC = () => {
   
   // Function to get faction display name
   const getFactionDisplayName = (factionId: string): string => {
-    return factionDisplayNames[factionId] || factionId;
+    // Handle backward compatibility
+    const normalizedFactionId = backwardCompatibilityFactions[factionId] || factionId;
+    return factionDisplayNames[normalizedFactionId] || factionId;
   };
   
   const fetchUnitData = async () => {
@@ -222,24 +232,6 @@ const UnitDataTable: React.FC = () => {
       toast.error(`Failed to translate: ${error.message}`);
     } finally {
       setIsTranslating(false);
-    }
-  };
-
-  const translateToLanguage = async (text: string, langCode: string) => {
-    try {
-      const translationItem = {
-        text: text,
-        targetLang: langCode
-      };
-      
-      const translated = await batchTranslate([translationItem]) as TranslatedText[];
-      if (translated && translated.length > 0) {
-        return translated[0].translation;
-      }
-      return '';
-    } catch (error) {
-      console.error(`Error translating to ${langCode}:`, error);
-      return '';
     }
   };
 
