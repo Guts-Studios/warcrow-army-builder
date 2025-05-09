@@ -666,6 +666,8 @@ export type Database = {
           description_fr: string | null
           id: string
           name: string
+          name_es: string | null
+          name_fr: string | null
           updated_at: string | null
         }
         Insert: {
@@ -675,6 +677,8 @@ export type Database = {
           description_fr?: string | null
           id?: string
           name: string
+          name_es?: string | null
+          name_fr?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -684,6 +688,8 @@ export type Database = {
           description_fr?: string | null
           id?: string
           name?: string
+          name_es?: string | null
+          name_fr?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -693,6 +699,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_name_translation_columns: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       check_rules_translations_completeness: {
         Args: Record<PropertyKey, never>
         Returns: {

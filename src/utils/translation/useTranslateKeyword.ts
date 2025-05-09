@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -7,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const useTranslateKeyword = () => {
   const [keywordTranslations, setKeywordTranslations] = useState<Record<string, string>>({});
+  const [keywordNameTranslations, setKeywordNameTranslations] = useState<Record<string, string>>({});
   const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, string>>({});
   const [unitNameTranslations, setUnitNameTranslations] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -18,16 +18,23 @@ export const useTranslateKeyword = () => {
         // Load keyword translations
         const { data: keywordData } = await supabase
           .from('unit_keywords')
-          .select('name, description_es, description_fr');
+          .select('name, name_es, name_fr, description_es, description_fr');
         
         if (keywordData) {
           const keywordMap: Record<string, string> = {};
+          const keywordNameMap: Record<string, string> = {};
+          
           keywordData.forEach(item => {
             if (item.name && item.description_es) {
               keywordMap[item.name] = item.description_es;
             }
+            if (item.name && item.name_es) {
+              keywordNameMap[item.name] = item.name_es;
+            }
           });
+          
           setKeywordTranslations(keywordMap);
+          setKeywordNameTranslations(keywordNameMap);
         }
 
         // Load special rule translations
@@ -71,6 +78,15 @@ export const useTranslateKeyword = () => {
   }, []);
 
   const translateKeyword = (keyword: string): string => {
+    // First check if we have a name translation
+    if (keywordNameTranslations[keyword]) {
+      return keywordNameTranslations[keyword];
+    }
+    // Otherwise return the original keyword
+    return keyword;
+  };
+  
+  const translateKeywordDescription = (keyword: string): string => {
     return keywordTranslations[keyword] || keyword;
   };
 
@@ -84,6 +100,7 @@ export const useTranslateKeyword = () => {
 
   return {
     translateKeyword,
+    translateKeywordDescription,
     translateSpecialRule,
     translateUnitName,
     isLoading
