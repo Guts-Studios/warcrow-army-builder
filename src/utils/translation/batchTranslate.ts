@@ -1,23 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
-import { TranslationItem, TranslatedText } from "@/utils/types/translationTypes";
+import { TranslationItem, TranslatedText, AdminTranslationItem, AdminTranslatedText } from "@/utils/types/translationTypes";
 
 // Helper function to handle translation with variegated parameter signatures
 export async function batchTranslate(
-  items: TranslationItem[] | string[], 
+  items: TranslationItem[] | string[] | AdminTranslationItem[], 
   targetLanguage?: string,
   sendProgress?: boolean,
   tableName?: string
-): Promise<TranslatedText[] | string[]> {
+): Promise<TranslatedText[] | string[] | AdminTranslatedText[]> {
   try {
-    // Handle string array input format (legacy support)
-    const textsToTranslate: string[] = Array.isArray(items) && typeof items[0] === 'string' 
-      ? items as string[]
-      : (items as TranslationItem[]).map(item => item.text);
+    // Handle different input formats
+    let textsToTranslate: string[] = [];
+    let isStringArray = false;
+    let isAdminItems = false;
+    
+    if (Array.isArray(items) && typeof items[0] === 'string') {
+      textsToTranslate = items as string[];
+      isStringArray = true;
+    } else if (Array.isArray(items) && items.length > 0 && 'key' in items[0] && 'source' in items[0]) {
+      // Handle admin translation items
+      isAdminItems = true;
+      textsToTranslate = (items as AdminTranslationItem[]).map(item => item.source || '');
+    } else {
+      // Standard TranslationItem array
+      textsToTranslate = (items as TranslationItem[]).map(item => item.text);
+    }
     
     // Determine target language, with fallbacks
     const targetLang = targetLanguage || 
-      (typeof items[0] !== 'string' && (items[0] as TranslationItem).targetLang) || 
-      'ES';
+      (!isStringArray && !isAdminItems && (items[0] as TranslationItem).targetLang) || 
+      (isAdminItems ? 'ES' : 'ES');
 
     // Call the DeepL API via Supabase edge function
     const { data, error } = await supabase.functions.invoke('deepl-translate', {
@@ -39,15 +51,23 @@ export async function batchTranslate(
     }
 
     // If input was string array, return string array
-    if (typeof items[0] === 'string') {
+    if (isStringArray) {
       return data.translations;
+    }
+    
+    // If input was admin items, map back with translation
+    if (isAdminItems) {
+      return (items as AdminTranslationItem[]).map((item, index) => ({
+        ...item,
+        translation: data.translations[index] || ''
+      })) as AdminTranslatedText[];
     }
 
     // Otherwise map the translated texts back to the original items with their translation
     return (items as TranslationItem[]).map((item, index) => ({
       ...item,
       translation: data.translations[index] || ''
-    }));
+    })) as TranslatedText[];
 
   } catch (error) {
     console.error("Error in batchTranslate:", error);

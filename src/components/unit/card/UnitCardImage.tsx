@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,18 +21,14 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
   const getCardImageUrl = (unitImageUrl: string | undefined): string => {
     if (!unitImageUrl) return "";
     
-    // If Spanish is selected, check if a Spanish version exists
-    if (language === 'es') {
-      // Transform the URL to look for the Spanish version
+    // If Spanish or French is selected, check if a localized version exists
+    if (language === 'es' || language === 'fr') {
+      // Transform the URL to look for the language-specific version
       const baseUrl = unitImageUrl.replace('.jpg', '');
-      const spanishUrl = `${baseUrl}_sp.jpg`;
+      const languageSuffix = language === 'es' ? '_sp' : '_fr';
+      const localizedUrl = `${baseUrl}${languageSuffix}.jpg`;
       
-      // Create a new Image to test if the Spanish version exists
-      const img = new Image();
-      img.src = spanishUrl;
-      
-      // Return the Spanish URL (the browser will fall back to the default if it doesn't exist)
-      return spanishUrl;
+      return localizedUrl;
     }
     
     // Otherwise return the original URL
@@ -49,7 +46,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
           className="w-full border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black h-auto py-2"
         >
           <Eye className="h-4 w-4 mr-2" />
-          {language === 'es' ? 'Ver Carta' : 'View Card'}
+          {language === 'es' ? 'Ver Carta' : language === 'fr' ? 'Voir Carte' : 'View Card'}
         </Button>
       </DialogTrigger>
       <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
@@ -61,15 +58,19 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
             className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
             loading="eager"
             onError={(e) => {
-              // If the Spanish image fails to load, fall back to the English version
-              if (language === 'es' && cardImageUrl !== unit.imageUrl) {
+              // If the localized image fails to load, fall back to the English version
+              if ((language === 'es' || language === 'fr') && cardImageUrl !== unit.imageUrl) {
                 (e.target as HTMLImageElement).src = unit.imageUrl || '';
               }
             }}
           />
         ) : (
           <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
-            {language === 'es' ? 'Imagen de carta próximamente' : 'Card image coming soon'}
+            {language === 'es' 
+              ? 'Imagen de carta próximamente' 
+              : language === 'fr' 
+                ? 'Image de carte à venir' 
+                : 'Card image coming soon'}
           </div>
         )}
       </DialogContent>
