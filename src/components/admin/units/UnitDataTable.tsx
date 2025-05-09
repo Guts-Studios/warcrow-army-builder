@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { batchTranslate } from '@/utils/translation/batchTranslate';
 import { TranslatedText } from '@/utils/types/translationTypes';
+import { factions } from '@/data/factions';
 
 interface UnitDataItem {
   id: string;
@@ -60,6 +62,14 @@ interface UnitDataResponseItem {
   updated_at: string;
 }
 
+// Map of faction IDs to display names
+const factionDisplayNames: Record<string, string> = {
+  'hegemony-of-embersig': 'Hegemony',
+  'scions-of-yaldabaoth': 'Scions',
+  'northern-tribes': 'Northern Tribes',
+  'syenann': 'Sÿenann'
+};
+
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,6 +81,11 @@ const UnitDataTable: React.FC = () => {
   const [activeTranslationTab, setActiveTranslationTab] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
   const { language } = useLanguage();
+  
+  // Function to get faction display name
+  const getFactionDisplayName = (factionId: string): string => {
+    return factionDisplayNames[factionId] || factionId;
+  };
   
   const fetchUnitData = async () => {
     setIsLoading(true);
@@ -349,7 +364,7 @@ const UnitDataTable: React.FC = () => {
                 {getUniqueValues('faction').map(faction => (
                   faction ? (
                     <SelectItem key={faction} value={faction}>
-                      {faction}
+                      {getFactionDisplayName(faction)}
                     </SelectItem>
                   ) : null
                 ))}
@@ -411,7 +426,7 @@ const UnitDataTable: React.FC = () => {
               ) : (
                 filteredUnits.map((unit) => (
                   <TableRow key={unit.id} className="hover:bg-warcrow-accent/5">
-                    <TableCell>{unit.faction}</TableCell>
+                    <TableCell>{getFactionDisplayName(unit.faction)}</TableCell>
                     <TableCell>{unit.type}</TableCell>
                     <TableCell className="font-medium">{unit.name}</TableCell>
                     <TableCell>{getCommandValue(unit)}</TableCell>
@@ -485,11 +500,21 @@ const UnitDataTable: React.FC = () => {
                       
                       <div>
                         <label className="text-sm text-warcrow-text/80 mb-1 block">Faction</label>
-                        <Input
+                        <Select 
                           value={editingUnit.faction}
-                          onChange={(e) => handleInputChange('faction', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
+                          onValueChange={(val) => handleInputChange('faction', val)}
+                        >
+                          <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+                            {factions.map(faction => (
+                              <SelectItem key={faction.id} value={faction.id}>
+                                {faction.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
                       <div>
