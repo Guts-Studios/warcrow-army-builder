@@ -20,6 +20,7 @@ import UnitCharacteristicsManager from "@/components/admin/units/UnitCharacteris
 import DeepLUsageStats from "@/components/admin/units/DeepLUsageStats";
 import PopulateDataButton from "@/components/admin/units/PopulateDataButton";
 import UnitDataTable from "@/components/admin/units/UnitDataTable";
+import DataSyncManager from "@/components/admin/units/DataSyncManager";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -61,21 +62,42 @@ const UnitDataManager: React.FC = () => {
         value={activeTab}
         onValueChange={handleTabChange}
       >
-        <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="units" className="text-xs sm:text-sm text-warcrow-text">
+        <TabsList className="grid grid-cols-6 mb-4 bg-black/80 border border-warcrow-gold/30">
+          <TabsTrigger 
+            value="units" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
             Units
           </TabsTrigger>
-          <TabsTrigger value="unittable" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="unittable" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
             Unit Table
           </TabsTrigger>
-          <TabsTrigger value="keywords" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="keywords" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
             Keywords
           </TabsTrigger>
-          <TabsTrigger value="specialrules" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="specialrules" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
             Special Rules
           </TabsTrigger>
-          <TabsTrigger value="characteristics" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="characteristics" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
             Characteristics
+          </TabsTrigger>
+          <TabsTrigger 
+            value="sync" 
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+          >
+            Data Sync
           </TabsTrigger>
         </TabsList>
 
@@ -97,6 +119,10 @@ const UnitDataManager: React.FC = () => {
 
         <TabsContent value="characteristics" className="space-y-4">
           <UnitCharacteristicsManager />
+        </TabsContent>
+        
+        <TabsContent value="sync" className="space-y-4">
+          <DataSyncManager />
         </TabsContent>
       </Tabs>
 

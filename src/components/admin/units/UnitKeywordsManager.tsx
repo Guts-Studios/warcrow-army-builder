@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -340,10 +341,10 @@ const UnitKeywordsManager: React.FC = () => {
           {currentKeyword && (
             <div>
               <Tabs value={activeTranslationTab} onValueChange={setActiveTranslationTab} className="w-full mt-2">
-                <TabsList className="grid grid-cols-3 mb-4">
-                  <TabsTrigger value="en" className="text-sm">English</TabsTrigger>
-                  <TabsTrigger value="es" className="text-sm">Español</TabsTrigger>
-                  <TabsTrigger value="fr" className="text-sm">Français</TabsTrigger>
+                <TabsList className="grid grid-cols-3 mb-4 bg-black/60">
+                  <TabsTrigger value="en" className="text-sm data-[state=active]:bg-warcrow-gold data-[state=active]:text-black">English</TabsTrigger>
+                  <TabsTrigger value="es" className="text-sm data-[state=active]:bg-warcrow-gold data-[state=active]:text-black">Español</TabsTrigger>
+                  <TabsTrigger value="fr" className="text-sm data-[state=active]:bg-warcrow-gold data-[state=active]:text-black">Français</TabsTrigger>
                 </TabsList>
                 
                 {/* English Content */}
