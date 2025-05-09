@@ -15,7 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Search, RefreshCw, Edit, Trash2, Save, X, Plus } from "lucide-react";
+import { Search, RefreshCw, Edit, Trash2, Save, X, Plus, Languages } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { batchTranslate } from '@/utils/translation/batchTranslate';
 
 interface KeywordItem {
   id: string;
@@ -38,6 +40,8 @@ const UnitKeywordsManager: React.FC = () => {
     name: '',
     description: '',
   });
+  const [activeTranslationTab, setActiveTranslationTab] = useState('en');
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // Fetch keywords from Supabase
   const fetchKeywords = async () => {
@@ -74,6 +78,7 @@ const UnitKeywordsManager: React.FC = () => {
   const handleEditKeyword = (keyword: KeywordItem) => {
     setCurrentKeyword({...keyword});
     setIsEditDialogOpen(true);
+    setActiveTranslationTab('en'); // Reset to English tab when opening dialog
   };
 
   // Update keyword in database
@@ -100,6 +105,41 @@ const UnitKeywordsManager: React.FC = () => {
     } catch (error: any) {
       console.error("Error updating keyword:", error);
       toast.error(`Failed to update keyword: ${error.message}`);
+    }
+  };
+
+  // Translate keyword description
+  const translateKeywordDescription = async () => {
+    if (!currentKeyword) return;
+    
+    setIsTranslating(true);
+    try {
+      let translatedDescription = '';
+      const targetLanguage = activeTranslationTab;
+      
+      if (targetLanguage === 'es' || targetLanguage === 'fr') {
+        const translations = await batchTranslate([currentKeyword.description], targetLanguage);
+        translatedDescription = translations[0] || '';
+        
+        if (targetLanguage === 'es') {
+          setCurrentKeyword({
+            ...currentKeyword,
+            description_es: translatedDescription
+          });
+        } else if (targetLanguage === 'fr') {
+          setCurrentKeyword({
+            ...currentKeyword,
+            description_fr: translatedDescription
+          });
+        }
+        
+        toast.success(`Translation to ${targetLanguage === 'es' ? 'Spanish' : 'French'} completed`);
+      }
+    } catch (error: any) {
+      console.error("Translation error:", error);
+      toast.error(`Failed to translate: ${error.message}`);
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -194,17 +234,19 @@ const UnitKeywordsManager: React.FC = () => {
             <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
               <TableHead className="text-warcrow-gold">Keyword</TableHead>
               <TableHead className="text-warcrow-gold">Description</TableHead>
+              <TableHead className="text-warcrow-gold">Spanish</TableHead>
+              <TableHead className="text-warcrow-gold">French</TableHead>
               <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
+                <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
               </TableRow>
             ) : filteredKeywords.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
+                <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
               </TableRow>
             ) : (
               filteredKeywords.map((keyword) => (
@@ -214,6 +256,20 @@ const UnitKeywordsManager: React.FC = () => {
                     <div className="line-clamp-2 text-sm text-warcrow-text/80">
                       {keyword.description}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {keyword.description_es ? (
+                      <div className="h-2 w-2 rounded-full bg-green-500 mx-auto" title="Has Spanish translation"></div>
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-red-500/60 mx-auto" title="Missing Spanish translation"></div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {keyword.description_fr ? (
+                      <div className="h-2 w-2 rounded-full bg-green-500 mx-auto" title="Has French translation"></div>
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-red-500/60 mx-auto" title="Missing French translation"></div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
@@ -250,48 +306,111 @@ const UnitKeywordsManager: React.FC = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text">
+        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-3xl">
           <DialogHeader>
             <DialogTitle className="text-warcrow-gold">Edit Keyword</DialogTitle>
           </DialogHeader>
           
           {currentKeyword && (
-            <div className="space-y-4 py-4">
-              <div>
-                <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name</label>
-                <Input
-                  value={currentKeyword.name}
-                  onChange={(e) => setCurrentKeyword({...currentKeyword, name: e.target.value})}
-                  className="bg-black/60 border-warcrow-gold/30"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (English)</label>
-                <Textarea
-                  value={currentKeyword.description}
-                  onChange={(e) => setCurrentKeyword({...currentKeyword, description: e.target.value})}
-                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
-                <Textarea
-                  value={currentKeyword.description_es || ''}
-                  onChange={(e) => setCurrentKeyword({...currentKeyword, description_es: e.target.value})}
-                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
-                <Textarea
-                  value={currentKeyword.description_fr || ''}
-                  onChange={(e) => setCurrentKeyword({...currentKeyword, description_fr: e.target.value})}
-                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
-                />
-              </div>
+            <div>
+              <Tabs value={activeTranslationTab} onValueChange={setActiveTranslationTab} className="w-full mt-2">
+                <TabsList className="grid grid-cols-3 mb-4">
+                  <TabsTrigger value="en" className="text-sm">English</TabsTrigger>
+                  <TabsTrigger value="es" className="text-sm">Español</TabsTrigger>
+                  <TabsTrigger value="fr" className="text-sm">Français</TabsTrigger>
+                </TabsList>
+                
+                {/* English Content */}
+                <TabsContent value="en" className="pt-2">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name</label>
+                      <Input
+                        value={currentKeyword.name}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, name: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (English)</label>
+                      <Textarea
+                        value={currentKeyword.description}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, description: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                {/* Spanish Content */}
+                <TabsContent value="es" className="pt-2">
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={translateKeywordDescription}
+                      disabled={isTranslating}
+                      className="border-warcrow-gold/30 text-warcrow-gold"
+                    >
+                      <Languages className="h-4 w-4 mr-2" />
+                      {isTranslating ? 'Translating...' : 'Translate to Spanish'}
+                    </Button>
+                  </div>
+                
+                  <div>
+                    <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
+                    <Textarea
+                      value={currentKeyword.description_es || ''}
+                      onChange={(e) => setCurrentKeyword({...currentKeyword, description_es: e.target.value})}
+                      className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
+                    />
+                  </div>
+                  
+                  {/* Show original English for reference */}
+                  <div className="mt-4 p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
+                    <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
+                    <div className="space-y-1 text-sm text-warcrow-text/80">
+                      <p><span className="font-medium">Name:</span> {currentKeyword.name}</p>
+                      <p><span className="font-medium">Description:</span></p>
+                      <p className="whitespace-pre-wrap text-xs">{currentKeyword.description}</p>
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                {/* French Content */}
+                <TabsContent value="fr" className="pt-2">
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={translateKeywordDescription}
+                      disabled={isTranslating}
+                      className="border-warcrow-gold/30 text-warcrow-gold"
+                    >
+                      <Languages className="h-4 w-4 mr-2" />
+                      {isTranslating ? 'Translating...' : 'Translate to French'}
+                    </Button>
+                  </div>
+                
+                  <div>
+                    <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
+                    <Textarea
+                      value={currentKeyword.description_fr || ''}
+                      onChange={(e) => setCurrentKeyword({...currentKeyword, description_fr: e.target.value})}
+                      className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
+                    />
+                  </div>
+                  
+                  {/* Show original English for reference */}
+                  <div className="mt-4 p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
+                    <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
+                    <div className="space-y-1 text-sm text-warcrow-text/80">
+                      <p><span className="font-medium">Name:</span> {currentKeyword.name}</p>
+                      <p><span className="font-medium">Description:</span></p>
+                      <p className="whitespace-pre-wrap text-xs">{currentKeyword.description}</p>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
           

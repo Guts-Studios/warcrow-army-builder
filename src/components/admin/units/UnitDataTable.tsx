@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Edit, RefreshCw, Trash2, Save, X } from "lucide-react";
+import { Edit, RefreshCw, Trash2, Save, X, Languages } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,10 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { batchTranslate } from '@/utils/translation/batchTranslate';
 
 interface UnitDataItem {
   id: string;
   name: string;
+  name_es?: string;
+  name_fr?: string;
   faction: string;
   type: string;
   points: number;
@@ -31,11 +37,15 @@ interface UnitDataItem {
   keywords: string[];
   special_rules: string[];
   description?: string;
+  description_es?: string;
+  description_fr?: string;
 }
 
 interface UnitDataResponseItem {
   id: string;
   name: string;
+  name_es: string;
+  name_fr: string;
   faction: string;
   type: string;
   points: number;
@@ -45,8 +55,6 @@ interface UnitDataResponseItem {
   description: string;
   description_es: string;
   description_fr: string;
-  name_es: string;
-  name_fr: string;
   options: any[];
   created_at: string;
   updated_at: string;
@@ -60,6 +68,9 @@ const UnitDataTable: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [editingUnit, setEditingUnit] = useState<UnitDataItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [activeTranslationTab, setActiveTranslationTab] = useState('en');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const { language } = useLanguage();
   
   const fetchUnitData = async () => {
     setIsLoading(true);
@@ -76,13 +87,17 @@ const UnitDataTable: React.FC = () => {
       const unitItems: UnitDataItem[] = (data || []).map((item: UnitDataResponseItem) => ({
         id: item.id,
         name: item.name,
+        name_es: item.name_es,
+        name_fr: item.name_fr,
         faction: item.faction,
         type: item.type,
         points: item.points,
         characteristics: item.characteristics || {},
         keywords: item.keywords || [],
         special_rules: item.special_rules || [],
-        description: item.description
+        description: item.description,
+        description_es: item.description_es,
+        description_fr: item.description_fr
       }));
       
       setUnits(unitItems);
@@ -103,6 +118,8 @@ const UnitDataTable: React.FC = () => {
         .from('unit_data')
         .update({
           name: editingUnit.name,
+          name_es: editingUnit.name_es,
+          name_fr: editingUnit.name_fr,
           faction: editingUnit.faction,
           type: editingUnit.type,
           points: editingUnit.points,
@@ -110,6 +127,8 @@ const UnitDataTable: React.FC = () => {
           keywords: editingUnit.keywords,
           special_rules: editingUnit.special_rules,
           description: editingUnit.description,
+          description_es: editingUnit.description_es,
+          description_fr: editingUnit.description_fr,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingUnit.id);
@@ -143,6 +162,52 @@ const UnitDataTable: React.FC = () => {
     } catch (error: any) {
       console.error("Error deleting unit:", error);
       toast.error(`Failed to delete unit: ${error.message}`);
+    }
+  };
+
+  const translateUnitData = async () => {
+    if (!editingUnit) return;
+    
+    setIsTranslating(true);
+    try {
+      let translationUpdates: Partial<UnitDataItem> = {};
+      
+      // Determine which fields to translate based on the active tab
+      if (activeTranslationTab === 'es') {
+        // Translate to Spanish
+        const nameTranslation = await batchTranslate([editingUnit.name], 'es');
+        const descriptionTranslation = editingUnit.description 
+          ? await batchTranslate([editingUnit.description], 'es')
+          : [''];
+          
+        translationUpdates = {
+          name_es: nameTranslation[0],
+          description_es: descriptionTranslation[0]
+        };
+      } else if (activeTranslationTab === 'fr') {
+        // Translate to French
+        const nameTranslation = await batchTranslate([editingUnit.name], 'fr');
+        const descriptionTranslation = editingUnit.description 
+          ? await batchTranslate([editingUnit.description], 'fr')
+          : [''];
+          
+        translationUpdates = {
+          name_fr: nameTranslation[0],
+          description_fr: descriptionTranslation[0]
+        };
+      }
+      
+      setEditingUnit({
+        ...editingUnit,
+        ...translationUpdates
+      });
+      
+      toast.success(`Translation to ${activeTranslationTab === 'es' ? 'Spanish' : 'French'} completed`);
+    } catch (error: any) {
+      console.error("Translation error:", error);
+      toast.error(`Failed to translate: ${error.message}`);
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -199,6 +264,7 @@ const UnitDataTable: React.FC = () => {
   const handleEditUnit = (unit: UnitDataItem) => {
     setEditingUnit({...unit});
     setIsEditDialogOpen(true);
+    setActiveTranslationTab('en'); // Reset to English tab when opening edit dialog
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -233,6 +299,15 @@ const UnitDataTable: React.FC = () => {
     }
   };
 
+  // Handle filter value changes
+  const handleFactionFilterChange = (value: string) => {
+    setFactionFilter(value === 'all-factions' ? '' : value);
+  };
+
+  const handleTypeFilterChange = (value: string) => {
+    setTypeFilter(value === 'all-types' ? '' : value);
+  };
+
   return (
     <Card className="p-4 bg-black border-warcrow-gold/30">
       <div className="space-y-4">
@@ -247,7 +322,7 @@ const UnitDataTable: React.FC = () => {
               className="w-full lg:w-48 bg-black border-warcrow-gold/30 text-warcrow-text"
             />
             
-            <Select value={factionFilter} onValueChange={setFactionFilter}>
+            <Select value={factionFilter || 'all-factions'} onValueChange={handleFactionFilterChange}>
               <SelectTrigger className="w-full lg:w-40 bg-black border-warcrow-gold/30 text-warcrow-text">
                 <SelectValue placeholder="All Factions" />
               </SelectTrigger>
@@ -263,7 +338,7 @@ const UnitDataTable: React.FC = () => {
               </SelectContent>
             </Select>
             
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select value={typeFilter || 'all-types'} onValueChange={handleTypeFilterChange}>
               <SelectTrigger className="w-full lg:w-40 bg-black border-warcrow-gold/30 text-warcrow-text">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
@@ -363,117 +438,222 @@ const UnitDataTable: React.FC = () => {
 
       {/* Edit Unit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-3xl">
+        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-4xl">
           <DialogHeader>
             <DialogTitle className="text-warcrow-gold">Edit Unit</DialogTitle>
           </DialogHeader>
           
           {editingUnit && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name</label>
-                  <Input
-                    value={editingUnit.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
+            <>
+              <Tabs value={activeTranslationTab} onValueChange={setActiveTranslationTab} className="w-full mt-2">
+                <TabsList className="grid grid-cols-3 mb-4">
+                  <TabsTrigger value="en" className="text-sm">English</TabsTrigger>
+                  <TabsTrigger value="es" className="text-sm">Español</TabsTrigger>
+                  <TabsTrigger value="fr" className="text-sm">Français</TabsTrigger>
+                </TabsList>
                 
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Faction</label>
-                  <Input
-                    value={editingUnit.faction}
-                    onChange={(e) => handleInputChange('faction', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
+                {/* English Content */}
+                <TabsContent value="en" className="pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name</label>
+                        <Input
+                          value={editingUnit.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Faction</label>
+                        <Input
+                          value={editingUnit.faction}
+                          onChange={(e) => handleInputChange('faction', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Type</label>
+                        <Input
+                          value={editingUnit.type}
+                          onChange={(e) => handleInputChange('type', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Points Cost</label>
+                        <Input
+                          type="number"
+                          value={editingUnit.points}
+                          onChange={(e) => handleInputChange('points', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Command</label>
+                        <Input
+                          type="number"
+                          value={editingUnit.characteristics?.command || ''}
+                          onChange={(e) => handleInputChange('command', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Availability</label>
+                        <Input
+                          type="number"
+                          value={editingUnit.characteristics?.availability || ''}
+                          onChange={(e) => handleInputChange('availability', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">High Command</label>
+                        <Select 
+                          value={String(editingUnit.characteristics?.highCommand || false)} 
+                          onValueChange={(val) => handleInputChange('highCommand', val)}
+                        >
+                          <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Keywords (comma separated)</label>
+                        <Input
+                          value={editingUnit.keywords.join(', ')}
+                          onChange={(e) => handleInputChange('keywords', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm text-warcrow-text/80 mb-1 block">Special Rules (comma separated)</label>
+                        <Input
+                          value={editingUnit.special_rules.join(', ')}
+                          onChange={(e) => handleInputChange('special_rules', e.target.value)}
+                          className="bg-black/60 border-warcrow-gold/30"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="col-span-1 md:col-span-2">
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description</label>
+                      <Textarea
+                        value={editingUnit.description || ''}
+                        onChange={(e) => handleInputChange('description', e.target.value)}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
                 
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Type</label>
-                  <Input
-                    value={editingUnit.type}
-                    onChange={(e) => handleInputChange('type', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
+                {/* Spanish Content */}
+                <TabsContent value="es" className="pt-2">
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={translateUnitData}
+                      disabled={isTranslating}
+                      className="border-warcrow-gold/30 text-warcrow-gold"
+                    >
+                      <Languages className="h-4 w-4 mr-2" />
+                      {isTranslating ? 'Translating...' : 'Translate to Spanish'}
+                    </Button>
+                  </div>
                 
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Points Cost</label>
-                  <Input
-                    type="number"
-                    value={editingUnit.points}
-                    onChange={(e) => handleInputChange('points', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name (Spanish)</label>
+                      <Input
+                        value={editingUnit.name_es || ''}
+                        onChange={(e) => handleInputChange('name_es', e.target.value)}
+                        className="bg-black/60 border-warcrow-gold/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
+                      <Textarea
+                        value={editingUnit.description_es || ''}
+                        onChange={(e) => handleInputChange('description_es', e.target.value)}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[150px]"
+                      />
+                    </div>
+                    
+                    {/* Show original English for reference */}
+                    <div className="p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
+                      <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
+                      <div className="space-y-2 text-sm text-warcrow-text/80">
+                        <p><span className="font-medium">Name:</span> {editingUnit.name}</p>
+                        {editingUnit.description && (
+                          <p><span className="font-medium">Description:</span> {editingUnit.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
                 
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Command</label>
-                  <Input
-                    type="number"
-                    value={editingUnit.characteristics?.command || ''}
-                    onChange={(e) => handleInputChange('command', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Availability</label>
-                  <Input
-                    type="number"
-                    value={editingUnit.characteristics?.availability || ''}
-                    onChange={(e) => handleInputChange('availability', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
+                {/* French Content */}
+                <TabsContent value="fr" className="pt-2">
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={translateUnitData}
+                      disabled={isTranslating}
+                      className="border-warcrow-gold/30 text-warcrow-gold"
+                    >
+                      <Languages className="h-4 w-4 mr-2" />
+                      {isTranslating ? 'Translating...' : 'Translate to French'}
+                    </Button>
+                  </div>
                 
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">High Command</label>
-                  <Select 
-                    value={String(editingUnit.characteristics?.highCommand || false)} 
-                    onValueChange={(val) => handleInputChange('highCommand', val)}
-                  >
-                    <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                      <SelectItem value="true">Yes</SelectItem>
-                      <SelectItem value="false">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Keywords (comma separated)</label>
-                  <Input
-                    value={editingUnit.keywords.join(', ')}
-                    onChange={(e) => handleInputChange('keywords', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm text-warcrow-text/80 mb-1 block">Special Rules (comma separated)</label>
-                  <Input
-                    value={editingUnit.special_rules.join(', ')}
-                    onChange={(e) => handleInputChange('special_rules', e.target.value)}
-                    className="bg-black/60 border-warcrow-gold/30"
-                  />
-                </div>
-              </div>
-              
-              <div className="col-span-1 md:col-span-2">
-                <label className="text-sm text-warcrow-text/80 mb-1 block">Description</label>
-                <Textarea
-                  value={editingUnit.description || ''}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
-                />
-              </div>
-            </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name (French)</label>
+                      <Input
+                        value={editingUnit.name_fr || ''}
+                        onChange={(e) => handleInputChange('name_fr', e.target.value)}
+                        className="bg-black/60 border-warcrow-gold/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
+                      <Textarea
+                        value={editingUnit.description_fr || ''}
+                        onChange={(e) => handleInputChange('description_fr', e.target.value)}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[150px]"
+                      />
+                    </div>
+                    
+                    {/* Show original English for reference */}
+                    <div className="p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
+                      <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
+                      <div className="space-y-2 text-sm text-warcrow-text/80">
+                        <p><span className="font-medium">Name:</span> {editingUnit.name}</p>
+                        {editingUnit.description && (
+                          <p><span className="font-medium">Description:</span> {editingUnit.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </>
           )}
           
           <DialogFooter>
