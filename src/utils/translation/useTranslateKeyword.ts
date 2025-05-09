@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -58,10 +59,10 @@ export const useTranslateKeyword = () => {
           setKeywordNames(nameMap);
         }
 
-        // Load special rule translations - fixed column names (special_rules table doesn't have name_es or name_fr)
+        // Load special rule translations
         const { data: ruleData } = await supabase
           .from('special_rules')
-          .select('name, description_es, description_fr');
+          .select('name, name_es, name_fr, description_es, description_fr');
         
         if (ruleData) {
           const rulesMap: Record<string, Record<SupportedLanguage, string>> = {};
@@ -70,11 +71,22 @@ export const useTranslateKeyword = () => {
               if (!rulesMap[item.name]) {
                 rulesMap[item.name] = { es: '', fr: '' };
               }
-              if (item.description_es) {
-                rulesMap[item.name].es = item.description_es;
+              
+              // Try to use name_XX first for actual name translations
+              if (item.name_es) {
+                rulesMap[item.name].es = item.name_es;
+              } else if (item.description_es) {
+                // Try to extract name from description if it's short
+                const shortDesc = item.description_es.split('.')[0].trim();
+                rulesMap[item.name].es = shortDesc.length < 30 ? shortDesc : item.name;
               }
-              if (item.description_fr) {
-                rulesMap[item.name].fr = item.description_fr;
+              
+              if (item.name_fr) {
+                rulesMap[item.name].fr = item.name_fr;
+              } else if (item.description_fr) {
+                // Try to extract name from description if it's short  
+                const shortDesc = item.description_fr.split('.')[0].trim();
+                rulesMap[item.name].fr = shortDesc.length < 30 ? shortDesc : item.name;
               }
             }
           });
@@ -115,6 +127,9 @@ export const useTranslateKeyword = () => {
   }, []);
 
   const translateKeyword = (keyword: string, language: string = 'es'): string => {
+    // Always return the original keyword for English
+    if (language === 'en') return keyword;
+    
     // Check if we have a name translation for this language
     if (language === 'es' || language === 'fr') {
       if (keywordNames[keyword]?.[language as SupportedLanguage]) {
@@ -126,6 +141,9 @@ export const useTranslateKeyword = () => {
   };
   
   const translateKeywordDescription = (keyword: string, language: string = 'es'): string => {
+    // Always return the original description for English
+    if (language === 'en') return keyword;
+    
     if (language === 'es' || language === 'fr') {
       if (keywordDescriptions[keyword]?.[language as SupportedLanguage]) {
         return keywordDescriptions[keyword][language as SupportedLanguage];
@@ -135,6 +153,9 @@ export const useTranslateKeyword = () => {
   };
 
   const translateSpecialRule = (rule: string, language: string = 'es'): string => {
+    // Always return the original rule for English
+    if (language === 'en') return rule;
+    
     if (language === 'es' || language === 'fr') {
       if (specialRules[rule]?.[language as SupportedLanguage]) {
         return specialRules[rule][language as SupportedLanguage];
@@ -144,6 +165,9 @@ export const useTranslateKeyword = () => {
   };
 
   const translateUnitName = (name: string, language: string = 'es'): string => {
+    // Always return the original name for English
+    if (language === 'en') return name;
+    
     if (language === 'es' || language === 'fr') {
       if (unitNames[name]?.[language as SupportedLanguage]) {
         return unitNames[name][language as SupportedLanguage];

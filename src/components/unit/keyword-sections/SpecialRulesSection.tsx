@@ -29,17 +29,18 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
 
   // Get only the rule name, not the description
   const getTranslatedRuleName = (rule: string, lang: string) => {
-    const baseRule = getBaseRule(rule);
-    if (lang === 'en') return rule; // Keep original for English
+    // For English, always return the original rule name
+    if (lang === 'en') return rule;
     
     // Extract just the name from original rule (to handle any parameters in parentheses)
+    const baseRule = getBaseRule(rule);
     const ruleParams = rule.includes('(') ? rule.substring(rule.indexOf('(')) : '';
     
     // Get translated base rule name
     let translatedName = translateSpecialRule(baseRule, lang);
     
     // If translatedName contains description text (like a sentence with spaces),
-    // it's likely returning the full description instead of just the name
+    // or is very long, it's likely returning the full description instead of just the name
     if (translatedName.includes(' ') && translatedName.length > 30) {
       // Fall back to the original rule name
       return baseRule + ruleParams;

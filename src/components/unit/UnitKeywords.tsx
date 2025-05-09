@@ -2,7 +2,7 @@
 import { Keyword } from "@/types/army";
 import KeywordsSection from "./keyword-sections/KeywordsSection";
 import SpecialRulesSection from "./keyword-sections/SpecialRulesSection";
-import { useTranslateKeyword } from "@/utils/translation";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UnitKeywordsProps {
@@ -11,7 +11,7 @@ interface UnitKeywordsProps {
 }
 
 const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
-  const { translateKeyword, translateKeywordDescription, translateSpecialRule } = useTranslateKeyword();
+  const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
   const { language } = useLanguage();
   
   // Convert string[] to Keyword[] if needed
@@ -26,30 +26,26 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
   });
 
   // If we're in a non-English language, translate the keywords
-  if (language === 'es' || language === 'fr') {
-    processedKeywords.forEach(keyword => {
-      if (typeof keyword.name === 'string') {
-        // Store original name for reference if needed
-        const originalName = keyword.name;
-        // Translate the keyword name
-        keyword.name = translateKeyword(keyword.name, language);
-        // If there's a description, translate that too
-        if (keyword.description) {
-          keyword.description = translateKeywordDescription(originalName, language);
-        }
-      }
-    });
-  }
+  const translatedKeywords = processedKeywords.map(keyword => {
+    if (language === 'en') {
+      // For English, return the original keyword
+      return { ...keyword };
+    } else if (language === 'es' || language === 'fr') {
+      // For other languages, translate the keyword
+      const originalName = typeof keyword.name === 'string' ? keyword.name : '';
+      return {
+        name: translateKeyword(originalName, language),
+        description: keyword.description ? translateKeywordDescription(originalName, language) : ''
+      };
+    }
+    return keyword;
+  });
 
-  // Translate special rules if in non-English language
-  const translatedSpecialRules = specialRules && (language === 'es' || language === 'fr')
-    ? specialRules.map(rule => translateSpecialRule(rule, language))
-    : specialRules;
-
+  // For special rules, we'll let the SpecialRulesSection handle translations
   return (
     <div className="space-y-2">
-      <KeywordsSection keywords={processedKeywords} />
-      <SpecialRulesSection specialRules={translatedSpecialRules} />
+      <KeywordsSection keywords={translatedKeywords} />
+      <SpecialRulesSection specialRules={specialRules} />
     </div>
   );
 };
