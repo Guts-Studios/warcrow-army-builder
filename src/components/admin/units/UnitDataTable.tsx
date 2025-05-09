@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,12 +62,12 @@ interface UnitDataResponseItem {
 }
 
 // Map of faction IDs to display names
-const factionDisplayNames: Record<string, string> = {
-  'hegemony-of-embersig': 'Hegemony',
-  'scions-of-yaldabaoth': 'Scions',
-  'northern-tribes': 'Northern Tribes',
-  'syenann': 'Sÿenann'
-};
+const factionDisplayNames: Record<string, string> = {};
+
+// Initialize with values from factions data
+factions.forEach(faction => {
+  factionDisplayNames[faction.id] = faction.name;
+});
 
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
@@ -250,6 +249,7 @@ const UnitDataTable: React.FC = () => {
 
   const getUniqueValues = (field: string) => {
     if (field === 'faction') {
+      // Filter out duplicate faction values
       return [...new Set(units.map(unit => unit.faction))].sort();
     } else if (field === 'type') {
       return [...new Set(units.map(unit => unit.type))].sort();
