@@ -2,36 +2,44 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Languages, Save, Database, FileText, Pencil } from "lucide-react";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { batchTranslate } from "@/utils/translation";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Search, RefreshCw, Edit, Trash2, Save, X, Plus } from "lucide-react";
 
 interface KeywordItem {
-  id?: string;
+  id: string;
   name: string;
   description: string;
   description_es?: string;
   description_fr?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const UnitKeywordsManager: React.FC = () => {
   const [keywords, setKeywords] = useState<KeywordItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [editingKeyword, setEditingKeyword] = useState<KeywordItem | null>(null);
-  const [translationInProgress, setTranslationInProgress] = useState(false);
-  const [translationProgress, setTranslationProgress] = useState(0);
-  const { language } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [currentKeyword, setCurrentKeyword] = useState<KeywordItem | null>(null);
+  const [newKeyword, setNewKeyword] = useState<Partial<KeywordItem>>({
+    name: '',
+    description: '',
+  });
 
-  useEffect(() => {
-    fetchKeywords();
-  }, []);
-
+  // Fetch keywords from Supabase
   const fetchKeywords = async () => {
     setIsLoading(true);
     try {
@@ -42,243 +50,335 @@ const UnitKeywordsManager: React.FC = () => {
 
       if (error) throw error;
       
-      // Use type assertion to safely convert the data to KeywordItem[]
-      setKeywords(data as unknown as KeywordItem[]);
+      setKeywords(data || []);
     } catch (error: any) {
       console.error("Error fetching keywords:", error);
-      toast.error(`Failed to fetch keywords: ${error.message}`);
+      toast.error(`Failed to load keywords: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const startEditing = (keyword: KeywordItem) => {
-    setEditingKeyword({ ...keyword });
+  // Initial fetch
+  useEffect(() => {
+    fetchKeywords();
+  }, []);
+
+  // Filter keywords based on search
+  const filteredKeywords = keywords.filter(keyword => 
+    keyword.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    keyword.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Edit keyword
+  const handleEditKeyword = (keyword: KeywordItem) => {
+    setCurrentKeyword({...keyword});
+    setIsEditDialogOpen(true);
   };
 
-  const saveKeyword = async () => {
-    if (!editingKeyword) return;
+  // Update keyword in database
+  const updateKeyword = async () => {
+    if (!currentKeyword) return;
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('unit_keywords')
-        .upsert({
-          id: editingKeyword.id,
-          name: editingKeyword.name,
-          description: editingKeyword.description,
-          description_es: editingKeyword.description_es,
-          description_fr: editingKeyword.description_fr
-        }, { onConflict: 'id' });
+        .update({
+          name: currentKeyword.name,
+          description: currentKeyword.description,
+          description_es: currentKeyword.description_es,
+          description_fr: currentKeyword.description_fr,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', currentKeyword.id);
 
       if (error) throw error;
       
-      setKeywords(keywords.map(k => k.id === editingKeyword.id ? editingKeyword : k));
-      setEditingKeyword(null);
-      toast.success(`Saved keyword: ${editingKeyword.name}`);
+      toast.success('Keyword updated successfully');
+      setIsEditDialogOpen(false);
+      fetchKeywords();
     } catch (error: any) {
-      console.error("Error saving keyword:", error);
-      toast.error(`Failed to save: ${error.message}`);
+      console.error("Error updating keyword:", error);
+      toast.error(`Failed to update keyword: ${error.message}`);
     }
   };
 
-  const translateAllKeywords = async (targetLanguage: string) => {
-    if (keywords.length === 0) {
-      toast.error("No keywords to translate");
+  // Delete keyword
+  const handleDeleteKeyword = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this keyword? This action cannot be undone.")) {
       return;
     }
-
-    setTranslationInProgress(true);
-    setTranslationProgress(0);
     
     try {
-      const itemsToTranslate = keywords
-        .filter(k => k.description && (!k.description_es || targetLanguage === 'fr' && !k.description_fr))
-        .map(k => ({
-          id: k.id || '',
-          key: 'description',
-          source: k.description
-        }));
+      const { error } = await supabase
+        .from('unit_keywords')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
       
-      if (itemsToTranslate.length === 0) {
-        toast.info("All keywords already have translations");
-        setTranslationInProgress(false);
-        return;
-      }
-
-      // Track progress
-      const total = itemsToTranslate.length;
-      let completed = 0;
-
-      // Process in batches
-      const batchSize = 10;
-      for (let i = 0; i < itemsToTranslate.length; i += batchSize) {
-        const batch = itemsToTranslate.slice(i, i + batchSize);
-        const results = await batchTranslate(batch, targetLanguage, true, 'unit_keywords');
-        
-        completed += batch.length;
-        setTranslationProgress(Math.round((completed / total) * 100));
-        
-        // Small delay between batches
-        if (i + batchSize < itemsToTranslate.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-
-      await fetchKeywords(); // Refresh keyword list
-      toast.success(`Successfully translated ${itemsToTranslate.length} keywords`);
+      toast.success('Keyword deleted successfully');
+      fetchKeywords();
     } catch (error: any) {
-      console.error("Error translating keywords:", error);
-      toast.error(`Translation error: ${error.message}`);
-    } finally {
-      setTranslationInProgress(false);
+      console.error("Error deleting keyword:", error);
+      toast.error(`Failed to delete keyword: ${error.message}`);
+    }
+  };
+
+  // Add new keyword
+  const addKeyword = async () => {
+    if (!newKeyword.name || !newKeyword.description) {
+      toast.error('Name and description are required');
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('unit_keywords')
+        .insert([
+          {
+            name: newKeyword.name,
+            description: newKeyword.description,
+            description_es: newKeyword.description_es || null,
+            description_fr: newKeyword.description_fr || null
+          }
+        ]);
+
+      if (error) throw error;
+      
+      toast.success('Keyword added successfully');
+      setIsAddDialogOpen(false);
+      setNewKeyword({ name: '', description: '' });
+      fetchKeywords();
+    } catch (error: any) {
+      console.error("Error adding keyword:", error);
+      toast.error(`Failed to add keyword: ${error.message}`);
     }
   };
 
   return (
-    <Card className="p-4 bg-black border-warcrow-gold/30">
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <h2 className="text-lg font-semibold text-warcrow-gold">Keywords Management</h2>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              className="border-warcrow-gold/50 text-warcrow-gold"
-              onClick={() => translateAllKeywords('es')}
-              disabled={isLoading || translationInProgress}
-            >
-              <Languages className="h-4 w-4 mr-2" />
-              Translate to Spanish
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-warcrow-gold/50 text-warcrow-gold"
-              onClick={() => translateAllKeywords('fr')}
-              disabled={isLoading || translationInProgress}
-            >
-              <Languages className="h-4 w-4 mr-2" />
-              Translate to French
-            </Button>
+    <Card className="p-4 space-y-4 bg-black border-warcrow-gold/30">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-warcrow-gold">Unit Keywords</h2>
+        <div className="flex space-x-2">
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-warcrow-text/50" />
+            <Input
+              placeholder="Search keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 bg-black border-warcrow-gold/30 text-warcrow-text"
+            />
           </div>
-        </div>
-
-        {translationInProgress && (
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-warcrow-text/90">Translation progress</span>
-              <span className="text-sm font-medium text-warcrow-gold">{translationProgress}%</span>
-            </div>
-            <Progress value={translationProgress} className="h-1.5 bg-warcrow-gold/20" />
-          </div>
-        )}
-        
-        {editingKeyword && (
-          <Card className="p-4 border-warcrow-gold bg-black/70">
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Keyword Name</label>
-                <Input 
-                  value={editingKeyword.name}
-                  onChange={(e) => setEditingKeyword({...editingKeyword, name: e.target.value})}
-                  className="bg-black border-warcrow-gold/50"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (English)</label>
-                <Textarea 
-                  value={editingKeyword.description}
-                  onChange={(e) => setEditingKeyword({...editingKeyword, description: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (Spanish)</label>
-                <Textarea 
-                  value={editingKeyword.description_es || ''}
-                  onChange={(e) => setEditingKeyword({...editingKeyword, description_es: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Description (French)</label>
-                <Textarea 
-                  value={editingKeyword.description_fr || ''}
-                  onChange={(e) => setEditingKeyword({...editingKeyword, description_fr: e.target.value})}
-                  className="bg-black border-warcrow-gold/50 h-24"
-                />
-              </div>
-              
-              <div className="flex justify-end gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setEditingKeyword(null)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="default" 
-                  className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
-                  onClick={saveKeyword}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-        
-        <div className="rounded border border-warcrow-gold/30 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
-                <TableHead className="text-warcrow-gold">Keyword</TableHead>
-                <TableHead className="text-warcrow-gold">Description</TableHead>
-                <TableHead className="text-warcrow-gold">Spanish</TableHead>
-                <TableHead className="text-warcrow-gold">French</TableHead>
-                <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
-                </TableRow>
-              ) : keywords.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
-                </TableRow>
-              ) : (
-                keywords.map((keyword) => (
-                  <TableRow key={keyword.id} className="hover:bg-warcrow-accent/5">
-                    <TableCell className="font-medium">{keyword.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{keyword.description}</TableCell>
-                    <TableCell>
-                      {keyword.description_es ? '✓' : '—'}
-                    </TableCell>
-                    <TableCell>
-                      {keyword.description_fr ? '✓' : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => startEditing(keyword)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <Button 
+            variant="outline" 
+            onClick={fetchKeywords}
+            className="border-warcrow-gold/30 text-warcrow-gold"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button 
+            onClick={() => setIsAddDialogOpen(true)}
+            className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Keyword
+          </Button>
         </div>
       </div>
+
+      <div className="rounded border border-warcrow-gold/30 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
+              <TableHead className="text-warcrow-gold">Keyword</TableHead>
+              <TableHead className="text-warcrow-gold">Description</TableHead>
+              <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
+              </TableRow>
+            ) : filteredKeywords.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
+              </TableRow>
+            ) : (
+              filteredKeywords.map((keyword) => (
+                <TableRow key={keyword.id} className="hover:bg-warcrow-accent/5">
+                  <TableCell className="font-medium">{keyword.name}</TableCell>
+                  <TableCell className="max-w-lg">
+                    <div className="line-clamp-2 text-sm text-warcrow-text/80">
+                      {keyword.description}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditKeyword(keyword)}
+                        className="h-8 w-8 p-0 text-warcrow-gold hover:text-warcrow-gold/80"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDeleteKeyword(keyword.id)}
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-400"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {filteredKeywords.length > 0 && (
+        <div className="text-sm text-warcrow-text/70">
+          Showing {filteredKeywords.length} of {keywords.length} keywords
+        </div>
+      )}
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text">
+          <DialogHeader>
+            <DialogTitle className="text-warcrow-gold">Edit Keyword</DialogTitle>
+          </DialogHeader>
+          
+          {currentKeyword && (
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name</label>
+                <Input
+                  value={currentKeyword.name}
+                  onChange={(e) => setCurrentKeyword({...currentKeyword, name: e.target.value})}
+                  className="bg-black/60 border-warcrow-gold/30"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (English)</label>
+                <Textarea
+                  value={currentKeyword.description}
+                  onChange={(e) => setCurrentKeyword({...currentKeyword, description: e.target.value})}
+                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
+                <Textarea
+                  value={currentKeyword.description_es || ''}
+                  onChange={(e) => setCurrentKeyword({...currentKeyword, description_es: e.target.value})}
+                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
+                <Textarea
+                  value={currentKeyword.description_fr || ''}
+                  onChange={(e) => setCurrentKeyword({...currentKeyword, description_fr: e.target.value})}
+                  className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditDialogOpen(false)}
+              className="border-warcrow-gold/30 text-warcrow-text"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button 
+              onClick={updateKeyword}
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text">
+          <DialogHeader>
+            <DialogTitle className="text-warcrow-gold">Add New Keyword</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name</label>
+              <Input
+                value={newKeyword.name}
+                onChange={(e) => setNewKeyword({...newKeyword, name: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Description (English)</label>
+              <Textarea
+                value={newKeyword.description}
+                onChange={(e) => setNewKeyword({...newKeyword, description: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish) - Optional</label>
+              <Textarea
+                value={newKeyword.description_es || ''}
+                onChange={(e) => setNewKeyword({...newKeyword, description_es: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French) - Optional</label>
+              <Textarea
+                value={newKeyword.description_fr || ''}
+                onChange={(e) => setNewKeyword({...newKeyword, description_fr: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAddDialogOpen(false)}
+              className="border-warcrow-gold/30 text-warcrow-text"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button 
+              onClick={addKeyword}
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Add Keyword
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
