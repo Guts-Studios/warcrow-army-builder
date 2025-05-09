@@ -7,8 +7,8 @@ import { syenannUnits } from "./factions/syenann";
 
 export const factions: Faction[] = [
   { id: "northern-tribes", name: "Northern Tribes" },
-  { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
-  { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
+  { id: "hegemony-of-embersig", name: "Hegemony" },
+  { id: "scions-of-yaldabaoth", name: "Scions" },
   { id: "syenann", name: "Sÿenann" }
 ];
 

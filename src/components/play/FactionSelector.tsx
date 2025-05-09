@@ -6,9 +6,9 @@ import { Faction } from '@/types/game';
 import { cn } from '@/lib/utils';
 
 const nations: Faction[] = [
-  { id: 'hegemony-of-embersig', name: 'Hegemony of Embersig' },
+  { id: 'hegemony-of-embersig', name: 'Hegemony' },
   { id: 'northern-tribes', name: 'Northern Tribes' },
-  { id: 'scions-of-yaldabaoth', name: 'Scions of Yaldabaoth' },
+  { id: 'scions-of-yaldabaoth', name: 'Scions' },
   { id: 'syenann', name: 'Sÿenann' }
 ];
 

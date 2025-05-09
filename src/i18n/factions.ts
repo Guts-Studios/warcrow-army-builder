@@ -1,9 +1,9 @@
 
 export const factionTranslations = {
   'hegemony-of-embersig': {
-    en: 'Hegemony of Embersig',
-    es: 'Hegemonía de Embersig',
-    fr: 'Hégémonie d\'Embersig'
+    en: 'Hegemony',
+    es: 'Hegemonía',
+    fr: 'Hégémonie'
   },
   'northern-tribes': {
     en: 'Northern Tribes',
@@ -11,9 +11,9 @@ export const factionTranslations = {
     fr: 'Tribus du Nord'
   },
   'scions-of-yaldabaoth': {
-    en: 'Scions of Yaldabaoth',
-    es: 'Vástagos de Yaldabaoth',
-    fr: 'Rejetons de Yaldabaoth'
+    en: 'Scions',
+    es: 'Vástagos',
+    fr: 'Rejetons'
   },
   'syenann': {
     en: 'Syenann',
@@ -22,9 +22,9 @@ export const factionTranslations = {
   },
   // Add backward compatibility for old keys
   hegemony: {
-    en: 'Hegemony of Embersig',
-    es: 'Hegemonía de Embersig',
-    fr: 'Hégémonie d\'Embersig'
+    en: 'Hegemony',
+    es: 'Hegemonía',
+    fr: 'Hégémonie'
   },
   tribes: {
     en: 'Northern Tribes',
@@ -32,8 +32,8 @@ export const factionTranslations = {
     fr: 'Tribus du Nord'
   },
   scions: {
-    en: 'Scions of Yaldabaoth',
-    es: 'Vástagos de Yaldabaoth',
-    fr: 'Rejetons de Yaldabaoth'
+    en: 'Scions',
+    es: 'Vástagos',
+    fr: 'Rejetons'
   }
 };
