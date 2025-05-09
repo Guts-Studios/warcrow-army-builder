@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -253,11 +252,13 @@ const UnitDataTable: React.FC = () => {
                 <SelectValue placeholder="All Factions" />
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                <SelectItem value="">All Factions</SelectItem>
+                <SelectItem value="all-factions">All Factions</SelectItem>
                 {getUniqueValues('faction').map(faction => (
-                  <SelectItem key={faction} value={faction}>
-                    {faction}
-                  </SelectItem>
+                  faction ? (
+                    <SelectItem key={faction} value={faction}>
+                      {faction}
+                    </SelectItem>
+                  ) : null
                 ))}
               </SelectContent>
             </Select>
@@ -267,11 +268,13 @@ const UnitDataTable: React.FC = () => {
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all-types">All Types</SelectItem>
                 {getUniqueValues('type').map(type => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
+                  type ? (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ) : null
                 ))}
               </SelectContent>
             </Select>
@@ -430,7 +433,7 @@ const UnitDataTable: React.FC = () => {
                 <div>
                   <label className="text-sm text-warcrow-text/80 mb-1 block">High Command</label>
                   <Select 
-                    value={(editingUnit.characteristics?.highCommand?.toString() || 'false')} 
+                    value={String(editingUnit.characteristics?.highCommand || false)} 
                     onValueChange={(val) => handleInputChange('highCommand', val)}
                   >
                     <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
