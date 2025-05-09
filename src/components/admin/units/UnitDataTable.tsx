@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -208,6 +207,24 @@ const UnitDataTable: React.FC = () => {
       toast.error(`Failed to translate: ${error.message}`);
     } finally {
       setIsTranslating(false);
+    }
+  };
+
+  const translateToLanguage = async (text: string, langCode: string) => {
+    try {
+      const translationItem = {
+        text: text,
+        targetLang: langCode
+      };
+      
+      const translated = await batchTranslate([translationItem]);
+      if (translated && translated.length > 0 && translated[0].translation) {
+        return translated[0].translation;
+      }
+      return '';
+    } catch (error) {
+      console.error(`Error translating to ${langCode}:`, error);
+      return '';
     }
   };
 

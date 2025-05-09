@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchFAQSections } from "@/services/faqService";
+import { fetchFAQSections, FAQSection } from '@/services/faqService';
 import { useRules } from "@/hooks/useRules";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -76,16 +76,31 @@ export const UnifiedSearchProvider = ({ children }: { children: React.ReactNode 
     try {
       // Search in FAQ
       const faqData = await fetchFAQSections(language);
-      const faqResults = faqData.filter(item => 
-        item.section.toLowerCase().includes(term.toLowerCase()) || 
-        item.content.toLowerCase().includes(term.toLowerCase())
-      ).map(item => ({
-        id: item.id,
-        title: item.section,
-        content: item.content,
-        source: "faq" as const,
-        path: "/faq"
-      }));
+      
+      // Get the content in the appropriate language
+      const faqResults = faqData.filter(item => {
+        const sectionText = language === 'es' && item.section_es ? item.section_es :
+                           (language === 'fr' && item.section_fr ? item.section_fr : item.section);
+        const contentText = language === 'es' && item.content_es ? item.content_es :
+                           (language === 'fr' && item.content_fr ? item.content_fr : item.content);
+                           
+        return sectionText.toLowerCase().includes(term.toLowerCase()) || 
+               contentText.toLowerCase().includes(term.toLowerCase());
+      }).map(item => {
+        // Use translated content if available
+        const sectionText = language === 'es' && item.section_es ? item.section_es :
+                           (language === 'fr' && item.section_fr ? item.section_fr : item.section);
+        const contentText = language === 'es' && item.content_es ? item.content_es :
+                           (language === 'fr' && item.content_fr ? item.content_fr : item.content);
+                           
+        return {
+          id: item.id,
+          title: sectionText,
+          content: contentText,
+          source: "faq" as const,
+          path: "/faq"
+        };
+      });
       
       results.push(...faqResults);
 
@@ -96,8 +111,11 @@ export const UnifiedSearchProvider = ({ children }: { children: React.ReactNode 
         // Helper function to recursively search through rules sections
         const searchInSections = (sections: any[], path: string = "/rules") => {
           sections.forEach(section => {
-            const sectionTitle = section.title || "";
-            const sectionContent = section.content || "";
+            // Get the appropriate language content
+            const sectionTitle = language === 'es' && section.title_es ? section.title_es :
+                               (language === 'fr' && section.title_fr ? section.title_fr : section.title) || "";
+            const sectionContent = language === 'es' && section.content_es ? section.content_es :
+                                 (language === 'fr' && section.content_fr ? section.content_fr : section.content) || "";
             
             if (sectionTitle.toLowerCase().includes(term.toLowerCase()) || 
                 sectionContent.toLowerCase().includes(term.toLowerCase())) {

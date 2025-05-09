@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +41,8 @@ const UnitKeywordsManager: React.FC = () => {
   });
   const [activeTranslationTab, setActiveTranslationTab] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [originalText, setOriginalText] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('es');
 
   // Fetch keywords from Supabase
   const fetchKeywords = async () => {
@@ -195,6 +196,31 @@ const UnitKeywordsManager: React.FC = () => {
       toast.error(`Failed to add keyword: ${error.message}`);
     }
   };
+
+  const handleAutoTranslate = async () => {
+    if (!originalText) return;
+    
+    setIsTranslating(true);
+    try {
+      const translationItem = {
+        text: originalText,
+        targetLang: targetLanguage
+      };
+      
+      const translatedResult = await batchTranslate([translationItem]);
+      if (translatedResult && translatedResult.length > 0) {
+        setTranslation(translatedResult[0].translation || '');
+        toast.success(`Auto-translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
+      }
+    } catch (error) {
+      toast.error("Translation failed. Please try again.");
+      console.error("Translation error:", error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const [translation, setTranslation] = useState('');
 
   return (
     <Card className="p-4 space-y-4 bg-black border-warcrow-gold/30">

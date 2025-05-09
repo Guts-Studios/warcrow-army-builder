@@ -18,8 +18,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -29,45 +27,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Save, Plus, Languages, Edit, Trash2 } from "lucide-react";
 import { translateWithDeepL } from "@/utils/newsUtils";
-
-interface FAQItem {
-  id: string;
-  question: string;
-  content: string;
-  content_es?: string;
-  content_fr?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import { FAQSection } from '@/utils/types/faqTypes';
 
 interface TranslationEditDialogProps {
   isOpen: boolean;
   title: string;
   originalText: string;
+  sectionText: string;
   currentTranslation: string;
+  currentSectionTranslation: string;
   targetLanguage: string;
   onCancel: () => void;
-  onSave: (translation: string) => void;
+  onSave: (translation: string, sectionTranslation: string) => void;
 }
 
 const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
   isOpen,
   title,
   originalText,
+  sectionText,
   currentTranslation,
+  currentSectionTranslation,
   targetLanguage,
   onCancel,
   onSave,
 }) => {
   const [translation, setTranslation] = useState(currentTranslation);
+  const [sectionTranslation, setSectionTranslation] = useState(currentSectionTranslation);
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     setTranslation(currentTranslation);
-  }, [currentTranslation]);
+    setSectionTranslation(currentSectionTranslation);
+  }, [currentTranslation, currentSectionTranslation]);
 
   const handleSave = () => {
-    onSave(translation);
+    onSave(translation, sectionTranslation);
   };
 
   const handleAutoTranslate = async () => {
@@ -75,9 +70,24 @@ const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
     
     setIsTranslating(true);
     try {
-      const translated = await translateWithDeepL(originalText, targetLanguage);
-      setTranslation(translated);
-      toast.success(`Auto-translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
+      const textsToTranslate = [sectionText, originalText];
+      const langCode = targetLanguage === 'es' ? 'ES' : 'FR';
+      
+      const { data, error } = await supabase.functions.invoke('deepl-translate', {
+        body: {
+          texts: textsToTranslate,
+          targetLanguage: langCode,
+          formality: 'more'
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data && data.translations && data.translations.length > 1) {
+        setSectionTranslation(data.translations[0]);
+        setTranslation(data.translations[1]);
+        toast.success(`Auto-translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
+      }
     } catch (error) {
       toast.error("Translation failed. Please try again.");
       console.error("Translation error:", error);
@@ -97,9 +107,29 @@ const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-1 gap-2">
+            <Label htmlFor="section-title" className="text-warcrow-gold">Section Title:</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                id="section-title-en"
+                value={sectionText}
+                readOnly
+                className="border border-warcrow-gold/30 bg-black/50 text-warcrow-text"
+                placeholder="Original section title"
+              />
+              <Input
+                id="section-title-trans"
+                value={sectionTranslation || ''}
+                onChange={(e) => setSectionTranslation(e.target.value)}
+                className="border border-warcrow-gold/30 bg-black text-warcrow-text"
+                placeholder={`${targetLanguage === 'es' ? 'Spanish' : 'French'} section title`}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="original" className="text-warcrow-text">
-                Original Text
+                Content
               </Label>
               <Button 
                 type="button" 
@@ -112,23 +142,20 @@ const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
                 Auto-Translate with DeepL
               </Button>
             </div>
-            <Textarea
-              id="original"
-              value={originalText}
-              readOnly
-              className="col-span-3 border-warcrow-gold/30 bg-black/50 text-warcrow-text resize-none h-32"
-            />
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="translation" className="text-warcrow-text">
-              Translation
-            </Label>
-            <Textarea
-              id="translation"
-              value={translation}
-              onChange={(e) => setTranslation(e.target.value)}
-              className="col-span-3 border-warcrow-gold/30 bg-black text-warcrow-gold resize-none h-48"
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <Textarea
+                id="original"
+                value={originalText}
+                readOnly
+                className="border border-warcrow-gold/30 bg-black/50 text-warcrow-text resize-none h-64"
+              />
+              <Textarea
+                id="translation"
+                value={translation}
+                onChange={(e) => setTranslation(e.target.value)}
+                className="border border-warcrow-gold/30 bg-black text-warcrow-text resize-none h-64"
+              />
+            </div>
           </div>
         </div>
         <DialogFooter>
@@ -145,16 +172,16 @@ const TranslationEditDialog: React.FC<TranslationEditDialogProps> = ({
 };
 
 const FAQTranslationManager: React.FC = () => {
-  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+  const [faqs, setFaqs] = useState<FAQSection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'es' | 'fr'>('es');
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedFAQ, setSelectedFAQ] = useState<FAQItem | null>(null);
+  const [selectedFAQ, setSelectedFAQ] = useState<FAQSection | null>(null);
   const [translationProgress, setTranslationProgress] = useState(0);
   const [translationInProgress, setTranslationInProgress] = useState(false);
   const { language } = useLanguage();
   const [isCreating, setIsCreating] = useState(false);
-  const [newFAQ, setNewFAQ] = useState<Partial<FAQItem>>({ question: '', content: '' });
+  const [newFAQ, setNewFAQ] = useState<Partial<FAQSection>>({ section: '', content: '' });
 
   useEffect(() => {
     fetchFAQs();
@@ -164,13 +191,13 @@ const FAQTranslationManager: React.FC = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('faqs')
+        .from('faq_sections')
         .select('*')
-        .order('question');
+        .order('order_index');
 
       if (error) throw error;
 
-      setFaqs(data as FAQItem[]);
+      setFaqs(data as FAQSection[]);
     } catch (error: any) {
       console.error("Error fetching FAQs:", error);
       toast.error(`Failed to load FAQs: ${error.message}`);
@@ -179,7 +206,7 @@ const FAQTranslationManager: React.FC = () => {
     }
   };
 
-  const handleEditTranslation = (faq: FAQItem, tab: 'es' | 'fr') => {
+  const handleEditTranslation = (faq: FAQSection, tab: 'es' | 'fr') => {
     setSelectedFAQ(faq);
     setActiveTab(tab);
     setIsEditing(true);
@@ -190,17 +217,17 @@ const FAQTranslationManager: React.FC = () => {
     setSelectedFAQ(null);
   };
 
-  const handleUpdateTranslation = async (translation: string) => {
+  const handleUpdateTranslation = async (translation: string, sectionTranslation: string) => {
     if (!selectedFAQ) return;
 
     setIsLoading(true);
     try {
       const updatePayload = activeTab === 'es'
-        ? { content_es: translation }
-        : { content_fr: translation };
+        ? { content_es: translation, section_es: sectionTranslation }
+        : { content_fr: translation, section_fr: sectionTranslation };
 
       const { error } = await supabase
-        .from('faqs')
+        .from('faq_sections')
         .update(updatePayload)
         .eq('id', selectedFAQ.id);
 
@@ -219,25 +246,37 @@ const FAQTranslationManager: React.FC = () => {
   };
 
   const handleCreateFAQ = async () => {
-    if (!newFAQ.question || !newFAQ.content) {
-      toast.error("Question and content are required");
+    if (!newFAQ.section || !newFAQ.content) {
+      toast.error("Section and content are required");
       return;
     }
 
     setIsLoading(true);
     try {
+      // Get the max order index and add 1
+      const { data: maxOrderData } = await supabase
+        .from('faq_sections')
+        .select('order_index')
+        .order('order_index', { ascending: false })
+        .limit(1);
+      
+      const nextOrderIndex = maxOrderData && maxOrderData.length > 0 
+        ? maxOrderData[0].order_index + 1 
+        : 1;
+        
       const { error } = await supabase
-        .from('faqs')
+        .from('faq_sections')
         .insert({
-          question: newFAQ.question,
-          content: newFAQ.content
+          section: newFAQ.section,
+          content: newFAQ.content,
+          order_index: nextOrderIndex
         });
 
       if (error) throw error;
 
       toast.success("FAQ created successfully");
       setIsCreating(false);
-      setNewFAQ({ question: '', content: '' });
+      setNewFAQ({ section: '', content: '' });
       fetchFAQs();
     } catch (error: any) {
       console.error("Error creating FAQ:", error);
@@ -253,7 +292,7 @@ const FAQTranslationManager: React.FC = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('faqs')
+        .from('faq_sections')
         .delete()
         .eq('id', id);
 
@@ -270,9 +309,11 @@ const FAQTranslationManager: React.FC = () => {
   };
 
   const handleBulkTranslate = async (language: 'es' | 'fr') => {
-    const untranslatedFAQs = faqs.filter(faq => 
-      language === 'es' ? !faq.content_es : !faq.content_fr
-    );
+    const untranslatedFAQs = faqs.filter(faq => {
+      const contentField = language === 'es' ? 'content_es' : 'content_fr';
+      const sectionField = language === 'es' ? 'section_es' : 'section_fr';
+      return !faq[contentField as keyof FAQSection] || !faq[sectionField as keyof FAQSection];
+    });
     
     if (untranslatedFAQs.length === 0) {
       toast.info(`All FAQs already have ${language === 'es' ? 'Spanish' : 'French'} translations`);
@@ -282,23 +323,36 @@ const FAQTranslationManager: React.FC = () => {
     setTranslationInProgress(true);
     setTranslationProgress(0);
     
+    const langCode = language === 'es' ? 'ES' : 'FR';
     try {
       let completed = 0;
       const total = untranslatedFAQs.length;
       
       for (const faq of untranslatedFAQs) {
-        const translated = await translateWithDeepL(faq.content, language);
+        const textsToTranslate = [faq.section, faq.content];
         
-        const updatePayload = language === 'es'
-          ? { content_es: translated }
-          : { content_fr: translated };
-          
-        const { error } = await supabase
-          .from('faqs')
-          .update(updatePayload)
-          .eq('id', faq.id);
-          
+        const { data, error } = await supabase.functions.invoke('deepl-translate', {
+          body: {
+            texts: textsToTranslate,
+            targetLanguage: langCode,
+            formality: 'more'
+          }
+        });
+        
         if (error) throw error;
+        
+        if (data && data.translations && data.translations.length > 0) {
+          const updatePayload = language === 'es'
+            ? { section_es: data.translations[0], content_es: data.translations[1] }
+            : { section_fr: data.translations[0], content_fr: data.translations[1] };
+            
+          const { error: updateError } = await supabase
+            .from('faq_sections')
+            .update(updatePayload)
+            .eq('id', faq.id);
+            
+          if (updateError) throw updateError;
+        }
         
         completed++;
         setTranslationProgress(Math.round((completed / total) * 100));
@@ -365,7 +419,7 @@ const FAQTranslationManager: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-black/30">
-              <TableHead className="w-[40%] text-warcrow-gold">Question</TableHead>
+              <TableHead className="w-[40%] text-warcrow-gold">Section</TableHead>
               <TableHead className="w-[30%] text-warcrow-gold">Content</TableHead>
               <TableHead className="text-warcrow-gold">Translations</TableHead>
               <TableHead className="text-right text-warcrow-gold">Actions</TableHead>
@@ -383,7 +437,7 @@ const FAQTranslationManager: React.FC = () => {
             ) : (
               faqs.map((faq) => (
                 <TableRow key={faq.id}>
-                  <TableCell className="font-medium text-warcrow-text">{faq.question}</TableCell>
+                  <TableCell className="font-medium text-warcrow-text">{faq.section}</TableCell>
                   <TableCell className="text-warcrow-text max-h-20 overflow-hidden text-ellipsis">
                     {faq.content.substring(0, 100)}{faq.content.length > 100 ? '...' : ''}
                   </TableCell>
@@ -391,14 +445,14 @@ const FAQTranslationManager: React.FC = () => {
                     <div className="flex gap-2">
                       <div className="flex items-center">
                         <span className="text-xs text-warcrow-text mr-1">ES:</span>
-                        {faq.content_es ? 
+                        {faq.section_es && faq.content_es ? 
                           <span className="text-green-500">✓</span> : 
                           <span className="text-red-500">✗</span>
                         }
                       </div>
                       <div className="flex items-center">
                         <span className="text-xs text-warcrow-text mr-1">FR:</span>
-                        {faq.content_fr ? 
+                        {faq.section_fr && faq.content_fr ? 
                           <span className="text-green-500">✓</span> : 
                           <span className="text-red-500">✗</span>
                         }
@@ -444,12 +498,18 @@ const FAQTranslationManager: React.FC = () => {
       {isEditing && selectedFAQ && (
         <TranslationEditDialog
           isOpen={isEditing}
-          title={`Edit ${activeTab === 'es' ? 'Spanish' : 'French'} Translation for "${selectedFAQ.question}"`}
+          title={`Edit ${activeTab === 'es' ? 'Spanish' : 'French'} Translation`}
           originalText={selectedFAQ.content}
+          sectionText={selectedFAQ.section}
           currentTranslation={
             activeTab === 'es'
               ? selectedFAQ.content_es || ''
               : selectedFAQ.content_fr || ''
+          }
+          currentSectionTranslation={
+            activeTab === 'es'
+              ? selectedFAQ.section_es || ''
+              : selectedFAQ.section_fr || ''
           }
           targetLanguage={activeTab}
           onCancel={handleCancelEdit}
@@ -468,23 +528,23 @@ const FAQTranslationManager: React.FC = () => {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="question" className="text-warcrow-text">
-                Question
+              <Label htmlFor="section" className="text-warcrow-text">
+                Section Title
               </Label>
               <Input
-                id="question"
-                value={newFAQ.question}
-                onChange={(e) => setNewFAQ({...newFAQ, question: e.target.value})}
+                id="section"
+                value={newFAQ.section || ''}
+                onChange={(e) => setNewFAQ({...newFAQ, section: e.target.value})}
                 className="border-warcrow-gold/30 bg-black text-warcrow-gold"
               />
             </div>
             <div className="grid grid-cols-1 gap-2">
               <Label htmlFor="content" className="text-warcrow-text">
-                Answer Content
+                Content
               </Label>
               <Textarea
                 id="content"
-                value={newFAQ.content}
+                value={newFAQ.content || ''}
                 onChange={(e) => setNewFAQ({...newFAQ, content: e.target.value})}
                 className="border-warcrow-gold/30 bg-black text-warcrow-gold resize-none h-32"
               />

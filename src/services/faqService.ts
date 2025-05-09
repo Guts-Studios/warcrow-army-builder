@@ -1,18 +1,10 @@
 
 import { supabase } from "../integrations/supabase/client";
+import { FAQSection } from "@/utils/types/faqTypes";
 
-export interface FAQItem {
-  id: string;
-  section: string;
-  section_es: string | null;
-  section_fr: string | null;
-  content: string;
-  content_es: string | null;
-  content_fr: string | null;
-  order_index: number;
-}
+export type { FAQSection };
 
-export const fetchFAQSections = async (language: string = 'en'): Promise<FAQItem[]> => {
+export const fetchFAQSections = async (language: string = 'en'): Promise<FAQSection[]> => {
   try {
     const { data, error } = await supabase
       .from('faq_sections')
@@ -22,6 +14,9 @@ export const fetchFAQSections = async (language: string = 'en'): Promise<FAQItem
     if (error) {
       throw error;
     }
+    
+    // Log data for debugging
+    console.log(`Fetched ${data?.length || 0} FAQ sections for language: ${language}`);
     
     return data || [];
   } catch (error) {

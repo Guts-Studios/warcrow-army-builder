@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { FAQItem } from './FAQItem';
-import { FAQItem as FAQItemType } from '@/services/faqService';
+import { FAQSection } from '@/services/faqService';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FAQListProps {
-  items: FAQItemType[];
+  items: FAQSection[];
 }
 
 export const FAQList: React.FC<FAQListProps> = ({ items }) => {

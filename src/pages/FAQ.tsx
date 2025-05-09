@@ -10,7 +10,7 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FAQList } from '@/components/faq/FAQList';
 import { FAQSearch } from '@/components/faq/FAQSearch';
-import { fetchFAQSections, FAQItem } from '@/services/faqService';
+import { fetchFAQSections, FAQSection } from '@/services/faqService';
 import { useUnifiedSearch } from '@/contexts/UnifiedSearchContext';
 import { SearchProvider } from "@/contexts/SearchContext";
 
@@ -24,7 +24,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   const location = useLocation();
   const { searchTerm: unifiedSearchTerm, setSearchTerm: setUnifiedSearchTerm, searchInRules, searchResults } = useUnifiedSearch();
   const [searchQuery, setSearchQuery] = useState("");
-  const [faqSections, setFaqSections] = useState<FAQItem[]>([]);
+  const [faqSections, setFaqSections] = useState<FAQSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -45,6 +45,18 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
       setLoading(true);
       try {
         const sections = await fetchFAQSections(language);
+        
+        // Log the sections for debugging
+        console.log(`FAQ: Loaded ${sections.length} sections with language ${language}`);
+        if (sections.length > 0) {
+          console.log('First FAQ section:', {
+            id: sections[0].id,
+            section: sections[0].section,
+            section_es: sections[0].section_es,
+            section_fr: sections[0].section_fr
+          });
+        }
+        
         setFaqSections(sections);
         setError(null);
       } catch (err) {
@@ -66,20 +78,19 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
     }
   }, [location.state]);
 
-  // Filter sections based on unified search results from FAQ
+  // Filter sections based on search query
   const filteredSections = searchQuery.trim() 
-    ? searchResults
-        .filter(result => result.source === "faq")
-        .map(result => ({
-          id: result.id,
-          section: result.title,
-          section_es: null,
-          section_fr: null,
-          content: result.content,
-          content_es: null,
-          content_fr: null,
-          order_index: 0
-        } as FAQItem))
+    ? faqSections.filter(section => {
+        // Get the appropriate language content for searching
+        const sectionText = language === 'es' && section.section_es ? section.section_es : 
+                           (language === 'fr' && section.section_fr ? section.section_fr : section.section);
+        const contentText = language === 'es' && section.content_es ? section.content_es :
+                           (language === 'fr' && section.content_fr ? section.content_fr : section.content);
+                           
+        // Search in both section title and content
+        return sectionText.toLowerCase().includes(searchQuery.toLowerCase()) || 
+               contentText.toLowerCase().includes(searchQuery.toLowerCase());
+      })
     : faqSections;
 
   // If we're showing this component in a tab, we don't need the full page wrapper
