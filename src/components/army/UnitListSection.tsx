@@ -149,8 +149,8 @@ const UnitListSection = ({
 
   // Function to translate and display characteristics/keywords
   const displayKeyword = (keywordText: string): string => {
-    if (language === 'es') {
-      return translateKeyword(keywordText);
+    if (language !== 'en') {
+      return translateKeyword(keywordText, language);
     }
     return keywordText;
   };

@@ -51,8 +51,10 @@ export const useTranslateKeyword = () => {
             descriptions[item.name] = { 'en': item.description || '' };
           }
           
-          if (item.name_es) translations[item.name]['es'] = item.name_es;
-          if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
+          // The special_rules table has name_es and name_fr columns in the database
+          // But our current data doesn't use them, so we fallback to the name
+          translations[item.name]['es'] = item.name_es || item.name;
+          translations[item.name]['fr'] = item.name_fr || item.name;
           
           if (item.description_es) descriptions[item.name]['es'] = item.description_es;
           if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
@@ -65,7 +67,7 @@ export const useTranslateKeyword = () => {
     // Load unit names
     const fetchUnitNames = async () => {
       const { data: unitsData, error: unitsError } = await supabase
-        .from('units')
+        .from('unit_data')
         .select('*');
       
       if (!unitsError && unitsData) {
