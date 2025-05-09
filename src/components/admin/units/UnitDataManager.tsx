@@ -65,37 +65,37 @@ const UnitDataManager: React.FC = () => {
         <TabsList className="grid grid-cols-6 mb-4 bg-black/80 border border-warcrow-gold/30">
           <TabsTrigger 
             value="units" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Units
           </TabsTrigger>
           <TabsTrigger 
             value="unittable" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Unit Table
           </TabsTrigger>
           <TabsTrigger 
             value="keywords" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Keywords
           </TabsTrigger>
           <TabsTrigger 
             value="specialrules" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Special Rules
           </TabsTrigger>
           <TabsTrigger 
             value="characteristics" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Characteristics
           </TabsTrigger>
           <TabsTrigger 
             value="sync" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold data-[state=active]:text-black"
+            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
             Data Sync
           </TabsTrigger>

@@ -57,7 +57,7 @@ const DataSyncManager: React.FC = () => {
         {syncStatus && !isSyncing && (
           <div className="rounded p-3 bg-black/50 border border-warcrow-gold/20 text-sm">
             <h3 className="font-medium text-warcrow-gold mb-2">Sync Results</h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1 text-warcrow-text">
               <li><span className="opacity-70">Units:</span> {syncStatus.units}</li>
               <li><span className="opacity-70">Keywords:</span> {syncStatus.keywords}</li>
               <li><span className="opacity-70">Special Rules:</span> {syncStatus.specialRules}</li>
