@@ -2,13 +2,15 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
-  LucideLayoutDashboard,
+  LayoutDashboard,
   BookOpen,
   HelpCircle,
   Users,
   Bell,
   FileText,
   Swords,
+  Globe,
+  Server
 } from "lucide-react";
 
 interface AdminNavbarProps {
@@ -16,18 +18,16 @@ interface AdminNavbarProps {
   setActiveTab: (tab: string) => void;
 }
 
-const AdminNavbar: React.FC<AdminNavbarProps> = ({
-  activeTab,
-  setActiveTab,
-}) => {
+const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: <LucideLayoutDashboard className="h-4 w-4" /> },
+    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+    { id: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
+    { id: "units", label: "Units", icon: <Swords className="h-4 w-4" /> },
     { id: "rules", label: "Rules", icon: <BookOpen className="h-4 w-4" /> },
     { id: "faq", label: "FAQ", icon: <HelpCircle className="h-4 w-4" /> },
-    { id: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
-    { id: "alerts", label: "Alerts", icon: <Bell className="h-4 w-4" /> },
     { id: "news", label: "News", icon: <FileText className="h-4 w-4" /> },
-    { id: "units", label: "Units", icon: <Swords className="h-4 w-4" /> },
+    { id: "translation", label: "Translation", icon: <Globe className="h-4 w-4" /> },
+    { id: "api", label: "API Status", icon: <Server className="h-4 w-4" /> },
   ];
 
   return (

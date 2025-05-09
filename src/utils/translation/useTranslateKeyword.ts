@@ -1,186 +1,120 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-type SupportedLanguage = 'es' | 'fr';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Hook to translate keywords, special rules and unit names
+ * Custom hook for translating keywords and special rules
  */
 export const useTranslateKeyword = () => {
-  const [keywordDescriptions, setKeywordDescriptions] = useState<Record<string, Record<SupportedLanguage, string>>>({});
-  const [keywordNames, setKeywordNames] = useState<Record<string, Record<SupportedLanguage, string>>>({});
-  const [specialRules, setSpecialRules] = useState<Record<string, Record<SupportedLanguage, string>>>({});
-  const [unitNames, setUnitNames] = useState<Record<string, Record<SupportedLanguage, string>>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [keywordTranslations, setKeywordTranslations] = useState<Record<string, Record<string, string>>>({});
+  const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, Record<string, string>>>({});
 
+  // Fetch translations on mount
   useEffect(() => {
-    const loadTranslations = async () => {
-      setIsLoading(true);
+    const fetchTranslations = async () => {
       try {
-        // Load keyword translations
-        const { data: keywordData } = await supabase
-          .from('unit_keywords')
-          .select('name, name_es, name_fr, description_es, description_fr');
+        // Fetch keyword translations
+        const { data: keywordData, error: keywordError } = await supabase
+          .from('keywords')
+          .select('name, name_es, name_fr, description, description_es, description_fr');
         
-        if (keywordData) {
-          const descriptionMap: Record<string, Record<SupportedLanguage, string>> = {};
-          const nameMap: Record<string, Record<SupportedLanguage, string>> = {};
+        if (keywordError) {
+          console.error('Error fetching keyword translations:', keywordError);
+        } else if (keywordData) {
+          const translations: Record<string, Record<string, string>> = {};
           
-          keywordData.forEach(item => {
-            // Initialize maps for this keyword if not exist
-            if (item.name) {
-              if (!descriptionMap[item.name]) {
-                descriptionMap[item.name] = { es: '', fr: '' };
-              }
-              if (!nameMap[item.name]) {
-                nameMap[item.name] = { es: '', fr: '' };
-              }
-              
-              // Populate description translations
-              if (item.description_es) {
-                descriptionMap[item.name].es = item.description_es;
-              }
-              if (item.description_fr) {
-                descriptionMap[item.name].fr = item.description_fr;
-              }
-              
-              // Populate name translations
-              if (item.name_es) {
-                nameMap[item.name].es = item.name_es;
-              }
-              if (item.name_fr) {
-                nameMap[item.name].fr = item.name_fr;
-              }
+          keywordData.forEach(keyword => {
+            if (keyword.name) {
+              translations[keyword.name] = {
+                es: keyword.name_es || keyword.name,
+                fr: keyword.name_fr || keyword.name,
+                description_en: keyword.description || '',
+                description_es: keyword.description_es || keyword.description || '',
+                description_fr: keyword.description_fr || keyword.description || ''
+              };
             }
           });
           
-          setKeywordDescriptions(descriptionMap);
-          setKeywordNames(nameMap);
+          setKeywordTranslations(translations);
         }
-
-        // Load special rule translations
-        const { data: ruleData } = await supabase
+        
+        // Fetch special rule translations
+        const { data: specialRuleData, error: specialRuleError } = await supabase
           .from('special_rules')
-          .select('name, name_es, name_fr, description_es, description_fr');
+          .select('name, name_es, name_fr, description, description_es, description_fr');
         
-        if (ruleData) {
-          const rulesMap: Record<string, Record<SupportedLanguage, string>> = {};
-          ruleData.forEach(item => {
-            if (item.name) {
-              if (!rulesMap[item.name]) {
-                rulesMap[item.name] = { es: '', fr: '' };
-              }
-              
-              // Try to use name_XX first for actual name translations
-              if (item.name_es) {
-                rulesMap[item.name].es = item.name_es;
-              } else if (item.description_es) {
-                // Try to extract name from description if it's short
-                const shortDesc = item.description_es.split('.')[0].trim();
-                rulesMap[item.name].es = shortDesc.length < 30 ? shortDesc : item.name;
-              }
-              
-              if (item.name_fr) {
-                rulesMap[item.name].fr = item.name_fr;
-              } else if (item.description_fr) {
-                // Try to extract name from description if it's short  
-                const shortDesc = item.description_fr.split('.')[0].trim();
-                rulesMap[item.name].fr = shortDesc.length < 30 ? shortDesc : item.name;
-              }
+        if (specialRuleError) {
+          console.error('Error fetching special rule translations:', specialRuleError);
+        } else if (specialRuleData) {
+          const translations: Record<string, Record<string, string>> = {};
+          
+          specialRuleData.forEach(rule => {
+            if (rule.name) {
+              translations[rule.name] = {
+                es: rule.name_es || rule.name,
+                fr: rule.name_fr || rule.name,
+                description_en: rule.description || '',
+                description_es: rule.description_es || rule.description || '',
+                description_fr: rule.description_fr || rule.description || ''
+              };
             }
           });
-          setSpecialRules(rulesMap);
+          
+          setSpecialRuleTranslations(translations);
         }
-
-        // Load unit name translations
-        const { data: unitData } = await supabase
-          .from('unit_data')
-          .select('name, name_es, name_fr');
-        
-        if (unitData) {
-          const namesMap: Record<string, Record<SupportedLanguage, string>> = {};
-          unitData.forEach(item => {
-            if (item.name) {
-              if (!namesMap[item.name]) {
-                namesMap[item.name] = { es: '', fr: '' };
-              }
-              if (item.name_es) {
-                namesMap[item.name].es = item.name_es;
-              }
-              if (item.name_fr) {
-                namesMap[item.name].fr = item.name_fr;
-              }
-            }
-          });
-          setUnitNames(namesMap);
-        }
-
       } catch (error) {
-        console.error("Error loading translations:", error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error in translation fetch:', error);
       }
     };
-
-    loadTranslations();
+    
+    fetchTranslations();
   }, []);
 
-  const translateKeyword = (keyword: string, language: string = 'es'): string => {
-    // Always return the original keyword for English
-    if (language === 'en') return keyword;
+  // Function to translate a keyword to the specified language
+  const translateKeyword = useCallback((keyword: string, language: string): string => {
+    if (language === 'en' || !keyword) return keyword;
     
-    // Check if we have a name translation for this language
-    if (language === 'es' || language === 'fr') {
-      if (keywordNames[keyword]?.[language as SupportedLanguage]) {
-        return keywordNames[keyword][language as SupportedLanguage];
-      }
-    }
-    // Otherwise return the original keyword
-    return keyword;
-  };
-  
-  const translateKeywordDescription = (keyword: string, language: string = 'es'): string => {
-    // Always return the original description for English
-    if (language === 'en') return keyword;
-    
-    if (language === 'es' || language === 'fr') {
-      if (keywordDescriptions[keyword]?.[language as SupportedLanguage]) {
-        return keywordDescriptions[keyword][language as SupportedLanguage];
-      }
-    }
-    return keyword;
-  };
+    const translation = keywordTranslations[keyword]?.[language];
+    return translation || keyword;
+  }, [keywordTranslations]);
 
-  const translateSpecialRule = (rule: string, language: string = 'es'): string => {
-    // Always return the original rule for English
-    if (language === 'en') return rule;
+  // Function to translate a special rule to the specified language
+  const translateSpecialRule = useCallback((rule: string, language: string): string => {
+    if (language === 'en' || !rule) return rule;
     
-    if (language === 'es' || language === 'fr') {
-      if (specialRules[rule]?.[language as SupportedLanguage]) {
-        return specialRules[rule][language as SupportedLanguage];
-      }
-    }
-    return rule;
-  };
+    // Handle rule names that might have parameters (e.g., "Rule Name (X)")
+    const baseRuleName = rule.split('(')[0].trim();
+    const params = rule.includes('(') ? rule.substring(rule.indexOf('(')) : '';
+    
+    const translation = specialRuleTranslations[baseRuleName]?.[language];
+    return translation ? translation + params : rule;
+  }, [specialRuleTranslations]);
 
-  const translateUnitName = (name: string, language: string = 'es'): string => {
-    // Always return the original name for English
-    if (language === 'en') return name;
+  // Function to get the translated description of a keyword
+  const translateKeywordDescription = useCallback((keyword: string, language: string): string => {
+    if (!keyword) return '';
     
-    if (language === 'es' || language === 'fr') {
-      if (unitNames[name]?.[language as SupportedLanguage]) {
-        return unitNames[name][language as SupportedLanguage];
-      }
-    }
-    return name;
-  };
+    const key = `description_${language}`;
+    return keywordTranslations[keyword]?.[key] || '';
+  }, [keywordTranslations]);
+
+  // Function to get the translated description of a special rule
+  const translateSpecialRuleDescription = useCallback((rule: string, language: string): string => {
+    if (!rule) return '';
+    
+    // Extract just the name from rule that might have parameters
+    const baseRuleName = rule.split('(')[0].trim();
+    
+    const key = `description_${language}`;
+    return specialRuleTranslations[baseRuleName]?.[key] || '';
+  }, [specialRuleTranslations]);
 
   return {
     translateKeyword,
-    translateKeywordDescription,
     translateSpecialRule,
-    translateUnitName,
-    isLoading
+    translateKeywordDescription,
+    translateSpecialRuleDescription
   };
 };
+
+export default useTranslateKeyword;

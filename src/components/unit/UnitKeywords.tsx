@@ -30,7 +30,7 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
     if (language === 'en') {
       // For English, return the original keyword
       return { ...keyword };
-    } else if (language === 'es' || language === 'fr') {
+    } else {
       // For other languages, translate the keyword
       const originalName = typeof keyword.name === 'string' ? keyword.name : '';
       return {
@@ -38,10 +38,8 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
         description: keyword.description ? translateKeywordDescription(originalName, language) : ''
       };
     }
-    return keyword;
   });
 
-  // For special rules, we'll let the SpecialRulesSection handle translations
   return (
     <div className="space-y-2">
       <KeywordsSection keywords={translatedKeywords} />

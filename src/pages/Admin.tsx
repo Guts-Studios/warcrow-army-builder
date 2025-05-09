@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
-import UnitDataManager from '@/components/admin/UnitDataManager';
+import UnitDataManager from '@/components/admin/units/UnitDataManager';
 import ApiStatus from '@/components/admin/ApiStatus';
 import FAQTranslationManager from '@/components/admin/FAQTranslationManager';
 import UserManagement from '@/components/admin/UserManagement';
@@ -69,28 +69,18 @@ const Admin = () => {
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <AdminNavbar />
-      
       <div className="container mx-auto py-6 px-4">
+        <AdminNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      
         <Tabs 
-          defaultValue="dashboard" 
           value={activeTab} 
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid grid-cols-4 md:grid-cols-8 mb-6">
-            <TabsTrigger value="dashboard" className="text-xs md:text-sm">Dashboard</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
-            <TabsTrigger value="units" className="text-xs md:text-sm">Units</TabsTrigger>
-            <TabsTrigger value="rules" className="text-xs md:text-sm">Rules</TabsTrigger>
-            <TabsTrigger value="faq" className="text-xs md:text-sm">FAQ</TabsTrigger>
-            <TabsTrigger value="news" className="text-xs md:text-sm">News</TabsTrigger>
-            <TabsTrigger value="translation" className="text-xs md:text-sm">Translation</TabsTrigger>
-            <TabsTrigger value="api" className="text-xs md:text-sm">API Status</TabsTrigger>
-          </TabsList>
-          
           <TabsContent value="dashboard">
-            <AdminDashboard />
+            <AdminTabContent title="Dashboard">
+              <AdminDashboard />
+            </AdminTabContent>
           </TabsContent>
           
           <TabsContent value="users">

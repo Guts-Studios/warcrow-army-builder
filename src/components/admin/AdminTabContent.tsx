@@ -1,26 +1,18 @@
 
-import React from 'react';
-import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
-import RulesVerifier from '@/components/admin/RulesVerifier';
-import UserManagement from '@/components/admin/UserManagement';
-import NewsManager from '@/components/admin/NewsManager';
-import FAQTranslationManager from '@/components/admin/FAQTranslationManager';
-import UnitDataManager from '@/components/admin/units/UnitDataManager';
+import React, { ReactNode } from 'react';
 
 interface AdminTabContentProps {
-  activeTab: string;
+  title: string;
+  children: ReactNode;
 }
 
-const AdminTabContent = ({ activeTab }: AdminTabContentProps) => {
+const AdminTabContent = ({ title, children }: AdminTabContentProps) => {
   return (
-    <div className="py-6">
-      {activeTab === 'dashboard' && <AdminDashboard />}
-      {activeTab === 'rules' && <RulesVerifier />}
-      {activeTab === 'faq' && <FAQTranslationManager />}
-      {activeTab === 'users' && <UserManagement />}
-      {activeTab === 'alerts' && <div>Admin alerts coming soon</div>}
-      {activeTab === 'news' && <NewsManager />}
-      {activeTab === 'units' && <UnitDataManager />}
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold text-warcrow-gold">{title}</h2>
+      <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6">
+        {children}
+      </div>
     </div>
   );
 };
