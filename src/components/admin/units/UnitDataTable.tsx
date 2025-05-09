@@ -42,38 +42,12 @@ interface UnitDataItem {
   description_fr?: string;
 }
 
-interface UnitDataResponseItem {
-  id: string;
-  name: string;
-  name_es: string;
-  name_fr: string;
-  faction: string;
-  type: string;
-  points: number;
-  characteristics: any;
-  keywords: string[];
-  special_rules: string[];
-  description: string;
-  description_es: string;
-  description_fr: string;
-  options: any[];
-  created_at: string;
-  updated_at: string;
-}
-
 interface FactionItem {
   id: string;
   name: string;
   name_es?: string;
   name_fr?: string;
 }
-
-// For backward compatibility with older faction keys
-const backwardCompatibilityFactions: Record<string, string> = {
-  hegemony: 'hegemony-of-embersig',
-  tribes: 'northern-tribes',
-  scions: 'scions-of-yaldabaoth'
-};
 
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
@@ -88,13 +62,6 @@ const UnitDataTable: React.FC = () => {
   const [factions, setFactions] = useState<FactionItem[]>([]);
   const [factionDisplayNames, setFactionDisplayNames] = useState<Record<string, string>>({});
   const { language } = useLanguage();
-  
-  // Function to get faction display name
-  const getFactionDisplayName = (factionId: string): string => {
-    // Handle backward compatibility
-    const normalizedFactionId = backwardCompatibilityFactions[factionId] || factionId;
-    return factionDisplayNames[normalizedFactionId] || factionId;
-  };
 
   // Fetch factions from the database
   const fetchFactions = async () => {
@@ -132,8 +99,8 @@ const UnitDataTable: React.FC = () => {
 
       if (error) throw error;
       
-      // Convert Supabase response to UnitDataItem[]
-      const unitItems: UnitDataItem[] = (data || []).map((item: UnitDataResponseItem) => ({
+      // Process the unit data to ensure consistency
+      const unitItems: UnitDataItem[] = (data || []).map((item: any) => ({
         id: item.id,
         name: item.name,
         name_es: item.name_es,
@@ -150,7 +117,6 @@ const UnitDataTable: React.FC = () => {
       }));
       
       setUnits(unitItems);
-      console.log('Fetched unit data:', data);
     } catch (error: any) {
       console.error("Error fetching unit data:", error);
       toast.error(`Failed to fetch unit data: ${error.message}`);
@@ -265,9 +231,9 @@ const UnitDataTable: React.FC = () => {
     fetchUnitData();
   }, []);
 
-  const getUniqueValues = (field: string) => {
+  const getUniqueValues = (field: keyof UnitDataItem) => {
     if (field === 'type') {
-      return [...new Set(units.map(unit => unit.type))].sort();
+      return [...new Set(units.map(unit => unit.type))].filter(Boolean).sort();
     }
     return [];
   };
@@ -337,7 +303,7 @@ const UnitDataTable: React.FC = () => {
     } else if (field === 'keywords' || field === 'special_rules') {
       setEditingUnit({
         ...editingUnit,
-        [field]: value.split(',').map((item: string) => item.trim())
+        [field]: value.split(',').map((item: string) => item.trim()).filter(Boolean)
       });
     } else {
       setEditingUnit({
@@ -354,6 +320,11 @@ const UnitDataTable: React.FC = () => {
 
   const handleTypeFilterChange = (value: string) => {
     setTypeFilter(value === 'all-types' ? '' : value);
+  };
+
+  // Get faction display name from faction ID
+  const getFactionDisplayName = (factionId: string): string => {
+    return factionDisplayNames[factionId] || factionId;
   };
 
   return (
@@ -390,12 +361,10 @@ const UnitDataTable: React.FC = () => {
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
                 <SelectItem value="all-types">All Types</SelectItem>
-                {getUniqueValues('type').map(type => (
-                  type ? (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ) : null
+                {getUniqueValues('type').map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
