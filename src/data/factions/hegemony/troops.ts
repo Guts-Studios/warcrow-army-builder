@@ -81,5 +81,22 @@ export const hegemonyTroops: Unit[] = [
     specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
     highCommand: false,
     imageUrl: "/art/card/pioneers_card.jpg"
+  },
+  {
+    id: "black-angels",
+    name: "Black Angels",
+    faction: "hegemony-of-embersig",
+    pointsCost: 30,
+    availability: 1,
+    command: 0,
+    keywords: [
+       { name: "Cavalry", description: "Mounted Unit" }
+      { name: "Human", description: "Human race" },
+      { name: "Preferred Terrain (Rugged)", description: "Infantry unit type" },
+    
+    ],
+    specialRules: ["Intimidating (2)"],
+    highCommand: false,
+    imageUrl: "/art/card/black_angels_card.jpg"
   }
 ];
