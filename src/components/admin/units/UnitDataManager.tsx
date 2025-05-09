@@ -5,14 +5,15 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from '@/contexts/LanguageContext';
-import UnitDataUploader from "./units/UnitDataUploader";
-import UnitKeywordsManager from "./units/UnitKeywordsManager";
-import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
-import FactionManager from "./units/FactionManager";
-import DeepLUsageStats from "./units/DeepLUsageStats";
-import PopulateDataButton from "./units/PopulateDataButton";
-import UnitDataTable from "./units/UnitDataTable";
-import DataSyncManager from "./units/DataSyncManager";
+import { supabase } from "@/integrations/supabase/client";
+import UnitDataUploader from "../units/UnitDataUploader";
+import UnitKeywordsManager from "../units/UnitKeywordsManager";
+import UnitCharacteristicsManager from "../units/UnitCharacteristicsManager";
+import FactionManager from "./FactionManager";
+import DeepLUsageStats from "../units/DeepLUsageStats";
+import PopulateDataButton from "../units/PopulateDataButton";
+import UnitDataTable from "../units/UnitDataTable";
+import DataSyncManager from "../units/DataSyncManager";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");

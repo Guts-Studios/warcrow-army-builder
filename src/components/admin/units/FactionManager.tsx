@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -80,23 +79,20 @@ const FactionManager: React.FC = () => {
 
   const fetchUnitCounts = async () => {
     try {
+      // Get all unit data
       const { data, error } = await supabase
         .from('unit_data')
-        .select('faction, count')
-        .select()
-        .count();
+        .select('faction');
 
       if (error) throw error;
 
-      // Organize the data for easier lookup
+      // Count by faction
       const counts: Record<string, number> = {};
       if (data && data.length > 0) {
-        // Group and count by faction
         data.forEach((item: any) => {
-          if (!counts[item.faction]) {
-            counts[item.faction] = 0;
+          if (item.faction) {
+            counts[item.faction] = (counts[item.faction] || 0) + 1;
           }
-          counts[item.faction]++;
         });
       }
       setUnitCountByFaction(counts);
