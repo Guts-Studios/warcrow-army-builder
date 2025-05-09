@@ -87,6 +87,11 @@ export async function translateText(text: string, targetLang: string = 'es'): Pr
   return result[0]?.translation || '';
 }
 
+// Helper function for translating text to French specifically
+export async function translateToFrench(text: string): Promise<string> {
+  return translateText(text, 'fr');
+}
+
 // Legacy function to maintain backward compatibility with existing code
 export async function translateKeyword(text: string): Promise<string> {
   return translateText(text, 'es');

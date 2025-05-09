@@ -2,30 +2,37 @@
 export const activityTranslations = {
   activityFeed: {
     en: 'Activity Feed',
-    es: 'Actividad Reciente'
+    es: 'Actividad Reciente',
+    fr: 'Flux d\'Activité'
   },
   allActivity: {
     en: 'All Activity',
-    es: 'Toda la Actividad'
+    es: 'Toda la Actividad',
+    fr: 'Toute l\'Activité'
   },
   listUpdates: {
     en: 'List Updates',
-    es: 'Actualizaciones de Listas'
+    es: 'Actualizaciones de Listas',
+    fr: 'Mises à Jour des Listes'
   },
   friendUpdates: {
     en: 'Friend Updates',
-    es: 'Actualizaciones de Amigos'
+    es: 'Actualizaciones de Amigos',
+    fr: 'Mises à Jour des Amis'
   },
   backToProfile: {
     en: 'Back to Profile',
-    es: 'Volver al Perfil'
+    es: 'Volver al Perfil',
+    fr: 'Retour au Profil'
   },
   admin: {
     en: 'Admin',
-    es: 'Administrador'
+    es: 'Administrador',
+    fr: 'Admin'
   },
   unitStats: {
     en: 'Unit Stats',
-    es: 'Estadísticas de Unidades'
+    es: 'Estadísticas de Unidades',
+    fr: 'Statistiques des Unités'
   },
 };
