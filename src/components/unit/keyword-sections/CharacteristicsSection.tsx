@@ -6,9 +6,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslateKeyword } from "@/utils/translation/useTranslateKeyword";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
@@ -18,6 +19,8 @@ interface CharacteristicsSectionProps {
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
 
   const characteristics = keywords.filter(k => 
     ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -28,7 +31,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   if (characteristics.length === 0 && !highCommand) return null;
 
   const CharacteristicContent = ({ text }: { text: string }) => (
-    <p className="text-sm leading-relaxed">{characteristicDefinitions[text] || "Description coming soon"}</p>
+    <p className="text-sm leading-relaxed">
+      {translateCharacteristicDescription(text, language)}
+    </p>
   );
 
   return (
@@ -62,15 +67,19 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
           </TooltipProvider>
         )
       )}
-      {characteristics.map((keyword) => (
-        isMobile ? (
+      {characteristics.map((keyword) => {
+        const displayName = language !== 'en' 
+          ? translateCharacteristic(keyword.name, language) 
+          : keyword.name;
+          
+        return isMobile ? (
           <button 
             key={keyword.name}
             type="button"
             className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
             onClick={() => setOpenDialogCharacteristic(keyword.name)}
           >
-            {keyword.name}
+            {displayName}
           </button>
         ) : (
           <TooltipProvider key={keyword.name}>
@@ -80,7 +89,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
                   type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
                 >
-                  {keyword.name}
+                  {displayName}
                 </button>
               </TooltipTrigger>
               <TooltipContent 
@@ -91,7 +100,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </Tooltip>
           </TooltipProvider>
         )
-      ))}
+      })}
 
       {openDialogCharacteristic && (
         <div 
@@ -109,7 +118,12 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             >
               ✕
             </button>
-            <div className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">
+              {language !== 'en' 
+                ? translateCharacteristic(openDialogCharacteristic, language)
+                : openDialogCharacteristic}
+            </h3>
+            <div className="pt-2">
               <CharacteristicContent text={openDialogCharacteristic} />
             </div>
           </div>

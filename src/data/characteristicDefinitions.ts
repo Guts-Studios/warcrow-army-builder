@@ -1,4 +1,5 @@
 
+// This file is kept for backward compatibility but translations are now sourced from the database
 export const characteristicDefinitions: { [key: string]: string } = {
   "Human": "Members of the human race, the most numerous and adaptable species.",
   "Infantry": "Ground-based troops that form the backbone of most armies.",
@@ -18,4 +19,3 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Mounted": "Units that ride upon mounts such as horses or other creatures.",
   "Cavalry": "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield."
 };
-
