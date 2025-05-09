@@ -21,7 +21,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { batchTranslate } from '@/utils/translation/batchTranslate';
 import { TranslatedText } from '@/utils/types/translationTypes';
-import { factions } from '@/data/factions';
 
 interface UnitDataItem {
   id: string;
@@ -62,13 +61,12 @@ interface UnitDataResponseItem {
   updated_at: string;
 }
 
-// Map of faction IDs to display names
-const factionDisplayNames: Record<string, string> = {};
-
-// Initialize with values from factions data
-factions.forEach(faction => {
-  factionDisplayNames[faction.id] = faction.name;
-});
+interface FactionItem {
+  id: string;
+  name: string;
+  name_es?: string;
+  name_fr?: string;
+}
 
 // For backward compatibility with older faction keys
 const backwardCompatibilityFactions: Record<string, string> = {
@@ -87,6 +85,8 @@ const UnitDataTable: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTranslationTab, setActiveTranslationTab] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [factions, setFactions] = useState<FactionItem[]>([]);
+  const [factionDisplayNames, setFactionDisplayNames] = useState<Record<string, string>>({});
   const { language } = useLanguage();
   
   // Function to get faction display name
@@ -94,6 +94,31 @@ const UnitDataTable: React.FC = () => {
     // Handle backward compatibility
     const normalizedFactionId = backwardCompatibilityFactions[factionId] || factionId;
     return factionDisplayNames[normalizedFactionId] || factionId;
+  };
+
+  // Fetch factions from the database
+  const fetchFactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('factions')
+        .select('*')
+        .order('name');
+        
+      if (error) throw error;
+      
+      setFactions(data || []);
+      
+      // Create mapping of faction IDs to display names
+      const displayNames: Record<string, string> = {};
+      data?.forEach(faction => {
+        displayNames[faction.id] = faction.name;
+      });
+      
+      setFactionDisplayNames(displayNames);
+    } catch (error: any) {
+      console.error("Error fetching factions:", error);
+      toast.error(`Failed to fetch factions: ${error.message}`);
+    }
   };
   
   const fetchUnitData = async () => {
@@ -236,14 +261,12 @@ const UnitDataTable: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchFactions();
     fetchUnitData();
   }, []);
 
   const getUniqueValues = (field: string) => {
-    if (field === 'faction') {
-      // Filter out duplicate faction values
-      return [...new Set(units.map(unit => unit.faction))].sort();
-    } else if (field === 'type') {
+    if (field === 'type') {
       return [...new Set(units.map(unit => unit.type))].sort();
     }
     return [];
@@ -353,12 +376,10 @@ const UnitDataTable: React.FC = () => {
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
                 <SelectItem value="all-factions">All Factions</SelectItem>
-                {getUniqueValues('faction').map(faction => (
-                  faction ? (
-                    <SelectItem key={faction} value={faction}>
-                      {getFactionDisplayName(faction)}
-                    </SelectItem>
-                  ) : null
+                {factions.map(faction => (
+                  <SelectItem key={faction.id} value={faction.id}>
+                    {faction.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

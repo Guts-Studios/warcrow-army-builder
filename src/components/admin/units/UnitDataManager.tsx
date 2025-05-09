@@ -3,23 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { 
-  Upload,
-  Save,
-  Database,
-  Languages,
-  FileText,
-} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useLanguage } from "@/contexts/LanguageContext";
-import UnitDataUploader from "@/components/admin/units/UnitDataUploader";
-import UnitKeywordsManager from "@/components/admin/units/UnitKeywordsManager";
-import UnitSpecialRulesManager from "@/components/admin/units/UnitSpecialRulesManager";
-import UnitCharacteristicsManager from "@/components/admin/units/UnitCharacteristicsManager";
-import DeepLUsageStats from "@/components/admin/units/DeepLUsageStats";
-import PopulateDataButton from "@/components/admin/units/PopulateDataButton";
-import UnitDataTable from "@/components/admin/units/UnitDataTable";
-import DataSyncManager from "@/components/admin/units/DataSyncManager";
+import { useLanguage } from '@/contexts/LanguageContext';
+import UnitDataUploader from "./units/UnitDataUploader";
+import UnitKeywordsManager from "./units/UnitKeywordsManager";
+import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
+import FactionManager from "./units/FactionManager";
+import DeepLUsageStats from "./units/DeepLUsageStats";
+import PopulateDataButton from "./units/PopulateDataButton";
+import UnitDataTable from "./units/UnitDataTable";
+import DataSyncManager from "./units/DataSyncManager";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -81,10 +74,10 @@ const UnitDataManager: React.FC = () => {
             Keywords
           </TabsTrigger>
           <TabsTrigger 
-            value="specialrules" 
+            value="factions" 
             className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
-            Special Rules
+            Factions
           </TabsTrigger>
           <TabsTrigger 
             value="characteristics" 
@@ -112,8 +105,8 @@ const UnitDataManager: React.FC = () => {
           <UnitKeywordsManager />
         </TabsContent>
 
-        <TabsContent value="specialrules" className="space-y-4">
-          <UnitSpecialRulesManager />
+        <TabsContent value="factions" className="space-y-4">
+          <FactionManager />
         </TabsContent>
 
         <TabsContent value="characteristics" className="space-y-4">

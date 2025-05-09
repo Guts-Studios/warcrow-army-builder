@@ -75,6 +75,33 @@ export type Database = {
         }
         Relationships: []
       }
+      factions: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          name_es: string | null
+          name_fr: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          name_es?: string | null
+          name_fr?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          name_es?: string | null
+          name_fr?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       faq_sections: {
         Row: {
           content: string
@@ -717,6 +744,10 @@ export type Database = {
       check_username_exists: {
         Args: { username_to_check: string }
         Returns: boolean
+      }
+      delete_faction_cascade: {
+        Args: { faction_id: string }
+        Returns: undefined
       }
       generate_wab_id: {
         Args: Record<PropertyKey, never>
