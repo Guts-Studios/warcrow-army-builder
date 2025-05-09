@@ -8,6 +8,8 @@ import {
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface SpecialRulesSectionProps {
   specialRules?: string[];
@@ -15,6 +17,8 @@ interface SpecialRulesSectionProps {
 
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
+  const { language } = useLanguage();
+  const { translateSpecialRule } = useTranslateKeyword();
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
 
   if (!specialRules?.length) return null;
@@ -24,7 +28,11 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   };
 
   const RuleContent = ({ rule }: { rule: string }) => {
-    const definition = specialRuleDefinitions[getBaseRule(rule)] || "Description coming soon";
+    const baseRule = getBaseRule(rule);
+    
+    // Try to get a translated definition if available
+    let definition = specialRuleDefinitions[baseRule] || "Description coming soon";
+    
     const paragraphs = definition.split('\n').filter(p => p.trim());
 
     return (

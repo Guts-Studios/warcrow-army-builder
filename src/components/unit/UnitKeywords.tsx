@@ -11,7 +11,7 @@ interface UnitKeywordsProps {
 }
 
 const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
-  const { translateKeyword, translateSpecialRule } = useTranslateKeyword();
+  const { translateKeyword, translateKeywordDescription, translateSpecialRule } = useTranslateKeyword();
   const { language } = useLanguage();
   
   // Convert string[] to Keyword[] if needed
@@ -25,21 +25,25 @@ const UnitKeywords = ({ keywords, specialRules }: UnitKeywordsProps) => {
     return keyword;
   });
 
-  // If we're in Spanish, translate the keywords
-  if (language === 'es') {
+  // If we're in a non-English language, translate the keywords
+  if (language === 'es' || language === 'fr') {
     processedKeywords.forEach(keyword => {
       if (typeof keyword.name === 'string') {
         // Store original name for reference if needed
         const originalName = keyword.name;
         // Translate the keyword name
-        keyword.name = translateKeyword(keyword.name);
+        keyword.name = translateKeyword(keyword.name, language);
+        // If there's a description, translate that too
+        if (keyword.description) {
+          keyword.description = translateKeywordDescription(originalName, language);
+        }
       }
     });
   }
 
-  // Translate special rules if in Spanish
-  const translatedSpecialRules = specialRules && language === 'es'
-    ? specialRules.map(rule => translateSpecialRule(rule))
+  // Translate special rules if in non-English language
+  const translatedSpecialRules = specialRules && (language === 'es' || language === 'fr')
+    ? specialRules.map(rule => translateSpecialRule(rule, language))
     : specialRules;
 
   return (

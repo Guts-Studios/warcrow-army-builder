@@ -79,19 +79,15 @@ export const UnifiedSearchProvider = ({ children }: { children: React.ReactNode 
       
       // Get the content in the appropriate language
       const faqResults = faqData.filter(item => {
-        const sectionText = language === 'es' && item.section_es ? item.section_es :
-                           (language === 'fr' && item.section_fr ? item.section_fr : item.section);
-        const contentText = language === 'es' && item.content_es ? item.content_es :
-                           (language === 'fr' && item.content_fr ? item.content_fr : item.content);
+        const sectionText = getLocalizedText(item.section, item.section_es, item.section_fr, language);
+        const contentText = getLocalizedText(item.content, item.content_es, item.content_fr, language);
                            
         return sectionText.toLowerCase().includes(term.toLowerCase()) || 
                contentText.toLowerCase().includes(term.toLowerCase());
       }).map(item => {
         // Use translated content if available
-        const sectionText = language === 'es' && item.section_es ? item.section_es :
-                           (language === 'fr' && item.section_fr ? item.section_fr : item.section);
-        const contentText = language === 'es' && item.content_es ? item.content_es :
-                           (language === 'fr' && item.content_fr ? item.content_fr : item.content);
+        const sectionText = getLocalizedText(item.section, item.section_es, item.section_fr, language);
+        const contentText = getLocalizedText(item.content, item.content_es, item.content_fr, language);
                            
         return {
           id: item.id,
@@ -112,10 +108,8 @@ export const UnifiedSearchProvider = ({ children }: { children: React.ReactNode 
         const searchInSections = (sections: any[], path: string = "/rules") => {
           sections.forEach(section => {
             // Get the appropriate language content
-            const sectionTitle = language === 'es' && section.title_es ? section.title_es :
-                               (language === 'fr' && section.title_fr ? section.title_fr : section.title) || "";
-            const sectionContent = language === 'es' && section.content_es ? section.content_es :
-                                 (language === 'fr' && section.content_fr ? section.content_fr : section.content) || "";
+            const sectionTitle = getLocalizedText(section.title, section.title_es, section.title_fr, language);
+            const sectionContent = getLocalizedText(section.content, section.content_es, section.content_fr, language);
             
             if (sectionTitle.toLowerCase().includes(term.toLowerCase()) || 
                 sectionContent.toLowerCase().includes(term.toLowerCase())) {
@@ -150,6 +144,16 @@ export const UnifiedSearchProvider = ({ children }: { children: React.ReactNode 
     } finally {
       setIsSearching(false);
     }
+  };
+  
+  // Helper function to get the localized text based on language
+  const getLocalizedText = (en: string, es: string | null | undefined, fr: string | null | undefined, lang: string): string => {
+    if (lang === 'es' && es) {
+      return es;
+    } else if (lang === 'fr' && fr) {
+      return fr;
+    }
+    return en || '';
   };
 
   return (

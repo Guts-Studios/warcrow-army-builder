@@ -33,7 +33,12 @@ const Rules = () => {
   React.useEffect(() => {
     if (chapters.length > 0) {
       console.log("Rendered Rules page with chapters:", 
-        chapters.slice(0, 3).map(c => ({ id: c.id, title: c.title }))
+        chapters.slice(0, 3).map(c => ({ 
+          id: c.id, 
+          title: c.title,
+          title_es: c.title_es,
+          title_fr: c.title_fr
+        }))
       );
     }
   }, [chapters]);
@@ -63,7 +68,6 @@ const Rules = () => {
     </div>;
   }
 
-  
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')}>
