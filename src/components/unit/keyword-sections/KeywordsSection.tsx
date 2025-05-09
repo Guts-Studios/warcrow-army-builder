@@ -9,6 +9,8 @@ import {
 import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslateKeyword } from '@/utils/translationUtils';
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
@@ -17,6 +19,8 @@ interface KeywordsSectionProps {
 const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogKeyword, setOpenDialogKeyword] = useState<Keyword | null>(null);
+  const { language } = useLanguage();
+  const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
 
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
@@ -31,7 +35,16 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   };
 
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => {
-    const definition = keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon";
+    // Get the appropriate definition based on language
+    let definition;
+    
+    if (language === 'en') {
+      definition = keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon";
+    } else {
+      definition = translateKeywordDescription(getBaseKeyword(keyword.name), language) || 
+                   "Translation coming soon";
+    }
+    
     const paragraphs = definition.split('\n').filter(p => p.trim());
 
     return (
@@ -47,15 +60,20 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
       <div className="flex flex-wrap gap-1.5">
-        {filteredKeywords.map((keyword) => (
-          isMobile ? (
+        {filteredKeywords.map((keyword) => {
+          // Get translated keyword name if not in English
+          const displayName = language !== 'en' 
+            ? translateKeyword(keyword.name, language) 
+            : keyword.name;
+            
+          return isMobile ? (
             <button 
               key={keyword.name}
               type="button"
               className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
               onClick={() => setOpenDialogKeyword(keyword)}
             >
-              {keyword.name}
+              {displayName}
             </button>
           ) : (
             <TooltipProvider key={keyword.name} delayDuration={0}>
@@ -65,7 +83,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                     type="button"
                     className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
                   >
-                    {keyword.name}
+                    {displayName}
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
@@ -77,8 +95,8 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          )
-        ))}
+          );
+        })}
       </div>
 
       {openDialogKeyword && (
@@ -97,7 +115,11 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
             >
               ✕
             </button>
-            <h3 className="text-lg font-semibold mb-4">{openDialogKeyword.name}</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {language !== 'en' 
+                ? translateKeyword(openDialogKeyword.name, language) 
+                : openDialogKeyword.name}
+            </h3>
             <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />
             </div>

@@ -4,13 +4,10 @@ import { Check, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Faction } from '@/types/game';
 import { cn } from '@/lib/utils';
+import { factions } from '@/data/factions';
 
-const nations: Faction[] = [
-  { id: 'hegemony-of-embersig', name: 'Hegemony' },
-  { id: 'northern-tribes', name: 'Northern Tribes' },
-  { id: 'scions-of-yaldabaoth', name: 'Scions' },
-  { id: 'syenann', name: 'Sÿenann' }
-];
+// Use our centralized faction definitions
+const nations: Faction[] = factions;
 
 interface NationSelectorProps {
   selectedFaction: Faction | null;

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,17 +21,21 @@ export const useTranslateKeyword = () => {
         keywordData.forEach(item => {
           if (!translations[item.name]) {
             translations[item.name] = { 'en': item.name };
-            descriptions[item.name] = { 'en': item.description || '' };
           }
           
           if (item.name_es) translations[item.name]['es'] = item.name_es;
           if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
           
+          // Store descriptions separately
+          if (!descriptions[item.name]) {
+            descriptions[item.name] = { 'en': item.description || '' };
+          }
+          
           if (item.description_es) descriptions[item.name]['es'] = item.description_es;
           if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
         });
         
-        setKeywordTranslations({ ...translations, ...descriptions });
+        setKeywordTranslations(translations);
       }
     };
     
@@ -47,7 +52,6 @@ export const useTranslateKeyword = () => {
         rulesData.forEach(item => {
           if (!translations[item.name]) {
             translations[item.name] = { 'en': item.name };
-            descriptions[item.name] = { 'en': item.description || '' };
           }
           
           // Special rules might not have name_es/name_fr columns
@@ -55,11 +59,16 @@ export const useTranslateKeyword = () => {
           translations[item.name]['es'] = item.name;
           translations[item.name]['fr'] = item.name;
           
+          // Store descriptions separately
+          if (!descriptions[item.name]) {
+            descriptions[item.name] = { 'en': item.description || '' };
+          }
+          
           if (item.description_es) descriptions[item.name]['es'] = item.description_es;
           if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
         });
         
-        setSpecialRuleTranslations({ ...translations, ...descriptions });
+        setSpecialRuleTranslations(translations);
       }
     };
     
