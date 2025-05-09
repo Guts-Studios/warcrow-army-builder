@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from '@/contexts/LanguageContext';
 import UnitDataUploader from "./units/UnitDataUploader";
 import UnitKeywordSpecialRulesManager from "./units/UnitKeywordSpecialRulesManager";
 import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
@@ -54,16 +54,28 @@ const UnitDataManager: React.FC = () => {
         onValueChange={handleTabChange}
       >
         <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="units" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="units" 
+            className="text-xs sm:text-sm data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text"
+          >
             Units
           </TabsTrigger>
-          <TabsTrigger value="unittable" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="unittable" 
+            className="text-xs sm:text-sm data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text"
+          >
             Unit Table
           </TabsTrigger>
-          <TabsTrigger value="keywords-specialrules" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="keywords-specialrules" 
+            className="text-xs sm:text-sm data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text"
+          >
             Keywords/Special Rules
           </TabsTrigger>
-          <TabsTrigger value="characteristics" className="text-xs sm:text-sm text-warcrow-text">
+          <TabsTrigger 
+            value="characteristics" 
+            className="text-xs sm:text-sm data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text"
+          >
             Characteristics
           </TabsTrigger>
         </TabsList>

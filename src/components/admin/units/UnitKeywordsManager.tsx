@@ -47,6 +47,9 @@ const UnitKeywordsManager: React.FC = () => {
   const [isTranslating, setIsTranslating] = useState(false);
   const [originalText, setOriginalText] = useState('');
   const [targetLanguage, setTargetLanguage] = useState('es');
+  const [isBatchTranslating, setIsBatchTranslating] = useState(false);
+  const [batchLanguage, setBatchLanguage] = useState<'es' | 'fr'>('es');
+  const [batchProgress, setBatchProgress] = useState(0);
 
   // Fetch keywords from Supabase
   const fetchKeywords = async () => {
@@ -155,6 +158,113 @@ const UnitKeywordsManager: React.FC = () => {
     }
   };
 
+  // Batch translate all keywords
+  const handleBatchTranslate = async (language: 'es' | 'fr') => {
+    if (isBatchTranslating) return;
+    if (!confirm(`Are you sure you want to batch translate all missing ${language === 'es' ? 'Spanish' : 'French'} keywords? This will only translate keywords that don't have translations yet.`)) {
+      return;
+    }
+    
+    setBatchLanguage(language);
+    setIsBatchTranslating(true);
+    setBatchProgress(0);
+    
+    try {
+      // Find keywords without translations
+      const keywordsToTranslate = keywords.filter(keyword => {
+        if (language === 'es') {
+          return !keyword.name_es || !keyword.description_es;
+        } else {
+          return !keyword.name_fr || !keyword.description_fr;
+        }
+      });
+      
+      if (keywordsToTranslate.length === 0) {
+        toast.info(`All ${language === 'es' ? 'Spanish' : 'French'} translations are already complete`);
+        setIsBatchTranslating(false);
+        return;
+      }
+      
+      // Split into batches to show progress
+      const batchSize = 10;
+      const totalKeywords = keywordsToTranslate.length;
+      
+      for (let i = 0; i < totalKeywords; i += batchSize) {
+        const batch = keywordsToTranslate.slice(i, i + batchSize);
+        const updatePromises = batch.map(async (keyword) => {
+          try {
+            // Prepare data to translate
+            const dataToTranslate = [];
+            
+            // Check if name translation is missing
+            if (language === 'es' && !keyword.name_es) {
+              dataToTranslate.push(keyword.name);
+            } else if (language === 'fr' && !keyword.name_fr) {
+              dataToTranslate.push(keyword.name);
+            }
+            
+            // Check if description translation is missing
+            if (language === 'es' && !keyword.description_es) {
+              dataToTranslate.push(keyword.description);
+            } else if (language === 'fr' && !keyword.description_fr) {
+              dataToTranslate.push(keyword.description);
+            }
+            
+            // Skip if nothing to translate
+            if (dataToTranslate.length === 0) return;
+            
+            // Translate data
+            const translations = await batchTranslate(dataToTranslate, language) as string[];
+            
+            // Prepare update object
+            const updateData: any = {};
+            let translationIndex = 0;
+            
+            if (language === 'es' && !keyword.name_es) {
+              updateData.name_es = translations[translationIndex++];
+            } else if (language === 'fr' && !keyword.name_fr) {
+              updateData.name_fr = translations[translationIndex++];
+            }
+            
+            if (language === 'es' && !keyword.description_es) {
+              updateData.description_es = translations[translationIndex++];
+            } else if (language === 'fr' && !keyword.description_fr) {
+              updateData.description_fr = translations[translationIndex++];
+            }
+            
+            // Update in database
+            const { error } = await supabase
+              .from('unit_keywords')
+              .update(updateData)
+              .eq('id', keyword.id);
+              
+            if (error) throw error;
+          } catch (error: any) {
+            console.error(`Error translating keyword ${keyword.name}:`, error);
+            return { keyword, error };
+          }
+        });
+        
+        // Wait for batch to complete
+        await Promise.all(updatePromises);
+        
+        // Update progress
+        const progress = Math.min(100, Math.round(((i + batch.length) / totalKeywords) * 100));
+        setBatchProgress(progress);
+      }
+      
+      // Refresh the keyword list
+      await fetchKeywords();
+      toast.success(`Batch translation to ${language === 'es' ? 'Spanish' : 'French'} completed`);
+    } catch (error: any) {
+      console.error("Batch translation error:", error);
+      toast.error(`Failed to batch translate: ${error.message}`);
+    } finally {
+      setIsBatchTranslating(false);
+      setBatchProgress(0);
+    }
+  };
+
   // Delete keyword
   const handleDeleteKeyword = async (id: string) => {
     if (!confirm("Are you sure you want to delete this keyword? This action cannot be undone.")) {
@@ -240,6 +350,34 @@ const UnitKeywordsManager: React.FC = () => {
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Keyword
+          </Button>
+        </div>
+      </div>
+
+      {/* Batch Translation Controls */}
+      <div className="flex items-center justify-between p-3 bg-black/50 border border-warcrow-gold/30 rounded-md">
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-warcrow-gold mb-1">Batch Translation</h3>
+          <p className="text-xs text-warcrow-text/80">Translate all missing keywords at once for each language</p>
+        </div>
+        <div className="flex space-x-3">
+          <Button
+            variant="outline"
+            disabled={isBatchTranslating}
+            onClick={() => handleBatchTranslate('es')}
+            className="border-warcrow-gold/30 text-warcrow-gold"
+          >
+            <Languages className="h-4 w-4 mr-2" />
+            {isBatchTranslating && batchLanguage === 'es' ? `Translating... ${batchProgress}%` : 'Batch Translate to Spanish'}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={isBatchTranslating}
+            onClick={() => handleBatchTranslate('fr')}
+            className="border-warcrow-gold/30 text-warcrow-gold"
+          >
+            <Languages className="h-4 w-4 mr-2" />
+            {isBatchTranslating && batchLanguage === 'fr' ? `Translating... ${batchProgress}%` : 'Batch Translate to French'}
           </Button>
         </div>
       </div>
