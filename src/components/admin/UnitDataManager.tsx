@@ -2,23 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Upload,
-  Save,
-  Database,
-  Languages,
-  FileText,
-} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { batchTranslate } from "@/utils/translation/batchTranslate";
 import UnitDataUploader from "./units/UnitDataUploader";
-import UnitKeywordsManager from "./units/UnitKeywordsManager";
-import UnitSpecialRulesManager from "./units/UnitSpecialRulesManager";
+import UnitKeywordSpecialRulesManager from "./units/UnitKeywordSpecialRulesManager";
 import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
 import DeepLUsageStats from "./units/DeepLUsageStats";
 import PopulateDataButton from "./units/PopulateDataButton";
@@ -64,18 +53,15 @@ const UnitDataManager: React.FC = () => {
         value={activeTab}
         onValueChange={handleTabChange}
       >
-        <TabsList className="grid grid-cols-5 mb-4">
+        <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="units" className="text-xs sm:text-sm text-warcrow-text">
             Units
           </TabsTrigger>
           <TabsTrigger value="unittable" className="text-xs sm:text-sm text-warcrow-text">
             Unit Table
           </TabsTrigger>
-          <TabsTrigger value="keywords" className="text-xs sm:text-sm text-warcrow-text">
-            Keywords
-          </TabsTrigger>
-          <TabsTrigger value="specialrules" className="text-xs sm:text-sm text-warcrow-text">
-            Special Rules
+          <TabsTrigger value="keywords-specialrules" className="text-xs sm:text-sm text-warcrow-text">
+            Keywords/Special Rules
           </TabsTrigger>
           <TabsTrigger value="characteristics" className="text-xs sm:text-sm text-warcrow-text">
             Characteristics
@@ -90,12 +76,8 @@ const UnitDataManager: React.FC = () => {
           <UnitDataTable />
         </TabsContent>
 
-        <TabsContent value="keywords" className="space-y-4">
-          <UnitKeywordsManager />
-        </TabsContent>
-
-        <TabsContent value="specialrules" className="space-y-4">
-          <UnitSpecialRulesManager />
+        <TabsContent value="keywords-specialrules" className="space-y-4">
+          <UnitKeywordSpecialRulesManager />
         </TabsContent>
 
         <TabsContent value="characteristics" className="space-y-4">

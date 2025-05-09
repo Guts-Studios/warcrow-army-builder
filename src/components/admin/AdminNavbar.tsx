@@ -31,7 +31,7 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({
   ];
 
   return (
-    <div className="mb-8 admin-nav bg-white p-4 rounded-lg shadow-sm">
+    <div className="mb-8 admin-nav bg-black/80 p-4 rounded-lg border border-warcrow-gold/30 shadow-sm">
       <div className="flex flex-wrap gap-2 justify-start">
         {navItems.map((item) => (
           <Button
@@ -41,7 +41,7 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({
             className={
               activeTab === item.id
                 ? "bg-warcrow-gold hover:bg-warcrow-gold/90 text-black font-medium"
-                : "border-warcrow-gold/50 bg-white hover:bg-warcrow-gold/10 text-black/80 font-medium"
+                : "border-warcrow-gold/50 bg-black hover:bg-warcrow-gold/10 text-warcrow-gold font-medium"
             }
             size="sm"
           >

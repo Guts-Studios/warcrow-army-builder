@@ -45,3 +45,8 @@ export async function translateText(text: string, targetLang: string): Promise<s
   const result = await batchTranslate(items);
   return result[0]?.translation || '';
 }
+
+// Legacy function to maintain backward compatibility with existing code
+export async function translateKeyword(text: string): Promise<string> {
+  return translateText(text, 'es');
+}
