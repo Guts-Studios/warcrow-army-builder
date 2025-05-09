@@ -13,6 +13,7 @@ import { activityTranslations } from './activity';
 import { unitTranslations } from './units';
 import { profileTranslations } from './profile';
 import { faqTranslations } from './faq';
+import { uiTranslations } from './ui';
 
 // Combine all translation categories
 export const translations: TranslationsType = {
@@ -29,4 +30,5 @@ export const translations: TranslationsType = {
   ...unitTranslations,
   ...profileTranslations,
   ...faqTranslations,
+  ...uiTranslations,
 };

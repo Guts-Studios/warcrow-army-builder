@@ -20,8 +20,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const { t, language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   
-  // Translate unit name if in Spanish
-  const displayName = language === 'es' ? translateUnitName(unit.name) : unit.name;
+  // Translate unit name if not in English
+  const displayName = language !== 'en' ? translateUnitName(unit.name, language) : unit.name;
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">

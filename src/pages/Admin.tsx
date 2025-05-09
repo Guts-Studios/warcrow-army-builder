@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
@@ -14,12 +14,16 @@ import NewsManager from '@/components/admin/NewsManager';
 import RulesVerifier from '@/components/admin/RulesVerifier';
 import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
 import TranslationManagerPanel from '@/components/admin/TranslationManagerPanel';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, Home } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -69,6 +73,44 @@ const Admin = () => {
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
+      {/* Main navigation bar */}
+      <div className="bg-black/70 border-b border-warcrow-gold/30 p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              {t('backToSite')}
+            </Button>
+            <h1 className="text-xl font-bold text-warcrow-gold">Admin Panel</h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              {t('home')}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/builder')}
+              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+            >
+              {t('builder')}
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto py-6 px-4">
         <AdminNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
       
