@@ -174,25 +174,25 @@ const UnitDataTable: React.FC = () => {
       // Determine which fields to translate based on the active tab
       if (activeTranslationTab === 'es') {
         // Translate to Spanish
-        const nameTranslation = await batchTranslate([editingUnit.name], 'es');
-        const descriptionTranslation = editingUnit.description 
-          ? await batchTranslate([editingUnit.description], 'es')
+        const nameResult = await batchTranslate([editingUnit.name], 'es') as string[];
+        const descriptionResult = editingUnit.description 
+          ? await batchTranslate([editingUnit.description], 'es') as string[]
           : [''];
           
         translationUpdates = {
-          name_es: nameTranslation[0],
-          description_es: descriptionTranslation[0]
+          name_es: nameResult[0],
+          description_es: descriptionResult[0]
         };
       } else if (activeTranslationTab === 'fr') {
         // Translate to French
-        const nameTranslation = await batchTranslate([editingUnit.name], 'fr');
-        const descriptionTranslation = editingUnit.description 
-          ? await batchTranslate([editingUnit.description], 'fr')
+        const nameResult = await batchTranslate([editingUnit.name], 'fr') as string[];
+        const descriptionResult = editingUnit.description 
+          ? await batchTranslate([editingUnit.description], 'fr') as string[]
           : [''];
           
         translationUpdates = {
-          name_fr: nameTranslation[0],
-          description_fr: descriptionTranslation[0]
+          name_fr: nameResult[0],
+          description_fr: descriptionResult[0]
         };
       }
       
@@ -217,8 +217,8 @@ const UnitDataTable: React.FC = () => {
         targetLang: langCode
       };
       
-      const translated = await batchTranslate([translationItem]);
-      if (translated && translated.length > 0 && translated[0].translation) {
+      const translated = await batchTranslate([translationItem]) as TranslatedText[];
+      if (translated && translated.length > 0) {
         return translated[0].translation;
       }
       return '';

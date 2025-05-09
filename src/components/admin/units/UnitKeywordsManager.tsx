@@ -115,12 +115,11 @@ const UnitKeywordsManager: React.FC = () => {
     
     setIsTranslating(true);
     try {
-      let translatedDescription = '';
       const targetLanguage = activeTranslationTab;
       
       if (targetLanguage === 'es' || targetLanguage === 'fr') {
-        const translations = await batchTranslate([currentKeyword.description], targetLanguage);
-        translatedDescription = translations[0] || '';
+        const translations = await batchTranslate([currentKeyword.description], targetLanguage) as string[];
+        const translatedDescription = translations[0] || '';
         
         if (targetLanguage === 'es') {
           setCurrentKeyword({
@@ -207,7 +206,7 @@ const UnitKeywordsManager: React.FC = () => {
         targetLang: targetLanguage
       };
       
-      const translatedResult = await batchTranslate([translationItem]);
+      const translatedResult = await batchTranslate([translationItem]) as TranslatedText[];
       if (translatedResult && translatedResult.length > 0) {
         setTranslation(translatedResult[0].translation || '');
         toast.success(`Auto-translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);

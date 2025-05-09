@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationItem, TranslatedText, AdminTranslationItem, AdminTranslatedText } from "@/utils/types/translationTypes";
 
@@ -14,16 +15,18 @@ export async function batchTranslate(
     let isStringArray = false;
     let isAdminItems = false;
     
-    if (Array.isArray(items) && typeof items[0] === 'string') {
-      textsToTranslate = items as string[];
-      isStringArray = true;
-    } else if (Array.isArray(items) && items.length > 0 && 'key' in items[0] && 'source' in items[0]) {
-      // Handle admin translation items
-      isAdminItems = true;
-      textsToTranslate = (items as AdminTranslationItem[]).map(item => item.source || '');
-    } else {
-      // Standard TranslationItem array
-      textsToTranslate = (items as TranslationItem[]).map(item => item.text);
+    if (Array.isArray(items) && items.length > 0) {
+      if (typeof items[0] === 'string') {
+        textsToTranslate = items as string[];
+        isStringArray = true;
+      } else if ('key' in items[0] && 'source' in items[0]) {
+        // Handle admin translation items
+        isAdminItems = true;
+        textsToTranslate = (items as AdminTranslationItem[]).map(item => item.source || '');
+      } else {
+        // Standard TranslationItem array
+        textsToTranslate = (items as TranslationItem[]).map(item => item.text);
+      }
     }
     
     // Determine target language, with fallbacks
@@ -52,7 +55,7 @@ export async function batchTranslate(
 
     // If input was string array, return string array
     if (isStringArray) {
-      return data.translations;
+      return data.translations as string[];
     }
     
     // If input was admin items, map back with translation
