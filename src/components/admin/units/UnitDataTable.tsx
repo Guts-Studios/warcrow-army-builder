@@ -20,7 +20,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { batchTranslate } from '@/utils/translation/batchTranslate';
-import { TranslatedText } from '@/utils/types/translationTypes';
 
 interface UnitDataItem {
   id: string;
@@ -48,6 +47,13 @@ interface FactionItem {
   name_es?: string;
   name_fr?: string;
 }
+
+// Map to normalize older faction IDs to canonical ones
+const factionIdMap: Record<string, string> = {
+  'hegemony': 'hegemony-of-embersig',
+  'tribes': 'northern-tribes',
+  'scions': 'scions-of-yaldabaoth'
+};
 
 const UnitDataTable: React.FC = () => {
   const [units, setUnits] = useState<UnitDataItem[]>([]);
@@ -99,30 +105,46 @@ const UnitDataTable: React.FC = () => {
 
       if (error) throw error;
       
-      // Process the unit data to ensure consistency
-      const unitItems: UnitDataItem[] = (data || []).map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        name_es: item.name_es,
-        name_fr: item.name_fr,
-        faction: item.faction,
-        type: item.type,
-        points: item.points,
-        characteristics: item.characteristics || {},
-        keywords: item.keywords || [],
-        special_rules: item.special_rules || [],
-        description: item.description,
-        description_es: item.description_es,
-        description_fr: item.description_fr
-      }));
-      
-      setUnits(unitItems);
+      // Process the unit data to ensure consistency and deduplicate
+      const processedData = normalizeAndDeduplicate(data || []);
+      setUnits(processedData);
     } catch (error: any) {
       console.error("Error fetching unit data:", error);
       toast.error(`Failed to fetch unit data: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Normalize faction IDs and deduplicate units
+  const normalizeAndDeduplicate = (data: any[]): UnitDataItem[] => {
+    // First, normalize faction IDs
+    const normalizedData = data.map(item => {
+      // Check if the faction ID needs to be normalized
+      const normalizedFaction = factionIdMap[item.faction] || item.faction;
+      
+      return {
+        ...item,
+        faction: normalizedFaction,
+        characteristics: item.characteristics || {},
+        keywords: item.keywords || [],
+        special_rules: item.special_rules || []
+      };
+    });
+    
+    // Then deduplicate based on name and faction
+    const uniqueUnits: {[key: string]: UnitDataItem} = {};
+    
+    normalizedData.forEach(item => {
+      const key = `${item.name}_${item.faction}`;
+      
+      // Only add if this combination doesn't exist or if this is the newer entry
+      if (!uniqueUnits[key] || new Date(item.updated_at) > new Date(uniqueUnits[key].updated_at)) {
+        uniqueUnits[key] = item;
+      }
+    });
+    
+    return Object.values(uniqueUnits);
   };
 
   const updateUnit = async () => {
