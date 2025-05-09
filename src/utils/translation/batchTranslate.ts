@@ -36,3 +36,12 @@ export async function batchTranslate(items: TranslationItem[]): Promise<Translat
     throw error;
   }
 }
+
+// Helper function for simplifying translation calls
+export async function translateText(text: string, targetLang: string): Promise<string> {
+  if (!text) return '';
+  
+  const items: TranslationItem[] = [{ text, targetLang }];
+  const result = await batchTranslate(items);
+  return result[0]?.translation || '';
+}

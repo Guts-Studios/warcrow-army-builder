@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, Bell, ActivityIcon, ShieldAlert, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -75,19 +74,19 @@ export const NavDropdown = () => {
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
-            className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            className="bg-white border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:text-black transition-colors"
           >
             <Menu className="h-5 w-5" />
             <span className="ml-2">Navigation</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          className="w-56 bg-black border border-warcrow-gold/20 text-warcrow-gold"
+          className="w-56 bg-white border border-warcrow-gold/20 text-black"
         >
           {(isAuthenticated || isPreview) && (
             <>
               <DropdownMenuItem 
-                className="cursor-pointer hover:bg-warcrow-gold/10"
+                className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
                 onClick={() => navigate('/activity')}
               >
                 <ActivityIcon className="h-4 w-4 mr-2" />
@@ -98,57 +97,55 @@ export const NavDropdown = () => {
           )}
           
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/builder')}
           >
             Army Builder
           </DropdownMenuItem>
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/missions')}
           >
             Missions
           </DropdownMenuItem>
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/rules')}
           >
             Rules
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/faq')}
           >
             <HelpCircle className="h-4 w-4 mr-2" />
             FAQ
           </DropdownMenuItem>
 
-          {/* Profile menu item - Available to all users now */}
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/profile')}
           >
             Profile
           </DropdownMenuItem>
           
-          {/* Admin menu section */}
           {isWabAdmin && (
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-warcrow-gold/60">
+                <DropdownMenuLabel className="text-warcrow-gold">
                   <ShieldAlert className="h-4 w-4 inline-block mr-2" />
                   Admin Functions
                 </DropdownMenuLabel>
                 <DropdownMenuItem 
-                  className="cursor-pointer hover:bg-warcrow-gold/10"
+                  className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
                   onClick={() => navigate('/mail')}
                 >
                   Email Management
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="cursor-pointer hover:bg-warcrow-gold/10"
+                  className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
                   onClick={() => navigate('/admin')}
                 >
                   Admin Dashboard
@@ -158,7 +155,7 @@ export const NavDropdown = () => {
           )}
           
           <DropdownMenuItem 
-            className="cursor-pointer hover:bg-warcrow-gold/10"
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-black"
             onClick={() => navigate('/')}
           >
             Home
