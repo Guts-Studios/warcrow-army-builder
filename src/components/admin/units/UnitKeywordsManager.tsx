@@ -23,6 +23,8 @@ import { TranslatedText } from '@/utils/types/translationTypes';
 interface KeywordItem {
   id: string;
   name: string;
+  name_es?: string;
+  name_fr?: string;
   description: string;
   description_es?: string;
   description_fr?: string;
@@ -93,6 +95,8 @@ const UnitKeywordsManager: React.FC = () => {
         .from('unit_keywords')
         .update({
           name: currentKeyword.name,
+          name_es: currentKeyword.name_es,
+          name_fr: currentKeyword.name_fr,
           description: currentKeyword.description,
           description_es: currentKeyword.description_es,
           description_fr: currentKeyword.description_fr,
@@ -111,8 +115,8 @@ const UnitKeywordsManager: React.FC = () => {
     }
   };
 
-  // Translate keyword description
-  const translateKeywordDescription = async () => {
+  // Translate keyword name and description
+  const translateKeywordData = async () => {
     if (!currentKeyword) return;
     
     setIsTranslating(true);
@@ -120,17 +124,23 @@ const UnitKeywordsManager: React.FC = () => {
       const targetLanguage = activeTranslationTab;
       
       if (targetLanguage === 'es' || targetLanguage === 'fr') {
-        const translations = await batchTranslate([currentKeyword.description], targetLanguage) as string[];
-        const translatedDescription = translations[0] || '';
+        // Translate both name and description
+        const dataToTranslate = [currentKeyword.name, currentKeyword.description];
+        const translations = await batchTranslate(dataToTranslate, targetLanguage) as string[];
+        
+        const translatedName = translations[0] || '';
+        const translatedDescription = translations[1] || '';
         
         if (targetLanguage === 'es') {
           setCurrentKeyword({
             ...currentKeyword,
+            name_es: translatedName,
             description_es: translatedDescription
           });
         } else if (targetLanguage === 'fr') {
           setCurrentKeyword({
             ...currentKeyword,
+            name_fr: translatedName,
             description_fr: translatedDescription
           });
         }
@@ -180,6 +190,8 @@ const UnitKeywordsManager: React.FC = () => {
         .insert([
           {
             name: newKeyword.name,
+            name_es: newKeyword.name_es || null,
+            name_fr: newKeyword.name_fr || null,
             description: newKeyword.description,
             description_es: newKeyword.description_es || null,
             description_fr: newKeyword.description_fr || null
@@ -195,29 +207,6 @@ const UnitKeywordsManager: React.FC = () => {
     } catch (error: any) {
       console.error("Error adding keyword:", error);
       toast.error(`Failed to add keyword: ${error.message}`);
-    }
-  };
-
-  const handleAutoTranslate = async () => {
-    if (!originalText) return;
-    
-    setIsTranslating(true);
-    try {
-      const translationItem = {
-        text: originalText,
-        targetLang: targetLanguage
-      };
-      
-      const translatedResult = await batchTranslate([translationItem]) as TranslatedText[];
-      if (translatedResult && translatedResult.length > 0) {
-        setTranslation(translatedResult[0].translation || '');
-        toast.success(`Auto-translated to ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
-      }
-    } catch (error) {
-      toast.error("Translation failed. Please try again.");
-      console.error("Translation error:", error);
-    } finally {
-      setIsTranslating(false);
     }
   };
 
@@ -261,19 +250,21 @@ const UnitKeywordsManager: React.FC = () => {
             <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
               <TableHead className="text-warcrow-gold">Keyword</TableHead>
               <TableHead className="text-warcrow-gold">Description</TableHead>
-              <TableHead className="text-warcrow-gold">Spanish</TableHead>
-              <TableHead className="text-warcrow-gold">French</TableHead>
+              <TableHead className="text-warcrow-gold">Spanish Name</TableHead>
+              <TableHead className="text-warcrow-gold">Spanish Description</TableHead>
+              <TableHead className="text-warcrow-gold">French Name</TableHead>
+              <TableHead className="text-warcrow-gold">French Description</TableHead>
               <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
+                <TableCell colSpan={7} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
               </TableRow>
             ) : filteredKeywords.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
+                <TableCell colSpan={7} className="text-center py-8 text-warcrow-text/70">No keywords found</TableCell>
               </TableRow>
             ) : (
               filteredKeywords.map((keyword) => (
@@ -285,10 +276,24 @@ const UnitKeywordsManager: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
+                    {keyword.name_es ? (
+                      <div className="h-2 w-2 rounded-full bg-green-500 mx-auto" title={keyword.name_es}></div>
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-red-500/60 mx-auto" title="Missing Spanish translation"></div>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     {keyword.description_es ? (
                       <div className="h-2 w-2 rounded-full bg-green-500 mx-auto" title="Has Spanish translation"></div>
                     ) : (
                       <div className="h-2 w-2 rounded-full bg-red-500/60 mx-auto" title="Missing Spanish translation"></div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {keyword.name_fr ? (
+                      <div className="h-2 w-2 rounded-full bg-green-500 mx-auto" title={keyword.name_fr}></div>
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-red-500/60 mx-auto" title="Missing French translation"></div>
                     )}
                   </TableCell>
                   <TableCell>
@@ -375,7 +380,7 @@ const UnitKeywordsManager: React.FC = () => {
                   <div className="flex justify-end mb-4">
                     <Button 
                       variant="outline" 
-                      onClick={translateKeywordDescription}
+                      onClick={translateKeywordData}
                       disabled={isTranslating}
                       className="border-warcrow-gold/30 text-warcrow-gold"
                     >
@@ -383,14 +388,25 @@ const UnitKeywordsManager: React.FC = () => {
                       {isTranslating ? 'Translating...' : 'Translate to Spanish'}
                     </Button>
                   </div>
-                
-                  <div>
-                    <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
-                    <Textarea
-                      value={currentKeyword.description_es || ''}
-                      onChange={(e) => setCurrentKeyword({...currentKeyword, description_es: e.target.value})}
-                      className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
-                    />
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name (Spanish)</label>
+                      <Input
+                        value={currentKeyword.name_es || ''}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, name_es: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
+                      <Textarea
+                        value={currentKeyword.description_es || ''}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, description_es: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
+                      />
+                    </div>
                   </div>
                   
                   {/* Show original English for reference */}
@@ -409,7 +425,7 @@ const UnitKeywordsManager: React.FC = () => {
                   <div className="flex justify-end mb-4">
                     <Button 
                       variant="outline" 
-                      onClick={translateKeywordDescription}
+                      onClick={translateKeywordData}
                       disabled={isTranslating}
                       className="border-warcrow-gold/30 text-warcrow-gold"
                     >
@@ -417,14 +433,25 @@ const UnitKeywordsManager: React.FC = () => {
                       {isTranslating ? 'Translating...' : 'Translate to French'}
                     </Button>
                   </div>
-                
-                  <div>
-                    <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
-                    <Textarea
-                      value={currentKeyword.description_fr || ''}
-                      onChange={(e) => setCurrentKeyword({...currentKeyword, description_fr: e.target.value})}
-                      className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
-                    />
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Keyword Name (French)</label>
+                      <Input
+                        value={currentKeyword.name_fr || ''}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, name_fr: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
+                      <Textarea
+                        value={currentKeyword.description_fr || ''}
+                        onChange={(e) => setCurrentKeyword({...currentKeyword, description_fr: e.target.value})}
+                        className="bg-black/60 border-warcrow-gold/30 min-h-[200px]"
+                      />
+                    </div>
                   </div>
                   
                   {/* Show original English for reference */}
@@ -488,11 +515,29 @@ const UnitKeywordsManager: React.FC = () => {
             </div>
             
             <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Name (Spanish) - Optional</label>
+              <Input
+                value={newKeyword.name_es || ''}
+                onChange={(e) => setNewKeyword({...newKeyword, name_es: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30"
+              />
+            </div>
+            
+            <div>
               <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish) - Optional</label>
               <Textarea
                 value={newKeyword.description_es || ''}
                 onChange={(e) => setNewKeyword({...newKeyword, description_es: e.target.value})}
                 className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm text-warcrow-text/80 mb-1 block">Name (French) - Optional</label>
+              <Input
+                value={newKeyword.name_fr || ''}
+                onChange={(e) => setNewKeyword({...newKeyword, name_fr: e.target.value})}
+                className="bg-black/60 border-warcrow-gold/30"
               />
             </div>
             

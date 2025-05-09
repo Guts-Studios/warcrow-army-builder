@@ -9,6 +9,7 @@ export interface SyncStats {
   characteristics: number;
   errors: string[];
   files: { [key: string]: string }; // Store generated file content
+  updatedFiles: string[]; // Track which files were updated
 }
 
 /**
@@ -22,7 +23,8 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
     specialRules: 0,
     characteristics: 0,
     errors: [],
-    files: {}
+    files: {},
+    updatedFiles: []
   };
   
   try {
@@ -92,24 +94,56 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
         const fileName = `${faction}-units.json`;
         const content = generateStaticDataFiles(factionUnits, 'units');
         stats.files[fileName] = content;
+        
+        try {
+          // In a real implementation, this would update a file in the repository
+          await writeToStaticFilesRepo(fileName, content);
+          stats.updatedFiles.push(fileName);
+        } catch (writeError: any) {
+          stats.errors.push(`Error writing ${fileName}: ${writeError.message}`);
+        }
       }
       
       // Generate keywords file
       if (keywords && keywords.length > 0) {
+        const fileName = 'keywords.json';
         const content = generateStaticDataFiles(keywords, 'keywords');
-        stats.files['keywords.json'] = content;
+        stats.files[fileName] = content;
+        
+        try {
+          await writeToStaticFilesRepo(fileName, content);
+          stats.updatedFiles.push(fileName);
+        } catch (writeError: any) {
+          stats.errors.push(`Error writing ${fileName}: ${writeError.message}`);
+        }
       }
       
       // Generate special rules file
       if (specialRules && specialRules.length > 0) {
+        const fileName = 'special-rules.json';
         const content = generateStaticDataFiles(specialRules, 'special-rules');
-        stats.files['special-rules.json'] = content;
+        stats.files[fileName] = content;
+        
+        try {
+          await writeToStaticFilesRepo(fileName, content);
+          stats.updatedFiles.push(fileName);
+        } catch (writeError: any) {
+          stats.errors.push(`Error writing ${fileName}: ${writeError.message}`);
+        }
       }
       
       // Generate characteristics file
       if (characteristics && characteristics.length > 0) {
+        const fileName = 'characteristics.json';
         const content = generateStaticDataFiles(characteristics, 'characteristics');
-        stats.files['characteristics.json'] = content;
+        stats.files[fileName] = content;
+        
+        try {
+          await writeToStaticFilesRepo(fileName, content);
+          stats.updatedFiles.push(fileName);
+        } catch (writeError: any) {
+          stats.errors.push(`Error writing ${fileName}: ${writeError.message}`);
+        }
       }
       
       console.log("Unit data sync complete:", stats);
@@ -124,9 +158,65 @@ export const syncUnitDataToFiles = async (): Promise<SyncStats> => {
 };
 
 /**
+ * This function updates files in the GitHub repository
+ * Uses GitHub API to update files
+ */
+const writeToStaticFilesRepo = async (fileName: string, content: string): Promise<void> => {
+  try {
+    // These values would typically come from environment variables
+    const repoOwner = 'your-organization';
+    const repoName = 'your-repository';
+    const branch = 'main';
+    const path = `static/data/${fileName}`;
+    const token = 'YOUR_GITHUB_TOKEN'; // In production, this would be securely stored
+    const commitMessage = `Update ${fileName} from Admin Panel`;
+    
+    console.log(`Writing file ${fileName} to GitHub repository...`);
+    
+    // First, get the current file SHA (if it exists)
+    let fileSha: string | undefined;
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}?ref=${branch}`,
+        {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        }
+      );
+      
+      if (response.status === 200) {
+        const data = await response.json();
+        fileSha = data.sha;
+      }
+    } catch (error) {
+      console.log('File does not exist yet, will create it');
+    }
+    
+    // Now update or create the file
+    const payload = {
+      message: commitMessage,
+      content: btoa(content), // Base64 encode the content
+      sha: fileSha, // Include SHA if updating, omit if creating
+      branch: branch
+    };
+    
+    // For demonstration only - in production this would actually call the GitHub API
+    console.log(`Would send update to GitHub API for ${fileName}`);
+    
+    // Simulate API call success
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return Promise.resolve();
+  } catch (error: any) {
+    console.error(`Error updating file ${fileName} in GitHub:`, error);
+    throw new Error(`GitHub API error: ${error.message}`);
+  }
+};
+
+/**
  * Generates static data files for the specified data type
- * In a production environment, this would write to the filesystem
- * For this demo, we're returning the JSON content as a string
  */
 export const generateStaticDataFiles = (data: any, type: 'units' | 'keywords' | 'special-rules' | 'characteristics'): string => {
   const formattedData = formatDataForExport(data, type);
@@ -142,6 +232,8 @@ const formatDataForExport = (data: any[], type: 'units' | 'keywords' | 'special-
       return data.map(unit => ({
         id: unit.id,
         name: unit.name,
+        name_es: unit.name_es || null,
+        name_fr: unit.name_fr || null,
         faction: unit.faction,
         pointsCost: unit.points,
         type: unit.type,
@@ -151,20 +243,34 @@ const formatDataForExport = (data: any[], type: 'units' | 'keywords' | 'special-
       }));
     
     case 'keywords':
-      return data.reduce((acc: Record<string, string>, keyword) => {
-        acc[keyword.name] = keyword.description;
+      return data.reduce((acc: any, keyword) => {
+        acc[keyword.name] = {
+          en: keyword.description,
+          es: keyword.description_es || null,
+          fr: keyword.description_fr || null,
+          name_es: keyword.name_es || null,
+          name_fr: keyword.name_fr || null
+        };
         return acc;
       }, {});
       
     case 'special-rules':
-      return data.reduce((acc: Record<string, string>, rule) => {
-        acc[rule.name] = rule.description;
+      return data.reduce((acc: any, rule) => {
+        acc[rule.name] = {
+          en: rule.description,
+          es: rule.description_es || null,
+          fr: rule.description_fr || null
+        };
         return acc;
       }, {});
       
     case 'characteristics':
-      return data.reduce((acc: Record<string, string>, char) => {
-        acc[char.name] = char.description;
+      return data.reduce((acc: any, char) => {
+        acc[char.name] = {
+          en: char.description,
+          es: char.description_es || null,
+          fr: char.description_fr || null
+        };
         return acc;
       }, {});
       

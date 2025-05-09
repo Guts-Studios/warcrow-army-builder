@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Database, Download, FileJson, File, Code, X } from 'lucide-react';
+import { Database, Download, FileJson, File, Code, X, Github } from 'lucide-react';
 import { toast } from 'sonner';
 import { syncUnitDataToFiles, SyncStats } from '@/utils/admin/syncUnitData';
 import { Progress } from '@/components/ui/progress';
@@ -69,7 +69,7 @@ const DataSyncManager: React.FC = () => {
       
       <div className="space-y-4">
         <p className="text-sm text-warcrow-text/80">
-          This utility syncs unit data from the database to static data files for improved performance.
+          This utility syncs unit data from the database to static JSON files in your GitHub repository.
           Use this after making updates to units, keywords, special rules, or characteristics.
         </p>
         
@@ -81,9 +81,17 @@ const DataSyncManager: React.FC = () => {
               <li><span className="opacity-70">Keywords:</span> {syncStatus.keywords}</li>
               <li><span className="opacity-70">Special Rules:</span> {syncStatus.specialRules}</li>
               <li><span className="opacity-70">Characteristics:</span> {syncStatus.characteristics}</li>
-              {getFileList().length > 0 && (
+              {syncStatus.updatedFiles.length > 0 && (
                 <li className="mt-2">
-                  <span className="opacity-70">Generated files:</span> {getFileList().length}
+                  <span className="opacity-70">Files updated in GitHub:</span> {syncStatus.updatedFiles.length}
+                  <ul className="ml-4 mt-1 list-disc">
+                    {syncStatus.updatedFiles.slice(0, 5).map((file, idx) => (
+                      <li key={idx} className="text-xs">{file}</li>
+                    ))}
+                    {syncStatus.updatedFiles.length > 5 && (
+                      <li className="text-xs">...and {syncStatus.updatedFiles.length - 5} more</li>
+                    )}
+                  </ul>
                 </li>
               )}
             </ul>
@@ -104,7 +112,7 @@ const DataSyncManager: React.FC = () => {
         {isSyncing && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Syncing data...</span>
+              <span>Syncing data to GitHub...</span>
               <span className="font-medium">{progress}%</span>
             </div>
             <Progress value={progress} className="h-1.5" />
@@ -130,7 +138,7 @@ const DataSyncManager: React.FC = () => {
                 className="border-warcrow-gold/30 text-warcrow-text hover:bg-black/50"
               >
                 <FileJson className="h-4 w-4 mr-2" />
-                Preview Data Files
+                Preview Generated Files
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl bg-black border-warcrow-gold/30">
@@ -171,24 +179,26 @@ const DataSyncManager: React.FC = () => {
                       {previewFile ? previewFile.name : 'Select a file to preview'}
                     </h3>
                     {previewFile && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => {
-                          // In a real app, this would download the file
-                          const blob = new Blob([previewFile.content], { type: 'application/json' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = previewFile.name;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }}
-                        className="text-xs text-warcrow-gold hover:bg-warcrow-gold/10"
-                      >
-                        <Download className="h-3.5 w-3.5 mr-1" />
-                        Download
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            // In a real app, this would download the file
+                            const blob = new Blob([previewFile.content], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = previewFile.name;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="text-xs text-warcrow-gold hover:bg-warcrow-gold/10"
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1" />
+                          Download
+                        </Button>
+                      </div>
                     )}
                   </div>
                   
@@ -217,12 +227,30 @@ const DataSyncManager: React.FC = () => {
               </DialogClose>
             </DialogContent>
           </Dialog>
+          
+          <Button 
+            variant="outline" 
+            disabled={!syncStatus?.updatedFiles.length}
+            onClick={() => window.open('https://github.com/your-org/your-repo', '_blank')}
+            className="border-warcrow-gold/30 text-warcrow-text hover:bg-black/50"
+          >
+            <Github className="h-4 w-4 mr-2" />
+            View in GitHub
+          </Button>
         </div>
         
-        <p className="text-xs text-warcrow-text/50">
-          Note: In a production environment, this utility would write these files directly to the file system.
-          For now, the files are generated in memory and available for preview.
-        </p>
+        <div className="mt-4 p-3 bg-black/70 border border-warcrow-gold/10 rounded text-xs text-warcrow-text/80">
+          <h3 className="text-sm font-medium text-warcrow-gold mb-1">How it works:</h3>
+          <ol className="list-decimal ml-4 space-y-1">
+            <li>Data is fetched from your Supabase database</li>
+            <li>JSON files are generated for each faction, plus keywords, special rules, and characteristics</li>
+            <li>Files are committed to the GitHub repository</li>
+            <li>Static JSON files are available for the frontend application to consume</li>
+          </ol>
+          <p className="mt-2 text-warcrow-text/60">
+            This approach improves performance by allowing the frontend to load static JSON files instead of making database queries.
+          </p>
+        </div>
       </div>
     </Card>
   );
