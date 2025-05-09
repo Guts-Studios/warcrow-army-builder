@@ -90,10 +90,9 @@ export const hegemonyTroops: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-       { name: "Cavalry", description: "Mounted Unit" }
+      { name: "Cavalry", description: "Mounted Unit" },
       { name: "Human", description: "Human race" },
       { name: "Preferred Terrain (Rugged)", description: "Infantry unit type" },
-    
     ],
     specialRules: ["Intimidating (2)"],
     highCommand: false,

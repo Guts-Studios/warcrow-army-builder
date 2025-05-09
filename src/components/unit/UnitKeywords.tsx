@@ -2,7 +2,7 @@
 import { Keyword } from "@/types/army";
 import KeywordsSection from "./keyword-sections/KeywordsSection";
 import SpecialRulesSection from "./keyword-sections/SpecialRulesSection";
-import { useTranslateKeyword } from "@/utils/translationUtils";
+import { useTranslateKeyword } from "@/utils/translation";
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UnitKeywordsProps {

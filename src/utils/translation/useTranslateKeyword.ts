@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -59,7 +58,7 @@ export const useTranslateKeyword = () => {
           setKeywordNames(nameMap);
         }
 
-        // Load special rule translations
+        // Load special rule translations - fixed column names (special_rules table doesn't have name_es or name_fr)
         const { data: ruleData } = await supabase
           .from('special_rules')
           .select('name, description_es, description_fr');
