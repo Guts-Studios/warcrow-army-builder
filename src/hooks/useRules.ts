@@ -12,6 +12,8 @@ export interface Section {
 export interface Chapter {
   id: string;
   title: string;
+  title_es?: string | null;
+  title_fr?: string | null;
   sections: Section[];
 }
 
@@ -58,11 +60,18 @@ export const useRules = () => {
           console.log("Using Spanish title from database:", title);
         }
 
+        // Use French title from database if available and French is selected
+        if (language === 'fr' && chapter.title_fr) {
+          title = chapter.title_fr;
+          console.log("Using French title from database:", title);
+        }
+
         // Debug chapter data
         console.log(`Chapter data (${language}):`, { 
           id: chapter.id,
           english_title: chapter.title,
           spanish_title: chapter.title_es,
+          french_title: chapter.title_fr,
           using_title: title
         });
 
@@ -83,6 +92,16 @@ export const useRules = () => {
               }
             }
 
+            // Use French content if available and French is selected
+            if (language === 'fr') {
+              if (section.title_fr) {
+                sectionTitle = section.title_fr;
+              }
+              if (section.content_fr) {
+                sectionContent = section.content_fr;
+              }
+            }
+
             return {
               id: section.id,
               title: sectionTitle,
@@ -93,6 +112,8 @@ export const useRules = () => {
         return {
           id: chapter.id,
           title: title,
+          title_es: chapter.title_es,
+          title_fr: chapter.title_fr,
           sections: chapterSections,
         };
       });
