@@ -9,7 +9,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslateKeyword } from "@/utils/translation/useTranslateKeyword";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
@@ -30,7 +30,15 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   if (characteristics.length === 0 && !highCommand) return null;
 
+  // This component now properly displays just the characteristic name
   const CharacteristicContent = ({ text }: { text: string }) => (
+    <p className="text-sm leading-relaxed">
+      {translateCharacteristic(text, language)}
+    </p>
+  );
+
+  // This component is used for the dialog which shows the full description
+  const CharacteristicDescription = ({ text }: { text: string }) => (
     <p className="text-sm leading-relaxed">
       {translateCharacteristicDescription(text, language)}
     </p>
@@ -124,7 +132,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
                 : openDialogCharacteristic}
             </h3>
             <div className="pt-2">
-              <CharacteristicContent text={openDialogCharacteristic} />
+              <CharacteristicDescription text={openDialogCharacteristic} />
             </div>
           </div>
         </div>
