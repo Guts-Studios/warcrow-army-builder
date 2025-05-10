@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +39,7 @@ interface UnitDataItem {
   description?: string;
   description_es?: string;
   description_fr?: string;
-  updated_at?: string; // Added this property to fix the TypeScript error
+  updated_at?: string;
 }
 
 interface FactionItem {
@@ -476,14 +475,14 @@ const UnitDataTable: React.FC = () => {
             <TableHeader>
               <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
                 <TableHead className="text-warcrow-gold">Faction</TableHead>
-                <TableHead className="text-warcrow-gold">Unit Type</TableHead>
-                <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                <TableHead className="text-warcrow-gold">Command</TableHead>
+                <TableHead className="text-warcrow-gold">Type</TableHead>
+                <TableHead className="text-warcrow-gold">Name</TableHead>
+                <TableHead className="text-warcrow-gold">CMD</TableHead>
                 <TableHead className="text-warcrow-gold">AVB</TableHead>
                 <TableHead className="text-warcrow-gold">Keywords</TableHead>
-                <TableHead className="text-warcrow-gold">High Command</TableHead>
-                <TableHead className="text-warcrow-gold">Points Cost</TableHead>
-                <TableHead className="text-warcrow-gold">Special Rules</TableHead>
+                <TableHead className="text-warcrow-gold">HC</TableHead>
+                <TableHead className="text-warcrow-gold">Pts</TableHead>
+                <TableHead className="text-warcrow-gold">Rules</TableHead>
                 <TableHead className="text-warcrow-gold">Actions</TableHead>
               </TableRow>
             </TableHeader>
