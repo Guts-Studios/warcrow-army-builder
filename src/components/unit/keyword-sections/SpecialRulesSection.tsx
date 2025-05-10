@@ -19,12 +19,16 @@ const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules 
       <span className="text-xs font-semibold text-warcrow-text">{t('specialRules')}:</span>
       <div className="flex flex-wrap gap-1.5 mt-1">
         {specialRules.map((rule, index) => {
+          // Store the original rule name for description lookup
+          const originalName = rule;
+          // Get the translated name for display
           const translatedRule = translateSpecialRule(rule, language);
+          
           return (
             <SpecialRuleTooltip 
               key={index}
               ruleName={translatedRule}
-              originalName={rule}
+              originalName={originalName}
               className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
             />
           );

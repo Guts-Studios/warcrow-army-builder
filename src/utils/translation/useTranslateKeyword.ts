@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -73,6 +72,7 @@ export const useTranslateKeyword = () => {
         });
         
         setSpecialRuleTranslations(translations);
+        setKeywordDescriptions(descriptions);
       }
     };
     
@@ -165,14 +165,19 @@ export const useTranslateKeyword = () => {
   };
 
   const translateSpecialRuleDescription = (rule: string, language: string): string => {
-    // First try to get the description in the requested language
-    const descriptionInRequestedLanguage = specialRuleTranslations[rule]?.[language];
+    if (!rule) return '';
     
-    // If not found, fall back to English
-    const descriptionInEnglish = specialRuleTranslations[rule]?.['en'];
+    // For special rules, descriptions are in keywordDescriptions
+    // First try to get the English description as the base
+    const englishDescription = keywordDescriptions[rule]?.['en'] || '';
     
-    // Return whichever is available, or empty string if neither
-    return descriptionInRequestedLanguage || descriptionInEnglish || '';
+    // If language is English or no translation exists, return the English description
+    if (language === 'en') {
+      return englishDescription;
+    }
+    
+    // Otherwise, return the requested language if available or default to English
+    return keywordDescriptions[rule]?.[language] || englishDescription || '';
   };
   
   const translateCharacteristicDescription = (characteristic: string, language: string): string => {

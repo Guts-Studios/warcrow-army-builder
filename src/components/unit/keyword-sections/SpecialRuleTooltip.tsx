@@ -22,11 +22,19 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
   const lookupName = originalName || ruleName; // Use original name for lookup if provided
   const basicRuleName = lookupName.split('(')[0].trim();
   
-  // Get the description based on language
+  // Always get the English description first, then fallback to translations if in non-English mode
   const getDescription = (): string => {
-    return translateSpecialRuleDescription(basicRuleName, language) || 
-           specialRuleDefinitions[basicRuleName] || 
-           'Description coming soon';
+    // First try to get the English description regardless of language setting
+    const englishDescription = translateSpecialRuleDescription(basicRuleName, 'en');
+    
+    // If we're in English mode or no translation exists, return the English description
+    if (language === 'en' || !translateSpecialRuleDescription(basicRuleName, language)) {
+      return englishDescription || specialRuleDefinitions[basicRuleName] || 'Description coming soon';
+    }
+    
+    // If we're in another language and a translation exists, return both
+    const translatedDescription = translateSpecialRuleDescription(basicRuleName, language);
+    return translatedDescription;
   };
 
   const RuleContent = () => {
