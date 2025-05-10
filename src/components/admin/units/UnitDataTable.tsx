@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { batchTranslate } from '@/utils/translation/batchTranslate';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface UnitDataItem {
   id: string;
@@ -39,6 +40,7 @@ interface UnitDataItem {
   description?: string;
   description_es?: string;
   description_fr?: string;
+  updated_at?: string; // Added this property to fix the TypeScript error
 }
 
 interface FactionItem {
@@ -46,6 +48,14 @@ interface FactionItem {
   name: string;
   name_es?: string;
   name_fr?: string;
+}
+
+interface SpecialRuleItem {
+  id?: string;
+  name: string;
+  description: string;
+  description_es?: string;
+  description_fr?: string;
 }
 
 // Map to normalize older faction IDs to canonical ones
@@ -67,6 +77,7 @@ const UnitDataTable: React.FC = () => {
   const [isTranslating, setIsTranslating] = useState(false);
   const [factions, setFactions] = useState<FactionItem[]>([]);
   const [factionDisplayNames, setFactionDisplayNames] = useState<Record<string, string>>({});
+  const [specialRules, setSpecialRules] = useState<SpecialRuleItem[]>([]);
   const { language } = useLanguage();
 
   // Fetch factions from the database
@@ -91,6 +102,23 @@ const UnitDataTable: React.FC = () => {
     } catch (error: any) {
       console.error("Error fetching factions:", error);
       toast.error(`Failed to fetch factions: ${error.message}`);
+    }
+  };
+  
+  // Fetch special rules to provide descriptions on hover
+  const fetchSpecialRules = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('special_rules')
+        .select('*')
+        .order('name');
+        
+      if (error) throw error;
+      
+      setSpecialRules(data || []);
+    } catch (error: any) {
+      console.error("Error fetching special rules:", error);
+      // Don't show a toast for this as it's not critical
     }
   };
   
@@ -139,7 +167,9 @@ const UnitDataTable: React.FC = () => {
       const key = `${item.name}_${item.faction}`;
       
       // Only add if this combination doesn't exist or if this is the newer entry
-      if (!uniqueUnits[key] || new Date(item.updated_at) > new Date(uniqueUnits[key].updated_at)) {
+      if (!uniqueUnits[key] || 
+          (item.updated_at && uniqueUnits[key].updated_at && 
+           new Date(item.updated_at) > new Date(uniqueUnits[key].updated_at!))) {
         uniqueUnits[key] = item;
       }
     });
@@ -250,6 +280,7 @@ const UnitDataTable: React.FC = () => {
 
   useEffect(() => {
     fetchFactions();
+    fetchSpecialRules();
     fetchUnitData();
   }, []);
 
@@ -292,9 +323,47 @@ const UnitDataTable: React.FC = () => {
     return keywords.join(', ');
   };
 
+  // Get special rule description for tooltips
+  const getSpecialRuleDescription = (ruleName: string): string => {
+    const rule = specialRules.find(r => r.name.toLowerCase() === ruleName.toLowerCase());
+    return rule?.description || 'No description available';
+  };
+
+  // Format special rules with tooltips
   const formatSpecialRules = (rules: string[]) => {
     if (!rules || rules.length === 0) return '-';
-    return rules.join(', ');
+    
+    // Return the JSX for the tooltip-wrapped special rules
+    return (
+      <TooltipProvider>
+        <div className="flex flex-wrap gap-1">
+          {rules.map((rule, index) => {
+            // Extract the rule name without any parameters in parentheses
+            const basicRuleName = rule.split('(')[0].trim();
+            const description = getSpecialRuleDescription(basicRuleName);
+            
+            return (
+              <React.Fragment key={`${rule}-${index}`}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help border-b border-dotted border-warcrow-gold/50 hover:border-warcrow-gold">
+                      {rule}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-xs"
+                  >
+                    <p className="font-medium text-warcrow-gold">{rule}</p>
+                    <p className="text-sm mt-1">{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+                {index < rules.length - 1 && <span>, </span>}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </TooltipProvider>
+    );
   };
 
   const handleEditUnit = (unit: UnitDataItem) => {
@@ -438,7 +507,7 @@ const UnitDataTable: React.FC = () => {
                     <TableCell className="max-w-xs truncate">{formatKeywords(unit.keywords)}</TableCell>
                     <TableCell>{isHighCommand(unit) ? 'Yes' : 'No'}</TableCell>
                     <TableCell>{unit.points}</TableCell>
-                    <TableCell className="max-w-xs truncate">{formatSpecialRules(unit.special_rules)}</TableCell>
+                    <TableCell className="max-w-xs">{formatSpecialRules(unit.special_rules)}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button 
