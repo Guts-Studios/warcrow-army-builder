@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { batchTranslate } from "@/utils/translation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Progress } from "@/components/ui/progress";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface CharacteristicItem {
   id?: string;
@@ -27,6 +28,7 @@ const UnitCharacteristicsManager: React.FC = () => {
   const [translationInProgress, setTranslationInProgress] = useState(false);
   const [translationProgress, setTranslationProgress] = useState(0);
   const { language } = useLanguage();
+  const { translateCharacteristic } = useTranslateKeyword();
 
   useEffect(() => {
     fetchCharacteristics();
@@ -252,7 +254,11 @@ const UnitCharacteristicsManager: React.FC = () => {
               ) : (
                 characteristics.map((characteristic) => (
                   <TableRow key={characteristic.id} className="hover:bg-warcrow-accent/5">
-                    <TableCell className="font-medium text-warcrow-text">{characteristic.name}</TableCell>
+                    <TableCell className="font-medium text-warcrow-text">
+                      {language !== 'en' 
+                        ? translateCharacteristic(characteristic.name, language) || characteristic.name
+                        : characteristic.name}
+                    </TableCell>
                     <TableCell className="max-w-xs truncate text-warcrow-text">{characteristic.description}</TableCell>
                     <TableCell className="text-warcrow-text">
                       {characteristic.description_es ? '✓' : '—'}

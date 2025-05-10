@@ -53,7 +53,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
             onClick={() => setOpenDialogCharacteristic("High Command")}
           >
-            High Command
+            {language !== 'en' ? translateCharacteristic("High Command", language) : "High Command"}
           </button>
         ) : (
           <TooltipProvider>
@@ -63,7 +63,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
                   type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
                 >
-                  High Command
+                  {language !== 'en' ? translateCharacteristic("High Command", language) : "High Command"}
                 </button>
               </TooltipTrigger>
               <TooltipContent 
