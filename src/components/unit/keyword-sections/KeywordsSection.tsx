@@ -36,13 +36,12 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
 
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => {
     // Get the appropriate definition based on language
-    let definition;
+    const baseKeyword = getBaseKeyword(keyword.name);
+    let definition = translateKeywordDescription(baseKeyword, language);
     
-    if (language === 'en') {
-      definition = keywordDefinitions[getBaseKeyword(keyword.name)] || keyword.description || "Description coming soon";
-    } else {
-      definition = translateKeywordDescription(getBaseKeyword(keyword.name), language) || 
-                   "Translation coming soon";
+    // If no translated description is found, fall back to static definitions
+    if (!definition) {
+      definition = keywordDefinitions[baseKeyword] || "Description coming soon";
     }
     
     const paragraphs = definition.split('\n').filter(p => p.trim());
@@ -91,6 +90,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
                   sideOffset={5}
                   className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[300px] overflow-y-auto max-w-[400px] whitespace-normal p-4"
                 >
+                  <p className="font-medium text-warcrow-gold mb-1">{displayName}</p>
                   <KeywordContent keyword={keyword} />
                 </TooltipContent>
               </Tooltip>

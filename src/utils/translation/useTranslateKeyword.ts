@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useTranslateKeyword = () => {
   const [keywordTranslations, setKeywordTranslations] = useState<Record<string, Record<string, string>>>({});
+  const [keywordDescriptions, setKeywordDescriptions] = useState<Record<string, Record<string, string>>>({});
   const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, Record<string, string>>>({});
   const [unitNameTranslations, setUnitNameTranslations] = useState<Record<string, Record<string, string>>>({});
   const [characteristicTranslations, setCharacteristicTranslations] = useState<Record<string, Record<string, string>>>({});
@@ -36,6 +38,7 @@ export const useTranslateKeyword = () => {
         });
         
         setKeywordTranslations(translations);
+        setKeywordDescriptions(descriptions);
       }
     };
     
@@ -150,10 +153,10 @@ export const useTranslateKeyword = () => {
 
   const translateKeywordDescription = (keyword: string, language: string): string => {
     // First try to get the description in the requested language
-    const descriptionInRequestedLanguage = keywordTranslations[keyword]?.[language];
+    const descriptionInRequestedLanguage = keywordDescriptions[keyword]?.[language];
     
     // If not found, fall back to English
-    const descriptionInEnglish = keywordTranslations[keyword]?.['en'];
+    const descriptionInEnglish = keywordDescriptions[keyword]?.['en'];
     
     // Return whichever is available, or empty string if neither
     return descriptionInRequestedLanguage || descriptionInEnglish || '';
