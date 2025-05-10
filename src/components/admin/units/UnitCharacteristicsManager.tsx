@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { batchTranslate } from "@/utils/translation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Progress } from "@/components/ui/progress";
-import { useTranslateKeyword } from "@/utils/translationUtils";
+import { useTranslateKeyword } from "@/utils/translation/useTranslateKeyword";
 
 interface CharacteristicItem {
   id?: string;
@@ -95,30 +95,38 @@ const UnitCharacteristicsManager: React.FC = () => {
     setTranslationProgress(0);
     
     try {
-      // Filter characteristics missing translations
-      const missingTranslations = characteristics.filter(c => {
-        if (targetLanguage === 'es' && !c.name_es) return true;
-        if (targetLanguage === 'fr' && !c.name_fr) return true;
-        return false;
-      });
-      
-      if (missingTranslations.length === 0) {
-        toast.info("All characteristic names already have translations");
-        setTranslationInProgress(false);
-        return;
-      }
+      // Prepare characteristics that may need translation
+      // We'll let the edge function determine which ones actually need translating
+      const characteristicsForTranslation = characteristics.map(c => ({
+        id: c.id,
+        name: c.name,
+        name_es: c.name_es,
+        name_fr: c.name_fr
+      }));
       
       // Call the dedicated edge function for translations
       const { data, error } = await supabase.functions.invoke('translate-characteristics', {
         body: {
-          characteristics: missingTranslations,
+          characteristics: characteristicsForTranslation,
           targetLanguage: targetLanguage
         }
       });
       
-      if (error || !data || !data.translations) {
-        throw new Error(error?.message || 'Failed to translate characteristics');
+      if (error) {
+        throw new Error(error.message || 'Failed to translate characteristics');
       }
+      
+      if (!data || !data.translations) {
+        throw new Error('No translation data received');
+      }
+      
+      if (data.translations.length === 0) {
+        toast.info(`All characteristic names already have ${targetLanguage === 'es' ? 'Spanish' : 'French'} translations`);
+        setTranslationInProgress(false);
+        return;
+      }
+      
+      console.log(`Received ${data.translations.length} translated characteristics`);
       
       // Update the database with translations
       let completedCount = 0;
@@ -165,7 +173,10 @@ const UnitCharacteristicsManager: React.FC = () => {
     try {
       // Prepare items for translation - only descriptions
       const itemsToTranslate = characteristics
-        .filter(c => c.description && (targetLanguage === 'es' && !c.description_es || targetLanguage === 'fr' && !c.description_fr))
+        .filter(c => c.description && (
+          targetLanguage === 'es' && (!c.description_es || c.description_es.trim() === '') || 
+          targetLanguage === 'fr' && (!c.description_fr || c.description_fr.trim() === '')
+        ))
         .map(c => ({
           id: c.id || '',
           key: targetLanguage === 'es' ? 'description_es' : 'description_fr',
@@ -213,11 +224,11 @@ const UnitCharacteristicsManager: React.FC = () => {
     
     characteristics.forEach(c => {
       if (language === 'es') {
-        if (!c.name_es || c.name_es === c.name) namesMissing++;
-        if (!c.description_es && c.description) descriptionsMissing++;
+        if (!c.name_es || c.name_es.trim() === '' || c.name_es === c.name) namesMissing++;
+        if ((!c.description_es || c.description_es.trim() === '') && c.description) descriptionsMissing++;
       } else if (language === 'fr') {
-        if (!c.name_fr || c.name_fr === c.name) namesMissing++;
-        if (!c.description_fr && c.description) descriptionsMissing++;
+        if (!c.name_fr || c.name_fr.trim() === '' || c.name_fr === c.name) namesMissing++;
+        if ((!c.description_fr || c.description_fr.trim() === '') && c.description) descriptionsMissing++;
       }
     });
     

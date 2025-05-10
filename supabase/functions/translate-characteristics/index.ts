@@ -20,10 +20,17 @@ async function translateWithDeepL(
       throw new Error('DeepL API key is not configured');
     }
     
+    // Filter out any empty texts or undefined values
+    const filteredTexts = texts.filter(text => text && text.trim() !== '');
+    
+    if (filteredTexts.length === 0) {
+      return [];
+    }
+    
     // Ensure proper language formatting (DeepL uses ES not es)
     const formattedLang = targetLanguage.toUpperCase();
     
-    console.log(`Translating ${texts.length} items to ${formattedLang}`);
+    console.log(`Translating ${filteredTexts.length} items to ${formattedLang}`);
     
     const response = await fetch('https://api-free.deepl.com/v2/translate', {
       method: 'POST',
@@ -32,7 +39,7 @@ async function translateWithDeepL(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        text: texts,
+        text: filteredTexts,
         target_lang: formattedLang,
         formality: formality
       })
@@ -69,8 +76,33 @@ serve(async (req) => {
 
     console.log(`Processing ${characteristics.length} characteristics for translation to ${targetLanguage}`);
 
+    // Determine which field needs translation based on targetLanguage
+    const translationField = targetLanguage === 'es' ? 'name_es' : 'name_fr';
+    
+    // Filter characteristics that actually need translation
+    // (empty or same as English or missing translation field)
+    const needsTranslation = characteristics.filter(char => {
+      // Check if translation is missing, empty, or identical to English name
+      return !char[translationField] || 
+             char[translationField].trim() === '' || 
+             char[translationField] === char.name;
+    });
+    
+    if (needsTranslation.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          translations: [],
+          count: 0,
+          message: 'All characteristics already have translations'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log(`Found ${needsTranslation.length} characteristics needing translation to ${targetLanguage}`);
+
     // Extract name strings for translation
-    const textsToTranslate = characteristics.map(char => char.name);
+    const textsToTranslate = needsTranslation.map(char => char.name);
     
     // Translate names
     const translatedNames = await translateWithDeepL(
@@ -80,7 +112,7 @@ serve(async (req) => {
     );
     
     // Map translations back to characteristics with IDs
-    const translatedCharacteristics = characteristics.map((char, index) => ({
+    const translatedCharacteristics = needsTranslation.map((char, index) => ({
       id: char.id,
       name: char.name,
       translation: translatedNames[index]
