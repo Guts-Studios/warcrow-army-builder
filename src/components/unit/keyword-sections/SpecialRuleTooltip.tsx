@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useLanguage } from '@/contexts/LanguageContext';
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslateKeyword } from '@/utils/translationUtils';
 
 interface SpecialRuleTooltipProps {
   ruleName: string;
@@ -14,14 +15,16 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, class
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const [openDialog, setOpenDialog] = useState(false);
+  const { translateSpecialRuleDescription } = useTranslateKeyword();
   
   // Extract the rule name without any parameters in parentheses
   const basicRuleName = ruleName.split('(')[0].trim();
   
-  // Get the definition from our static definitions
+  // Get the description based on language
   const getDescription = (): string => {
-    // For now, we only have English definitions
-    return specialRuleDefinitions[basicRuleName] || 'Description coming soon';
+    return translateSpecialRuleDescription(basicRuleName, language) || 
+           specialRuleDefinitions[basicRuleName] || 
+           'Description coming soon';
   };
 
   const RuleContent = () => {

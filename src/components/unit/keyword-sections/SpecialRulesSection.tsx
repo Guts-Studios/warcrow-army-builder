@@ -9,14 +9,14 @@ interface SpecialRulesSectionProps {
 }
 
 const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { translateSpecialRule } = useTranslateKeyword();
   
   if (!specialRules || specialRules.length === 0) return null;
 
   return (
     <div className="mt-2">
-      <span className="text-xs font-semibold text-warcrow-text">Special Rules:</span>
+      <span className="text-xs font-semibold text-warcrow-text">{t('specialRules')}:</span>
       <div className="flex flex-wrap gap-1.5 mt-1">
         {specialRules.map((rule, index) => {
           const translatedRule = translateSpecialRule(rule, language);
