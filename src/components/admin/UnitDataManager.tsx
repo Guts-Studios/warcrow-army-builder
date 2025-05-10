@@ -18,7 +18,7 @@ const UnitDataManager: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [translationProgress, setTranslationProgress] = useState(0);
   const [translationInProgress, setTranslationInProgress] = useState(false);
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   // Track progress through custom event
   useEffect(() => {

@@ -1,39 +1,21 @@
 
-import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
-import Image from "react";
+import React from 'react';
 
 interface UnitTitleProps {
   mainName: string;
   subtitle?: string;
-  command?: boolean | number;
+  command?: number | boolean;
 }
 
-const UnitTitle: React.FC<UnitTitleProps> = ({ mainName, subtitle, command }) => {
-  const { t } = useLanguage();
-  
+const UnitTitle = ({ mainName, subtitle, command }: UnitTitleProps) => {
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 flex-wrap">
-        <h3 className="text-warcrow-gold font-semibold text-sm sm:text-base leading-tight">
-          {mainName}
-        </h3>
-        {command && (
-          <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/323ab76c-4a3d-4214-ad66-6c28b76c843d.png"
-              alt="Command icon"
-              className="w-4 h-4"
-            />
-            {typeof command === 'number' && (
-              <span className="text-warcrow-gold text-xs font-bold ml-0.5">{command}</span>
-            )}
-          </div>
-        )}
-      </div>
-      {subtitle && (
-        <p className="text-warcrow-text/80 text-xs">{subtitle}</p>
+    <div>
+      <h3 className="font-medium text-lg text-warcrow-text">{mainName}</h3>
+      {subtitle && <p className="text-sm text-warcrow-text/80">{subtitle}</p>}
+      {command !== undefined && command !== false && command !== 0 && (
+        <div className="mt-0.5 text-xs bg-warcrow-gold/20 border border-warcrow-gold inline-block px-1 rounded text-warcrow-text">
+          Command: {command}
+        </div>
       )}
     </div>
   );

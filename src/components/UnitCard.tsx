@@ -17,11 +17,11 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   
-  // Translate unit name if not in English
-  const displayName = language !== 'en' ? translateUnitName(unit.name, language) : unit.name;
+  // Translate unit name based on the selected language
+  const displayName = translateUnitName(unit.name, language);
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
