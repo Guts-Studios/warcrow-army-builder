@@ -16,6 +16,8 @@ import { useTranslateKeyword } from "@/utils/translationUtils";
 interface CharacteristicItem {
   id?: string;
   name: string;
+  name_es?: string;
+  name_fr?: string;
   description: string;
   description_es?: string;
   description_fr?: string;
@@ -65,6 +67,8 @@ const UnitCharacteristicsManager: React.FC = () => {
         .upsert({
           id: editingCharacteristic.id,
           name: editingCharacteristic.name,
+          name_es: editingCharacteristic.name_es,
+          name_fr: editingCharacteristic.name_fr,
           description: editingCharacteristic.description,
           description_es: editingCharacteristic.description_es,
           description_fr: editingCharacteristic.description_fr
@@ -91,13 +95,28 @@ const UnitCharacteristicsManager: React.FC = () => {
     setTranslationProgress(0);
     
     try {
-      const itemsToTranslate = characteristics
-        .filter(c => c.description && (!c.description_es || targetLanguage === 'fr' && !c.description_fr))
+      // Prepare items for translation - both names and descriptions
+      const itemsToTranslate = [];
+      
+      // Add names that need translation
+      const namesToTranslate = characteristics
+        .filter(c => c.name && (targetLanguage === 'es' && !c.name_es || targetLanguage === 'fr' && !c.name_fr))
         .map(c => ({
           id: c.id || '',
-          key: 'description',
+          key: targetLanguage === 'es' ? 'name_es' : 'name_fr',
+          source: c.name
+        }));
+      
+      // Add descriptions that need translation
+      const descriptionsToTranslate = characteristics
+        .filter(c => c.description && (targetLanguage === 'es' && !c.description_es || targetLanguage === 'fr' && !c.description_fr))
+        .map(c => ({
+          id: c.id || '',
+          key: 'description' + (targetLanguage === 'es' ? '_es' : '_fr'),
           source: c.description
         }));
+      
+      itemsToTranslate.push(...namesToTranslate, ...descriptionsToTranslate);
       
       if (itemsToTranslate.length === 0) {
         toast.info("All characteristics already have translations");
@@ -176,10 +195,28 @@ const UnitCharacteristicsManager: React.FC = () => {
           <Card className="p-4 border-warcrow-gold bg-black/70">
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-warcrow-text/90 mb-1 block">Characteristic Name</label>
+                <label className="text-sm text-warcrow-text/90 mb-1 block">Characteristic Name (English)</label>
                 <Input 
                   value={editingCharacteristic.name}
                   onChange={(e) => setEditingCharacteristic({...editingCharacteristic, name: e.target.value})}
+                  className="bg-black border-warcrow-gold/50"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-warcrow-text/90 mb-1 block">Characteristic Name (Spanish)</label>
+                <Input 
+                  value={editingCharacteristic.name_es || ''}
+                  onChange={(e) => setEditingCharacteristic({...editingCharacteristic, name_es: e.target.value})}
+                  className="bg-black border-warcrow-gold/50"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-warcrow-text/90 mb-1 block">Characteristic Name (French)</label>
+                <Input 
+                  value={editingCharacteristic.name_fr || ''}
+                  onChange={(e) => setEditingCharacteristic({...editingCharacteristic, name_fr: e.target.value})}
                   className="bg-black border-warcrow-gold/50"
                 />
               </div>
@@ -237,19 +274,21 @@ const UnitCharacteristicsManager: React.FC = () => {
               <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
                 <TableHead className="text-warcrow-gold">Characteristic</TableHead>
                 <TableHead className="text-warcrow-gold">Description</TableHead>
-                <TableHead className="text-warcrow-gold">Spanish</TableHead>
-                <TableHead className="text-warcrow-gold">French</TableHead>
+                <TableHead className="text-warcrow-gold">Spanish Name</TableHead>
+                <TableHead className="text-warcrow-gold">Spanish Desc</TableHead>
+                <TableHead className="text-warcrow-gold">French Name</TableHead>
+                <TableHead className="text-warcrow-gold">French Desc</TableHead>
                 <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
                 </TableRow>
               ) : characteristics.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-warcrow-text/70">No characteristics found</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8 text-warcrow-text/70">No characteristics found</TableCell>
                 </TableRow>
               ) : (
                 characteristics.map((characteristic) => (
@@ -261,7 +300,13 @@ const UnitCharacteristicsManager: React.FC = () => {
                     </TableCell>
                     <TableCell className="max-w-xs truncate text-warcrow-text">{characteristic.description}</TableCell>
                     <TableCell className="text-warcrow-text">
+                      {characteristic.name_es ? '✓' : '—'}
+                    </TableCell>
+                    <TableCell className="text-warcrow-text">
                       {characteristic.description_es ? '✓' : '—'}
+                    </TableCell>
+                    <TableCell className="text-warcrow-text">
+                      {characteristic.name_fr ? '✓' : '—'}
                     </TableCell>
                     <TableCell className="text-warcrow-text">
                       {characteristic.description_fr ? '✓' : '—'}
