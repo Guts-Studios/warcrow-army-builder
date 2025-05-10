@@ -16,17 +16,19 @@ const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules 
 
   return (
     <div className="mt-2">
-      <h4 className="text-sm font-medium text-warcrow-gold mb-1">Special Rules:</h4>
-      <ul className="text-xs text-warcrow-text space-y-1">
+      <span className="text-xs font-semibold text-warcrow-text">Special Rules:</span>
+      <div className="flex flex-wrap gap-1.5 mt-1">
         {specialRules.map((rule, index) => {
           const translatedRule = translateSpecialRule(rule, language);
           return (
-            <li key={index} className="inline-block mr-2 mb-1">
-              <SpecialRuleTooltip ruleName={translatedRule} />
-            </li>
+            <SpecialRuleTooltip 
+              key={index}
+              ruleName={translatedRule}
+              className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
+            />
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 };

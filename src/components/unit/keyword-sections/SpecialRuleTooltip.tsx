@@ -39,12 +39,13 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, class
   
   return isMobile ? (
     <>
-      <span 
-        className={`cursor-help border-b border-dotted border-warcrow-gold/50 hover:border-warcrow-gold ${className || ''}`}
+      <button 
+        type="button"
+        className={className || ''}
         onClick={() => setOpenDialog(true)}
       >
         {ruleName}
-      </span>
+      </button>
 
       {openDialog && (
         <div 
@@ -71,22 +72,23 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, class
       )}
     </>
   ) : (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className={`cursor-help border-b border-dotted border-warcrow-gold/50 hover:border-warcrow-gold ${className || ''}`}>
+          <button 
+            type="button"
+            className={className || ''}
+          >
             {ruleName}
-          </span>
+          </button>
         </TooltipTrigger>
         <TooltipContent 
-          className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-md"
-          side="top"
-          align="center"
+          side="top" 
+          sideOffset={5}
+          className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[300px] overflow-y-auto max-w-[400px] whitespace-normal p-4"
         >
-          <p className="font-medium text-warcrow-gold">{ruleName}</p>
-          <div className="text-sm mt-1">
-            <RuleContent />
-          </div>
+          <p className="font-medium text-warcrow-gold mb-1">{ruleName}</p>
+          <RuleContent />
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
