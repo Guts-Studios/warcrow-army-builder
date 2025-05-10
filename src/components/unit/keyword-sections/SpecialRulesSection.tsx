@@ -21,7 +21,7 @@ const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules 
         {specialRules.map((rule, index) => {
           const translatedRule = translateSpecialRule(rule, language);
           return (
-            <li key={index}>
+            <li key={index} className="inline-block mr-2 mb-1">
               <SpecialRuleTooltip ruleName={translatedRule} />
             </li>
           );
