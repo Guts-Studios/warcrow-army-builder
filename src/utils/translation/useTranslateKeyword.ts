@@ -113,9 +113,10 @@ export const useTranslateKeyword = () => {
             translations[item.name] = { 'en': item.name };
           }
           
-          // Store name translations
-          if (item.name_es) translations[item.name]['es'] = item.name_es;
-          if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
+          // For characteristics, we don't have name_es and name_fr in the database yet
+          // So we'll use the English name for all languages for now
+          translations[item.name]['es'] = item.name;
+          translations[item.name]['fr'] = item.name;
           
           // Store descriptions separately
           if (!descriptions[item.name]) {
