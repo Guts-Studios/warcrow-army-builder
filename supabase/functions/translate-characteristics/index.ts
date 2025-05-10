@@ -79,14 +79,17 @@ serve(async (req) => {
     // Determine which field needs translation based on targetLanguage
     const translationField = targetLanguage === 'es' ? 'name_es' : 'name_fr';
     
-    // Filter characteristics that actually need translation
-    // (empty or same as English or missing translation field)
+    // Filter characteristics that need translation:
+    // - If translation field is missing or empty
+    // - OR if translation is identical to English name (could be default value)
     const needsTranslation = characteristics.filter(char => {
-      // Check if translation is missing, empty, or identical to English name
-      return !char[translationField] || 
-             char[translationField].trim() === '' || 
-             char[translationField] === char.name;
+      const currentTranslation = char[translationField];
+      return !currentTranslation || 
+             currentTranslation.trim() === '' || 
+             currentTranslation === char.name;
     });
+    
+    console.log(`Found ${needsTranslation.length} characteristics needing translation to ${targetLanguage}`);
     
     if (needsTranslation.length === 0) {
       return new Response(
@@ -99,8 +102,6 @@ serve(async (req) => {
       );
     }
     
-    console.log(`Found ${needsTranslation.length} characteristics needing translation to ${targetLanguage}`);
-
     // Extract name strings for translation
     const textsToTranslate = needsTranslation.map(char => char.name);
     
