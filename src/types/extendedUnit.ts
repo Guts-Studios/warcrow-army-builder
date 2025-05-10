@@ -61,6 +61,21 @@ export interface ExtendedUnit {
   profiles: UnitProfile[];
   abilities: Abilities;
   imageUrl?: string;
+  
+  // Adding properties used in UnitStatCard.tsx
+  command?: number;
+  deploymentMin?: number;
+  deploymentMax?: number;
+  availability?: number;
+  points?: number;
+  resolve?: any;
+  movement?: string;
+  melee?: any;
+  ranged?: any;
+  defense?: any;
+  wounds?: number;
+  actions?: number;
+  specialRules?: string[];
 }
 
 export interface AttachedCharacter {

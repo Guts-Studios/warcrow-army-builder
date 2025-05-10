@@ -30,6 +30,14 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
     </div>
   );
 
+  // Choose either the extended unit format or use the stats object
+  const commandValue = unit.command !== undefined ? unit.command : (unit.stats?.MOR !== undefined ? unit.stats.MOR : '-');
+  const availabilityValue = unit.availability !== undefined ? unit.availability : (unit.stats?.AVB !== undefined ? unit.stats.AVB : '-');
+  const pointsValue = unit.points !== undefined ? unit.points : unit.cost;
+  const deploymentMin = unit.deploymentMin || 0;
+  const deploymentMax = unit.deploymentMax || 0;
+  const deployment = (deploymentMin || deploymentMax) ? `${deploymentMin} - ${deploymentMax}"` : '-';
+
   return (
     <div className="bg-black/40 rounded-lg p-6 border border-warcrow-gold/30">
       <div className="space-y-6">
@@ -37,7 +45,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-warcrow-gold">{displayName}</h2>
           <div className="flex flex-wrap gap-2">
-            {unit.keywords.map((keyword, index) => (
+            {unit.keywords?.map((keyword, index) => (
               <span key={index} className="text-xs bg-warcrow-gold/20 border border-warcrow-gold px-2 py-1 rounded">
                 {keyword}
               </span>
@@ -50,10 +58,10 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-warcrow-gold">Combat Stats</h3>
             <div className="bg-black/60 border border-warcrow-gold/30 rounded-md p-4 space-y-2">
-              {renderStatRow("Command", unit.command || "-")}
-              {renderStatRow("Deployment", `${unit.deploymentMin} - ${unit.deploymentMax}"`)}
-              {renderStatRow("Availability", unit.availability || "-")}
-              {renderStatRow("Points", unit.points)}
+              {renderStatRow("Command", commandValue || "-")}
+              {renderStatRow("Deployment", deployment)}
+              {renderStatRow("Availability", availabilityValue || "-")}
+              {renderStatRow("Points", pointsValue)}
             </div>
           </div>
 
@@ -65,7 +73,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
                   <div className="mb-1 text-sm text-warcrow-gold/80">Resolve</div>
                   <div className="h-16 w-16 mx-auto flex items-center justify-center">
                     <GameSymbol 
-                      symbol={unit.resolve} 
+                      symbol={unit.resolve || unit.stats?.WP} 
                       size="lg" 
                       showBackground={showSymbolBg} 
                       backgroundColor={symbolBgColor}
@@ -75,7 +83,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
                 <div className="text-center">
                   <div className="mb-1 text-sm text-warcrow-gold/80">Movement</div>
                   <div className="h-16 w-16 mx-auto flex items-center justify-center">
-                    <div className="text-2xl font-bold text-warcrow-text">{unit.movement}"</div>
+                    <div className="text-2xl font-bold text-warcrow-text">{unit.movement || unit.stats?.MOV}"</div>
                   </div>
                 </div>
                 <div className="text-center">
@@ -122,20 +130,20 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
                 <div className="text-center">
                   <div className="mb-1 text-sm text-warcrow-gold/80">Wounds</div>
                   <div className="h-16 w-16 mx-auto flex items-center justify-center">
-                    <div className="text-2xl font-bold text-warcrow-text">{unit.wounds}</div>
+                    <div className="text-2xl font-bold text-warcrow-text">{unit.wounds || unit.stats?.W}</div>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-sm text-warcrow-gold/80">Actions</div>
                   <div className="h-16 w-16 mx-auto flex items-center justify-center">
-                    <div className="text-2xl font-bold text-warcrow-text">{unit.actions}</div>
+                    <div className="text-2xl font-bold text-warcrow-text">{unit.actions || '-'}</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {unit.specialRules && unit.specialRules.length > 0 && (
+          {(unit.specialRules && unit.specialRules.length > 0) && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-warcrow-gold">Special Rules</h3>
               <div className="bg-black/60 border border-warcrow-gold/30 rounded-md p-4">

@@ -17,7 +17,7 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   
   // Translate unit name based on the selected language
