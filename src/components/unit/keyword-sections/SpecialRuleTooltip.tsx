@@ -8,17 +8,19 @@ import { useTranslateKeyword } from '@/utils/translationUtils';
 
 interface SpecialRuleTooltipProps {
   ruleName: string;
+  originalName?: string; // Original untranslated name for looking up descriptions
   className?: string;
 }
 
-const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, className }) => {
+const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, originalName, className }) => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const [openDialog, setOpenDialog] = useState(false);
   const { translateSpecialRuleDescription } = useTranslateKeyword();
   
   // Extract the rule name without any parameters in parentheses
-  const basicRuleName = ruleName.split('(')[0].trim();
+  const lookupName = originalName || ruleName; // Use original name for lookup if provided
+  const basicRuleName = lookupName.split('(')[0].trim();
   
   // Get the description based on language
   const getDescription = (): string => {

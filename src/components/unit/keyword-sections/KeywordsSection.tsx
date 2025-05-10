@@ -60,10 +60,8 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
       <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => {
-          // Get translated keyword name if not in English
-          const displayName = language !== 'en' 
-            ? translateKeyword(keyword.name, language) 
-            : keyword.name;
+          // Get translated keyword name
+          const displayName = translateKeyword(keyword.name, language);
             
           return isMobile ? (
             <button 
@@ -116,9 +114,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4">
-              {language !== 'en' 
-                ? translateKeyword(openDialogKeyword.name, language) 
-                : openDialogKeyword.name}
+              {translateKeyword(openDialogKeyword.name, language)}
             </h3>
             <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />

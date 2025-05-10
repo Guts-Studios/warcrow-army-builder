@@ -24,6 +24,7 @@ const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules 
             <SpecialRuleTooltip 
               key={index}
               ruleName={translatedRule}
+              originalName={rule}
               className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
             />
           );
