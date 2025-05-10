@@ -1,13 +1,16 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Faction } from '@/types/game';
 import { cn } from '@/lib/utils';
 import { factions } from '@/data/factions';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-// Use our centralized faction definitions
-const nations: Faction[] = factions;
+// Fallback to our centralized faction definitions
+const defaultFactions: Faction[] = factions;
 
 interface NationSelectorProps {
   selectedFaction: Faction | null;
@@ -22,6 +25,42 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
   selectedFactionId,
   onFactionSelect
 }) => {
+  const [nations, setNations] = useState<Faction[]>(defaultFactions);
+  const { language } = useLanguage();
+  
+  useEffect(() => {
+    // Try to fetch factions from Supabase
+    const fetchFactions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('factions')
+          .select('*')
+          .order('name');
+          
+        if (error) {
+          console.error('Error fetching factions:', error);
+          return; // Use default factions if there's an error
+        }
+        
+        if (data && data.length > 0) {
+          // Transform to expected Faction type
+          const fetchedFactions = data.map((faction: any) => ({
+            id: faction.id,
+            name: language === 'es' ? faction.name_es || faction.name :
+                 language === 'fr' ? faction.name_fr || faction.name : 
+                 faction.name
+          }));
+          setNations(fetchedFactions);
+        }
+      } catch (error) {
+        console.error('Failed to fetch factions:', error);
+        // If there's an error, we'll use the default factions from the data file
+      }
+    };
+    
+    fetchFactions();
+  }, [language]);
+
   // Handle click based on which prop API is being used
   const handleFactionClick = (faction: Faction) => {
     if (onSelectFaction) {
