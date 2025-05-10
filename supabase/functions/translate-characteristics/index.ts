@@ -81,7 +81,7 @@ serve(async (req) => {
     
     // Filter characteristics that need translation:
     // - If translation field is missing or empty
-    // - OR if translation is identical to English name (could be default value)
+    // - OR if translation is identical to English name (could be default value or untranslated)
     const needsTranslation = characteristics.filter(char => {
       const currentTranslation = char[translationField];
       return !currentTranslation || 

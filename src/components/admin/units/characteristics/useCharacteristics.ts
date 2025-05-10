@@ -213,12 +213,34 @@ export const useCharacteristics = () => {
     let descriptionsMissing = 0;
     
     characteristics.forEach(c => {
+      // For Spanish translations
       if (language === 'es') {
-        if (!c.name_es || c.name_es.trim() === '' || c.name_es === c.name) namesMissing++;
-        if ((!c.description_es || c.description_es.trim() === '') && c.description) descriptionsMissing++;
-      } else if (language === 'fr') {
-        if (!c.name_fr || c.name_fr.trim() === '' || c.name_fr === c.name) namesMissing++;
-        if ((!c.description_fr || c.description_fr.trim() === '') && c.description) descriptionsMissing++;
+        // A translation is considered missing if:
+        // - it doesn't exist at all
+        // - it's an empty string
+        // - it's exactly the same as the English version (likely not translated)
+        // and there is English content to translate
+        const nameTranslationMissing = !c.name_es || c.name_es.trim() === '' || c.name_es === c.name;
+        if (nameTranslationMissing && c.name && c.name.trim() !== '') {
+          namesMissing++;
+        }
+        
+        const descTranslationMissing = !c.description_es || c.description_es.trim() === '';
+        if (descTranslationMissing && c.description && c.description.trim() !== '') {
+          descriptionsMissing++;
+        }
+      } 
+      // For French translations
+      else if (language === 'fr') {
+        const nameTranslationMissing = !c.name_fr || c.name_fr.trim() === '' || c.name_fr === c.name;
+        if (nameTranslationMissing && c.name && c.name.trim() !== '') {
+          namesMissing++;
+        }
+        
+        const descTranslationMissing = !c.description_fr || c.description_fr.trim() === '';
+        if (descTranslationMissing && c.description && c.description.trim() !== '') {
+          descriptionsMissing++;
+        }
       }
     });
     
