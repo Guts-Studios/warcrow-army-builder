@@ -8,6 +8,7 @@ export const useTranslateKeyword = () => {
   const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, Record<string, string>>>({});
   const [unitNameTranslations, setUnitNameTranslations] = useState<Record<string, Record<string, string>>>({});
   const [characteristicTranslations, setCharacteristicTranslations] = useState<Record<string, Record<string, string>>>({});
+  const [characteristicDescriptions, setCharacteristicDescriptions] = useState<Record<string, Record<string, string>>>({});
   
   useEffect(() => {
     // Load keywords
@@ -112,12 +113,11 @@ export const useTranslateKeyword = () => {
             translations[item.name] = { 'en': item.name };
           }
           
-          // Characteristics usually don't have name translations, just keep the name
-          // We'll add proper name translations when available
-          translations[item.name]['es'] = item.name;
-          translations[item.name]['fr'] = item.name;
+          // Store name translations
+          if (item.name_es) translations[item.name]['es'] = item.name_es;
+          if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
           
-          // Store descriptions
+          // Store descriptions separately
           if (!descriptions[item.name]) {
             descriptions[item.name] = { 'en': item.description || '' };
           }
@@ -126,7 +126,8 @@ export const useTranslateKeyword = () => {
           if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
         });
         
-        setCharacteristicTranslations(descriptions);
+        setCharacteristicTranslations(translations);
+        setCharacteristicDescriptions(descriptions);
       }
     };
 
@@ -175,10 +176,10 @@ export const useTranslateKeyword = () => {
   
   const translateCharacteristicDescription = (characteristic: string, language: string): string => {
     // First try to get the description in the requested language
-    const descriptionInRequestedLanguage = characteristicTranslations[characteristic]?.[language];
+    const descriptionInRequestedLanguage = characteristicDescriptions[characteristic]?.[language];
     
     // If not found, fall back to English
-    const descriptionInEnglish = characteristicTranslations[characteristic]?.['en'];
+    const descriptionInEnglish = characteristicDescriptions[characteristic]?.['en'];
     
     // Return whichever is available, or empty string if neither
     return descriptionInRequestedLanguage || descriptionInEnglish || '';
