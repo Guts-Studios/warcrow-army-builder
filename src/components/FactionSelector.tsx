@@ -4,6 +4,7 @@ import { factions } from "@/data/factions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
 
 interface Faction {
   id: string;
@@ -17,11 +18,13 @@ interface FactionSelectorProps {
 
 const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorProps) => {
   const [availableFactions, setAvailableFactions] = useState<Faction[]>(factions);
+  const [isLoading, setIsLoading] = useState(false);
   const { language } = useLanguage();
   
   useEffect(() => {
     // Try to fetch factions from Supabase
     const fetchFactions = async () => {
+      setIsLoading(true);
       try {
         const { data, error } = await supabase
           .from('factions')
@@ -41,11 +44,17 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
                  language === 'fr' ? faction.name_fr || faction.name : 
                  faction.name
           }));
+          
+          console.log('Fetched factions:', fetchedFactions);
           setAvailableFactions(fetchedFactions);
+        } else {
+          console.log('No factions found in database, using default factions');
         }
       } catch (error) {
         console.error('Failed to fetch factions:', error);
         // If there's an error, we'll use the default factions from the data file
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -59,15 +68,25 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
           <SelectValue placeholder="Select a faction" />
         </SelectTrigger>
         <SelectContent className="bg-warcrow-accent border-warcrow-gold">
-          {availableFactions.map((faction) => (
-            <SelectItem
-              key={faction.id}
-              value={faction.id}
-              className="text-warcrow-text hover:bg-warcrow-gold hover:text-warcrow-background cursor-pointer"
-            >
-              {faction.name}
+          {isLoading ? (
+            <SelectItem value="loading" disabled className="text-warcrow-text/50">
+              Loading factions...
             </SelectItem>
-          ))}
+          ) : availableFactions.length > 0 ? (
+            availableFactions.map((faction) => (
+              <SelectItem
+                key={faction.id}
+                value={faction.id}
+                className="text-warcrow-text hover:bg-warcrow-gold hover:text-warcrow-background cursor-pointer"
+              >
+                {faction.name}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="none" disabled className="text-warcrow-text/50">
+              No factions available
+            </SelectItem>
+          )}
         </SelectContent>
       </Select>
     </div>

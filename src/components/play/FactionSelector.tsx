@@ -26,11 +26,13 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
   onFactionSelect
 }) => {
   const [nations, setNations] = useState<Faction[]>(defaultFactions);
+  const [isLoading, setIsLoading] = useState(false);
   const { language } = useLanguage();
   
   useEffect(() => {
     // Try to fetch factions from Supabase
     const fetchFactions = async () => {
+      setIsLoading(true);
       try {
         const { data, error } = await supabase
           .from('factions')
@@ -50,11 +52,17 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
                  language === 'fr' ? faction.name_fr || faction.name : 
                  faction.name
           }));
+          
+          console.log('Fetched factions for play:', fetchedFactions);
           setNations(fetchedFactions);
+        } else {
+          console.log('No factions found in database for play, using default factions');
         }
       } catch (error) {
-        console.error('Failed to fetch factions:', error);
+        console.error('Failed to fetch factions for play:', error);
         // If there's an error, we'll use the default factions from the data file
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -69,6 +77,14 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
       onFactionSelect(faction.id, faction.name);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-6">
+        <div className="w-6 h-6 border-2 border-warcrow-gold border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
