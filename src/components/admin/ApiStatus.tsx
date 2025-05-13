@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +12,8 @@ import {
   getCreatorCampaigns,
   fetchCampaignMembers,
   PatreonCampaign,
-  PatreonPatron
+  PatreonPatron,
+  DEFAULT_CAMPAIGN_ID
 } from "@/utils/patreonUtils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -62,7 +62,7 @@ const ApiStatus: React.FC = () => {
   ]);
   const [deepLUsage, setDeepLUsage] = useState<DeepLUsageStats | null>(null);
   const [patreonCampaigns, setPatreonCampaigns] = useState<PatreonCampaign[]>([]);
-  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<string>(DEFAULT_CAMPAIGN_ID);
   const [campaignMembers, setCampaignMembers] = useState<PatreonPatron[]>([]);
   
   // Test DeepL API connection
@@ -196,8 +196,12 @@ const ApiStatus: React.FC = () => {
       if (campaigns.length > 0) {
         toast.success(`Found ${campaigns.length} Patreon campaign${campaigns.length !== 1 ? 's' : ''}`);
         
-        // Set the first campaign as selected if none is selected
-        if (!selectedCampaign && campaigns.length > 0) {
+        // Set to DEFAULT_CAMPAIGN_ID if it exists in the campaigns
+        const defaultCampaignExists = campaigns.some(campaign => campaign.id === DEFAULT_CAMPAIGN_ID);
+        if (defaultCampaignExists) {
+          setSelectedCampaign(DEFAULT_CAMPAIGN_ID);
+        } else if (!selectedCampaign && campaigns.length > 0) {
+          // Fallback to first campaign if default not found
           setSelectedCampaign(campaigns[0].id);
         }
       } else {
