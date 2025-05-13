@@ -1,411 +1,207 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
-const PATREON_CLIENT_ID = Deno.env.get("PATREON_CLIENT_ID");
-const PATREON_CLIENT_SECRET = Deno.env.get("PATREON_CLIENT_SECRET");
-const PATREON_CREATOR_ACCESS_TOKEN = Deno.env.get("PATREON_CREATOR_ACCESS_TOKEN");
-const PATREON_CREATOR_REFRESH_TOKEN = Deno.env.get("PATREON_CREATOR_REFRESH_TOKEN");
-const PATREON_API_BASE = "https://www.patreon.com/api/oauth2/v2";
-const PATREON_API_V1_BASE = "https://www.patreon.com/api/oauth2/api/campaigns";
+// Get environment variables
+const PATREON_ACCESS_TOKEN = Deno.env.get("PATREON_ACCESS_TOKEN") || "";
+const PATREON_REFRESH_TOKEN = Deno.env.get("PATREON_REFRESH_TOKEN") || "";
+const PATREON_CLIENT_ID = Deno.env.get("PATREON_CLIENT_ID") || "";
+const PATREON_CLIENT_SECRET = Deno.env.get("PATREON_CLIENT_SECRET") || "";
 
+// CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper to fetch from Patreon API
-async function fetchFromPatreon(endpoint: string, options: RequestInit = {}) {
-  const url = endpoint.startsWith("http") ? endpoint : `${PATREON_API_BASE}${endpoint}`;
-  
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${PATREON_CREATOR_ACCESS_TOKEN}`,
-    "Content-Type": "application/json",
-  };
-
-  console.log(`Fetching from Patreon: ${url}`);
-  
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error(`Patreon API error: ${response.status} - ${error}`);
-    throw new Error(`Patreon API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  console.log(`Patreon API response received: ${url}`);
-  return data;
-}
-
-// Handle token refresh - this would be called when access token expires
-async function refreshPatreonToken() {
-  const url = "https://www.patreon.com/api/oauth2/token";
-  const params = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: PATREON_CREATOR_REFRESH_TOKEN || "",
-    client_id: PATREON_CLIENT_ID || "",
-    client_secret: PATREON_CLIENT_SECRET || "",
-  });
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: params,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error(`Token refresh error: ${response.status} - ${error}`);
-    throw new Error(`Token refresh error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  console.log("Token refreshed successfully");
-  return data;
-}
-
-// Get information about the campaign (creator page)
-async function getCampaignInfo() {
+// Helper function to fetch data from Patreon API
+async function fetchFromPatreon(url: string) {
   try {
-    const campaignData = await fetchFromPatreon(
-      "/campaigns?include=tiers&fields[tier]=title,description,amount_cents,published"
-    );
-    
-    // Extract the first campaign
-    const campaign = campaignData.data?.[0] || null;
-    const tiers = campaignData.included?.filter(item => item.type === "tier") || [];
-    
-    return {
-      campaign: campaign ? {
-        id: campaign.id,
-        name: campaign.attributes?.name || "Warcrow Army Builder",
-        url: campaign.attributes?.url || "https://www.patreon.com/c/GutzStudio",
-        summary: campaign.attributes?.summary || "",
-        patron_count: campaign.attributes?.patron_count || 0,
-        pledge_sum: campaign.attributes?.pledge_sum || 0,
-        currency: campaign.attributes?.currency || "USD",
-        created_at: campaign.attributes?.created_at || new Date().toISOString()
-      } : null,
-      tiers: tiers.map(tier => ({
-        id: tier.id,
-        title: tier.attributes?.title || "Supporter",
-        description: tier.attributes?.description || "",
-        amount_cents: tier.attributes?.amount_cents || 0, 
-        amount: (tier.attributes?.amount_cents || 0) / 100,
-        url: tier.attributes?.url || "",
-        published: tier.attributes?.published || false,
-        patron_count: tier.attributes?.patron_count || 0
-      }))
-    };
-  } catch (error) {
-    console.error("Error fetching campaign info:", error);
-    return { campaign: null, tiers: [] };
-  }
-}
-
-// Get list of campaigns owned by the creator/user
-async function getCreatorCampaigns() {
-  try {
-    console.log("Fetching creator campaigns from Patreon API...");
-    
-    // Use v2 API to get all campaigns owned by the creator
-    const response = await fetchFromPatreon(
-      "/campaigns?fields[campaign]=created_at,creation_name,discord_server_id,google_analytics_id,has_rss,has_sent_rss_notify,image_small_url,image_url,is_charged_immediately,is_monthly,is_nsfw,main_video_embed,main_video_url,one_liner,patron_count,pay_per_name,pledge_url,published_at,rss_artwork_url,rss_feed_title,show_earnings,summary,thanks_embed,thanks_msg,thanks_video_url,url,vanity,creation_count,display_patron_goals,earnings_visibility,is_plural,name,currency&include=tiers"
-    );
-    
-    console.log("Creator campaigns response:", response);
-    
-    if (!response.data) {
-      return { campaigns: [] };
-    }
-    
-    const campaigns = response.data.map((campaign: any) => ({
-      id: campaign.id,
-      name: campaign.attributes?.name || "Unnamed Campaign",
-      url: campaign.attributes?.url || `https://www.patreon.com/campaigns/${campaign.id}`,
-      summary: campaign.attributes?.summary || "",
-      patron_count: campaign.attributes?.patron_count || 0,
-      pledge_sum: campaign.attributes?.pledge_sum || 0,
-      currency: campaign.attributes?.currency || "USD",
-      created_at: campaign.attributes?.created_at || new Date().toISOString()
-    }));
-    
-    console.log(`Found ${campaigns.length} creator campaigns`);
-    return { campaigns };
-  } catch (error) {
-    console.error("Error fetching creator campaigns:", error);
-    
-    // Try fallback approach with identity endpoint
-    try {
-      console.log("Trying fallback approach for creator campaigns...");
-      
-      const identityResponse = await fetchFromPatreon("/identity?include=campaign");
-      
-      if (identityResponse.included) {
-        const campaignData = identityResponse.included.filter((item: any) => item.type === "campaign");
-        
-        const campaigns = campaignData.map((campaign: any) => ({
-          id: campaign.id,
-          name: campaign.attributes?.name || "Unnamed Campaign",
-          url: campaign.attributes?.url || `https://www.patreon.com/campaigns/${campaign.id}`,
-          summary: campaign.attributes?.summary || "",
-          patron_count: campaign.attributes?.patron_count || 0,
-          pledge_sum: campaign.attributes?.pledge_sum || 0,
-          currency: campaign.attributes?.currency || "USD",
-          created_at: campaign.attributes?.created_at || new Date().toISOString()
-        }));
-        
-        console.log(`Fallback method found ${campaigns.length} campaigns`);
-        return { campaigns };
+    console.log(`Fetching from Patreon: ${url}`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${PATREON_ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
       }
-    } catch (fallbackError) {
-      console.error("Fallback method for campaigns also failed:", fallbackError);
-    }
-    
-    return { campaigns: [] };
-  }
-}
-
-// Get patrons of the campaign - Updated to use the correct endpoint
-async function getPatrons() {
-  try {
-    console.log("Fetching patrons from Patreon API...");
-    
-    // First get the campaign ID
-    const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
-    const campaignId = campaignIdResponse.data?.[0]?.id;
-    
-    if (!campaignId) {
-      console.log("Could not find campaign ID");
-      return { patrons: [] };
-    }
-    
-    console.log(`Using campaign ID: ${campaignId} for patrons`);
-    
-    // Use V2 API with the correct endpoint structure for members
-    const membersResponse = await fetchFromPatreon(
-      `/campaigns/${campaignId}/members?include=user&fields[member]=full_name,patron_status,currently_entitled_amount_cents,pledge_relationship_start`
-    );
-    
-    if (!membersResponse.data) {
-      console.log("No members data returned from API");
-      return { patrons: [] };
-    }
-    
-    console.log(`Found ${membersResponse.data.length} members`);
-    
-    // Filter to only include active patrons
-    const activePatrons = membersResponse.data.filter((member: any) => 
-      member.attributes?.patron_status === "active_patron"
-    );
-    
-    console.log(`Found ${activePatrons.length} active patrons`);
-    
-    const patrons = activePatrons.map((patron: any) => ({
-      id: patron.id,
-      full_name: patron.attributes?.full_name || "Anonymous Supporter",
-      patron_status: patron.attributes?.patron_status || "active_patron",
-      currently_entitled_amount_cents: patron.attributes?.currently_entitled_amount_cents || 0,
-      pledge_relationship_start: patron.attributes?.pledge_relationship_start || null
-    }));
-    
-    // Sort by pledge start date if available
-    patrons.sort((a: any, b: any) => {
-      if (!a.pledge_relationship_start) return 1;
-      if (!b.pledge_relationship_start) return -1;
-      return new Date(a.pledge_relationship_start).getTime() - new Date(b.pledge_relationship_start).getTime();
     });
     
-    return { patrons };
-  } catch (error) {
-    console.error("Error fetching patrons:", error);
-    // Try fallback approach
-    try {
-      console.log("Trying fallback approach for patrons...");
-      
-      // Get the campaign ID first
-      const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
-      const campaignId = campaignIdResponse.data?.[0]?.id;
-      
-      if (campaignId) {
-        // Try a simpler request with fewer fields and parameters
-        const patronsResponse = await fetchFromPatreon(`/campaigns/${campaignId}/members`);
-        
-        const fallbackPatrons = patronsResponse.data?.map((patron: any) => ({
-          id: patron.id,
-          full_name: patron.attributes?.full_name || "Anonymous Supporter",
-          patron_status: patron.attributes?.patron_status || "active_patron",
-          currently_entitled_amount_cents: patron.attributes?.currently_entitled_amount_cents || 0
-        })) || [];
-        
-        console.log(`Fallback method found ${fallbackPatrons.length} patrons`);
-        return { patrons: fallbackPatrons };
-      }
-    } catch (fallbackError) {
-      console.error("Fallback method for patrons also failed:", fallbackError);
+    if (!response.ok) {
+      const text = await response.text();
+      console.error(`Patreon API error: ${response.status} - ${text}`);
+      throw new Error(`Patreon API error: ${response.status}`);
     }
     
-    return { patrons: [] };
+    const data = await response.json();
+    console.log(`Patreon API response received: ${url}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching from Patreon:", error);
+    throw error;
   }
 }
 
-// Get the number of patrons for the creator
-async function getPatronCount() {
+// Get campaigns for the creator
+async function getCreatorCampaigns() {
   try {
-    const campaignInfo = await getCampaignInfo();
-    return { 
-      patron_count: campaignInfo.campaign?.patron_count || 0 
+    // Fields to request for campaigns
+    const campaignFields = [
+      "created_at", "creation_name", "patron_count", "pay_per_name",
+      "pledge_url", "published_at", "url", "vanity", "name"
+    ].join(",");
+    
+    // First try with the campaigns endpoint
+    try {
+      const url = `https://www.patreon.com/api/oauth2/v2/campaigns?fields[campaign]=${campaignFields}&include=tiers`;
+      console.log(`Fetching creator campaigns from Patreon API...`);
+      const data = await fetchFromPatreon(url);
+      
+      return {
+        success: true,
+        campaigns: data.data.map((campaign: any) => ({
+          id: campaign.id,
+          name: campaign.attributes.name || campaign.attributes.creation_name,
+          patronCount: campaign.attributes.patron_count,
+          createdAt: campaign.attributes.created_at,
+          url: campaign.attributes.url
+        }))
+      };
+    } catch (error) {
+      console.error("Error fetching creator campaigns:", error);
+      
+      // Fallback to identity endpoint if the campaigns endpoint fails
+      console.log("Trying fallback approach for creator campaigns...");
+      const url = "https://www.patreon.com/api/oauth2/v2/identity?include=campaign";
+      const data = await fetchFromPatreon(url);
+      
+      // Extract campaign data from included array
+      const campaigns = data.included
+        .filter((item: any) => item.type === 'campaign')
+        .map((campaign: any) => ({
+          id: campaign.id,
+          name: campaign.attributes?.name || "Warcrow Army Builder",
+          patronCount: campaign.attributes?.patron_count || 0,
+          createdAt: campaign.attributes?.created_at,
+          url: campaign.attributes?.url || `https://www.patreon.com/c/${campaign.id}`
+        }));
+      
+      console.log(`Fallback method found ${campaigns.length} campaigns`);
+      
+      return {
+        success: true,
+        campaigns
+      };
+    }
+  } catch (error) {
+    console.error("Error in getCreatorCampaigns:", error);
+    return {
+      success: false,
+      error: error.message,
+      campaigns: []
+    };
+  }
+}
+
+// Get members for a specific campaign
+async function getCampaignMembers(campaignId: string) {
+  try {
+    const includeFields = "user";
+    const memberFields = "full_name,email,pledge_relationship_start,currently_entitled_amount_cents";
+    const userFields = "full_name,email,image_url";
+    
+    const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/members?include=${includeFields}&fields[member]=${memberFields}&fields[user]=${userFields}`;
+    
+    const data = await fetchFromPatreon(url);
+    
+    // Process members data to extract user details
+    const members = data.data.map((member: any) => {
+      // Find related user data in included array
+      const userId = member.relationships.user.data.id;
+      const userData = data.included.find((included: any) => 
+        included.type === 'user' && included.id === userId
+      );
+      
+      return {
+        id: member.id,
+        fullName: userData?.attributes?.full_name || member.attributes?.full_name || "Anonymous Patron",
+        email: userData?.attributes?.email || member.attributes?.email,
+        imageUrl: userData?.attributes?.image_url,
+        pledgeStart: member.attributes?.pledge_relationship_start,
+        amountCents: member.attributes?.currently_entitled_amount_cents
+      };
+    });
+    
+    return {
+      success: true,
+      members
     };
   } catch (error) {
-    console.error("Error fetching patron count:", error);
-    return { patron_count: 0 };
+    console.error("Error in getCampaignMembers:", error);
+    return {
+      success: false,
+      error: error.message,
+      members: []
+    };
   }
 }
 
-// New function to fetch posts from Patreon
-async function getPosts() {
-  try {
-    console.log("Fetching posts from Patreon API...");
-    
-    // First get the campaign ID
-    const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
-    const campaignId = campaignIdResponse.data?.[0]?.id;
-    
-    if (!campaignId) {
-      console.log("Could not find campaign ID");
-      return { posts: [] };
-    }
-    
-    console.log(`Using campaign ID: ${campaignId} for posts`);
-    
-    // Use campaign ID to fetch posts
-    const postsResponse = await fetchFromPatreon(
-      `/campaigns/${campaignId}/posts?fields[post]=title,content,url,published_at,teaser_text&sort=-published_at&page[count]=3`
-    );
-    
-    if (!postsResponse.data) {
-      console.log("No posts data returned from API");
-      return { posts: [] };
-    }
-    
-    console.log(`Found ${postsResponse.data.length} posts`);
-    
-    const posts = postsResponse.data.map((post: any) => ({
-      id: post.id,
-      title: post.attributes?.title || "Untitled Post",
-      excerpt: post.attributes?.teaser_text || post.attributes?.content?.substring(0, 100) + "..." || "",
-      url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`,
-      date: post.attributes?.published_at || new Date().toISOString()
-    }));
-    
-    return { posts };
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    
-    // If we failed to get posts from the API, try fetching from a fallback endpoint
-    try {
-      console.log("Trying fallback v1 API for posts...");
-      // Try v1 API as fallback
-      const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
-      const campaignId = campaignIdResponse.data?.[0]?.id;
-      
-      if (campaignId) {
-        const postsUrl = `https://www.patreon.com/api/oauth2/api/campaigns/${campaignId}/posts?include=user&fields[post]=title,content,url,published_at&sort=-published_at&page[count]=3`;
-        const response = await fetch(postsUrl, {
-          headers: {
-            Authorization: `Bearer ${PATREON_CREATOR_ACCESS_TOKEN}`,
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        const fallbackPosts = data.data.map((post: any) => ({
-          id: post.id,
-          title: post.attributes?.title || "Untitled Post",
-          excerpt: post.attributes?.teaser_text || (post.attributes?.content ? post.attributes.content.substring(0, 100) + "..." : ""),
-          url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`,
-          date: post.attributes?.published_at || new Date().toISOString()
-        }));
-        
-        console.log(`Fallback found ${fallbackPosts.length} posts`);
-        return { posts: fallbackPosts };
-      }
-    } catch (fallbackError) {
-      console.error("Fallback also failed:", fallbackError);
-    }
-    
-    return { posts: [] };
-  }
-}
-
-// Simple status check endpoint for monitoring
-async function getApiStatus() {
+// Handle API status check
+function handleStatusCheck() {
   return {
-    status: "operational",
-    timestamp: new Date().toISOString(),
-    api_version: "v2"
+    status: "ok",
+    timestamp: new Date().toISOString()
   };
 }
 
+// Main HTTP handler
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: corsHeaders,
-    });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Parse the JSON body if it exists
-    const { endpoint } = await req.json().catch(() => ({ endpoint: "" }));
-    console.log(`Processing request for endpoint: ${endpoint}`);
-
-    let responseData;
+    const body = await req.json();
+    const { endpoint, campaignId } = body;
     
-    // Only allow specific endpoints
-    if (endpoint === "campaign") {
-      responseData = await getCampaignInfo();
-    } else if (endpoint === "patrons") {
-      responseData = await getPatrons();
-    } else if (endpoint === "patron-count") {
-      responseData = await getPatronCount();
-    } else if (endpoint === "tiers") {
-      const campaignInfo = await getCampaignInfo();
-      responseData = { tiers: campaignInfo.tiers };
-    } else if (endpoint === "creator-campaigns") {
-      responseData = await getCreatorCampaigns();
-    } else if (endpoint === "posts") {
-      responseData = await getPosts();
-    } else if (endpoint === "refresh-token") {
-      // This would be a protected endpoint only accessible by admin
-      responseData = await refreshPatreonToken();
-    } else if (endpoint === "status") {
-      responseData = await getApiStatus();
-    } else {
-      return new Response(JSON.stringify({ error: "Invalid endpoint" }), { 
-        status: 400, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+    console.log(`Processing request for endpoint: ${endpoint}`);
+    
+    let response: any = {};
+    
+    switch (endpoint) {
+      case "status":
+        response = handleStatusCheck();
+        break;
+        
+      case "creator-campaigns":
+        response = await getCreatorCampaigns();
+        break;
+        
+      case "campaign-members":
+        if (!campaignId) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Campaign ID is required" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        response = await getCampaignMembers(campaignId);
+        break;
+        
+      default:
+        return new Response(
+          JSON.stringify({ success: false, error: "Unknown endpoint" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
     }
     
     console.log(`Returning response for endpoint ${endpoint}`);
-    return new Response(JSON.stringify(responseData), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (error) {
-    console.error("Patreon API function error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("Error processing request:", error);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });

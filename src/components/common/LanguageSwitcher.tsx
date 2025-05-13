@@ -2,10 +2,16 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { CheckIcon } from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { Globe, Check } from 'lucide-react';
 
 const LanguageSwitcher = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -14,24 +20,34 @@ const LanguageSwitcher = () => {
   ];
 
   return (
-    <div className="flex gap-2 items-center">
-      {languages.map((lang) => (
-        <Button
-          key={lang.code}
-          variant={language === lang.code ? "default" : "outline"}
-          onClick={() => setLanguage(lang.code as 'en' | 'es' | 'fr')}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="outline" 
           size="sm"
-          className={`px-3 ${
-            language === lang.code 
-              ? 'bg-warcrow-gold text-black hover:bg-warcrow-gold/80' 
-              : 'border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black'
-          } flex items-center gap-1`}
+          className="border-warcrow-gold/50 text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-1"
         >
-          {language === lang.code && <CheckIcon className="h-3 w-3" />}
-          {lang.name}
+          <Globe className="h-4 w-4" />
+          <span className="hidden sm:inline">{t('language')}</span>
         </Button>
-      ))}
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="bg-black border border-warcrow-gold/30">
+        {languages.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            className={`flex items-center gap-2 ${
+              language === lang.code 
+                ? 'text-warcrow-gold' 
+                : 'text-white hover:text-warcrow-gold'
+            } cursor-pointer`}
+            onClick={() => setLanguage(lang.code as 'en' | 'es' | 'fr')}
+          >
+            {language === lang.code && <Check className="h-3 w-3" />}
+            {lang.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

@@ -5,6 +5,8 @@ import { playTranslations } from './play';
 import { missionTranslations } from './missions';
 import { landingTranslations } from './landing';
 import { rulesTranslations } from './rules/index';
+import { commonTranslations } from './common';
+import { uiTranslations } from './ui';
 
 export const translations: TranslationsType = {
   // Common translations
@@ -62,6 +64,11 @@ export const translations: TranslationsType = {
     en: 'Next',
     es: 'Siguiente',
     fr: 'Suivant'
+  },
+  language: {
+    en: 'Language',
+    es: 'Idioma',
+    fr: 'Langue'
   },
   previous: {
     en: 'Previous',
@@ -230,5 +237,11 @@ export const translations: TranslationsType = {
   ...missionTranslations,
   
   // Include rules translations
-  ...rulesTranslations
+  ...rulesTranslations,
+  
+  // Include common translations
+  ...commonTranslations,
+  
+  // Include UI translations
+  ...uiTranslations
 };

@@ -1,243 +1,81 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Types for Patreon API responses
+ * Gets the URL for the Patreon campaign
  */
-export interface PatreonTier {
-  id: string;
-  title: string;
-  description: string;
-  amount: number;
-  amount_cents: number;
-  image_url?: string;
-  url?: string;
-  published: boolean;
-  patron_count?: number;
-}
-
-export interface PatreonCampaign {
-  id: string;
-  name: string;
-  url: string;
-  summary?: string;
-  patron_count: number;
-  pledge_sum: number;
-  currency: string;
-  created_at: string;
-}
-
-export interface PatreonPatron {
-  id: string;
-  full_name: string;
-  patron_status: string;
-  currently_entitled_amount_cents: number;
-  pledge_relationship_start?: string;
-}
-
-export interface PatreonPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  url: string;
-  date: string;
-}
+export const getPatreonCampaignUrl = () => {
+  return "https://www.patreon.com/warcrowarmybuilder";
+};
 
 /**
- * Format the amount in cents to a readable currency string
+ * Fetches the Patreon campaign information from the Supabase Edge Function
+ * @returns Campaign information including ID, name, and patron count
  */
-export function formatPatreonAmount(amountCents: number): string {
-  const amount = amountCents / 100; // Convert cents to dollars/euros
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-/**
- * Get a list of all campaigns owned by the authenticated user
- */
-export async function getCreatorCampaigns(): Promise<PatreonCampaign[]> {
+export const fetchPatreonCampaigns = async () => {
   try {
-    console.log('Fetching creator campaigns from Patreon API...');
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'creator-campaigns' }
+    const { data, error } = await supabase.functions.invoke('patreon-api', {
+      body: {
+        endpoint: 'creator-campaigns'
+      }
     });
-    
+
     if (error) {
-      console.error('Error in Patreon API edge function:', error);
-      throw error;
+      console.error('Error fetching Patreon campaigns:', error);
+      return { 
+        success: false, 
+        error: error.message, 
+        campaigns: [] 
+      };
     }
-    
-    console.log('Creator campaigns data received:', data);
-    return data.campaigns || [];
-  } catch (error) {
-    console.error('Error fetching Patreon creator campaigns:', error);
-    toast({
-      title: "Error fetching Patreon campaigns",
-      description: "Could not fetch your campaign information from Patreon API.",
-      variant: "destructive"
-    });
-    return [];
-  }
-}
 
-/**
- * Get the list of tiers from Patreon
- */
-export async function getPatreonTiers(): Promise<PatreonTier[]> {
-  try {
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'tiers' }
-    });
-    
-    if (error) throw error;
-    return data.tiers || [];
-  } catch (error) {
-    console.error('Error fetching Patreon tiers:', error);
-    toast({
-      title: "Error fetching Patreon tiers",
-      description: "Could not fetch tiers from Patreon API.",
-      variant: "destructive"
-    });
-    return [];
-  }
-}
-
-/**
- * Get the creator's campaign information from Patreon
- */
-export async function getPatreonCampaign(): Promise<PatreonCampaign | null> {
-  try {
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'campaign' }
-    });
-    
-    if (error) throw error;
-    return data.campaign || null;
-  } catch (error) {
-    console.error('Error fetching Patreon campaign:', error);
-    toast({
-      title: "Error fetching Patreon campaign",
-      description: "Could not fetch campaign information from Patreon API.",
-      variant: "destructive"
-    });
-    return null;
-  }
-}
-
-/**
- * Helper function to get both campaign and tiers in one call
- */
-export async function getPatreonCampaignInfo() {
-  const campaign = await getPatreonCampaign();
-  const tiers = await getPatreonTiers();
-  return { campaign, tiers, url: getPatreonCampaignUrl() };
-}
-
-/**
- * Get the list of patrons from Patreon
- */
-export async function getPatreonPatrons(): Promise<PatreonPatron[]> {
-  try {
-    console.log('Fetching patrons from Patreon API via edge function...');
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'patrons' }
-    });
-    
-    if (error) {
-      console.error('Error in Patreon API edge function:', error);
-      throw error;
-    }
-    
-    console.log('Patrons data received:', data);
-    return data.patrons || [];
-  } catch (error) {
-    console.error('Error fetching Patreon patrons:', error);
-    toast({
-      title: "Error fetching Patreon supporters",
-      description: "Could not fetch supporters from Patreon API.",
-      variant: "destructive"
-    });
-    return [];
-  }
-}
-
-/**
- * Get the latest posts from Patreon
- */
-export async function getPatreonPosts(): Promise<PatreonPost[]> {
-  try {
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'posts' }
-    });
-    
-    if (error) throw error;
-    return data.posts || [];
-  } catch (error) {
-    console.error('Error fetching Patreon posts:', error);
-    toast({
-      title: "Error fetching Patreon posts",
-      description: "Could not fetch posts from Patreon API.",
-      variant: "destructive"
-    });
-    return [];
-  }
-}
-
-/**
- * Get the number of patrons for the creator
- */
-export async function getPatronCount(): Promise<number> {
-  try {
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'patron-count' }
-    });
-    
-    if (error) throw error;
-    return data.patron_count || 0;
-  } catch (error) {
-    console.error('Error fetching Patreon patron count:', error);
-    return 0;
-  }
-}
-
-/**
- * Check the status of the Patreon API
- */
-export async function checkPatreonApiStatus(): Promise<{ status: string, timestamp: string }> {
-  try {
-    const { data, error } = await supabase.functions.invoke('patreon-api', { 
-      body: { endpoint: 'status' }
-    });
-    
-    if (error) throw error;
     return {
-      status: data.status || 'unknown',
-      timestamp: data.timestamp || new Date().toISOString()
+      success: true,
+      campaigns: data.campaigns || []
     };
-  } catch (error) {
-    console.error('Error checking Patreon API status:', error);
-    return {
-      status: 'down',
-      timestamp: new Date().toISOString()
+  } catch (err: any) {
+    console.error('Error in fetchPatreonCampaigns:', err);
+    return { 
+      success: false, 
+      error: err.message, 
+      campaigns: [] 
     };
   }
-}
+};
 
 /**
- * Get the Patreon campaign URL
+ * Fetches Patreon members (supporters) for a specific campaign
+ * @param campaignId The Patreon campaign ID
+ * @returns List of campaign members/supporters
  */
-export function getPatreonCampaignUrl(): string {
-  return 'https://www.patreon.com/c/GutzStudio';
-}
+export const fetchCampaignMembers = async (campaignId: string) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', {
+      body: {
+        endpoint: 'campaign-members',
+        campaignId
+      }
+    });
 
-/**
- * Get the "Buy me a coffee" URL as a fallback
- */
-export function getBuyMeCoffeeUrl(): string {
-  return 'https://www.patreon.com/c/GutzStudio';
-}
+    if (error) {
+      console.error('Error fetching campaign members:', error);
+      return { 
+        success: false, 
+        error: error.message, 
+        members: [] 
+      };
+    }
+
+    return {
+      success: true,
+      members: data.members || []
+    };
+  } catch (err: any) {
+    console.error('Error in fetchCampaignMembers:', err);
+    return { 
+      success: false, 
+      error: err.message, 
+      members: [] 
+    };
+  }
+};
