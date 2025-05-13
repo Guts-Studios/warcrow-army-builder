@@ -20,6 +20,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import Rules from '@/pages/Rules';
 import FAQ from '@/pages/FAQ';
 import AboutUs from '@/pages/AboutUs';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import NotFound from '@/pages/NotFound';
 import Mail from '@/pages/Mail';
 import Admin from '@/pages/Admin';
@@ -56,6 +57,7 @@ export function AppRoutes() {
       <Route path="/mail" element={<Mail />} />
       <Route path="/shared-list/:listCode" element={<SharedList />} />
       <Route path="/about" element={<AboutUs />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/admin/alerts" element={<AdminAlerts />} />
       <Route path="/admin/deployment" element={<DeploymentManagement />} />
