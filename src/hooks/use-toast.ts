@@ -7,7 +7,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast";
-import { useToast as useToastPrimitive } from "@/components/ui/use-toast";
+import { useToast as useToastPrimitive } from "@/components/ui/toast-core";
 
 export function Toaster() {
   const { toasts } = useToastPrimitive();
@@ -33,4 +33,4 @@ export function Toaster() {
   );
 }
 
-export { toast, useToast } from "@/components/ui/use-toast";
+export { useToast, toast } from "@/components/ui/toast-core";

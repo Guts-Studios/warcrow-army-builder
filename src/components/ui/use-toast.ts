@@ -1,3 +1,3 @@
 
-// Re-export our toast hook from the hooks directory
-export { useToast, toast } from "@/hooks/use-toast";
+// Re-export our toast hook from the toast-core implementation
+export { useToast, toast } from "@/components/ui/toast-core";
