@@ -1,261 +1,234 @@
-
 import { TranslationsType } from './types';
+import { armyTranslations } from './army';
+import { authTranslations } from './auth';
+import { playTranslations } from './play';
+import { missionTranslations } from './missions';
+import { landingTranslations } from './landing';
+import { rulesTranslations } from './rules/index';
 
 export const translations: TranslationsType = {
-  appTitle: {
-    en: "Warcrow Army Builder",
-    es: "Constructor de Ejércitos de Warcrow",
-    fr: "Constructeur d'Armées Warcrow"
+  // Common translations
+  loading: {
+    en: 'Loading...',
+    es: 'Cargando...',
+    fr: 'Chargement...'
   },
-  armyTitle: {
-    en: "Army",
-    es: "Ejército",
-    fr: "Armée"
-  },
-  faction: {
-    en: "Faction",
-    es: "Facción",
-    fr: "Factions"
-  },
-  unit: {
-    en: "Unit",
-    es: "Unidad",
-    fr: "Unité"
-  },
-  cost: {
-    en: "Cost",
-    es: "Coste",
-    fr: "Coût"
-  },
-  addUnit: {
-    en: "Add Unit",
-    es: "Añadir Unidad",
-    fr: "Ajouter Unité"
-  },
-  removeUnit: {
-    en: "Remove Unit",
-    es: "Eliminar Unidad",
-    fr: "Supprimer Unité"
-  },
-  totalCost: {
-    en: "Total Cost",
-    es: "Coste Total",
-    fr: "Coût Total"
-  },
-  shareList: {
-    en: "Share List",
-    es: "Compartir Lista",
-    fr: "Partager Liste"
-  },
-  copyLink: {
-    en: "Copy Link",
-    es: "Copiar Enlace",
-    fr: "Copier Lien"
-  },
-  linkCopied: {
-    en: "Link Copied!",
-    es: "¡Enlace Copiado!",
-    fr: "Lien Copié!"
-  },
-  exportPdf: {
-    en: "Export PDF",
-    es: "Exportar PDF",
-    fr: "Exporter PDF"
-  },
-  resetArmy: {
-    en: "Reset Army",
-    es: "Reiniciar Ejército",
-    fr: "Réinitialiser Armée"
-  },
-  confirmReset: {
-    en: "Are you sure you want to reset your army?",
-    es: "¿Estás seguro de que quieres reiniciar tu ejército?",
-    fr: "Êtes-vous sûr de vouloir réinitialiser votre armée ?"
-  },
-  reset: {
-    en: "Reset",
-    es: "Reiniciar",
-    fr: "Réinitialiser"
+  save: {
+    en: 'Save',
+    es: 'Guardar',
+    fr: 'Enregistrer'
   },
   cancel: {
-    en: "Cancel",
-    es: "Cancelar",
-    fr: "Annuler"
+    en: 'Cancel',
+    es: 'Cancelar',
+    fr: 'Annuler'
   },
-  armyName: {
-    en: "Army Name",
-    es: "Nombre del Ejército",
-    fr: "Nom de l'Armée"
-  },
-  enterName: {
-    en: "Enter name",
-    es: "Escribe el nombre",
-    fr: "Entrez le nom"
-  },
-  saveArmy: {
-    en: "Save Army",
-    es: "Guardar Ejército",
-    fr: "Enregistrer Armée"
-  },
-  loadArmy: {
-    en: "Load Army",
-    es: "Cargar Ejército",
-    fr: "Charger Armée"
-  },
-  noSavedArmies: {
-    en: "No saved armies",
-    es: "No hay ejércitos guardados",
-    fr: "Pas d'armées enregistrées"
-  },
-  deleteArmy: {
-    en: "Delete Army",
-    es: "Eliminar Ejército",
-    fr: "Supprimer Armée"
-  },
-  confirmDelete: {
-    en: "Are you sure you want to delete this army?",
-    es: "¿Estás seguro de que quieres eliminar este ejército?",
-    fr: "Êtes-vous sûr de vouloir supprimer cette armée ?"
+  delete: {
+    en: 'Delete',
+    es: 'Eliminar',
+    fr: 'Supprimer'
   },
   edit: {
-    en: "Edit",
-    es: "Editar",
-    fr: "Modifier"
+    en: 'Edit',
+    es: 'Editar',
+    fr: 'Modifier'
   },
-  name: {
-    en: "Name",
-    es: "Nombre",
-    fr: "Nom"
+  close: {
+    en: 'Close',
+    es: 'Cerrar',
+    fr: 'Fermer'
   },
-  description: {
-    en: "Description",
-    es: "Descripción",
-    fr: "Description"
+  confirm: {
+    en: 'Confirm',
+    es: 'Confirmar',
+    fr: 'Confirmer'
   },
-  missions: {
-    en: "Missions",
-    es: "Misiones",
-    fr: "Missions"
+  search: {
+    en: 'Search',
+    es: 'Buscar',
+    fr: 'Rechercher'
   },
-  home: {
-    en: "Home",
-    es: "Inicio",
-    fr: "Accueil"
+  submit: {
+    en: 'Submit',
+    es: 'Enviar',
+    fr: 'Soumettre'
   },
-  aboutUs: {
-    en: "About Us",
-    es: "Sobre Nosotros",
-    fr: "À Propos De Nous"
+  back: {
+    en: 'Back',
+    es: 'Atrás',
+    fr: 'Retour'
   },
-  ourMission: {
-    en: "Our Mission",
-    es: "Nuestra Misión",
-    fr: "Notre Mission"
+  next: {
+    en: 'Next',
+    es: 'Siguiente',
+    fr: 'Suivant'
   },
-  contactUs: {
-    en: "Contact Us",
-    es: "Contáctenos",
-    fr: "Contactez-Nous"
+  previous: {
+    en: 'Previous',
+    es: 'Anterior',
+    fr: 'Précédent'
   },
-  ourSupporters: {
-    en: "Our Supporters",
-    es: "Nuestros Patrocinadores",
-    fr: "Nos Supporters"
+  yes: {
+    en: 'Yes',
+    es: 'Sí',
+    fr: 'Oui'
   },
-  supportProject: {
-    en: "Support the Project",
-    es: "Apoya el Proyecto",
-    fr: "Soutenez le Projet"
+  no: {
+    en: 'No',
+    es: 'No',
+    fr: 'Non'
   },
-  haveFeedback: {
-    en: "Have feedback or suggestions?",
-    es: "¿Tiene comentarios o sugerencias?",
-    fr: "Avez-vous des commentaires ou des suggestions ?"
+  add: {
+    en: 'Add',
+    es: 'Añadir',
+    fr: 'Ajouter'
   },
-  contactEmail: {
-    en: "Contact us at warcrowarmy@gmail.com",
-    es: "Contáctenos en warcrowarmy@gmail.com",
-    fr: "Contactez-nous à warcrowarmy@gmail.com"
+  remove: {
+    en: 'Remove',
+    es: 'Eliminar',
+    fr: 'Supprimer'
   },
-  latestVersion: {
-    en: "Latest Version",
-    es: "Última Versión",
-    fr: "Dernière Version"
+  create: {
+    en: 'Create',
+    es: 'Crear',
+    fr: 'Créer'
   },
-  totalUsers: {
-    en: "Total Users",
-    es: "Usuarios Totales",
-    fr: "Utilisateurs Totaux"
+  update: {
+    en: 'Update',
+    es: 'Actualizar',
+    fr: 'Mettre à jour'
   },
-  playMode: {
-    en: "Play Mode",
-    es: "Modo Juego",
-    fr: "Mode Jeu"
+  view: {
+    en: 'View',
+    es: 'Ver',
+    fr: 'Voir'
   },
-  testersOnly: {
-    en: "Testers Only",
-    es: "Solo Testers",
-    fr: "Testeurs Seulement"
+  share: {
+    en: 'Share',
+    es: 'Compartir',
+    fr: 'Partager'
   },
-  testersOnlyDescription: {
-    en: "This feature is currently available for testers only.",
-    es: "Esta función está disponible actualmente solo para testers.",
-    fr: "Cette fonctionnalité est actuellement disponible uniquement pour les testeurs."
+  copy: {
+    en: 'Copy',
+    es: 'Copiar',
+    fr: 'Copier'
   },
-  footerText: {
-    en: "This is an unofficial tool and is not affiliated with Corvus Belli.",
-    es: "Esta es una herramienta no oficial y no está afiliada a Corvus Belli.",
-    fr: "Ceci est un outil non officiel et n'est pas affilié à Corvus Belli."
+  download: {
+    en: 'Download',
+    es: 'Descargar',
+    fr: 'Télécharger'
   },
-  adminPanel: {
-    en: "Admin Panel",
-    es: "Panel de Administrador",
-    fr: "Panneau d'Administration"
+  upload: {
+    en: 'Upload',
+    es: 'Subir',
+    fr: 'Téléverser'
   },
-  emailManagement: {
-    en: "Email Management",
-    es: "Gestión de Correo Electrónico",
-    fr: "Gestion des E-mails"
+  select: {
+    en: 'Select',
+    es: 'Seleccionar',
+    fr: 'Sélectionner'
+  },
+  filter: {
+    en: 'Filter',
+    es: 'Filtrar',
+    fr: 'Filtrer'
+  },
+  sort: {
+    en: 'Sort',
+    es: 'Ordenar',
+    fr: 'Trier'
+  },
+  clear: {
+    en: 'Clear',
+    es: 'Limpiar',
+    fr: 'Effacer'
+  },
+  reset: {
+    en: 'Reset',
+    es: 'Reiniciar',
+    fr: 'Réinitialiser'
+  },
+  apply: {
+    en: 'Apply',
+    es: 'Aplicar',
+    fr: 'Appliquer'
+  },
+  settings: {
+    en: 'Settings',
+    es: 'Configuración',
+    fr: 'Paramètres'
+  },
+  help: {
+    en: 'Help',
+    es: 'Ayuda',
+    fr: 'Aide'
+  },
+  about: {
+    en: 'About',
+    es: 'Acerca de',
+    fr: 'À propos'
+  },
+  contact: {
+    en: 'Contact',
+    es: 'Contacto',
+    fr: 'Contact'
   },
   privacyPolicy: {
     en: "Privacy Policy",
     es: "Política de Privacidad",
     fr: "Politique de Confidentialité"
   },
-  // Added missing translations for landing page
-  welcomeMessage: {
-    en: "Welcome to WARCROW Army Builder",
-    es: "Bienvenido a Constructor de Ejércitos WARCROW",
-    fr: "Bienvenue au Constructeur d'Armées WARCROW"
+  termsOfService: {
+    en: "Terms of Service",
+    es: "Términos de Servicio",
+    fr: "Conditions d'Utilisation"
   },
-  appDescription: {
-    en: "Create, customize and share your WARCROW army lists with this unofficial army builder application.",
-    es: "Crea, personaliza y comparte tus listas de ejército de WARCROW con esta aplicación no oficial de construcción de ejércitos.",
-    fr: "Créez, personnalisez et partagez vos listes d'armée WARCROW avec cette application non officielle de construction d'armée."
+  logoAlt: {
+    en: "Warcrow Army Builder Logo",
+    es: "Logo del Constructor de Ejércitos Warcrow",
+    fr: "Logo du Constructeur d'Armée Warcrow"
   },
-  userCountMessage: {
-    en: "Join {count} players already using the Army Builder",
-    es: "Únete a {count} jugadores que ya utilizan el Constructor de Ejércitos",
-    fr: "Rejoignez {count} joueurs utilisant déjà le Constructeur d'Armée"
+  rules: {
+    en: "Rules",
+    es: "Reglas",
+    fr: "Règles"
   },
-  viewChangelog: {
-    en: "View Changelog",
-    es: "Ver Registro de Cambios",
-    fr: "Voir le Journal des Modifications"
+  testersOnly: {
+    en: "Testers Only",
+    es: "Solo para Probadores",
+    fr: "Réservé aux Testeurs"
   },
-  changelog: {
-    en: "Changelog",
-    es: "Registro de Cambios",
-    fr: "Journal des Modifications"
+  testersOnlyDescription: {
+    en: "This feature is currently only available to testers. Please contact the admin if you would like to become a tester.",
+    es: "Esta función actualmente solo está disponible para probadores. Póngase en contacto con el administrador si desea convertirse en probador.",
+    fr: "Cette fonctionnalité n'est actuellement disponible que pour les testeurs. Veuillez contacter l'administrateur si vous souhaitez devenir testeur."
   },
-  newsArchive: {
-    en: "News Archive",
-    es: "Archivo de Noticias",
-    fr: "Archives des Nouvelles"
+  haveFeedback: {
+    en: "Have feedback or found a bug? Contact us at:",
+    es: "¿Tienes comentarios o encontraste un error? Contáctanos en:",
+    fr: "Vous avez des commentaires ou trouvé un bug ? Contactez-nous à :"
   },
-  viewOlderNews: {
-    en: "View Older News",
-    es: "Ver Noticias Anteriores",
-    fr: "Voir les Anciennes Nouvelles"
+  contactEmail: {
+    en: "warcrowarmy@gmail.com",
+    es: "warcrowarmy@gmail.com",
+    fr: "warcrowarmy@gmail.com"
   },
+  
+  // Include all landing page translations
+  ...landingTranslations,
+  
+  // Include auth translations
+  ...authTranslations,
+  
+  // Include army translations
+  ...armyTranslations,
+  
+  // Include play translations
+  ...playTranslations,
+  
+  // Include missions translations
+  ...missionTranslations,
+  
+  // Include rules translations
+  ...rulesTranslations
 };
