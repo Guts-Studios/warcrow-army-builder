@@ -34,6 +34,14 @@ export interface PatreonPatron {
   currently_entitled_amount_cents: number;
 }
 
+export interface PatreonPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  url: string;
+  date: string;
+}
+
 /**
  * Format the amount in cents to a readable currency string
  */
@@ -103,6 +111,23 @@ export async function getPatreonPatrons(): Promise<PatreonPatron[]> {
     return data.patrons || [];
   } catch (error) {
     console.error('Error fetching Patreon patrons:', error);
+    return [];
+  }
+}
+
+/**
+ * Get the latest posts from Patreon
+ */
+export async function getPatreonPosts(): Promise<PatreonPost[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'posts' }
+    });
+    
+    if (error) throw error;
+    return data.posts || [];
+  } catch (error) {
+    console.error('Error fetching Patreon posts:', error);
     return [];
   }
 }

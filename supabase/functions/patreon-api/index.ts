@@ -184,6 +184,85 @@ async function getPatronCount() {
   }
 }
 
+// New function to fetch posts from Patreon
+async function getPosts() {
+  try {
+    console.log("Fetching posts from Patreon API...");
+    
+    // First get the campaign ID
+    const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
+    const campaignId = campaignIdResponse.data?.[0]?.id;
+    
+    if (!campaignId) {
+      console.log("Could not find campaign ID");
+      return { posts: [] };
+    }
+    
+    console.log(`Using campaign ID: ${campaignId} for posts`);
+    
+    // Use campaign ID to fetch posts
+    const postsResponse = await fetchFromPatreon(
+      `/campaigns/${campaignId}/posts?fields[post]=title,content,url,published_at,teaser_text&sort=-published_at&page[count]=3`
+    );
+    
+    if (!postsResponse.data) {
+      console.log("No posts data returned from API");
+      return { posts: [] };
+    }
+    
+    console.log(`Found ${postsResponse.data.length} posts`);
+    
+    const posts = postsResponse.data.map((post: any) => ({
+      id: post.id,
+      title: post.attributes?.title || "Untitled Post",
+      excerpt: post.attributes?.teaser_text || post.attributes?.content?.substring(0, 100) + "..." || "",
+      url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`,
+      date: post.attributes?.published_at || new Date().toISOString()
+    }));
+    
+    return { posts };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    
+    // If we failed to get posts from the API, try fetching from a fallback endpoint
+    try {
+      console.log("Trying fallback v1 API for posts...");
+      // Try v1 API as fallback
+      const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
+      const campaignId = campaignIdResponse.data?.[0]?.id;
+      
+      if (campaignId) {
+        const postsUrl = `https://www.patreon.com/api/oauth2/api/campaigns/${campaignId}/posts?include=user&fields[post]=title,content,url,published_at&sort=-published_at&page[count]=3`;
+        const response = await fetch(postsUrl, {
+          headers: {
+            Authorization: `Bearer ${PATREON_CREATOR_ACCESS_TOKEN}`,
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const fallbackPosts = data.data.map((post: any) => ({
+          id: post.id,
+          title: post.attributes?.title || "Untitled Post",
+          excerpt: post.attributes?.teaser_text || (post.attributes?.content ? post.attributes.content.substring(0, 100) + "..." : ""),
+          url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`,
+          date: post.attributes?.published_at || new Date().toISOString()
+        }));
+        
+        console.log(`Fallback found ${fallbackPosts.length} posts`);
+        return { posts: fallbackPosts };
+      }
+    } catch (fallbackError) {
+      console.error("Fallback also failed:", fallbackError);
+    }
+    
+    return { posts: [] };
+  }
+}
+
 // Simple status check endpoint for monitoring
 async function getApiStatus() {
   return {
@@ -218,6 +297,8 @@ serve(async (req) => {
     } else if (endpoint === "tiers") {
       const campaignInfo = await getCampaignInfo();
       responseData = { tiers: campaignInfo.tiers };
+    } else if (endpoint === "posts") {
+      responseData = await getPosts();
     } else if (endpoint === "refresh-token") {
       // This would be a protected endpoint only accessible by admin
       responseData = await refreshPatreonToken();

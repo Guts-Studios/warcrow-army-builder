@@ -6,67 +6,39 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { aboutTranslations } from '@/i18n/about';
 import { ExternalLink } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/dateUtils';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  url: string;
-  date: string;
-}
-
-// Mock data for latest posts - in a real implementation, this would come from an API
-const mockPosts: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Warcrow Army Builder v1.2 Released',
-    excerpt: 'New features include improved list sharing and support for the latest units.',
-    url: 'https://warcrow-army-builder.com/blog/v1.2-release',
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Northern Tribes Update',
-    excerpt: 'All Northern Tribes units are now available in the builder with full stats.',
-    url: 'https://warcrow-army-builder.com/blog/northern-tribes-update',
-    date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Community Feature: Custom Missions',
-    excerpt: 'Create and share custom missions with the community.',
-    url: 'https://warcrow-army-builder.com/blog/custom-missions',
-    date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+import { getPatreonPosts, type PatreonPost } from '@/utils/patreonUtils';
+import { toast } from '@/components/ui/use-toast';
 
 export default function LatestPosts() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [posts, setPosts] = useState<PatreonPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { language } = useLanguage();
 
   useEffect(() => {
-    // Simulate API call to fetch posts
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
-        // In a real implementation, you would fetch posts from an API
-        // const response = await fetch('your-api-endpoint');
-        // const data = await response.json();
+        console.log('Fetching posts from Patreon API...');
+        const fetchedPosts = await getPatreonPosts();
         
-        // Using mock data for now
-        setTimeout(() => {
-          setPosts(mockPosts);
-          setIsLoading(false);
-        }, 500);
+        console.log(`Posts received: ${JSON.stringify(fetchedPosts)}`);
+        setPosts(fetchedPosts);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching blog posts:', error);
+        toast({
+          title: language === 'en' ? 'Error' : language === 'es' ? 'Error' : 'Erreur',
+          description: language === 'en' ? 'Could not fetch latest posts'
+            : language === 'es' ? 'No se pudieron obtener las últimas publicaciones'
+            : 'Impossible de récupérer les dernières publications',
+          variant: 'destructive',
+        });
         setIsLoading(false);
       }
     };
 
     fetchPosts();
-  }, []);
+  }, [language]);
 
   if (isLoading) {
     return (
