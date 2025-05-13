@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart } from "lucide-react";
+import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart, List } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
-import { checkPatreonApiStatus, getPatreonCampaignUrl } from "@/utils/patreonUtils";
+import { 
+  checkPatreonApiStatus, 
+  getPatreonCampaignUrl, 
+  getCreatorCampaigns,
+  PatreonCampaign
+} from "@/utils/patreonUtils";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
@@ -25,6 +30,7 @@ interface DeepLUsageStats {
 const ApiStatus: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingUsage, setIsLoadingUsage] = useState<boolean>(false);
+  const [isLoadingCampaigns, setIsLoadingCampaigns] = useState<boolean>(false);
   const [apiStatuses, setApiStatuses] = useState<ApiStatusItem[]>([
     {
       name: 'DeepL Translation API',
@@ -48,6 +54,7 @@ const ApiStatus: React.FC = () => {
     }
   ]);
   const [deepLUsage, setDeepLUsage] = useState<DeepLUsageStats | null>(null);
+  const [patreonCampaigns, setPatreonCampaigns] = useState<PatreonCampaign[]>([]);
 
   // Test DeepL API connection
   const testDeepLApi = async () => {
@@ -170,6 +177,29 @@ const ApiStatus: React.FC = () => {
     }
   };
 
+  // Fetch Patreon campaigns
+  const fetchPatreonCampaigns = async () => {
+    setIsLoadingCampaigns(true);
+    try {
+      const campaigns = await getCreatorCampaigns();
+      setPatreonCampaigns(campaigns);
+      
+      if (campaigns.length > 0) {
+        toast.success(`Found ${campaigns.length} Patreon campaign${campaigns.length !== 1 ? 's' : ''}`);
+      } else {
+        toast.info("No Patreon campaigns found");
+      }
+      
+      return campaigns;
+    } catch (error) {
+      console.error("Error fetching Patreon campaigns:", error);
+      toast.error("Could not fetch Patreon campaigns");
+      return [];
+    } finally {
+      setIsLoadingCampaigns(false);
+    }
+  };
+
   // Refresh all API statuses
   const refreshApiStatuses = async () => {
     setIsLoading(true);
@@ -212,8 +242,11 @@ const ApiStatus: React.FC = () => {
         }
       ]);
       
-      // Also update DeepL usage stats
-      fetchDeepLUsage();
+      // Also update DeepL usage stats and fetch Patreon campaigns
+      await Promise.all([
+        fetchDeepLUsage(),
+        fetchPatreonCampaigns()
+      ]);
       
       toast.success("API status check complete");
     } catch (error) {
@@ -251,6 +284,16 @@ const ApiStatus: React.FC = () => {
   // Format numbers with commas
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat().format(num);
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   return (
@@ -303,6 +346,77 @@ const ApiStatus: React.FC = () => {
                       {((deepLUsage.character_count / deepLUsage.character_limit) * 100).toFixed(1)}% used
                     </span>
                   </div>
+                </div>
+              )}
+              
+              {api.name === 'Patreon API' && api.status === 'operational' && (
+                <div className="mt-3 pt-3 border-t border-warcrow-gold/10">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-sm font-medium text-warcrow-text/90">Patreon Campaigns</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={fetchPatreonCampaigns}
+                      disabled={isLoadingCampaigns}
+                      className="h-7 px-2 text-warcrow-gold/80 hover:text-warcrow-gold"
+                    >
+                      {isLoadingCampaigns ? (
+                        <LoaderIcon className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <List className="h-3.5 w-3.5" />
+                      )}
+                      <span className="ml-1 text-xs">Refresh</span>
+                    </Button>
+                  </div>
+                  {patreonCampaigns.length > 0 ? (
+                    <div className="space-y-2 mt-2">
+                      {patreonCampaigns.map(campaign => (
+                        <div key={campaign.id} className="bg-black/40 border border-warcrow-gold/10 rounded p-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-warcrow-gold/90">{campaign.name}</span>
+                            <Badge variant="outline" className="h-5 text-xs border-warcrow-gold/30">
+                              ID: {campaign.id}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-warcrow-text/70 mt-1">
+                            <div className="flex justify-between">
+                              <span>Patrons: {campaign.patron_count}</span>
+                              <span>Created: {formatDate(campaign.created_at)}</span>
+                            </div>
+                            <div className="mt-1 truncate">
+                              {campaign.summary || "No summary available"}
+                            </div>
+                            <div className="mt-2">
+                              <a 
+                                href={campaign.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-warcrow-gold hover:underline inline-flex items-center"
+                              >
+                                View Campaign
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                  <polyline points="15 3 21 3 21 9"></polyline>
+                                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-3 text-sm text-warcrow-text/60">
+                      {isLoadingCampaigns ? (
+                        <div className="flex items-center justify-center">
+                          <LoaderIcon className="h-4 w-4 animate-spin mr-2" />
+                          Loading campaigns...
+                        </div>
+                      ) : (
+                        "No campaigns found. Click refresh to fetch your campaigns."
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

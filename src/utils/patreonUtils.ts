@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 /**
  * Types for Patreon API responses
@@ -55,6 +55,34 @@ export function formatPatreonAmount(amountCents: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/**
+ * Get a list of all campaigns owned by the authenticated user
+ */
+export async function getCreatorCampaigns(): Promise<PatreonCampaign[]> {
+  try {
+    console.log('Fetching creator campaigns from Patreon API...');
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'creator-campaigns' }
+    });
+    
+    if (error) {
+      console.error('Error in Patreon API edge function:', error);
+      throw error;
+    }
+    
+    console.log('Creator campaigns data received:', data);
+    return data.campaigns || [];
+  } catch (error) {
+    console.error('Error fetching Patreon creator campaigns:', error);
+    toast({
+      title: "Error fetching Patreon campaigns",
+      description: "Could not fetch your campaign information from Patreon API.",
+      variant: "destructive"
+    });
+    return [];
+  }
 }
 
 /**

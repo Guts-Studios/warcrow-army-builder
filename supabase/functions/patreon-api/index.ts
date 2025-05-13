@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -107,6 +106,69 @@ async function getCampaignInfo() {
   } catch (error) {
     console.error("Error fetching campaign info:", error);
     return { campaign: null, tiers: [] };
+  }
+}
+
+// Get list of campaigns owned by the creator/user
+async function getCreatorCampaigns() {
+  try {
+    console.log("Fetching creator campaigns from Patreon API...");
+    
+    // Use v2 API to get all campaigns owned by the creator
+    const response = await fetchFromPatreon(
+      "/campaigns?fields[campaign]=created_at,creation_name,discord_server_id,google_analytics_id,has_rss,has_sent_rss_notify,image_small_url,image_url,is_charged_immediately,is_monthly,is_nsfw,main_video_embed,main_video_url,one_liner,patron_count,pay_per_name,pledge_url,published_at,rss_artwork_url,rss_feed_title,show_earnings,summary,thanks_embed,thanks_msg,thanks_video_url,url,vanity,creation_count,display_patron_goals,earnings_visibility,is_plural,name,currency&include=tiers"
+    );
+    
+    console.log("Creator campaigns response:", response);
+    
+    if (!response.data) {
+      return { campaigns: [] };
+    }
+    
+    const campaigns = response.data.map((campaign: any) => ({
+      id: campaign.id,
+      name: campaign.attributes?.name || "Unnamed Campaign",
+      url: campaign.attributes?.url || `https://www.patreon.com/campaigns/${campaign.id}`,
+      summary: campaign.attributes?.summary || "",
+      patron_count: campaign.attributes?.patron_count || 0,
+      pledge_sum: campaign.attributes?.pledge_sum || 0,
+      currency: campaign.attributes?.currency || "USD",
+      created_at: campaign.attributes?.created_at || new Date().toISOString()
+    }));
+    
+    console.log(`Found ${campaigns.length} creator campaigns`);
+    return { campaigns };
+  } catch (error) {
+    console.error("Error fetching creator campaigns:", error);
+    
+    // Try fallback approach with identity endpoint
+    try {
+      console.log("Trying fallback approach for creator campaigns...");
+      
+      const identityResponse = await fetchFromPatreon("/identity?include=campaign");
+      
+      if (identityResponse.included) {
+        const campaignData = identityResponse.included.filter((item: any) => item.type === "campaign");
+        
+        const campaigns = campaignData.map((campaign: any) => ({
+          id: campaign.id,
+          name: campaign.attributes?.name || "Unnamed Campaign",
+          url: campaign.attributes?.url || `https://www.patreon.com/campaigns/${campaign.id}`,
+          summary: campaign.attributes?.summary || "",
+          patron_count: campaign.attributes?.patron_count || 0,
+          pledge_sum: campaign.attributes?.pledge_sum || 0,
+          currency: campaign.attributes?.currency || "USD",
+          created_at: campaign.attributes?.created_at || new Date().toISOString()
+        }));
+        
+        console.log(`Fallback method found ${campaigns.length} campaigns`);
+        return { campaigns };
+      }
+    } catch (fallbackError) {
+      console.error("Fallback method for campaigns also failed:", fallbackError);
+    }
+    
+    return { campaigns: [] };
   }
 }
 
@@ -319,6 +381,8 @@ serve(async (req) => {
     } else if (endpoint === "tiers") {
       const campaignInfo = await getCampaignInfo();
       responseData = { tiers: campaignInfo.tiers };
+    } else if (endpoint === "creator-campaigns") {
+      responseData = await getCreatorCampaigns();
     } else if (endpoint === "posts") {
       responseData = await getPosts();
     } else if (endpoint === "refresh-token") {
