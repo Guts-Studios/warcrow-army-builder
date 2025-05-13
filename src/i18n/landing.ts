@@ -1,44 +1,23 @@
 
 export const landingTranslations = {
   welcomeMessage: {
-    en: 'Welcome to WARCROW Army Builder',
-    es: 'Bienvenido a Constructor de Ejércitos WARCROW',
-    fr: 'Bienvenue au Constructeur d\'Armées WARCROW'
+    en: 'Welcome to Warcrow Army Builder',
+    es: 'Bienvenido al Constructor de Ejércitos de Warcrow',
+    fr: 'Bienvenue sur le Constructeur d\'Armée Warcrow'
+  },
+  version: {
+    en: 'Version',
+    es: 'Versión',
+    fr: 'Version'
   },
   appDescription: {
-    en: 'Create, customize and share your WARCROW army lists with this unofficial army builder application.',
-    es: 'Crea, personaliza y comparte tus listas de ejército de WARCROW con esta aplicación no oficial de construcción de ejércitos.',
-    fr: 'Créez, personnalisez et partagez vos listes d\'armée WARCROW avec cette application non officielle de construction d\'armée.'
+    en: 'Create, manage and share your Warcrow armies',
+    es: 'Crea, gestiona y comparte tus ejércitos de Warcrow',
+    fr: 'Créez, gérez et partagez vos armées Warcrow'
   },
-  userCountMessage: {
-    en: 'Join {count} players already using the Army Builder',
-    es: 'Únete a {count} jugadores que ya utilizan el Constructor de Ejércitos',
-    fr: 'Rejoignez {count} joueurs utilisant déjà le Constructeur d\'Armée'
-  },
-  viewChangelog: {
-    en: 'View Changelog',
-    es: 'Ver Registro de Cambios',
-    fr: 'Voir le Journal des Modifications'
-  },
-  changelog: {
-    en: 'Changelog',
-    es: 'Registro de Cambios',
-    fr: 'Journal des Modifications'
-  },
-  newsArchive: {
-    en: 'News Archive',
-    es: 'Archivo de Noticias',
-    fr: 'Archives des Nouvelles'
-  },
-  viewOlderNews: {
-    en: 'View Older News',
-    es: 'Ver Noticias Anteriores',
-    fr: 'Voir les Anciennes Nouvelles'
-  },
-  // Add missing buttons translations
   startBuilding: {
     en: 'Start Building',
-    es: 'Empezar a Construir',
+    es: 'Comenzar a Construir',
     fr: 'Commencer à Construire'
   },
   rulesReference: {
@@ -46,44 +25,39 @@ export const landingTranslations = {
     es: 'Referencia de Reglas',
     fr: 'Référence des Règles'
   },
-  missions: {
-    en: 'Missions',
-    es: 'Misiones',
-    fr: 'Missions'
+  userCountMessage: {
+    en: 'Join {count} players building armies',
+    es: 'Únete a {count} jugadores construyendo ejércitos',
+    fr: 'Rejoignez {count} joueurs construisant des armées'
   },
-  profile: {
-    en: 'Profile',
-    es: 'Perfil',
-    fr: 'Profil'
+  loadingUserCount: {
+    en: 'Loading user count...',
+    es: 'Cargando recuento de usuarios...',
+    fr: 'Chargement du nombre d\'utilisateurs...'
   },
-  unitStats: {
-    en: 'Unit Stats',
-    es: 'Estadísticas de Unidades',
-    fr: 'Statistiques d\'Unité'
+  changelog: {
+    en: 'Changelog',
+    es: 'Registro de Cambios',
+    fr: 'Journal des Modifications'
   },
-  playMode: {
-    en: 'Play Mode',
-    es: 'Modo Juego',
-    fr: 'Mode Jeu'
+  viewChangelog: {
+    en: 'View Changelog',
+    es: 'Ver Registro de Cambios',
+    fr: 'Voir le Journal des Modifications'
   },
-  admin: {
-    en: 'Admin',
-    es: 'Administrador',
-    fr: 'Administrateur'
+  newsArchive: {
+    en: 'News Archive',
+    es: 'Archivo de Noticias',
+    fr: 'Archives des Nouvelles'
   },
-  buyCoffee: {
-    en: 'Buy Us a Coffee',
-    es: 'Invítanos a un Café',
-    fr: 'Offrez-nous un Café'
+  viewNewsArchive: {
+    en: 'View News Archive',
+    es: 'Ver Archivo de Noticias',
+    fr: 'Voir les Archives des Nouvelles'
   },
-  faqTitle: {
-    en: 'FAQ',
-    es: 'Preguntas Frecuentes',
-    fr: 'FAQ'
-  },
-  home: {
-    en: 'Home',
-    es: 'Inicio',
-    fr: 'Accueil'
+  footerText: {
+    en: 'Warcrow Army Builder is an unofficial fan-made tool. All game content & artwork belongs to Corvus Belli S.L.',
+    es: 'Warcrow Army Builder es una herramienta no oficial creada por fans. Todo el contenido del juego y el arte pertenece a Corvus Belli S.L.',
+    fr: 'Warcrow Army Builder est un outil non officiel créé par des fans. Tout le contenu du jeu et les illustrations appartiennent à Corvus Belli S.L.'
   }
 };

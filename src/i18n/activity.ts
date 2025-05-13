@@ -35,4 +35,9 @@ export const activityTranslations = {
     es: 'Estadísticas de Unidades',
     fr: 'Statistiques des Unités'
   },
+  playMode: {
+    en: 'Play Mode',
+    es: 'Modo de Juego',
+    fr: 'Mode de Jeu'
+  }
 };

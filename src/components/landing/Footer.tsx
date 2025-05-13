@@ -10,13 +10,13 @@ export const Footer = () => {
       <div className="max-w-md md:max-w-2xl mx-auto px-2 space-y-1">
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mb-1">
           <Link to="/about" className="text-warcrow-gold/80 hover:text-warcrow-gold">
-            {language === 'en' ? 'About Us' : 'Sobre Nosotros'}
+            {t('about')}
           </Link>
           <Link to="/privacy-policy" className="text-warcrow-gold/80 hover:text-warcrow-gold">
-            {language === 'en' ? 'Privacy Policy' : 'Política de Privacidad'}
+            {t('privacyPolicy')}
           </Link>
           <Link to="/terms-of-service" className="text-warcrow-gold/80 hover:text-warcrow-gold">
-            {language === 'en' ? 'Terms of Service' : 'Términos de Servicio'}
+            {t('termsOfService')}
           </Link>
         </div>
         <p>
@@ -25,7 +25,9 @@ export const Footer = () => {
         <p className="text-xs text-warcrow-text/40">
           {language === 'en' 
             ? "Warcrow © 2024 Corvus Belli S.L. - All rights reserved. This is an unofficial fan-made tool."
-            : "Warcrow © 2024 Corvus Belli S.L. - Todos los derechos reservados. Esta es una herramienta no oficial creada por fans."}
+            : language === 'es'
+              ? "Warcrow © 2024 Corvus Belli S.L. - Todos los derechos reservados. Esta es una herramienta no oficial creada por fans."
+              : "Warcrow © 2024 Corvus Belli S.L. - Tous droits réservés. Ceci est un outil non officiel créé par des fans."}
         </p>
       </div>
     </footer>

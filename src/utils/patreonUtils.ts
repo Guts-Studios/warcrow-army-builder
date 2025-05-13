@@ -1,105 +1,92 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
-export type PatreonTier = {
+/**
+ * Types for Patreon API responses
+ */
+export interface PatreonTier {
   id: string;
   title: string;
   description: string;
-  amount_cents: number;
+  amount: number;
+  image_url?: string;
+  url?: string;
   published: boolean;
-};
+  patron_count?: number;
+}
 
-export type PatreonPatron = {
-  id: string;
-  full_name: string;
-  email: string;
-  patron_status: string;
-};
-
-export type PatreonCampaignInfo = {
+export interface PatreonCampaign {
   id: string;
   name: string;
   url: string;
-  tiers: PatreonTier[];
-};
+  summary?: string;
+  patron_count: number;
+  pledge_sum: number;
+  currency: string;
+  created_at: string;
+}
 
 /**
- * Fetch Patreon campaign information including membership tiers
+ * Get the list of tiers from Patreon
  */
-export const getPatreonCampaignInfo = async (): Promise<PatreonCampaignInfo | null> => {
+export async function getPatreonTiers(): Promise<PatreonTier[]> {
   try {
-    const { data, error } = await supabase.functions.invoke("patreon-api", {
-      path: "/campaign",
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'tiers' }
     });
-
-    if (error) {
-      console.error("Error fetching Patreon campaign info:", error);
-      return null;
-    }
-
-    return data;
+    
+    if (error) throw error;
+    return data.tiers || [];
   } catch (error) {
-    console.error("Error in getPatreonCampaignInfo:", error);
+    console.error('Error fetching Patreon tiers:', error);
+    return [];
+  }
+}
+
+/**
+ * Get the creator's campaign information from Patreon
+ */
+export async function getPatreonCampaign(): Promise<PatreonCampaign | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'campaign' }
+    });
+    
+    if (error) throw error;
+    return data.campaign || null;
+  } catch (error) {
+    console.error('Error fetching Patreon campaign:', error);
     return null;
   }
-};
+}
 
 /**
- * Get patrons for the campaign (admin only)
+ * Get the number of patrons for the creator
  */
-export const getPatreonPatrons = async (): Promise<PatreonPatron[] | null> => {
+export async function getPatronCount(): Promise<number> {
   try {
-    const { data, error } = await supabase.functions.invoke("patreon-api", {
-      path: "/patrons",
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'patron-count' }
     });
-
-    if (error) {
-      console.error("Error fetching Patreon patrons:", error);
-      return null;
-    }
-
-    return data?.data || [];
+    
+    if (error) throw error;
+    return data.patron_count || 0;
   } catch (error) {
-    console.error("Error in getPatreonPatrons:", error);
-    return null;
+    console.error('Error fetching Patreon patron count:', error);
+    return 0;
   }
-};
+}
 
 /**
- * Refresh the Patreon access token (admin only)
+ * Get the Patreon campaign URL
  */
-export const refreshPatreonToken = async (): Promise<boolean> => {
-  try {
-    const { data, error } = await supabase.functions.invoke("patreon-api", {
-      path: "/refresh-token",
-    });
-
-    if (error) {
-      console.error("Error refreshing Patreon token:", error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error in refreshPatreonToken:", error);
-    return false;
-  }
-};
+export function getPatreonCampaignUrl(): string {
+  return 'https://www.patreon.com/warcrowarmy';
+}
 
 /**
- * Format cents to a readable currency string
+ * Get the "Buy me a coffee" URL as a fallback
  */
-export const formatPatreonAmount = (amountCents: number, locale = 'en-US', currency = 'USD'): string => {
-  const dollars = amountCents / 100;
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-  }).format(dollars);
-};
-
-/**
- * Generate a Patreon "become a patron" link
- */
-export const getPatreonJoinLink = (creatorUrl: string): string => {
-  return `https://www.patreon.com/${creatorUrl}`;
-};
+export function getBuyMeCoffeeUrl(): string {
+  return 'https://www.buymeacoffee.com/warcrowarmy';
+}
