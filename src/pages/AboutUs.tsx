@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { PageHeader } from '@/components/common/PageHeader';
 import PatreonSupportSection from '@/components/about/PatreonSupportSection';
 import SupportersList from '@/components/about/SupportersList';
+import LatestPosts from '@/components/about/LatestPosts';
 import { Footer } from '@/components/landing/Footer';
 
 const AboutUs = () => {
@@ -89,8 +90,26 @@ const AboutUs = () => {
           {/* Add our Patreon support section */}
           <PatreonSupportSection />
           
-          {/* Add the supporters list section */}
-          <SupportersList />
+          {/* Community section with supporters and latest posts */}
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold text-warcrow-gold mb-6 text-center">
+              {language === 'en' ? 'Our Community' : 
+               language === 'es' ? 'Nuestra Comunidad' : 
+               'Notre Communauté'}
+            </h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Supporters list on the left */}
+              <div>
+                <SupportersList />
+              </div>
+              
+              {/* Latest posts on the right */}
+              <div>
+                <LatestPosts />
+              </div>
+            </div>
+          </div>
           
           <div className="mt-8 text-center">
             <p className="text-warcrow-text/60 text-sm">

@@ -84,5 +84,31 @@ export const aboutTranslations = {
     en: 'Thank you to all our supporters who help make this app possible!',
     es: '¡Gracias a todos nuestros colaboradores que ayudan a hacer posible esta aplicación!',
     fr: 'Merci à tous nos soutiens qui aident à rendre cette application possible !'
+  },
+  // New translations for latest posts
+  latestPostsTitle: {
+    en: 'Latest Updates',
+    es: 'Últimas Actualizaciones',
+    fr: 'Dernières Mises à Jour'
+  },
+  latestPostsSubtitle: {
+    en: 'News and developments from Warcrow Army Builder',
+    es: 'Noticias y desarrollos del Constructor de Ejércitos de Warcrow',
+    fr: 'Actualités et développements du Constructeur d\'Armée Warcrow'
+  },
+  readMore: {
+    en: 'Read more',
+    es: 'Leer más',
+    fr: 'En savoir plus'
+  },
+  noPostsAvailable: {
+    en: 'No posts available at this time.',
+    es: 'No hay publicaciones disponibles en este momento.',
+    fr: 'Aucune publication disponible pour le moment.'
+  },
+  communityTitle: {
+    en: 'Our Community',
+    es: 'Nuestra Comunidad',
+    fr: 'Notre Communauté'
   }
 };
