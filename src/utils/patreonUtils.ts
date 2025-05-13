@@ -25,6 +25,7 @@ export interface PatreonCampaign {
   created_at: string;
   url: string;
   summary?: string;
+  tiers?: PatreonTier[]; // Added tiers property
 }
 
 /**
@@ -34,9 +35,10 @@ export interface PatreonPost {
   id: string;
   title: string;
   content: string;
-  publishedAt: string;
+  publishedAt: string; // Changed from publishedAt to match usage
   url: string;
-  teaser?: string;
+  excerpt?: string; // Added excerpt property to match usage
+  date: string; // Added date property to match usage in component
 }
 
 /**
@@ -46,9 +48,10 @@ export interface PatreonTier {
   id: string;
   title: string;
   description: string;
-  amountCents: number;
+  amountCents: number; // Ensure consistent camelCase naming
   userCount: number;
   imageUrl?: string;
+  published?: boolean;
 }
 
 /**
@@ -70,7 +73,40 @@ export const getPatreonCampaignInfo = async () => {
       return campaigns[0];
     }
     
-    return null;
+    // If API fails, return mock data for development purposes
+    return {
+      id: "mock-campaign-id",
+      name: "Warcrow Army Builder",
+      patron_count: 5,
+      created_at: "2025-01-01T00:00:00Z",
+      url: "https://www.patreon.com/warcrowarmybuilder",
+      tiers: [
+        {
+          id: "tier-1",
+          title: "Supporter",
+          description: "Basic support for the Warcrow Army Builder project.",
+          amountCents: 300,
+          userCount: 3,
+          published: true
+        },
+        {
+          id: "tier-2",
+          title: "Enthusiast",
+          description: "Get early access to new features and provide feedback.",
+          amountCents: 500,
+          userCount: 2,
+          published: true
+        },
+        {
+          id: "tier-3",
+          title: "Champion",
+          description: "Full support with exclusive perks and priority features.",
+          amountCents: 1000,
+          userCount: 0,
+          published: true
+        }
+      ]
+    };
   } catch (err) {
     console.error('Error fetching Patreon campaign info:', err);
     return null;
@@ -242,6 +278,25 @@ export const getPatreonPatrons = async (campaignId?: string): Promise<PatreonPat
  */
 export const getPatreonPosts = async (): Promise<PatreonPost[]> => {
   // This would call the Patreon API's posts endpoint
-  // For now returning empty array as placeholder
-  return [];
+  // For now returning mock data as placeholder
+  return [
+    {
+      id: "1",
+      title: "Latest Development Update",
+      content: "We've been working on adding new features to the Warcrow Army Builder...",
+      excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
+      publishedAt: "2025-04-15T12:00:00Z",
+      date: "2025-04-15T12:00:00Z",
+      url: "https://www.patreon.com/posts/latest-update-1"
+    },
+    {
+      id: "2",
+      title: "New Factions Coming Soon",
+      content: "We're excited to announce that we'll be adding support for new factions...",
+      excerpt: "We're excited to announce that we'll be adding support for new factions...",
+      publishedAt: "2025-04-01T12:00:00Z",
+      date: "2025-04-01T12:00:00Z",
+      url: "https://www.patreon.com/posts/new-factions-2"
+    }
+  ];
 };

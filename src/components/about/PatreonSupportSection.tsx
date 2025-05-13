@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,9 @@ export function PatreonSupportSection() {
         const campaignInfo = await getPatreonCampaignInfo();
         
         if (campaignInfo) {
-          setTiers(campaignInfo.tiers.filter(tier => tier.published));
+          // Check if tiers exist and are published before filtering
+          const campaignTiers = campaignInfo.tiers || [];
+          setTiers(campaignTiers.filter(tier => tier.published));
           setCampaignUrl(campaignInfo.url);
         } else {
           setError("Unable to load support options");
@@ -120,7 +123,7 @@ export function PatreonSupportSection() {
                 <CardTitle className="text-warcrow-gold">{tier.title}</CardTitle>
               </div>
               <CardDescription className="text-warcrow-text/80">
-                {formatPatreonAmount(tier.amount_cents)} {aboutTranslations.perMonth[language]}
+                {formatPatreonAmount(tier.amountCents)} {aboutTranslations.perMonth[language]}
               </CardDescription>
             </CardHeader>
             <CardContent>

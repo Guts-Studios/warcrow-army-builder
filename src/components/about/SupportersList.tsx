@@ -125,15 +125,15 @@ export default function SupportersList() {
           >
             <Avatar className={`h-12 w-12 ${getAvatarColor(supporter.id)}`}>
               <AvatarFallback className="text-sm font-semibold">
-                {getInitials(supporter.full_name)}
+                {getInitials(supporter.fullName)}
               </AvatarFallback>
             </Avatar>
             <span className="mt-2 text-sm text-center line-clamp-2 text-warcrow-text break-words">
-              {supporter.full_name}
+              {supporter.fullName}
             </span>
-            {supporter.pledge_relationship_start && (
+            {supporter.pledgeStart && (
               <span className="text-xs text-warcrow-text/60 mt-1">
-                {new Date(supporter.pledge_relationship_start).toLocaleDateString(
+                {new Date(supporter.pledgeStart).toLocaleDateString(
                   language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'fr-FR', 
                   { year: 'numeric', month: 'short' }
                 )}
