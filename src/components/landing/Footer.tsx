@@ -15,6 +15,9 @@ export const Footer = () => {
           <Link to="/privacy-policy" className="text-warcrow-gold/80 hover:text-warcrow-gold">
             {language === 'en' ? 'Privacy Policy' : 'Política de Privacidad'}
           </Link>
+          <Link to="/terms-of-service" className="text-warcrow-gold/80 hover:text-warcrow-gold">
+            {language === 'en' ? 'Terms of Service' : 'Términos de Servicio'}
+          </Link>
         </div>
         <p>
           {t('footerText')}

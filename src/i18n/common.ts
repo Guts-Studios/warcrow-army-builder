@@ -121,4 +121,9 @@ export const commonTranslations = {
     es: 'Haz clic para ver la respuesta',
     fr: 'Cliquez pour voir la réponse'
   },
+  termsOfService: {
+    en: 'Terms of Service',
+    es: 'Términos de Servicio',
+    fr: 'Conditions d\'Utilisation'
+  },
 };
