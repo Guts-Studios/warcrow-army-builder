@@ -1,4 +1,4 @@
 
 export { batchTranslate } from './batchTranslate';
 export { useTranslateKeyword } from './useTranslateKeyword';
-export { toast } from '@/components/ui/toast-core';
+export { toast } from '@/hooks/use-toast';
