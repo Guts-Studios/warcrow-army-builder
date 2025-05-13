@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Separator } from '@/components/ui/separator';
 import { PageHeader } from '@/components/common/PageHeader';
 import PatreonSupportSection from '@/components/about/PatreonSupportSection';
+import SupportersList from '@/components/about/SupportersList';
 import { Footer } from '@/components/landing/Footer';
 
 const AboutUs = () => {
@@ -53,7 +54,7 @@ const AboutUs = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="bg-black/60 border border-warcrow-gold/30 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Jonathan Caldwell</h3>
+              <h3 className="text-lg font-semibold text-warcrow-gold mb-2">James Caldwell</h3>
               <p className="text-sm text-warcrow-text/80">
                 {language === 'en' ? 'Lead Developer & Designer' : 
                  language === 'es' ? 'Desarrollador Principal y Diseñador' : 
@@ -69,24 +70,27 @@ const AboutUs = () => {
             </div>
             
             <div className="bg-black/60 border border-warcrow-gold/30 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Warcrow Community</h3>
+              <h3 className="text-lg font-semibold text-warcrow-gold mb-2">Jayrol San Jose</h3>
               <p className="text-sm text-warcrow-text/80">
-                {language === 'en' ? 'Testing & Feedback' : 
-                 language === 'es' ? 'Pruebas y Comentarios' : 
-                 'Tests et Commentaires'}
+                {language === 'en' ? 'Content Expert, UI Expert & Project Manager' : 
+                 language === 'es' ? 'Experto en Contenido, UI y Gestor de Proyectos' : 
+                 'Expert en Contenu, UI et Chef de Projet'}
               </p>
               <p className="mt-2">
                 {language === 'en' 
-                  ? 'Special thanks to all the community members who have tested the app and provided valuable feedback to help improve it.' 
+                  ? 'Leads content strategy, user experience design, and project management. Ensures the application meets player needs and expectations.' 
                   : language === 'es' 
-                  ? 'Un agradecimiento especial a todos los miembros de la comunidad que han probado la aplicación y proporcionado valiosos comentarios para ayudar a mejorarla.'
-                  : 'Un remerciement spécial à tous les membres de la communauté qui ont testé l\'application et fourni des commentaires précieux pour aider à l\'améliorer.'}
+                  ? 'Dirige la estrategia de contenido, el diseño de experiencia de usuario y la gestión de proyectos. Asegura que la aplicación cumpla con las necesidades y expectativas de los jugadores.'
+                  : 'Dirige la stratégie de contenu, la conception de l\'expérience utilisateur et la gestion de projet. S\'assure que l\'application répond aux besoins et aux attentes des joueurs.'}
               </p>
             </div>
           </div>
           
-          {/* Add our new Patreon support section */}
+          {/* Add our Patreon support section */}
           <PatreonSupportSection />
+          
+          {/* Add the supporters list section */}
+          <SupportersList />
           
           <div className="mt-8 text-center">
             <p className="text-warcrow-text/60 text-sm">

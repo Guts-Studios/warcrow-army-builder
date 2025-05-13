@@ -1,11 +1,13 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
 const PATREON_CLIENT_ID = Deno.env.get("PATREON_CLIENT_ID");
 const PATREON_CLIENT_SECRET = Deno.env.get("PATREON_CLIENT_SECRET");
 const PATREON_CREATOR_ACCESS_TOKEN = Deno.env.get("PATREON_CREATOR_ACCESS_TOKEN");
 const PATREON_CREATOR_REFRESH_TOKEN = Deno.env.get("PATREON_CREATOR_REFRESH_TOKEN");
 const PATREON_API_BASE = "https://www.patreon.com/api/oauth2/v2";
+const PATREON_API_V1_BASE = "https://www.patreon.com/api/oauth2/api/campaigns";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,7 +16,7 @@ const corsHeaders = {
 
 // Helper to fetch from Patreon API
 async function fetchFromPatreon(endpoint: string, options: RequestInit = {}) {
-  const url = `${PATREON_API_BASE}${endpoint}`;
+  const url = endpoint.startsWith("http") ? endpoint : `${PATREON_API_BASE}${endpoint}`;
   
   const headers = {
     ...options.headers,
@@ -61,21 +63,95 @@ async function refreshPatreonToken() {
   }
 
   const data = await response.json();
+  console.log("Token refreshed successfully");
   return data;
 }
 
 // Get information about the campaign (creator page)
 async function getCampaignInfo() {
-  return fetchFromPatreon(
-    "/campaigns?include=tiers&fields[tier]=title,description,amount_cents,published"
-  );
+  try {
+    const campaignData = await fetchFromPatreon(
+      "/campaigns?include=tiers&fields[tier]=title,description,amount_cents,published"
+    );
+    
+    // Extract the first campaign
+    const campaign = campaignData.data?.[0] || null;
+    const tiers = campaignData.included?.filter(item => item.type === "tier") || [];
+    
+    return {
+      campaign: campaign ? {
+        id: campaign.id,
+        name: campaign.attributes?.name || "Warcrow Army Builder",
+        url: campaign.attributes?.url || "https://www.patreon.com/c/GutzStudio",
+        summary: campaign.attributes?.summary || "",
+        patron_count: campaign.attributes?.patron_count || 0,
+        pledge_sum: campaign.attributes?.pledge_sum || 0,
+        currency: campaign.attributes?.currency || "USD",
+        created_at: campaign.attributes?.created_at || new Date().toISOString()
+      } : null,
+      tiers: tiers.map(tier => ({
+        id: tier.id,
+        title: tier.attributes?.title || "Supporter",
+        description: tier.attributes?.description || "",
+        amount_cents: tier.attributes?.amount_cents || 0, 
+        amount: (tier.attributes?.amount_cents || 0) / 100,
+        url: tier.attributes?.url || "",
+        published: tier.attributes?.published || false,
+        patron_count: tier.attributes?.patron_count || 0
+      }))
+    };
+  } catch (error) {
+    console.error("Error fetching campaign info:", error);
+    return { campaign: null, tiers: [] };
+  }
 }
 
 // Get patrons of the campaign
 async function getPatrons() {
-  return fetchFromPatreon(
-    "/campaigns?include=members&fields[member]=full_name,email,patron_status"
-  );
+  try {
+    const campaignData = await fetchFromPatreon(
+      "/campaigns?include=members&fields[member]=full_name,email,patron_status,currently_entitled_amount_cents"
+    );
+    
+    const members = campaignData.included?.filter(item => 
+      item.type === "member" && 
+      item.attributes?.patron_status === "active_patron"
+    ) || [];
+    
+    return {
+      patrons: members.map(member => ({
+        id: member.id,
+        full_name: member.attributes?.full_name || "Anonymous Supporter",
+        patron_status: member.attributes?.patron_status || "active_patron",
+        currently_entitled_amount_cents: member.attributes?.currently_entitled_amount_cents || 0
+      }))
+    };
+  } catch (error) {
+    console.error("Error fetching patrons:", error);
+    return { patrons: [] };
+  }
+}
+
+// Get the number of patrons for the creator
+async function getPatronCount() {
+  try {
+    const campaignInfo = await getCampaignInfo();
+    return { 
+      patron_count: campaignInfo.campaign?.patron_count || 0 
+    };
+  } catch (error) {
+    console.error("Error fetching patron count:", error);
+    return { patron_count: 0 };
+  }
+}
+
+// Simple status check endpoint for monitoring
+async function getApiStatus() {
+  return {
+    status: "operational",
+    timestamp: new Date().toISOString(),
+    api_version: "v2"
+  };
 }
 
 serve(async (req) => {
@@ -87,29 +163,37 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const endpoint = url.pathname.replace("/patreon-api", "");
+    // Parse the JSON body if it exists
+    const { endpoint } = await req.json().catch(() => ({ endpoint: "" }));
+    console.log(`Processing request for endpoint: ${endpoint}`);
 
+    let responseData;
+    
     // Only allow specific endpoints
-    if (endpoint === "/campaign") {
-      const campaignData = await getCampaignInfo();
-      return new Response(JSON.stringify(campaignData), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } else if (endpoint === "/patrons") {
-      const patronsData = await getPatrons();
-      return new Response(JSON.stringify(patronsData), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } else if (endpoint === "/refresh-token") {
+    if (endpoint === "campaign") {
+      responseData = await getCampaignInfo();
+    } else if (endpoint === "patrons") {
+      responseData = await getPatrons();
+    } else if (endpoint === "patron-count") {
+      responseData = await getPatronCount();
+    } else if (endpoint === "tiers") {
+      const campaignInfo = await getCampaignInfo();
+      responseData = { tiers: campaignInfo.tiers };
+    } else if (endpoint === "refresh-token") {
       // This would be a protected endpoint only accessible by admin
-      const tokenData = await refreshPatreonToken();
-      return new Response(JSON.stringify(tokenData), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      responseData = await refreshPatreonToken();
+    } else if (endpoint === "status") {
+      responseData = await getApiStatus();
     } else {
-      return new Response("Not found", { status: 404, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Invalid endpoint" }), { 
+        status: 400, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      });
     }
+    
+    return new Response(JSON.stringify(responseData), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Patreon API function error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {

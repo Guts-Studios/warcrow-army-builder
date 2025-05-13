@@ -7,6 +7,7 @@ import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart } fr
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { checkPatreonApiStatus } from "@/utils/patreonUtils";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
@@ -38,6 +39,11 @@ const ApiStatus: React.FC = () => {
     },
     {
       name: 'Netlify Deployment API',
+      status: 'unknown',
+      lastChecked: new Date()
+    },
+    {
+      name: 'Patreon API',
       status: 'unknown',
       lastChecked: new Date()
     }
@@ -145,16 +151,37 @@ const ApiStatus: React.FC = () => {
     }
   };
 
+  // Test Patreon API connection
+  const testPatreonConnection = async () => {
+    try {
+      const startTime = performance.now();
+      
+      const result = await checkPatreonApiStatus();
+      
+      const endTime = performance.now();
+      const latency = Math.round(endTime - startTime);
+      
+      return {
+        status: result.status === 'operational' ? 'operational' as ApiStatus : 'down' as ApiStatus,
+        latency
+      };
+    } catch (error) {
+      console.error("Patreon API test failed:", error);
+      return { status: 'down' as ApiStatus };
+    }
+  };
+
   // Refresh all API statuses
   const refreshApiStatuses = async () => {
     setIsLoading(true);
     
     try {
       // Run all tests in parallel
-      const [deepLStatus, supabaseStatus, netlifyStatus] = await Promise.all([
+      const [deepLStatus, supabaseStatus, netlifyStatus, patreonStatus] = await Promise.all([
         testDeepLApi(),
         testSupabaseConnection(),
-        testNetlifyConnection()
+        testNetlifyConnection(),
+        testPatreonConnection()
       ]);
       
       const now = new Date();
@@ -176,6 +203,12 @@ const ApiStatus: React.FC = () => {
           name: 'Netlify Deployment API',
           status: netlifyStatus.status,
           latency: netlifyStatus.latency,
+          lastChecked: now
+        },
+        {
+          name: 'Patreon API',
+          status: patreonStatus.status,
+          latency: patreonStatus.latency,
           lastChecked: now
         }
       ]);
@@ -276,25 +309,36 @@ const ApiStatus: React.FC = () => {
             </div>
           ))}
           
-          <Button
-            onClick={fetchDeepLUsage}
-            disabled={isLoadingUsage}
-            variant="outline"
-            size="sm"
-            className="w-full border-warcrow-gold/30 text-warcrow-gold"
-          >
-            {isLoadingUsage ? (
-              <>
-                <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
-                Updating DeepL Usage...
-              </>
-            ) : (
-              <>
-                <BarChart className="mr-2 h-4 w-4" />
-                Update DeepL Character Usage
-              </>
-            )}
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              onClick={fetchDeepLUsage}
+              disabled={isLoadingUsage}
+              variant="outline"
+              size="sm"
+              className="flex-1 border-warcrow-gold/30 text-warcrow-gold"
+            >
+              {isLoadingUsage ? (
+                <>
+                  <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Updating DeepL Usage...
+                </>
+              ) : (
+                <>
+                  <BarChart className="mr-2 h-4 w-4" />
+                  Update DeepL Usage
+                </>
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => window.open(getPatreonCampaignUrl(), '_blank')}
+              variant="outline"
+              size="sm"
+              className="border-warcrow-gold/30 text-warcrow-gold"
+            >
+              View Patreon Page
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

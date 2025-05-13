@@ -59,5 +59,30 @@ export const aboutTranslations = {
     en: 'Unable to load support options',
     es: 'No se pudieron cargar las opciones de apoyo',
     fr: 'Impossible de charger les options de soutien'
+  },
+  supportersTitle: {
+    en: 'Our Supporters',
+    es: 'Nuestros Colaboradores',
+    fr: 'Nos Soutiens'
+  },
+  noSupportersYet: {
+    en: 'No supporters yet. Be the first one!',
+    es: 'Aún no hay colaboradores. ¡Sé el primero!',
+    fr: 'Pas encore de soutiens. Soyez le premier !'
+  },
+  errorLoadingSupporters: {
+    en: 'Unable to load supporters list',
+    es: 'No se pudo cargar la lista de colaboradores',
+    fr: 'Impossible de charger la liste des soutiens'
+  },
+  beFirstSupporter: {
+    en: 'Be the first to support Warcrow Army Builder and see your name here!',
+    es: '¡Sé el primero en apoyar al Constructor de Ejércitos de Warcrow y ver tu nombre aquí!',
+    fr: 'Soyez le premier à soutenir le Constructeur d\'Armée Warcrow et voyez votre nom ici !'
+  },
+  thankYouSupporters: {
+    en: 'Thank you to all our supporters who help make this app possible!',
+    es: '¡Gracias a todos nuestros colaboradores que ayudan a hacer posible esta aplicación!',
+    fr: 'Merci à tous nos soutiens qui aident à rendre cette application possible !'
   }
 };

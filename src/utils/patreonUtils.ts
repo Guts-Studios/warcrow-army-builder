@@ -27,6 +27,13 @@ export interface PatreonCampaign {
   created_at: string;
 }
 
+export interface PatreonPatron {
+  id: string;
+  full_name: string;
+  patron_status: string;
+  currently_entitled_amount_cents: number;
+}
+
 /**
  * Format the amount in cents to a readable currency string
  */
@@ -84,6 +91,23 @@ export async function getPatreonCampaignInfo() {
 }
 
 /**
+ * Get the list of patrons from Patreon
+ */
+export async function getPatreonPatrons(): Promise<PatreonPatron[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'patrons' }
+    });
+    
+    if (error) throw error;
+    return data.patrons || [];
+  } catch (error) {
+    console.error('Error fetching Patreon patrons:', error);
+    return [];
+  }
+}
+
+/**
  * Get the number of patrons for the creator
  */
 export async function getPatronCount(): Promise<number> {
@@ -97,6 +121,29 @@ export async function getPatronCount(): Promise<number> {
   } catch (error) {
     console.error('Error fetching Patreon patron count:', error);
     return 0;
+  }
+}
+
+/**
+ * Check the status of the Patreon API
+ */
+export async function checkPatreonApiStatus(): Promise<{ status: string, timestamp: string }> {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', { 
+      body: { endpoint: 'status' }
+    });
+    
+    if (error) throw error;
+    return {
+      status: data.status || 'unknown',
+      timestamp: data.timestamp || new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error checking Patreon API status:', error);
+    return {
+      status: 'down',
+      timestamp: new Date().toISOString()
+    };
   }
 }
 
