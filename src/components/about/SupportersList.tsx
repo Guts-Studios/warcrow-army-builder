@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PatreonPatron, getPatreonPatrons } from '@/utils/patreonUtils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { aboutTranslations } from '@/i18n/about';
+import { toast } from '@/components/ui/use-toast';
 
 export default function SupportersList() {
   const [supporters, setSupporters] = useState<PatreonPatron[]>([]);
@@ -16,8 +17,16 @@ export default function SupportersList() {
     const fetchSupporters = async () => {
       try {
         setIsLoading(true);
+        console.log('Fetching supporters from Patreon API...');
         const patrons = await getPatreonPatrons();
+        console.log('Patrons received:', patrons);
         setSupporters(patrons);
+        
+        if (patrons.length === 0) {
+          console.log('No patrons returned from API');
+        } else {
+          console.log(`${patrons.length} patrons successfully loaded`);
+        }
       } catch (err) {
         console.error('Error fetching supporters:', err);
         setError(aboutTranslations.errorLoadingSupporters[language]);

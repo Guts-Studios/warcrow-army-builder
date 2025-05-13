@@ -24,6 +24,8 @@ async function fetchFromPatreon(endpoint: string, options: RequestInit = {}) {
     "Content-Type": "application/json",
   };
 
+  console.log(`Fetching from Patreon: ${url}`);
+  
   const response = await fetch(url, {
     ...options,
     headers,
@@ -35,7 +37,9 @@ async function fetchFromPatreon(endpoint: string, options: RequestInit = {}) {
     throw new Error(`Patreon API error: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log(`Patreon API response received: ${url}`);
+  return data;
 }
 
 // Handle token refresh - this would be called when access token expires
@@ -109,23 +113,58 @@ async function getCampaignInfo() {
 // Get patrons of the campaign
 async function getPatrons() {
   try {
+    console.log("Fetching patrons from Patreon API...");
+    
+    // First attempt to get all members including patrons from the campaign endpoint
     const campaignData = await fetchFromPatreon(
       "/campaigns?include=members&fields[member]=full_name,email,patron_status,currently_entitled_amount_cents"
     );
     
+    console.log(`Members data received. Processing ${campaignData.included?.length || 0} members`);
+    
+    // Filter to only include active patrons
     const members = campaignData.included?.filter(item => 
       item.type === "member" && 
       item.attributes?.patron_status === "active_patron"
     ) || [];
     
-    return {
-      patrons: members.map(member => ({
-        id: member.id,
-        full_name: member.attributes?.full_name || "Anonymous Supporter",
-        patron_status: member.attributes?.patron_status || "active_patron",
-        currently_entitled_amount_cents: member.attributes?.currently_entitled_amount_cents || 0
-      }))
-    };
+    console.log(`Found ${members.length} active patrons`);
+    
+    const patrons = members.map(member => ({
+      id: member.id,
+      full_name: member.attributes?.full_name || "Anonymous Supporter",
+      patron_status: member.attributes?.patron_status || "active_patron",
+      currently_entitled_amount_cents: member.attributes?.currently_entitled_amount_cents || 0
+    }));
+    
+    // If we have no patrons in the primary approach, try a fallback method
+    if (patrons.length === 0) {
+      console.log("No patrons found using primary method, trying fallback...");
+      
+      // Get the campaign ID first
+      const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
+      const campaignId = campaignIdResponse.data?.[0]?.id;
+      
+      if (campaignId) {
+        console.log(`Using campaign ID: ${campaignId} for fallback`);
+        // Use campaign ID to fetch patrons directly
+        const patronsResponse = await fetchFromPatreon(
+          `/campaigns/${campaignId}/members?include=currently_entitled_tiers&fields[member]=full_name,patron_status,currently_entitled_amount_cents`
+        );
+        
+        const fallbackPatrons = patronsResponse.data?.map(patron => ({
+          id: patron.id,
+          full_name: patron.attributes?.full_name || "Anonymous Supporter",
+          patron_status: patron.attributes?.patron_status || "active_patron",
+          currently_entitled_amount_cents: patron.attributes?.currently_entitled_amount_cents || 0
+        })) || [];
+        
+        console.log(`Fallback method found ${fallbackPatrons.length} patrons`);
+        return { patrons: fallbackPatrons };
+      }
+    }
+    
+    return { patrons };
   } catch (error) {
     console.error("Error fetching patrons:", error);
     return { patrons: [] };
@@ -191,6 +230,7 @@ serve(async (req) => {
       });
     }
     
+    console.log(`Returning response for endpoint ${endpoint}`);
     return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
