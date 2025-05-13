@@ -24,8 +24,14 @@ export default function SupportersList() {
         
         if (patrons.length === 0) {
           console.log('No patrons returned from API');
+          // Don't set error here, we'll handle empty state separately
         } else {
           console.log(`${patrons.length} patrons successfully loaded`);
+          toast({
+            title: "Supporters loaded",
+            description: `Successfully loaded ${patrons.length} supporter${patrons.length === 1 ? '' : 's'}.`,
+            duration: 3000,
+          });
         }
       } catch (err) {
         console.error('Error fetching supporters:', err);
@@ -125,6 +131,14 @@ export default function SupportersList() {
             <span className="mt-2 text-sm text-center line-clamp-2 text-warcrow-text break-words">
               {supporter.full_name}
             </span>
+            {supporter.pledge_relationship_start && (
+              <span className="text-xs text-warcrow-text/60 mt-1">
+                {new Date(supporter.pledge_relationship_start).toLocaleDateString(
+                  language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'fr-FR', 
+                  { year: 'numeric', month: 'short' }
+                )}
+              </span>
+            )}
           </div>
         ))}
       </div>

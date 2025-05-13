@@ -110,49 +110,72 @@ async function getCampaignInfo() {
   }
 }
 
-// Get patrons of the campaign
+// Get patrons of the campaign - Updated to use the correct endpoint
 async function getPatrons() {
   try {
     console.log("Fetching patrons from Patreon API...");
     
-    // First attempt to get all members including patrons from the campaign endpoint
-    const campaignData = await fetchFromPatreon(
-      "/campaigns?include=members&fields[member]=full_name,email,patron_status,currently_entitled_amount_cents"
+    // First get the campaign ID
+    const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
+    const campaignId = campaignIdResponse.data?.[0]?.id;
+    
+    if (!campaignId) {
+      console.log("Could not find campaign ID");
+      return { patrons: [] };
+    }
+    
+    console.log(`Using campaign ID: ${campaignId} for patrons`);
+    
+    // Use V2 API with the correct endpoint structure for members
+    const membersResponse = await fetchFromPatreon(
+      `/campaigns/${campaignId}/members?include=user&fields[member]=full_name,patron_status,currently_entitled_amount_cents,pledge_relationship_start`
     );
     
-    console.log(`Members data received. Processing ${campaignData.included?.length || 0} members`);
+    if (!membersResponse.data) {
+      console.log("No members data returned from API");
+      return { patrons: [] };
+    }
+    
+    console.log(`Found ${membersResponse.data.length} members`);
     
     // Filter to only include active patrons
-    const members = campaignData.included?.filter(item => 
-      item.type === "member" && 
-      item.attributes?.patron_status === "active_patron"
-    ) || [];
+    const activePatrons = membersResponse.data.filter((member: any) => 
+      member.attributes?.patron_status === "active_patron"
+    );
     
-    console.log(`Found ${members.length} active patrons`);
+    console.log(`Found ${activePatrons.length} active patrons`);
     
-    const patrons = members.map(member => ({
-      id: member.id,
-      full_name: member.attributes?.full_name || "Anonymous Supporter",
-      patron_status: member.attributes?.patron_status || "active_patron",
-      currently_entitled_amount_cents: member.attributes?.currently_entitled_amount_cents || 0
+    const patrons = activePatrons.map((patron: any) => ({
+      id: patron.id,
+      full_name: patron.attributes?.full_name || "Anonymous Supporter",
+      patron_status: patron.attributes?.patron_status || "active_patron",
+      currently_entitled_amount_cents: patron.attributes?.currently_entitled_amount_cents || 0,
+      pledge_relationship_start: patron.attributes?.pledge_relationship_start || null
     }));
     
-    // If we have no patrons in the primary approach, try a fallback method
-    if (patrons.length === 0) {
-      console.log("No patrons found using primary method, trying fallback...");
+    // Sort by pledge start date if available
+    patrons.sort((a: any, b: any) => {
+      if (!a.pledge_relationship_start) return 1;
+      if (!b.pledge_relationship_start) return -1;
+      return new Date(a.pledge_relationship_start).getTime() - new Date(b.pledge_relationship_start).getTime();
+    });
+    
+    return { patrons };
+  } catch (error) {
+    console.error("Error fetching patrons:", error);
+    // Try fallback approach
+    try {
+      console.log("Trying fallback approach for patrons...");
       
       // Get the campaign ID first
       const campaignIdResponse = await fetchFromPatreon("/current_user/campaigns");
       const campaignId = campaignIdResponse.data?.[0]?.id;
       
       if (campaignId) {
-        console.log(`Using campaign ID: ${campaignId} for fallback`);
-        // Use campaign ID to fetch patrons directly
-        const patronsResponse = await fetchFromPatreon(
-          `/campaigns/${campaignId}/members?include=currently_entitled_tiers&fields[member]=full_name,patron_status,currently_entitled_amount_cents`
-        );
+        // Try a simpler request with fewer fields and parameters
+        const patronsResponse = await fetchFromPatreon(`/campaigns/${campaignId}/members`);
         
-        const fallbackPatrons = patronsResponse.data?.map(patron => ({
+        const fallbackPatrons = patronsResponse.data?.map((patron: any) => ({
           id: patron.id,
           full_name: patron.attributes?.full_name || "Anonymous Supporter",
           patron_status: patron.attributes?.patron_status || "active_patron",
@@ -162,11 +185,10 @@ async function getPatrons() {
         console.log(`Fallback method found ${fallbackPatrons.length} patrons`);
         return { patrons: fallbackPatrons };
       }
+    } catch (fallbackError) {
+      console.error("Fallback method for patrons also failed:", fallbackError);
     }
     
-    return { patrons };
-  } catch (error) {
-    console.error("Error fetching patrons:", error);
     return { patrons: [] };
   }
 }

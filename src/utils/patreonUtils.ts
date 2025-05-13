@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 /**
  * Types for Patreon API responses
@@ -32,6 +33,7 @@ export interface PatreonPatron {
   full_name: string;
   patron_status: string;
   currently_entitled_amount_cents: number;
+  pledge_relationship_start?: string;
 }
 
 export interface PatreonPost {
@@ -68,6 +70,11 @@ export async function getPatreonTiers(): Promise<PatreonTier[]> {
     return data.tiers || [];
   } catch (error) {
     console.error('Error fetching Patreon tiers:', error);
+    toast({
+      title: "Error fetching Patreon tiers",
+      description: "Could not fetch tiers from Patreon API.",
+      variant: "destructive"
+    });
     return [];
   }
 }
@@ -85,6 +92,11 @@ export async function getPatreonCampaign(): Promise<PatreonCampaign | null> {
     return data.campaign || null;
   } catch (error) {
     console.error('Error fetching Patreon campaign:', error);
+    toast({
+      title: "Error fetching Patreon campaign",
+      description: "Could not fetch campaign information from Patreon API.",
+      variant: "destructive"
+    });
     return null;
   }
 }
@@ -103,14 +115,25 @@ export async function getPatreonCampaignInfo() {
  */
 export async function getPatreonPatrons(): Promise<PatreonPatron[]> {
   try {
+    console.log('Fetching patrons from Patreon API via edge function...');
     const { data, error } = await supabase.functions.invoke('patreon-api', { 
       body: { endpoint: 'patrons' }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error in Patreon API edge function:', error);
+      throw error;
+    }
+    
+    console.log('Patrons data received:', data);
     return data.patrons || [];
   } catch (error) {
     console.error('Error fetching Patreon patrons:', error);
+    toast({
+      title: "Error fetching Patreon supporters",
+      description: "Could not fetch supporters from Patreon API.",
+      variant: "destructive"
+    });
     return [];
   }
 }
@@ -128,6 +151,11 @@ export async function getPatreonPosts(): Promise<PatreonPost[]> {
     return data.posts || [];
   } catch (error) {
     console.error('Error fetching Patreon posts:', error);
+    toast({
+      title: "Error fetching Patreon posts",
+      description: "Could not fetch posts from Patreon API.",
+      variant: "destructive"
+    });
     return [];
   }
 }
