@@ -2,17 +2,22 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { getPatreonCampaignInfo, formatPatreonAmount, PatreonTier } from "@/utils/patreonUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Shield, Coffee, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { 
+  getPatreonCampaignInfo,
+  formatPatreonAmount,
+  PatreonTier
+} from "@/utils/patreonUtils";
+import { aboutTranslations } from '@/i18n/about';
 
 export function PatreonSupportSection() {
   const [tiers, setTiers] = useState<PatreonTier[]>([]);
   const [campaignUrl, setCampaignUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
 
   useEffect(() => {
     const fetchPatreonInfo = async () => {
@@ -48,7 +53,7 @@ export function PatreonSupportSection() {
 
   const handlePatreonRedirect = () => {
     if (campaignUrl) {
-      window.open(`https://www.patreon.com/${campaignUrl}`, '_blank');
+      window.open(campaignUrl, '_blank');
     }
   };
 
@@ -56,9 +61,7 @@ export function PatreonSupportSection() {
     return (
       <div className="mt-8 space-y-6">
         <h2 className="text-2xl font-bold text-center text-warcrow-gold">
-          {language === 'en' ? 'Support Warcrow Army Builder' : 
-           language === 'es' ? 'Apoya al Constructor de Ejércitos de Warcrow' : 
-           'Soutenez le Constructeur d\'Armée Warcrow'}
+          {aboutTranslations.supportTitle[language]}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
@@ -84,16 +87,12 @@ export function PatreonSupportSection() {
     return (
       <div className="mt-8 space-y-6">
         <h2 className="text-2xl font-bold text-center text-warcrow-gold">
-          {language === 'en' ? 'Support Warcrow Army Builder' : 
-           language === 'es' ? 'Apoya al Constructor de Ejércitos de Warcrow' : 
-           'Soutenez le Constructeur d\'Armée Warcrow'}
+          {aboutTranslations.supportTitle[language]}
         </h2>
         <div className="bg-black/60 border border-warcrow-gold/30 rounded-lg p-6 text-center">
           <Coffee className="h-8 w-8 mx-auto mb-4 text-warcrow-gold/80" />
           <p className="mb-4">
-            {language === 'en' ? 'You can support the development of this app by buying us a coffee!' : 
-             language === 'es' ? '¡Puedes apoyar el desarrollo de esta aplicación invitándonos a un café!' : 
-             'Vous pouvez soutenir le développement de cette application en nous offrant un café !'}
+            {aboutTranslations.supportText[language]}
           </p>
           <Button 
             variant="outline" 
@@ -101,9 +100,7 @@ export function PatreonSupportSection() {
             onClick={() => window.open('https://www.buymeacoffee.com/warcrowarmy', '_blank')}
           >
             <Coffee className="mr-2 h-4 w-4" />
-            {language === 'en' ? 'Buy us a coffee' : 
-             language === 'es' ? 'Invítanos a un café' : 
-             'Offrez-nous un café'}
+            {aboutTranslations.buyCoffee[language]}
           </Button>
         </div>
       </div>
@@ -113,9 +110,7 @@ export function PatreonSupportSection() {
   return (
     <div className="mt-8 space-y-6">
       <h2 className="text-2xl font-bold text-center text-warcrow-gold">
-        {language === 'en' ? 'Support Warcrow Army Builder' : 
-         language === 'es' ? 'Apoya al Constructor de Ejércitos de Warcrow' : 
-         'Soutenez le Constructeur d\'Armée Warcrow'}
+        {aboutTranslations.supportTitle[language]}
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -127,7 +122,7 @@ export function PatreonSupportSection() {
                 <CardTitle className="text-warcrow-gold">{tier.title}</CardTitle>
               </div>
               <CardDescription className="text-warcrow-text/80">
-                {formatPatreonAmount(tier.amount_cents)} {language === 'en' ? 'per month' : language === 'es' ? 'al mes' : 'par mois'}
+                {formatPatreonAmount(tier.amount_cents)} {aboutTranslations.perMonth[language]}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -139,9 +134,7 @@ export function PatreonSupportSection() {
                 className="w-full border-warcrow-gold text-warcrow-gold hover:bg-black hover:text-warcrow-gold"
                 onClick={handlePatreonRedirect}
               >
-                {language === 'en' ? 'Become a Patron' : 
-                 language === 'es' ? 'Conviértete en Patrón' : 
-                 'Devenir un Mécène'}
+                {aboutTranslations.becomePatron[language]}
               </Button>
             </CardFooter>
           </Card>
@@ -154,11 +147,11 @@ export function PatreonSupportSection() {
           className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:text-warcrow-gold"
           onClick={handlePatreonRedirect}
         >
-          {language === 'en' ? 'View all support options' : 
-           language === 'es' ? 'Ver todas las opciones de apoyo' : 
-           'Voir toutes les options de soutien'}
+          {aboutTranslations.viewAllOptions[language]}
         </Button>
       </div>
     </div>
   );
 }
+
+export default PatreonSupportSection;

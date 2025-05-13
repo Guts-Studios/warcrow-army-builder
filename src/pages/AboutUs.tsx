@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Separator } from '@/components/ui/separator';
 import { PageHeader } from '@/components/common/PageHeader';
 import PatreonSupportSection from '@/components/about/PatreonSupportSection';
+import { Footer } from '@/components/landing/Footer';
 
 const AboutUs = () => {
   const { t, language } = useLanguage();

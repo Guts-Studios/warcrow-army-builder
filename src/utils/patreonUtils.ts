@@ -9,6 +9,7 @@ export interface PatreonTier {
   title: string;
   description: string;
   amount: number;
+  amount_cents: number; // Adding this property to match the actual API response
   image_url?: string;
   url?: string;
   published: boolean;
@@ -24,6 +25,19 @@ export interface PatreonCampaign {
   pledge_sum: number;
   currency: string;
   created_at: string;
+}
+
+/**
+ * Format the amount in cents to a readable currency string
+ */
+export function formatPatreonAmount(amountCents: number): string {
+  const amount = amountCents / 100; // Convert cents to dollars/euros
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 /**
@@ -58,6 +72,15 @@ export async function getPatreonCampaign(): Promise<PatreonCampaign | null> {
     console.error('Error fetching Patreon campaign:', error);
     return null;
   }
+}
+
+/**
+ * Helper function to get both campaign and tiers in one call
+ */
+export async function getPatreonCampaignInfo() {
+  const campaign = await getPatreonCampaign();
+  const tiers = await getPatreonTiers();
+  return { campaign, tiers, url: getPatreonCampaignUrl() };
 }
 
 /**
