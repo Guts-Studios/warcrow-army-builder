@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +6,7 @@ import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart } fr
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
-import { checkPatreonApiStatus } from "@/utils/patreonUtils";
+import { checkPatreonApiStatus, getPatreonCampaignUrl } from "@/utils/patreonUtils";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
