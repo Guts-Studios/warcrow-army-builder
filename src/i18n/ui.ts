@@ -1,56 +1,128 @@
 
 export const uiTranslations = {
-  // Admin panel navigation
-  backToSite: {
-    en: 'Back to Site',
-    es: 'Volver al Sitio',
-    fr: 'Retour au Site'
+  language: {
+    en: "Language",
+    es: "Idioma",
+    fr: "Langue",
   },
-  builder: {
-    en: 'Builder',
-    es: 'Constructor',
-    fr: 'Constructeur'
+  refresh: {
+    en: "Refresh",
+    es: "Actualizar",
+    fr: "Actualiser",
   },
-  
-  // Translations for unit cards
-  infantry: {
-    en: 'Infantry',
-    es: 'Infantería',
-    fr: 'Infanterie'
+  apiStatus: {
+    en: "API Status",
+    es: "Estado de la API",
+    fr: "État de l'API",
   },
-  cavalry: {
-    en: 'Cavalry',
-    es: 'Caballería',
-    fr: 'Cavalerie'
+  apiStatusDescription: {
+    en: "Monitor the status and performance of integrated API services",
+    es: "Monitorea el estado y rendimiento de los servicios API integrados",
+    fr: "Surveiller l'état et les performances des services API intégrés",
   },
-  monster: {
-    en: 'Monster',
-    es: 'Monstruo',
-    fr: 'Monstre'
+  lastChecked: {
+    en: "Last checked",
+    es: "Última verificación",
+    fr: "Dernière vérification",
   },
-  character: {
-    en: 'Character',
-    es: 'Carácter',
-    fr: 'Personnage'
+  latency: {
+    en: "Latency",
+    es: "Latencia",
+    fr: "Latence",
   },
-  fearless: {
-    en: 'Fearless',
-    es: 'Sin miedo',
-    fr: 'Intrépide'
+  characterUsage: {
+    en: "Character usage",
+    es: "Uso de caracteres",
+    fr: "Utilisation de caractères",
   },
-  wizard: {
-    en: 'Wizard',
-    es: 'Hechicero',
-    fr: 'Sorcier'
+  used: {
+    en: "used",
+    es: "usado",
+    fr: "utilisé",
   },
-  slowed: {
-    en: 'Slowed',
-    es: 'Ralentizado',
-    fr: 'Ralenti'
+  patreonCampaigns: {
+    en: "Patreon Campaigns",
+    es: "Campañas de Patreon",
+    fr: "Campagnes Patreon",
   },
-  impassable: {
-    en: 'Impassable',
-    es: 'Impasable',
-    fr: 'Infranchissable'
+  patrons: {
+    en: "Patrons",
+    es: "Patrocinadores",
+    fr: "Mécènes",
+  },
+  created: {
+    en: "Created",
+    es: "Creado",
+    fr: "Créé",
+  },
+  noSummaryAvailable: {
+    en: "No summary available",
+    es: "No hay resumen disponible",
+    fr: "Aucun résumé disponible",
+  },
+  viewCampaign: {
+    en: "View Campaign",
+    es: "Ver Campaña",
+    fr: "Voir la Campagne",
+  },
+  loadingCampaigns: {
+    en: "Loading campaigns...",
+    es: "Cargando campañas...",
+    fr: "Chargement des campagnes...",
+  },
+  noCampaignsFound: {
+    en: "No campaigns found. Click refresh to fetch your campaigns.",
+    es: "No se encontraron campañas. Haga clic en actualizar para buscar sus campañas.",
+    fr: "Aucune campagne trouvée. Cliquez sur actualiser pour récupérer vos campagnes.",
+  },
+  campaignPatrons: {
+    en: "Campaign Patrons",
+    es: "Patrocinadores de la Campaña",
+    fr: "Mécènes de la Campagne",
+  },
+  loadingPatrons: {
+    en: "Loading patrons...",
+    es: "Cargando patrocinadores...",
+    fr: "Chargement des mécènes...",
+  },
+  noPatronsFound: {
+    en: "No patrons found for this campaign.",
+    es: "No se encontraron patrocinadores para esta campaña.",
+    fr: "Aucun mécène trouvé pour cette campagne.",
+  },
+  name: {
+    en: "Name",
+    es: "Nombre",
+    fr: "Nom",
+  },
+  email: {
+    en: "Email",
+    es: "Correo",
+    fr: "E-mail",
+  },
+  pledge: {
+    en: "Pledge",
+    es: "Compromiso",
+    fr: "Engagement",
+  },
+  joinDate: {
+    en: "Join Date",
+    es: "Fecha de Unión",
+    fr: "Date d'adhésion",
+  },
+  updatingDeepLUsage: {
+    en: "Updating DeepL Usage...",
+    es: "Actualizando uso de DeepL...",
+    fr: "Mise à jour de l'utilisation DeepL...",
+  },
+  updateDeepLUsage: {
+    en: "Update DeepL Usage",
+    es: "Actualizar uso de DeepL",
+    fr: "Mettre à jour l'utilisation DeepL",
+  },
+  viewPatreonPage: {
+    en: "View Patreon Page",
+    es: "Ver página de Patreon",
+    fr: "Voir la page Patreon",
   }
 };

@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart, List } from "lucide-react";
+import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart, List, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
@@ -10,8 +11,12 @@ import {
   checkPatreonApiStatus, 
   getPatreonCampaignUrl, 
   getCreatorCampaigns,
-  PatreonCampaign
+  fetchCampaignMembers,
+  PatreonCampaign,
+  PatreonPatron
 } from "@/utils/patreonUtils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
@@ -28,9 +33,11 @@ interface DeepLUsageStats {
 }
 
 const ApiStatus: React.FC = () => {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingUsage, setIsLoadingUsage] = useState<boolean>(false);
   const [isLoadingCampaigns, setIsLoadingCampaigns] = useState<boolean>(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState<boolean>(false);
   const [apiStatuses, setApiStatuses] = useState<ApiStatusItem[]>([
     {
       name: 'DeepL Translation API',
@@ -55,7 +62,9 @@ const ApiStatus: React.FC = () => {
   ]);
   const [deepLUsage, setDeepLUsage] = useState<DeepLUsageStats | null>(null);
   const [patreonCampaigns, setPatreonCampaigns] = useState<PatreonCampaign[]>([]);
-
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [campaignMembers, setCampaignMembers] = useState<PatreonPatron[]>([]);
+  
   // Test DeepL API connection
   const testDeepLApi = async () => {
     try {
@@ -186,6 +195,11 @@ const ApiStatus: React.FC = () => {
       
       if (campaigns.length > 0) {
         toast.success(`Found ${campaigns.length} Patreon campaign${campaigns.length !== 1 ? 's' : ''}`);
+        
+        // Set the first campaign as selected if none is selected
+        if (!selectedCampaign && campaigns.length > 0) {
+          setSelectedCampaign(campaigns[0].id);
+        }
       } else {
         toast.info("No Patreon campaigns found");
       }
@@ -197,6 +211,30 @@ const ApiStatus: React.FC = () => {
       return [];
     } finally {
       setIsLoadingCampaigns(false);
+    }
+  };
+  
+  // Fetch campaign members/patrons
+  const fetchCampaignPatrons = async (campaignId: string) => {
+    if (!campaignId) return;
+    
+    setIsLoadingMembers(true);
+    try {
+      const result = await fetchCampaignMembers(campaignId);
+      
+      if (result.success && result.members) {
+        setCampaignMembers(result.members);
+        toast.success(`Found ${result.members.length} patrons`);
+      } else {
+        setCampaignMembers([]);
+        toast.error("Could not fetch patrons");
+      }
+    } catch (error) {
+      console.error("Error fetching Patreon members:", error);
+      toast.error("Error loading patrons");
+      setCampaignMembers([]);
+    } finally {
+      setIsLoadingMembers(false);
     }
   };
 
@@ -261,6 +299,13 @@ const ApiStatus: React.FC = () => {
   useEffect(() => {
     refreshApiStatuses();
   }, []);
+  
+  // Load campaign members when a campaign is selected
+  useEffect(() => {
+    if (selectedCampaign) {
+      fetchCampaignPatrons(selectedCampaign);
+    }
+  }, [selectedCampaign]);
 
   // Helper to render status badge
   const renderStatusBadge = (status: ApiStatus) => {
@@ -287,20 +332,32 @@ const ApiStatus: React.FC = () => {
   };
 
   // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (e) {
+      return 'Invalid date';
+    }
+  };
+  
+  // Format currency amount
+  const formatAmount = (amountCents: number | undefined): string => {
+    if (!amountCents && amountCents !== 0) return 'N/A';
+    const dollars = (amountCents / 100).toFixed(0);
+    return `$${dollars} per month`;
   };
 
   return (
     <Card className="border border-warcrow-gold/40 shadow-sm bg-black">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg text-warcrow-gold">API Status</CardTitle>
+          <CardTitle className="text-lg text-warcrow-gold">{t('apiStatus')}</CardTitle>
           <Button 
             variant="outline" 
             size="sm" 
@@ -309,11 +366,11 @@ const ApiStatus: React.FC = () => {
             className="border-warcrow-gold/30 text-warcrow-gold"
           >
             {isLoading ? <LoaderIcon className="h-4 w-4 mr-2 animate-spin" /> : <LoaderIcon className="h-4 w-4 mr-2" />}
-            Refresh
+            {t('refresh')}
           </Button>
         </div>
         <p className="text-warcrow-text/80 text-sm">
-          Monitor the status and performance of integrated API services
+          {t('apiStatusDescription')}
         </p>
       </CardHeader>
       <CardContent>
@@ -325,14 +382,14 @@ const ApiStatus: React.FC = () => {
                 {renderStatusBadge(api.status)}
               </div>
               <div className="flex justify-between mt-2 text-sm text-warcrow-text/80">
-                <span>Last checked: {formatTime(api.lastChecked)}</span>
-                {api.latency && <span>Latency: {api.latency}ms</span>}
+                <span>{t('lastChecked')}: {formatTime(api.lastChecked)}</span>
+                {api.latency && <span>{t('latency')}: {api.latency}ms</span>}
               </div>
               
               {api.name === 'DeepL Translation API' && deepLUsage && (
                 <div className="mt-3 pt-3 border-t border-warcrow-gold/10">
                   <div className="flex justify-between mb-1 text-sm">
-                    <span className="text-warcrow-text/80">Character usage:</span>
+                    <span className="text-warcrow-text/80">{t('characterUsage')}:</span>
                     <span className="text-warcrow-gold/80">
                       {formatNumber(deepLUsage.character_count)} / {formatNumber(deepLUsage.character_limit)}
                     </span>
@@ -343,7 +400,7 @@ const ApiStatus: React.FC = () => {
                   />
                   <div className="flex justify-end mt-1">
                     <span className="text-xs text-warcrow-text/70">
-                      {((deepLUsage.character_count / deepLUsage.character_limit) * 100).toFixed(1)}% used
+                      {((deepLUsage.character_count / deepLUsage.character_limit) * 100).toFixed(1)}% {t('used')}
                     </span>
                   </div>
                 </div>
@@ -352,7 +409,7 @@ const ApiStatus: React.FC = () => {
               {api.name === 'Patreon API' && api.status === 'operational' && (
                 <div className="mt-3 pt-3 border-t border-warcrow-gold/10">
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-sm font-medium text-warcrow-text/90">Patreon Campaigns</h4>
+                    <h4 className="text-sm font-medium text-warcrow-text/90">{t('patreonCampaigns')}</h4>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -365,13 +422,17 @@ const ApiStatus: React.FC = () => {
                       ) : (
                         <List className="h-3.5 w-3.5" />
                       )}
-                      <span className="ml-1 text-xs">Refresh</span>
+                      <span className="ml-1 text-xs">{t('refresh')}</span>
                     </Button>
                   </div>
                   {patreonCampaigns.length > 0 ? (
                     <div className="space-y-2 mt-2">
                       {patreonCampaigns.map(campaign => (
-                        <div key={campaign.id} className="bg-black/40 border border-warcrow-gold/10 rounded p-2 text-sm">
+                        <div 
+                          key={campaign.id} 
+                          className={`bg-black/40 border ${selectedCampaign === campaign.id ? 'border-warcrow-gold' : 'border-warcrow-gold/10'} rounded p-2 text-sm cursor-pointer hover:border-warcrow-gold/50 transition-colors`}
+                          onClick={() => setSelectedCampaign(campaign.id)}
+                        >
                           <div className="flex justify-between">
                             <span className="font-medium text-warcrow-gold/90">{campaign.name}</span>
                             <Badge variant="outline" className="h-5 text-xs border-warcrow-gold/30">
@@ -380,11 +441,11 @@ const ApiStatus: React.FC = () => {
                           </div>
                           <div className="text-xs text-warcrow-text/70 mt-1">
                             <div className="flex justify-between">
-                              <span>Patrons: {campaign.patron_count}</span>
-                              <span>Created: {formatDate(campaign.created_at)}</span>
+                              <span>{t('patrons')}: {campaign.patron_count}</span>
+                              <span>{t('created')}: {formatDate(campaign.created_at)}</span>
                             </div>
                             <div className="mt-1 truncate">
-                              {campaign.summary || "No summary available"}
+                              {campaign.summary || t('noSummaryAvailable')}
                             </div>
                             <div className="mt-2">
                               <a 
@@ -392,8 +453,9 @@ const ApiStatus: React.FC = () => {
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="text-warcrow-gold hover:underline inline-flex items-center"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                View Campaign
+                                {t('viewCampaign')}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
                                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                                   <polyline points="15 3 21 3 21 9"></polyline>
@@ -410,10 +472,67 @@ const ApiStatus: React.FC = () => {
                       {isLoadingCampaigns ? (
                         <div className="flex items-center justify-center">
                           <LoaderIcon className="h-4 w-4 animate-spin mr-2" />
-                          Loading campaigns...
+                          {t('loadingCampaigns')}
                         </div>
                       ) : (
-                        "No campaigns found. Click refresh to fetch your campaigns."
+                        t('noCampaignsFound')
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Campaign Members Section */}
+                  {selectedCampaign && (
+                    <div className="mt-4 pt-3 border-t border-warcrow-gold/10">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-sm font-medium text-warcrow-text/90">{t('campaignPatrons')}</h4>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => fetchCampaignPatrons(selectedCampaign)}
+                          disabled={isLoadingMembers}
+                          className="h-7 px-2 text-warcrow-gold/80 hover:text-warcrow-gold"
+                        >
+                          {isLoadingMembers ? (
+                            <LoaderIcon className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Users className="h-3.5 w-3.5" />
+                          )}
+                          <span className="ml-1 text-xs">{t('refresh')}</span>
+                        </Button>
+                      </div>
+                      
+                      {isLoadingMembers ? (
+                        <div className="text-center py-4 text-sm text-warcrow-text/60">
+                          <LoaderIcon className="h-4 w-4 animate-spin mx-auto mb-2" />
+                          {t('loadingPatrons')}
+                        </div>
+                      ) : campaignMembers.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <Table className="w-full text-sm">
+                            <TableHeader className="bg-black/50">
+                              <TableRow className="border-warcrow-gold/20">
+                                <TableHead className="text-warcrow-gold/90">{t('name')}</TableHead>
+                                <TableHead className="text-warcrow-gold/90">{t('email')}</TableHead>
+                                <TableHead className="text-warcrow-gold/90">{t('pledge')}</TableHead>
+                                <TableHead className="text-warcrow-gold/90">{t('joinDate')}</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {campaignMembers.map(patron => (
+                                <TableRow key={patron.id} className="border-warcrow-gold/10 hover:bg-black/40">
+                                  <TableCell className="font-medium">{patron.fullName}</TableCell>
+                                  <TableCell className="text-warcrow-text/80">{patron.email || "—"}</TableCell>
+                                  <TableCell className="text-warcrow-text/80">{formatAmount(patron.amountCents)}</TableCell>
+                                  <TableCell className="text-warcrow-text/80">{formatDate(patron.pledgeStart)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      ) : (
+                        <div className="text-center py-4 text-sm text-warcrow-text/60 border border-dashed border-warcrow-gold/20 rounded-md">
+                          {t('noPatronsFound')}
+                        </div>
                       )}
                     </div>
                   )}
@@ -433,12 +552,12 @@ const ApiStatus: React.FC = () => {
               {isLoadingUsage ? (
                 <>
                   <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Updating DeepL Usage...
+                  {t('updatingDeepLUsage')}
                 </>
               ) : (
                 <>
                   <BarChart className="mr-2 h-4 w-4" />
-                  Update DeepL Usage
+                  {t('updateDeepLUsage')}
                 </>
               )}
             </Button>
@@ -449,7 +568,7 @@ const ApiStatus: React.FC = () => {
               size="sm"
               className="border-warcrow-gold/30 text-warcrow-gold"
             >
-              View Patreon Page
+              {t('viewPatreonPage')}
             </Button>
           </div>
         </div>

@@ -60,9 +60,9 @@ async function getCreatorCampaigns() {
         campaigns: data.data.map((campaign: any) => ({
           id: campaign.id,
           name: campaign.attributes.name || campaign.attributes.creation_name,
-          patronCount: campaign.attributes.patron_count,
-          createdAt: campaign.attributes.created_at,
-          url: campaign.attributes.url
+          patron_count: campaign.attributes.patron_count,
+          created_at: campaign.attributes.created_at,
+          url: campaign.attributes.url || `https://www.patreon.com/c/${campaign.id}`
         }))
       };
     } catch (error) {
@@ -79,8 +79,8 @@ async function getCreatorCampaigns() {
         .map((campaign: any) => ({
           id: campaign.id,
           name: campaign.attributes?.name || "Warcrow Army Builder",
-          patronCount: campaign.attributes?.patron_count || 0,
-          createdAt: campaign.attributes?.created_at,
+          patron_count: campaign.attributes?.patron_count || 0,
+          created_at: campaign.attributes?.created_at,
           url: campaign.attributes?.url || `https://www.patreon.com/c/${campaign.id}`
         }));
       
@@ -105,20 +105,22 @@ async function getCreatorCampaigns() {
 async function getCampaignMembers(campaignId: string) {
   try {
     const includeFields = "user";
-    const memberFields = "full_name,email,pledge_relationship_start,currently_entitled_amount_cents";
+    const memberFields = "full_name,email,pledge_relationship_start,currently_entitled_amount_cents,last_charge_date,patron_status";
     const userFields = "full_name,email,image_url";
     
     const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/members?include=${includeFields}&fields[member]=${memberFields}&fields[user]=${userFields}`;
+    console.log(`Fetching members for campaign ${campaignId}`);
     
     const data = await fetchFromPatreon(url);
+    console.log(`Found ${data.data?.length || 0} members for campaign ${campaignId}`);
     
     // Process members data to extract user details
     const members = data.data.map((member: any) => {
       // Find related user data in included array
-      const userId = member.relationships.user.data.id;
-      const userData = data.included.find((included: any) => 
+      const userId = member.relationships?.user?.data?.id;
+      const userData = userId ? data.included?.find((included: any) => 
         included.type === 'user' && included.id === userId
-      );
+      ) : null;
       
       return {
         id: member.id,
@@ -126,7 +128,9 @@ async function getCampaignMembers(campaignId: string) {
         email: userData?.attributes?.email || member.attributes?.email,
         imageUrl: userData?.attributes?.image_url,
         pledgeStart: member.attributes?.pledge_relationship_start,
-        amountCents: member.attributes?.currently_entitled_amount_cents
+        amountCents: member.attributes?.currently_entitled_amount_cents,
+        lastChargeDate: member.attributes?.last_charge_date,
+        status: member.attributes?.patron_status
       };
     });
     
