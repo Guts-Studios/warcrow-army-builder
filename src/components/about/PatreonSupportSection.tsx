@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +7,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   getPatreonCampaignInfo,
   formatPatreonAmount,
+  getPatreonCampaignUrl,
   PatreonTier
 } from "@/utils/patreonUtils";
 import { aboutTranslations } from '@/i18n/about';
 
 export function PatreonSupportSection() {
   const [tiers, setTiers] = useState<PatreonTier[]>([]);
-  const [campaignUrl, setCampaignUrl] = useState<string>("");
+  const [campaignUrl, setCampaignUrl] = useState<string>(getPatreonCampaignUrl());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { language } = useLanguage();
@@ -52,9 +52,7 @@ export function PatreonSupportSection() {
   };
 
   const handlePatreonRedirect = () => {
-    if (campaignUrl) {
-      window.open(campaignUrl, '_blank');
-    }
+    window.open(campaignUrl, '_blank');
   };
 
   if (isLoading) {
@@ -97,7 +95,7 @@ export function PatreonSupportSection() {
           <Button 
             variant="outline" 
             className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:text-warcrow-gold"
-            onClick={() => window.open('https://www.buymeacoffee.com/warcrowarmy', '_blank')}
+            onClick={() => window.open(getPatreonCampaignUrl(), '_blank')}
           >
             <Coffee className="mr-2 h-4 w-4" />
             {aboutTranslations.buyCoffee[language]}

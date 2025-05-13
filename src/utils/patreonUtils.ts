@@ -9,7 +9,7 @@ export interface PatreonTier {
   title: string;
   description: string;
   amount: number;
-  amount_cents: number; // Adding this property to match the actual API response
+  amount_cents: number;
   image_url?: string;
   url?: string;
   published: boolean;
@@ -104,12 +104,12 @@ export async function getPatronCount(): Promise<number> {
  * Get the Patreon campaign URL
  */
 export function getPatreonCampaignUrl(): string {
-  return 'https://www.patreon.com/warcrowarmy';
+  return 'https://www.patreon.com/c/GutzStudio';
 }
 
 /**
  * Get the "Buy me a coffee" URL as a fallback
  */
 export function getBuyMeCoffeeUrl(): string {
-  return 'https://www.buymeacoffee.com/warcrowarmy';
+  return 'https://www.patreon.com/c/GutzStudio';
 }

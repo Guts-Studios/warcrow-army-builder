@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Coffee } from "lucide-react";
+import { getPatreonCampaignUrl } from "@/utils/patreonUtils";
 
 interface SecondaryActionsProps {
   isGuest: boolean;
@@ -12,6 +13,10 @@ interface SecondaryActionsProps {
 export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  
+  const handleBuyCoffeeClick = () => {
+    window.open(getPatreonCampaignUrl(), '_blank');
+  };
   
   return (
     <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center md:mt-2">
@@ -23,7 +28,7 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
         {isGuest ? t('signedAsGuest') : t('signOut')}
       </Button>
       <Button
-        onClick={() => navigate('/about')}
+        onClick={handleBuyCoffeeClick}
         variant="outline"
         className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-2"
       >
