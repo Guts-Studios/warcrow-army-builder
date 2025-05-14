@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { aboutTranslations } from '@/i18n/about';
-import { ExternalLink, CalendarIcon } from 'lucide-react';
+import { ExternalLink, CalendarIcon, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { getPatreonPosts, type PatreonPost, DEFAULT_CAMPAIGN_ID } from '@/utils/patreonUtils';
 import { toast } from '@/components/ui/use-toast';
@@ -12,20 +12,30 @@ import { toast } from '@/components/ui/use-toast';
 export default function LatestPosts() {
   const [posts, setPosts] = useState<PatreonPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isMockData, setIsMockData] = useState(false);
   const { language } = useLanguage();
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
+        setApiError(null);
         console.log('Fetching posts from Patreon API...');
         const fetchedPosts = await getPatreonPosts(DEFAULT_CAMPAIGN_ID);
         
-        console.log(`Posts received: ${JSON.stringify(fetchedPosts)}`);
+        // Check if we're getting mock data by looking at the IDs
+        const mockDataDetected = fetchedPosts.some(post => 
+          ['1', '2', '3'].includes(post.id));
+        
+        setIsMockData(mockDataDetected);
+        console.log(`Posts received (${mockDataDetected ? 'MOCK' : 'REAL'} data):`, fetchedPosts);
+        
         setPosts(fetchedPosts);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching blog posts:', error);
+        setApiError(error instanceof Error ? error.message : 'Unknown error');
         toast({
           title: language === 'en' ? 'Error' : language === 'es' ? 'Error' : 'Erreur',
           description: language === 'en' ? 'Could not fetch latest posts'
@@ -75,6 +85,28 @@ export default function LatestPosts() {
       <CardHeader>
         <CardTitle className="text-warcrow-gold">{aboutTranslations.latestPostsTitle[language]}</CardTitle>
         <CardDescription>{aboutTranslations.latestPostsSubtitle[language]}</CardDescription>
+        
+        {isMockData && (
+          <div className="mt-2 p-2 bg-yellow-900/30 border border-yellow-600/30 rounded-md flex items-center text-xs text-yellow-300">
+            <AlertCircle size={14} className="mr-2" /> 
+            {language === 'en' 
+              ? 'Using mock data - Patreon API not connected' 
+              : language === 'es' 
+              ? 'Usando datos de prueba - API de Patreon no conectada'
+              : 'Utilisation de données simulées - API Patreon non connectée'}
+          </div>
+        )}
+        
+        {apiError && (
+          <div className="mt-2 p-2 bg-red-900/30 border border-red-600/30 rounded-md flex items-center text-xs text-red-300">
+            <AlertCircle size={14} className="mr-2" /> 
+            {language === 'en' 
+              ? `API Error: ${apiError}` 
+              : language === 'es' 
+              ? `Error de API: ${apiError}`
+              : `Erreur d'API: ${apiError}`}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
