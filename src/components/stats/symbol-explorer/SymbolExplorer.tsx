@@ -23,7 +23,7 @@ const SymbolExplorer = () => {
 
   // Get unique unit types (character, troop, etc.)
   const unitTypes = useMemo(() => {
-    const types = new Set();
+    const types = new Set<string>();
     
     allUnits.forEach(unit => {
       // Determine unit type based on keywords or other properties
@@ -99,7 +99,7 @@ const SymbolExplorer = () => {
     
     return unit.keywords.map(k => {
       const keywordName = typeof k === 'string' ? k : k.name;
-      return translateKeyword(keywordName);
+      return translateKeyword(keywordName, 'en');
     }).join(', ');
   };
 
@@ -137,7 +137,7 @@ const SymbolExplorer = () => {
             </SelectTrigger>
             <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
               <SelectItem value="all">{t('allTypes')}</SelectItem>
-              {unitTypes.map(type => (
+              {unitTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
                 </SelectItem>
