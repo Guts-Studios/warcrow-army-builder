@@ -1,153 +1,121 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { UnitFilters } from './UnitFilters';
-import { UnitTable } from './UnitTable';
-import { normalizeAndDeduplicate } from './utils';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLanguage } from '@/contexts/LanguageContext';
+import UnitTable from './UnitTable';
+import UnitFilters from './UnitFilters';
 
-// Define the type for unit data from Supabase
+// Define the interface for the unit data
 interface UnitData {
   id: string;
   name: string;
   faction: string;
-  points: number;
   type: string;
-  keywords: string[];
   characteristics: {
     highCommand?: boolean;
     [key: string]: any;
   };
-  special_rules?: string[];
-  description?: string;
-  options?: any;
 }
 
 const UnitExplorer = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [factionFilter, setFactionFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [units, setUnits] = useState<any[]>([]);
-  const { t } = useLanguage();
-  
-  // Fetch units directly from Supabase
-  const fetchUnits = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('unit_data')
-        .select('*')
-        .order('faction')
-        .order('name');
-        
-      if (error) throw error;
-      
-      // Format units to match the expected structure 
-      const formattedUnits = (data as UnitData[]).map(unit => ({
-        ...unit,
-        id: unit.id,
-        name: unit.name,
-        faction: unit.faction,
-        // Safely access characteristics.highCommand with a type check
-        highCommand: typeof unit.characteristics === 'object' && unit.characteristics 
-          ? !!unit.characteristics.highCommand 
-          : false,
-        pointsCost: unit.points || 0,
-        keywords: unit.keywords || []
-      }));
-      
-      setUnits(formattedUnits);
-    } catch (error: any) {
-      console.error("Error fetching units:", error);
-      toast.error(`Failed to fetch unit data: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Fetch units on component mount
+  const [units, setUnits] = useState<UnitData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFaction, setSelectedFaction] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const { language } = useLanguage();
+
   useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('units')
+          .select('*');
+        
+        if (error) {
+          console.error('Error fetching units:', error);
+          return;
+        }
+        
+        // Cast data to the UnitData interface with type safety
+        const typedData = data as UnitData[];
+        setUnits(typedData);
+      } catch (error) {
+        console.error('Error in fetchUnits:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     fetchUnits();
   }, []);
-  
-  // Get normalized and deduplicated units
-  const { deduplicatedUnits, factions, unitTypes } = useMemo(() => 
-    normalizeAndDeduplicate(units), 
-  [units]);
-  
-  // Filter and sort units
-  const filteredUnits = useMemo(() => {
-    return deduplicatedUnits.filter(unit => {
-      // Name filter
-      const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Faction filter
-      const factionMatch = factionFilter === 'all' || unit.faction === factionFilter;
-      
-      // Type filter
-      let typeMatch = true;
-      if (typeFilter !== 'all') {
-        if (typeFilter === 'high-command') {
-          typeMatch = unit.highCommand === true;
-        } else if (typeFilter === 'character') {
-          typeMatch = unit.keywords?.some(k => {
-            const keywordName = typeof k === 'string' ? k : k.name;
-            return keywordName === 'Character';
-          }) && !unit.highCommand;
-        } else if (typeFilter === 'troop') {
-          typeMatch = !unit.highCommand && !unit.keywords?.some(k => {
-            const keywordName = typeof k === 'string' ? k : k.name;
-            return keywordName === 'Character';
-          });
-        }
+
+  const filteredUnits = units.filter((unit) => {
+    // Type guard for characteristics.highCommand
+    const isHighCommand = 
+      unit.characteristics && 
+      typeof unit.characteristics === 'object' && 
+      'highCommand' in unit.characteristics && 
+      unit.characteristics.highCommand === true;
+    
+    if (selectedFaction && unit.faction !== selectedFaction) {
+      return false;
+    }
+    
+    if (selectedType) {
+      if (selectedType === 'high-command' && !isHighCommand) {
+        return false;
+      } else if (selectedType !== 'high-command' && unit.type !== selectedType) {
+        return false;
       }
-      
-      return nameMatch && factionMatch && typeMatch;
-    }).sort((a, b) => {
-      // Sort by faction first, then by name
-      if (a.faction !== b.faction) {
-        return a.faction.localeCompare(b.faction);
-      }
-      return a.name.localeCompare(b.name);
-    });
-  }, [searchQuery, factionFilter, typeFilter, deduplicatedUnits]);
+    }
+    
+    return true;
+  });
+
+  const handleFactionChange = (faction: string | null) => {
+    setSelectedFaction(faction);
+  };
+
+  const handleTypeChange = (type: string | null) => {
+    setSelectedType(type);
+  };
 
   return (
-    <Card className="bg-warcrow-background border-warcrow-gold/30">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-warcrow-gold text-xl">{t('unitDatabase')}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <UnitFilters 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          factionFilter={factionFilter}
-          setFactionFilter={setFactionFilter}
-          typeFilter={typeFilter}
-          setTypeFilter={setTypeFilter}
-          factions={factions}
-          unitTypes={unitTypes}
-          t={t}
-        />
-        
-        <UnitTable 
-          filteredUnits={filteredUnits}
-          t={t}
-          isLoading={isLoading}
-        />
-        
-        <div className="text-sm text-warcrow-muted">
-          {filteredUnits.length > 0 && (
-            <p>
-              {t('showing')} {filteredUnits.length} {filteredUnits.length === 1 ? t('unit') : t('units')}
-            </p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Unit Explorer</h1>
+      
+      <UnitFilters 
+        onFactionChange={handleFactionChange}
+        onTypeChange={handleTypeChange}
+      />
+      
+      <Tabs defaultValue="table" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="table">Table</TabsTrigger>
+          <TabsTrigger value="cards">Cards</TabsTrigger>
+        </TabsList>
+        <TabsContent value="table">
+          <UnitTable units={filteredUnits} loading={loading} />
+        </TabsContent>
+        <TabsContent value="cards">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              filteredUnits.map((unit) => (
+                <div key={unit.id} className="border p-4 rounded">
+                  <h2>{unit.name}</h2>
+                  <p>{unit.faction}</p>
+                  <p>{unit.type}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
