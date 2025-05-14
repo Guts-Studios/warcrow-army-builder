@@ -46,8 +46,18 @@ export const formatKeywords = (unit: any, translateKeyword: (key: string, lang: 
 export const normalizeAndDeduplicate = (units: any[]) => {
   // Normalize all units to ensure consistent faction values
   const normalizedUnits = units.map(unit => {
-    // Normalize faction name if needed
-    const normalizedFaction = factionNameMap[unit.faction] || unit.faction;
+    // Handle both kebab-case and space-separated faction names
+    let normalizedFaction = unit.faction.toLowerCase();
+    
+    // Check if it's in the map directly
+    if (factionNameMap[unit.faction]) {
+      normalizedFaction = factionNameMap[unit.faction];
+    }
+    // Check if it's a space-separated name that needs conversion
+    else if (unit.faction.includes(' ')) {
+      const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
+      normalizedFaction = factionNameMap[kebabName] || kebabName;
+    }
     
     return {
       ...unit,

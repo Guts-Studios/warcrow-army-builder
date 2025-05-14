@@ -13,6 +13,18 @@ export const factions: Faction[] = [
   { id: "syenann", name: "Sÿenann" }
 ];
 
+// Map for normalizing faction names
+const factionNameMap: Record<string, string> = {
+  'Hegemony of Embersig': 'hegemony-of-embersig',
+  'Northern Tribes': 'northern-tribes',
+  'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
+  'Sÿenann': 'syenann',
+  'Syenann': 'syenann',
+  'hegemony': 'hegemony-of-embersig',
+  'tribes': 'northern-tribes',
+  'scions': 'scions-of-yaldabaoth'
+};
+
 // Normalize and deduplicate units
 const normalizeUnits = () => {
   const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
@@ -20,10 +32,22 @@ const normalizeUnits = () => {
   const seen = new Set();
   
   for (const unit of allUnits) {
-    // Always normalize faction to kebab-case
+    // Normalize faction name
+    let normalizedFaction = unit.faction.toLowerCase();
+    
+    // Check if faction name needs normalization
+    if (factionNameMap[unit.faction]) {
+      normalizedFaction = factionNameMap[unit.faction];
+    }
+    // Check if it's a space-separated name that needs conversion
+    else if (unit.faction.includes(' ')) {
+      const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
+      normalizedFaction = factionNameMap[kebabName] || kebabName;
+    }
+    
     const normalizedUnit = {
       ...unit,
-      faction: unit.faction.toLowerCase().replace(/\s+/g, '-')
+      faction: normalizedFaction
     };
     
     // Create a unique key for each unit
