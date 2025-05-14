@@ -56,9 +56,12 @@ export const getFactionTranslationsFromDb = async () => {
       // Create a new translations object
       const dbTranslations: Record<string, Record<string, string>> = {};
       
-      // Populate translations from database
+      // Populate translations from database, ensuring kebab-case IDs
       data.forEach(faction => {
-        dbTranslations[faction.id] = {
+        // Normalize faction ID to kebab-case if needed
+        const factionId = faction.id.includes('-') ? faction.id : faction.id.toLowerCase().replace(/\s+/g, '-');
+        
+        dbTranslations[factionId] = {
           en: faction.name,
           es: faction.name_es || faction.name,
           fr: faction.name_fr || faction.name

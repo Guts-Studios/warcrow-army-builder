@@ -15,44 +15,17 @@ const SymbolExplorer = () => {
   const { t } = useLanguage();
   const { translateKeyword } = useTranslateKeyword();
 
-  // Normalize faction names and deduplicate units
-  const normalizedUnits = useMemo(() => {
-    // Map to store unique units (by name and normalized faction)
-    const uniqueUnits = new Map();
-    
-    // Normalize faction names and deduplicate
-    allUnits.forEach(unit => {
-      // Ensure faction is in kebab-case format
-      const normalizedFaction = unit.faction.toLowerCase().replace(/\s+/g, '-');
-      
-      // Create a unique key using name and normalized faction
-      const key = `${unit.name}_${normalizedFaction}`;
-      
-      // Add the unit to the map, overwriting any previous entry with the same key
-      // Prefer the kebab-case version of the faction name
-      if (!uniqueUnits.has(key) || unit.faction === normalizedFaction) {
-        uniqueUnits.set(key, {
-          ...unit,
-          faction: normalizedFaction // Use normalized faction name
-        });
-      }
-    });
-    
-    // Convert the map values to an array
-    return Array.from(uniqueUnits.values());
-  }, []);
-
   // Get unique factions
   const factions = useMemo(() => {
-    const uniqueFactions = new Set(normalizedUnits.map(unit => unit.faction));
+    const uniqueFactions = new Set(allUnits.map(unit => unit.faction));
     return Array.from(uniqueFactions).sort();
-  }, [normalizedUnits]);
+  }, []);
 
   // Get unique unit types (character, troop, etc.)
   const unitTypes = useMemo(() => {
     const types = new Set<string>();
     
-    normalizedUnits.forEach(unit => {
+    allUnits.forEach(unit => {
       // Determine unit type based on keywords or other properties
       if (unit.highCommand) {
         types.add('high-command');
@@ -67,11 +40,11 @@ const SymbolExplorer = () => {
     });
     
     return Array.from(types).sort();
-  }, [normalizedUnits]);
+  }, []);
 
   // Filter and sort units
   const filteredUnits = useMemo(() => {
-    return normalizedUnits.filter(unit => {
+    return allUnits.filter(unit => {
       // Name filter
       const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
       
@@ -104,7 +77,7 @@ const SymbolExplorer = () => {
       }
       return a.name.localeCompare(b.name);
     });
-  }, [searchQuery, factionFilter, typeFilter, normalizedUnits]);
+  }, [searchQuery, factionFilter, typeFilter]);
 
   // Format unit type for display
   const getUnitType = (unit: any) => {

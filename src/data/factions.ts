@@ -13,5 +13,31 @@ export const factions: Faction[] = [
   { id: "syenann", name: "Sÿenann" }
 ];
 
-// Export units from all factions
-export const units = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
+// Normalize and deduplicate units
+const normalizeUnits = () => {
+  const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
+  const uniqueUnits = [];
+  const seen = new Set();
+  
+  for (const unit of allUnits) {
+    // Always normalize faction to kebab-case
+    const normalizedUnit = {
+      ...unit,
+      faction: unit.faction.toLowerCase().replace(/\s+/g, '-')
+    };
+    
+    // Create a unique key for each unit
+    const key = `${normalizedUnit.name}_${normalizedUnit.faction}`;
+    
+    // Only add if we haven't seen this key before
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueUnits.push(normalizedUnit);
+    }
+  }
+  
+  return uniqueUnits;
+};
+
+// Export normalized and deduplicated units
+export const units = normalizeUnits();
