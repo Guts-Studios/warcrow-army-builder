@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -43,11 +42,11 @@ export interface PatreonPost {
   id: string;
   title: string;
   content: string;
-  publishedAt: string; // Changed from publishedAt to match usage
+  publishedAt: string; 
   url: string;
-  excerpt?: string; // Added excerpt property to match usage
-  date: string; // Added date property to match usage
-  isPublic?: boolean; // Added is_public property
+  excerpt?: string;
+  date: string;
+  isPublic?: boolean;
 }
 
 /**
@@ -387,8 +386,9 @@ export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_I
 export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID): Promise<PatreonPost[]> => {
   try {
     const result = await fetchCampaignPosts(campaignId);
+    console.log(`Posts received: ${JSON.stringify(result.posts)}`);
     
-    if (result.success && result.posts) {
+    if (result.success && result.posts && result.posts.length > 0) {
       // Posts are already sorted by the API (sort=-published_at)
       return result.posts;
     }
