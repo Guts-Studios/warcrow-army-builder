@@ -7,7 +7,7 @@ import { aboutTranslations } from '@/i18n/about';
 import { ExternalLink, CalendarIcon, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { getPatreonPosts, type PatreonPost, DEFAULT_CAMPAIGN_ID } from '@/utils/patreonUtils';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/toast-core';
 
 export default function LatestPosts() {
   const [posts, setPosts] = useState<PatreonPost[]>([]);
