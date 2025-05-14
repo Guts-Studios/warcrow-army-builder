@@ -6,9 +6,11 @@ import { UnitTable } from './UnitTable';
 import { UnitFilters } from './UnitFilters';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/utils/translation';
+import { useCharacteristicTranslations } from '@/utils/translation/hooks/useCharacteristicTranslations';
 
 const UnitExplorer = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { translateCharacteristic } = useCharacteristicTranslations();
   const [units, setUnits] = useState<any[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,7 +19,7 @@ const UnitExplorer = () => {
 
   useEffect(() => {
     fetchUnits();
-  }, []);
+  }, [language]); // Refetch when language changes to get proper translations
 
   const fetchUnits = async () => {
     setIsLoading(true);

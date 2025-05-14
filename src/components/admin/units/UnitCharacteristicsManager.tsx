@@ -8,6 +8,9 @@ import CharacteristicsTable from "./characteristics/CharacteristicsTable";
 import TranslationWarning from "./characteristics/TranslationWarning";
 import TranslationButtons from "./characteristics/TranslationButtons";
 import TranslationProgress from "./characteristics/TranslationProgress";
+import { Button } from "@/components/ui/button";
+import { WrenchScrewdriver } from "lucide-react";
+import { fixMissingTranslations } from "@/utils/translation/updateMissingTranslations";
 
 const UnitCharacteristicsManager: React.FC = () => {
   const { language } = useLanguage();
@@ -22,11 +25,18 @@ const UnitCharacteristicsManager: React.FC = () => {
     saveCharacteristic,
     translateAllCharacteristicsNames,
     translateAllCharacteristicsDescriptions,
-    getMissingTranslationsCount
+    getMissingTranslationsCount,
+    fetchCharacteristics
   } = useCharacteristics();
   
   const { namesMissing: spanishNamesMissing, descriptionsMissing: spanishDescMissing } = getMissingTranslationsCount('es');
   const { namesMissing: frenchNamesMissing, descriptionsMissing: frenchDescMissing } = getMissingTranslationsCount('fr');
+
+  const handleFixTranslations = async () => {
+    await fixMissingTranslations();
+    // Refresh the characteristics list after fixing translations
+    fetchCharacteristics();
+  };
 
   return (
     <Card className="p-4 bg-black border-warcrow-gold/30">
@@ -35,6 +45,18 @@ const UnitCharacteristicsManager: React.FC = () => {
           <h2 className="text-lg font-semibold text-warcrow-gold">Characteristics Management</h2>
           
           <div className="flex gap-2 flex-wrap">
+            {(spanishNamesMissing > 0 || frenchNamesMissing > 0 || spanishDescMissing > 0 || frenchDescMissing > 0) && (
+              <Button
+                variant="outline"
+                className="border-amber-500/50 text-amber-500"
+                onClick={handleFixTranslations}
+                size="sm"
+              >
+                <WrenchScrewdriver className="h-4 w-4 mr-1" />
+                Fix Missing Translations
+              </Button>
+            )}
+            
             <TranslationButtons 
               isLoading={isLoading}
               translationInProgress={translationInProgress}
