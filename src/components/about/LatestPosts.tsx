@@ -4,9 +4,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { aboutTranslations } from '@/i18n/about';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, CalendarIcon } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/dateUtils';
-import { getPatreonPosts, type PatreonPost } from '@/utils/patreonUtils';
+import { getPatreonPosts, type PatreonPost, DEFAULT_CAMPAIGN_ID } from '@/utils/patreonUtils';
 import { toast } from '@/components/ui/use-toast';
 
 export default function LatestPosts() {
@@ -19,7 +19,7 @@ export default function LatestPosts() {
       try {
         setIsLoading(true);
         console.log('Fetching posts from Patreon API...');
-        const fetchedPosts = await getPatreonPosts();
+        const fetchedPosts = await getPatreonPosts(DEFAULT_CAMPAIGN_ID);
         
         console.log(`Posts received: ${JSON.stringify(fetchedPosts)}`);
         setPosts(fetchedPosts);
@@ -78,7 +78,8 @@ export default function LatestPosts() {
                 </h3>
                 <p className="text-sm text-warcrow-text/80 mb-2">{post.excerpt}</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-warcrow-text/60">
+                  <span className="text-xs flex items-center text-warcrow-text/60">
+                    <CalendarIcon className="mr-1" size={12} />
                     {formatRelativeTime(new Date(post.date), language)}
                   </span>
                   <a 

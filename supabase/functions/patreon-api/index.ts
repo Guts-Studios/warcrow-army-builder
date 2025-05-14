@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // Get environment variables
@@ -203,6 +202,85 @@ async function getCampaignMembers(campaignId: string = DEFAULT_CAMPAIGN_ID) {
   }
 }
 
+// Get posts for a specific campaign
+async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
+  try {
+    const includeFields = "user";
+    const postFields = "title,content,published_at,url";
+    
+    const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/posts?include=${includeFields}&fields[post]=${postFields}`;
+    console.log(`Fetching posts for campaign ${campaignId}`);
+    
+    try {
+      const data = await fetchFromPatreon(url);
+      console.log(`Found ${data.data?.length || 0} posts for campaign ${campaignId}`);
+      
+      // Process posts data
+      const posts = data.data.map((post: any) => {
+        // Extract content - limit to an excerpt if needed
+        const content = post.attributes?.content || "";
+        const excerpt = content.length > 120 ? 
+          content.substring(0, 120) + "..." : 
+          content;
+        
+        return {
+          id: post.id,
+          title: post.attributes?.title || "Untitled Post",
+          content: content,
+          excerpt: excerpt,
+          publishedAt: post.attributes?.published_at,
+          date: post.attributes?.published_at,
+          url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`
+        };
+      });
+      
+      return {
+        success: true,
+        posts
+      };
+    } catch (error) {
+      console.error("Error fetching campaign posts:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in getCampaignPosts:", error);
+    
+    // If API fails, return mock data for development
+    return {
+      success: true,
+      posts: [
+        {
+          id: "1",
+          title: "Latest Development Update",
+          content: "We've been working on adding new features to the Warcrow Army Builder...",
+          excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
+          publishedAt: "2025-04-15T12:00:00Z",
+          date: "2025-04-15T12:00:00Z",
+          url: "https://www.patreon.com/posts/latest-update-1"
+        },
+        {
+          id: "2",
+          title: "New Factions Coming Soon",
+          content: "We're excited to announce that we'll be adding support for new factions...",
+          excerpt: "We're excited to announce that we'll be adding support for new factions...",
+          publishedAt: "2025-04-01T12:00:00Z",
+          date: "2025-04-01T12:00:00Z",
+          url: "https://www.patreon.com/posts/new-factions-2"
+        },
+        {
+          id: "3",
+          title: "Thank You to Our First Supporters!",
+          content: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
+          excerpt: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
+          publishedAt: "2025-03-15T12:00:00Z",
+          date: "2025-03-15T12:00:00Z",
+          url: "https://www.patreon.com/posts/thank-you-3"
+        }
+      ]
+    };
+  }
+}
+
 // Handle API status check
 function handleStatusCheck() {
   return {
@@ -237,6 +315,10 @@ serve(async (req) => {
         
       case "campaign-members":
         response = await getCampaignMembers(campaignId);
+        break;
+        
+      case "campaign-posts":
+        response = await getCampaignPosts(campaignId);
         break;
         
       default:

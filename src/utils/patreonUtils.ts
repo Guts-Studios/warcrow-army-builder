@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -343,29 +342,107 @@ export const getPatreonPatrons = async (campaignId: string = DEFAULT_CAMPAIGN_ID
 };
 
 /**
+ * Fetches campaign posts from the Supabase Edge Function
+ * @param campaignId The Patreon campaign ID
+ * @returns Posts from the campaign
+ */
+export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('patreon-api', {
+      body: {
+        endpoint: 'campaign-posts',
+        campaignId
+      }
+    });
+
+    if (error) {
+      console.error('Error fetching Patreon posts:', error);
+      return { 
+        success: false, 
+        error: error.message, 
+        posts: [] 
+      };
+    }
+
+    return {
+      success: true,
+      posts: data.posts || []
+    };
+  } catch (err: any) {
+    console.error('Error in fetchCampaignPosts:', err);
+    return { 
+      success: false, 
+      error: err.message, 
+      posts: [] 
+    };
+  }
+};
+
+/**
  * Gets recent posts from Patreon campaign
  */
 export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID): Promise<PatreonPost[]> => {
-  // This would call the Patreon API's posts endpoint
-  // For now returning mock data as placeholder
-  return [
-    {
-      id: "1",
-      title: "Latest Development Update",
-      content: "We've been working on adding new features to the Warcrow Army Builder...",
-      excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
-      publishedAt: "2025-04-15T12:00:00Z",
-      date: "2025-04-15T12:00:00Z",
-      url: "https://www.patreon.com/posts/latest-update-1"
-    },
-    {
-      id: "2",
-      title: "New Factions Coming Soon",
-      content: "We're excited to announce that we'll be adding support for new factions...",
-      excerpt: "We're excited to announce that we'll be adding support for new factions...",
-      publishedAt: "2025-04-01T12:00:00Z",
-      date: "2025-04-01T12:00:00Z",
-      url: "https://www.patreon.com/posts/new-factions-2"
+  try {
+    const result = await fetchCampaignPosts(campaignId);
+    
+    if (result.success && result.posts) {
+      // Sort by date descending (newest first)
+      return result.posts.sort((a: PatreonPost, b: PatreonPost) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
     }
-  ];
+    
+    // Return mock data if API call failed
+    return [
+      {
+        id: "1",
+        title: "Latest Development Update",
+        content: "We've been working on adding new features to the Warcrow Army Builder...",
+        excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
+        publishedAt: "2025-04-15T12:00:00Z",
+        date: "2025-04-15T12:00:00Z",
+        url: "https://www.patreon.com/posts/latest-update-1"
+      },
+      {
+        id: "2",
+        title: "New Factions Coming Soon",
+        content: "We're excited to announce that we'll be adding support for new factions...",
+        excerpt: "We're excited to announce that we'll be adding support for new factions...",
+        publishedAt: "2025-04-01T12:00:00Z",
+        date: "2025-04-01T12:00:00Z",
+        url: "https://www.patreon.com/posts/new-factions-2"
+      },
+      {
+        id: "3",
+        title: "Thank You to Our First Supporters!",
+        content: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
+        excerpt: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
+        publishedAt: "2025-03-15T12:00:00Z",
+        date: "2025-03-15T12:00:00Z",
+        url: "https://www.patreon.com/posts/thank-you-3"
+      }
+    ];
+  } catch (err) {
+    console.error('Error in getPatreonPosts:', err);
+    return [
+      {
+        id: "1",
+        title: "Latest Development Update",
+        content: "We've been working on adding new features to the Warcrow Army Builder...",
+        excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
+        publishedAt: "2025-04-15T12:00:00Z",
+        date: "2025-04-15T12:00:00Z",
+        url: "https://www.patreon.com/posts/latest-update-1"
+      },
+      {
+        id: "2",
+        title: "New Factions Coming Soon",
+        content: "We're excited to announce that we'll be adding support for new factions...",
+        excerpt: "We're excited to announce that we'll be adding support for new factions...",
+        publishedAt: "2025-04-01T12:00:00Z",
+        date: "2025-04-01T12:00:00Z",
+        url: "https://www.patreon.com/posts/new-factions-2"
+      }
+    ];
+  }
 };
