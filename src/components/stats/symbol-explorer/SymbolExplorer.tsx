@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from "@/utils/translationUtils";
+import { useTranslateKeyword } from "@/utils/translation";
 
 const SymbolExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,17 +15,44 @@ const SymbolExplorer = () => {
   const { t } = useLanguage();
   const { translateKeyword } = useTranslateKeyword();
 
+  // Normalize faction names and deduplicate units
+  const normalizedUnits = useMemo(() => {
+    // Map to store unique units (by name and normalized faction)
+    const uniqueUnits = new Map();
+    
+    // Normalize faction names and deduplicate
+    allUnits.forEach(unit => {
+      // Ensure faction is in kebab-case format
+      const normalizedFaction = unit.faction.toLowerCase().replace(/\s+/g, '-');
+      
+      // Create a unique key using name and normalized faction
+      const key = `${unit.name}_${normalizedFaction}`;
+      
+      // Add the unit to the map, overwriting any previous entry with the same key
+      // Prefer the kebab-case version of the faction name
+      if (!uniqueUnits.has(key) || unit.faction === normalizedFaction) {
+        uniqueUnits.set(key, {
+          ...unit,
+          faction: normalizedFaction // Use normalized faction name
+        });
+      }
+    });
+    
+    // Convert the map values to an array
+    return Array.from(uniqueUnits.values());
+  }, []);
+
   // Get unique factions
   const factions = useMemo(() => {
-    const uniqueFactions = new Set(allUnits.map(unit => unit.faction));
+    const uniqueFactions = new Set(normalizedUnits.map(unit => unit.faction));
     return Array.from(uniqueFactions).sort();
-  }, []);
+  }, [normalizedUnits]);
 
   // Get unique unit types (character, troop, etc.)
   const unitTypes = useMemo(() => {
     const types = new Set<string>();
     
-    allUnits.forEach(unit => {
+    normalizedUnits.forEach(unit => {
       // Determine unit type based on keywords or other properties
       if (unit.highCommand) {
         types.add('high-command');
@@ -40,11 +67,11 @@ const SymbolExplorer = () => {
     });
     
     return Array.from(types).sort();
-  }, []);
+  }, [normalizedUnits]);
 
   // Filter and sort units
   const filteredUnits = useMemo(() => {
-    return allUnits.filter(unit => {
+    return normalizedUnits.filter(unit => {
       // Name filter
       const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
       
@@ -77,7 +104,7 @@ const SymbolExplorer = () => {
       }
       return a.name.localeCompare(b.name);
     });
-  }, [searchQuery, factionFilter, typeFilter]);
+  }, [searchQuery, factionFilter, typeFilter, normalizedUnits]);
 
   // Format unit type for display
   const getUnitType = (unit: any) => {
@@ -103,6 +130,13 @@ const SymbolExplorer = () => {
     }).join(', ');
   };
 
+  // Format faction name for display (convert kebab-case to Title Case)
+  const formatFactionName = (faction: string) => {
+    return faction.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   return (
     <Card className="bg-warcrow-background border-warcrow-gold/30">
       <CardHeader className="pb-3">
@@ -125,7 +159,7 @@ const SymbolExplorer = () => {
               <SelectItem value="all">{t('allFactions')}</SelectItem>
               {factions.map(faction => (
                 <SelectItem key={faction} value={faction}>
-                  {faction}
+                  {formatFactionName(faction)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -137,7 +171,7 @@ const SymbolExplorer = () => {
             </SelectTrigger>
             <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
               <SelectItem value="all">{t('allTypes')}</SelectItem>
-              {unitTypes.map((type) => (
+              {unitTypes.map((type: string) => (
                 <SelectItem key={type} value={type}>
                   {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
                 </SelectItem>
@@ -168,7 +202,7 @@ const SymbolExplorer = () => {
               ) : (
                 filteredUnits.map((unit, index) => (
                   <TableRow key={`${unit.id}-${index}`} className="hover:bg-warcrow-accent/5">
-                    <TableCell className="text-warcrow-text">{unit.faction}</TableCell>
+                    <TableCell className="text-warcrow-text">{formatFactionName(unit.faction)}</TableCell>
                     <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                     <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
                     <TableCell className="text-warcrow-text/80 text-xs">{unit.id}</TableCell>
