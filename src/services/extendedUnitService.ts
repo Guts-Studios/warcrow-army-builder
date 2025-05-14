@@ -52,17 +52,18 @@ export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
   
   // Transform the Supabase data to the ExtendedUnit format
   return data.map(unit => {
-    const characteristics = unit.characteristics || {};
+    // Safely access characteristics as an object
+    const characteristics = unit.characteristics as Record<string, any> || {};
     
     return {
       id: unit.id,
       name: unit.name,
       cost: unit.points || 0,
       stats: { 
-        MOV: characteristics.movement || "3-3 (9)", 
+        MOV: characteristics.movement?.toString() || "3-3 (9)", 
         W: characteristics.wounds || 1, 
-        WP: characteristics.resolve || "🟠", 
-        MOR: characteristics.command || 1, 
+        WP: characteristics.resolve?.toString() || "🟠", 
+        MOR: characteristics.command?.toString() || "1", 
         AVB: characteristics.availability || 1 
       },
       type: unit.type || "Infantry",
@@ -70,9 +71,10 @@ export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
       specialRules: unit.special_rules || [],
       profiles: [], // This would need more complex mapping
       abilities: {}, // This would need more complex mapping
+      // Safely access image_url if it exists
       imageUrl: unit.image_url || undefined,
-      command: characteristics.command,
-      availability: characteristics.availability,
+      command: characteristics.command || undefined,
+      availability: characteristics.availability || undefined,
       points: unit.points
     };
   });
