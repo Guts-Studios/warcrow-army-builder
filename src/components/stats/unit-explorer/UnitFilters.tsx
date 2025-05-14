@@ -64,7 +64,7 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
         <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
           <SelectItem value="">{t('allFactions')}</SelectItem>
           {factions.map(faction => (
-            <SelectItem key={faction} value={faction}>{faction}</SelectItem>
+            <SelectItem key={faction} value={faction}>{formatFactionName(faction)}</SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -76,7 +76,7 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
         <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
           <SelectItem value="">{t('allTypes')}</SelectItem>
           {unitTypes.map(type => (
-            <SelectItem key={type} value={type}>{type}</SelectItem>
+            <SelectItem key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</SelectItem>
           ))}
         </SelectContent>
       </Select>
