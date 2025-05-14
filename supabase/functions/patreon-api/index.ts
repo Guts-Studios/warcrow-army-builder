@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // Get environment variables
@@ -206,10 +207,11 @@ async function getCampaignMembers(campaignId: string = DEFAULT_CAMPAIGN_ID) {
 async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
   try {
     const includeFields = "user";
-    const postFields = "title,content,published_at,url";
+    const postFields = "title,content,published_at,url,is_public";
     
-    const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/posts?include=${includeFields}&fields[post]=${postFields}`;
-    console.log(`Fetching posts for campaign ${campaignId}`);
+    // Add sort=-published_at to get posts sorted from newest to oldest
+    const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/posts?include=${includeFields}&fields[post]=${postFields}&sort=-published_at`;
+    console.log(`Fetching posts for campaign ${campaignId} with sorting`);
     
     try {
       const data = await fetchFromPatreon(url);
@@ -230,6 +232,7 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
           excerpt: excerpt,
           publishedAt: post.attributes?.published_at,
           date: post.attributes?.published_at,
+          isPublic: post.attributes?.is_public || true,
           url: post.attributes?.url || `https://www.patreon.com/posts/${post.id}`
         };
       });
@@ -256,6 +259,7 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
           excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
           publishedAt: "2025-04-15T12:00:00Z",
           date: "2025-04-15T12:00:00Z",
+          isPublic: true,
           url: "https://www.patreon.com/posts/latest-update-1"
         },
         {
@@ -265,6 +269,7 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
           excerpt: "We're excited to announce that we'll be adding support for new factions...",
           publishedAt: "2025-04-01T12:00:00Z",
           date: "2025-04-01T12:00:00Z",
+          isPublic: true,
           url: "https://www.patreon.com/posts/new-factions-2"
         },
         {
@@ -274,6 +279,7 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
           excerpt: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
           publishedAt: "2025-03-15T12:00:00Z",
           date: "2025-03-15T12:00:00Z",
+          isPublic: true,
           url: "https://www.patreon.com/posts/thank-you-3"
         }
       ]

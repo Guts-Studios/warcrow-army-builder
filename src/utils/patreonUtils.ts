@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -45,7 +46,8 @@ export interface PatreonPost {
   publishedAt: string; // Changed from publishedAt to match usage
   url: string;
   excerpt?: string; // Added excerpt property to match usage
-  date: string; // Added date property to match usage in component
+  date: string; // Added date property to match usage
+  isPublic?: boolean; // Added is_public property
 }
 
 /**
@@ -344,7 +346,7 @@ export const getPatreonPatrons = async (campaignId: string = DEFAULT_CAMPAIGN_ID
 /**
  * Fetches campaign posts from the Supabase Edge Function
  * @param campaignId The Patreon campaign ID
- * @returns Posts from the campaign
+ * @returns Posts from the campaign, sorted from newest to oldest
  */
 export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID) => {
   try {
@@ -380,16 +382,15 @@ export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_I
 
 /**
  * Gets recent posts from Patreon campaign
+ * Posts are already sorted by the API from newest to oldest
  */
 export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID): Promise<PatreonPost[]> => {
   try {
     const result = await fetchCampaignPosts(campaignId);
     
     if (result.success && result.posts) {
-      // Sort by date descending (newest first)
-      return result.posts.sort((a: PatreonPost, b: PatreonPost) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
+      // Posts are already sorted by the API (sort=-published_at)
+      return result.posts;
     }
     
     // Return mock data if API call failed
@@ -401,6 +402,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
         excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
         publishedAt: "2025-04-15T12:00:00Z",
         date: "2025-04-15T12:00:00Z",
+        isPublic: true,
         url: "https://www.patreon.com/posts/latest-update-1"
       },
       {
@@ -410,6 +412,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
         excerpt: "We're excited to announce that we'll be adding support for new factions...",
         publishedAt: "2025-04-01T12:00:00Z",
         date: "2025-04-01T12:00:00Z",
+        isPublic: true,
         url: "https://www.patreon.com/posts/new-factions-2"
       },
       {
@@ -419,6 +422,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
         excerpt: "We want to extend a special thank you to our first supporters who have joined us on this journey...",
         publishedAt: "2025-03-15T12:00:00Z",
         date: "2025-03-15T12:00:00Z",
+        isPublic: true,
         url: "https://www.patreon.com/posts/thank-you-3"
       }
     ];
@@ -432,6 +436,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
         excerpt: "We've been working on adding new features to the Warcrow Army Builder...",
         publishedAt: "2025-04-15T12:00:00Z",
         date: "2025-04-15T12:00:00Z",
+        isPublic: true,
         url: "https://www.patreon.com/posts/latest-update-1"
       },
       {
@@ -441,6 +446,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
         excerpt: "We're excited to announce that we'll be adding support for new factions...",
         publishedAt: "2025-04-01T12:00:00Z",
         date: "2025-04-01T12:00:00Z",
+        isPublic: true,
         url: "https://www.patreon.com/posts/new-factions-2"
       }
     ];
