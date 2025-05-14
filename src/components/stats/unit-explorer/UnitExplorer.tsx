@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/LanguageContext';
-import UnitTable from './UnitTable';
-import UnitFilters from './UnitFilters';
+import { UnitTable } from './UnitTable';
+import { UnitFilters } from './UnitFilters';
+import { useTranslateKeyword } from '@/utils/translation';
 
 // Define the interface for the unit data
 interface UnitData {
@@ -21,16 +22,19 @@ interface UnitData {
 const UnitExplorer = () => {
   const [units, setUnits] = useState<UnitData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFaction, setSelectedFaction] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const { language } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [factionFilter, setFactionFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const { language, t } = useLanguage();
+  const [factions, setFactions] = useState<string[]>([]);
+  const [unitTypes, setUnitTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchUnits = async () => {
       try {
         setLoading(true);
         const { data, error } = await supabase
-          .from('units')
+          .from('unit_data')
           .select('*');
         
         if (error) {
@@ -41,6 +45,13 @@ const UnitExplorer = () => {
         // Cast data to the UnitData interface with type safety
         const typedData = data as UnitData[];
         setUnits(typedData);
+        
+        // Extract unique factions and unit types
+        const uniqueFactions = Array.from(new Set(typedData.map(unit => unit.faction)));
+        const uniqueTypes = Array.from(new Set(typedData.map(unit => unit.type)));
+        
+        setFactions(uniqueFactions);
+        setUnitTypes(uniqueTypes);
       } catch (error) {
         console.error('Error in fetchUnits:', error);
       } finally {
@@ -52,21 +63,21 @@ const UnitExplorer = () => {
   }, []);
 
   const filteredUnits = units.filter((unit) => {
-    // Type guard for characteristics.highCommand
-    const isHighCommand = 
-      unit.characteristics && 
-      typeof unit.characteristics === 'object' && 
-      'highCommand' in unit.characteristics && 
-      unit.characteristics.highCommand === true;
-    
-    if (selectedFaction && unit.faction !== selectedFaction) {
+    // Filter by search query
+    if (searchQuery && !unit.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
-    if (selectedType) {
-      if (selectedType === 'high-command' && !isHighCommand) {
+    // Filter by faction
+    if (factionFilter !== 'all' && unit.faction !== factionFilter) {
+      return false;
+    }
+    
+    // Filter by type
+    if (typeFilter !== 'all') {
+      if (typeFilter === 'high-command' && !unit.characteristics?.highCommand) {
         return false;
-      } else if (selectedType !== 'high-command' && unit.type !== selectedType) {
+      } else if (typeFilter !== 'high-command' && unit.type !== typeFilter) {
         return false;
       }
     }
@@ -74,21 +85,20 @@ const UnitExplorer = () => {
     return true;
   });
 
-  const handleFactionChange = (faction: string | null) => {
-    setSelectedFaction(faction);
-  };
-
-  const handleTypeChange = (type: string | null) => {
-    setSelectedType(type);
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Unit Explorer</h1>
       
       <UnitFilters 
-        onFactionChange={handleFactionChange}
-        onTypeChange={handleTypeChange}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        factionFilter={factionFilter}
+        setFactionFilter={setFactionFilter}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+        factions={factions}
+        unitTypes={unitTypes}
+        t={t}
       />
       
       <Tabs defaultValue="table" className="mt-4">
@@ -97,7 +107,7 @@ const UnitExplorer = () => {
           <TabsTrigger value="cards">Cards</TabsTrigger>
         </TabsList>
         <TabsContent value="table">
-          <UnitTable units={filteredUnits} loading={loading} />
+          <UnitTable filteredUnits={filteredUnits} t={t} isLoading={loading} />
         </TabsContent>
         <TabsContent value="cards">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
