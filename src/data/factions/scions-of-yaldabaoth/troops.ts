@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const scionsOfYaldabaothTroops: Unit[] = [
@@ -166,6 +165,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 15,
     faction: "scions-of-yaldabaoth",
     keywords: [
+      { name: "Infantry", description: "" },
       { name: "Dead Flesh", description: "" },
       { name: "Risen", description: "" },
       { name: "Golem", description: "" }
