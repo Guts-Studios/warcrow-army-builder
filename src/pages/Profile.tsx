@@ -1,8 +1,7 @@
-
 import { ProfileDataProvider, useProfileContext } from "@/components/profile/ProfileData";
 import { ProfileContent } from "@/components/profile/ProfileContent";
 import { LoadingScreen } from "@/components/profile/LoadingScreen";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useFriends } from "@/hooks/useFriends";

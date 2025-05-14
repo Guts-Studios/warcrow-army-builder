@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatreonPatron, getPatreonPatrons } from '@/utils/patreonUtils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { aboutTranslations } from '@/i18n/about';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { StarIcon } from 'lucide-react';
 

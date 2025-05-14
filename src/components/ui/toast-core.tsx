@@ -113,7 +113,26 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-export { toast } from "sonner"
+// Import toast from sonner and re-export properly typed version
+import { toast as sonnerToast } from "sonner";
+
+// Define a properly typed toast function to match what's being used
+type ToastOptions = {
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  variant?: "default" | "destructive" | "success" | "warning";
+  duration?: number;
+};
+
+// Create a typed toast function
+const toast = (options: ToastOptions) => {
+  return sonnerToast(options.title as any, {
+    description: options.description,
+    action: options.action,
+    duration: options.duration,
+  });
+};
 
 export {
   ToastProvider,
@@ -123,16 +142,25 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  toast,
 };
 
-export type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+export type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
+export type ToastActionElement = React.ReactElement<typeof ToastAction>;
 
-export type ToastActionElement = React.ReactElement<typeof ToastAction>
-
+// Typed useToast hook that returns toasts array for the Toaster component
 export const useToast = () => {
-  const { toast } = require("sonner");
-  
+  // Create mock toasts array for the Toaster component
+  const toasts: {
+    id: string;
+    title?: React.ReactNode;
+    description?: React.ReactNode;
+    action?: React.ReactNode;
+    [key: string]: any;
+  }[] = [];
+
   return {
     toast,
+    toasts,
   };
 };

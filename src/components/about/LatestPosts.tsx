@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,6 +54,7 @@ export default function LatestPosts() {
     fetchPosts();
   }, [language]);
 
+  
   if (isLoading) {
     return (
       <Card className="w-full h-full">
