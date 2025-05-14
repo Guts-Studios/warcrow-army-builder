@@ -7,11 +7,13 @@ import { formatFactionName, getUnitType, formatKeywords } from './utils';
 interface UnitTableProps {
   filteredUnits: any[];
   t: (key: string) => string;
+  isLoading?: boolean;
 }
 
 export const UnitTable: React.FC<UnitTableProps> = ({
   filteredUnits,
-  t
+  t,
+  isLoading = false
 }) => {
   const { translateKeyword } = useTranslateKeyword();
   
@@ -29,7 +31,13 @@ export const UnitTable: React.FC<UnitTableProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredUnits.length === 0 ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-6 text-warcrow-muted">
+                {t('loading')}...
+              </TableCell>
+            </TableRow>
+          ) : filteredUnits.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-6 text-warcrow-muted">
                 {t('noUnitsMatch')}

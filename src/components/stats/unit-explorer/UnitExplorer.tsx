@@ -1,48 +1,62 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from "@/utils/translation";
 import { UnitFilters } from './UnitFilters';
 import { UnitTable } from './UnitTable';
 import { normalizeAndDeduplicate } from './utils';
-import { getAllExtendedUnits } from '@/services/extendedUnitService';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const UnitExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [factionFilter, setFactionFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [units, setUnits] = useState<any[]>([]);
   const { t } = useLanguage();
   
-  // Get extended units that have more comprehensive data
-  const extendedUnits = getAllExtendedUnits();
-
-  // Combine and normalize all unit data
-  const combinedUnits = useMemo(() => {
-    // Use the extended units as a base since they have more data
-    const combined = [...extendedUnits].map(unit => {
-      // Format to match the structure expected by the filters and table
-      return {
+  // Fetch units directly from Supabase
+  const fetchUnits = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('unit_data')
+        .select('*')
+        .order('faction')
+        .order('name');
+        
+      if (error) throw error;
+      
+      // Format units to match the expected structure 
+      const formattedUnits = data.map(unit => ({
         ...unit,
+        id: unit.id,
         name: unit.name,
-        faction: unit.type?.toLowerCase().includes('hegemony') ? 'hegemony-of-embersig' : 
-                unit.type?.toLowerCase().includes('northern') ? 'northern-tribes' : 
-                unit.type?.toLowerCase().includes('scions') ? 'scions-of-yaldabaoth' : 
-                unit.type?.toLowerCase().includes('syenann') ? 'syenann' : 'unknown',
-        highCommand: unit.type?.toLowerCase().includes('high command'),
-        pointsCost: unit.cost || unit.points || 0,
+        faction: unit.faction,
+        highCommand: unit.characteristics?.highCommand || false,
+        pointsCost: unit.points || 0,
         keywords: unit.keywords || []
-      };
-    });
-    
-    return combined;
-  }, [extendedUnits]);
+      }));
+      
+      setUnits(formattedUnits);
+    } catch (error: any) {
+      console.error("Error fetching units:", error);
+      toast.error(`Failed to fetch unit data: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Fetch units on component mount
+  useEffect(() => {
+    fetchUnits();
+  }, []);
   
   // Get normalized and deduplicated units
   const { deduplicatedUnits, factions, unitTypes } = useMemo(() => 
-    normalizeAndDeduplicate(combinedUnits), 
-  [combinedUnits]);
+    normalizeAndDeduplicate(units), 
+  [units]);
   
   // Filter and sort units
   const filteredUnits = useMemo(() => {
@@ -102,6 +116,7 @@ const UnitExplorer = () => {
         <UnitTable 
           filteredUnits={filteredUnits}
           t={t}
+          isLoading={isLoading}
         />
         
         <div className="text-sm text-warcrow-muted">
