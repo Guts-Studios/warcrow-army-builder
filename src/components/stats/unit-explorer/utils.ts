@@ -1,100 +1,53 @@
-
-// Map to normalize older faction naming to canonical kebab-case versions
-export const factionNameMap: Record<string, string> = {
-  'Hegemony of Embersig': 'hegemony-of-embersig',
-  'Northern Tribes': 'northern-tribes',
-  'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
-  'Sÿenann': 'syenann',
-  'Syenann': 'syenann',
-  'hegemony': 'hegemony-of-embersig',
-  'tribes': 'northern-tribes',
-  'scions': 'scions-of-yaldabaoth'
-};
-
-// Format faction name for display (convert kebab-case to Title Case)
+/**
+ * Format a faction name from kebab-case to title case
+ */
 export const formatFactionName = (faction: string): string => {
-  return faction.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
+  if (!faction) return '';
+  
+  // If the faction is already in a readable format (contains spaces), return it as is
+  if (faction.includes(' ')) return faction;
+  
+  // Otherwise, convert from kebab-case to title case
+  return faction
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
-// Format unit type for display
+/**
+ * Get the unit type label in a user-friendly format
+ */
 export const getUnitType = (unit: any): string => {
-  if (unit.highCommand) {
+  if (!unit) return '';
+
+  // Check for high command first
+  if (unit.characteristics?.highCommand) {
     return 'High Command';
-  } else if (unit.keywords?.some((k: any) => {
-    const keywordName = typeof k === 'string' ? k : k.name;
-    return keywordName === 'Character';
-  })) {
-    return 'Character';
-  } else {
-    return 'Troop';
   }
+
+  // Return formatted unit type
+  return unit.type ? unit.type.charAt(0).toUpperCase() + unit.type.slice(1) : '';
 };
 
-// Format keywords for display
-export const formatKeywords = (unit: any, translateKeyword: (key: string, lang: string) => string): string => {
-  if (!unit.keywords || unit.keywords.length === 0) return '-';
+/**
+ * Format keywords array to display string
+ */
+export const formatKeywords = (unit: any, translateFn?: (keyword: string) => string): string => {
+  if (!unit.keywords) return '';
   
-  return unit.keywords.map((k: any) => {
-    const keywordName = typeof k === 'string' ? k : k.name;
-    return translateKeyword(keywordName, 'en');
-  }).join(', ');
-};
-
-// Normalize and deduplicate units
-export const normalizeAndDeduplicate = (units: any[]) => {
-  // Normalize all units to ensure consistent faction values
-  const normalizedUnits = units.map(unit => {
-    // Handle both kebab-case and space-separated faction names
-    let normalizedFaction = unit.faction.toLowerCase();
-    
-    // Check if it's in the map directly
-    if (factionNameMap[unit.faction]) {
-      normalizedFaction = factionNameMap[unit.faction];
-    }
-    // Check if it's a space-separated name that needs conversion
-    else if (unit.faction.includes(' ')) {
-      const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
-      normalizedFaction = factionNameMap[kebabName] || kebabName;
-    }
-    
-    return {
-      ...unit,
-      faction: normalizedFaction,
-    };
-  });
+  const keywords = Array.isArray(unit.keywords) 
+    ? unit.keywords 
+    : typeof unit.keywords === 'string' 
+      ? unit.keywords.split(',').map(k => k.trim())
+      : [];
   
-  // Deduplicate units based on name and faction
-  const seen = new Map();
-  const deduplicatedUnits = normalizedUnits.filter(unit => {
-    const key = `${unit.name}_${unit.faction}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.set(key, true);
-    return true;
-  });
-
-  // Get unique factions
-  const uniqueFactions = new Set(deduplicatedUnits.map(unit => unit.faction));
-  const factions = Array.from(uniqueFactions).sort();
-
-  // Get unique unit types
-  const types = new Set<string>();
-  deduplicatedUnits.forEach(unit => {
-    if (unit.highCommand) {
-      types.add('high-command');
-    } else if (unit.keywords?.some(k => {
-      const keywordName = typeof k === 'string' ? k : k.name;
-      return keywordName === 'Character';
-    })) {
-      types.add('character');
-    } else {
-      types.add('troop');
-    }
-  });
-  const unitTypes = Array.from(types).sort();
-
-  return { deduplicatedUnits, factions, unitTypes };
+  return keywords
+    .map(keyword => {
+      const keywordStr = typeof keyword === 'object' && keyword.name 
+        ? keyword.name 
+        : keyword;
+        
+      return translateFn ? translateFn(keywordStr) : keywordStr;
+    })
+    .join(', ');
 };
