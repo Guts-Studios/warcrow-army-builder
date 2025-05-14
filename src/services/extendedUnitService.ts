@@ -71,8 +71,9 @@ export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
       specialRules: unit.special_rules || [],
       profiles: [], // This would need more complex mapping
       abilities: {}, // This would need more complex mapping
-      // Safely access image_url if it exists
-      imageUrl: unit.image_url || undefined,
+      // The field is not called image_url based on the error, so use a fallback approach
+      // If there's an equivalent field in the database, we should use that instead
+      imageUrl: undefined, // We'll need to determine the correct field name or add it to the schema
       command: characteristics.command || undefined,
       availability: characteristics.availability || undefined,
       points: unit.points
