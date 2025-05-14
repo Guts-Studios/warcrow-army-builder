@@ -7,13 +7,14 @@ import { aboutTranslations } from '@/i18n/about';
 import { ExternalLink, CalendarIcon, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { getPatreonPosts, type PatreonPost, DEFAULT_CAMPAIGN_ID } from '@/utils/patreonUtils';
-import { toast } from '@/components/ui/toast-core';
+import { toast } from '@/hooks/use-toast';
 
 export default function LatestPosts() {
   const [posts, setPosts] = useState<PatreonPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isMockData, setIsMockData] = useState(false);
+  const [apiResponse, setApiResponse] = useState<any>(null);
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export default function LatestPosts() {
       try {
         setIsLoading(true);
         setApiError(null);
-        console.log('Fetching posts from Patreon API...');
+        console.log('🔄 Fetching posts from Patreon API...');
         const fetchedPosts = await getPatreonPosts(DEFAULT_CAMPAIGN_ID);
         
         // Check if we're getting mock data by looking at the IDs
@@ -29,13 +30,16 @@ export default function LatestPosts() {
           ['1', '2', '3'].includes(post.id));
         
         setIsMockData(mockDataDetected);
-        console.log(`Posts received (${mockDataDetected ? 'MOCK' : 'REAL'} data):`, fetchedPosts);
+        console.log(`✅ Posts received (${mockDataDetected ? 'MOCK DATA' : 'REAL DATA'}):`);
+        console.log(fetchedPosts);
         
         setPosts(fetchedPosts);
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching blog posts:', error);
+        console.error('❌ Error fetching blog posts:', error);
         setApiError(error instanceof Error ? error.message : 'Unknown error');
+        
+        // Only show toast when we're not showing mock data
         toast({
           title: language === 'en' ? 'Error' : language === 'es' ? 'Error' : 'Erreur',
           description: language === 'en' ? 'Could not fetch latest posts'
@@ -43,6 +47,7 @@ export default function LatestPosts() {
             : 'Impossible de récupérer les dernières publications',
           variant: 'destructive',
         });
+        
         setIsLoading(false);
       }
     };
@@ -77,7 +82,7 @@ export default function LatestPosts() {
     window.open(url, '_blank', 'noopener noreferrer');
     
     // Log for debugging purposes
-    console.log(`Opening Patreon post: ${url}`);
+    console.log(`🔗 Opening Patreon post: ${url}`);
   };
 
   return (

@@ -2,8 +2,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // Get environment variables
-const PATREON_ACCESS_TOKEN = Deno.env.get("PATREON_ACCESS_TOKEN") || "";
-const PATREON_REFRESH_TOKEN = Deno.env.get("PATREON_REFRESH_TOKEN") || "";
+const PATREON_ACCESS_TOKEN = Deno.env.get("PATREON_CREATOR_ACCESS_TOKEN") || "";
+const PATREON_REFRESH_TOKEN = Deno.env.get("PATREON_CREATOR_REFRESH_TOKEN") || "";
 const PATREON_CLIENT_ID = Deno.env.get("PATREON_CLIENT_ID") || "";
 const PATREON_CLIENT_SECRET = Deno.env.get("PATREON_CLIENT_SECRET") || "";
 
@@ -19,26 +19,35 @@ const corsHeaders = {
 // Helper function to fetch data from Patreon API
 async function fetchFromPatreon(url: string) {
   try {
-    console.log(`Fetching from Patreon: ${url}`);
+    console.log(`⬆️ Fetching from Patreon: ${url}`);
+    console.log(`🔑 Using token: ${PATREON_ACCESS_TOKEN ? PATREON_ACCESS_TOKEN.substring(0, 5) + '...' : 'No token'}`);
+    
+    const headers: HeadersInit = {
+      "Content-Type": "application/json"
+    };
+    
+    if (PATREON_ACCESS_TOKEN) {
+      headers.Authorization = `Bearer ${PATREON_ACCESS_TOKEN}`;
+    } else {
+      console.error("⚠️ No Patreon access token found in environment variables!");
+    }
+    
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${PATREON_ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      }
+      headers
     });
     
     if (!response.ok) {
       const text = await response.text();
-      console.error(`Patreon API error: ${response.status} - ${text}`);
-      throw new Error(`Patreon API error: ${response.status}`);
+      console.error(`❌ Patreon API error: ${response.status} - ${text}`);
+      throw new Error(`Patreon API error: ${response.status} - ${text}`);
     }
     
     const data = await response.json();
-    console.log(`Patreon API response received: ${url}`);
+    console.log(`✅ Patreon API response received: ${url}`);
     return data;
   } catch (error) {
-    console.error("Error fetching from Patreon:", error);
+    console.error("❌ Error fetching from Patreon:", error);
     throw error;
   }
 }
@@ -211,11 +220,11 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
     
     // Add sort=-published_at to get posts sorted from newest to oldest
     const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}/posts?include=${includeFields}&fields[post]=${postFields}&sort=-published_at`;
-    console.log(`Fetching posts for campaign ${campaignId} with sorting`);
+    console.log(`🔄 Fetching posts for campaign ${campaignId} with sorting`);
     
     try {
       const data = await fetchFromPatreon(url);
-      console.log(`Found ${data.data?.length || 0} posts for campaign ${campaignId}`);
+      console.log(`📝 Found ${data.data?.length || 0} posts for campaign ${campaignId}`);
       
       // Process posts data
       const posts = data.data.map((post: any) => {
@@ -242,11 +251,11 @@ async function getCampaignPosts(campaignId: string = DEFAULT_CAMPAIGN_ID) {
         posts
       };
     } catch (error) {
-      console.error("Error fetching campaign posts:", error);
+      console.error("❌ Error fetching campaign posts:", error);
       throw error;
     }
   } catch (error) {
-    console.error("Error in getCampaignPosts:", error);
+    console.error("❌ Error in getCampaignPosts:", error);
     
     // If API fails, return mock data for development
     return {
@@ -306,7 +315,7 @@ serve(async (req) => {
     const body = await req.json();
     const { endpoint, campaignId = DEFAULT_CAMPAIGN_ID } = body;
     
-    console.log(`Processing request for endpoint: ${endpoint}, campaignId: ${campaignId}`);
+    console.log(`🔄 Processing request for endpoint: ${endpoint}, campaignId: ${campaignId}`);
     
     let response: any = {};
     
@@ -334,14 +343,14 @@ serve(async (req) => {
         );
     }
     
-    console.log(`Returning response for endpoint ${endpoint}`);
+    console.log(`✅ Returning response for endpoint ${endpoint}`);
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (error) {
-    console.error("Error processing request:", error);
+    console.error("❌ Error processing request:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -350,7 +349,7 @@ export const getPatreonPatrons = async (campaignId: string = DEFAULT_CAMPAIGN_ID
  */
 export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID) => {
   try {
-    console.log(`Calling Supabase function 'patreon-api' with campaignId: ${campaignId}`);
+    console.log(`📤 Calling Supabase function 'patreon-api' with campaignId: ${campaignId}`);
     
     const { data, error } = await supabase.functions.invoke('patreon-api', {
       body: {
@@ -360,7 +359,7 @@ export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_I
     });
 
     if (error) {
-      console.error('Error fetching Patreon posts:', error);
+      console.error('❌ Error fetching Patreon posts:', error);
       return { 
         success: false, 
         error: error.message, 
@@ -368,14 +367,14 @@ export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_I
       };
     }
 
-    console.log('Response from patreon-api function:', data);
+    console.log('📥 Response from patreon-api function:', data);
     
     return {
       success: true,
       posts: data.posts || []
     };
   } catch (err: any) {
-    console.error('Error in fetchCampaignPosts:', err);
+    console.error('❌ Error in fetchCampaignPosts:', err);
     return { 
       success: false, 
       error: err.message, 
@@ -390,16 +389,16 @@ export const fetchCampaignPosts = async (campaignId: string = DEFAULT_CAMPAIGN_I
  */
 export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID): Promise<PatreonPost[]> => {
   try {
-    console.log(`Fetching Patreon posts for campaign: ${campaignId}`);
+    console.log(`🔄 Fetching Patreon posts for campaign: ${campaignId}`);
     const result = await fetchCampaignPosts(campaignId);
     
     if (result.success && result.posts && result.posts.length > 0) {
-      console.log(`Successfully retrieved ${result.posts.length} posts from Patreon API`);
+      console.log(`✅ Successfully retrieved ${result.posts.length} posts from Patreon API`);
       // Posts are already sorted by the API (sort=-published_at)
       return result.posts;
     }
     
-    console.warn(`Using mock data because: ${result.error || 'No posts received from API'}`);
+    console.warn(`⚠️ Using mock data because: ${result.error || 'No posts received from API'}`);
     // Return mock data if API call failed
     return [
       {
@@ -434,7 +433,7 @@ export const getPatreonPosts = async (campaignId: string = DEFAULT_CAMPAIGN_ID):
       }
     ];
   } catch (err) {
-    console.error('Error in getPatreonPosts:', err);
+    console.error('❌ Error in getPatreonPosts:', err);
     return [
       {
         id: "1",
