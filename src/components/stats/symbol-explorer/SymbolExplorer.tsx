@@ -8,6 +8,18 @@ import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslateKeyword } from "@/utils/translation";
 
+// Map to normalize older faction naming to canonical kebab-case versions
+const factionNameMap: Record<string, string> = {
+  'Hegemony of Embersig': 'hegemony-of-embersig',
+  'Northern Tribes': 'northern-tribes',
+  'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
+  'Sÿenann': 'syenann',
+  'Syenann': 'syenann',
+  'hegemony': 'hegemony-of-embersig',
+  'tribes': 'northern-tribes',
+  'scions': 'scions-of-yaldabaoth'
+};
+
 const SymbolExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [factionFilter, setFactionFilter] = useState('all');
@@ -15,17 +27,43 @@ const SymbolExplorer = () => {
   const { t } = useLanguage();
   const { translateKeyword } = useTranslateKeyword();
 
+  // Normalize all units to ensure consistent faction values
+  const normalizedUnits = useMemo(() => {
+    return allUnits.map(unit => {
+      // Normalize faction name if needed
+      const normalizedFaction = factionNameMap[unit.faction] || unit.faction;
+      
+      return {
+        ...unit,
+        faction: normalizedFaction,
+      };
+    });
+  }, []);
+  
+  // Deduplicate units based on name and faction
+  const deduplicatedUnits = useMemo(() => {
+    const seen = new Map();
+    return normalizedUnits.filter(unit => {
+      const key = `${unit.name}_${unit.faction}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.set(key, true);
+      return true;
+    });
+  }, [normalizedUnits]);
+
   // Get unique factions - ensure we're using the normalized factions from the data
   const factions = useMemo(() => {
-    const uniqueFactions = new Set(allUnits.map(unit => unit.faction));
+    const uniqueFactions = new Set(deduplicatedUnits.map(unit => unit.faction));
     return Array.from(uniqueFactions).sort();
-  }, []);
+  }, [deduplicatedUnits]);
 
   // Get unique unit types (character, troop, etc.)
   const unitTypes = useMemo(() => {
     const types = new Set<string>();
     
-    allUnits.forEach(unit => {
+    deduplicatedUnits.forEach(unit => {
       // Determine unit type based on keywords or other properties
       if (unit.highCommand) {
         types.add('high-command');
@@ -40,11 +78,11 @@ const SymbolExplorer = () => {
     });
     
     return Array.from(types).sort();
-  }, []);
+  }, [deduplicatedUnits]);
 
   // Filter and sort units
   const filteredUnits = useMemo(() => {
-    return allUnits.filter(unit => {
+    return deduplicatedUnits.filter(unit => {
       // Name filter
       const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
       
@@ -77,7 +115,7 @@ const SymbolExplorer = () => {
       }
       return a.name.localeCompare(b.name);
     });
-  }, [searchQuery, factionFilter, typeFilter]);
+  }, [searchQuery, factionFilter, typeFilter, deduplicatedUnits]);
 
   // Format unit type for display
   const getUnitType = (unit: any) => {
