@@ -8,40 +8,51 @@ interface SymbolGridProps {
   fontSize: number;
 }
 
-export const SymbolGrid: React.FC<SymbolGridProps> = ({ 
-  symbols, 
-  selectedSymbol, 
+export const SymbolGrid: React.FC<SymbolGridProps> = ({
+  symbols,
+  selectedSymbol,
   handleSymbolClick,
   fontSize
 }) => {
   return (
-    <div>
-      <h3 className="text-warcrow-gold/90 text-sm mb-3 font-medium">
-        Symbol Grid <span className="text-warcrow-text/60 text-xs font-normal">({symbols.length} symbols in range)</span>
-      </h3>
-      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-        {symbols.map((code) => (
-          <div
-            id={`symbol-${code}`}
-            key={code}
-            className={`
-              p-3 rounded-md border transition-all cursor-pointer
-              ${selectedSymbol === code 
-                ? "bg-warcrow-gold/20 border-warcrow-gold" 
-                : "bg-black/60 border-warcrow-gold/30 hover:bg-warcrow-gold/10"}
-            `}
-            onClick={() => handleSymbolClick(code)}
-          >
-            <div 
-              className="game-symbol mb-2 flex justify-center"
-              style={{ fontSize: `${fontSize}px` }}
+    <div className="p-4 bg-black/50 rounded-lg border border-warcrow-gold/40">
+      <h3 className="text-warcrow-gold text-sm mb-4">Symbol Grid</h3>
+      
+      <div className="grid grid-cols-8 gap-2 sm:grid-cols-12">
+        {symbols.map((code) => {
+          const isSelected = selectedSymbol === code;
+          return (
+            <button
+              key={code}
+              className={`aspect-square p-2 rounded flex items-center justify-center transition-all ${
+                isSelected
+                  ? "bg-warcrow-gold/30 border-2 border-warcrow-gold"
+                  : "bg-black/40 border border-warcrow-gold/30 hover:bg-warcrow-gold/10"
+              }`}
+              onClick={() => handleSymbolClick(code)}
             >
-              {String.fromCharCode(code)}
-            </div>
-            <div className="text-xs text-warcrow-text text-center">0x{code.toString(16).toUpperCase()}</div>
-          </div>
-        ))}
+              <span
+                className="Warcrow-Family"
+                style={{ 
+                  fontSize: `${fontSize}px`,
+                  lineHeight: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {String.fromCharCode(code)}
+              </span>
+            </button>
+          );
+        })}
       </div>
+      
+      {symbols.length === 0 && (
+        <div className="text-center text-warcrow-text/50 py-4">
+          No symbols in the selected range.
+        </div>
+      )}
     </div>
   );
 };

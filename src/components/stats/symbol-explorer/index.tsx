@@ -1,3 +1,3 @@
 
-import UnitExplorer from '../unit-explorer';
-export default UnitExplorer;
+import FontSymbolExplorer from '../font-explorer/FontSymbolExplorer';
+export default FontSymbolExplorer;

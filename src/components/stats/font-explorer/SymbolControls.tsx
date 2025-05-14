@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { NumericInput } from "./NumericInput";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface SymbolControlsProps {
   symbolRange: [number, number];
@@ -16,106 +17,108 @@ export const SymbolControls: React.FC<SymbolControlsProps> = ({
   customChar,
   onCustomCharChange,
 }) => {
-  const [startValue, setStartValue] = useState(symbolRange[0].toString(16));
-  const [endValue, setEndValue] = useState(symbolRange[1].toString(16));
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [startCodeInput, setStartCodeInput] = useState<string>(symbolRange[0].toString(16).toUpperCase());
+  const [endCodeInput, setEndCodeInput] = useState<string>(symbolRange[1].toString(16).toUpperCase());
 
-  // Update the component state when the range props change
-  useEffect(() => {
-    setStartValue(symbolRange[0].toString(16));
-    setEndValue(symbolRange[1].toString(16));
-  }, [symbolRange]);
-
-  // Apply the range values when the user changes them
-  const applyRange = () => {
-    const start = parseInt(startValue, 16) || 0xE000;
-    const end = parseInt(endValue, 16) || 0xE0FF;
+  const handleRangeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Ensure end is greater than or equal to start
-    if (end >= start) {
-      onRangeChange([start, end]);
+    try {
+      const startCode = parseInt(startCodeInput, 16);
+      const endCode = parseInt(endCodeInput, 16);
+      
+      if (!isNaN(startCode) && !isNaN(endCode) && startCode <= endCode) {
+        onRangeChange([startCode, endCode]);
+      }
+    } catch (error) {
+      console.error("Invalid hex input:", error);
     }
   };
 
-  // Set predefined ranges
-  const setPredefinedRange = (start: number, end: number) => {
-    setStartValue(start.toString(16));
-    setEndValue(end.toString(16));
-    onRangeChange([start, end]);
-  };
+  // Predefined symbol ranges
+  const presetRanges = [
+    { name: "Dice & Symbols", range: [0xE000, 0xE0FF] },
+    { name: "Game Icons", range: [0xE100, 0xE1FF] },
+    { name: "Extended Symbols", range: [0xE200, 0xE2FF] }
+  ];
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Symbol Range</h3>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 flex items-center gap-2">
-            <div className="flex-1">
-              <label className="text-xs text-warcrow-text/80 mb-1 block">Start (hex)</label>
-              <NumericInput
-                value={startValue}
-                onChange={setStartValue}
-                placeholder="E000"
-                hexadecimal
-                className="w-full"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-xs text-warcrow-text/80 mb-1 block">End (hex)</label>
-              <NumericInput
-                value={endValue}
-                onChange={setEndValue}
-                placeholder="E0FF"
-                hexadecimal
-                className="w-full"
-              />
-            </div>
-          </div>
-          <Button onClick={applyRange} className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50 mt-4 sm:mt-6">
-            Apply
-          </Button>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Input Character</h3>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1">
-            <input
-              ref={inputRef}
+      <div className="p-3 bg-black/50 rounded-lg border border-warcrow-gold/40">
+        <h3 className="text-warcrow-gold text-sm mb-3">Symbol Controls</h3>
+        
+        <div className="space-y-3 mb-3">
+          <div>
+            <Label htmlFor="customChar" className="text-sm text-warcrow-text/90 mb-1 block">
+              Enter Symbol or Character:
+            </Label>
+            <Input
+              id="customChar"
               type="text"
+              maxLength={1}
               value={customChar}
               onChange={(e) => onCustomCharChange(e.target.value)}
-              className="w-full p-2 bg-black/60 border border-warcrow-gold/40 rounded text-warcrow-text focus:border-warcrow-gold/80 focus:outline-none"
-              placeholder="Type or paste a character"
-              maxLength={1}
+              className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
             />
           </div>
         </div>
+        
+        <form onSubmit={handleRangeSubmit} className="space-y-3">
+          <h4 className="text-sm text-warcrow-gold/90">Custom Range</h4>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="startCode" className="text-xs text-warcrow-text/90 mb-1 block">
+                Start (Hex):
+              </Label>
+              <Input
+                id="startCode"
+                type="text"
+                value={startCodeInput}
+                onChange={(e) => setStartCodeInput(e.target.value)}
+                className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
+              />
+            </div>
+            <div>
+              <Label htmlFor="endCode" className="text-xs text-warcrow-text/90 mb-1 block">
+                End (Hex):
+              </Label>
+              <Input
+                id="endCode"
+                type="text"
+                value={endCodeInput}
+                onChange={(e) => setEndCodeInput(e.target.value)}
+                className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
+              />
+            </div>
+          </div>
+          <Button 
+            type="submit"
+            className="w-full bg-black border-warcrow-gold/30 hover:bg-warcrow-gold/20 text-warcrow-gold"
+          >
+            Update Range
+          </Button>
+        </form>
       </div>
-
-      <div>
-        <h3 className="text-warcrow-gold/90 text-sm mb-3 font-medium">Preset Ranges</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <Button 
-            onClick={() => setPredefinedRange(0xE000, 0xE0FF)}
-            className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50 text-xs"
-          >
-            Game Symbols (E000-E0FF)
-          </Button>
-          <Button 
-            onClick={() => setPredefinedRange(0x2600, 0x26FF)}
-            className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50 text-xs"
-          >
-            Misc Symbols
-          </Button>
-          <Button 
-            onClick={() => setPredefinedRange(0x2700, 0x27BF)}
-            className="border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-accent/30 hover:border-warcrow-gold/50 text-xs"
-          >
-            Dingbats
-          </Button>
+      
+      <div className="p-3 bg-black/50 rounded-lg border border-warcrow-gold/40">
+        <h4 className="text-sm text-warcrow-gold/90 mb-2">Preset Ranges</h4>
+        <div className="flex flex-wrap gap-2">
+          {presetRanges.map((preset) => (
+            <Button 
+              key={preset.name}
+              onClick={() => onRangeChange(preset.range)}
+              className="bg-black border-warcrow-gold/30 hover:bg-warcrow-gold/20 text-warcrow-gold text-xs"
+              size="sm"
+            >
+              {preset.name}
+            </Button>
+          ))}
         </div>
+      </div>
+      
+      <div className="text-xs text-warcrow-text/70">
+        Current range: 0x{symbolRange[0].toString(16).toUpperCase()} - 0x{symbolRange[1].toString(16).toUpperCase()} 
+        ({symbolRange[1] - symbolRange[0] + 1} symbols)
       </div>
     </div>
   );
