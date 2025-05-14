@@ -31,7 +31,14 @@ const UnitExplorer = () => {
       if (error) throw error;
 
       // Process and deduplicate units
-      const processedUnits = unitData || [];
+      let processedUnits = unitData || [];
+      
+      // Normalize faction names for consistency
+      processedUnits = processedUnits.map(unit => ({
+        ...unit,
+        faction: normalizeFactionName(unit.faction)
+      }));
+      
       setUnits(processedUnits);
       setFilteredUnits(processedUnits);
 
@@ -54,11 +61,32 @@ const UnitExplorer = () => {
     }
   };
 
+  // Helper function to normalize faction names
+  const normalizeFactionName = (faction: string): string => {
+    // Handle case variants
+    if (faction.toLowerCase() === 'syenann' || faction.toLowerCase() === 'sÿenann') {
+      return 'syenann';
+    }
+    
+    // Handle different formats of faction names
+    if (faction.toLowerCase() === 'hegemony') return 'hegemony-of-embersig';
+    if (faction.toLowerCase() === 'tribes') return 'northern-tribes';
+    if (faction.toLowerCase() === 'scions') return 'scions-of-yaldabaoth';
+    
+    return faction.toLowerCase();
+  };
+
   const handleFilterChange = (filters: { search: string; faction: string; type: string }) => {
     const { search, faction, type } = filters;
     
     const filtered = units.filter(unit => {
-      const matchesSearch = !search || unit.name.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = !search || 
+        unit.name.toLowerCase().includes(search.toLowerCase()) || 
+        (Array.isArray(unit.keywords) && unit.keywords.some((k: any) => {
+          const keywordName = typeof k === 'string' ? k : k.name;
+          return keywordName.toLowerCase().includes(search.toLowerCase());
+        }));
+      
       const matchesFaction = !faction || unit.faction === faction;
       const matchesType = !type || unit.type === type;
       

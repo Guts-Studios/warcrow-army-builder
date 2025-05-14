@@ -17,7 +17,7 @@ export const syenannCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    imageUrl: "/art/card/aoidos_card.jpg", // Changed extension from png to jpg
+    imageUrl: "/art/card/aoidos_card.jpg",
     specialRules: ["Vulnerable", "Slowed", "Disarmed", "Frightened"]
   },
   {
@@ -120,12 +120,14 @@ export const syenannCharacters: Unit[] = [
       { name: "Elf", description: "" },
       { name: "Colossal Company", description: "" },
       { name: "Nemorous", description: "" },
-      { name: "Syenann", description: "" }
+      { name: "Syenann", description: "" },
+      { name: "Aim", description: "" },
+      { name: "Ambusher", description: "" }
     ],
     highCommand: false,
     availability: 1,
     imageUrl: "/art/card/darach_wildling_card.jpg",
-    specialRules: ["Aim", "Ambusher"]
+    specialRules: []
   },
   {
     id: "oona",

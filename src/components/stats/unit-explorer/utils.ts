@@ -5,6 +5,11 @@
 export const formatFactionName = (faction: string): string => {
   if (!faction) return '';
   
+  // Special case for Syenann with the diacritical mark
+  if (faction.toLowerCase() === 'syenann') {
+    return 'Sÿenann';
+  }
+  
   // If the faction is already in a readable format (contains spaces), return it as is
   if (faction.includes(' ')) return faction;
   
@@ -22,7 +27,7 @@ export const getUnitType = (unit: any): string => {
   if (!unit) return '';
 
   // Check for high command first
-  if (unit.characteristics?.highCommand) {
+  if (unit.characteristics?.highCommand || unit.highCommand) {
     return 'High Command';
   }
 

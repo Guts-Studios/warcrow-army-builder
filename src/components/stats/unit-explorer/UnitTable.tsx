@@ -59,14 +59,14 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                 <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                 <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
                 <TableCell className="text-warcrow-text">
-                  {unit.characteristics?.command || unit.command || ''}
+                  {unit.characteristics?.command || unit.command || '0'}
                 </TableCell>
                 <TableCell className="text-warcrow-text">
-                  {unit.characteristics?.availability || unit.availability || ''}
+                  {unit.characteristics?.availability || unit.availability || '0'}
                 </TableCell>
                 <TableCell className="text-warcrow-text">{formatKeywords(unit, translateKeywordWrapper)}</TableCell>
                 <TableCell className="text-warcrow-text">
-                  {unit.characteristics?.highCommand ? 'Yes' : 'No'}
+                  {unit.characteristics?.highCommand || unit.highCommand ? 'Yes' : 'No'}
                 </TableCell>
                 <TableCell className="text-warcrow-text">{unit.points || unit.pointsCost || 0}</TableCell>
                 <TableCell className="text-warcrow-text">
@@ -78,7 +78,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                         </span>
                       ))}
                     </div>
-                  ) : unit.specialRules ? (
+                  ) : unit.specialRules && unit.specialRules.length > 0 ? (
                     <div className="flex flex-col gap-1">
                       {unit.specialRules.map((rule: string, i: number) => (
                         <span key={i} className="text-xs">
