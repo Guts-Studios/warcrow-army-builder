@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Coffee } from "lucide-react";
-import { getPatreonCampaignUrl } from "@/utils/patreonUtils";
 
 interface SecondaryActionsProps {
   isGuest: boolean;
@@ -15,7 +14,7 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
   const { t } = useLanguage();
   
   const handleBuyCoffeeClick = () => {
-    window.open(getPatreonCampaignUrl(), '_blank');
+    navigate('/about');
   };
   
   return (
