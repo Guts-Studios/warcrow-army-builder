@@ -17,6 +17,12 @@ export const UnitTable: React.FC<UnitTableProps> = ({
 }) => {
   const { translateKeyword } = useTranslateKeyword();
   
+  // Create a wrapper function that only takes the keyword parameter
+  // This matches the expected function signature in formatKeywords
+  const translateKeywordWrapper = (keyword: string) => {
+    return translateKeyword(keyword, 'en');
+  };
+  
   return (
     <div className="border rounded border-warcrow-gold/30 overflow-x-auto">
       <Table>
@@ -50,7 +56,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                 <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                 <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
                 <TableCell className="text-warcrow-text/80 text-xs">{unit.id}</TableCell>
-                <TableCell className="text-warcrow-text">{formatKeywords(unit, translateKeyword)}</TableCell>
+                <TableCell className="text-warcrow-text">{formatKeywords(unit, translateKeywordWrapper)}</TableCell>
                 <TableCell className="text-warcrow-text">{unit.pointsCost}</TableCell>
               </TableRow>
             ))
