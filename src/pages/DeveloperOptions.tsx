@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SymbolExplorer from "@/components/stats/symbol-explorer/SymbolExplorer";
+import UnitExplorer from "@/components/stats/unit-explorer";
+import FontSymbolExplorer from "@/components/stats/font-explorer";
 
 const DeveloperOptions = () => {
   const navigate = useNavigate();
@@ -89,9 +90,13 @@ const DeveloperOptions = () => {
                 <Settings className="h-4 w-4 mr-2" />
                 System Tools
               </TabsTrigger>
+              <TabsTrigger value="units" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
+                <Database className="h-4 w-4 mr-2" />
+                Unit Database
+              </TabsTrigger>
               <TabsTrigger value="symbols" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
                 <BookKey className="h-4 w-4 mr-2" />
-                Symbol Explorer
+                Font Symbols
               </TabsTrigger>
             </TabsList>
             
@@ -196,9 +201,15 @@ const DeveloperOptions = () => {
               </div>
             </TabsContent>
             
+            <TabsContent value="units" className="mt-0">
+              <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
+                <UnitExplorer />
+              </Card>
+            </TabsContent>
+            
             <TabsContent value="symbols" className="mt-0">
               <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-                <SymbolExplorer />
+                <FontSymbolExplorer />
               </Card>
             </TabsContent>
           </Tabs>
