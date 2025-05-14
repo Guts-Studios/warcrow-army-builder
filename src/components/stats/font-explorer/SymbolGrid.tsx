@@ -1,54 +1,51 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SymbolGridProps {
-  range: [number, number];
-  selectedSymbol: number | null;
-  setSelectedSymbol: (code: number) => void;
+  symbols: string[];
+  onSymbolClick: (symbol: string) => void;
+  selectedSymbol: string | null;
+  showBackground: boolean;
+  backgroundColor: string;
 }
 
-export const SymbolGrid: React.FC<SymbolGridProps> = ({ 
-  range, 
+const SymbolGrid: React.FC<SymbolGridProps> = ({
+  symbols,
+  onSymbolClick,
   selectedSymbol,
-  setSelectedSymbol 
+  showBackground,
+  backgroundColor
 }) => {
-  const [start, end] = range;
-  const symbols = [];
-  
-  // Generate symbols within the specified range
-  for (let i = start; i <= end; i++) {
-    symbols.push(i);
-  }
-  
   return (
-    <div className="border rounded border-warcrow-gold/30">
-      <div className="p-4 bg-black/30">
-        <h3 className="text-warcrow-gold text-sm font-medium">
-          Symbol Grid ({symbols.length} symbols)
-        </h3>
-      </div>
-      <div className="grid grid-cols-8 gap-2 p-4 max-h-[400px] overflow-y-auto">
-        {symbols.map((code) => {
-          const symbol = String.fromCodePoint(code);
-          const hasContent = symbol.trim().length > 0;
-          
-          return (
-            <div
-              key={code}
-              onClick={() => hasContent && setSelectedSymbol(code)}
-              className={cn(
-                "w-12 h-12 flex items-center justify-center rounded cursor-pointer border border-warcrow-gold/20 text-2xl transition-colors",
-                hasContent ? "hover:bg-warcrow-gold/10" : "opacity-30 cursor-not-allowed",
-                selectedSymbol === code ? "bg-warcrow-gold/20 border-warcrow-gold" : "bg-black/20"
-              )}
-              title={`U+${code.toString(16).toUpperCase()}`}
+    <ScrollArea className="h-[60vh]">
+      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 pr-4">
+        {symbols.map((symbol, index) => (
+          <div
+            key={index}
+            className={`
+              aspect-square flex items-center justify-center cursor-pointer
+              ${selectedSymbol === symbol ? 'ring-2 ring-warcrow-gold' : 'hover:bg-warcrow-gold/20'}
+            `}
+            style={{
+              background: showBackground && selectedSymbol === symbol ? backgroundColor : undefined,
+              borderRadius: '0.25rem'
+            }}
+            onClick={() => onSymbolClick(symbol)}
+          >
+            <span 
+              className="font-warcrow text-2xl text-warcrow-text hover:text-warcrow-gold" 
+              style={{ 
+                fontFamily: "'Warcrow', 'Warcrow', sans-serif"
+              }}
             >
-              <span className="font-warcrow">{symbol}</span>
-            </div>
-          );
-        })}
+              {symbol}
+            </span>
+          </div>
+        ))}
       </div>
-    </div>
+    </ScrollArea>
   );
 };
+
+export default SymbolGrid;

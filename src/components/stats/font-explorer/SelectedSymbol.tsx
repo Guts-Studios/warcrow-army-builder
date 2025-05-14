@@ -1,104 +1,94 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Copy, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import React from 'react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SelectedSymbolProps {
-  symbolCode: number;
-  setSelectedSymbol: (code: number | null) => void;
+  symbol: string | null;
+  fontSize: number;
+  showBackground: boolean;
+  backgroundColor: string;
 }
 
-export const SelectedSymbol: React.FC<SelectedSymbolProps> = ({ symbolCode, setSelectedSymbol }) => {
-  const [copied, setCopied] = useState(false);
+const SelectedSymbol: React.FC<SelectedSymbolProps> = ({
+  symbol,
+  fontSize,
+  showBackground,
+  backgroundColor
+}) => {
+  const { t } = useLanguage();
   
-  const symbol = String.fromCodePoint(symbolCode);
-  const hexCode = symbolCode.toString(16).toUpperCase();
-  const htmlEntity = `&#x${hexCode};`;
-  const cssCode = `\\${hexCode}`;
-  
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      toast.success(`${label} copied to clipboard`);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(err => {
-      console.error('Failed to copy: ', err);
-      toast.error('Failed to copy to clipboard');
-    });
+  if (!symbol) {
+    return (
+      <div className="text-center p-8 text-warcrow-text/50">
+        {t('noSymbolSelected') || 'No symbol selected'}
+      </div>
+    );
+  }
+
+  // Get the Unicode code point(s) for the symbol
+  const getCodePoint = (str: string) => {
+    let codePoints = [];
+    for (let i = 0; i < str.length; i++) {
+      const code = str.codePointAt(i);
+      if (code !== undefined) {
+        // If this is a surrogate pair, skip the next code unit
+        if (code > 0xFFFF) {
+          i++;
+        }
+        codePoints.push(code);
+      }
+    }
+    return codePoints.map(cp => 'U+' + cp.toString(16).toUpperCase().padStart(4, '0')).join(', ');
   };
-  
+
+  const symbolCodePoint = getCodePoint(symbol);
+
   return (
-    <Card className="border-warcrow-gold/30 bg-black/20">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-warcrow-gold text-lg">Selected Symbol</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col md:flex-row gap-6 items-center">
-          <div className="flex-shrink-0 w-20 h-20 border border-warcrow-gold/30 rounded flex items-center justify-center bg-black/30">
-            <span className="text-5xl font-warcrow text-warcrow-gold">{symbol}</span>
+    <div className="space-y-4">
+      <div className="relative w-full">
+        <AspectRatio ratio={1 / 1}>
+          <div 
+            className="w-full h-full flex items-center justify-center"
+            style={{
+              background: showBackground ? backgroundColor : undefined,
+              borderRadius: '0.25rem'
+            }}
+          >
+            <span 
+              style={{ 
+                fontSize: `${fontSize}px`,
+                fontFamily: "'Warcrow', 'Warcrow', sans-serif"
+              }}
+              className="font-warcrow text-warcrow-gold"
+            >
+              {symbol}
+            </span>
           </div>
-          
-          <div className="flex-grow space-y-3">
-            <div>
-              <Label className="text-warcrow-text block mb-1">Unicode</Label>
-              <div className="flex gap-2">
-                <Input 
-                  value={`U+${hexCode}`} 
-                  readOnly 
-                  className="bg-black border-warcrow-gold/30 font-mono text-warcrow-text"
-                />
-                <Button 
-                  size="icon" 
-                  onClick={() => copyToClipboard(`U+${hexCode}`, 'Unicode')}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-gold/10"
-                >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-            
-            <div>
-              <Label className="text-warcrow-text block mb-1">HTML Entity</Label>
-              <div className="flex gap-2">
-                <Input 
-                  value={htmlEntity} 
-                  readOnly 
-                  className="bg-black border-warcrow-gold/30 font-mono text-warcrow-text"
-                />
-                <Button 
-                  size="icon" 
-                  onClick={() => copyToClipboard(htmlEntity, 'HTML Entity')}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-gold/10"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div>
-              <Label className="text-warcrow-text block mb-1">CSS Content</Label>
-              <div className="flex gap-2">
-                <Input 
-                  value={cssCode} 
-                  readOnly 
-                  className="bg-black border-warcrow-gold/30 font-mono text-warcrow-text"
-                />
-                <Button 
-                  size="icon" 
-                  onClick={() => copyToClipboard(cssCode, 'CSS Code')}
-                  className="border border-warcrow-gold/30 bg-black text-warcrow-gold hover:bg-warcrow-gold/10"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+        </AspectRatio>
+      </div>
+
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-warcrow-gold">
+            {t('unicodePoint') || 'Unicode Point:'}
+          </div>
+          <div className="font-mono text-warcrow-text">
+            {symbolCodePoint}
           </div>
         </div>
-      </CardContent>
-    </Card>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-warcrow-gold">
+            {t('fontSize') || 'Font Size:'}
+          </div>
+          <div className="text-warcrow-text">
+            {fontSize}px
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
+
+export default SelectedSymbol;
