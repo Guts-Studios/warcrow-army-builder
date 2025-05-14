@@ -93,7 +93,7 @@ const UnitDataManager: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="characteristics" className="space-y-4">
-          <UnitCharacteristicsManager unitId={undefined} />
+          <UnitCharacteristicsManager unitId={null} />
         </TabsContent>
       </Tabs>
 

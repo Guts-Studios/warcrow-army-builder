@@ -12,7 +12,9 @@ const UnitExplorer: React.FC = () => {
   const [filteredUnits, setFilteredUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const [factions, setFactions] = useState<string[]>([]);
+  const [unitTypes, setUnitTypes] = useState<string[]>([]);
   
   const fetchUnits = async () => {
     setIsLoading(true);
@@ -35,8 +37,14 @@ const UnitExplorer: React.FC = () => {
         faction: normalizeFactionName(unit.faction)
       }));
       
+      // Extract unique factions and unit types
+      const uniqueFactions = Array.from(new Set(processedUnits.map(unit => unit.faction)));
+      const uniqueTypes = Array.from(new Set(processedUnits.map(unit => unit.type || 'Unknown')));
+      
       setUnits(processedUnits);
       setFilteredUnits(processedUnits);
+      setFactions(uniqueFactions);
+      setUnitTypes(uniqueTypes);
     } catch (err: any) {
       setError(err.message);
       console.error('Error fetching units:', err);
@@ -49,7 +57,25 @@ const UnitExplorer: React.FC = () => {
     fetchUnits();
   }, [language]); // Refetch when language changes
   
-  const handleFilterChange = (filtered: any[]) => {
+  const handleFilterChange = (filters: { search: string; faction: string; type: string }) => {
+    const { search, faction, type } = filters;
+    
+    const filtered = units.filter(unit => {
+      const matchesSearch = !search || 
+        unit.name.toLowerCase().includes(search.toLowerCase()) ||
+        (unit.keywords && unit.keywords.some((keyword: string) => 
+          keyword.toLowerCase().includes(search.toLowerCase())
+        )) ||
+        (unit.special_rules && unit.special_rules.some((rule: string) => 
+          rule.toLowerCase().includes(search.toLowerCase())
+        ));
+      
+      const matchesFaction = !faction || unit.faction === faction;
+      const matchesType = !type || unit.type === type;
+      
+      return matchesSearch && matchesFaction && matchesType;
+    });
+    
     setFilteredUnits(filtered);
   };
   
@@ -71,11 +97,20 @@ const UnitExplorer: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-black/50 border-warcrow-gold/30">
-        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">Unit Explorer</h1>
-        <UnitFilters units={units} onFilterChange={handleFilterChange} isLoading={isLoading} />
+        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">{t('unitExplorer')}</h1>
+        <UnitFilters 
+          onFilterChange={handleFilterChange} 
+          factions={factions}
+          unitTypes={unitTypes}
+          t={t}
+        />
       </Card>
       
-      <UnitTable units={filteredUnits} isLoading={isLoading} />
+      <UnitTable 
+        filteredUnits={filteredUnits} 
+        isLoading={isLoading} 
+        t={t} 
+      />
     </div>
   );
 };

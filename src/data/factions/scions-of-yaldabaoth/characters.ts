@@ -1,6 +1,24 @@
+
 import { Unit } from "@/types/army";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
+  {
+    id: "nuada",
+    name: "Nuada",
+    pointsCost: 55,
+    faction: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Elite", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 3,
+    specialRules: ["Heal", "Bloodlust", "Fearless", "Slowed"],
+    imageUrl: "/art/card/nuada_card.jpg"
+  },
   {
     id: "rumpy-ride",
     name: "Rumpy Ride",
