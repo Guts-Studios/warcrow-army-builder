@@ -1,3 +1,4 @@
+
 /**
  * Format a faction name from kebab-case to title case
  */
@@ -33,21 +34,29 @@ export const getUnitType = (unit: any): string => {
  * Format keywords array to display string
  */
 export const formatKeywords = (unit: any, translateFn?: (keyword: string) => string): string => {
-  if (!unit.keywords) return '';
+  // Handle different types of keyword storage from Supabase vs. static data
+  let keywords: string[] = [];
   
-  const keywords = Array.isArray(unit.keywords) 
-    ? unit.keywords 
-    : typeof unit.keywords === 'string' 
-      ? unit.keywords.split(',').map(k => k.trim())
-      : [];
+  if (unit.keywords) {
+    // If keywords is an array of strings (from Supabase)
+    if (Array.isArray(unit.keywords) && typeof unit.keywords[0] === 'string') {
+      keywords = unit.keywords;
+    }
+    // If keywords is an array of objects with name property (from static data)
+    else if (Array.isArray(unit.keywords) && typeof unit.keywords[0] === 'object') {
+      keywords = unit.keywords.map(k => k.name);
+    }
+    // If keywords is a comma-separated string
+    else if (typeof unit.keywords === 'string') {
+      keywords = unit.keywords.split(',').map(k => k.trim());
+    }
+  }
   
+  // If there are no keywords, return empty string
+  if (keywords.length === 0) return '';
+  
+  // Apply translation if a translation function is provided
   return keywords
-    .map(keyword => {
-      const keywordStr = typeof keyword === 'object' && keyword.name 
-        ? keyword.name 
-        : keyword;
-        
-      return translateFn ? translateFn(keywordStr) : keywordStr;
-    })
+    .map(keyword => translateFn ? translateFn(keyword) : keyword)
     .join(', ');
 };

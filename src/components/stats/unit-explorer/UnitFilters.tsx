@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
+import { formatFactionName } from './utils';
 
 interface UnitFiltersProps {
   onFilterChange: (filters: { search: string; faction: string; type: string }) => void;
