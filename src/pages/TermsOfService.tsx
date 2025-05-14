@@ -7,7 +7,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -21,7 +21,7 @@ const TermsOfService = () => {
                 className="h-16"
               />
               <h1 className="text-3xl font-bold text-warcrow-gold text-center md:text-left">
-                {language === 'en' ? 'Terms of Service' : 'Términos de Servicio'}
+                {t('termsOfService')}
               </h1>
             </div>
             <div className="flex items-center gap-4">
@@ -32,7 +32,7 @@ const TermsOfService = () => {
                 onClick={() => navigate('/landing')}
               >
                 <Home className="mr-2 h-4 w-4" />
-                {language === 'en' ? 'Home' : 'Inicio'}
+                {t('home')}
               </Button>
             </div>
           </div>
@@ -100,7 +100,7 @@ const TermsOfService = () => {
                 </p>
               </div>
             </>
-          ) : (
+          ) : language === 'es' ? (
             <>
               <div>
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Términos de Servicio</h2>
@@ -152,6 +152,65 @@ const TermsOfService = () => {
               <div>
                 <h3 className="text-xl font-bold text-warcrow-gold mb-3">8. Contáctanos</h3>
                 <p>Si tienes alguna pregunta sobre estos Términos, contáctanos en:</p>
+                <p className="mt-2">
+                  <a href="mailto:warcrowarmy@gmail.com" className="text-warcrow-gold hover:underline">
+                    warcrowarmy@gmail.com
+                  </a>
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Conditions d'Utilisation</h2>
+                <p className="mb-2">Dernière mise à jour : 13 mai 2025</p>
+                <p>Veuillez lire attentivement ces Conditions d'Utilisation avant d'utiliser l'application Warcrow Army Builder.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">1. Acceptation des Conditions</h3>
+                <p>En accédant ou en utilisant l'application Warcrow Army Builder ("le Service"), vous acceptez d'être lié par ces Conditions d'Utilisation. Si vous êtes en désaccord avec une partie de ces conditions, vous ne pouvez pas accéder ou utiliser le Service.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">2. Licence d'Utilisation</h3>
+                <p className="mb-2">Warcrow Army Builder vous accorde une licence limitée, non exclusive et non transférable pour utiliser le Service à des fins personnelles et non commerciales. Cette licence n'inclut pas :</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>La modification ou la copie des matériaux</li>
+                  <li>L'utilisation des matériaux à des fins commerciales</li>
+                  <li>La tentative de décompiler ou de faire de l'ingénierie inverse sur tout logiciel contenu dans le Service</li>
+                  <li>La suppression de tout droit d'auteur ou autres notations propriétaires des matériaux</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">3. Contenu de l'Utilisateur</h3>
+                <p>Les utilisateurs peuvent créer et partager des listes d'armée et d'autres contenus via le Service. Vous conservez la propriété de votre contenu, mais vous nous accordez une licence pour utiliser, reproduire et afficher votre contenu en relation avec l'exploitation et l'amélioration du Service.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">4. Avertissement</h3>
+                <p>Warcrow Army Builder est une application créée par des fans et n'est pas affiliée, approuvée, sponsorisée ou spécifiquement approuvée par Corvus Belli S.L. Tout le contenu du jeu, les images et les références à Warcrow sont la propriété de Corvus Belli S.L.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">5. Limitations</h3>
+                <p>Le Service est fourni "tel quel" sans garanties d'aucune sorte. En aucun cas, Warcrow Army Builder ne sera responsable des dommages résultant de l'utilisation ou de l'impossibilité d'utiliser le Service.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">6. Résiliation de Compte</h3>
+                <p>Nous nous réservons le droit de résilier ou de suspendre l'accès au Service immédiatement, sans préavis, pour une conduite que nous croyons violer ces Conditions d'Utilisation ou être préjudiciable à d'autres utilisateurs ou à nous-mêmes.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">7. Modifications des Conditions</h3>
+                <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Nous informerons les utilisateurs de tout changement en publiant les nouvelles Conditions d'Utilisation sur cette page et en mettant à jour la date de "Dernière mise à jour".</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">8. Contactez-nous</h3>
+                <p>Si vous avez des questions concernant ces Conditions, veuillez nous contacter à :</p>
                 <p className="mt-2">
                   <a href="mailto:warcrowarmy@gmail.com" className="text-warcrow-gold hover:underline">
                     warcrowarmy@gmail.com

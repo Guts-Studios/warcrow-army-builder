@@ -1,3 +1,4 @@
+
 import { TranslationsType } from './types';
 import { armyTranslations } from './army';
 import { authTranslations } from './auth';
@@ -7,6 +8,10 @@ import { landingTranslations } from './landing';
 import { rulesTranslations } from './rules/index';
 import { commonTranslations } from './common';
 import { uiTranslations } from './ui';
+import { aboutTranslations } from './about';
+import { profileTranslations } from './profile';
+import { faqTranslations } from './faq';
+import { activityTranslations } from './activity';
 
 export const translations: TranslationsType = {
   // Common translations
@@ -220,6 +225,11 @@ export const translations: TranslationsType = {
     es: "warcrowarmy@gmail.com",
     fr: "warcrowarmy@gmail.com"
   },
+  copyright: {
+    en: "Warcrow © 2024 Corvus Belli S.L. - All rights reserved. This is an unofficial fan-made tool.",
+    es: "Warcrow © 2024 Corvus Belli S.L. - Todos los derechos reservados. Esta es una herramienta no oficial creada por fans.",
+    fr: "Warcrow © 2024 Corvus Belli S.L. - Tous droits réservés. Ceci est un outil non officiel créé par des fans."
+  },
   
   // Include all landing page translations
   ...landingTranslations,
@@ -243,5 +253,17 @@ export const translations: TranslationsType = {
   ...commonTranslations,
   
   // Include UI translations
-  ...uiTranslations
+  ...uiTranslations,
+  
+  // Include about translations
+  ...aboutTranslations,
+  
+  // Include profile translations
+  ...profileTranslations,
+  
+  // Include FAQ translations
+  ...faqTranslations,
+  
+  // Include activity translations
+  ...activityTranslations
 };

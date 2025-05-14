@@ -7,7 +7,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
@@ -21,7 +21,7 @@ const PrivacyPolicy = () => {
                 className="h-16"
               />
               <h1 className="text-3xl font-bold text-warcrow-gold text-center md:text-left">
-                {language === 'en' ? 'Privacy Policy' : 'Política de Privacidad'}
+                {t('privacyPolicy')}
               </h1>
             </div>
             <div className="flex items-center gap-4">
@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
                 onClick={() => navigate('/landing')}
               >
                 <Home className="mr-2 h-4 w-4" />
-                {language === 'en' ? 'Home' : 'Inicio'}
+                {t('home')}
               </Button>
             </div>
           </div>
@@ -117,7 +117,7 @@ const PrivacyPolicy = () => {
                 </p>
               </div>
             </>
-          ) : (
+          ) : language === 'es' ? (
             <>
               <div>
                 <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Política de Privacidad</h2>
@@ -186,6 +186,82 @@ const PrivacyPolicy = () => {
               <div>
                 <h3 className="text-xl font-bold text-warcrow-gold mb-3">Contáctenos</h3>
                 <p>Si tiene alguna pregunta sobre esta Política de Privacidad, contáctenos en:</p>
+                <p className="mt-2">
+                  <a href="mailto:warcrowarmy@gmail.com" className="text-warcrow-gold hover:underline">
+                    warcrowarmy@gmail.com
+                  </a>
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <h2 className="text-2xl font-bold text-warcrow-gold mb-4">Politique de Confidentialité</h2>
+                <p className="mb-2">Dernière mise à jour : 13 mai 2025</p>
+                <p>Cette Politique de Confidentialité décrit comment Warcrow Army Builder ("nous") collecte, utilise et divulgue vos informations lorsque vous utilisez notre application.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Informations que nous collectons</h3>
+                <p className="mb-2">Lorsque vous utilisez l'application Warcrow Army Builder, nous pouvons collecter :</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Informations de compte (e-mail, nom d'utilisateur)</li>
+                  <li>Informations de profil que vous fournissez</li>
+                  <li>Listes d'armée que vous créez et sauvegardez</li>
+                  <li>Données et statistiques de jeu</li>
+                  <li>Informations d'utilisation et interactions avec l'application</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Comment nous utilisons vos informations</h3>
+                <p className="mb-2">Nous utilisons les informations que nous collectons pour :</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Fournir, maintenir et améliorer notre application</li>
+                  <li>Traiter et compléter les transactions</li>
+                  <li>Vous envoyer des avis techniques et des messages de support</li>
+                  <li>Répondre à vos commentaires et questions</li>
+                  <li>Développer de nouvelles fonctionnalités et services</li>
+                  <li>Surveiller et analyser les tendances et l'utilisation</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Partage d'informations</h3>
+                <p>Nous ne vendons pas vos informations personnelles. Nous pouvons partager des informations dans les circonstances suivantes :</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Avec votre consentement</li>
+                  <li>Avec des prestataires de services qui effectuent des services en notre nom</li>
+                  <li>Pour se conformer aux obligations légales</li>
+                  <li>Dans le cadre d'une fusion, vente ou acquisition</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Stockage des données</h3>
+                <p>Nous utilisons Supabase pour les services de stockage de données et d'authentification. Vos données sont stockées conformément aux normes de sécurité et de confidentialité de Supabase.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Vos droits</h3>
+                <p className="mb-2">Selon votre emplacement, vous pouvez avoir des droits pour :</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Accéder aux informations personnelles que nous détenons à votre sujet</li>
+                  <li>Demander la correction de vos informations personnelles</li>
+                  <li>Demander la suppression de votre compte et de vos données</li>
+                  <li>Vous opposer à notre traitement de vos informations</li>
+                </ul>
+                <p className="mt-2">Pour exercer ces droits, veuillez nous contacter à warcrowarmy@gmail.com.</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Modifications de cette Politique de Confidentialité</h3>
+                <p>Nous pouvons mettre à jour notre Politique de Confidentialité de temps à autre. Nous vous informerons de tout changement en publiant la nouvelle Politique de Confidentialité sur cette page et en mettant à jour la date de "Dernière mise à jour".</p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-warcrow-gold mb-3">Contactez-nous</h3>
+                <p>Si vous avez des questions concernant cette Politique de Confidentialité, veuillez nous contacter à :</p>
                 <p className="mt-2">
                   <a href="mailto:warcrowarmy@gmail.com" className="text-warcrow-gold hover:underline">
                     warcrowarmy@gmail.com

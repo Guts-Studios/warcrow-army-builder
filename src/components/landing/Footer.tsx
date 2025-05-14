@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 
 export const Footer = () => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-warcrow-background/95 text-center text-xs md:text-sm text-warcrow-text/60 p-2 md:p-4 z-10">
@@ -23,11 +23,7 @@ export const Footer = () => {
           {t('footerText')}
         </p>
         <p className="text-xs text-warcrow-text/40">
-          {language === 'en' 
-            ? "Warcrow © 2024 Corvus Belli S.L. - All rights reserved. This is an unofficial fan-made tool."
-            : language === 'es'
-              ? "Warcrow © 2024 Corvus Belli S.L. - Todos los derechos reservados. Esta es una herramienta no oficial creada por fans."
-              : "Warcrow © 2024 Corvus Belli S.L. - Tous droits réservés. Ceci est un outil non officiel créé par des fans."}
+          {t('copyright')}
         </p>
       </div>
     </footer>
