@@ -85,6 +85,7 @@ const UnitValidationTool: React.FC = () => {
           // Safely check if characteristics exists and if highCommand property is true
           const hasHighCommandChar = dbUnit.characteristics && 
             typeof dbUnit.characteristics === 'object' && 
+            dbUnit.characteristics.hasOwnProperty('highCommand') &&
             dbUnit.characteristics.highCommand === true;
           
           return staticUnit && hasHighCommandChar && !staticUnit.highCommand;

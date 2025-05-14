@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
-import UnitTable from './UnitTable';
-import UnitFilters from './UnitFilters';
+import { UnitTable } from './UnitTable';
+import { UnitFilters } from './UnitFilters';
 import { normalizeFactionName } from './utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 

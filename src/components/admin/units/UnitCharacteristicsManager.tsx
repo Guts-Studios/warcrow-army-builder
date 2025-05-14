@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,7 +22,6 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
   const { t } = useLanguage();
   const {
     characteristics: availableCharacteristics,
-    translatedItems: translatedCharacteristics,
     isLoading: isCharacteristicsLoading,
     translationInProgress,
     translationProgress,

@@ -1,4 +1,3 @@
-
 /**
  * Normalizes faction names for consistent display and filtering
  */
@@ -29,6 +28,47 @@ export const normalizeFactionName = (faction: string): string => {
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
+};
+
+/**
+ * Format faction name for display
+ */
+export const formatFactionName = (faction: string): string => {
+  return normalizeFactionName(faction);
+};
+
+/**
+ * Get unit type based on unit data
+ */
+export const getUnitType = (unit: any): string => {
+  if (!unit) return '';
+  
+  if (unit.type) {
+    return unit.type.charAt(0).toUpperCase() + unit.type.slice(1).toLowerCase();
+  }
+  
+  if (unit.characteristics && unit.characteristics.character) {
+    return 'Character';
+  }
+  
+  return 'Unit';
+};
+
+/**
+ * Format keywords for display with optional translation
+ */
+export const formatKeywords = (unit: any, translateFn?: (keyword: string) => string): string => {
+  if (!unit || !unit.keywords) return '-';
+  
+  const keywords = Array.isArray(unit.keywords) ? unit.keywords : [];
+  
+  if (keywords.length === 0) {
+    return '-';
+  }
+  
+  return keywords
+    .map(keyword => translateFn ? translateFn(keyword) : keyword)
+    .join(', ');
 };
 
 /**
