@@ -37,9 +37,9 @@ export const SymbolControls: React.FC<SymbolControlsProps> = ({
 
   // Predefined symbol ranges
   const presetRanges = [
-    { name: "Dice & Symbols", range: [0xE000, 0xE0FF] },
-    { name: "Game Icons", range: [0xE100, 0xE1FF] },
-    { name: "Extended Symbols", range: [0xE200, 0xE2FF] }
+    { name: "Dice & Symbols", range: [0xE000, 0xE0FF] as [number, number] },
+    { name: "Game Icons", range: [0xE100, 0xE1FF] as [number, number] },
+    { name: "Extended Symbols", range: [0xE200, 0xE2FF] as [number, number] }
   ];
 
   return (
