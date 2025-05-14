@@ -1,10 +1,10 @@
 
-// This file is now empty as the symbol explorer functionality has been removed
-// Export a dummy component to prevent import errors
+// This file now re-exports UnitExplorer instead of providing a dummy component
 import React from 'react';
+import UnitExplorer from './unit-explorer';
 
 const SymbolExplorer: React.FC = () => {
-  return null;
+  return <UnitExplorer />;
 };
 
 export default SymbolExplorer;

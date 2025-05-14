@@ -1,3 +1,3 @@
 
-import SymbolExplorer from './SymbolExplorer';
-export default SymbolExplorer;
+import UnitExplorer from '../unit-explorer';
+export default UnitExplorer;
