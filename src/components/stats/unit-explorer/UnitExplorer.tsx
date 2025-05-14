@@ -8,6 +8,23 @@ import { normalizeAndDeduplicate } from './utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Define the type for unit data from Supabase
+interface UnitData {
+  id: string;
+  name: string;
+  faction: string;
+  points: number;
+  type: string;
+  keywords: string[];
+  characteristics: {
+    highCommand?: boolean;
+    [key: string]: any;
+  };
+  special_rules?: string[];
+  description?: string;
+  options?: any;
+}
+
 const UnitExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [factionFilter, setFactionFilter] = useState('all');
@@ -29,12 +46,15 @@ const UnitExplorer = () => {
       if (error) throw error;
       
       // Format units to match the expected structure 
-      const formattedUnits = data.map(unit => ({
+      const formattedUnits = (data as UnitData[]).map(unit => ({
         ...unit,
         id: unit.id,
         name: unit.name,
         faction: unit.faction,
-        highCommand: unit.characteristics?.highCommand || false,
+        // Safely access characteristics.highCommand with a type check
+        highCommand: typeof unit.characteristics === 'object' && unit.characteristics 
+          ? !!unit.characteristics.highCommand 
+          : false,
         pointsCost: unit.points || 0,
         keywords: unit.keywords || []
       }));
