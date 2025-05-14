@@ -85,10 +85,21 @@ export default function LatestPosts() {
   }
 
   const handleReadMoreClick = (url: string) => {
-    // Ensure URL is valid before opening
-    const validUrl = url && url.startsWith('http') 
-      ? url 
-      : `https://www.patreon.com/posts/${url}`;
+    // Fix the URL construction to prevent duplicate /posts/ segments
+    let validUrl = url;
+    
+    // Check if URL is provided and is valid
+    if (!url) {
+      console.error('❌ Invalid Patreon post URL');
+      return;
+    }
+    
+    // If it's not a full URL (doesn't start with http), construct it correctly
+    if (!url.startsWith('http')) {
+      // Ensure we don't duplicate the /posts/ segment
+      const postId = url.replace(/^\/posts\//, '');
+      validUrl = `https://www.patreon.com/posts/${postId}`;
+    }
       
     // Open the URL in a new tab
     window.open(validUrl, '_blank', 'noopener noreferrer');
