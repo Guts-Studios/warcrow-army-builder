@@ -62,6 +62,14 @@ export default function LatestPosts() {
     );
   }
 
+  const handleReadMoreClick = (url: string) => {
+    // Open the URL in a new tab
+    window.open(url, '_blank', 'noopener noreferrer');
+    
+    // Log for debugging purposes
+    console.log(`Opening Patreon post: ${url}`);
+  };
+
   return (
     <Card className="w-full h-full border-warcrow-gold/30 bg-black/60">
       <CardHeader>
@@ -82,15 +90,14 @@ export default function LatestPosts() {
                     <CalendarIcon className="mr-1" size={12} />
                     {formatRelativeTime(new Date(post.date), language)}
                   </span>
-                  <a 
-                    href={post.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <button 
+                    onClick={() => handleReadMoreClick(post.url)}
                     className="text-xs flex items-center text-warcrow-gold hover:text-warcrow-gold/80"
+                    aria-label={`Read more about ${post.title}`}
                   >
                     {aboutTranslations.readMore[language]}
                     <ExternalLink className="ml-1" size={12} />
-                  </a>
+                  </button>
                 </div>
               </div>
             ))
