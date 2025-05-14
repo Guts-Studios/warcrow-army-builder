@@ -1,3 +1,9 @@
 
+import React from 'react';
 import FontSymbolExplorer from '../font-explorer/FontSymbolExplorer';
-export default FontSymbolExplorer;
+
+const SymbolExplorer: React.FC = () => {
+  return <FontSymbolExplorer />;
+};
+
+export default SymbolExplorer;

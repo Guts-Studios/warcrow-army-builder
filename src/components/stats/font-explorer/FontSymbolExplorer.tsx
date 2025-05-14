@@ -1,106 +1,66 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SymbolGrid } from './SymbolGrid';
 import { SymbolControls } from './SymbolControls';
 import { SelectedSymbol } from './SelectedSymbol';
 
-const FontSymbolExplorer = () => {
-  const [symbolRange, setSymbolRange] = useState<[number, number]>([0xE000, 0xE0FF]);
-  const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
-  const [customChar, setCustomChar] = useState<string>("");
-  const [fontSize, setFontSize] = useState<number>(32);
+const FontSymbolExplorer: React.FC = () => {
   const { t } = useLanguage();
+  const [selectedRange, setSelectedRange] = useState<[number, number]>([0xE000, 0xE0FF]);
+  const [selectedSymbol, setSelectedSymbol] = useState<number | null>(null);
+  const [fontLoaded, setFontLoaded] = useState(false);
 
-  // Generate an array of all symbol codes in the range
-  const symbols = React.useMemo(() => {
-    const result = [];
-    for (let i = symbolRange[0]; i <= symbolRange[1]; i++) {
-      result.push(i);
-    }
-    return result;
-  }, [symbolRange]);
-
-  // Handle symbol selection
-  const handleSymbolClick = (code: number) => {
-    setSelectedSymbol(code);
-    setCustomChar(String.fromCharCode(code));
-  };
-
-  // Handle input changes from the numeric input or preset buttons
-  const handleCustomInput = (value: string) => {
-    if (value) {
-      setCustomChar(value);
-      if (value.length === 1) {
-        setSelectedSymbol(value.charCodeAt(0));
-      } else {
-        setSelectedSymbol(null);
-      }
-    } else {
-      setCustomChar("");
-      setSelectedSymbol(null);
-    }
-  };
-
-  // Handle range changes
-  const handleRangeChange = (newRange: [number, number]) => {
-    setSymbolRange(newRange);
-    setSelectedSymbol(null);
-  };
-
-  // Handle font size changes
-  const handleFontSizeChange = (newSize: number[]) => {
-    setFontSize(newSize[0]);
-  };
+  // Load the custom font and ensure it's ready
+  useEffect(() => {
+    // Check if Warcrow font is loaded
+    document.fonts.ready.then(() => {
+      const testFont = new FontFace('Warcrow', 'url(/fonts/Warcrow.woff2)');
+      testFont.load().then(() => {
+        setFontLoaded(true);
+      }).catch(err => {
+        console.error("Error loading Warcrow font:", err);
+        // Try to continue anyway
+        setFontLoaded(true);
+      });
+    });
+  }, []);
 
   return (
     <Card className="bg-warcrow-background border-warcrow-gold/30">
       <CardHeader className="pb-3">
-        <CardTitle className="text-warcrow-gold text-xl">Font Symbol Explorer</CardTitle>
+        <CardTitle className="text-warcrow-gold text-xl">{t('fontSymbolExplorer')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/3">
-              <SymbolControls 
-                symbolRange={symbolRange}
-                onRangeChange={handleRangeChange}
-                customChar={customChar}
-                onCustomCharChange={handleCustomInput}
-              />
-              
-              <div className="mt-4 space-y-2">
-                <div className="flex flex-col space-y-2">
-                  <label className="text-sm text-warcrow-gold/90">Font Size: {fontSize}px</label>
-                  <Slider
-                    defaultValue={[fontSize]}
-                    min={12}
-                    max={72}
-                    step={1}
-                    onValueChange={handleFontSizeChange}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="w-full md:w-2/3">
-              <SelectedSymbol 
-                customChar={customChar} 
-                fontSize={fontSize}
-              />
-            </div>
+        {!fontLoaded ? (
+          <div className="text-warcrow-text flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-warcrow-gold mr-3"></div>
+            <span>Loading Warcrow font...</span>
           </div>
-          
-          <SymbolGrid 
-            symbols={symbols}
-            selectedSymbol={selectedSymbol}
-            handleSymbolClick={handleSymbolClick}
-            fontSize={fontSize}
-          />
-        </div>
+        ) : (
+          <>
+            <SymbolControls 
+              selectedRange={selectedRange} 
+              setSelectedRange={setSelectedRange}
+              selectedSymbol={selectedSymbol}
+              setSelectedSymbol={setSelectedSymbol}
+            />
+            
+            {selectedSymbol !== null && (
+              <SelectedSymbol 
+                symbolCode={selectedSymbol} 
+                setSelectedSymbol={setSelectedSymbol} 
+              />
+            )}
+            
+            <SymbolGrid 
+              range={selectedRange} 
+              selectedSymbol={selectedSymbol}
+              setSelectedSymbol={setSelectedSymbol}
+            />
+          </>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,58 +1,54 @@
 
-import React from "react";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface SymbolGridProps {
-  symbols: number[];
+  range: [number, number];
   selectedSymbol: number | null;
-  handleSymbolClick: (code: number) => void;
-  fontSize: number;
+  setSelectedSymbol: (code: number) => void;
 }
 
-export const SymbolGrid: React.FC<SymbolGridProps> = ({
-  symbols,
+export const SymbolGrid: React.FC<SymbolGridProps> = ({ 
+  range, 
   selectedSymbol,
-  handleSymbolClick,
-  fontSize
+  setSelectedSymbol 
 }) => {
+  const [start, end] = range;
+  const symbols = [];
+  
+  // Generate symbols within the specified range
+  for (let i = start; i <= end; i++) {
+    symbols.push(i);
+  }
+  
   return (
-    <div className="p-4 bg-black/50 rounded-lg border border-warcrow-gold/40">
-      <h3 className="text-warcrow-gold text-sm mb-4">Symbol Grid</h3>
-      
-      <div className="grid grid-cols-8 gap-2 sm:grid-cols-12">
+    <div className="border rounded border-warcrow-gold/30">
+      <div className="p-4 bg-black/30">
+        <h3 className="text-warcrow-gold text-sm font-medium">
+          Symbol Grid ({symbols.length} symbols)
+        </h3>
+      </div>
+      <div className="grid grid-cols-8 gap-2 p-4 max-h-[400px] overflow-y-auto">
         {symbols.map((code) => {
-          const isSelected = selectedSymbol === code;
+          const symbol = String.fromCodePoint(code);
+          const hasContent = symbol.trim().length > 0;
+          
           return (
-            <button
+            <div
               key={code}
-              className={`aspect-square p-2 rounded flex items-center justify-center transition-all ${
-                isSelected
-                  ? "bg-warcrow-gold/30 border-2 border-warcrow-gold"
-                  : "bg-black/40 border border-warcrow-gold/30 hover:bg-warcrow-gold/10"
-              }`}
-              onClick={() => handleSymbolClick(code)}
+              onClick={() => hasContent && setSelectedSymbol(code)}
+              className={cn(
+                "w-12 h-12 flex items-center justify-center rounded cursor-pointer border border-warcrow-gold/20 text-2xl transition-colors",
+                hasContent ? "hover:bg-warcrow-gold/10" : "opacity-30 cursor-not-allowed",
+                selectedSymbol === code ? "bg-warcrow-gold/20 border-warcrow-gold" : "bg-black/20"
+              )}
+              title={`U+${code.toString(16).toUpperCase()}`}
             >
-              <span
-                className="Warcrow-Family"
-                style={{ 
-                  fontSize: `${fontSize}px`,
-                  lineHeight: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                {String.fromCharCode(code)}
-              </span>
-            </button>
+              <span className="font-warcrow">{symbol}</span>
+            </div>
           );
         })}
       </div>
-      
-      {symbols.length === 0 && (
-        <div className="text-center text-warcrow-text/50 py-4">
-          No symbols in the selected range.
-        </div>
-      )}
     </div>
   );
 };

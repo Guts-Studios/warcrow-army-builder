@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,17 +7,42 @@ import { useTranslateKeyword } from "@/utils/translation";
 import { UnitFilters } from './UnitFilters';
 import { UnitTable } from './UnitTable';
 import { normalizeAndDeduplicate } from './utils';
+import { getAllExtendedUnits } from '@/services/extendedUnitService';
 
 const UnitExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [factionFilter, setFactionFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const { t } = useLanguage();
+  
+  // Get extended units that have more comprehensive data
+  const extendedUnits = getAllExtendedUnits();
 
+  // Combine and normalize all unit data
+  const combinedUnits = useMemo(() => {
+    // Use the extended units as a base since they have more data
+    const combined = [...extendedUnits].map(unit => {
+      // Format to match the structure expected by the filters and table
+      return {
+        ...unit,
+        name: unit.name,
+        faction: unit.type?.toLowerCase().includes('hegemony') ? 'hegemony-of-embersig' : 
+                unit.type?.toLowerCase().includes('northern') ? 'northern-tribes' : 
+                unit.type?.toLowerCase().includes('scions') ? 'scions-of-yaldabaoth' : 
+                unit.type?.toLowerCase().includes('syenann') ? 'syenann' : 'unknown',
+        highCommand: unit.type?.toLowerCase().includes('high command'),
+        pointsCost: unit.cost || unit.points || 0,
+        keywords: unit.keywords || []
+      };
+    });
+    
+    return combined;
+  }, [extendedUnits]);
+  
   // Get normalized and deduplicated units
   const { deduplicatedUnits, factions, unitTypes } = useMemo(() => 
-    normalizeAndDeduplicate(allUnits), 
-  []);
+    normalizeAndDeduplicate(combinedUnits), 
+  [combinedUnits]);
   
   // Filter and sort units
   const filteredUnits = useMemo(() => {

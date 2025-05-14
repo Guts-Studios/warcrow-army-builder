@@ -1,37 +1,51 @@
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
+import { NumericInput } from './NumericInput';
 
 interface SymbolControlsProps {
-  symbolRange: [number, number];
-  onRangeChange: (range: [number, number]) => void;
-  customChar: string;
-  onCustomCharChange: (value: string) => void;
+  selectedRange: [number, number];
+  setSelectedRange: (range: [number, number]) => void;
+  selectedSymbol: number | null;
+  setSelectedSymbol: (code: number | null) => void;
 }
 
 export const SymbolControls: React.FC<SymbolControlsProps> = ({
-  symbolRange,
-  onRangeChange,
-  customChar,
-  onCustomCharChange,
+  selectedRange,
+  setSelectedRange,
+  selectedSymbol,
+  setSelectedSymbol
 }) => {
-  const [startCodeInput, setStartCodeInput] = useState<string>(symbolRange[0].toString(16).toUpperCase());
-  const [endCodeInput, setEndCodeInput] = useState<string>(symbolRange[1].toString(16).toUpperCase());
+  const [startInput, setStartInput] = useState<string>(selectedRange[0].toString(16));
+  const [endInput, setEndInput] = useState<string>(selectedRange[1].toString(16));
 
-  const handleRangeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleRangeApply = () => {
     try {
-      const startCode = parseInt(startCodeInput, 16);
-      const endCode = parseInt(endCodeInput, 16);
+      const start = parseInt(startInput, 16);
+      const end = parseInt(endInput, 16);
       
-      if (!isNaN(startCode) && !isNaN(endCode) && startCode <= endCode) {
-        onRangeChange([startCode, endCode]);
+      if (isNaN(start) || isNaN(end)) {
+        throw new Error("Invalid hex values");
       }
+      
+      if (end < start) {
+        throw new Error("End must be greater than or equal to start");
+      }
+      
+      if (end - start > 1000) {
+        throw new Error("Range too large (maximum 1000 symbols)");
+      }
+      
+      setSelectedRange([start, end]);
+      // Clear selected symbol when changing range
+      setSelectedSymbol(null);
     } catch (error) {
-      console.error("Invalid hex input:", error);
+      console.error("Range error:", error);
+      // Could add toast notification here
     }
   };
 
@@ -43,83 +57,85 @@ export const SymbolControls: React.FC<SymbolControlsProps> = ({
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="p-3 bg-black/50 rounded-lg border border-warcrow-gold/40">
-        <h3 className="text-warcrow-gold text-sm mb-3">Symbol Controls</h3>
-        
-        <div className="space-y-3 mb-3">
-          <div>
-            <Label htmlFor="customChar" className="text-sm text-warcrow-text/90 mb-1 block">
-              Enter Symbol or Character:
-            </Label>
+    <div className="space-y-4 rounded border border-warcrow-gold/30 bg-black/20 p-4">
+      <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="symbol-start" className="text-warcrow-text">Start (hex)</Label>
+          <div className="flex items-center">
+            <span className="mr-1 text-warcrow-gold">U+</span>
             <Input
-              id="customChar"
-              type="text"
-              maxLength={1}
-              value={customChar}
-              onChange={(e) => onCustomCharChange(e.target.value)}
-              className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
+              id="symbol-start"
+              value={startInput}
+              onChange={(e) => setStartInput(e.target.value)}
+              className="w-24 bg-warcrow-accent/50 border-warcrow-gold/30 font-mono"
+              placeholder="E000"
             />
           </div>
         </div>
         
-        <form onSubmit={handleRangeSubmit} className="space-y-3">
-          <h4 className="text-sm text-warcrow-gold/90">Custom Range</h4>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label htmlFor="startCode" className="text-xs text-warcrow-text/90 mb-1 block">
-                Start (Hex):
-              </Label>
-              <Input
-                id="startCode"
-                type="text"
-                value={startCodeInput}
-                onChange={(e) => setStartCodeInput(e.target.value)}
-                className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
-              />
-            </div>
-            <div>
-              <Label htmlFor="endCode" className="text-xs text-warcrow-text/90 mb-1 block">
-                End (Hex):
-              </Label>
-              <Input
-                id="endCode"
-                type="text"
-                value={endCodeInput}
-                onChange={(e) => setEndCodeInput(e.target.value)}
-                className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
-              />
-            </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="symbol-end" className="text-warcrow-text">End (hex)</Label>
+          <div className="flex items-center">
+            <span className="mr-1 text-warcrow-gold">U+</span>
+            <Input
+              id="symbol-end"
+              value={endInput}
+              onChange={(e) => setEndInput(e.target.value)}
+              className="w-24 bg-warcrow-accent/50 border-warcrow-gold/30 font-mono"
+              placeholder="E0FF"
+            />
           </div>
+        </div>
+        
+        <div className="flex flex-col gap-2 justify-end">
           <Button 
-            type="submit"
-            className="w-full bg-black border-warcrow-gold/30 hover:bg-warcrow-gold/20 text-warcrow-gold"
+            onClick={handleRangeApply}
+            className="bg-warcrow-accent/50 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/70"
           >
-            Update Range
+            Apply Range
           </Button>
-        </form>
-      </div>
-      
-      <div className="p-3 bg-black/50 rounded-lg border border-warcrow-gold/40">
-        <h4 className="text-sm text-warcrow-gold/90 mb-2">Preset Ranges</h4>
-        <div className="flex flex-wrap gap-2">
-          {presetRanges.map((preset) => (
-            <Button 
-              key={preset.name}
-              onClick={() => onRangeChange(preset.range)}
-              className="bg-black border-warcrow-gold/30 hover:bg-warcrow-gold/20 text-warcrow-gold text-xs"
-              size="sm"
-            >
-              {preset.name}
-            </Button>
-          ))}
+        </div>
+        
+        <div className="flex flex-col gap-2 justify-end ml-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                className="bg-warcrow-accent/50 border border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/70"
+              >
+                Presets <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-warcrow-accent border-warcrow-gold/30">
+              {presetRanges.map((preset) => (
+                <DropdownMenuItem 
+                  key={preset.name}
+                  onClick={() => {
+                    setStartInput(preset.range[0].toString(16).toUpperCase());
+                    setEndInput(preset.range[1].toString(16).toUpperCase());
+                    setSelectedRange(preset.range);
+                    setSelectedSymbol(null);
+                  }}
+                  className="cursor-pointer hover:bg-warcrow-gold/10 text-warcrow-text"
+                >
+                  {preset.name} (U+{preset.range[0].toString(16).toUpperCase()}-U+{preset.range[1].toString(16).toUpperCase()})
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       
-      <div className="text-xs text-warcrow-text/70">
-        Current range: 0x{symbolRange[0].toString(16).toUpperCase()} - 0x{symbolRange[1].toString(16).toUpperCase()} 
-        ({symbolRange[1] - symbolRange[0] + 1} symbols)
-      </div>
+      {selectedSymbol && (
+        <div className="pt-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedSymbol(null)}
+            className="text-xs border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-accent/70"
+          >
+            Clear Selection
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

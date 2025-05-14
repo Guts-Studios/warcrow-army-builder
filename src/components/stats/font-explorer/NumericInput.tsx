@@ -1,62 +1,58 @@
 
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
 
 interface NumericInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  label?: string;
-  placeholder?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  value: number;
+  onChange: (val: number) => void;
+  className?: string;
 }
 
 export const NumericInput: React.FC<NumericInputProps> = ({
+  min = 0,
+  max = 100,
+  step = 1,
   value,
   onChange,
-  label = "Enter Character Code (Decimal)",
-  placeholder = "e.g. 0-9"
+  className = ''
 }) => {
-  const diceSymbols = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-  
+  const [inputValue, setInputValue] = useState(value.toString());
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    
+    const parsed = parseFloat(newValue);
+    if (!isNaN(parsed)) {
+      // Ensure value is within bounds
+      const constrained = Math.min(Math.max(parsed, min), max);
+      onChange(constrained);
+    }
+  };
+
+  const handleBlur = () => {
+    const parsed = parseFloat(inputValue);
+    if (isNaN(parsed)) {
+      // Reset to current value if invalid input
+      setInputValue(value.toString());
+    } else {
+      // Ensure value is within bounds
+      const constrained = Math.min(Math.max(parsed, min), max);
+      setInputValue(constrained.toString());
+      onChange(constrained);
+    }
+  };
+
   return (
-    <div className="space-y-3">
-      <div>
-        <Label htmlFor="numericInput" className="text-sm text-warcrow-text/90 mb-1 block">
-          {label}
-        </Label>
-        <Input
-          id="numericInput"
-          type="text"
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="bg-black/40 border-warcrow-gold/30 text-warcrow-text"
-          maxLength={1}
-        />
-      </div>
-      
-      <div>
-        <Label className="text-xs text-warcrow-text/90 mb-1 block">
-          Common Dice Symbols:
-        </Label>
-        <div className="flex flex-wrap gap-1.5">
-          {diceSymbols.map((symbol) => (
-            <Button
-              key={symbol}
-              onClick={() => onChange(symbol)}
-              className={`min-w-9 bg-black border ${
-                value === symbol ? "border-warcrow-gold" : "border-warcrow-gold/30"
-              } ${
-                value === symbol ? "bg-warcrow-gold/30" : "hover:bg-warcrow-gold/20"
-              } text-warcrow-gold`}
-              size="sm"
-            >
-              <span className="Warcrow-Family">{symbol}</span>
-            </Button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <Input
+      type="text"
+      value={inputValue}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className={className}
+    />
   );
 };
