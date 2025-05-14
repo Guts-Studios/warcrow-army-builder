@@ -1,116 +1,82 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { UnitTable } from './UnitTable';
-import { UnitFilters } from './UnitFilters';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/utils/translation';
-import { useCharacteristicTranslations } from '@/utils/translation/hooks/useCharacteristicTranslations';
+import { Card } from '@/components/ui/card';
+import UnitTable from './UnitTable';
+import UnitFilters from './UnitFilters';
+import { normalizeFactionName } from './utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const UnitExplorer = () => {
-  const { t, language } = useLanguage();
-  const { translateCharacteristic } = useCharacteristicTranslations();
+const UnitExplorer: React.FC = () => {
   const [units, setUnits] = useState<any[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [factions, setFactions] = useState<string[]>([]);
-  const [unitTypes, setUnitTypes] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchUnits();
-  }, [language]); // Refetch when language changes to get proper translations
-
+  const [error, setError] = useState<string | null>(null);
+  const { language } = useLanguage();
+  
   const fetchUnits = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const { data: unitData, error } = await supabase
+      const { data, error } = await supabase
         .from('unit_data')
         .select('*')
         .order('faction')
         .order('name');
-
-      if (error) throw error;
-
-      // Process and deduplicate units
-      let processedUnits = unitData || [];
+        
+      if (error) {
+        throw new Error(error.message);
+      }
       
-      // Normalize faction names for consistency
-      processedUnits = processedUnits.map(unit => ({
+      // Process and normalize the data
+      const processedUnits = data.map(unit => ({
         ...unit,
         faction: normalizeFactionName(unit.faction)
       }));
       
       setUnits(processedUnits);
       setFilteredUnits(processedUnits);
-
-      // Extract unique factions and unit types
-      const uniqueFactions = [...new Set(processedUnits.map(unit => unit.faction))].sort();
-      const uniqueTypes = [...new Set(processedUnits.map(unit => unit.type))].filter(Boolean).sort();
-      
-      setFactions(uniqueFactions);
-      setUnitTypes(uniqueTypes);
-
-    } catch (error: any) {
-      console.error('Error fetching units:', error);
-      toast({
-        title: t('errorFetchingUnits'),
-        description: error.message,
-        variant: 'destructive'
-      });
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Error fetching units:', err);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Helper function to normalize faction names
-  const normalizeFactionName = (faction: string): string => {
-    // Handle case variants
-    if (faction.toLowerCase() === 'syenann' || faction.toLowerCase() === 'sÿenann') {
-      return 'syenann';
-    }
-    
-    // Handle different formats of faction names
-    if (faction.toLowerCase() === 'hegemony') return 'hegemony-of-embersig';
-    if (faction.toLowerCase() === 'tribes') return 'northern-tribes';
-    if (faction.toLowerCase() === 'scions') return 'scions-of-yaldabaoth';
-    
-    return faction.toLowerCase();
-  };
-
-  const handleFilterChange = (filters: { search: string; faction: string; type: string }) => {
-    const { search, faction, type } = filters;
-    
-    const filtered = units.filter(unit => {
-      const matchesSearch = !search || 
-        unit.name.toLowerCase().includes(search.toLowerCase()) || 
-        (Array.isArray(unit.keywords) && unit.keywords.some((k: any) => {
-          const keywordName = typeof k === 'string' ? k : k.name;
-          return keywordName.toLowerCase().includes(search.toLowerCase());
-        }));
-      
-      const matchesFaction = !faction || unit.faction === faction;
-      const matchesType = !type || unit.type === type;
-      
-      return matchesSearch && matchesFaction && matchesType;
-    });
-    
+  
+  useEffect(() => {
+    fetchUnits();
+  }, [language]); // Refetch when language changes
+  
+  const handleFilterChange = (filtered: any[]) => {
     setFilteredUnits(filtered);
   };
-
+  
+  if (error) {
+    return (
+      <Card className="p-6 bg-red-900/20 border-red-900/30">
+        <h2 className="text-lg font-bold text-red-400 mb-2">Error Loading Units</h2>
+        <p className="text-gray-300">{error}</p>
+        <button 
+          onClick={fetchUnits} 
+          className="mt-4 px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
+        >
+          Retry
+        </button>
+      </Card>
+    );
+  }
+  
   return (
-    <Card className="bg-black border-warcrow-gold/30 p-5">
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-warcrow-gold">{t('unitExplorer')}</h2>
-        <UnitFilters 
-          onFilterChange={handleFilterChange} 
-          factions={factions} 
-          unitTypes={unitTypes}
-          t={t}
-        />
-        <UnitTable filteredUnits={filteredUnits} t={t} isLoading={isLoading} />
-      </div>
-    </Card>
+    <div className="space-y-6">
+      <Card className="p-6 bg-black/50 border-warcrow-gold/30">
+        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">Unit Explorer</h1>
+        <UnitFilters units={units} onFilterChange={handleFilterChange} isLoading={isLoading} />
+      </Card>
+      
+      <UnitTable units={filteredUnits} isLoading={isLoading} />
+    </div>
   );
 };
 

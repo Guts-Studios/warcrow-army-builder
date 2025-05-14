@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +13,7 @@ import TranslationProgress from './characteristics/TranslationProgress';
 import TranslationWarning from './characteristics/TranslationWarning';
 
 interface UnitCharacteristicsManagerProps {
-  unitId: string;
+  unitId?: string;
 }
 
 const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({ unitId }) => {
@@ -21,46 +22,58 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const { t } = useLanguage();
   const {
-    availableCharacteristics,
-    translatedCharacteristics,
+    characteristics: availableCharacteristics,
+    translatedItems: translatedCharacteristics,
     isLoading: isCharacteristicsLoading,
-    error: characteristicsError,
+    translationInProgress,
+    translationProgress,
+    getMissingTranslationsCount
   } = useCharacteristics();
   const [selectedTab, setSelectedTab] = useState('view');
 
-  useEffect(() => {
-    const fetchCharacteristics = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('unit_data')
-          .select('characteristics')
-          .eq('id', unitId)
-          .single();
+  // Calculate missing translations
+  const spanishNamesMissing = getMissingTranslationsCount('es').namesMissing;
+  const frenchNamesMissing = getMissingTranslationsCount('fr').namesMissing;
+  const spanishDescMissing = getMissingTranslationsCount('es').descriptionsMissing;
+  const frenchDescMissing = getMissingTranslationsCount('fr').descriptionsMissing;
 
-        if (error) {
-          console.error('Error fetching characteristics:', error);
+  useEffect(() => {
+    if (unitId) {
+      const fetchCharacteristics = async () => {
+        setIsLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from('unit_data')
+            .select('characteristics')
+            .eq('id', unitId)
+            .single();
+
+          if (error) {
+            console.error('Error fetching characteristics:', error);
+            toast({
+              title: t('errorFetchingCharacteristics'),
+              description: error.message,
+              variant: 'destructive',
+            });
+          }
+
+          setCharacteristics(data?.characteristics || {});
+        } catch (error: any) {
+          console.error('Unexpected error fetching characteristics:', error);
           toast({
             title: t('errorFetchingCharacteristics'),
             description: error.message,
             variant: 'destructive',
           });
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        setCharacteristics(data?.characteristics || {});
-      } catch (error: any) {
-        console.error('Unexpected error fetching characteristics:', error);
-        toast({
-          title: t('errorFetchingCharacteristics'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCharacteristics();
+      fetchCharacteristics();
+    } else {
+      setIsLoading(false);
+    }
   }, [unitId, t]);
 
   const handleCharacteristicChange = (name: string, value: boolean | string | number) => {
@@ -68,6 +81,8 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
   };
 
   const handleSave = async () => {
+    if (!unitId) return;
+    
     setIsSaving(true);
     try {
       const { error } = await supabase
@@ -100,6 +115,16 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
     }
   };
 
+  const handleTranslateNames = async (language: string) => {
+    // Placeholder for translation functionality
+    console.log(`Translating names to ${language}`);
+  };
+
+  const handleTranslateDescriptions = async (language: string) => {
+    // Placeholder for translation functionality
+    console.log(`Translating descriptions to ${language}`);
+  };
+
   if (isLoading || isCharacteristicsLoading) {
     return (
       <div className="flex items-center justify-center h-32">
@@ -108,10 +133,51 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
     );
   }
 
-  if (characteristicsError) {
+  // For a global characteristics manager without unitId, display all characteristics
+  if (!unitId) {
     return (
-      <div className="text-red-500">
-        Error: {characteristicsError.message}
+      <div className="space-y-4">
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="view" className="data-[state=active]:bg-warcrow-gold data-[state=active]:text-black">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              {t('view')}
+            </TabsTrigger>
+            <TabsTrigger value="translate" className="data-[state=active]:bg-warcrow-gold data-[state=active]:text-black">
+              <Database className="h-4 w-4 mr-2" />
+              {t('translate')}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="view" className="space-y-2">
+            <h3 className="text-lg font-semibold text-warcrow-gold">{t('currentCharacteristics')}</h3>
+            <CharacteristicsTable 
+              characteristics={null}
+            />
+          </TabsContent>
+          <TabsContent value="translate" className="space-y-2">
+            <h3 className="text-lg font-semibold text-warcrow-gold">{t('translationProgress')}</h3>
+            <TranslationProgress 
+              translationInProgress={translationInProgress}
+              translationProgress={translationProgress}
+            />
+            <TranslationWarning 
+              spanishNamesMissing={spanishNamesMissing}
+              frenchNamesMissing={frenchNamesMissing}
+              spanishDescMissing={spanishDescMissing}
+              frenchDescMissing={frenchDescMissing}
+            />
+            <TranslationButtons 
+              isLoading={isLoading}
+              translationInProgress={translationInProgress}
+              spanishNamesMissing={spanishNamesMissing}
+              frenchNamesMissing={frenchNamesMissing}
+              spanishDescMissing={spanishDescMissing}
+              frenchDescMissing={frenchDescMissing}
+              onTranslateNames={handleTranslateNames}
+              onTranslateDescriptions={handleTranslateDescriptions}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     );
   }
@@ -137,14 +203,12 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
           <h3 className="text-lg font-semibold text-warcrow-gold">{t('currentCharacteristics')}</h3>
             <CharacteristicsTable 
               characteristics={characteristics}
-              availableCharacteristics={availableCharacteristics}
-              translatedCharacteristics={translatedCharacteristics}
             />
         </TabsContent>
         <TabsContent value="edit" className="space-y-2">
           <h3 className="text-lg font-semibold text-warcrow-gold">{t('editCharacteristics')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {availableCharacteristics.map((char) => (
+            {availableCharacteristics && availableCharacteristics.map((char: any) => (
               <div key={char.name} className="flex items-center space-x-2">
                 <label htmlFor={char.name} className="text-warcrow-text capitalize">{t(char.name)}:</label>
                 {typeof characteristics[char.name] === 'boolean' ? (
@@ -173,9 +237,26 @@ const UnitCharacteristicsManager: React.FC<UnitCharacteristicsManagerProps> = ({
         </TabsContent>
         <TabsContent value="translate" className="space-y-2">
           <h3 className="text-lg font-semibold text-warcrow-gold">{t('translationProgress')}</h3>
-          <TranslationProgress />
-          <TranslationWarning />
-          <TranslationButtons />
+          <TranslationProgress 
+            translationInProgress={translationInProgress}
+            translationProgress={translationProgress}
+          />
+          <TranslationWarning 
+            spanishNamesMissing={spanishNamesMissing}
+            frenchNamesMissing={frenchNamesMissing}
+            spanishDescMissing={spanishDescMissing}
+            frenchDescMissing={frenchDescMissing}
+          />
+          <TranslationButtons 
+            isLoading={isLoading}
+            translationInProgress={translationInProgress}
+            spanishNamesMissing={spanishNamesMissing}
+            frenchNamesMissing={frenchNamesMissing}
+            spanishDescMissing={spanishDescMissing}
+            frenchDescMissing={frenchDescMissing}
+            onTranslateNames={handleTranslateNames}
+            onTranslateDescriptions={handleTranslateDescriptions}
+          />
         </TabsContent>
       </Tabs>
     </div>

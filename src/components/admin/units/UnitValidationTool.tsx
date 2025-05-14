@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ interface UnitValidationResult {
     id: string;
     name: string;
     faction: string;
+    characteristics: any;
   }>;
   nameMismatches: Array<{
     id: string;
@@ -82,9 +82,12 @@ const UnitValidationTool: React.FC = () => {
       const missingHighCommand = dbUnits.filter(
         dbUnit => {
           const staticUnit = flatStaticUnits.find(su => su.id === dbUnit.id);
-          return staticUnit && 
-            dbUnit.characteristics?.highCommand && 
-            !staticUnit.highCommand;
+          // Safely check if characteristics exists and if highCommand property is true
+          const hasHighCommandChar = dbUnit.characteristics && 
+            typeof dbUnit.characteristics === 'object' && 
+            dbUnit.characteristics.highCommand === true;
+          
+          return staticUnit && hasHighCommandChar && !staticUnit.highCommand;
         }
       );
       
