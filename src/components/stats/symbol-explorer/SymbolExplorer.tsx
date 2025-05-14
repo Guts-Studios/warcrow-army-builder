@@ -15,7 +15,7 @@ const SymbolExplorer = () => {
   const { t } = useLanguage();
   const { translateKeyword } = useTranslateKeyword();
 
-  // Get unique factions
+  // Get unique factions - ensure we're using the normalized factions from the data
   const factions = useMemo(() => {
     const uniqueFactions = new Set(allUnits.map(unit => unit.faction));
     return Array.from(uniqueFactions).sort();
