@@ -2,6 +2,7 @@
 import { ExtendedUnit, AttachedCharacter } from "@/types/extendedUnit";
 import { allExtendedUnits, hegemonyCharacters } from "@/data/extendedUnits";
 import { SelectedUnit } from "@/types/army";
+import { supabase } from "@/integrations/supabase/client";
 
 // Get extended unit data by unit ID
 export const getExtendedUnitById = (unitId: string): ExtendedUnit | undefined => {
@@ -30,8 +31,54 @@ export const matchWithExtendedData = (selectedUnit: SelectedUnit): ExtendedUnit 
   return extendedUnit;
 };
 
-// Get all extended units
-export const getAllExtendedUnits = (): ExtendedUnit[] => {
-  return allExtendedUnits;
+// Get all extended units from Supabase
+export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
+  // First try to fetch from Supabase
+  const { data, error } = await supabase
+    .from("unit_data")
+    .select("*")
+    .order('faction');
+
+  if (error) {
+    console.error("Error fetching units from Supabase:", error);
+    // Fallback to local data if there's an error
+    return allExtendedUnits;
+  }
+
+  if (!data || data.length === 0) {
+    console.warn("No unit data found in Supabase, using local data instead");
+    return allExtendedUnits;
+  }
+  
+  // Transform the Supabase data to the ExtendedUnit format
+  return data.map(unit => {
+    const characteristics = unit.characteristics || {};
+    
+    return {
+      id: unit.id,
+      name: unit.name,
+      cost: unit.points || 0,
+      stats: { 
+        MOV: characteristics.movement || "3-3 (9)", 
+        W: characteristics.wounds || 1, 
+        WP: characteristics.resolve || "🟠", 
+        MOR: characteristics.command || 1, 
+        AVB: characteristics.availability || 1 
+      },
+      type: unit.type || "Infantry",
+      keywords: unit.keywords || [],
+      specialRules: unit.special_rules || [],
+      profiles: [], // This would need more complex mapping
+      abilities: {}, // This would need more complex mapping
+      imageUrl: unit.image_url || undefined,
+      command: characteristics.command,
+      availability: characteristics.availability,
+      points: unit.points
+    };
+  });
 };
 
+// Legacy synchronous version for backward compatibility
+export const getAllExtendedUnitsSync = (): ExtendedUnit[] => {
+  return allExtendedUnits;
+};
