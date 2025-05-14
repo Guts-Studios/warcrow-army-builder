@@ -1,12 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatreonPatron, getPatreonPatrons } from '@/utils/patreonUtils';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { aboutTranslations } from '@/i18n/about';
 import { toast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
-import { StarIcon } from 'lucide-react';
+import { StarIcon, CheckCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function SupportersList() {
   const [supporters, setSupporters] = useState<PatreonPatron[]>([]);
@@ -61,6 +63,41 @@ export default function SupportersList() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Get a random avatar URL from our collection
+  const getRandomAvatarUrl = (seed: string): string => {
+    // List of available avatars in the public/art/portrait directory
+    const portraitList = [
+      'aodharu_portrait.jpg',
+      'alula_portrait.jpg',
+      'aoidos_portrait.jpg',
+      'battle_scarred_portrait.jpg',
+      'coal_portrait.jpg',
+      'contender_portrait.jpg',
+      'druid_portrait.jpg',
+      'darkmaster_portrait.jpg',
+      'echoes_portrait.jpg',
+      'frostfire_herald_portrait.jpg',
+      'grand_captain_portrait.jpg',
+      'hersir_portrait.jpg',
+      'lady_telia_portrait.jpg',
+      'needle_portrait.jpg',
+      'nuada_portrait.jpg',
+      'oona_portrait.jpg',
+    ];
+    
+    // Use the seed (patron ID) to get a consistent but "random" avatar
+    const index = Math.abs(seed.split('').reduce((acc, char) => {
+      return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0)) % portraitList.length;
+    
+    return `/art/portrait/${portraitList[index]}`;
+  };
+
+  // Check if supporter is a paid supporter (has amount cents > 0)
+  const isPaidSupporter = (supporter: PatreonPatron): boolean => {
+    return supporter.amountCents > 0 && supporter.status === "Paid";
   };
 
   // Return random color for supporter avatars
@@ -140,11 +177,19 @@ export default function SupportersList() {
             key={supporter.id}
             className={`flex items-center p-4 ${index === 0 ? 'border-warcrow-gold bg-black/80' : 'bg-black/60 border-warcrow-gold/30'}`}
           >
-            <Avatar className={`h-12 w-12 mr-4 ${getAvatarColor(supporter.id, index === 0)}`}>
-              <AvatarFallback className="text-sm font-semibold">
-                {getInitials(supporter.fullName)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className={`h-12 w-12 mr-4 ${getAvatarColor(supporter.id, index === 0)}`}>
+                <AvatarImage src={getRandomAvatarUrl(supporter.id)} alt={supporter.fullName} />
+                <AvatarFallback className="text-sm font-semibold">
+                  {getInitials(supporter.fullName)}
+                </AvatarFallback>
+              </Avatar>
+              {isPaidSupporter(supporter) && (
+                <div className="absolute -bottom-1 -right-1">
+                  <CheckCircle className="h-4 w-4 text-green-500 bg-black rounded-full" />
+                </div>
+              )}
+            </div>
             
             <div className="flex-grow">
               <div className="flex items-center">
@@ -156,6 +201,11 @@ export default function SupportersList() {
                     <StarIcon className="h-4 w-4 mr-1" />
                     <span className="text-xs">First Supporter</span>
                   </div>
+                )}
+                {isPaidSupporter(supporter) && (
+                  <Badge variant="outline" className="ml-2 border-green-500 text-green-500 text-xs">
+                    Paid Supporter
+                  </Badge>
                 )}
               </div>
               {supporter.pledgeStart && (

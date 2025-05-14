@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,6 @@ export default function LatestPosts() {
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isMockData, setIsMockData] = useState(false);
-  const [apiResponse, setApiResponse] = useState<any>(null);
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -32,7 +32,14 @@ export default function LatestPosts() {
         console.log(`✅ Posts received (${mockDataDetected ? 'MOCK DATA' : 'REAL DATA'}):`);
         console.log(fetchedPosts);
         
-        setPosts(fetchedPosts);
+        // Make sure posts are sorted by date (newest first)
+        const sortedPosts = [...fetchedPosts].sort((a, b) => {
+          const dateA = new Date(a.publishedAt || a.date).getTime();
+          const dateB = new Date(b.publishedAt || b.date).getTime();
+          return dateB - dateA; // Sort in descending order (newest first)
+        });
+        
+        setPosts(sortedPosts);
         setIsLoading(false);
       } catch (error) {
         console.error('❌ Error fetching blog posts:', error);
@@ -78,11 +85,16 @@ export default function LatestPosts() {
   }
 
   const handleReadMoreClick = (url: string) => {
+    // Ensure URL is valid before opening
+    const validUrl = url && url.startsWith('http') 
+      ? url 
+      : `https://www.patreon.com/posts/${url}`;
+      
     // Open the URL in a new tab
-    window.open(url, '_blank', 'noopener noreferrer');
+    window.open(validUrl, '_blank', 'noopener noreferrer');
     
     // Log for debugging purposes
-    console.log(`🔗 Opening Patreon post: ${url}`);
+    console.log(`🔗 Opening Patreon post: ${validUrl}`);
   };
 
   return (
@@ -125,7 +137,7 @@ export default function LatestPosts() {
                 <div className="flex justify-between items-center">
                   <span className="text-xs flex items-center text-warcrow-text/60">
                     <CalendarIcon className="mr-1" size={12} />
-                    {formatRelativeTime(new Date(post.date), language)}
+                    {formatRelativeTime(new Date(post.publishedAt || post.date), language)}
                   </span>
                   <button 
                     onClick={() => handleReadMoreClick(post.url)}
