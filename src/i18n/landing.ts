@@ -59,5 +59,46 @@ export const landingTranslations = {
     en: 'Warcrow Army Builder is an unofficial fan-made tool. All game content & artwork belongs to Corvus Belli S.L.',
     es: 'Warcrow Army Builder es una herramienta no oficial creada por fans. Todo el contenido del juego y el arte pertenece a Corvus Belli S.L.',
     fr: 'Warcrow Army Builder est un outil non officiel créé par des fans. Tout le contenu du jeu et les illustrations appartiennent à Corvus Belli S.L.'
+  },
+  // Missing translations for buttons
+  admin: {
+    en: 'Admin',
+    es: 'Administrador',
+    fr: 'Admin'
+  },
+  unitStats: {
+    en: 'Unit Stats',
+    es: 'Estadísticas de Unidades',
+    fr: 'Statistiques d\'Unité'
+  },
+  playMode: {
+    en: 'Play Mode',
+    es: 'Modo de Juego',
+    fr: 'Mode de Jeu'
+  },
+  profile: {
+    en: 'Profile',
+    es: 'Perfil',
+    fr: 'Profil'
+  },
+  missions: {
+    en: 'Missions',
+    es: 'Misiones',
+    fr: 'Missions'
+  },
+  signedAsGuest: {
+    en: 'Signed as Guest',
+    es: 'Conectado como Invitado',
+    fr: 'Connecté en tant qu\'Invité'
+  },
+  signOut: {
+    en: 'Sign Out',
+    es: 'Cerrar Sesión',
+    fr: 'Se Déconnecter'
+  },
+  buyCoffee: {
+    en: 'Buy us a Coffee',
+    es: 'Invítanos a un Café',
+    fr: 'Offrez-nous un Café'
   }
 };
