@@ -2,19 +2,22 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { ExtendedUnit } from '@/types/extendedUnit';
 
 interface UnitListProps {
   units: Array<any>;
   searchQuery: string;
   isLoading: boolean;
   error: any;
+  onSelectUnit?: (unit: ExtendedUnit) => void;
 }
 
 export const UnitList: React.FC<UnitListProps> = ({
   units,
   searchQuery,
   isLoading,
-  error
+  error,
+  onSelectUnit
 }) => {
   // Filter units based on search query
   const filteredUnits = units?.filter(unit => 
@@ -51,7 +54,11 @@ export const UnitList: React.FC<UnitListProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredUnits.map(unit => (
-        <Card key={unit.id} className="p-4 hover:shadow-md transition-shadow">
+        <Card 
+          key={unit.id} 
+          className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => onSelectUnit && onSelectUnit(unit)}
+        >
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-bold">{unit.name}</h3>
