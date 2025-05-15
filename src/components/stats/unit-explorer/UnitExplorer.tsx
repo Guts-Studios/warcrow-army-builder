@@ -97,7 +97,13 @@ const UnitExplorer: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-black/50 border-warcrow-gold/30">
-        <h1 className="text-2xl font-bold text-warcrow-gold mb-4">{t('unitExplorer')}</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-warcrow-gold">{t('unitExplorer')}</h1>
+          <div className="bg-black/40 px-3 py-1 rounded border border-warcrow-gold/30">
+            <span className="text-warcrow-gold font-medium">{t('totalUnits')}: </span>
+            <span className="text-warcrow-text">{units.length}</span>
+          </div>
+        </div>
         <UnitFilters 
           onFilterChange={handleFilterChange} 
           factions={factions}
