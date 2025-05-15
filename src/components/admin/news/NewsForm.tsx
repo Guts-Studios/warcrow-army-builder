@@ -92,10 +92,25 @@ export const NewsForm = ({
         )}
 
         <Tabs defaultValue="english" className="w-full">
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="english" className="text-warcrow-text">English</TabsTrigger>
-            <TabsTrigger value="spanish" className="text-warcrow-text">Spanish</TabsTrigger>
-            <TabsTrigger value="french" className="text-warcrow-text">French</TabsTrigger>
+          <TabsList className="grid grid-cols-3 mb-4 bg-warcrow-accent">
+            <TabsTrigger 
+              value="english" 
+              className="text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+            >
+              English
+            </TabsTrigger>
+            <TabsTrigger 
+              value="spanish" 
+              className="text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+            >
+              Spanish
+            </TabsTrigger>
+            <TabsTrigger 
+              value="french" 
+              className="text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold"
+            >
+              French
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="english">
@@ -177,3 +192,4 @@ export const NewsForm = ({
     </div>
   );
 };
+
