@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Loader2, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -53,29 +53,30 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
-        className="p-0 border-warcrow-gold/30 bg-black/95 overflow-hidden"
-        style={{
-          maxWidth: isMobile ? '90vw' : '550px',
-          maxHeight: '90vh'
-        }}
+        className="p-0 border-warcrow-gold/30 bg-black/95 overflow-hidden max-w-[90vw] md:max-w-[600px] max-h-[90vh]"
       >
+        <DialogTitle className="sr-only">{unitName} {getCardText()}</DialogTitle>
+        <DialogDescription className="sr-only">
+          {t('unitCardFor', { unitName })}
+        </DialogDescription>
+        
         <DialogClose className="absolute right-2 top-2 z-50 rounded-full bg-black/70 p-1 text-warcrow-gold hover:bg-black/90">
           <X className="h-5 w-5" />
           <span className="sr-only">Close</span>
         </DialogClose>
         
-        <div className="relative flex items-center justify-center w-full h-full">
+        <div className="relative flex items-center justify-center w-full h-full overflow-hidden">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30">
               <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold/70" />
             </div>
           )}
           
-          <div className="w-full min-h-[50vh]" style={{ position: 'relative' }}>
+          {!imageError && (
             <img
               src={cardUrl}
               alt={`${unitName} ${getCardText()}`}
-              className={`w-full h-auto transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+              className={`w-auto max-h-[80vh] transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               onLoad={() => {
                 console.log(`Image loaded successfully: ${cardUrl}`);
                 setIsLoading(false);
@@ -85,19 +86,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 setImageError(true);
                 setIsLoading(false);
               }}
-              style={{ 
-                display: imageError ? 'none' : 'block',
-                maxHeight: '80vh'
-              }}
             />
-            
-            {imageError && !isLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-warcrow-gold/70 text-center p-4">
-                <div className="text-sm">{getNotAvailableText()}</div>
-                <div className="text-xs opacity-70">{getTryAgainText()}</div>
-              </div>
-            )}
-          </div>
+          )}
+          
+          {imageError && !isLoading && (
+            <div className="p-8 flex flex-col items-center justify-center gap-2 text-warcrow-gold/70 text-center">
+              <div className="text-sm">{getNotAvailableText()}</div>
+              <div className="text-xs opacity-70">{getTryAgainText()}</div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

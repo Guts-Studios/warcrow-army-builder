@@ -27,14 +27,19 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Translate unit name based on the selected language
   const displayName = translateUnitName(unit.name, language);
 
-  // Function to generate the correct GitHub card URL based on the unit name and language
+  // Improved function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
-    // Special cases mapping for tricky unit names
+    // Debug the incoming unit name
+    console.log(`Getting card URL for: ${unit.name} (${unit.id})`);
+  
+    // Special cases mapping for tricky unit names - expanded list
     const specialCases: Record<string, string> = {
       // Core cases for specific units
       "Aggressors": "aggressors",
       "Ahlwardt Ice Bear": "ahlwardt_ice_bear",
       "Battle-Scarred": "battle-scarred",
+      "Battle Scarred": "battle-scarred", // Alternative spelling
+      "BattleScarred": "battle-scarred", // Alternative spelling
       "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
       "Lady Telia": "lady_telia",
       "Nayra Caladren": "nayra_caladren",
@@ -54,11 +59,23 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     
     // If no special mapping exists, create the URL-friendly name
     if (!baseNameForUrl) {
-      baseNameForUrl = unit.name
-        .toLowerCase()
-        .replace(/[\s-]+/g, '_')  // Replace spaces and hyphens with underscores
-        .replace(/[']/g, '')      // Remove apostrophes
-        .replace(/[^a-z0-9_-]/g, ''); // Remove any other non-alphanumeric characters except underscores and hyphens
+      // Try to normalize the name first by checking for hyphenated versions
+      const normalizedName = unit.name
+        .replace(/([a-z])([A-Z])/g, '$1 $2') // Convert camelCase to space-separated
+        .trim();
+        
+      // Check again with the normalized name
+      baseNameForUrl = specialCases[normalizedName];
+      
+      // If still no match, create a URL-friendly version
+      if (!baseNameForUrl) {
+        baseNameForUrl = unit.name
+          .toLowerCase()
+          .replace(/\s+/g, '_')  // Replace spaces with underscores
+          .replace(/[-]/g, '_')  // Replace hyphens with underscores for consistency
+          .replace(/[']/g, '')   // Remove apostrophes
+          .replace(/[^a-z0-9_-]/g, ''); // Remove any other non-alphanumeric characters
+      }
     }
     
     // Base URL pointing to the card directory
@@ -78,7 +95,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     return fullUrl;
   };
 
-  // Preload image when component is mounted
+  // Preload image when component is mounted or language changes
   useEffect(() => {
     const preloadImage = () => {
       if (unit) {
@@ -94,7 +111,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     };
     
     preloadImage();
-  }, [language, unit.name]);
+  }, [language, unit.name, unit.id]);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {

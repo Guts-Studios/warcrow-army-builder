@@ -1,4 +1,3 @@
-
 import { Unit } from "../../../types/army";
 
 export const northernTribesTroops: Unit[] = [
@@ -16,7 +15,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
     highCommand: false,
-    imageUrl: "/art/card/battle_scarred_card.jpg"
+    imageUrl: "/art/card/battle-scarred_card.jpg"
   },
   {
     id: "orc-hunters",
