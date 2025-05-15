@@ -31,8 +31,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const getCardUrl = () => {
     // Special cases mapping for tricky unit names
     const specialCases: Record<string, string> = {
-      // Core cases
-      "Agressors": "aggressors",
+      // Core cases for specific units
+      "Aggressors": "aggressors",
+      "Ahlwardt Ice Bear": "ahlwardt_ice_bear",
+      "Battle-Scarred": "battle-scarred",
       "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
       "Lady Telia": "lady_telia",
       "Nayra Caladren": "nayra_caladren",
@@ -44,6 +46,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       "Trabor Slepmund": "trabor_slepmund",
       "Darach Wildling": "darach_wildling",
       "Marhael The Refused": "marhael_the_refused",
+      // Add more special cases as needed
     };
     
     // First check if we have a special case mapping for this unit
@@ -75,12 +78,22 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     return fullUrl;
   };
 
-  // Update card URL when language changes
+  // Preload image when component is mounted
   useEffect(() => {
-    if (unit) {
-      const url = getCardUrl();
-      setCardUrl(url);
-    }
+    const preloadImage = () => {
+      if (unit) {
+        const url = getCardUrl();
+        setCardUrl(url);
+        
+        // Create a new Image to preload
+        const img = new Image();
+        img.src = url;
+        
+        console.log(`Preloading image for ${unit.name}: ${url}`);
+      }
+    };
+    
+    preloadImage();
   }, [language, unit.name]);
 
   // Function to handle view card button click
