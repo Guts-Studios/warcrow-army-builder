@@ -46,10 +46,13 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
 
   // Start with the original URL from the unit
   let imageUrl = unit.imageUrl;
+  
+  console.log('Original image URL:', imageUrl);
 
   // Apply language-specific changes if not in error state
   if (!imageError) {
     imageUrl = getLanguageSpecificUrl(imageUrl);
+    console.log('Language-specific URL:', imageUrl);
   } else if (!alternateErrorShown) {
     // If first attempt failed, try with a different extension
     if (imageUrl.endsWith('.jpg')) {
@@ -62,6 +65,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     } else if (imageUrl.endsWith('_sp.png') || imageUrl.endsWith('_fr.png')) {
       imageUrl = imageUrl.replace('_sp.png', '.png').replace('_fr.png', '.png');
     }
+    console.log('Fallback URL:', imageUrl);
   }
 
   return (
@@ -72,6 +76,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
           alt={unit.name}
           className="h-full w-full object-cover"
           onError={(e) => {
+            console.error('Image load error:', imageUrl);
             if (!imageError) {
               setImageError(true);
             } else if (!alternateErrorShown) {

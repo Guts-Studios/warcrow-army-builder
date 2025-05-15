@@ -39,15 +39,17 @@ const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
         .replace('_card_sp.jpg', '_portrait.jpg')
         .replace('_card_fr.jpg', '_portrait.jpg');
     } else if (portraitUrl.endsWith('.jpg') || portraitUrl.endsWith('.png')) {
-      // Handle cases where filename doesn't have "_card" pattern
+      // Extract base name without extension for more complex transformations
       const baseName = portraitUrl.substring(0, portraitUrl.lastIndexOf('.'));
       const baseNameWithoutDir = baseName.substring(baseName.lastIndexOf('/') + 1);
-      const portraitName = baseNameWithoutDir.replace('_card', '');
-      portraitImageUrl = `${baseName.replace('/art/card/', '/art/portrait/')}${
-        portraitName.includes('_portrait') ? '' : '_portrait'
-      }.jpg`;
+      
+      // Create portrait URL path
+      portraitImageUrl = `${portraitUrl.substring(0, portraitUrl.lastIndexOf('/'))}/portrait/${baseNameWithoutDir.replace('_card', '')}_portrait.jpg`;
     }
   }
+
+  console.log('Original URL:', portraitUrl);
+  console.log('Portrait URL:', portraitImageUrl);
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
