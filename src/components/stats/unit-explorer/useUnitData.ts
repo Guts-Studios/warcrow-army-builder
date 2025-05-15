@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
@@ -43,6 +42,38 @@ export function useUnitData(selectedFaction: string) {
       })) as Unit[];
       
       return unitsWithFactionDisplay;
+    }
+  });
+}
+
+export function useArmyBuilderUnits(selectedFaction: string) {
+  return useQuery<Unit[]>({
+    queryKey: ['army-builder-units', selectedFaction],
+    queryFn: async () => {
+      let query = supabase.from('unit_data').select('*');
+      
+      if (selectedFaction !== 'all') {
+        query = query.eq('faction', selectedFaction);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      // Filter out units that should not be shown in the builder
+      const visibleUnits = (data || [])
+        .filter(unit => {
+          // If showInBuilder is explicitly false, exclude the unit
+          // Otherwise include it (undefined or true)
+          return unit.characteristics?.showInBuilder !== false;
+        })
+        .map(unit => ({
+          ...unit,
+          faction_display: unit.faction,
+          characteristics: unit.characteristics as Record<string, any>
+        })) as Unit[];
+      
+      return visibleUnits;
     }
   });
 }

@@ -1,133 +1,141 @@
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { NumericInput } from '@/components/stats/symbol-explorer/NumericInput';
-import { SymbolControls } from '@/components/stats/symbol-explorer/SymbolControls';
-import { toast } from '@/components/ui/toast-core';
+import React, { useState, useEffect } from 'react';
+import { Card } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { NumericInput } from "../symbol-explorer/NumericInput";
+import { SymbolControls } from "../symbol-explorer/SymbolControls";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const FontSymbolExplorer: React.FC = () => {
-  const [charCode, setCharCode] = useState<number>(0xE000); // Warcrow font typically starts at Unicode private use area
-  const [fontSize, setFontSize] = useState<number>(64);
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const incrementChar = () => setCharCode(prev => prev + 1);
-  const decrementChar = () => setCharCode(prev => prev - 1);
+  const { t } = useLanguage();
+  const [charCode, setCharCode] = useState(59648); // Start with first character in the Warcrow font
+  const [fontSize, setFontSize] = useState(48);
+  const [copied, setCopied] = useState(false);
   
-  const handleCopyToClipboard = () => {
-    const char = String.fromCodePoint(charCode);
-    navigator.clipboard.writeText(char)
-      .then(() => toast.success("Symbol copied to clipboard"))
-      .catch(() => toast.error("Failed to copy symbol"));
+  // Convert the character code to a unicode character
+  const unicodeChar = String.fromCodePoint(charCode);
+  
+  // Copy the character to clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(unicodeChar);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
   
-  const handleCopyCodeToClipboard = () => {
-    const codeText = `U+${charCode.toString(16).toUpperCase()}`;
-    navigator.clipboard.writeText(codeText)
-      .then(() => toast.success("Code copied to clipboard"))
-      .catch(() => toast.error("Failed to copy code"));
+  // Handle input changes
+  const handleCharCodeChange = (value: number) => {
+    setCharCode(value);
   };
-
+  
+  const handleFontSizeChange = (value: number) => {
+    setFontSize(value);
+  };
+  
+  // Navigate to next/previous symbol
+  const goToPrevious = () => {
+    setCharCode(prev => Math.max(0, prev - 1));
+  };
+  
+  const goToNext = () => {
+    setCharCode(prev => prev + 1);
+  };
+  
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">Warcrow Font Symbol Explorer</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-4 col-span-1">
-          <h2 className="text-lg font-semibold mb-4">Controls</h2>
-          
-          <div className="space-y-4">
-            <NumericInput
-              label="Character Code (Hex)"
-              value={`0x${charCode.toString(16).toUpperCase()}`}
-              onChange={(value) => {
-                if (value.startsWith('0x')) {
-                  try {
-                    const parsed = parseInt(value, 16);
-                    if (!isNaN(parsed)) {
-                      setCharCode(parsed);
-                    }
-                  } catch (e) {
-                    // Invalid input
-                  }
-                }
-              }}
-            />
-            
-            <NumericInput
-              label="Font Size"
-              value={fontSize.toString()}
-              onChange={(value) => {
-                const parsed = parseInt(value);
-                if (!isNaN(parsed) && parsed > 0 && parsed <= 200) {
-                  setFontSize(parsed);
-                }
-              }}
-            />
-            
-            <SymbolControls 
-              onIncrement={incrementChar}
-              onDecrement={decrementChar}
-              onCopy={handleCopyToClipboard}
-              onCopyCode={handleCopyCodeToClipboard}
-              onToggleDetails={() => setShowDetails(!showDetails)}
-              showDetails={showDetails}
-            />
-          </div>
-        </Card>
-        
-        <Card className="p-4 col-span-1 md:col-span-2">
-          <h2 className="text-lg font-semibold mb-4">Symbol Preview</h2>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg border p-4 flex items-center justify-center h-56">
-            <span 
-              className="font-warcrow" 
-              style={{ 
-                fontSize: `${fontSize}px`,
-                lineHeight: 1
-              }}
-            >
-              {String.fromCodePoint(charCode)}
-            </span>
-          </div>
-          
-          {showDetails && (
-            <div className="mt-4 bg-black/30 p-3 rounded">
-              <h3 className="font-medium text-sm mb-2">Symbol Details</h3>
-              <dl className="grid grid-cols-2 gap-2 text-sm">
-                <dt className="text-gray-400">Unicode</dt>
-                <dd>U+{charCode.toString(16).toUpperCase()}</dd>
-                
-                <dt className="text-gray-400">HTML Entity</dt>
-                <dd>&amp;#x{charCode.toString(16)};</dd>
-                
-                <dt className="text-gray-400">CSS</dt>
-                <dd>\{charCode.toString(16)}</dd>
-                
-                <dt className="text-gray-400">JavaScript</dt>
-                <dd>String.fromCodePoint(0x{charCode.toString(16)})</dd>
-              </dl>
-            </div>
-          )}
-        </Card>
-      </div>
-      
-      <Card className="p-4 mt-6">
-        <h2 className="text-lg font-semibold mb-4">Common Warcrow Font Symbols</h2>
-        <div className="grid grid-cols-6 md:grid-cols-12 gap-3">
-          {Array.from({ length: 24 }, (_, i) => (
-            <div 
-              key={i}
-              className="aspect-square flex items-center justify-center border rounded cursor-pointer hover:bg-black/30"
-              onClick={() => setCharCode(0xE000 + i)}
-            >
-              <span className="font-warcrow text-2xl">
-                {String.fromCodePoint(0xE000 + i)}
-              </span>
-            </div>
-          ))}
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-warcrow-gold mb-2">{t('fontSymbolExplorer')}</h1>
+          <p className="text-warcrow-text/80">{t('fontSymbolExplorerDescription')}</p>
         </div>
-      </Card>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="p-4 col-span-1 bg-black/40 border border-warcrow-gold/30">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="charCode" className="text-warcrow-text/80">Character Code</Label>
+                <NumericInput
+                  id="charCode"
+                  value={charCode}
+                  onChange={handleCharCodeChange}
+                  min={0}
+                  max={65535}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="fontSize" className="text-warcrow-text/80">Font Size</Label>
+                <NumericInput
+                  id="fontSize"
+                  value={fontSize}
+                  onChange={handleFontSizeChange}
+                  min={8}
+                  max={120}
+                />
+              </div>
+              
+              <SymbolControls 
+                onPrevious={goToPrevious}
+                onNext={goToNext}
+                onCopy={copyToClipboard}
+                copied={copied}
+              />
+              
+              <div className="pt-2">
+                <Label className="text-warcrow-text/80 block mb-1">Hex Code</Label>
+                <Input 
+                  value={`U+${charCode.toString(16).toUpperCase().padStart(4, '0')}`}
+                  readOnly 
+                  className="bg-black/60 border-warcrow-gold/30 text-warcrow-text font-mono"
+                />
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4 col-span-1 lg:col-span-2 bg-black/40 border border-warcrow-gold/30">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-medium text-warcrow-gold">Symbol Preview</h3>
+                <span className="text-warcrow-text/80 text-sm">
+                  Character: {charCode}
+                </span>
+              </div>
+              
+              <AspectRatio ratio={1} className="bg-black/60 border border-warcrow-gold/30 rounded-md">
+                <div className="flex items-center justify-center h-full">
+                  <span 
+                    className="font-warcrow" 
+                    style={{ 
+                      fontSize: `${fontSize}px`, 
+                      lineHeight: 1,
+                      display: 'block'
+                    }}
+                  >
+                    {unicodeChar}
+                  </span>
+                </div>
+              </AspectRatio>
+              
+              <div className="text-center">
+                <button 
+                  onClick={copyToClipboard}
+                  className="mt-2 px-4 py-2 bg-warcrow-gold/20 hover:bg-warcrow-gold/30 text-warcrow-gold rounded-md transition"
+                >
+                  {copied ? 'Copied!' : 'Click to Copy'}
+                </button>
+              </div>
+              
+              <div className="p-3 bg-black/60 border border-warcrow-gold/30 rounded-md">
+                <Label className="text-warcrow-text/80 block mb-1">HTML Usage</Label>
+                <code className="block p-2 bg-black/80 rounded text-sm text-warcrow-text/90 font-mono">
+                  {`<span class="font-warcrow">${unicodeChar}</span>`}
+                </code>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,117 +1,82 @@
 
 import React, { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { AlertTriangle, Loader2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import UnitFilters from './UnitFilters';
-import UnitList from './UnitList';
+import { Card } from "@/components/ui/card";
+import { UnitFilters } from './UnitFilters';
 import { UnitTable } from './UnitTable';
+import { useUnitData, useFactions } from './useUnitData';
+import { useLanguage } from '@/contexts/LanguageContext';
 import TranslationPanel from './TranslationPanel';
-import { useUnitData, useFactions, Unit } from './useUnitData';
 
 const UnitExplorer: React.FC = () => {
-  const [selectedFaction, setSelectedFaction] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("units");
-  const [viewType, setViewType] = useState<"cards" | "table">("cards");
+  const [selectedFaction, setSelectedFaction] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showHiddenUnits, setShowHiddenUnits] = useState(false);
+  
   const { t, language } = useLanguage();
-  
-  // Fetch units data with custom hook
-  const { 
-    data: units, 
-    isLoading: isLoadingUnits, 
-    error: unitsError,
-    refetch: refetchUnits
-  } = useUnitData(selectedFaction);
-  
-  // Fetch factions for filter
-  const { 
-    data: factions,
-    isLoading: isLoadingFactions
-  } = useFactions();
-
-  // Handle filter changes
-  const handleFilterChange = ({ searchQuery, selectedFaction }: { searchQuery: string; selectedFaction: string }) => {
-    setSearchQuery(searchQuery);
-    setSelectedFaction(selectedFaction);
-  };
-  
-  const isLoading = isLoadingUnits || isLoadingFactions;
+  const { data: units = [], isLoading } = useUnitData(selectedFaction);
+  const { data: factions = [] } = useFactions();
 
   // Filter units based on search query
-  const filteredUnits = units?.filter(unit => 
-    unit.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredUnits = units.filter(unit => {
+    // Filter by search query
+    const matchesSearch = searchQuery === '' || 
+      unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (unit.keywords && unit.keywords.some(keyword => 
+        keyword.toLowerCase().includes(searchQuery.toLowerCase())
+      )) ||
+      (unit.special_rules && unit.special_rules.some(rule => 
+        rule.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+    
+    // Filter by visibility if showHiddenUnits is false
+    const shouldShow = showHiddenUnits || unit.characteristics?.showInBuilder !== false;
+    
+    return matchesSearch && shouldShow;
+  });
 
-  // Display error if any
-  if (unitsError) {
-    return (
-      <Card className="p-6 border-red-500 bg-black/50 text-red-400">
-        <div className="flex items-center gap-2 mb-2">
-          <AlertTriangle className="h-5 w-5 text-red-400" />
-          <h3 className="text-lg font-semibold">Error Loading Units</h3>
-        </div>
-        <p>{(unitsError as Error).message}</p>
-      </Card>
-    );
-  }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleFactionChange = (value: string) => {
+    setSelectedFaction(value);
+  };
+
+  const handleShowHiddenChange = (value: boolean) => {
+    setShowHiddenUnits(value);
+  };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <UnitFilters
-        onFilterChange={handleFilterChange}
-        factions={factions || []}
-        isLoading={isLoading}
-      />
-      
-      <div className="flex justify-end mb-2">
-        <div className="flex items-center gap-2 bg-warcrow-accent/50 p-1 rounded">
-          <button 
-            className={`px-3 py-1 rounded ${viewType === "cards" ? "bg-warcrow-gold/20 text-warcrow-gold" : "text-warcrow-text"}`}
-            onClick={() => setViewType("cards")}
-          >
-            Cards
-          </button>
-          <button 
-            className={`px-3 py-1 rounded ${viewType === "table" ? "bg-warcrow-gold/20 text-warcrow-gold" : "text-warcrow-text"}`}
-            onClick={() => setViewType("table")}
-          >
-            Table
-          </button>
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-warcrow-gold mb-2">{t('unitExplorer')}</h1>
+          <p className="text-warcrow-text/80">{t('unitExplorerDescription')}</p>
         </div>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="units">Units</TabsTrigger>
-          <TabsTrigger value="translations">Translations</TabsTrigger>
-        </TabsList>
         
-        <TabsContent value="units" className="space-y-4">
-          {viewType === "cards" ? (
-            <UnitList 
-              units={filteredUnits}
-              searchQuery={searchQuery}
-              isLoading={isLoading}
-              error={unitsError}
-            />
-          ) : (
+        <Card className="p-4 bg-black/40 border border-warcrow-gold/30">
+          <UnitFilters
+            factions={factions}
+            selectedFaction={selectedFaction}
+            onFactionChange={handleFactionChange}
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+            t={t}
+            showHidden={showHiddenUnits}
+            onShowHiddenChange={handleShowHiddenChange}
+          />
+          
+          <div className="mt-4">
             <UnitTable 
               filteredUnits={filteredUnits}
               t={t}
               isLoading={isLoading}
             />
-          )}
-        </TabsContent>
+          </div>
+        </Card>
         
-        <TabsContent value="translations" className="space-y-4">
-          <TranslationPanel 
-            units={units || [] as Unit[]} 
-            onTranslationComplete={refetchUnits}
-          />
-        </TabsContent>
-      </Tabs>
+        {language !== 'en' && <TranslationPanel />}
+      </div>
     </div>
   );
 };

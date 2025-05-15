@@ -1,79 +1,75 @@
 
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Search, X } from 'lucide-react';
+import React from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
-export interface UnitFiltersProps {
-  onFilterChange: (filters: { searchQuery: string; selectedFaction: string; }) => void;
-  factions: { id: string; name: string; }[];
-  isLoading: boolean;
+interface UnitFiltersProps {
+  factions: any[];
+  selectedFaction: string;
+  onFactionChange: (value: string) => void;
+  searchQuery: string;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  t: (key: string) => string;
+  showHidden: boolean;
+  onShowHiddenChange: (value: boolean) => void;
 }
 
 export const UnitFilters: React.FC<UnitFiltersProps> = ({
-  onFilterChange,
   factions,
-  isLoading
+  selectedFaction,
+  onFactionChange,
+  searchQuery,
+  onSearchChange,
+  t,
+  showHidden,
+  onShowHiddenChange
 }) => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedFaction, setSelectedFaction] = useState<string>("all");
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
-    setSearchQuery(newQuery);
-    onFilterChange({ searchQuery: newQuery, selectedFaction });
-  };
-
-  const handleFactionChange = (newFaction: string) => {
-    setSelectedFaction(newFaction);
-    onFilterChange({ searchQuery, selectedFaction: newFaction });
-  };
-
-  const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedFaction('all');
-    onFilterChange({ searchQuery: '', selectedFaction: 'all' });
-  };
-
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <h1 className="text-2xl font-bold">Unit Explorer</h1>
-      
-      <div className="flex flex-wrap gap-2">
-        <Select value={selectedFaction} onValueChange={handleFactionChange} disabled={isLoading}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Faction" />
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-warcrow-gold/70 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder={t('searchUnits')}
+            value={searchQuery}
+            onChange={onSearchChange}
+            className="pl-10 bg-warcrow-accent/50 border-warcrow-gold/30 text-warcrow-text placeholder:text-warcrow-muted/70"
+          />
+        </div>
+        
+        <Select
+          value={selectedFaction}
+          onValueChange={onFactionChange}
+        >
+          <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30 text-warcrow-text">
+            <SelectValue placeholder={t('selectFaction')} />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Factions</SelectItem>
-            {factions?.map(faction => (
-              <SelectItem key={faction.id} value={faction.id}>{faction.name}</SelectItem>
+          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+            <SelectItem value="all">{t('allFactions')}</SelectItem>
+            {factions.map(faction => (
+              <SelectItem key={faction.id} value={faction.id}>
+                {faction.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        
-        <Input
-          placeholder="Search units..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="w-full sm:w-60"
-          disabled={isLoading}
-        />
 
-        {(searchQuery || selectedFaction !== 'all') && (
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={clearFilters}
-            disabled={isLoading}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="flex items-center space-x-2">
+          <Switch 
+            id="show-hidden" 
+            checked={showHidden}
+            onCheckedChange={onShowHiddenChange}
+            className="data-[state=checked]:bg-warcrow-gold"
+          />
+          <Label htmlFor="show-hidden" className="text-warcrow-text cursor-pointer">
+            {t('showHiddenUnits')}
+          </Label>
+        </div>
       </div>
     </div>
   );
 };
-
-export default UnitFilters;

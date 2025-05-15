@@ -1,9 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslateKeyword } from '@/utils/translation';
 import { formatFactionName, getUnitType, formatKeywords } from './utils';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
 
 interface UnitTableProps {
   filteredUnits: any[];
@@ -17,6 +20,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
   isLoading = false
 }) => {
   const { translateKeyword } = useTranslateKeyword();
+  const [updatingUnits, setUpdatingUnits] = useState<{[key: string]: boolean}>({});
   
   // Create a wrapper function that only takes the keyword parameter
   // This matches the expected function signature in formatKeywords
@@ -39,12 +43,50 @@ export const UnitTable: React.FC<UnitTableProps> = ({
       </div>
     );
   };
+
+  // Handle visibility toggle
+  const handleVisibilityToggle = async (unit: any, isVisible: boolean) => {
+    setUpdatingUnits(prev => ({ ...prev, [unit.id]: true }));
+    
+    try {
+      // Get current characteristics or create new object if it doesn't exist
+      const characteristics = unit.characteristics || {};
+      
+      // Update the visibility in characteristics
+      const updatedCharacteristics = {
+        ...characteristics,
+        showInBuilder: isVisible
+      };
+      
+      // Update the unit data in Supabase
+      const { error } = await supabase
+        .from('unit_data')
+        .update({
+          characteristics: updatedCharacteristics
+        })
+        .eq('id', unit.id);
+      
+      if (error) throw error;
+      
+      // Show success toast
+      toast.success(isVisible 
+        ? t('unitNowVisibleInBuilder') || 'Unit is now visible in army builder' 
+        : t('unitNowHiddenFromBuilder') || 'Unit is now hidden from army builder'
+      );
+    } catch (error: any) {
+      console.error('Error updating unit visibility:', error);
+      toast.error(t('errorUpdatingUnit') || 'Error updating unit');
+    } finally {
+      setUpdatingUnits(prev => ({ ...prev, [unit.id]: false }));
+    }
+  };
   
   return (
     <div className="border rounded border-warcrow-gold/30 overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
+            <TableHead className="text-warcrow-gold">{t('visibility')}</TableHead>
             <TableHead className="text-warcrow-gold">{t('faction')}</TableHead>
             <TableHead className="text-warcrow-gold">{t('type')}</TableHead>
             <TableHead className="text-warcrow-gold">{t('name')}</TableHead>
@@ -60,19 +102,27 @@ export const UnitTable: React.FC<UnitTableProps> = ({
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-6 text-warcrow-muted">
+              <TableCell colSpan={11} className="text-center py-6 text-warcrow-muted">
                 {t('loading')}...
               </TableCell>
             </TableRow>
           ) : filteredUnits.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-6 text-warcrow-muted">
+              <TableCell colSpan={11} className="text-center py-6 text-warcrow-muted">
                 {t('noUnitsMatch')}
               </TableCell>
             </TableRow>
           ) : (
             filteredUnits.map((unit, index) => (
               <TableRow key={`${unit.id}-${index}`} className="hover:bg-warcrow-accent/5">
+                <TableCell className="text-warcrow-text">
+                  <Switch
+                    checked={unit.characteristics?.showInBuilder !== false}
+                    onCheckedChange={(checked) => handleVisibilityToggle(unit, checked)}
+                    disabled={updatingUnits[unit.id]}
+                    className="data-[state=checked]:bg-warcrow-gold"
+                  />
+                </TableCell>
                 <TableCell className="text-warcrow-text">{formatFactionName(unit.faction)}</TableCell>
                 <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                 <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
