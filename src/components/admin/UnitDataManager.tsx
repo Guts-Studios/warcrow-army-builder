@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import UnitDataUploader from "./units/UnitDataUploader";
 import UnitKeywordSpecialRulesManager from "./units/UnitKeywordSpecialRulesManager";
 import UnitCharacteristicsManager from "./units/UnitCharacteristicsManager";
+import FactionManager from "./units/FactionManager";
 import DeepLUsageStats from "./units/DeepLUsageStats";
 import PopulateDataButton from "./units/PopulateDataButton";
 import UnitDataTable from "./units/UnitDataTable";
@@ -73,10 +74,10 @@ const UnitDataManager: React.FC = () => {
             Keywords/Special Rules
           </TabsTrigger>
           <TabsTrigger 
-            value="characteristics" 
+            value="factions-characteristics" 
             className="text-xs sm:text-sm data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold text-warcrow-text"
           >
-            Characteristics
+            Factions/Characteristics
           </TabsTrigger>
         </TabsList>
 
@@ -92,8 +93,19 @@ const UnitDataManager: React.FC = () => {
           <UnitKeywordSpecialRulesManager />
         </TabsContent>
 
-        <TabsContent value="characteristics" className="space-y-4">
-          <UnitCharacteristicsManager unitId={null} />
+        <TabsContent value="factions-characteristics" className="space-y-4">
+          <Tabs defaultValue="factions" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="factions">Factions</TabsTrigger>
+              <TabsTrigger value="characteristics">Characteristics</TabsTrigger>
+            </TabsList>
+            <TabsContent value="factions">
+              <FactionManager />
+            </TabsContent>
+            <TabsContent value="characteristics">
+              <UnitCharacteristicsManager unitId={null} />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
 
