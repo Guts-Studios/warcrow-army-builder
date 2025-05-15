@@ -7,13 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, AlertCircle, ExternalLink, Copy, Clipboard, ClipboardCheck, Save, History } from "lucide-react";
+import { Check, X, AlertCircle, ExternalLink, Copy, Clipboard, ClipboardCheck } from "lucide-react";
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const UnitImagesManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,11 +22,6 @@ const UnitImagesManager: React.FC = () => {
   const [allUnits, setAllUnits] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [copiedPaths, setCopiedPaths] = useState<Record<string, boolean>>({});
-  const [savingResults, setSavingResults] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [validationHistory, setValidationHistory] = useState<any[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null);
   const { t, language } = useLanguage();
   
   const factions = [
@@ -101,15 +94,24 @@ const UnitImagesManager: React.FC = () => {
     }, 2000);
   };
 
-  // Enhanced image checking that handles errors properly
+  // Enhanced image checking that handles errors properly and bypasses cache
   const checkImageExists = async (url: string): Promise<boolean> => {
     try {
-      // Use a different approach to verify image existence
+      // Add cache-busting parameter to bypass browser cache
+      const cacheBustUrl = `${url}?cachebust=${new Date().getTime()}`;
+      console.log(`Checking image at: ${cacheBustUrl}`);
+      
       return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = url;
+        img.onload = () => {
+          console.log(`✅ Image exists: ${url}`);
+          resolve(true);
+        };
+        img.onerror = () => {
+          console.log(`❌ Image missing: ${url}`);
+          resolve(false);
+        };
+        img.src = cacheBustUrl;
         
         // Set a timeout to handle cases where image loading hangs
         setTimeout(() => resolve(false), 3000);
@@ -120,8 +122,31 @@ const UnitImagesManager: React.FC = () => {
     }
   };
 
+  const reloadUnitData = async () => {
+    toast.info('Refreshing unit data from database...');
+    
+    const { data, error } = await supabase
+      .from('unit_data')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching units:', error);
+      toast.error('Failed to refresh unit data from database');
+      return false;
+    }
+
+    console.log(`Reloaded ${data.length} units from database`);
+    setAllUnits(data);
+    toast.success('Unit data refreshed successfully');
+    return true;
+  };
+
   const verifyUnitImages = async () => {
     setLoadingImages(true);
+    
+    // First reload the unit data to ensure we have the latest information
+    await reloadUnitData();
+    
     const results: Record<string, {exists: boolean, url: string}> = {};
     let missingCount = 0;
     
@@ -151,15 +176,19 @@ const UnitImagesManager: React.FC = () => {
         }
       }
       
-      // Special case handling to ensure accurate results
+      // Log debug info for problematic units
       if (isSpecialCase) {
-        console.log(`Checking special case unit: ${unit.name} with URL: ${imageUrl}`);
+        console.log(`Checking special case unit: ${unit.name}`);
+        console.log(`Original name: ${unit.name}`);
+        console.log(`Cleaned name: ${cleanUnitName(unit.name)}`);
+        console.log(`Checking URL: ${imageUrl}`);
       }
       
       const exists = await checkImageExists(imageUrl);
       
       if (!exists) {
         missingCount++;
+        console.warn(`Missing image for ${unit.name} at path: ${imageUrl}`);
       }
       
       results[unitId] = {
@@ -178,76 +207,6 @@ const UnitImagesManager: React.FC = () => {
     }
     
     setLoadingImages(false);
-  };
-
-  const saveValidationResults = async () => {
-    if (Object.keys(imageResults).length === 0) {
-      toast.error("No validation results to save");
-      return;
-    }
-    
-    setSavingResults(true);
-    
-    try {
-      // Count missing images
-      let missingCount = 0;
-      Object.values(imageResults).forEach(result => {
-        if (!result.exists) missingCount++;
-      });
-      
-      const { data, error } = await supabase
-        .from('image_validations')
-        .insert({
-          validation_type: activeTab,
-          results: imageResults,
-          total_units: filteredUnits.length,
-          missing_units: missingCount
-        })
-        .select();
-        
-      if (error) {
-        console.error('Error saving validation results:', error);
-        toast.error('Failed to save validation results');
-        return;
-      }
-      
-      toast.success('Validation results saved successfully');
-      console.log('Saved validation results:', data);
-    } catch (err) {
-      console.error('Error in saveValidationResults:', err);
-      toast.error('An error occurred while saving validation results');
-    } finally {
-      setSavingResults(false);
-    }
-  };
-
-  const loadValidationHistory = async () => {
-    setLoadingHistory(true);
-    
-    try {
-      const { data, error } = await supabase
-        .from('image_validations')
-        .select('*')
-        .order('validation_date', { ascending: false });
-        
-      if (error) {
-        console.error('Error loading validation history:', error);
-        toast.error('Failed to load validation history');
-        return;
-      }
-      
-      setValidationHistory(data || []);
-      setHistoryOpen(true);
-    } catch (err) {
-      console.error('Error in loadValidationHistory:', err);
-      toast.error('An error occurred while loading validation history');
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
-
-  const viewHistoryDetails = (item: any) => {
-    setSelectedHistoryItem(item);
   };
 
   const copyToClipboard = (text: string, unitId: string) => {
@@ -293,139 +252,6 @@ const UnitImagesManager: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-  
-  const renderHistoryDialog = () => (
-    <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-      <DialogContent className="sm:max-w-3xl bg-warcrow-background border-warcrow-gold/30 text-warcrow-text">
-        <DialogHeader>
-          <DialogTitle className="text-warcrow-gold">Validation History</DialogTitle>
-        </DialogHeader>
-        
-        {loadingHistory ? (
-          <div className="p-8 text-center">Loading history...</div>
-        ) : (
-          <div className="space-y-4">
-            {selectedHistoryItem ? (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-warcrow-gold text-lg">
-                    {selectedHistoryItem.validation_type === 'portraits' ? 'Portraits' : 
-                      selectedHistoryItem.validation_type === 'cards' ? 'Cards (EN)' :
-                      selectedHistoryItem.validation_type === 'cards-es' ? 'Cards (ES)' : 'Cards (FR)'} Validation
-                  </h3>
-                  <Button
-                    variant="outline"
-                    className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
-                    onClick={() => setSelectedHistoryItem(null)}
-                  >
-                    Back to List
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm bg-black/40 p-3 rounded">
-                  <div>Date: <span className="text-warcrow-gold">{formatDate(selectedHistoryItem.validation_date)}</span></div>
-                  <div>Total Units: <span className="text-warcrow-gold">{selectedHistoryItem.total_units}</span></div>
-                  <div>Missing Images: <span className="text-warcrow-gold">{selectedHistoryItem.missing_units}</span></div>
-                  <div>Success Rate: <span className="text-warcrow-gold">
-                    {Math.round(((selectedHistoryItem.total_units - selectedHistoryItem.missing_units) / selectedHistoryItem.total_units) * 100)}%
-                  </span></div>
-                </div>
-                
-                <ScrollArea className="h-[400px] rounded border border-warcrow-gold/20">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-black/60">
-                        <TableHead>Unit ID</TableHead>
-                        <TableHead>Image Path</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {Object.entries(selectedHistoryItem.results).map(([unitId, result]: [string, any]) => (
-                        <TableRow key={unitId} className="hover:bg-warcrow-gold/5">
-                          <TableCell className="font-mono text-xs">{unitId}</TableCell>
-                          <TableCell className="max-w-[300px] truncate">{result.url}</TableCell>
-                          <TableCell>
-                            {result.exists ? (
-                              <div className="flex items-center text-green-500">
-                                <Check className="h-4 w-4 mr-1" /> 
-                                <span>Available</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center text-red-500">
-                                <X className="h-4 w-4 mr-1" /> 
-                                <span>Missing</span>
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-              </div>
-            ) : (
-              <ScrollArea className="h-[400px]">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-black/60">
-                      <TableHead>Date</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Total Units</TableHead>
-                      <TableHead>Missing</TableHead>
-                      <TableHead>Success Rate</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {validationHistory.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
-                          No validation history found.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      validationHistory.map(item => (
-                        <TableRow key={item.id} className="hover:bg-warcrow-gold/5">
-                          <TableCell>{formatDate(item.validation_date)}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="capitalize">
-                              {item.validation_type === 'portraits' ? 'Portraits' : 
-                                item.validation_type === 'cards' ? 'Cards (EN)' :
-                                item.validation_type === 'cards-es' ? 'Cards (ES)' : 'Cards (FR)'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{item.total_units}</TableCell>
-                          <TableCell>{item.missing_units}</TableCell>
-                          <TableCell>
-                            {Math.round(((item.total_units - item.missing_units) / item.total_units) * 100)}%
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
-                              onClick={() => viewHistoryDetails(item)}
-                            >
-                              View Details
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-            )}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -465,24 +291,6 @@ const UnitImagesManager: React.FC = () => {
             className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
           >
             {loadingImages ? 'Checking Images...' : 'Verify Images'}
-          </Button>
-          <Button
-            onClick={saveValidationResults}
-            disabled={savingResults || Object.keys(imageResults).length === 0}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10"
-            variant="outline"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {savingResults ? 'Saving...' : 'Save Results'}
-          </Button>
-          <Button
-            onClick={loadValidationHistory}
-            disabled={loadingHistory}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10"
-            variant="outline"
-          >
-            <History className="h-4 w-4 mr-2" />
-            {loadingHistory ? 'Loading...' : 'View History'}
           </Button>
         </div>
 
@@ -635,8 +443,6 @@ const UnitImagesManager: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-      
-      {renderHistoryDialog()}
     </div>
   );
 };
