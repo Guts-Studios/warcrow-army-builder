@@ -4,7 +4,6 @@ import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UnitCardKeywords from "./unit/card/UnitCardKeywords";
-import UnitCardImage from "./unit/card/UnitCardImage";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
