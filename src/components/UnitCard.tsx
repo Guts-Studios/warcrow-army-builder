@@ -19,7 +19,7 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   const [cardUrl, setCardUrl] = useState<string>("");
@@ -27,14 +27,15 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Translate unit name based on the selected language
   const displayName = translateUnitName(unit.name, language);
 
-  // Function to generate the correct GitHub card URL based on the unit name and language
+  // Function to generate the correct card URL based on the unit name and language
   const getCardUrl = () => {
     try {
       // Convert unit name to snake_case format for file naming
-      // Replace both spaces and hyphens with underscores
+      // Replace spaces and hyphens with underscores
       const nameForUrl = unit.name.toLowerCase().replace(/[\s-]+/g, '_');
       
-      // Base URL pointing to the GitHub art/card directory
+      // Base URL pointing to the card directory in public folder
+      // Since the images are in public/art/card, we don't need to add /public
       const baseUrl = `/art/card/${nameForUrl}_card`;
       
       // Add language suffix if needed (sp for Spanish, fr for French, none for English)
@@ -46,16 +47,19 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       }
       
       // Return the complete URL with file extension
-      return `${baseUrl}${suffix}.jpg`;
+      const finalUrl = `${baseUrl}${suffix}.jpg`;
+      console.log("Generated card URL:", finalUrl);
+      return finalUrl;
     } catch (error) {
       console.error("Error generating card URL:", error);
       return "";
     }
   };
 
-  // Update card URL when language changes
+  // Update card URL when language changes or unit changes
   useEffect(() => {
-    setCardUrl(getCardUrl());
+    const url = getCardUrl();
+    setCardUrl(url);
   }, [language, unit.name]);
 
   // Function to handle view card button click
@@ -78,7 +82,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
           <span className="text-warcrow-gold font-semibold">
-            {unit.pointsCost} {language === 'en' ? "points" : (language === 'es' ? "puntos" : "points")}
+            {unit.pointsCost} {t('points')}
           </span>
           <UnitControls 
             quantity={quantity} 
@@ -102,7 +106,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           onClick={handleViewCardClick}
           className="text-xs w-full border-warcrow-gold/30 hover:bg-warcrow-gold/10"
         >
-          {language === 'en' ? "Unit Card" : (language === 'es' ? "Tarjeta de Unidad" : "Carte d'Unité")}
+          {t('unitCard')}
         </Button>
       </div>
 
