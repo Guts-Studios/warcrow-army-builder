@@ -20,9 +20,17 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   // Generate portrait URL based on unit name
   const generatePortraitUrl = () => {
     if (!portraitUrl) {
-      // Generate from name if no URL provided
-      const nameForUrl = name.toLowerCase().replace(/\s+/g, '_');
-      return `/art/portrait/${nameForUrl}_portrait.jpg`;
+      // Clean up the name for URL generation - handle special characters and accents
+      const cleanName = name
+        .toLowerCase()
+        .replace(/\s+/g, '_')         // Replace spaces with underscores
+        .replace(/[^\w-]/g, '')       // Remove special characters (except underscores and hyphens)
+        .replace(/ć/g, 'c')           // Replace ć with c
+        .replace(/í/g, 'i')           // Replace í with i
+        .replace(/á/g, 'a')           // Replace á with a
+        .replace(/é/g, 'e');          // Replace é with e
+      
+      return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
     // If URL provided but not in portrait format, convert card URL to portrait URL
@@ -48,8 +56,13 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     return portraitUrl;
   };
 
-  // Get the appropriate URL
+  // For debugging
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
+  
+  // Log the generated URL for debugging
+  if (name.includes("Dragoslav") || name.includes("Agressors")) {
+    console.log(`Generated portrait URL for ${name}:`, portraitImageUrl);
+  }
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
@@ -57,8 +70,8 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         src={portraitImageUrl} 
         alt={name} 
         className="object-cover"
-        onError={() => {
-          console.error('Portrait image failed to load:', portraitImageUrl);
+        onError={(e) => {
+          console.error(`Portrait image failed to load for ${name}:`, portraitImageUrl);
           setImageError(true);
         }}
       />

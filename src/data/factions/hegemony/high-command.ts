@@ -4,7 +4,7 @@ import { Unit } from "../../../types/army";
 export const hegemonyHighCommand: Unit[] = [
   {
     id: "dragoslav-bjelogric",
-    name: "Dragoslav Bjelogríc, Drago the Anvil",
+    name: "Dragoslav Bjelogric",
     faction: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
