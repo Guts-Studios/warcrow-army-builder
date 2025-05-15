@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UnitFilters from './UnitFilters';
 import UnitList from './UnitList';
 import TranslationPanel from './TranslationPanel';
-import { useUnitData, useFactions } from './useUnitData';
+import { useUnitData, useFactions, Unit } from './useUnitData';
 
 const UnitExplorer: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState<string>("all");
@@ -66,7 +66,7 @@ const UnitExplorer: React.FC = () => {
         
         <TabsContent value="units" className="space-y-4">
           <UnitList 
-            units={units || []}
+            units={units || [] as Unit[]}
             searchQuery={searchQuery}
             isLoading={isLoading}
             error={unitsError}
@@ -75,7 +75,7 @@ const UnitExplorer: React.FC = () => {
         
         <TabsContent value="translations" className="space-y-4">
           <TranslationPanel 
-            units={units || []} 
+            units={units || [] as Unit[]} 
             onTranslationComplete={refetchUnits}
           />
         </TabsContent>

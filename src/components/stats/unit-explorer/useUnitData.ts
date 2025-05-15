@@ -1,6 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 // Define the unit type to avoid excessive type depth
 export interface Unit {
@@ -34,11 +35,12 @@ export function useUnitData(selectedFaction: string) {
       
       if (error) throw error;
       
-      // Add faction_display field for all units based on faction id
+      // Add faction_display field and convert Json to proper Record type
       const unitsWithFactionDisplay = (data || []).map(unit => ({
         ...unit,
-        faction_display: unit.faction // Use faction ID as display name for now
-      }));
+        faction_display: unit.faction, // Use faction ID as display name for now
+        characteristics: unit.characteristics as Record<string, any> // Convert Json to Record
+      })) as Unit[];
       
       return unitsWithFactionDisplay;
     }

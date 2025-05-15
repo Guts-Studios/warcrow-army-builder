@@ -2,14 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/toast-core';
 import { Database } from '@/integrations/supabase/types';
-
-// Define a type for batch translation items
-type BatchItem = {
-  id: string;
-  text: string;
-  targetField: string;
-  table: keyof Database['public']['Tables'];
-};
+import { BatchItem, BatchItemTable } from '@/types/batchItem';
 
 /**
  * Translates and updates a batch of items in the database
@@ -35,7 +28,7 @@ export async function batchTranslateAndUpdate(
         
         // Update the database with the translated text
         const { error } = await supabase
-          .from(item.table as any) // Type assertion needed because of the key constraint
+          .from(item.table)
           .update({ [item.targetField]: translatedText })
           .eq('id', item.id);
         
@@ -81,10 +74,32 @@ export async function translateAllMissingContent(language: string) {
     // This would be replaced with actual API call to your translation service
     await new Promise(resolve => setTimeout(resolve, 2000));
     
+    // Mock a successful response with stats and errors fields
+    const response = {
+      success: true,
+      count: Math.floor(Math.random() * 20) + 5,
+      errors: [] as string[],
+      stats: {
+        rules_chapters: Math.floor(Math.random() * 5),
+        rules_sections: Math.floor(Math.random() * 10),
+        faqs: Math.floor(Math.random() * 15),
+        faq_sections: Math.floor(Math.random() * 8),
+        news_items: Math.floor(Math.random() * 6),
+        unit_keywords: Math.floor(Math.random() * 30),
+        unit_data: Math.floor(Math.random() * 45),
+        special_rules: Math.floor(Math.random() * 12)
+      }
+    };
+    
     toast.success(`Translated missing content to ${language}`);
-    return { success: true, count: Math.floor(Math.random() * 20) + 5 };
+    return response;
   } catch (error) {
     toast.error(`Failed to translate content: ${(error as Error).message}`);
-    return { success: false, count: 0 };
+    return { 
+      success: false, 
+      count: 0,
+      errors: [(error as Error).message],
+      stats: {}
+    };
   }
 }
