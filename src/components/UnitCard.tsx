@@ -25,11 +25,31 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Translate unit name based on the selected language
   const displayName = translateUnitName(unit.name, language);
 
+  // Function to generate the correct GitHub card URL based on the unit name and language
+  const getCardUrl = () => {
+    // Convert unit name to snake_case format for file naming
+    const nameForUrl = unit.name.toLowerCase().replace(/\s+/g, '_');
+    
+    // Base URL pointing to the GitHub art/card directory
+    const baseUrl = `/art/card/${nameForUrl}_card`;
+    
+    // Add language suffix if needed (sp for Spanish, fr for French, none for English)
+    let suffix = '';
+    if (language === 'es') {
+      suffix = '_sp';
+    } else if (language === 'fr') {
+      suffix = '_fr';
+    }
+    
+    // Return the complete URL with file extension
+    return `${baseUrl}${suffix}.jpg`;
+  };
+
   // Function to handle view card button click
   const handleViewCardClick = () => {
-    if (unit.imageUrl) {
-      window.open(unit.imageUrl, '_blank');
-    }
+    const cardUrl = getCardUrl();
+    console.log("Opening card URL:", cardUrl);
+    window.open(cardUrl, '_blank');
   };
 
   return (
@@ -63,19 +83,17 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
       <UnitCardImage unit={unit} />
       
-      {unit.imageUrl && (
-        <div className="flex justify-end mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleViewCardClick}
-            className="text-xs"
-          >
-            <FileImage className="h-3.5 w-3.5 mr-1.5" />
-            {t('viewCard') || 'View Card'}
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end mt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleViewCardClick}
+          className="text-xs"
+        >
+          <FileImage className="h-3.5 w-3.5 mr-1.5" />
+          {t('viewCard') || 'View Card'}
+        </Button>
+      </div>
     </div>
   );
 };
