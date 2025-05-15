@@ -25,11 +25,23 @@ const factionNameMap: Record<string, string> = {
   'scions': 'scions-of-yaldabaoth'
 };
 
-// Normalize and deduplicate units - fixing the duplicate units issue
+// Improved normalize and deduplicate units function
 const normalizeUnits = () => {
   const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
   const uniqueUnits = [];
   const seen = new Set();
+  
+  // Debug which units are being processed
+  console.log(`Processing ${allUnits.length} units for normalization`);
+  console.log(`Northern Tribes: ${northernTribesUnits.length}, Hegemony: ${hegemonyOfEmbersigUnits.length}, Scions: ${scionsOfYaldabaothUnits.length}, Syenann: ${syenannUnits.length}`);
+  
+  // Check for Battle-Scarred specifically
+  const battleScarredUnit = allUnits.find(unit => unit.name === "Battle-Scarred");
+  if (battleScarredUnit) {
+    console.log("Found Battle-Scarred unit:", battleScarredUnit);
+  } else {
+    console.log("Battle-Scarred unit not found in original data!");
+  }
   
   for (const unit of allUnits) {
     // Normalize faction name
@@ -52,18 +64,30 @@ const normalizeUnits = () => {
     };
     
     // Create a unique key including both name and id to guarantee uniqueness
-    const key = `${normalizedUnit.id}_${normalizedUnit.name}`;
+    const key = `${normalizedUnit.id}`;
+    
+    // Log any potential duplicates for debugging
+    if (seen.has(key)) {
+      console.log(`Found duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
+    }
     
     // Only add if we haven't seen this key before
     if (!seen.has(key)) {
       seen.add(key);
       uniqueUnits.push(normalizedUnit);
-    } else {
-      console.log(`Skipping duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
     }
   }
   
   console.log(`Normalized units: ${uniqueUnits.length} out of original ${allUnits.length}`);
+  
+  // Verify if Battle-Scarred made it to the final list
+  const finalBattleScared = uniqueUnits.find(unit => unit.name === "Battle-Scarred");
+  if (finalBattleScared) {
+    console.log("Battle-Scarred unit is in the final normalized list");
+  } else {
+    console.log("Battle-Scarred unit did NOT make it to the final list!");
+  }
+  
   return uniqueUnits;
 };
 

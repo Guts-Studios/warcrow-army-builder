@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, AlertCircle, ExternalLink, Copy } from "lucide-react";
+import { Check, X, AlertCircle, ExternalLink, Copy, Clipboard, ClipboardCheck } from "lucide-react";
 import { units as staticUnits } from '@/data/factions';
 import { Unit } from '@/types/army';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const UnitImagesManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,7 @@ const UnitImagesManager: React.FC = () => {
   const [imageResults, setImageResults] = useState<Record<string, {exists: boolean, url: string}>>({});
   const [filteredUnits, setFilteredUnits] = useState<Unit[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [copiedPaths, setCopiedPaths] = useState<Record<string, boolean>>({});
   const { t, language } = useLanguage();
   
   const factions = [
@@ -58,6 +60,16 @@ const UnitImagesManager: React.FC = () => {
       .replace(/í/g, 'i')
       .replace(/á/g, 'a')
       .replace(/é/g, 'e');
+  };
+
+  // Reset copy status after 2 seconds
+  const resetCopyStatus = (unitId: string) => {
+    setTimeout(() => {
+      setCopiedPaths(prev => ({
+        ...prev,
+        [unitId]: false
+      }));
+    }, 2000);
   };
 
   // Enhanced image checking that handles errors properly
@@ -139,9 +151,18 @@ const UnitImagesManager: React.FC = () => {
     setLoadingImages(false);
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, unitId: string) => {
     navigator.clipboard.writeText(text)
-      .then(() => toast.success("Path copied to clipboard"))
+      .then(() => {
+        // Update copy status for this specific unit
+        setCopiedPaths(prev => ({
+          ...prev,
+          [unitId]: true
+        }));
+        
+        toast.success("Path copied to clipboard");
+        resetCopyStatus(unitId);
+      })
       .catch(err => toast.error("Failed to copy: " + err));
   };
 
@@ -240,7 +261,7 @@ const UnitImagesManager: React.FC = () => {
                       <TableRow className="bg-black/60">
                         <TableHead>Unit Name</TableHead>
                         <TableHead>Faction</TableHead>
-                        <TableHead>Image Path</TableHead>
+                        <TableHead className="min-w-[300px]">Image Path</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -261,20 +282,31 @@ const UnitImagesManager: React.FC = () => {
                                 {unit.faction.replace(/-/g, ' ')}
                               </Badge>
                             </TableCell>
-                            <TableCell className="max-w-[200px] truncate group">
-                              <div className="flex items-center">
-                                <span className="truncate group-hover:text-warcrow-gold transition-colors">
-                                  {imageResults[unit.id]?.url || 'Not verified'}
-                                </span>
+                            <TableCell className="max-w-[300px] group">
+                              <div className="flex items-center space-x-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[240px] hover:text-warcrow-gold">
+                                        {imageResults[unit.id]?.url || 'Not verified'}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom" className="bg-black/90 border-warcrow-gold/20 text-warcrow-text p-2 break-all max-w-[400px]">
+                                      {imageResults[unit.id]?.url || 'Not verified'}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                                 {imageResults[unit.id]?.url && (
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 ml-2 text-warcrow-gold/70 hover:text-warcrow-gold hover:bg-warcrow-gold/10"
-                                    onClick={() => copyToClipboard(imageResults[unit.id].url)}
+                                    className="h-8 w-8 text-warcrow-gold/70 hover:text-warcrow-gold hover:bg-warcrow-gold/10"
+                                    onClick={() => copyToClipboard(imageResults[unit.id].url, unit.id)}
                                     title="Copy path to clipboard"
                                   >
-                                    <Copy className="h-3.5 w-3.5" />
+                                    {copiedPaths[unit.id] ? 
+                                      <ClipboardCheck className="h-4 w-4" /> : 
+                                      <Clipboard className="h-4 w-4" />}
                                   </Button>
                                 )}
                               </div>
