@@ -1,5 +1,5 @@
 
-import { toast as sonnerToast, ToastT, ToastToDismiss } from "sonner";
+import { toast as sonnerToast } from "sonner";
 import type { ReactNode } from "react";
 
 // Define toast options type
@@ -31,39 +31,24 @@ export const toast = Object.assign(
   createToast,
   {
     // Add custom success method
-    success: (message: string) => sonnerToast({
-      title: "Success",
-      description: message,
-      variant: "success"
-    }),
+    success: (message: string) => sonnerToast.success(message),
+    
     // Add custom error method
-    error: (message: string) => sonnerToast({
-      title: "Error",
-      description: message,
-      variant: "destructive"
-    }),
+    error: (message: string) => sonnerToast.error(message),
+    
     // Warning method
-    warning: (message: string) => sonnerToast({
-      title: "Warning",
-      description: message,
-      variant: "warning"
-    }),
+    warning: (message: string) => sonnerToast.warning(message),
+    
     // Info method
-    info: (message: string) => sonnerToast({
-      title: "Info",
-      description: message,
-    }),
+    info: (message: string) => sonnerToast.info(message),
+    
     // Pass through other methods from sonner
     dismiss: sonnerToast.dismiss,
-    error: sonnerToast.error,
-    info: sonnerToast.info,
     promise: sonnerToast.promise,
-    success: sonnerToast.success,
-    warning: sonnerToast.warning,
     custom: sonnerToast.custom,
     message: sonnerToast.message,
     loading: sonnerToast.loading,
-    getToasts: sonnerToast.getToasts,
+    getToasts: sonnerToast.getToasts
   }
 );
 

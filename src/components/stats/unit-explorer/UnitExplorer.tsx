@@ -11,6 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Database } from '@/integrations/supabase/types';
+
+// Define the unit type to avoid excessive type depth
+type Unit = Database['public']['Tables']['unit_data']['Row'] & {
+  faction_display?: string;
+};
 
 // Simulated translation service
 const translateAllMissingContent = async (language: string) => {
@@ -34,20 +40,27 @@ const UnitExplorer: React.FC = () => {
   const [translationProgress, setTranslationProgress] = useState(0);
   const { language, setLanguage } = useLanguage();
   
-  // Fetch units data
-  const { data: units, isLoading, error } = useQuery({
+  // Fetch units data with explicit typing
+  const { data: units, isLoading, error } = useQuery<Unit[]>({
     queryKey: ['units', selectedFaction],
     queryFn: async () => {
       let query = supabase.from('unit_data').select('*');
       
       if (selectedFaction !== 'all') {
-        query = query.eq('faction_id', selectedFaction);
+        query = query.eq('faction', selectedFaction);
       }
       
       const { data, error } = await query;
       
       if (error) throw error;
-      return data || [];
+      
+      // Add faction_display field for all units based on faction id
+      const unitsWithFactionDisplay = (data || []).map(unit => ({
+        ...unit,
+        faction_display: unit.faction // Use faction ID as display name for now
+      }));
+      
+      return unitsWithFactionDisplay;
     }
   });
   
@@ -181,7 +194,7 @@ const UnitExplorer: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-bold">{unit.name}</h3>
-                      <p className="text-sm text-gray-600">{unit.faction_name}</p>
+                      <p className="text-sm text-gray-600">{unit.faction_display}</p>
                     </div>
                     <div className="flex gap-1">
                       {unit.name_es && <div className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">ES</div>}
