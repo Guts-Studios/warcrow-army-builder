@@ -29,54 +29,58 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
   // Function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
-    try {
-      // Special cases mapping for tricky unit names
-      const specialCases: Record<string, string> = {
-        "Agressors": "aggressors",
-        "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
-        "Lady Telia": "lady_telia",
-        "Nayra Caladren": "nayra_caladren",
-        "Naergon Caladren": "naergon_caladren",
-        // Add any more special cases as needed
-      };
-
-      // First check if we have a special case mapping for this unit
-      let baseNameForUrl = specialCases[unit.name];
-      
-      // If no special mapping exists, create the URL-friendly name
-      if (!baseNameForUrl) {
-        baseNameForUrl = unit.name
-          .toLowerCase()
-          .replace(/[\s-]+/g, '_')  // Replace spaces and hyphens with underscores
-          .replace(/[']/g, '')      // Remove apostrophes
-          .replace(/[^a-z0-9_]/g, ''); // Remove any other non-alphanumeric characters except underscores
-      }
-      
-      // Base URL pointing to the card directory
-      const baseUrl = `/art/card/${baseNameForUrl}_card`;
-      
-      // Add language suffix if not English
-      let suffix = '';
-      if (language === 'es') {
-        suffix = '_sp';
-      } else if (language === 'fr') {
-        suffix = '_fr';
-      }
-      
-      // Log the generated URL for debugging
-      const fullUrl = `${baseUrl}${suffix}.jpg`;
-      console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
-      return fullUrl;
-    } catch (error) {
-      console.error("Error generating card URL:", error);
-      return "";
+    // Special cases mapping for tricky unit names
+    const specialCases: Record<string, string> = {
+      // Core cases
+      "Agressors": "aggressors",
+      "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
+      "Lady Telia": "lady_telia",
+      "Nayra Caladren": "nayra_caladren",
+      "Naergon Caladren": "naergon_caladren",
+      "Eskold The Executioner": "eskold_the_executioner",
+      "Mk-Os Automata": "mk-os_automata",
+      "Iriavik Restless Pup": "iriavik_restless_pup",
+      "Njord The Merciless": "njord_the_merciless",
+      "Trabor Slepmund": "trabor_slepmund",
+      "Darach Wildling": "darach_wildling",
+      "Marhael The Refused": "marhael_the_refused",
+    };
+    
+    // First check if we have a special case mapping for this unit
+    let baseNameForUrl = specialCases[unit.name];
+    
+    // If no special mapping exists, create the URL-friendly name
+    if (!baseNameForUrl) {
+      baseNameForUrl = unit.name
+        .toLowerCase()
+        .replace(/[\s-]+/g, '_')  // Replace spaces and hyphens with underscores
+        .replace(/[']/g, '')      // Remove apostrophes
+        .replace(/[^a-z0-9_-]/g, ''); // Remove any other non-alphanumeric characters except underscores and hyphens
     }
+    
+    // Base URL pointing to the card directory
+    const baseUrl = `/art/card/${baseNameForUrl}_card`;
+    
+    // Add language suffix if not English
+    let suffix = '';
+    if (language === 'es') {
+      suffix = '_sp';
+    } else if (language === 'fr') {
+      suffix = '_fr';
+    }
+    
+    // Generate full URL
+    const fullUrl = `${baseUrl}${suffix}.jpg`;
+    console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
+    return fullUrl;
   };
 
   // Update card URL when language changes
   useEffect(() => {
-    const url = getCardUrl();
-    setCardUrl(url);
+    if (unit) {
+      const url = getCardUrl();
+      setCardUrl(url);
+    }
   }, [language, unit.name]);
 
   // Function to handle view card button click
