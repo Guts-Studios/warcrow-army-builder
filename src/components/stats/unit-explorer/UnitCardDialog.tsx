@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface UnitCardDialogProps {
   isOpen: boolean;
@@ -73,13 +74,13 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
         
-        <div className="relative w-full h-[calc(100%-60px)] px-2 pb-2 flex items-center justify-center">
-          <div className="relative w-full h-full">
+        <ScrollArea className="relative w-full h-[calc(100%-60px)] px-2 pb-2">
+          <div className="relative w-full h-full min-h-[400px]">
             <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md h-full">
               <img
                 src={finalCardUrl}
                 alt={`${unitName} card`}
-                className={`h-full w-full object-contain ${isZoomed ? 'scale-110 transform transition-transform duration-300' : ''}`}
+                className={`h-full w-full object-contain ${isZoomed ? 'scale-125 transform transition-transform duration-300' : ''}`}
                 onError={(e) => {
                   console.error('Image load error:', finalCardUrl);
                   setImageError(true);
@@ -105,7 +106,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
               {isZoomed ? <ZoomOut className="h-4 w-4 text-warcrow-gold" /> : <ZoomIn className="h-4 w-4 text-warcrow-gold" />}
             </Button>
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
