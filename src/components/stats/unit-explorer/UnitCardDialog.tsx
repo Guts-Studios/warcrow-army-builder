@@ -21,7 +21,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl w-[95vw] p-1 sm:p-2 md:p-6">
+      <DialogContent className="max-w-md w-[95vw] md:w-[450px] p-2 sm:p-4">
         <DialogTitle className="text-xl font-bold text-warcrow-gold mb-2">
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
