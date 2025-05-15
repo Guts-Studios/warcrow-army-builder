@@ -1,142 +1,107 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { NumericInput } from "../symbol-explorer/NumericInput";
-import { SymbolControls } from "../symbol-explorer/SymbolControls";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from '@/contexts/LanguageContext';
+
+interface SymbolControlsProps {
+  onCopy: () => void;
+  copied: boolean;
+}
+
+const SymbolControls: React.FC<SymbolControlsProps> = ({ onCopy, copied }) => {
+  return (
+    <div className="flex space-x-2 mt-2">
+      <button
+        onClick={onCopy}
+        className="px-3 py-1 bg-warcrow-gold text-warcrow-background text-xs font-medium rounded hover:bg-warcrow-gold/80 transition-colors"
+      >
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+    </div>
+  );
+};
 
 const FontSymbolExplorer: React.FC = () => {
   const { t } = useLanguage();
-  const [charCode, setCharCode] = useState(59648); // Start with first character in the Warcrow font
-  const [fontSize, setFontSize] = useState(48);
   const [copied, setCopied] = useState(false);
-  
-  // Convert the character code to a unicode character
-  const unicodeChar = String.fromCodePoint(charCode);
-  
-  // Copy the character to clipboard
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(unicodeChar);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [symbolsPerPage] = useState(20);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sample symbols - in a real app, these would be loaded from a data source
+  const allSymbols = [
+    { id: '1', code: '⚔️', name: 'Sword', description: 'Represents combat or attack' },
+    { id: '2', code: '🛡️', name: 'Shield', description: 'Represents defense' },
+    { id: '3', code: '🏹', name: 'Bow', description: 'Represents ranged attack' },
+    // More symbols would be defined here
+  ];
+
+  const filteredSymbols = allSymbols.filter(symbol =>
+    symbol.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    symbol.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const pageCount = Math.ceil(filteredSymbols.length / symbolsPerPage);
+  const indexOfLastSymbol = currentPage * symbolsPerPage;
+  const indexOfFirstSymbol = indexOfLastSymbol - symbolsPerPage;
+  const currentSymbols = filteredSymbols.slice(indexOfFirstSymbol, indexOfLastSymbol);
+
+  const handleCopySymbol = (symbolCode: string) => {
+    navigator.clipboard.writeText(symbolCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-  
-  // Handle input changes
-  const handleCharCodeChange = (value: number) => {
-    setCharCode(value);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
-  
-  const handleFontSizeChange = (value: number) => {
-    setFontSize(value);
-  };
-  
-  // Navigate to next/previous symbol
-  const goToPrevious = () => {
-    setCharCode(prev => Math.max(0, prev - 1));
-  };
-  
-  const goToNext = () => {
-    setCharCode(prev => prev + 1);
-  };
-  
+
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-warcrow-gold mb-2">{t('fontSymbolExplorer')}</h1>
-          <p className="text-warcrow-text/80">{t('fontSymbolExplorerDescription')}</p>
+    <Card className="bg-warcrow-background border-warcrow-gold/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-warcrow-gold text-xl">{t('fontSymbolExplorer')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="text-warcrow-text">
+          <p>{t('fontSymbolExplorerDescription')}</p>
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="p-4 col-span-1 bg-black/40 border border-warcrow-gold/30">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="charCode" className="text-warcrow-text/80">Character Code</Label>
-                <NumericInput
-                  id="charCode"
-                  value={charCode}
-                  onChange={handleCharCodeChange}
-                  min={0}
-                  max={65535}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="fontSize" className="text-warcrow-text/80">Font Size</Label>
-                <NumericInput
-                  id="fontSize"
-                  value={fontSize}
-                  onChange={handleFontSizeChange}
-                  min={8}
-                  max={120}
-                />
-              </div>
-              
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {currentSymbols.map(symbol => (
+            <div 
+              key={symbol.id}
+              className="p-3 border border-warcrow-gold/30 rounded-md bg-warcrow-accent/30 flex flex-col items-center"
+            >
+              <div className="text-4xl mb-2">{symbol.code}</div>
+              <div className="text-sm font-medium text-warcrow-text">{symbol.name}</div>
+              <div className="text-xs text-warcrow-muted text-center mt-1">{symbol.description}</div>
               <SymbolControls 
-                onPrevious={goToPrevious}
-                onNext={goToNext}
-                onCopy={copyToClipboard}
+                onCopy={() => handleCopySymbol(symbol.code)} 
                 copied={copied}
               />
-              
-              <div className="pt-2">
-                <Label className="text-warcrow-text/80 block mb-1">Hex Code</Label>
-                <Input 
-                  value={`U+${charCode.toString(16).toUpperCase().padStart(4, '0')}`}
-                  readOnly 
-                  className="bg-black/60 border-warcrow-gold/30 text-warcrow-text font-mono"
-                />
-              </div>
             </div>
-          </Card>
-          
-          <Card className="p-4 col-span-1 lg:col-span-2 bg-black/40 border border-warcrow-gold/30">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-medium text-warcrow-gold">Symbol Preview</h3>
-                <span className="text-warcrow-text/80 text-sm">
-                  Character: {charCode}
-                </span>
-              </div>
-              
-              <AspectRatio ratio={1} className="bg-black/60 border border-warcrow-gold/30 rounded-md">
-                <div className="flex items-center justify-center h-full">
-                  <span 
-                    className="font-warcrow" 
-                    style={{ 
-                      fontSize: `${fontSize}px`, 
-                      lineHeight: 1,
-                      display: 'block'
-                    }}
-                  >
-                    {unicodeChar}
-                  </span>
-                </div>
-              </AspectRatio>
-              
-              <div className="text-center">
-                <button 
-                  onClick={copyToClipboard}
-                  className="mt-2 px-4 py-2 bg-warcrow-gold/20 hover:bg-warcrow-gold/30 text-warcrow-gold rounded-md transition"
-                >
-                  {copied ? 'Copied!' : 'Click to Copy'}
-                </button>
-              </div>
-              
-              <div className="p-3 bg-black/60 border border-warcrow-gold/30 rounded-md">
-                <Label className="text-warcrow-text/80 block mb-1">HTML Usage</Label>
-                <code className="block p-2 bg-black/80 rounded text-sm text-warcrow-text/90 font-mono">
-                  {`<span class="font-warcrow">${unicodeChar}</span>`}
-                </code>
-              </div>
-            </div>
-          </Card>
+          ))}
         </div>
-      </div>
-    </div>
+
+        {pageCount > 1 && (
+          <div className="flex justify-center space-x-2 mt-4">
+            {Array.from({ length: pageCount }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={`w-8 h-8 rounded-md ${
+                  currentPage === index + 1
+                    ? 'bg-warcrow-gold text-warcrow-background'
+                    : 'bg-warcrow-accent/50 text-warcrow-text hover:bg-warcrow-accent'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

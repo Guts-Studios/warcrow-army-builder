@@ -33,22 +33,16 @@ const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
       portraitImageUrl = portraitImageUrl.replace('_card.jpg', '_portrait.jpg');
     } else if (portraitUrl.endsWith('_card.png')) {
       portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); // Try jpg first for png files
-    } else if (portraitUrl.endsWith('.jpg')) {
+    } else if (portraitUrl.endsWith('.jpg') || portraitUrl.endsWith('.png')) {
       // Handle cases where filename doesn't have "_card" pattern
       const baseName = portraitUrl.substring(0, portraitUrl.lastIndexOf('.'));
-      portraitImageUrl = `${baseName.replace('/art/card/', '/art/portrait/')}_portrait.jpg`;
-    } else if (portraitUrl.endsWith('.png')) {
-      // Handle cases where filename doesn't have "_card" pattern
-      const baseName = portraitUrl.substring(0, portraitUrl.lastIndexOf('.'));
-      portraitImageUrl = `${baseName.replace('/art/card/', '/art/portrait/')}_portrait.jpg`;
+      const baseNameWithoutDir = baseName.substring(baseName.lastIndexOf('/') + 1);
+      const portraitName = baseNameWithoutDir.replace('_card', '');
+      portraitImageUrl = `${baseName.replace('/art/card/', '/art/portrait/')}${
+        portraitName.includes('_portrait') ? '' : '_portrait'
+      }.jpg`;
     }
   }
-  
-  // Debug log to see the actual path
-  console.log('Portrait path for ' + name + ':', {
-    originalUrl: portraitUrl,
-    convertedUrl: portraitImageUrl
-  });
 
   // If we've already tried and failed to load the image, update the URL to try another extension
   if (imageError) {

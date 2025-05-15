@@ -1,13 +1,7 @@
 
+import { useState } from "react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
-import { Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnitCardImageProps {
@@ -15,66 +9,79 @@ interface UnitCardImageProps {
 }
 
 const UnitCardImage = ({ unit }: UnitCardImageProps) => {
+  const [imageError, setImageError] = useState(false);
+  const [alternateErrorShown, setAlternateErrorShown] = useState(false);
   const { language } = useLanguage();
-  
-  // Determine which image to use based on language
-  const getCardImageUrl = (unitImageUrl: string | undefined): string => {
-    if (!unitImageUrl) return "";
-    
-    // If Spanish or French is selected, check if a localized version exists
+
+  // If no image URL is provided, don't render the image section
+  if (!unit.imageUrl) {
+    return null;
+  }
+
+  // Function to generate the appropriate URL based on language
+  const getLanguageSpecificUrl = (baseUrl: string): string => {
+    // Check if we've already adjusted the URL with language suffix
+    if (baseUrl.endsWith(`_${language}.jpg`) || baseUrl.endsWith(`_${language}.png`)) {
+      return baseUrl;
+    }
+
+    // Only apply language suffix if it's Spanish or French
     if (language === 'es' || language === 'fr') {
-      // Transform the URL to look for the language-specific version
-      const baseUrl = unitImageUrl.replace('.jpg', '');
-      const languageSuffix = language === 'es' ? '_sp' : '_fr';
-      const localizedUrl = `${baseUrl}${languageSuffix}.jpg`;
+      const langSuffix = language === 'es' ? '_sp' : '_fr';
       
-      return localizedUrl;
+      // Handle the different file naming conventions
+      if (baseUrl.endsWith('.jpg')) {
+        return baseUrl.replace('.jpg', `${langSuffix}.jpg`);
+      } else if (baseUrl.endsWith('.png')) {
+        return baseUrl.replace('.png', `${langSuffix}.png`);
+      } else if (baseUrl.endsWith('_card.jpg')) {
+        return baseUrl.replace('_card.jpg', `_card${langSuffix}.jpg`);
+      } else if (baseUrl.endsWith('_card.png')) {
+        return baseUrl.replace('_card.png', `_card${langSuffix}.png`);
+      }
     }
     
-    // Otherwise return the original URL
-    return unitImageUrl;
+    return baseUrl;
   };
 
-  const cardImageUrl = getCardImageUrl(unit.imageUrl);
+  // Start with the original URL from the unit
+  let imageUrl = unit.imageUrl;
+
+  // Apply language-specific changes if not in error state
+  if (!imageError) {
+    imageUrl = getLanguageSpecificUrl(imageUrl);
+  } else if (!alternateErrorShown) {
+    // If first attempt failed, try with a different extension
+    if (imageUrl.endsWith('.jpg')) {
+      imageUrl = imageUrl.replace('.jpg', '.png');
+    } else if (imageUrl.endsWith('.png')) {
+      imageUrl = imageUrl.replace('.png', '.jpg');
+    } else if (imageUrl.endsWith('_sp.jpg') || imageUrl.endsWith('_fr.jpg')) {
+      // If language-specific version failed, try the default English version
+      imageUrl = imageUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
+    } else if (imageUrl.endsWith('_sp.png') || imageUrl.endsWith('_fr.png')) {
+      imageUrl = imageUrl.replace('_sp.png', '.png').replace('_fr.png', '.png');
+    }
+  }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full border border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-black h-auto py-2"
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          {language === 'es' ? 'Ver Carta' : language === 'fr' ? 'Voir Carte' : 'View Card'}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
-        <DialogTitle className="sr-only">{unit.name} Card Image</DialogTitle>
-        {cardImageUrl ? (
-          <img
-            src={cardImageUrl}
-            alt={unit.name}
-            className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
-            loading="eager"
-            onError={(e) => {
-              // If the localized image fails to load, fall back to the English version
-              if ((language === 'es' || language === 'fr') && cardImageUrl !== unit.imageUrl) {
-                (e.target as HTMLImageElement).src = unit.imageUrl || '';
-              }
-            }}
-          />
-        ) : (
-          <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
-            {language === 'es' 
-              ? 'Imagen de carta próximamente' 
-              : language === 'fr' 
-                ? 'Image de carte à venir' 
-                : 'Card image coming soon'}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <div className="w-full mt-2">
+      <AspectRatio ratio={16 / 9} className="bg-black/20 overflow-hidden rounded-md">
+        <img
+          src={imageUrl}
+          alt={unit.name}
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            if (!imageError) {
+              setImageError(true);
+            } else if (!alternateErrorShown) {
+              setAlternateErrorShown(true);
+            }
+            // Let the fallback style show if all attempts fail
+          }}
+        />
+      </AspectRatio>
+    </div>
   );
 };
 

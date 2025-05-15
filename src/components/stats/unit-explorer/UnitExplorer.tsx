@@ -1,87 +1,87 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UnitFilters } from './UnitFilters';
 import { UnitTable } from './UnitTable';
 import { useUnitData, useFactions } from './useUnitData';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const UnitExplorer: React.FC = () => {
-  const [selectedFaction, setSelectedFaction] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showHiddenUnits, setShowHiddenUnits] = useState(false);
+const UnitExplorer = () => {
+  const [selectedFaction, setSelectedFaction] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showHidden, setShowHidden] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>('table');
   
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { data: units = [], isLoading } = useUnitData(selectedFaction);
   const { data: factions = [] } = useFactions();
-
-  // Filter units based on search query and visibility
+  
+  // Filter units based on search query and showHidden setting
   const filteredUnits = units.filter(unit => {
-    // Filter by search query
     const matchesSearch = searchQuery === '' || 
       unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (unit.keywords && unit.keywords.some(keyword => 
-        keyword.toLowerCase().includes(searchQuery.toLowerCase())
-      )) ||
-      (unit.special_rules && unit.special_rules.some(rule => 
-        rule.toLowerCase().includes(searchQuery.toLowerCase())
-      ));
+      (unit.name_es && unit.name_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (unit.name_fr && unit.name_fr.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (unit.description && unit.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (unit.keywords && unit.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))) ||
+      (unit.special_rules && unit.special_rules.some(rule => rule.toLowerCase().includes(searchQuery.toLowerCase())));
+
+    // If showHidden is false, only show units where showInBuilder is not explicitly false
+    const matchesVisibility = showHidden || unit.characteristics?.showInBuilder !== false;
     
-    // Filter by visibility if showHiddenUnits is false
-    const shouldShow = showHiddenUnits || 
-      (unit.characteristics && unit.characteristics.showInBuilder !== false);
-    
-    return matchesSearch && shouldShow;
+    return matchesSearch && matchesVisibility;
   });
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleFactionChange = (value: string) => {
-    setSelectedFaction(value);
-  };
-
-  const handleShowHiddenChange = (value: boolean) => {
-    setShowHiddenUnits(value);
-  };
-
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-warcrow-gold mb-2">{t('unitExplorer')}</h1>
-          <p className="text-warcrow-text/80">{t('unitExplorerDescription')}</p>
-        </div>
-        
-        <Card className="p-4 bg-black/40 border border-warcrow-gold/30">
-          <UnitFilters
-            factions={factions}
-            selectedFaction={selectedFaction}
-            onFactionChange={handleFactionChange}
-            searchQuery={searchQuery}
-            onSearchChange={handleSearchChange}
-            t={t}
-            showHidden={showHiddenUnits}
-            onShowHiddenChange={handleShowHiddenChange}
-          />
+    <Card className="bg-warcrow-background border-warcrow-gold/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-warcrow-gold text-xl">{t('unitExplorer')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger value="table" className="text-sm">{t('tableView')}</TabsTrigger>
+            <TabsTrigger value="translations" className="text-sm">{t('translations')}</TabsTrigger>
+          </TabsList>
           
-          <div className="mt-4">
-            <UnitTable 
-              filteredUnits={filteredUnits}
+          <TabsContent value="table" className="pt-2">
+            <UnitFilters 
+              factions={factions}
+              selectedFaction={selectedFaction}
+              onFactionChange={setSelectedFaction}
+              searchQuery={searchQuery}
+              onSearchChange={(e) => setSearchQuery(e.target.value)}
               t={t}
-              isLoading={isLoading}
+              showHidden={showHidden}
+              onShowHiddenChange={setShowHidden}
             />
-          </div>
-        </Card>
-        
-        {language !== 'en' && (
-          <div className="p-4 border border-warcrow-gold/30 rounded-md bg-black/40">
-            <p className="text-warcrow-text">Translation features are available in this panel.</p>
-          </div>
-        )}
-      </div>
-    </div>
+            
+            {isLoading ? (
+              <div className="space-y-3 mt-4">
+                <Skeleton className="h-8 w-full bg-warcrow-accent/30" />
+                <Skeleton className="h-64 w-full bg-warcrow-accent/30" />
+              </div>
+            ) : (
+              <div className="mt-4">
+                <UnitTable 
+                  filteredUnits={filteredUnits} 
+                  t={t}
+                  isLoading={isLoading}
+                />
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="translations" className="pt-2">
+            <div className="p-6 text-center text-warcrow-muted">
+              {t('translationFeatureComingSoon')}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 
