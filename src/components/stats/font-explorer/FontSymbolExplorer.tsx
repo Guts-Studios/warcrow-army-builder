@@ -1,48 +1,134 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import NumericInput from '../symbol-explorer/NumericInput';
+import SymbolControls from '../symbol-explorer/SymbolControls';
+import { toast } from 'sonner';
 
 const FontSymbolExplorer: React.FC = () => {
+  const [charCode, setCharCode] = useState<number>(0xE000); // Warcrow font typically starts at Unicode private use area
+  const [fontSize, setFontSize] = useState<number>(64);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  const incrementChar = () => setCharCode(prev => prev + 1);
+  const decrementChar = () => setCharCode(prev => prev - 1);
+  
+  const handleCopyToClipboard = () => {
+    const char = String.fromCodePoint(charCode);
+    navigator.clipboard.writeText(char)
+      .then(() => toast.success("Symbol copied to clipboard"))
+      .catch(() => toast.error("Failed to copy symbol"));
+  };
+  
+  const handleCopyCodeToClipboard = () => {
+    const codeText = `U+${charCode.toString(16).toUpperCase()}`;
+    navigator.clipboard.writeText(codeText)
+      .then(() => toast.success("Code copied to clipboard"))
+      .catch(() => toast.error("Failed to copy code"));
+  };
+
   return (
-    <Card className="border-warcrow-gold/30">
-      <CardHeader>
-        <CardTitle className="text-warcrow-gold">Font Symbol Explorer</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-warcrow-text">
-          This tool allows you to explore the custom font symbols used in Warcrow.
-          Select characters from the grid to view their details.
-        </p>
+    <div className="container mx-auto py-6">
+      <h1 className="text-2xl font-bold mb-6">Warcrow Font Symbol Explorer</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-4 col-span-1">
+          <h2 className="text-lg font-semibold mb-4">Controls</h2>
+          
+          <div className="space-y-4">
+            <NumericInput
+              label="Character Code (Hex)"
+              value={`0x${charCode.toString(16).toUpperCase()}`}
+              onChange={(value) => {
+                if (value.startsWith('0x')) {
+                  try {
+                    const parsed = parseInt(value, 16);
+                    if (!isNaN(parsed)) {
+                      setCharCode(parsed);
+                    }
+                  } catch (e) {
+                    // Invalid input
+                  }
+                }
+              }}
+            />
+            
+            <NumericInput
+              label="Font Size"
+              value={fontSize.toString()}
+              onChange={(value) => {
+                const parsed = parseInt(value);
+                if (!isNaN(parsed) && parsed > 0 && parsed <= 200) {
+                  setFontSize(parsed);
+                }
+              }}
+            />
+            
+            <SymbolControls 
+              onIncrement={incrementChar}
+              onDecrement={decrementChar}
+              onCopy={handleCopyToClipboard}
+              onCopyCode={handleCopyCodeToClipboard}
+              onToggleDetails={() => setShowDetails(!showDetails)}
+              showDetails={showDetails}
+            />
+          </div>
+        </Card>
         
-        <div className="mt-6 grid grid-cols-8 gap-2">
-          {Array.from({ length: 64 }, (_, i) => i + 0xE000).map((charCode) => (
-            <div 
-              key={charCode} 
-              className="w-10 h-10 flex items-center justify-center bg-warcrow-accent/50 border border-warcrow-gold/20 rounded cursor-pointer hover:bg-warcrow-gold/20"
+        <Card className="p-4 col-span-1 md:col-span-2">
+          <h2 className="text-lg font-semibold mb-4">Symbol Preview</h2>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-lg border p-4 flex items-center justify-center h-56">
+            <span 
+              className="font-warcrow" 
+              style={{ 
+                fontSize: `${fontSize}px`,
+                lineHeight: 1
+              }}
             >
-              <span className="text-2xl text-warcrow-gold font-warcrow">
-                {String.fromCharCode(charCode)}
+              {String.fromCodePoint(charCode)}
+            </span>
+          </div>
+          
+          {showDetails && (
+            <div className="mt-4 bg-black/30 p-3 rounded">
+              <h3 className="font-medium text-sm mb-2">Symbol Details</h3>
+              <dl className="grid grid-cols-2 gap-2 text-sm">
+                <dt className="text-gray-400">Unicode</dt>
+                <dd>U+{charCode.toString(16).toUpperCase()}</dd>
+                
+                <dt className="text-gray-400">HTML Entity</dt>
+                <dd>&amp;#x{charCode.toString(16)};</dd>
+                
+                <dt className="text-gray-400">CSS</dt>
+                <dd>\{charCode.toString(16)}</dd>
+                
+                <dt className="text-gray-400">JavaScript</dt>
+                <dd>String.fromCodePoint(0x{charCode.toString(16)})</dd>
+              </dl>
+            </div>
+          )}
+        </Card>
+      </div>
+      
+      <Card className="p-4 mt-6">
+        <h2 className="text-lg font-semibold mb-4">Common Warcrow Font Symbols</h2>
+        <div className="grid grid-cols-6 md:grid-cols-12 gap-3">
+          {Array.from({ length: 24 }, (_, i) => (
+            <div 
+              key={i}
+              className="aspect-square flex items-center justify-center border rounded cursor-pointer hover:bg-black/30"
+              onClick={() => setCharCode(0xE000 + i)}
+            >
+              <span className="font-warcrow text-2xl">
+                {String.fromCodePoint(0xE000 + i)}
               </span>
             </div>
           ))}
         </div>
-        
-        <div className="mt-6 p-4 border border-warcrow-gold/30 rounded-md bg-black/30">
-          <h3 className="text-sm font-medium text-warcrow-gold mb-2">Selected Symbol</h3>
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 flex items-center justify-center bg-warcrow-accent border border-warcrow-gold/40 rounded">
-              <span className="text-4xl text-warcrow-gold font-warcrow">
-                ⚔
-              </span>
-            </div>
-            <div>
-              <p className="text-warcrow-text">Unicode: U+2694</p>
-              <p className="text-warcrow-text">Description: Crossed Swords</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 };
 

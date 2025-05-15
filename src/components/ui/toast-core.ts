@@ -7,6 +7,7 @@ export type ToastOptions = {
   title?: ReactNode;
   description?: ReactNode;
   variant?: "default" | "destructive" | "success" | "warning" | "info";
+  group?: string;
   [key: string]: any;
 };
 
@@ -18,9 +19,10 @@ const createToast = (options: ToastOptions | string) => {
   }
   
   // Handle object case
-  const { title, description, variant, ...rest } = options;
+  const { title, description, variant, group, ...rest } = options;
   return sonnerToast(title as string, {
     description,
+    group,
     ...rest
   });
 };

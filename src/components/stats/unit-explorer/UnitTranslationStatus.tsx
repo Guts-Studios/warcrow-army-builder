@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Languages, AlertTriangle } from 'lucide-react';
-import { toast } from '@/utils/translation';
+import { toast } from 'sonner';
 import { batchTranslateAndUpdate } from '@/utils/translation/deepLBatchTranslator';
 import { supabase } from '@/integrations/supabase/client';
 import { BatchItem, BatchItemTable } from '@/types/batchItem';
