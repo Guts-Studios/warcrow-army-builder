@@ -41,22 +41,24 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const finalCardUrl = getLanguageSpecificUrl(cardUrl);
   
   const getDialogSizeClasses = () => {
+    // Card aspect ratio is approximately 7/10 (width/height)
+    // Adjust size based on device to maximize visibility while maintaining aspect ratio
     if (isMobile) {
-      return 'w-[95vw] max-w-[95vw] h-[85vh] max-h-[85vh]';
+      return 'w-[90vw] max-w-[90vw]';
     }
     
-    return 'w-[45vw] max-w-[45vw] h-[85vh] max-h-[85vh]';
+    return 'w-auto max-w-[80vh]';
   };
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`p-0 ${getDialogSizeClasses()}`}>
-        <div className="relative w-full h-full">
-          <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md h-full">
+      <DialogContent className={`p-0 ${getDialogSizeClasses()} bg-black/95 border-warcrow-gold/30`}>
+        <div className="flex items-center justify-center w-full h-full">
+          <AspectRatio ratio={7/10} className="w-full h-full">
             <img
               src={finalCardUrl}
               alt="Unit card"
-              className="h-full w-full object-contain"
+              className="object-contain w-full h-full"
               onError={(e) => {
                 console.error('Image load error:', finalCardUrl);
                 setImageError(true);
