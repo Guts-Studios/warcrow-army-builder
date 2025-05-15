@@ -50,18 +50,18 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`${isZoomed ? 'max-w-[49vw]' : 'max-w-[47vw]'} w-[50vw] h-[47vh] p-0 transition-all duration-300`}>
+      <DialogContent className={`${isZoomed ? 'max-w-[60vw]' : 'max-w-[55vw]'} w-[55vw] h-[75vh] p-0 transition-all duration-300`}>
         <DialogTitle className="text-xl font-bold text-warcrow-gold mx-4 mt-2 mb-1">
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
         
-        <div className="relative w-full h-[calc(47vh-60px)] px-2 pb-2 flex items-center justify-center">
+        <div className="relative w-full h-[calc(75vh-60px)] px-2 pb-2 flex items-center justify-center">
           <div className="relative w-full h-full">
             <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md h-full">
               <img
                 src={finalCardUrl}
                 alt={`${unitName} card`}
-                className={`h-full w-full object-contain ${isZoomed ? 'scale-125 transform transition-transform duration-300' : ''}`}
+                className={`h-full w-full object-contain ${isZoomed ? 'scale-110 transform transition-transform duration-300' : ''}`}
                 onError={(e) => {
                   console.error('Image load error:', finalCardUrl);
                   setImageError(true);
