@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UnitExplorer from "@/components/stats/unit-explorer";
 import FontSymbolExplorer from "@/components/stats/font-explorer";
 
 const DeveloperOptions = () => {
@@ -88,10 +88,6 @@ const DeveloperOptions = () => {
               <TabsTrigger value="system" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
                 <Settings className="h-4 w-4 mr-2" />
                 System Tools
-              </TabsTrigger>
-              <TabsTrigger value="units" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
-                <Database className="h-4 w-4 mr-2" />
-                Unit Database
               </TabsTrigger>
               <TabsTrigger value="symbols" className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold">
                 <BookKey className="h-4 w-4 mr-2" />
@@ -198,12 +194,6 @@ const DeveloperOptions = () => {
                   </div>
                 </Card>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="units" className="mt-0">
-              <Card className="p-6 border border-warcrow-gold/40 shadow-sm bg-black">
-                <UnitExplorer />
-              </Card>
             </TabsContent>
             
             <TabsContent value="symbols" className="mt-0">
