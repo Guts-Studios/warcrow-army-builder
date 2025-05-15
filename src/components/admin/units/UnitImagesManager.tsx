@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, AlertCircle, ExternalLink } from "lucide-react";
+import { Check, X, AlertCircle, ExternalLink, Copy } from "lucide-react";
 import { units as staticUnits } from '@/data/factions';
 import { Unit } from '@/types/army';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -139,6 +139,12 @@ const UnitImagesManager: React.FC = () => {
     setLoadingImages(false);
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => toast.success("Path copied to clipboard"))
+      .catch(err => toast.error("Failed to copy: " + err));
+  };
+
   const getImageStatus = (unit: Unit) => {
     if (!imageResults[unit.id]) {
       return null;
@@ -255,8 +261,23 @@ const UnitImagesManager: React.FC = () => {
                                 {unit.faction.replace(/-/g, ' ')}
                               </Badge>
                             </TableCell>
-                            <TableCell className="max-w-[200px] truncate">
-                              {imageResults[unit.id]?.url || 'Not verified'}
+                            <TableCell className="max-w-[200px] truncate group">
+                              <div className="flex items-center">
+                                <span className="truncate group-hover:text-warcrow-gold transition-colors">
+                                  {imageResults[unit.id]?.url || 'Not verified'}
+                                </span>
+                                {imageResults[unit.id]?.url && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6 ml-2 text-warcrow-gold/70 hover:text-warcrow-gold hover:bg-warcrow-gold/10"
+                                    onClick={() => copyToClipboard(imageResults[unit.id].url)}
+                                    title="Copy path to clipboard"
+                                  >
+                                    <Copy className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               {getImageStatus(unit) || (
