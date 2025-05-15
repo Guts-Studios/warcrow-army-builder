@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SavedList } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import NewListButton from "./army/list-management/NewListButton";
 import SaveListSection from "./army/list-management/SaveListSection";
 import CurrentListDisplay from "./army/list-management/CurrentListDisplay";
 import SavedListsSection from "./army/list-management/SavedListsSection";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ListManagementProps {
   listName: string;
@@ -43,67 +44,92 @@ const ListManagement = ({
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
   const [localSavedLists, setLocalSavedLists] = useState<SavedList[]>(savedLists);
+  const { isAuthenticated } = useAuth();
+
+  // Refresh lists when authentication state changes or component mounts
+  useEffect(() => {
+    if (isAuthenticated !== null) {
+      refreshSavedLists();
+    }
+  }, [isAuthenticated]);
+
+  // Update local lists when savedLists prop changes
+  useEffect(() => {
+    setLocalSavedLists(savedLists);
+  }, [savedLists]);
 
   const refreshSavedLists = async () => {
     try {
       // Get user
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) return;
+      if (user) {
+        console.log("Fetching cloud lists for authenticated user:", user.id);
+        
+        // Fetch updated lists from Supabase
+        const { data: cloudLists, error } = await supabase
+          .from('army_lists')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Error fetching lists:', error);
+          return;
+        }
 
-      // Fetch updated lists from Supabase
-      const { data: cloudLists, error } = await supabase
-        .from('army_lists')
-        .select('*')
-        .eq('user_id', user.id);
-      
-      if (error) {
-        console.error('Error fetching lists:', error);
-        return;
-      }
-
-      // Get local lists from localStorage
-      const localLists: SavedList[] = JSON.parse(localStorage.getItem('armyLists') || '[]');
-      
-      // Combine cloud and local lists, with cloud lists taking precedence
-      const combinedLists = [...localLists];
-      
-      // Add cloud lists that don't already exist in local lists
-      if (cloudLists) {
-        cloudLists.forEach(cloudList => {
-          // Parse units properly to ensure they're the correct SelectedUnit[] type
-          const parsedUnits = Array.isArray(cloudList.units) 
-            ? cloudList.units 
-            : (typeof cloudList.units === 'string' 
-                ? JSON.parse(cloudList.units) 
-                : []);
-                
-          // Convert the units from JSON to SelectedUnit array
-          const processedList: SavedList = {
-            id: cloudList.id,
-            name: cloudList.name,
-            faction: cloudList.faction,
-            units: parsedUnits,
-            created_at: cloudList.created_at,
-            user_id: cloudList.user_id,
-            wab_id: cloudList.wab_id
-          };
-          
-          const index = combinedLists.findIndex(list => 
-            list.name === processedList.name && list.faction === processedList.faction
-          );
-          
-          if (index !== -1) {
-            // Update existing entry
-            combinedLists[index] = processedList;
-          } else {
-            // Add new entry
-            combinedLists.push(processedList);
-          }
+        // Get local lists from localStorage
+        const localLists: SavedList[] = JSON.parse(localStorage.getItem('armyLists') || '[]');
+        
+        // Combine cloud and local lists, with cloud lists taking precedence
+        const combinedLists = [...localLists];
+        
+        // Add cloud lists that don't already exist in local lists
+        if (cloudLists) {
+          cloudLists.forEach(cloudList => {
+            // Parse units properly to ensure they're the correct SelectedUnit[] type
+            const parsedUnits = Array.isArray(cloudList.units) 
+              ? cloudList.units 
+              : (typeof cloudList.units === 'string' 
+                  ? JSON.parse(cloudList.units) 
+                  : []);
+                  
+            // Convert the units from JSON to SelectedUnit array
+            const processedList: SavedList = {
+              id: cloudList.id,
+              name: cloudList.name,
+              faction: cloudList.faction,
+              units: parsedUnits,
+              created_at: cloudList.created_at,
+              user_id: cloudList.user_id,
+              wab_id: cloudList.wab_id
+            };
+            
+            const index = combinedLists.findIndex(list => 
+              list.name === processedList.name && list.faction === processedList.faction
+            );
+            
+            if (index !== -1) {
+              // Update existing entry
+              combinedLists[index] = processedList;
+            } else {
+              // Add new entry
+              combinedLists.push(processedList);
+            }
+          });
+        }
+        
+        console.log("Refreshed lists:", {
+          localCount: localLists.length,
+          cloudCount: cloudLists?.length || 0,
+          combinedCount: combinedLists.length
         });
+        
+        setLocalSavedLists(combinedLists);
+      } else {
+        // If not authenticated, just use local lists
+        const localLists: SavedList[] = JSON.parse(localStorage.getItem('armyLists') || '[]');
+        setLocalSavedLists(localLists);
       }
-      
-      setLocalSavedLists(combinedLists);
     } catch (error) {
       console.error('Error refreshing lists:', error);
     }
