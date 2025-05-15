@@ -19,8 +19,30 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   unitName,
   cardUrl,
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
+  const [imageError, setImageError] = useState<boolean>(false);
+  
+  // Generate language-specific URL if needed
+  const getLanguageSpecificUrl = (url: string): string => {
+    if (imageError) return url; // Don't modify if we've already had an error
+    
+    // If URL already has language suffix, don't modify
+    if (url.includes('_sp.') || url.includes('_fr.')) {
+      return url;
+    }
+    
+    // Add language suffix based on selected language
+    if (language === 'es') {
+      return url.replace('.jpg', '_sp.jpg').replace('.png', '_sp.png');
+    } else if (language === 'fr') {
+      return url.replace('.jpg', '_fr.jpg').replace('.png', '_fr.png');
+    }
+    
+    return url;
+  };
+  
+  const finalCardUrl = getLanguageSpecificUrl(cardUrl);
   
   const toggleZoom = () => {
     setIsZoomed(!isZoomed);
@@ -36,14 +58,21 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
         <div className="relative w-full px-2 pb-4 sm:px-6 sm:pb-6">
           <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md">
             <img
-              src={cardUrl}
+              src={finalCardUrl}
               alt={`${unitName} card`}
               className={`h-full w-full object-contain ${isZoomed ? 'scale-150 transform transition-transform duration-300' : ''}`}
               onError={(e) => {
-                console.error('Image load error:', cardUrl);
+                console.error('Image load error:', finalCardUrl);
+                setImageError(true);
                 const img = e.currentTarget;
                 img.onerror = null; // Prevent infinite error loop
-                img.style.display = 'none';
+                
+                // Try fallback to original URL if language-specific fails
+                if (finalCardUrl !== cardUrl) {
+                  img.src = cardUrl;
+                } else {
+                  img.style.display = 'none';
+                }
               }}
             />
           </AspectRatio>
