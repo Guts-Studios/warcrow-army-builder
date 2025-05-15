@@ -19,7 +19,7 @@ interface UnitCardProps {
 
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
@@ -29,7 +29,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
     // Convert unit name to snake_case format for file naming
-    const nameForUrl = unit.name.toLowerCase().replace(/\s+/g, '_');
+    const nameForUrl = unit.name.toLowerCase().replace(/[\s-]+/g, '_');
     
     // Base URL pointing to the GitHub art/card directory
     const baseUrl = `/art/card/${nameForUrl}_card`;
@@ -65,7 +65,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
           <span className="text-warcrow-gold font-semibold">
-            {unit.pointsCost} {t('points') || "points"}
+            {unit.pointsCost} {language === 'en' ? "points" : (language === 'es' ? "puntos" : "points")}
           </span>
           <UnitControls 
             quantity={quantity} 
@@ -89,7 +89,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           onClick={handleViewCardClick}
           className="text-xs w-full border-warcrow-gold/30 hover:bg-warcrow-gold/10"
         >
-          {t('unitCard') || 'Unit Card'}
+          {language === 'en' ? "Unit Card" : (language === 'es' ? "Tarjeta de Unidad" : "Carte d'Unité")}
         </Button>
       </div>
 
