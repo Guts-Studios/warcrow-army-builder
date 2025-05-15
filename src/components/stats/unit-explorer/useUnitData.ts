@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
-import { ApiUnit, Unit } from '@/types/army';
+import { ApiUnit, Unit, Faction } from '@/types/army';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -27,6 +27,29 @@ export function useUnitData(selectedFaction: string) {
       })) as ApiUnit[];
       
       return unitsWithFactionDisplay;
+    }
+  });
+}
+
+// Separate function to fetch factions
+export function useFactions() {
+  return useQuery<Faction[]>({
+    queryKey: ['factions'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('factions').select('*');
+      
+      if (error) {
+        console.error("Error fetching factions:", error);
+        // Provide fallback data if the fetch fails
+        return [
+          { id: "northern-tribes", name: "Northern Tribes" },
+          { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
+          { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
+          { id: "syenann", name: "Sÿenann" }
+        ];
+      }
+      
+      return data || [];
     }
   });
 }
@@ -78,28 +101,6 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         });
       
       return visibleUnits;
-    }
-  });
-}
-
-export function useFactions() {
-  return useQuery({
-    queryKey: ['factions'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('factions').select('*');
-      
-      if (error) {
-        console.error("Error fetching factions:", error);
-        // Provide fallback data if the fetch fails
-        return [
-          { id: "northern-tribes", name: "Northern Tribes" },
-          { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
-          { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
-          { id: "syenann", name: "Sÿenann" }
-        ];
-      }
-      
-      return data || [];
     }
   });
 }

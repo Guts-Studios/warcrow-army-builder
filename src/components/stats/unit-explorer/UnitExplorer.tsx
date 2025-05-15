@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
-import { useUnitData } from './useUnitData';
-import UnitFilters from './UnitFilters';
+import { useUnitData, useFactions } from './useUnitData';
+import { UnitFilters } from './UnitFilters';
 import UnitList from './UnitList';
-import UnitTable from './UnitTable';
+import { UnitTable } from './UnitTable';
 import UnitStatCard from '../UnitStatCard';
 import { ExtendedUnit } from '@/types/extendedUnit';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { Table, Grid } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import TranslationPanel from './TranslationPanel';
 import UnitTranslationStatus from './UnitTranslationStatus';
+import { ApiUnit } from '@/types/army';
 
 const UnitExplorer: React.FC = () => {
   const { t } = useLanguage();
@@ -20,12 +21,30 @@ const UnitExplorer: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState<string | 'all'>('all');
   const [showSymbolBg, setShowSymbolBg] = useState<boolean>(true);
   const [symbolBgColor, setSymbolBgColor] = useState<string>('#1a1a1a');
-  const { units, isLoading, factions } = useUnitData();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showHidden, setShowHidden] = useState<boolean>(false);
   
-  // Filter units by faction if a specific faction is selected
-  const filteredUnits = selectedFaction === 'all' 
-    ? units 
-    : units.filter(unit => unit.type.toLowerCase() === selectedFaction.toLowerCase());
+  // Get units data
+  const { data: units = [], isLoading: isLoadingUnits, error } = useUnitData(selectedFaction);
+  // Get factions separately
+  const { data: factions = [] } = useFactions();
+  
+  // Calculate translation statistics
+  const translationStats = React.useMemo(() => {
+    if (!units || units.length === 0) return { total: 0, spanishTranslated: 0, frenchTranslated: 0 };
+    
+    return {
+      total: units.length,
+      spanishTranslated: units.filter(unit => unit.name_es && unit.name_es.trim() !== '').length,
+      frenchTranslated: units.filter(unit => unit.name_fr && unit.name_fr.trim() !== '').length,
+    };
+  }, [units]);
+  
+  // Handle translation completion
+  const handleTranslationComplete = () => {
+    // Refresh the unit data
+    // This will be handled by the query cache invalidation
+  };
 
   return (
     <div className="space-y-4">
@@ -55,6 +74,11 @@ const UnitExplorer: React.FC = () => {
         selectedFaction={selectedFaction} 
         onFactionChange={setSelectedFaction}
         factions={factions}
+        searchQuery={searchQuery}
+        onSearchChange={(e) => setSearchQuery(e.target.value)}
+        t={t}
+        showHidden={showHidden}
+        onShowHiddenChange={setShowHidden}
       />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -63,10 +87,10 @@ const UnitExplorer: React.FC = () => {
             <Card className="bg-warcrow-background border-warcrow-gold/30">
               <CardContent className="p-2">
                 <UnitList 
-                  units={filteredUnits}
-                  selectedUnit={selectedUnit}
-                  onSelectUnit={setSelectedUnit}
-                  isLoading={isLoading}
+                  units={units}
+                  searchQuery={searchQuery}
+                  isLoading={isLoadingUnits}
+                  error={error}
                 />
               </CardContent>
             </Card>
@@ -76,9 +100,9 @@ const UnitExplorer: React.FC = () => {
             <Card className="bg-warcrow-background border-warcrow-gold/30">
               <CardContent className="p-2">
                 <UnitTable 
-                  units={filteredUnits}
-                  onSelectUnit={setSelectedUnit}
-                  isLoading={isLoading}
+                  filteredUnits={units}
+                  t={t}
+                  isLoading={isLoadingUnits}
                 />
               </CardContent>
             </Card>
@@ -95,13 +119,17 @@ const UnitExplorer: React.FC = () => {
             
             <Card className="bg-warcrow-background border-warcrow-gold/30">
               <CardContent className="p-4">
-                <UnitTranslationStatus unit={selectedUnit} />
+                <UnitTranslationStatus 
+                  stats={translationStats}
+                  onTranslate={handleTranslationComplete}
+                />
               </CardContent>
             </Card>
             
-            {selectedUnit && (
-              <TranslationPanel unit={selectedUnit} />
-            )}
+            <TranslationPanel 
+              units={units as ApiUnit[]}
+              onTranslationComplete={handleTranslationComplete}
+            />
           </div>
         )}
       </div>
