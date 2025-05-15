@@ -32,12 +32,13 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
     }
   }, [state]);
 
-  // Log the guest status for debugging
+  // Log the guest status and authentication for debugging
   useEffect(() => {
     console.log("ArmyBuilder render - Auth status:", { 
       isGuest,
       hasSession: !!session, 
-      selectedFaction
+      selectedFaction,
+      timestamp: new Date().toISOString()
     });
   }, [isGuest, session, selectedFaction]);
 

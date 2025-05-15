@@ -4,9 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchListsByWabId } from "./profileUtils";
 
 export const fetchSavedLists = async (wabId?: string) => {
+  const startTime = Date.now();
+  console.log("Starting fetchSavedLists", { withWabId: !!wabId, timestamp: new Date().toISOString() });
+  
   // Get local lists
-  const localLists = localStorage.getItem("armyLists");
-  const parsedLocalLists: SavedList[] = localLists ? JSON.parse(localLists) : [];
+  let localLists: SavedList[] = [];
+  try {
+    const localListsJson = localStorage.getItem("armyLists");
+    localLists = localListsJson ? JSON.parse(localListsJson) : [];
+    console.log(`Found ${localLists.length} local lists`);
+  } catch (error) {
+    console.error("Error parsing local lists:", error);
+  }
 
   try {
     let cloudLists: SavedList[] = [];
@@ -20,6 +29,7 @@ export const fetchSavedLists = async (wabId?: string) => {
       // Otherwise, try to get the current user's lists
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        console.log("User is authenticated, fetching their lists");
         const { data, error } = await supabase
           .from("army_lists")
           .select("*")
@@ -39,15 +49,17 @@ export const fetchSavedLists = async (wabId?: string) => {
             wab_id: list.wab_id
           }));
         }
+      } else {
+        console.log("User is not authenticated, not fetching cloud lists");
       }
     }
 
-    const combinedLists = [...parsedLocalLists, ...cloudLists];
-    console.log("Combined list count:", combinedLists.length);
+    const combinedLists = [...localLists, ...cloudLists];
+    console.log("Combined list count:", combinedLists.length, "Time taken:", Date.now() - startTime, "ms");
     return combinedLists;
   } catch (error) {
     console.error("Error in fetchSavedLists:", error);
-    return parsedLocalLists;
+    return localLists;
   }
 };
 

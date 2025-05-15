@@ -6,6 +6,7 @@ import { validateHighCommandAddition, validateUnitAddition } from "@/utils/armyV
 import { units } from "@/data/factions";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -15,19 +16,23 @@ export const useArmyList = (selectedFaction: string) => {
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated, isGuest } = useAuth();
 
   const factionUnits = useMemo(
     () => units.filter((unit) => unit.faction === selectedFaction),
     [selectedFaction]
   );
 
+  // Fetch saved lists on mount and when auth state changes
   useEffect(() => {
     const loadSavedLists = async () => {
+      console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest });
       const lists = await fetchSavedLists();
+      console.log(`Fetched ${lists.length} saved lists`);
       setSavedLists(lists);
     };
     loadSavedLists();
-  }, []);
+  }, [isAuthenticated, isGuest]);
 
   const handleAdd = useCallback(
     (unitId: string) => {

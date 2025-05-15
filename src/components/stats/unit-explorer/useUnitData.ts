@@ -1,7 +1,9 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { ApiUnit, Unit, Faction } from '@/types/army';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -69,9 +71,14 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
 }
 
 export function useArmyBuilderUnits(selectedFaction: string) {
+  const { isAuthenticated, isGuest } = useAuth();
+  
   return useQuery<Unit[]>({
-    queryKey: ['army-builder-units', selectedFaction],
+    queryKey: ['army-builder-units', selectedFaction, isAuthenticated, isGuest],
     queryFn: async () => {
+      // Log the authentication state for debugging
+      console.log("useArmyBuilderUnits - Auth state:", { isAuthenticated, isGuest, selectedFaction });
+      
       try {
         // First try getting data from Supabase
         let query = supabase.from('unit_data').select('*');
@@ -84,13 +91,17 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         if (error) {
           console.error("Error fetching units from Supabase:", error);
-          // If fetching fails or we're in guest mode, fall back to local data
-          console.info("Falling back to local unit data for faction:", selectedFaction);
           throw error; // Throw to trigger the fallback path
         }
         
+        // Check if we have data
+        if (!data || data.length === 0) {
+          console.info("No units found in database for faction:", selectedFaction);
+          throw new Error("No units found in database"); // Trigger fallback to local data
+        }
+        
         // Filter out units that should not be shown in the builder
-        const visibleUnits = (data || [])
+        const visibleUnits = data
           .filter(unit => {
             const characteristics = unit.characteristics as Record<string, any> || {};
             // If showInBuilder is explicitly false, exclude the unit
@@ -106,9 +117,11 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             return mappedUnit;
           });
         
+        console.log(`Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
+        
         return visibleUnits;
       } catch (error) {
-        // Fall back to local faction data when database access fails or for guest users
+        // Fall back to local faction data for guest users or when database access fails
         console.log("Using fallback unit data from local factions for:", selectedFaction);
         
         // Import the units from local data

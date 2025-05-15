@@ -30,7 +30,8 @@ const SavedListsSection = ({
       isAuthenticated,
       isGuest,
       listsCount: savedLists?.length || 0,
-      selectedFaction
+      selectedFaction,
+      timestamp: new Date().toISOString()
     });
     
     // Filter lists by faction first
@@ -68,7 +69,8 @@ const SavedListsSection = ({
       cloudLists: filteredLists.filter(list => !!list.user_id).length,
       selectedFaction,
       isGuest,
-      isAuthenticated
+      isAuthenticated,
+      timestamp: new Date().toISOString()
     });
     
   }, [savedLists, selectedFaction, isAuthenticated, isGuest]);
