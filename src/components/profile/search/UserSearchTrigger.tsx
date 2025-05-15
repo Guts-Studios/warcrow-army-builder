@@ -14,13 +14,13 @@ export const UserSearchTrigger = () => {
       <Button 
         onClick={() => setIsDialogOpen(true)}
         variant="outline"
-        className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+        className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80 hover:text-black border-warcrow-gold/70"
       >
         <Search className="h-4 w-4 mr-2" />
         {t('findFriends')}
       </Button>
 
-      {isDialogOpen && <UserSearchDialog />}
+      <UserSearchDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
     </>
   );
 };

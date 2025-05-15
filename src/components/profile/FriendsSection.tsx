@@ -176,7 +176,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
             <Button
               variant="outline"
               size="sm"
-              className="border-warcrow-gold/50 text-black bg-warcrow-gold hover:bg-warcrow-gold/80 h-7 px-2 py-1 text-xs"
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80 hover:text-black border-warcrow-gold h-7 px-2 py-1 text-xs"
               onClick={refreshFriends}
             >
               <RefreshCw className="h-3 w-3" />
@@ -187,7 +187,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
               <Button
                 variant="outline"
                 size="sm"
-                className="border-green-500/50 text-green-500 hover:bg-green-500/10 h-7 px-2 py-1 text-xs"
+                className="bg-green-600 text-white hover:bg-green-500 hover:text-white border-green-500 h-7 px-2 py-1 text-xs"
                 onClick={handleAddFriend}
               >
                 <UserPlus className="h-3 w-3" />
@@ -244,7 +244,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 h-7 px-2 py-1 text-xs"
+                            className="bg-blue-600 text-white hover:bg-blue-500 hover:text-white border-blue-500/70 h-7 px-2 py-1 text-xs"
                             onClick={() => handleInviteToGame(friend)}
                             disabled={!!invitingFriendIds[friend.id]}
                           >
@@ -260,7 +260,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-7 px-2 py-1 text-xs"
+                            className="bg-red-600 text-white hover:bg-red-500 hover:text-white border-red-500/70 h-7 px-2 py-1 text-xs"
                             onClick={() => handleRemoveFriend(friend.friendship_id)}
                           >
                             <UserMinus className="h-3 w-3" />

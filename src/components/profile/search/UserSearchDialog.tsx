@@ -14,9 +14,13 @@ interface SearchResult {
   avatar_url: string | null;
 }
 
-export const UserSearchDialog = () => {
+interface UserSearchDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const UserSearchDialog = ({ isOpen, onClose }: UserSearchDialogProps) => {
   const { t } = useLanguage();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pendingFriends, setPendingFriends] = useState<Record<string, boolean>>({});
   const { 
     searchQuery, 
@@ -55,7 +59,7 @@ export const UserSearchDialog = () => {
   };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-black/90 border-warcrow-gold text-warcrow-text">
         <DialogHeader>
           <DialogTitle className="text-warcrow-gold">{t('findFriends')}</DialogTitle>
