@@ -5,7 +5,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface UnitCardDialogProps {
   isOpen: boolean;
@@ -44,32 +44,22 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
-        className={`p-0 ${getDialogSizeClasses()} bg-black/95 border-warcrow-gold/30`} 
-        aria-describedby="card-description"
-      >
+      <DialogContent className={`p-0 ${getDialogSizeClasses()} bg-black/95 border-warcrow-gold/30`} aria-describedby="card-description">
         {/* Adding a visually hidden title for accessibility */}
         <VisuallyHidden asChild>
           <DialogTitle>{unitName} Card</DialogTitle>
         </VisuallyHidden>
         
         {/* Adding a description for accessibility to fix the warning */}
-        <DialogDescription id="card-description" className="sr-only">
-          Detailed card for {unitName} unit
-        </DialogDescription>
+        <VisuallyHidden asChild>
+          <DialogDescription id="card-description">Detailed card for {unitName} unit</DialogDescription>
+        </VisuallyHidden>
         
         <div className="flex items-center justify-center w-full h-full">
           <AspectRatio ratio={7/10} className="w-full h-full">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold/70" />
-              </div>
-            )}
-            {imageError && !isLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-warcrow-gold/70 text-sm p-4 text-center">
-                <AlertCircle className="h-8 w-8 mb-2" />
-                <p>Card image not available</p>
-                <p className="text-xs mt-2 text-warcrow-gold/50">{cardUrl}</p>
               </div>
             )}
             <img
@@ -84,9 +74,16 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 console.error('Image load error:', cardUrl);
                 setImageError(true);
                 setIsLoading(false);
+                const img = e.currentTarget as HTMLImageElement;
+                img.onerror = null; // Prevent infinite error loop
+                img.style.display = 'none';
               }}
-              style={{ display: imageError ? 'none' : 'block' }}
             />
+            {imageError && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center text-warcrow-gold/70 text-sm">
+                Card image not available
+              </div>
+            )}
           </AspectRatio>
         </div>
       </DialogContent>
