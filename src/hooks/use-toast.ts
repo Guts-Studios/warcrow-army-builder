@@ -1,6 +1,8 @@
 
-import { useToast as useToastCore, toast } from "@/components/ui/toast-core";
+import toast from "@/components/ui/toast-core";
 
-// Re-export our toast hook from the toast-core implementation
-export const useToast = useToastCore;
+// Re-export our toast as a callable function with methods
 export { toast };
+
+// For backward compatibility
+export const useToast = () => ({ toast });

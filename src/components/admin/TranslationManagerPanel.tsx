@@ -6,7 +6,7 @@ import { Languages, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { translateAllMissingContent } from '@/utils/translation/deepLBatchTranslator';
+import { translateAllMissingContent } from '@/utils/translationUtils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const TranslationManagerPanel = () => {

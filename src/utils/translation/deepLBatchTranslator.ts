@@ -94,3 +94,89 @@ export async function batchTranslateAndUpdate(
     errors
   };
 }
+
+/**
+ * Translate all missing content for a specific language
+ */
+export async function translateAllMissingContent(targetLanguage: string = 'fr'): Promise<{
+  success: boolean;
+  errors: string[];
+  stats: Record<string, number>;
+}> {
+  const stats: Record<string, number> = {
+    rules_chapters: 0,
+    rules_sections: 0,
+    faqs: 0,
+    faq_sections: 0,
+    news_items: 0,
+    unit_keywords: 0,
+    unit_data: 0,
+    special_rules: 0,
+    characteristics: 0
+  };
+  
+  const errors: string[] = [];
+  let completed = 0;
+  let total = 0;
+  
+  // Helper function to update progress
+  const updateProgress = (completed: number, total: number) => {
+    const event = new CustomEvent('translation-progress', {
+      detail: { completed, total }
+    });
+    window.dispatchEvent(event);
+  };
+  
+  try {
+    // Start with unit names first
+    const { data: unitData, error: unitError } = await supabase
+      .from('unit_data')
+      .select('id, name')
+      .is(`name_${targetLanguage}`, null);
+      
+    if (unitError) throw new Error(`Error fetching unit data: ${unitError.message}`);
+    
+    if (unitData && unitData.length > 0) {
+      total += unitData.length;
+      updateProgress(completed, total);
+      
+      const unitItems = unitData.map(unit => ({
+        id: unit.id,
+        text: unit.name,
+        targetField: `name_${targetLanguage}`,
+        table: 'unit_data'
+      }));
+      
+      const { success, errors: unitErrors } = await batchTranslateAndUpdate(
+        unitItems,
+        targetLanguage,
+        (done, all) => {
+          completed += done;
+          updateProgress(completed, total);
+        }
+      );
+      
+      if (success) {
+        stats.unit_data = unitItems.length;
+      } else {
+        errors.push(...unitErrors.map(e => e.message));
+      }
+    }
+    
+    // Add more translation categories as needed...
+    
+    return {
+      success: errors.length === 0,
+      errors,
+      stats
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    errors.push(errorMessage);
+    return {
+      success: false,
+      errors,
+      stats
+    };
+  }
+}
