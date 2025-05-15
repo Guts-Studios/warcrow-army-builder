@@ -5,6 +5,8 @@ export function Toaster() {
   return (
     <SonnerToaster 
       position="top-right"
+      closeButton
+      richColors
       toastOptions={{
         classNames: {
           toast: "group border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50 rounded-md p-4 shadow-lg",
@@ -13,7 +15,11 @@ export function Toaster() {
           warning: "group border border-amber-500 bg-amber-500 text-white",
           info: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
           default: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
-        }
+        },
+        // Group similar toasts to prevent duplicates
+        group: true,
+        // Close previous toasts of the same type
+        dismissible: true
       }}
     />
   );

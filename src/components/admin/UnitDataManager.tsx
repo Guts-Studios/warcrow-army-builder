@@ -21,12 +21,15 @@ const UnitDataManager: React.FC = () => {
   const [translationInProgress, setTranslationInProgress] = useState(false);
   const { t } = useLanguage();
 
-  // Track progress through custom event
+  // Track progress through custom event - with dupe protection
   useEffect(() => {
     const handleProgress = (e: any) => {
       setTranslationProgress(e.detail.progress || 0);
+      setTranslationInProgress(e.detail.progress < 100);
     };
 
+    // Remove any existing listener before adding a new one to prevent duplication
+    window.removeEventListener('translation-progress', handleProgress as EventListener);
     window.addEventListener('translation-progress', handleProgress as EventListener);
     
     return () => {
