@@ -11,7 +11,7 @@ import { ProfileTabs } from "./ProfileTabs";
 import { motion } from "framer-motion";
 import { profileFadeIn, staggerChildren } from "./animations";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from "@/components/common/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -81,7 +81,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+              className="text-warcrow-gold hover:border-warcrow-gold"
               onClick={() => navigate("/activity")}
             >
               <ActivityIcon className="h-4 w-4 mr-2" />
@@ -144,7 +144,7 @@ export const ProfileContent = ({ isOnline = false }: ProfileContentProps) => {
                       <Button 
                         onClick={() => setIsEditing(true)}
                         variant="outline"
-                        className="bg-warcrow-gold text-black border-warcrow-gold hover:bg-warcrow-gold/80 hover:border-warcrow-gold/80 transition-colors text-xs md:text-sm h-8 md:h-10 py-1 px-3"
+                        className="text-warcrow-gold h-8 md:h-10 py-1 px-3 text-xs md:text-sm"
                       >
                         <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                         {isMobile ? 'Edit' : 'Edit Profile'}

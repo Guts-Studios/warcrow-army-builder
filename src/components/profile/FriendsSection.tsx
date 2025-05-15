@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -176,7 +177,7 @@ export const FriendsSection: React.FC<FriendsSectionProps> = ({ userId, isCompac
             <Button
               variant="outline"
               size="sm"
-              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/80 hover:text-black border-warcrow-gold h-7 px-2 py-1 text-xs"
+              className="text-warcrow-gold h-7 px-2 py-1 text-xs"
               onClick={refreshFriends}
             >
               <RefreshCw className="h-3 w-3" />
