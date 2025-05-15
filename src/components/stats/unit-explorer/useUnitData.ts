@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
@@ -85,7 +86,19 @@ export function useFactions() {
   return useQuery({
     queryKey: ['factions'],
     queryFn: async () => {
-      const { data } = await supabase.from('factions').select('*');
+      const { data, error } = await supabase.from('factions').select('*');
+      
+      if (error) {
+        console.error("Error fetching factions:", error);
+        // Provide fallback data if the fetch fails
+        return [
+          { id: "northern-tribes", name: "Northern Tribes" },
+          { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
+          { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
+          { id: "syenann", name: "Sÿenann" }
+        ];
+      }
+      
       return data || [];
     }
   });

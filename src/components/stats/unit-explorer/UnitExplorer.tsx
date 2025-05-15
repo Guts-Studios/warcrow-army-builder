@@ -16,7 +16,9 @@ const UnitExplorer = () => {
   
   const { t } = useLanguage();
   const { data: units = [], isLoading } = useUnitData(selectedFaction);
-  const { data: factions = [] } = useFactions();
+  const { data: factions = [], isLoading: isLoadingFactions } = useFactions();
+  
+  console.log("Factions loaded:", factions); // Debug: Log factions being loaded
   
   // Filter units based on search query and showHidden setting
   const filteredUnits = units.filter(unit => {
