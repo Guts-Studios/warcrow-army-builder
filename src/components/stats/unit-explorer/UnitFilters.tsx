@@ -4,95 +4,76 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
-import { formatFactionName } from './utils';
 
-interface UnitFiltersProps {
-  onFilterChange: (filters: { search: string; faction: string; type: string }) => void;
-  factions: string[];
-  unitTypes: string[];
-  t: (key: string) => string;
+export interface UnitFiltersProps {
+  onFilterChange: (filters: { searchQuery: string; selectedFaction: string; }) => void;
+  factions: { id: string; name: string; }[];
+  isLoading: boolean;
 }
 
 export const UnitFilters: React.FC<UnitFiltersProps> = ({
   onFilterChange,
   factions,
-  unitTypes,
-  t
+  isLoading
 }) => {
-  const [search, setSearch] = useState('');
-  const [faction, setFaction] = useState('');
-  const [type, setType] = useState('');
-
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedFaction, setSelectedFaction] = useState<string>("all");
+  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearch = e.target.value;
-    setSearch(newSearch);
-    onFilterChange({ search: newSearch, faction, type });
+    const newQuery = e.target.value;
+    setSearchQuery(newQuery);
+    onFilterChange({ searchQuery: newQuery, selectedFaction });
   };
 
   const handleFactionChange = (newFaction: string) => {
-    setFaction(newFaction);
-    onFilterChange({ search, faction: newFaction, type });
-  };
-
-  const handleTypeChange = (newType: string) => {
-    setType(newType);
-    onFilterChange({ search, faction, type: newType });
+    setSelectedFaction(newFaction);
+    onFilterChange({ searchQuery, selectedFaction: newFaction });
   };
 
   const clearFilters = () => {
-    setSearch('');
-    setFaction('');
-    setType('');
-    onFilterChange({ search: '', faction: '', type: '' });
+    setSearchQuery('');
+    setSelectedFaction('all');
+    onFilterChange({ searchQuery: '', selectedFaction: 'all' });
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-4">
-      <div className="relative flex-1">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <h1 className="text-2xl font-bold">Unit Explorer</h1>
+      
+      <div className="flex flex-wrap gap-2">
+        <Select value={selectedFaction} onValueChange={handleFactionChange} disabled={isLoading}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Faction" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Factions</SelectItem>
+            {factions?.map(faction => (
+              <SelectItem key={faction.id} value={faction.id}>{faction.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
         <Input
-          value={search}
+          placeholder="Search units..."
+          value={searchQuery}
           onChange={handleSearchChange}
-          placeholder={t('searchUnits')}
-          className="pl-9 bg-warcrow-accent/10 border-warcrow-gold/30"
+          className="w-full sm:w-60"
+          disabled={isLoading}
         />
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-warcrow-gold/60" />
+
+        {(searchQuery || selectedFaction !== 'all') && (
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={clearFilters}
+            disabled={isLoading}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
-      
-      <Select value={faction} onValueChange={handleFactionChange}>
-        <SelectTrigger className="w-full sm:w-[180px] bg-warcrow-accent/10 border-warcrow-gold/30">
-          <SelectValue placeholder={t('allFactions')} />
-        </SelectTrigger>
-        <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-          <SelectItem value="">{t('allFactions')}</SelectItem>
-          {factions.map(faction => (
-            <SelectItem key={faction} value={faction}>{formatFactionName(faction)}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      
-      <Select value={type} onValueChange={handleTypeChange}>
-        <SelectTrigger className="w-full sm:w-[180px] bg-warcrow-accent/10 border-warcrow-gold/30">
-          <SelectValue placeholder={t('allTypes')} />
-        </SelectTrigger>
-        <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-          <SelectItem value="">{t('allTypes')}</SelectItem>
-          {unitTypes.map(type => (
-            <SelectItem key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      
-      {(search || faction || type) && (
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={clearFilters}
-          className="border-warcrow-gold/30"
-          title={t('clearFilters')}
-        >
-          <X className="h-4 w-4 text-warcrow-gold/60" />
-        </Button>
-      )}
     </div>
   );
 };
+
+export default UnitFilters;

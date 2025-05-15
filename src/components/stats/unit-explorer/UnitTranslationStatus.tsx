@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Languages, AlertTriangle } from 'lucide-react';
 import { toast } from '@/utils/translation';
 import { batchTranslateAndUpdate } from '@/utils/translation/deepLBatchTranslator';
 import { supabase } from '@/integrations/supabase/client';
+import { BatchItem, BatchItemTable } from '@/types/batchItem';
 
 interface UnitTranslationStatusProps {
   stats: {
@@ -53,11 +53,11 @@ const UnitTranslationStatus: React.FC<UnitTranslationStatusProps> = ({ stats, on
       }
       
       // Create translation batches
-      const batches = unitsData.map(unit => ({
+      const batches: BatchItem[] = unitsData.map(unit => ({
         id: unit.id,
         text: unit.name,
         targetField: `name_${language}`,
-        table: 'unit_data'
+        table: 'unit_data' as BatchItemTable
       }));
       
       // Track progress
