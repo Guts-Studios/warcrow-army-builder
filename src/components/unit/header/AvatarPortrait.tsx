@@ -43,13 +43,12 @@ const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
       const baseName = portraitUrl.substring(0, portraitUrl.lastIndexOf('.'));
       const baseNameWithoutDir = baseName.substring(baseName.lastIndexOf('/') + 1);
       
-      // Create portrait URL path
-      portraitImageUrl = `${portraitUrl.substring(0, portraitUrl.lastIndexOf('/'))}/portrait/${baseNameWithoutDir.replace('_card', '')}_portrait.jpg`;
+      // Create portrait URL path by replacing "card" folder with "portrait" 
+      // and adding "_portrait" suffix to the filename
+      const baseDir = portraitUrl.substring(0, portraitUrl.lastIndexOf('/'));
+      portraitImageUrl = `${baseDir.replace('/card', '/portrait')}/${baseNameWithoutDir}_portrait.jpg`;
     }
   }
-
-  console.log('Original URL:', portraitUrl);
-  console.log('Portrait URL:', portraitImageUrl);
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
