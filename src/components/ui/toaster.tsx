@@ -1,34 +1,20 @@
 
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from "@/components/ui/toast";
-import { useToast } from "@/hooks/use-toast";
+import { Toaster as SonnerToaster } from "sonner";
 
 export function Toaster() {
-  const { toasts } = useToast();
-
   return (
-    <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        );
-      })}
-      <ToastViewport />
-    </ToastProvider>
+    <SonnerToaster 
+      position="top-right"
+      toastOptions={{
+        classNames: {
+          toast: "group border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50 rounded-md p-4 shadow-lg",
+          success: "group border border-green-500 bg-green-500 text-white",
+          error: "group border border-red-500 bg-red-500 text-white", 
+          warning: "group border border-amber-500 bg-amber-500 text-white",
+          info: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
+          default: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
+        }
+      }}
+    />
   );
 }
