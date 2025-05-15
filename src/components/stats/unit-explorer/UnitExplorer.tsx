@@ -46,6 +46,12 @@ const UnitExplorer: React.FC = () => {
     // This will be handled by the query cache invalidation
   };
 
+  // Handle selecting a unit
+  const handleSelectUnit = (unit: ExtendedUnit) => {
+    console.log("Selected unit:", unit);
+    setSelectedUnit(unit);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -91,6 +97,7 @@ const UnitExplorer: React.FC = () => {
                   searchQuery={searchQuery}
                   isLoading={isLoadingUnits}
                   error={error}
+                  onSelectUnit={handleSelectUnit}
                 />
               </CardContent>
             </Card>

@@ -21,12 +21,12 @@ const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
     );
   }
 
-  // Convert card URL to portrait URL by changing both the directory and filename
+  // Convert card URL to portrait URL
   let portraitImageUrl = portraitUrl;
   
-  if (portraitUrl.includes('/art/card/')) {
+  if (!imageError && portraitUrl.includes('/card/')) {
     // Replace the directory path
-    portraitImageUrl = portraitUrl.replace('/art/card/', '/art/portrait/');
+    portraitImageUrl = portraitUrl.replace('/card/', '/portrait/');
     
     // Handle different filename extensions and patterns
     if (portraitUrl.endsWith('_card.jpg')) {
@@ -34,29 +34,31 @@ const AvatarPortrait = ({ portraitUrl, name }: AvatarPortraitProps) => {
     } else if (portraitUrl.endsWith('_card.png')) {
       portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); 
     } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg')) {
-      // Handle localized versions
       portraitImageUrl = portraitImageUrl
         .replace('_card_sp.jpg', '_portrait.jpg')
         .replace('_card_fr.jpg', '_portrait.jpg');
     } else if (portraitUrl.endsWith('.jpg') || portraitUrl.endsWith('.png')) {
-      // Extract base name without extension for more complex transformations
-      const baseName = portraitUrl.substring(0, portraitUrl.lastIndexOf('.'));
-      const baseNameWithoutDir = baseName.substring(baseName.lastIndexOf('/') + 1);
-      
-      // Create portrait URL path by replacing "card" folder with "portrait" 
-      // and adding "_portrait" suffix to the filename
-      const baseDir = portraitUrl.substring(0, portraitUrl.lastIndexOf('/'));
-      portraitImageUrl = `${baseDir.replace('/card', '/portrait')}/${baseNameWithoutDir}_portrait.jpg`;
+      // Extract base filename without extension
+      const baseFilename = portraitUrl.split('/').pop()?.split('.')[0] || '';
+      const baseFilenameWithoutSuffix = baseFilename.replace('_card', '');
+      // Create portrait URL with correct format
+      portraitImageUrl = `${portraitUrl.substring(0, portraitUrl.lastIndexOf('/'))}/portrait/${baseFilenameWithoutSuffix}_portrait.jpg`;
     }
+
+    console.log('Original URL:', portraitUrl);
+    console.log('Portrait URL:', portraitImageUrl);
   }
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
       <AvatarImage 
-        src={portraitImageUrl} 
+        src={imageError ? undefined : portraitImageUrl} 
         alt={name} 
         className="object-cover"
-        onError={() => setImageError(true)}
+        onError={() => {
+          console.error('Portrait image failed to load:', portraitImageUrl);
+          setImageError(true);
+        }}
       />
       <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
         {name.split(' ').map(word => word[0]).join('')}
