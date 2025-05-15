@@ -6,6 +6,7 @@ import { UnitTable } from './UnitTable';
 import { UnitFilters } from './UnitFilters';
 import { normalizeFactionName } from './utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import UnitTranslationStatus from './UnitTranslationStatus';
 
 const UnitExplorer: React.FC = () => {
   const [units, setUnits] = useState<any[]>([]);
@@ -15,6 +16,11 @@ const UnitExplorer: React.FC = () => {
   const { language, t } = useLanguage();
   const [factions, setFactions] = useState<string[]>([]);
   const [unitTypes, setUnitTypes] = useState<string[]>([]);
+  const [translationStats, setTranslationStats] = useState({
+    total: 0,
+    spanishTranslated: 0,
+    frenchTranslated: 0
+  });
   
   const fetchUnits = async () => {
     setIsLoading(true);
@@ -41,10 +47,20 @@ const UnitExplorer: React.FC = () => {
       const uniqueFactions = Array.from(new Set(processedUnits.map(unit => unit.faction)));
       const uniqueTypes = Array.from(new Set(processedUnits.map(unit => unit.type || 'Unknown')));
       
+      // Calculate translation statistics
+      const total = processedUnits.length;
+      const spanishTranslated = processedUnits.filter(unit => unit.name_es && unit.name_es.trim() !== '').length;
+      const frenchTranslated = processedUnits.filter(unit => unit.name_fr && unit.name_fr.trim() !== '').length;
+      
       setUnits(processedUnits);
       setFilteredUnits(processedUnits);
       setFactions(uniqueFactions);
       setUnitTypes(uniqueTypes);
+      setTranslationStats({
+        total,
+        spanishTranslated,
+        frenchTranslated
+      });
     } catch (err: any) {
       setError(err.message);
       console.error('Error fetching units:', err);
@@ -104,6 +120,9 @@ const UnitExplorer: React.FC = () => {
             <span className="text-warcrow-text">{units.length}</span>
           </div>
         </div>
+        
+        <UnitTranslationStatus stats={translationStats} onTranslate={fetchUnits} />
+        
         <UnitFilters 
           onFilterChange={handleFilterChange} 
           factions={factions}

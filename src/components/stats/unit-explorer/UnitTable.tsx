@@ -3,6 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslateKeyword } from '@/utils/translation';
 import { formatFactionName, getUnitType, formatKeywords } from './utils';
+import { Badge } from '@/components/ui/badge';
 
 interface UnitTableProps {
   filteredUnits: any[];
@@ -23,6 +24,22 @@ export const UnitTable: React.FC<UnitTableProps> = ({
     return translateKeyword(keyword, 'en');
   };
   
+  // Helper to show translation indicators
+  const getTranslationStatus = (unit: any) => {
+    const hasSpanish = unit.name_es && unit.name_es.trim() !== '';
+    const hasFrench = unit.name_fr && unit.name_fr.trim() !== '';
+    
+    return (
+      <div className="flex gap-1">
+        {hasSpanish && <Badge className="bg-green-600/70 hover:bg-green-700 text-xs py-0 px-1">ES</Badge>}
+        {!hasSpanish && <Badge className="bg-red-600/70 hover:bg-red-700 text-xs py-0 px-1">ES</Badge>}
+        
+        {hasFrench && <Badge className="bg-green-600/70 hover:bg-green-700 text-xs py-0 px-1">FR</Badge>}
+        {!hasFrench && <Badge className="bg-red-600/70 hover:bg-red-700 text-xs py-0 px-1">FR</Badge>}
+      </div>
+    );
+  };
+  
   return (
     <div className="border rounded border-warcrow-gold/30 overflow-x-auto">
       <Table>
@@ -31,6 +48,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
             <TableHead className="text-warcrow-gold">{t('faction')}</TableHead>
             <TableHead className="text-warcrow-gold">{t('type')}</TableHead>
             <TableHead className="text-warcrow-gold">{t('name')}</TableHead>
+            <TableHead className="text-warcrow-gold">Trans</TableHead>
             <TableHead className="text-warcrow-gold">CMD</TableHead>
             <TableHead className="text-warcrow-gold">AVB</TableHead>
             <TableHead className="text-warcrow-gold">{t('keywords')}</TableHead>
@@ -42,13 +60,13 @@ export const UnitTable: React.FC<UnitTableProps> = ({
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-6 text-warcrow-muted">
+              <TableCell colSpan={10} className="text-center py-6 text-warcrow-muted">
                 {t('loading')}...
               </TableCell>
             </TableRow>
           ) : filteredUnits.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-6 text-warcrow-muted">
+              <TableCell colSpan={10} className="text-center py-6 text-warcrow-muted">
                 {t('noUnitsMatch')}
               </TableCell>
             </TableRow>
@@ -58,6 +76,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                 <TableCell className="text-warcrow-text">{formatFactionName(unit.faction)}</TableCell>
                 <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                 <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
+                <TableCell className="text-warcrow-text">{getTranslationStatus(unit)}</TableCell>
                 <TableCell className="text-warcrow-text">
                   {unit.characteristics?.command || unit.command || '0'}
                 </TableCell>

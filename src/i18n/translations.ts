@@ -1,4 +1,3 @@
-
 import { TranslationsType } from './types';
 import { armyTranslations } from './army';
 import { authTranslations } from './auth';
@@ -265,5 +264,52 @@ export const translations: TranslationsType = {
   ...faqTranslations,
   
   // Include activity translations
-  ...activityTranslations
+  ...activityTranslations,
+  
+  // Unit explorer translations
+  unitExplorer: {
+    en: 'Unit Explorer',
+    es: 'Explorador de Unidades',
+    fr: 'Explorateur d\'Unités'
+  },
+  totalUnits: {
+    en: 'Total Units',
+    es: 'Unidades Totales',
+    fr: 'Unités Totales'
+  },
+  noUnitsMatch: {
+    en: 'No units match your search criteria',
+    es: 'Ninguna unidad coincide con tus criterios de búsqueda',
+    fr: 'Aucune unité ne correspond à vos critères de recherche'
+  },
+  faction: {
+    en: 'Faction',
+    es: 'Facción',
+    fr: 'Faction'
+  },
+  type: {
+    en: 'Type',
+    es: 'Tipo',
+    fr: 'Type'
+  },
+  name: {
+    en: 'Name',
+    es: 'Nombre',
+    fr: 'Nom'
+  },
+  keywords: {
+    en: 'Keywords',
+    es: 'Palabras Clave',
+    fr: 'Mots-clés'
+  },
+  rules: {
+    en: 'Rules',
+    es: 'Reglas',
+    fr: 'Règles'
+  },
+  loading: {
+    en: 'Loading',
+    es: 'Cargando',
+    fr: 'Chargement'
+  }
 };
