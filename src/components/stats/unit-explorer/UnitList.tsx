@@ -56,7 +56,7 @@ export const UnitList: React.FC<UnitListProps> = ({
       {filteredUnits.map(unit => (
         <Card 
           key={unit.id} 
-          className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+          className="p-4 hover:shadow-md transition-shadow cursor-pointer hover:bg-warcrow-accent/10"
           onClick={() => onSelectUnit && onSelectUnit(unit)}
         >
           <div className="flex justify-between items-start">
