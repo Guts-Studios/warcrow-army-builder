@@ -30,9 +30,18 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
     try {
+      // Special case handling for known problematic unit names
+      const specialCases: Record<string, string> = {
+        "Agressors": "aggressors",
+        // Add more special cases here if needed
+      };
+      
+      // Check if we have a special case for this unit name
+      const baseName = specialCases[unit.name] || unit.name.toLowerCase();
+      
       // Convert unit name to snake_case format for file naming
       // Replace both spaces and hyphens with underscores
-      const nameForUrl = unit.name.toLowerCase().replace(/[\s-]+/g, '_');
+      const nameForUrl = baseName.replace(/[\s-]+/g, '_');
       
       // Base URL pointing to the GitHub art/card directory
       const baseUrl = `/art/card/${nameForUrl}_card`;
@@ -55,7 +64,9 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
   // Update card URL when language changes
   useEffect(() => {
-    setCardUrl(getCardUrl());
+    const url = getCardUrl();
+    setCardUrl(url);
+    console.log(`Generated card URL for ${unit.name}: ${url}`);
   }, [language, unit.name]);
 
   // Function to handle view card button click
