@@ -11,6 +11,13 @@
     "points": "points",
     "viewCard": "View Card",
     "unitCard": "Unit Card",
-    "searchUnits": "Search Units"
+    "searchUnits": "Search Units",
+    "imageNotAvailable": "Image not available",
+    "tryAgainLater": "Please try again later",
+    "unitCardFor": "Detailed card for {unitName} unit",
+    "clearAllFilters": "Clear all filters",
+    "filterByCharacteristics": "Filter by Characteristics",
+    "filterByKeywords": "Filter by Keywords",
+    "noUnitsMatch": "No units match your filters"
   }
 }
