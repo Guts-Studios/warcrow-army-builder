@@ -74,7 +74,10 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
         
-        <ScrollArea className="relative w-full h-[calc(100%-60px)] px-2 pb-2">
+        <ScrollArea 
+          className="relative w-full h-[calc(100%-60px)] px-2 pb-2"
+          orientation="both"
+        >
           <div className="relative w-full h-full min-h-[400px]">
             <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md h-full">
               <img
