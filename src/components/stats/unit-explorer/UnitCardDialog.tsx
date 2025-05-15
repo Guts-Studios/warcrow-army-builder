@@ -39,7 +39,8 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     if (isMobile) {
       return 'w-[90vw] max-w-[90vw]';
     }
-    return 'w-auto max-w-[80vh] max-h-[90vh]';
+    // For desktop, adjust to ensure the card is fully visible
+    return 'w-auto max-h-[90vh] max-w-[min(80vh,800px)]';
   };
   
   return (

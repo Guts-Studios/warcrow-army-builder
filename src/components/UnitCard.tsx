@@ -33,6 +33,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       // Special case handling for known problematic unit names
       const specialCases: Record<string, string> = {
         "Agressors": "aggressors",
+        "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
+        "Lady Telia": "lady_telia",
         // Add more special cases here if needed
       };
       
