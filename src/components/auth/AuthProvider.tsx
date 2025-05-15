@@ -12,7 +12,7 @@ interface AuthContextType {
   isGuest: boolean;
   isPasswordRecovery: boolean;
   isTester: boolean;
-  isWabAdmin: boolean; // Added new admin role
+  isWabAdmin: boolean;
   setIsGuest: (value: boolean) => void;
   resendConfirmationEmail: (email: string) => Promise<void>;
 }
@@ -22,7 +22,7 @@ export const AuthContext = React.createContext<AuthContextType>({
   isGuest: false,
   isPasswordRecovery: false,
   isTester: false,
-  isWabAdmin: false, // Added new admin role
+  isWabAdmin: false,
   setIsGuest: () => {},
   resendConfirmationEmail: async () => {},
 });
@@ -34,10 +34,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isGuest, setIsGuest] = React.useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
   const [isTester, setIsTester] = React.useState(false);
-  const [isWabAdmin, setIsWabAdmin] = React.useState(false); // Added new admin role state
+  const [isWabAdmin, setIsWabAdmin] = React.useState(false);
   
+  // Check if we're in preview or development mode
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com');
+                   window.location.hostname.endsWith('.lovableproject.com') ||
+                   window.location.hostname === 'localhost';
 
   // Function to resend confirmation email
   const resendConfirmationEmail = async (email: string) => {
@@ -63,6 +65,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   React.useEffect(() => {
+    // Check if guest mode was previously set in localStorage
+    const storedGuestMode = localStorage.getItem('warcrow_guest_mode') === 'true';
+    if (storedGuestMode) {
+      setIsGuest(true);
+    }
+
     const setupAuth = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const type = hashParams.get('type');
@@ -82,24 +90,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('Preview mode detected, setting as authenticated, tester, and wab-admin');
         setIsAuthenticated(true);
         setIsTester(true);
-        setIsWabAdmin(true); // In preview mode, also set wab-admin to true
+        setIsWabAdmin(true);
         return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
-      setIsAuthenticated(!!session);
+      
+      // Set authenticated status - either logged in OR in guest mode
+      setIsAuthenticated(!!session || storedGuestMode);
       
       if (session) {
         try {
           const { data } = await supabase
             .from('profiles')
-            .select('tester, wab_admin') // Also select wab_admin status
+            .select('tester, wab_admin')
             .eq('id', session.user.id)
             .single();
           
           setIsTester(!!data?.tester);
-          setIsWabAdmin(!!data?.wab_admin); // Set the wab_admin state
+          setIsWabAdmin(!!data?.wab_admin);
           console.log('Role checks:', { 
             tester: data?.tester ? 'Tester' : 'Not tester',
             wabAdmin: data?.wab_admin ? 'Admin' : 'Not admin'
@@ -111,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
       
-      if (!session && !isPreview) {
+      if (!session && !isPreview && !storedGuestMode) {
         toast('Offline Mode', {
           description: "You are in offline mode. Cloud features like saving lists will not be available.",
           duration: 5000,
@@ -152,19 +162,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (!isPasswordRecovery) {
-        setIsAuthenticated(!!session);
+        // If session or guest mode, consider authenticated
+        const isUserAuthenticated = !!session || isGuest;
+        setIsAuthenticated(isUserAuthenticated);
         
         if (session) {
           const checkUserRoles = async () => {
             try {
               const { data } = await supabase
                 .from('profiles')
-                .select('tester, wab_admin') // Also check wab_admin status
+                .select('tester, wab_admin')
                 .eq('id', session.user.id)
                 .single();
               
               setIsTester(!!data?.tester);
-              setIsWabAdmin(!!data?.wab_admin); // Update the wab_admin state
+              setIsWabAdmin(!!data?.wab_admin);
             } catch (error) {
               console.error('Error checking user roles:', error);
               setIsTester(false);
@@ -183,13 +195,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [isPreview, isPasswordRecovery]);
 
+  // Update guest mode handler to persist to localStorage
+  const setGuestModeWithStorage = (value: boolean) => {
+    setIsGuest(value);
+    localStorage.setItem('warcrow_guest_mode', value ? 'true' : 'false');
+    // Update authentication state when guest mode changes
+    setIsAuthenticated(value);
+  };
+
   const value = {
     isAuthenticated,
     isGuest,
     isPasswordRecovery,
     isTester,
-    isWabAdmin, // Include new wab_admin role in the context value
-    setIsGuest,
+    isWabAdmin,
+    setIsGuest: setGuestModeWithStorage,
     resendConfirmationEmail,
   };
 

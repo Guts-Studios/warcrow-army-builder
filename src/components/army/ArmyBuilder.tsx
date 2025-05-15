@@ -5,6 +5,7 @@ import { SavedList } from "@/types/army";
 import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ArmyBuilderProps {
   session: Session | null;
@@ -12,6 +13,7 @@ interface ArmyBuilderProps {
 
 const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
   const location = useLocation();
+  const { isGuest } = useAuth();
   const [selectedFaction, setSelectedFaction] = useState(() => {
     // Try to get the faction from localStorage first
     const savedFaction = localStorage.getItem("warcrow_last_faction");
@@ -29,6 +31,15 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
       setSelectedFaction(state.selectedFaction);
     }
   }, [state]);
+
+  // Log the guest status for debugging
+  useEffect(() => {
+    console.log("ArmyBuilder render - Auth status:", { 
+      isGuest,
+      hasSession: !!session, 
+      selectedFaction
+    });
+  }, [isGuest, session, selectedFaction]);
 
   const handleFactionChange = useCallback((factionId: string) => {
     setSelectedFaction(factionId);

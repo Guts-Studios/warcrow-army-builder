@@ -1,8 +1,10 @@
+
 import { Button } from "@/components/ui/button";
 import { Trash2, CloudOff, Cloud } from "lucide-react";
 import { SavedList } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface SavedListsSectionProps {
   savedLists: SavedList[];
@@ -19,9 +21,18 @@ const SavedListsSection = ({
 }: SavedListsSectionProps) => {
   const { t } = useLanguage();
   const [sortedLists, setSortedLists] = useState<SavedList[]>([]);
+  const { isAuthenticated, isGuest } = useAuth();
   
   // Filter and sort lists whenever savedLists or selectedFaction changes
   useEffect(() => {
+    // Log authentication state for debugging
+    console.log("SavedListsSection - Auth status:", {
+      isAuthenticated,
+      isGuest,
+      listsCount: savedLists?.length || 0,
+      selectedFaction
+    });
+    
     // Filter lists by faction first
     const filteredLists = savedLists.filter((list) => list.faction === selectedFaction);
     
@@ -55,10 +66,12 @@ const SavedListsSection = ({
       filteredListsCount: filteredLists.length,
       uniqueListsCount: uniqueLists.length,
       cloudLists: filteredLists.filter(list => !!list.user_id).length,
-      selectedFaction
+      selectedFaction,
+      isGuest,
+      isAuthenticated
     });
     
-  }, [savedLists, selectedFaction]);
+  }, [savedLists, selectedFaction, isAuthenticated, isGuest]);
 
   if (sortedLists.length === 0) return null;
 

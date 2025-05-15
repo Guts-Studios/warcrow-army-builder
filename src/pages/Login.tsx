@@ -45,7 +45,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const { resendConfirmationEmail } = useAuth();
+  const { resendConfirmationEmail, setIsGuest } = useAuth();
 
   useEffect(() => {
     const {
@@ -245,11 +245,19 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   };
 
   const confirmGuestAccess = () => {
+    // Set guest mode in the auth context
+    setIsGuest(true);
+    
+    // Close dialogs
     setShowGuestDialog(false);
     setShowHomeGuestDialog(false);
+    
+    // Call the onGuestAccess callback if provided
     if (onGuestAccess) {
       onGuestAccess();
     }
+    
+    // Navigate to the home page
     navigate('/');
   };
 
