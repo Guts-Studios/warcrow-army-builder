@@ -7,7 +7,7 @@ import UnitCardKeywords from "./unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
 
 interface UnitCardProps {
@@ -22,34 +22,47 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
+  const [cardUrl, setCardUrl] = useState<string>("");
   
   // Translate unit name based on the selected language
   const displayName = translateUnitName(unit.name, language);
 
   // Function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
-    // Convert unit name to snake_case format for file naming
-    const nameForUrl = unit.name.toLowerCase().replace(/[\s-]+/g, '_');
-    
-    // Base URL pointing to the GitHub art/card directory
-    const baseUrl = `/art/card/${nameForUrl}_card`;
-    
-    // Add language suffix if needed (sp for Spanish, fr for French, none for English)
-    let suffix = '';
-    if (language === 'es') {
-      suffix = '_sp';
-    } else if (language === 'fr') {
-      suffix = '_fr';
+    try {
+      // Convert unit name to snake_case format for file naming
+      // Replace both spaces and hyphens with underscores
+      const nameForUrl = unit.name.toLowerCase().replace(/[\s-]+/g, '_');
+      
+      // Base URL pointing to the GitHub art/card directory
+      const baseUrl = `/art/card/${nameForUrl}_card`;
+      
+      // Add language suffix if needed (sp for Spanish, fr for French, none for English)
+      let suffix = '';
+      if (language === 'es') {
+        suffix = '_sp';
+      } else if (language === 'fr') {
+        suffix = '_fr';
+      }
+      
+      // Return the complete URL with file extension
+      return `${baseUrl}${suffix}.jpg`;
+    } catch (error) {
+      console.error("Error generating card URL:", error);
+      return "";
     }
-    
-    // Return the complete URL with file extension
-    return `${baseUrl}${suffix}.jpg`;
   };
+
+  // Update card URL when language changes
+  useEffect(() => {
+    setCardUrl(getCardUrl());
+  }, [language, unit.name]);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {
-    const cardUrl = getCardUrl();
-    console.log("Opening card dialog with URL:", cardUrl);
+    const url = getCardUrl();
+    console.log("Opening card dialog with URL:", url);
+    setCardUrl(url);
     setIsCardDialogOpen(true);
   };
 
@@ -97,7 +110,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         isOpen={isCardDialogOpen}
         onClose={() => setIsCardDialogOpen(false)}
         unitName={displayName}
-        cardUrl={getCardUrl()}
+        cardUrl={cardUrl}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
-import { DialogTitle } from '@/components/ui/dialog';
+import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
 
 interface UnitCardDialogProps {
@@ -44,10 +44,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`p-0 ${getDialogSizeClasses()} bg-black/95 border-warcrow-gold/30`}>
+      <DialogContent className={`p-0 ${getDialogSizeClasses()} bg-black/95 border-warcrow-gold/30`} aria-describedby="card-description">
         {/* Adding a visually hidden title for accessibility */}
         <VisuallyHidden asChild>
           <DialogTitle>{unitName} Card</DialogTitle>
+        </VisuallyHidden>
+        
+        {/* Adding a description for accessibility to fix the warning */}
+        <VisuallyHidden asChild>
+          <DialogDescription id="card-description">Detailed card for {unitName} unit</DialogDescription>
         </VisuallyHidden>
         
         <div className="flex items-center justify-center w-full h-full">
@@ -69,7 +74,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 console.error('Image load error:', cardUrl);
                 setImageError(true);
                 setIsLoading(false);
-                const img = e.currentTarget;
+                const img = e.currentTarget as HTMLImageElement;
                 img.onerror = null; // Prevent infinite error loop
                 img.style.display = 'none';
               }}
