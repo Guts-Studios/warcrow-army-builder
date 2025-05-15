@@ -1,11 +1,21 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useUnitNameTranslations } from './hooks/useUnitNameTranslations';
+import { useKeywordTranslations } from './hooks/useKeywordTranslations';
+import { useSpecialRuleTranslations } from './hooks/useSpecialRuleTranslations';
+import { useCharacteristicTranslations } from './hooks/useCharacteristicTranslations';
 
 export const useTranslateKeyword = () => {
   const { language } = useLanguage();
   const [keywordsMap, setKeywordsMap] = useState<Record<string, { es?: string, fr?: string }>>({});
+  
+  // Import all the translation hooks
+  const { translateUnitName } = useUnitNameTranslations();
+  const { translateKeyword, translateKeywordDescription } = useKeywordTranslations();
+  const { translateSpecialRule, translateSpecialRuleDescription } = useSpecialRuleTranslations();
+  const { translateCharacteristic, translateCharacteristicDescription } = useCharacteristicTranslations();
   
   useEffect(() => {
     const fetchKeywords = async () => {
@@ -33,24 +43,14 @@ export const useTranslateKeyword = () => {
     fetchKeywords();
   }, []);
   
-  const translateKeyword = (keyword: string, fallbackLanguage = 'en'): string => {
-    if (!keyword) return '';
-    
-    const keyLower = keyword.toLowerCase();
-    const translations = keywordsMap[keyLower];
-    
-    if (language === 'en' || !translations) {
-      return keyword;
-    }
-    
-    if (language === 'es' && translations.es) {
-      return translations.es;
-    } else if (language === 'fr' && translations.fr) {
-      return translations.fr;
-    }
-    
-    return keyword;
+  return { 
+    translateKeyword,
+    translateKeywordDescription,
+    translateUnitName,
+    translateSpecialRule,
+    translateSpecialRuleDescription,
+    translateCharacteristic,
+    translateCharacteristicDescription,
+    keywordsMap 
   };
-  
-  return { translateKeyword, keywordsMap };
 };

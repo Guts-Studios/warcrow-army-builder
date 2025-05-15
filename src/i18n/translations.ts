@@ -1,3 +1,4 @@
+
 import { TranslationsType } from './types';
 import { armyTranslations } from './army';
 import { authTranslations } from './auth';
@@ -302,14 +303,9 @@ export const translations: TranslationsType = {
     es: 'Palabras Clave',
     fr: 'Mots-clés'
   },
-  rules: {
-    en: 'Rules',
-    es: 'Reglas',
-    fr: 'Règles'
-  },
-  loading: {
-    en: 'Loading',
-    es: 'Cargando',
-    fr: 'Chargement'
+  specialRules: {
+    en: 'Special Rules',
+    es: 'Reglas Especiales',
+    fr: 'Règles Spéciales'
   }
 };

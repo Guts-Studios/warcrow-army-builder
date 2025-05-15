@@ -54,7 +54,7 @@ export const UnitTable: React.FC<UnitTableProps> = ({
             <TableHead className="text-warcrow-gold">{t('keywords')}</TableHead>
             <TableHead className="text-warcrow-gold">HC</TableHead>
             <TableHead className="text-warcrow-gold">Pts</TableHead>
-            <TableHead className="text-warcrow-gold">{t('rules')}</TableHead>
+            <TableHead className="text-warcrow-gold">{t('specialRules')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -87,27 +87,11 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                 <TableCell className="text-warcrow-text">
                   {unit.characteristics?.highCommand || unit.highCommand ? 'Yes' : 'No'}
                 </TableCell>
-                <TableCell className="text-warcrow-text">{unit.points || unit.pointsCost || 0}</TableCell>
                 <TableCell className="text-warcrow-text">
-                  {Array.isArray(unit.special_rules) && unit.special_rules.length > 0 ? (
-                    <div className="flex flex-col gap-1">
-                      {unit.special_rules.map((rule: string, i: number) => (
-                        <span key={i} className="text-xs">
-                          {rule}
-                        </span>
-                      ))}
-                    </div>
-                  ) : unit.specialRules && unit.specialRules.length > 0 ? (
-                    <div className="flex flex-col gap-1">
-                      {unit.specialRules.map((rule: string, i: number) => (
-                        <span key={i} className="text-xs">
-                          {rule}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    '-'
-                  )}
+                  {unit.characteristics?.points || unit.points || unit.pointsCost || 0}
+                </TableCell>
+                <TableCell className="text-warcrow-text">
+                  {unit.special_rules?.length || 0}
                 </TableCell>
               </TableRow>
             ))

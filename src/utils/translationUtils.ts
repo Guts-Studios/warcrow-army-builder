@@ -4,6 +4,7 @@ import { landingTranslations } from '@/i18n/landing';
 import { commonTranslations } from '@/i18n/common';
 import { uiTranslations } from '@/i18n/ui';
 import { batchTranslate, translateText, translateToFrench } from './translation/batchTranslate';
+import { toast } from '@/components/ui/toast-core';
 
 export { 
   useTranslateKeyword, 
@@ -12,5 +13,6 @@ export {
   uiTranslations,
   batchTranslate,
   translateText,
-  translateToFrench
+  translateToFrench,
+  toast
 };
