@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,7 @@ import RulesVerifier from '@/components/admin/RulesVerifier';
 import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
 import TranslationManagerPanel from '@/components/admin/TranslationManagerPanel';
 import UnitValidationTool from '@/components/admin/units/UnitValidationTool';
+import UnitImagesManager from '@/components/admin/units/UnitImagesManager';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -140,6 +142,12 @@ const Admin = () => {
           <TabsContent value="unit-validation">
             <AdminTabContent title="Unit Validation">
               <UnitValidationTool />
+            </AdminTabContent>
+          </TabsContent>
+          
+          <TabsContent value="unit-images">
+            <AdminTabContent title="Unit Images">
+              <UnitImagesManager />
             </AdminTabContent>
           </TabsContent>
           

@@ -12,7 +12,8 @@ import {
   Globe,
   Server,
   Database,
-  Check
+  Check,
+  Image
 } from "lucide-react";
 
 interface AdminNavbarProps {
@@ -26,6 +27,7 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
     { id: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
     { id: "units", label: "Units", icon: <Swords className="h-4 w-4" /> },
     { id: "unit-validation", label: "Validate Units", icon: <Check className="h-4 w-4" /> },
+    { id: "unit-images", label: "Unit Images", icon: <Image className="h-4 w-4" /> },
     { id: "rules", label: "Rules", icon: <BookOpen className="h-4 w-4" /> },
     { id: "faq", label: "FAQ", icon: <HelpCircle className="h-4 w-4" /> },
     { id: "news", label: "News", icon: <FileText className="h-4 w-4" /> },

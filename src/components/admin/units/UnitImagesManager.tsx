@@ -1,0 +1,301 @@
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Check, X, AlertCircle, ExternalLink } from "lucide-react";
+import { units as staticUnits } from '@/data/factions';
+import { Unit } from '@/types/army';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const UnitImagesManager: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterFaction, setFilterFaction] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('portraits');
+  const [imageResults, setImageResults] = useState<Record<string, {exists: boolean, url: string}>>({});
+  const [filteredUnits, setFilteredUnits] = useState<Unit[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+  const { t, language } = useLanguage();
+  
+  const factions = [
+    { id: 'all', name: 'All Factions' },
+    { id: 'hegemony', name: 'Hegemony' },
+    { id: 'northern-tribes', name: 'Northern Tribes' },
+    { id: 'scions-of-yaldabaoth', name: 'Scions of Yaldabaoth' },
+    { id: 'syenann', name: 'Syenann' },
+  ];
+
+  useEffect(() => {
+    // Filter units based on search term and selected faction
+    let filtered = [...staticUnits];
+    
+    if (filterFaction !== 'all') {
+      filtered = filtered.filter(unit => unit.faction === filterFaction);
+    }
+    
+    if (searchTerm) {
+      filtered = filtered.filter(unit => 
+        unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        unit.id.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredUnits(filtered);
+  }, [searchTerm, filterFaction]);
+
+  const cleanUnitName = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^\w-]/g, '')
+      .replace(/ć/g, 'c')
+      .replace(/í/g, 'i')
+      .replace(/á/g, 'a')
+      .replace(/é/g, 'e');
+  };
+
+  const checkImageExists = async (url: string): Promise<boolean> => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok;
+    } catch (error) {
+      console.error(`Error checking image at ${url}:`, error);
+      return false;
+    }
+  };
+
+  const verifyUnitImages = async () => {
+    setLoadingImages(true);
+    const results: Record<string, {exists: boolean, url: string}> = {};
+    
+    for (const unit of filteredUnits) {
+      const unitId = unit.id;
+      let imageUrl = '';
+      
+      if (activeTab === 'portraits') {
+        // Check portrait images
+        imageUrl = `/art/portrait/${cleanUnitName(unit.name)}_portrait.jpg`;
+      } else {
+        // Check card images
+        imageUrl = unit.imageUrl || `/art/card/${cleanUnitName(unit.name)}_card.jpg`;
+        
+        // If checking cards and language is not English, check language-specific cards
+        if (activeTab === 'cards-es' || activeTab === 'cards-fr') {
+          const langSuffix = activeTab === 'cards-es' ? '_sp' : '_fr';
+          if (imageUrl.endsWith('.jpg')) {
+            imageUrl = imageUrl.replace('.jpg', `${langSuffix}.jpg`);
+          } else if (imageUrl.endsWith('_card.jpg')) {
+            imageUrl = imageUrl.replace('_card.jpg', `_card${langSuffix}.jpg`);
+          }
+        }
+      }
+      
+      results[unitId] = {
+        url: imageUrl,
+        exists: await checkImageExists(imageUrl)
+      };
+    }
+    
+    setImageResults(results);
+    setLoadingImages(false);
+  };
+
+  const getImageStatus = (unit: Unit) => {
+    if (!imageResults[unit.id]) {
+      return null;
+    }
+    
+    return imageResults[unit.id].exists ? (
+      <div className="flex items-center text-green-500">
+        <Check className="h-4 w-4 mr-1" /> 
+        <span>Available</span>
+      </div>
+    ) : (
+      <div className="flex items-center text-red-500">
+        <X className="h-4 w-4 mr-1" /> 
+        <span>Missing</span>
+      </div>
+    );
+  };
+
+  const getTabTitle = () => {
+    switch(activeTab) {
+      case 'portraits': return 'Unit Portraits';
+      case 'cards': return 'Card Images (English)';
+      case 'cards-es': return 'Card Images (Spanish)';
+      case 'cards-fr': return 'Card Images (French)';
+      default: return 'Unit Images';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-xl font-semibold text-warcrow-gold">Unit Image Validator</h2>
+        <p className="text-warcrow-text/80">
+          Verify if unit portraits and card images are properly linked and available.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <Input
+              placeholder="Search units..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-black/20 border-warcrow-gold/30"
+            />
+          </div>
+          <div className="w-full md:w-64">
+            <Select value={filterFaction} onValueChange={setFilterFaction}>
+              <SelectTrigger className="bg-black/20 border-warcrow-gold/30">
+                <SelectValue placeholder="Select Faction" />
+              </SelectTrigger>
+              <SelectContent>
+                {factions.map(faction => (
+                  <SelectItem key={faction.id} value={faction.id}>
+                    {faction.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={verifyUnitImages}
+            disabled={loadingImages}
+            className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+          >
+            {loadingImages ? 'Checking Images...' : 'Verify Images'}
+          </Button>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-4 bg-black/50 border border-warcrow-gold/30">
+            <TabsTrigger value="portraits">Portraits</TabsTrigger>
+            <TabsTrigger value="cards">Cards (EN)</TabsTrigger>
+            <TabsTrigger value="cards-es">Cards (ES)</TabsTrigger>
+            <TabsTrigger value="cards-fr">Cards (FR)</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value={activeTab} className="pt-4">
+            <Card className="bg-black/50 border-warcrow-gold/30">
+              <CardHeader>
+                <CardTitle>{getTabTitle()}</CardTitle>
+                <CardDescription>
+                  {activeTab === 'portraits' 
+                    ? 'Verify portrait images used in unit cards and lists.' 
+                    : 'Verify card art images used in detailed unit views.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border border-warcrow-gold/20">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-black/60">
+                        <TableHead>Unit Name</TableHead>
+                        <TableHead>Faction</TableHead>
+                        <TableHead>Image Path</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUnits.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-4">
+                            No units found. Adjust your search or faction filter.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredUnits.map(unit => (
+                          <TableRow key={unit.id} className="hover:bg-warcrow-gold/5">
+                            <TableCell>{unit.name}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="capitalize">
+                                {unit.faction.replace(/-/g, ' ')}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate">
+                              {imageResults[unit.id]?.url || 'Not verified'}
+                            </TableCell>
+                            <TableCell>
+                              {getImageStatus(unit) || (
+                                <span className="text-warcrow-text/50">Not checked</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+                                onClick={() => {
+                                  if (imageResults[unit.id]?.url) {
+                                    window.open(imageResults[unit.id].url, '_blank');
+                                  }
+                                }}
+                                disabled={!imageResults[unit.id]?.exists}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <Card className="bg-black/50 border-warcrow-gold/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5" /> 
+            Image Naming Conventions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium text-warcrow-gold">Portrait Images:</h3>
+              <p className="text-warcrow-text/80 mt-1">
+                Portrait images should follow the naming convention: <code className="bg-black/30 px-1 rounded">/art/portrait/unit_name_portrait.jpg</code>
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-warcrow-gold">Card Images:</h3>
+              <p className="text-warcrow-text/80 mt-1">
+                Card images should follow the naming convention: <code className="bg-black/30 px-1 rounded">/art/card/unit_name_card.jpg</code>
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-warcrow-gold">Localized Card Images:</h3>
+              <p className="text-warcrow-text/80 mt-1">
+                Spanish: <code className="bg-black/30 px-1 rounded">/art/card/unit_name_card_sp.jpg</code><br />
+                French: <code className="bg-black/30 px-1 rounded">/art/card/unit_name_card_fr.jpg</code>
+              </p>
+            </div>
+            
+            <div className="text-warcrow-text/80 bg-black/30 p-3 rounded mt-2">
+              <strong>Note:</strong> Unit names in file paths should be lowercase with spaces replaced by underscores,
+              and special characters removed (e.g., "Prime Warrior" becomes "prime_warrior").
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default UnitImagesManager;
