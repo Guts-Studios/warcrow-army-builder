@@ -9,6 +9,7 @@
     "fontSymbolExplorer": "Font Symbol Explorer",
     "fontSymbolExplorerDescription": "Explore the available symbols in the Warcrow font",
     "points": "points",
-    "viewCard": "View Card"
+    "viewCard": "View Card",
+    "unitCard": "Unit Card"
   }
 }

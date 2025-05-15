@@ -8,7 +8,6 @@ import UnitCardImage from "./unit/card/UnitCardImage";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
-import { FileImage } from "lucide-react";
 import { useState } from "react";
 import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
 
@@ -89,10 +88,9 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           variant="outline"
           size="sm"
           onClick={handleViewCardClick}
-          className={`text-xs ${isMobile ? 'w-full' : 'max-w-xs mx-auto w-full'} border-warcrow-gold/30 hover:bg-warcrow-gold/10`}
+          className="text-xs w-full border-warcrow-gold/30 hover:bg-warcrow-gold/10"
         >
-          <FileImage className="h-3.5 w-3.5 mr-1.5" />
-          {t('viewCard') || 'View Card'}
+          {t('unitCard') || 'Unit Card'}
         </Button>
       </div>
 
