@@ -1,89 +1,111 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UnitFilters } from './UnitFilters';
-import { UnitTable } from './UnitTable';
-import { useUnitData, useFactions } from './useUnitData';
+import { useUnitData } from './useUnitData';
+import UnitFilters from './UnitFilters';
+import UnitList from './UnitList';
+import UnitTable from './UnitTable';
+import UnitStatCard from '../UnitStatCard';
+import { ExtendedUnit } from '@/types/extendedUnit';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, Grid } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import TranslationPanel from './TranslationPanel';
+import UnitTranslationStatus from './UnitTranslationStatus';
 
-const UnitExplorer = () => {
-  const [selectedFaction, setSelectedFaction] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showHidden, setShowHidden] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>('table');
-  
+const UnitExplorer: React.FC = () => {
   const { t } = useLanguage();
-  const { data: units = [], isLoading } = useUnitData(selectedFaction);
-  const { data: factions = [], isLoading: isLoadingFactions } = useFactions();
+  const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
+  const [selectedFaction, setSelectedFaction] = useState<string | 'all'>('all');
+  const [showSymbolBg, setShowSymbolBg] = useState<boolean>(true);
+  const [symbolBgColor, setSymbolBgColor] = useState<string>('#1a1a1a');
+  const { units, isLoading, factions } = useUnitData();
   
-  console.log("Factions loaded:", factions); // Debug: Log factions being loaded
-  
-  // Filter units based on search query and showHidden setting
-  const filteredUnits = units.filter(unit => {
-    const matchesSearch = searchQuery === '' || 
-      unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (unit.name_es && unit.name_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (unit.name_fr && unit.name_fr.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (unit.description && unit.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (unit.keywords && unit.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))) ||
-      (unit.special_rules && unit.special_rules.some(rule => rule.toLowerCase().includes(searchQuery.toLowerCase())));
-
-    // If showHidden is false, only show units where showInBuilder is not explicitly false
-    const matchesVisibility = showHidden || unit.characteristics?.showInBuilder !== false;
-    
-    return matchesSearch && matchesVisibility;
-  });
+  // Filter units by faction if a specific faction is selected
+  const filteredUnits = selectedFaction === 'all' 
+    ? units 
+    : units.filter(unit => unit.type.toLowerCase() === selectedFaction.toLowerCase());
 
   return (
-    <Card className="bg-warcrow-background border-warcrow-gold/30">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-warcrow-gold text-xl">{t('unitExplorer')}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="table" className="text-sm">{t('tableView')}</TabsTrigger>
-            <TabsTrigger value="translations" className="text-sm">{t('translations')}</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="table" className="pt-2">
-            <UnitFilters 
-              factions={factions}
-              selectedFaction={selectedFaction}
-              onFactionChange={setSelectedFaction}
-              searchQuery={searchQuery}
-              onSearchChange={(e) => setSearchQuery(e.target.value)}
-              t={t}
-              showHidden={showHidden}
-              onShowHiddenChange={setShowHidden}
-            />
-            
-            {isLoading ? (
-              <div className="space-y-3 mt-4">
-                <Skeleton className="h-8 w-full bg-warcrow-accent/30" />
-                <Skeleton className="h-64 w-full bg-warcrow-accent/30" />
-              </div>
-            ) : (
-              <div className="mt-4">
-                <UnitTable 
-                  filteredUnits={filteredUnits} 
-                  t={t}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-warcrow-gold">Unit Explorer</h2>
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setViewMode('list')} 
+            className={viewMode === 'list' ? 'bg-warcrow-gold text-black' : ''}
+          >
+            <Grid size={16} className="mr-1" /> List
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setViewMode('table')} 
+            className={viewMode === 'table' ? 'bg-warcrow-gold text-black' : ''}
+          >
+            <Table size={16} className="mr-1" /> Table
+          </Button>
+        </div>
+      </div>
+
+      <UnitFilters 
+        selectedFaction={selectedFaction} 
+        onFactionChange={setSelectedFaction}
+        factions={factions}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={viewMode === 'list' ? 'md:col-span-1' : 'md:col-span-3'}>
+          {viewMode === 'list' && (
+            <Card className="bg-warcrow-background border-warcrow-gold/30">
+              <CardContent className="p-2">
+                <UnitList 
+                  units={filteredUnits}
+                  selectedUnit={selectedUnit}
+                  onSelectUnit={setSelectedUnit}
                   isLoading={isLoading}
                 />
-              </div>
-            )}
-          </TabsContent>
+              </CardContent>
+            </Card>
+          )}
           
-          <TabsContent value="translations" className="pt-2">
-            <div className="p-6 text-center text-warcrow-muted">
-              {t('translationFeatureComingSoon')}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          {viewMode === 'table' && (
+            <Card className="bg-warcrow-background border-warcrow-gold/30">
+              <CardContent className="p-2">
+                <UnitTable 
+                  units={filteredUnits}
+                  onSelectUnit={setSelectedUnit}
+                  isLoading={isLoading}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        
+        {viewMode === 'list' && selectedUnit && (
+          <div className="md:col-span-2 space-y-4">
+            <UnitStatCard 
+              unit={selectedUnit}
+              showSymbolBg={showSymbolBg}
+              symbolBgColor={symbolBgColor}
+            />
+            
+            <Card className="bg-warcrow-background border-warcrow-gold/30">
+              <CardContent className="p-4">
+                <UnitTranslationStatus unit={selectedUnit} />
+              </CardContent>
+            </Card>
+            
+            {selectedUnit && (
+              <TranslationPanel unit={selectedUnit} />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
