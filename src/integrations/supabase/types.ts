@@ -305,6 +305,42 @@ export type Database = {
         }
         Relationships: []
       }
+      image_validations: {
+        Row: {
+          created_at: string
+          id: string
+          missing_units: number
+          results: Json
+          total_units: number
+          updated_at: string
+          user_id: string
+          validation_date: string
+          validation_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          missing_units: number
+          results: Json
+          total_units: number
+          updated_at?: string
+          user_id: string
+          validation_date?: string
+          validation_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          missing_units?: number
+          results?: Json
+          total_units?: number
+          updated_at?: string
+          user_id?: string
+          validation_date?: string
+          validation_type?: string
+        }
+        Relationships: []
+      }
       news_items: {
         Row: {
           content_en: string
