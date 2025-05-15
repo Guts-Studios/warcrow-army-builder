@@ -13,6 +13,7 @@
     "unitCard": "Unit Card",
     "searchUnits": "Search Units",
     "imageNotAvailable": "Image not available",
-    "tryAgainLater": "Please try again later"
+    "tryAgainLater": "Please try again later",
+    "unitCardFor": "Detailed card for {unitName} unit"
   }
 }

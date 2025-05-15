@@ -30,25 +30,32 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to generate the correct GitHub card URL based on the unit name and language
   const getCardUrl = () => {
     try {
-      // Special case handling for known problematic unit names
+      // Special cases mapping for tricky unit names
       const specialCases: Record<string, string> = {
         "Agressors": "aggressors",
         "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
         "Lady Telia": "lady_telia",
-        // Add more special cases here if needed
+        "Nayra Caladren": "nayra_caladren",
+        "Naergon Caladren": "naergon_caladren",
+        // Add any more special cases as needed
       };
+
+      // First check if we have a special case mapping for this unit
+      let baseNameForUrl = specialCases[unit.name];
       
-      // Check if we have a special case for this unit name
-      const baseName = specialCases[unit.name] || unit.name.toLowerCase();
+      // If no special mapping exists, create the URL-friendly name
+      if (!baseNameForUrl) {
+        baseNameForUrl = unit.name
+          .toLowerCase()
+          .replace(/[\s-]+/g, '_')  // Replace spaces and hyphens with underscores
+          .replace(/[']/g, '')      // Remove apostrophes
+          .replace(/[^a-z0-9_]/g, ''); // Remove any other non-alphanumeric characters except underscores
+      }
       
-      // Convert unit name to snake_case format for file naming
-      // Replace both spaces and hyphens with underscores
-      const nameForUrl = baseName.replace(/[\s-]+/g, '_');
+      // Base URL pointing to the card directory
+      const baseUrl = `/art/card/${baseNameForUrl}_card`;
       
-      // Base URL pointing to the GitHub art/card directory
-      const baseUrl = `/art/card/${nameForUrl}_card`;
-      
-      // Add language suffix if needed (sp for Spanish, fr for French, none for English)
+      // Add language suffix if not English
       let suffix = '';
       if (language === 'es') {
         suffix = '_sp';
@@ -56,8 +63,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         suffix = '_fr';
       }
       
-      // Return the complete URL with file extension
-      return `${baseUrl}${suffix}.jpg`;
+      // Log the generated URL for debugging
+      const fullUrl = `${baseUrl}${suffix}.jpg`;
+      console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
+      return fullUrl;
     } catch (error) {
       console.error("Error generating card URL:", error);
       return "";
@@ -68,7 +77,6 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   useEffect(() => {
     const url = getCardUrl();
     setCardUrl(url);
-    console.log(`Generated card URL for ${unit.name}: ${url}`);
   }, [language, unit.name]);
 
   // Function to handle view card button click
