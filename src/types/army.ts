@@ -58,3 +58,14 @@ export interface Keyword {
   name: string;
   description?: string;
 }
+
+// Add missing SortOption type
+export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
+
+// Add missing Faction type
+export interface Faction {
+  id: string;
+  name: string;
+  name_es?: string;
+  name_fr?: string;
+}

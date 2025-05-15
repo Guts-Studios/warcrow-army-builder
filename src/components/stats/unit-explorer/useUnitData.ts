@@ -3,24 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { ApiUnit, Unit } from '@/types/army';
 
-// Define the unit type to avoid excessive type depth
-export interface Unit {
-  id: string;
-  name: string;
-  name_es?: string | null;
-  name_fr?: string | null;
-  description?: string | null;
-  description_es?: string | null;
-  description_fr?: string | null;
-  faction: string;
-  faction_display?: string;
-  type: string;
-  points: number;
-  keywords?: string[];
-  special_rules?: string[];
-  characteristics?: Record<string, any>;
-}
-
+// Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
   return useQuery<ApiUnit[]>({
     queryKey: ['units', selectedFaction],
