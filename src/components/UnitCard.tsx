@@ -83,8 +83,6 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         unit={unit}
         isMobile={isMobile}
       />
-
-      <UnitCardImage unit={unit} />
       
       <div className="mt-auto pt-3">
         <Button
