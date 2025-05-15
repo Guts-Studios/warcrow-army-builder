@@ -9,6 +9,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
 import { FileImage } from "lucide-react";
+import { useState } from "react";
+import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
 
 interface UnitCardProps {
   unit: Unit;
@@ -21,6 +23,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
   const { language, t } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
   // Translate unit name based on the selected language
   const displayName = translateUnitName(unit.name, language);
@@ -48,12 +51,12 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Function to handle view card button click
   const handleViewCardClick = () => {
     const cardUrl = getCardUrl();
-    console.log("Opening card URL:", cardUrl);
-    window.open(cardUrl, '_blank');
+    console.log("Opening card dialog with URL:", cardUrl);
+    setIsCardDialogOpen(true);
   };
 
   return (
-    <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
+    <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex-1">
           <UnitHeader 
@@ -83,17 +86,24 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
       <UnitCardImage unit={unit} />
       
-      <div className="flex justify-end mt-2">
+      <div className="mt-auto pt-2 flex justify-center">
         <Button
           variant="outline"
           size="sm"
           onClick={handleViewCardClick}
-          className="text-xs"
+          className="text-xs w-full max-w-xs mx-auto"
         >
           <FileImage className="h-3.5 w-3.5 mr-1.5" />
           {t('viewCard') || 'View Card'}
         </Button>
       </div>
+
+      <UnitCardDialog 
+        isOpen={isCardDialogOpen}
+        onClose={() => setIsCardDialogOpen(false)}
+        unitName={displayName}
+        cardUrl={getCardUrl()}
+      />
     </div>
   );
 };
