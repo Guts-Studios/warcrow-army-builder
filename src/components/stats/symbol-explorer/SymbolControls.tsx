@@ -1,77 +1,60 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clipboard, ClipboardCheck, ChevronUp, ChevronDown, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 
-interface SymbolControlsProps {
-  onIncrement: () => void;
-  onDecrement: () => void;
+export interface SymbolControlsProps {
+  onPrevious: () => void;
+  onNext: () => void;
   onCopy: () => void;
-  onCopyCode: () => void;
-  onToggleDetails: () => void;
-  showDetails: boolean;
+  copied: boolean;
 }
 
 export const SymbolControls: React.FC<SymbolControlsProps> = ({
-  onIncrement,
-  onDecrement,
+  onPrevious,
+  onNext,
   onCopy,
-  onCopyCode,
-  onToggleDetails,
-  showDetails
+  copied
 }) => {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        variant="outline"
+    <div className="flex items-center justify-between">
+      <Button 
+        variant="outline" 
         size="sm"
-        onClick={onDecrement}
-        className="bg-black/40 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/20"
+        onClick={onPrevious}
+        className="border-warcrow-gold/30 text-warcrow-gold"
       >
-        <ChevronDown className="h-4 w-4" />
-        <span className="sr-only">Previous Symbol</span>
+        <ChevronLeft className="h-4 w-4 mr-1" />
+        Previous
       </Button>
       
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onIncrement}
-        className="bg-black/40 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/20"
-      >
-        <ChevronUp className="h-4 w-4" />
-        <span className="sr-only">Next Symbol</span>
-      </Button>
-      
-      <Button
-        variant="outline"
+      <Button 
+        variant="outline" 
         size="sm"
         onClick={onCopy}
-        className="bg-black/40 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/20"
+        className={`border-warcrow-gold/30 ${copied ? 'bg-warcrow-gold/20 text-warcrow-gold' : 'text-warcrow-gold'}`}
       >
-        <Clipboard className="h-4 w-4 mr-1" />
-        <span className="text-xs">Copy Symbol</span>
+        {copied ? (
+          <>
+            <Check className="h-4 w-4 mr-1" />
+            Copied!
+          </>
+        ) : (
+          <>
+            <Copy className="h-4 w-4 mr-1" />
+            Copy
+          </>
+        )}
       </Button>
       
-      <Button
-        variant="outline"
+      <Button 
+        variant="outline" 
         size="sm"
-        onClick={onCopyCode}
-        className="bg-black/40 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/20"
+        onClick={onNext}
+        className="border-warcrow-gold/30 text-warcrow-gold"
       >
-        <ClipboardCheck className="h-4 w-4 mr-1" />
-        <span className="text-xs">Copy Code</span>
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onToggleDetails}
-        className={`bg-black/40 border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/20 ${
-          showDetails ? "bg-warcrow-gold/30" : ""
-        }`}
-      >
-        <Info className="h-4 w-4 mr-1" />
-        <span className="text-xs">Details</span>
+        Next
+        <ChevronRight className="h-4 w-4 ml-1" />
       </Button>
     </div>
   );

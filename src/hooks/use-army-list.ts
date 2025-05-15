@@ -1,11 +1,11 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { SelectedUnit, SavedList } from "@/types/army";
+import { SelectedUnit, SavedList, Unit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement";
 import { validateUnitAddition } from "@/utils/armyValidation";
-import { useArmyBuilderUnits } from '@/components/stats/unit-explorer/useUnitData';
+import { useArmyBuilderUnits, mapApiUnitToUnit } from '@/components/stats/unit-explorer/useUnitData';
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -30,7 +30,21 @@ export const useArmyList = (selectedFaction: string) => {
         .eq('user_id', userData.user.id)
         .order('updated_at', { ascending: false });
       
-      setSavedLists(data || []);
+      if (data) {
+        // Convert database units to proper typed SelectedUnit[]
+        const typedLists: SavedList[] = data.map(list => ({
+          ...list,
+          units: (list.units as any[]).map(unit => ({
+            ...unit,
+            keywords: Array.isArray(unit.keywords) 
+              ? unit.keywords 
+              : (typeof unit.keywords === 'string' ? [unit.keywords] : [])
+          })) as SelectedUnit[]
+        }));
+        setSavedLists(typedLists);
+      } else {
+        setSavedLists([]);
+      }
     } else {
       // If user is not logged in, check local storage
       const localLists = JSON.parse(localStorage.getItem('savedLists') || '[]');
@@ -51,26 +65,15 @@ export const useArmyList = (selectedFaction: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
     if (!unit) return;
 
-    // Convert unit keywords from string[] to Keyword[] format required by the army builder
-    const processedUnit = {
-      ...unit,
-      faction: unit.faction,
-      pointsCost: unit.points,
-      availability: unit.characteristics?.availability || 0,
-      command: unit.characteristics?.command || 0,
-      highCommand: unit.characteristics?.highCommand || false,
-      keywords: unit.keywords.map(k => ({ name: k })),
-    };
-
     // Perform validation 
     const canAdd = validateUnitAddition(
       selectedUnits, 
-      processedUnit, 
+      unit, 
       selectedFaction
     );
 
     if (!canAdd) {
-      if (processedUnit.highCommand && selectedUnits.some(u => u.highCommand)) {
+      if (unit.highCommand && selectedUnits.some(u => u.highCommand)) {
         setShowHighCommandAlert(true);
       }
       return;
@@ -82,7 +85,7 @@ export const useArmyList = (selectedFaction: string) => {
 
     const updatedSelectedUnits = updateSelectedUnits(
       selectedUnits,
-      processedUnit,
+      unit,
       true
     );
     setSelectedUnits(updatedSelectedUnits);
@@ -92,24 +95,13 @@ export const useArmyList = (selectedFaction: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
     if (!unit) return;
 
-    // Convert unit keywords from string[] to Keyword[] format required by the army builder  
-    const processedUnit = {
-      ...unit,
-      faction: unit.faction,
-      pointsCost: unit.points,
-      availability: unit.characteristics?.availability || 0,
-      command: unit.characteristics?.command || 0,
-      highCommand: unit.characteristics?.highCommand || false,
-      keywords: unit.keywords.map(k => ({ name: k })),
-    };
-
     // Update quantities and selected units
     const newQuantities = getUpdatedQuantities(unitId, quantities, false);
     setQuantities(newQuantities);
 
     const updatedSelectedUnits = updateSelectedUnits(
       selectedUnits,
-      processedUnit,
+      unit,
       false
     );
     setSelectedUnits(updatedSelectedUnits);
@@ -139,13 +131,22 @@ export const useArmyList = (selectedFaction: string) => {
 
     try {
       if (userData?.user) {
+        // Convert SelectedUnit[] to database-compatible format
+        const databaseCompatibleUnits = selectedUnits.map(unit => ({
+          ...unit,
+          // Ensure keywords is compatible with database Json type
+          keywords: Array.isArray(unit.keywords) 
+            ? unit.keywords 
+            : [unit.keywords]
+        }));
+        
         // Save to Supabase if user is logged in
         const { error } = await supabase
           .from('army_lists')
           .insert({
             name: listName,
             faction: selectedFaction,
-            units: selectedUnits,
+            units: databaseCompatibleUnits,
             user_id: userData.user.id
           });
 

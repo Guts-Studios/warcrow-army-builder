@@ -1,11 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { UnitFilters } from './UnitFilters';
 import { UnitTable } from './UnitTable';
 import { useUnitData, useFactions } from './useUnitData';
 import { useLanguage } from '@/contexts/LanguageContext';
-import TranslationPanel from './TranslationPanel';
 
 const UnitExplorer: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState('all');
@@ -16,7 +15,7 @@ const UnitExplorer: React.FC = () => {
   const { data: units = [], isLoading } = useUnitData(selectedFaction);
   const { data: factions = [] } = useFactions();
 
-  // Filter units based on search query
+  // Filter units based on search query and visibility
   const filteredUnits = units.filter(unit => {
     // Filter by search query
     const matchesSearch = searchQuery === '' || 
@@ -29,7 +28,8 @@ const UnitExplorer: React.FC = () => {
       ));
     
     // Filter by visibility if showHiddenUnits is false
-    const shouldShow = showHiddenUnits || unit.characteristics?.showInBuilder !== false;
+    const shouldShow = showHiddenUnits || 
+      (unit.characteristics && unit.characteristics.showInBuilder !== false);
     
     return matchesSearch && shouldShow;
   });
@@ -75,7 +75,11 @@ const UnitExplorer: React.FC = () => {
           </div>
         </Card>
         
-        {language !== 'en' && <TranslationPanel />}
+        {language !== 'en' && (
+          <div className="p-4 border border-warcrow-gold/30 rounded-md bg-black/40">
+            <p className="text-warcrow-text">Translation features are available in this panel.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -36,14 +36,25 @@ export interface Unit {
   imageUrl?: string;
 }
 
+// Add this interface for unit data from API
+export interface ApiUnit {
+  id: string;
+  name: string;
+  name_es?: string | null;
+  name_fr?: string | null;
+  description?: string | null;
+  description_es?: string | null;
+  description_fr?: string | null;
+  faction: string;
+  faction_display?: string;
+  type: string;
+  points: number;
+  keywords?: string[];
+  special_rules?: string[];
+  characteristics?: Record<string, any>;
+}
+
 export interface Keyword {
   name: string;
   description?: string;
 }
-
-export interface Faction {
-  id: string;
-  name: string;
-}
-
-export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
