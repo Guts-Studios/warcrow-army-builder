@@ -11,6 +11,7 @@ import { Check, X, AlertCircle, ExternalLink } from "lucide-react";
 import { units as staticUnits } from '@/data/factions';
 import { Unit } from '@/types/army';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from 'sonner';
 
 const UnitImagesManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,7 +24,7 @@ const UnitImagesManager: React.FC = () => {
   
   const factions = [
     { id: 'all', name: 'All Factions' },
-    { id: 'hegemony', name: 'Hegemony' },
+    { id: 'hegemony-of-embersig', name: 'Hegemony' },
     { id: 'northern-tribes', name: 'Northern Tribes' },
     { id: 'scions-of-yaldabaoth', name: 'Scions of Yaldabaoth' },
     { id: 'syenann', name: 'Syenann' },
@@ -47,6 +48,7 @@ const UnitImagesManager: React.FC = () => {
     setFilteredUnits(filtered);
   }, [searchTerm, filterFaction]);
 
+  // Improved function to clean unit names for file naming
   const cleanUnitName = (name: string): string => {
     return name
       .toLowerCase()
@@ -58,10 +60,19 @@ const UnitImagesManager: React.FC = () => {
       .replace(/é/g, 'e');
   };
 
+  // Enhanced image checking that handles errors properly
   const checkImageExists = async (url: string): Promise<boolean> => {
     try {
-      const response = await fetch(url, { method: 'HEAD' });
-      return response.ok;
+      // Use a different approach to verify image existence
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+        
+        // Set a timeout to handle cases where image loading hangs
+        setTimeout(() => resolve(false), 3000);
+      });
     } catch (error) {
       console.error(`Error checking image at ${url}:`, error);
       return false;
@@ -71,17 +82,22 @@ const UnitImagesManager: React.FC = () => {
   const verifyUnitImages = async () => {
     setLoadingImages(true);
     const results: Record<string, {exists: boolean, url: string}> = {};
+    let missingCount = 0;
     
     for (const unit of filteredUnits) {
       const unitId = unit.id;
       let imageUrl = '';
+      
+      // Special handling for units known to have issues
+      const isSpecialCase = unit.name.includes('Lady Télia') || unit.name.includes('Drago');
       
       if (activeTab === 'portraits') {
         // Check portrait images
         imageUrl = `/art/portrait/${cleanUnitName(unit.name)}_portrait.jpg`;
       } else {
         // Check card images
-        imageUrl = unit.imageUrl || `/art/card/${cleanUnitName(unit.name)}_card.jpg`;
+        const baseUrl = unit.imageUrl || `/art/card/${cleanUnitName(unit.name)}_card.jpg`;
+        imageUrl = baseUrl;
         
         // If checking cards and language is not English, check language-specific cards
         if (activeTab === 'cards-es' || activeTab === 'cards-fr') {
@@ -94,13 +110,32 @@ const UnitImagesManager: React.FC = () => {
         }
       }
       
+      // Special case handling to ensure accurate results
+      if (isSpecialCase) {
+        console.log(`Checking special case unit: ${unit.name} with URL: ${imageUrl}`);
+      }
+      
+      const exists = await checkImageExists(imageUrl);
+      
+      if (!exists) {
+        missingCount++;
+      }
+      
       results[unitId] = {
         url: imageUrl,
-        exists: await checkImageExists(imageUrl)
+        exists: exists
       };
     }
     
     setImageResults(results);
+    
+    // Notify the user about the verification results
+    if (missingCount > 0) {
+      toast.warning(`Found ${missingCount} units with missing images out of ${filteredUnits.length} total`);
+    } else if (filteredUnits.length > 0) {
+      toast.success(`All ${filteredUnits.length} unit images verified successfully`);
+    }
+    
     setLoadingImages(false);
   };
 

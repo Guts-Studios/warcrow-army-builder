@@ -25,7 +25,7 @@ const factionNameMap: Record<string, string> = {
   'scions': 'scions-of-yaldabaoth'
 };
 
-// Normalize and deduplicate units
+// Normalize and deduplicate units - fixing the duplicate units issue
 const normalizeUnits = () => {
   const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
   const uniqueUnits = [];
@@ -45,21 +45,25 @@ const normalizeUnits = () => {
       normalizedFaction = factionNameMap[kebabName] || kebabName;
     }
     
+    // Create a normalized unit with consistent faction naming
     const normalizedUnit = {
       ...unit,
       faction: normalizedFaction
     };
     
-    // Create a unique key for each unit
-    const key = `${normalizedUnit.name}_${normalizedUnit.faction}`;
+    // Create a unique key including both name and id to guarantee uniqueness
+    const key = `${normalizedUnit.id}_${normalizedUnit.name}`;
     
     // Only add if we haven't seen this key before
     if (!seen.has(key)) {
       seen.add(key);
       uniqueUnits.push(normalizedUnit);
+    } else {
+      console.log(`Skipping duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
     }
   }
   
+  console.log(`Normalized units: ${uniqueUnits.length} out of original ${allUnits.length}`);
   return uniqueUnits;
 };
 
