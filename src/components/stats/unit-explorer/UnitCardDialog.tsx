@@ -28,7 +28,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`${isZoomed ? 'max-w-4xl' : 'max-w-lg'} w-[95vw] md:w-auto p-2 sm:p-4 transition-all duration-300`}>
+      <DialogContent className={`${isZoomed ? 'max-w-5xl' : 'max-w-2xl'} w-[95vw] md:w-auto p-2 sm:p-4 transition-all duration-300`}>
         <DialogTitle className="text-xl font-bold text-warcrow-gold mb-2">
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
@@ -38,7 +38,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
             <img
               src={cardUrl}
               alt={`${unitName} card`}
-              className={`h-full w-full object-contain ${isZoomed ? 'scale-105 transform transition-transform duration-300' : ''}`}
+              className={`h-full w-full object-contain ${isZoomed ? 'scale-125 transform transition-transform duration-300' : ''}`}
               onError={(e) => {
                 console.error('Image load error:', cardUrl);
                 const img = e.currentTarget;
