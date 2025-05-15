@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import NumericInput from '../symbol-explorer/NumericInput';
-import SymbolControls from '../symbol-explorer/SymbolControls';
-import { toast } from 'sonner';
+import { NumericInput } from '@/components/stats/symbol-explorer/NumericInput';
+import { SymbolControls } from '@/components/stats/symbol-explorer/SymbolControls';
+import { toast } from '@/components/ui/toast-core';
 
 const FontSymbolExplorer: React.FC = () => {
   const [charCode, setCharCode] = useState<number>(0xE000); // Warcrow font typically starts at Unicode private use area

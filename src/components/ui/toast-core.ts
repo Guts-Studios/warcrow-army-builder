@@ -7,8 +7,8 @@ export type ToastOptions = {
   title?: ReactNode;
   description?: ReactNode;
   variant?: "default" | "destructive" | "success" | "warning" | "info";
-  group?: string;
-  [key: string]: any;
+  // Add any other non-sonner properties here
+  [key: string]: any; // This allows adding any property to the toast options
 };
 
 // Create a callable toast function that accepts options object
@@ -19,10 +19,10 @@ const createToast = (options: ToastOptions | string) => {
   }
   
   // Handle object case
-  const { title, description, variant, group, ...rest } = options;
+  const { title, description, variant, ...rest } = options;
   return sonnerToast(title as string, {
     description,
-    group,
+    // Only pass properties that sonner accepts
     ...rest
   });
 };
