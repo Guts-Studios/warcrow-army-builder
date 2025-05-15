@@ -16,9 +16,8 @@ export function Toaster() {
           info: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
           default: "border bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
         },
-        // Group similar toasts to prevent duplicates
-        group: true,
-        // Close previous toasts of the same type
+        // Group similar toasts setting handled directly by Sonner
+        // Dismiss previous toasts of the same type
         dismissible: true
       }}
     />

@@ -91,3 +91,36 @@ export const batchTranslate = async (
     throw error;
   }
 };
+
+/**
+ * Translate a single text string
+ * @param text Text to translate
+ * @param targetLang Target language code (es, fr, etc)
+ * @param sourceLang Source language code (default: en)
+ * @returns Promise with translated text
+ */
+export const translateText = async (
+  text: string,
+  targetLang: string,
+  sourceLang: string = "en"
+): Promise<string> => {
+  if (!text || text.trim() === '') {
+    return '';
+  }
+  
+  const results = await batchTranslate([text], targetLang, sourceLang);
+  return results[0] || '';
+};
+
+/**
+ * Helper function to translate text specifically to French
+ * @param text Text to translate
+ * @param sourceLang Source language code (default: en)
+ * @returns Promise with French translated text
+ */
+export const translateToFrench = async (
+  text: string,
+  sourceLang: string = "en"
+): Promise<string> => {
+  return translateText(text, 'fr', sourceLang);
+};

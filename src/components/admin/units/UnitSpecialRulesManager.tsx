@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { batchTranslate } from "@/utils/translation";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Progress } from "@/components/ui/progress";
 
 interface SpecialRuleItem {
@@ -111,7 +111,28 @@ const UnitSpecialRulesManager: React.FC = () => {
       const batchSize = 10;
       for (let i = 0; i < itemsToTranslate.length; i += batchSize) {
         const batch = itemsToTranslate.slice(i, i + batchSize);
-        const results = await batchTranslate(batch, targetLanguage, true, 'special_rules');
+        
+        // Extract just the text content for translation
+        const textsToTranslate = batch.map(item => item.source);
+        
+        // Perform batch translation - fixed to use correct parameters
+        const translatedTexts = await batchTranslate(textsToTranslate, targetLanguage);
+        
+        // Update each item with its translation
+        for (let j = 0; j < batch.length; j++) {
+          const item = batch[j];
+          const translatedText = translatedTexts[j];
+          
+          if (translatedText) {
+            // Update in Supabase
+            await supabase
+              .from('special_rules')
+              .update({
+                [targetLanguage === 'es' ? 'description_es' : 'description_fr']: translatedText
+              })
+              .eq('id', item.id);
+          }
+        }
         
         completed += batch.length;
         setTranslationProgress(Math.round((completed / total) * 100));
