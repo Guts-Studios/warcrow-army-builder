@@ -7,6 +7,8 @@
     "errorUpdatingUnit": "Error updating unit",
     "showHiddenUnits": "Show hidden units",
     "fontSymbolExplorer": "Font Symbol Explorer",
-    "fontSymbolExplorerDescription": "Explore the available symbols in the Warcrow font"
+    "fontSymbolExplorerDescription": "Explore the available symbols in the Warcrow font",
+    "points": "points",
+    "viewCard": "View Card"
   }
 }

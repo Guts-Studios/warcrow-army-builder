@@ -44,7 +44,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
           <span className="text-warcrow-gold font-semibold">
-            {unit.pointsCost} {t('points')}
+            {unit.pointsCost} {t('points') || "points"}
           </span>
           <UnitControls 
             quantity={quantity} 
