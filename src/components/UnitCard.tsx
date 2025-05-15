@@ -86,12 +86,12 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
       <UnitCardImage unit={unit} />
       
-      <div className="mt-auto pt-2 flex justify-center">
+      <div className="mt-auto pt-3">
         <Button
           variant="outline"
           size="sm"
           onClick={handleViewCardClick}
-          className="text-xs w-full max-w-xs mx-auto"
+          className={`text-xs ${isMobile ? 'w-full' : 'max-w-xs mx-auto w-full'} border-warcrow-gold/30 hover:bg-warcrow-gold/10`}
         >
           <FileImage className="h-3.5 w-3.5 mr-1.5" />
           {t('viewCard') || 'View Card'}

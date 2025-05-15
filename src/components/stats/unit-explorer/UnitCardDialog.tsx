@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UnitCardDialogProps {
   isOpen: boolean;
@@ -22,6 +23,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const { t, language } = useLanguage();
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [imageError, setImageError] = useState<boolean>(false);
+  const isMobile = useIsMobile();
+  
+  // Reset zoom state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsZoomed(false);
+      setImageError(false);
+    }
+  }, [isOpen]);
   
   // Generate language-specific URL if needed
   const getLanguageSpecificUrl = (url: string): string => {
@@ -48,14 +58,22 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     setIsZoomed(!isZoomed);
   };
   
+  const getDialogSizeClasses = () => {
+    if (isMobile) {
+      return 'w-[95vw] max-w-[95vw] h-[80vh] max-h-[80vh]';
+    }
+    
+    return `${isZoomed ? 'max-w-[55vw]' : 'max-w-[40vw]'} w-[40vw] h-[65vh] transition-all duration-300`;
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={`${isZoomed ? 'max-w-[45vw]' : 'max-w-[40vw]'} w-[40vw] h-[55vh] p-0 transition-all duration-300`}>
+      <DialogContent className={`p-0 ${getDialogSizeClasses()}`}>
         <DialogTitle className="text-xl font-bold text-warcrow-gold mx-4 mt-2 mb-1">
           {unitName} {t('card') || 'Card'}
         </DialogTitle>
         
-        <div className="relative w-full h-[calc(55vh-60px)] px-2 pb-2 flex items-center justify-center">
+        <div className="relative w-full h-[calc(100%-60px)] px-2 pb-2 flex items-center justify-center">
           <div className="relative w-full h-full">
             <AspectRatio ratio={7/10} className="bg-black/20 overflow-hidden rounded-md h-full">
               <img

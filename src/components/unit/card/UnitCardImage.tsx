@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UnitCardImageProps {
   unit: Unit;
@@ -11,6 +13,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
   const [imageError, setImageError] = useState(false);
   const [alternateErrorShown, setAlternateErrorShown] = useState(false);
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
 
   // If no image URL is provided, don't render the image section
   if (!unit.imageUrl) {
@@ -69,11 +72,14 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
 
   return (
     <div className="w-full mt-2">
-      <AspectRatio ratio={16 / 9} className="bg-black/20 overflow-hidden rounded-md">
+      <AspectRatio 
+        ratio={16 / 9} 
+        className={`bg-black/20 overflow-hidden rounded-md ${isMobile ? 'max-h-[200px]' : 'max-h-[300px]'}`}
+      >
         <img
           src={imageUrl}
           alt={unit.name}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           onError={(e) => {
             console.error('Image load error:', imageUrl);
             if (!imageError) {
