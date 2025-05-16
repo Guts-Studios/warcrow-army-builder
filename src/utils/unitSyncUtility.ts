@@ -1,7 +1,29 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ApiUnit, Unit } from '@/types/army';
+import { Json } from '@/integrations/supabase/types';
 import { mapApiUnitToUnit } from '@/components/stats/unit-explorer/useUnitData';
+
+/**
+ * Type helper to convert Supabase Json type to expected Record format
+ */
+type DbUnitData = Omit<ApiUnit, 'characteristics'> & {
+  characteristics: Json;
+};
+
+/**
+ * Convert a database unit to API unit format
+ */
+function convertDbUnitToApiUnit(dbUnit: any): ApiUnit {
+  return {
+    ...dbUnit,
+    characteristics: dbUnit.characteristics as Record<string, any>,
+    special_rules: dbUnit.special_rules || [],
+    keywords: dbUnit.keywords || [],
+    points: dbUnit.points || 0,
+    faction_display: dbUnit.faction
+  };
+}
 
 /**
  * Utility for comparing local unit data with Supabase data
@@ -14,12 +36,15 @@ export async function findMissingUnits(factionId: string): Promise<{
 }> {
   try {
     // Get units from database
-    const { data: dbUnits, error } = await supabase
+    const { data: dbUnitsRaw, error } = await supabase
       .from('unit_data')
       .select('*')
       .eq('faction', factionId);
     
     if (error) throw error;
+    
+    // Convert database units to API format
+    const dbUnits: ApiUnit[] = (dbUnitsRaw || []).map(convertDbUnitToApiUnit);
 
     // Get local units
     let localUnits: Unit[] = [];
@@ -106,19 +131,27 @@ ${localUnit.command ? `    command: ${localUnit.command},\n` : ''}${localUnit.sp
 }
 
 /**
- * Creates a full TypeScript file content for a faction's units based on database data
+ * Creates full TypeScript file content for a faction's units based on database data
  */
-export async function generateFactionFileContent(factionId: string): Promise<string> {
+export async function generateFactionFileContent(factionId: string): Promise<{
+  troopsFile: string;
+  charactersFile: string;
+  highCommandFile: string;
+  mainFile: string;
+}> {
   try {
-    const { data: units, error } = await supabase
+    const { data: dbUnitsRaw, error } = await supabase
       .from('unit_data')
       .select('*')
       .eq('faction', factionId);
       
     if (error) throw error;
     
+    // Convert database units to API format
+    const dbUnits: ApiUnit[] = (dbUnitsRaw || []).map(convertDbUnitToApiUnit);
+    
     // Convert API units to local format
-    const localUnits = units.map(mapApiUnitToUnit);
+    const localUnits = dbUnits.map(mapApiUnitToUnit);
     
     // Group units by type
     const troops = localUnits.filter(u => !u.highCommand && (!u.command || u.command < 2));
@@ -128,30 +161,30 @@ export async function generateFactionFileContent(factionId: string): Promise<str
     // Generate code for each group
     const troopsCode = troops.map(unit => generateUnitCode({
       ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand },
+      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
       special_rules: unit.specialRules,
       points: unit.pointsCost,
       keywords: unit.keywords.map(k => k.name),
       faction_display: unit.faction
-    } as unknown as ApiUnit)).join(',\n\n');
+    } as ApiUnit)).join(',\n\n');
     
     const charactersCode = characters.map(unit => generateUnitCode({
       ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand },
+      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
       special_rules: unit.specialRules,
       points: unit.pointsCost,
       keywords: unit.keywords.map(k => k.name),
       faction_display: unit.faction
-    } as unknown as ApiUnit)).join(',\n\n');
+    } as ApiUnit)).join(',\n\n');
     
     const highCommandCode = highCommand.map(unit => generateUnitCode({
       ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand },
+      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
       special_rules: unit.specialRules,
       points: unit.pointsCost,
       keywords: unit.keywords.map(k => k.name),
       faction_display: unit.faction
-    } as unknown as ApiUnit)).join(',\n\n');
+    } as ApiUnit)).join(',\n\n');
     
     return {
       troopsFile: `import { Unit } from "@/types/army";\n\nexport const ${factionId.replace(/-/g, '')}Troops: Unit[] = [\n${troopsCode}\n];\n`,
