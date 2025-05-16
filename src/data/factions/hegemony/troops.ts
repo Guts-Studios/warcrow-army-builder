@@ -1,10 +1,9 @@
-
 import { Unit } from "../../../types/army";
 
 export const hegemonyTroops: Unit[] = [
   {
-    id: "agressors",
-    name: "Agressors",
+    id: "aggressors",
+    name: "Aggressors",
     faction: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
@@ -15,7 +14,7 @@ export const hegemonyTroops: Unit[] = [
     ],
     specialRules: ["Cancel a Symbol", "Disarmed", "Shove (2)", "Displace (4)"],
     highCommand: false,
-    imageUrl: "/art/card/agressors_card.jpg"
+    imageUrl: "/art/card/aggressors_card.jpg"
   },
   {
     id: "black-legion-bucklermen",
@@ -29,7 +28,7 @@ export const hegemonyTroops: Unit[] = [
       { name: "Infantry", description: "Infantry unit type" },
     ],   
     highCommand: false,
-    imageUrl: "/art/card/black_legion_bucklemen_card.jpg"
+    imageUrl: "/art/card/black_legion_bucklermen_card.jpg"
   },
   {
     id: "black-legion-arquebusiers",

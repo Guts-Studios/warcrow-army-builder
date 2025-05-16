@@ -17,7 +17,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const [imageError, setImageError] = useState(false);
   const { language } = useLanguage();
   
-  // Generate portrait URL based on unit name
+  // Generate portrait URL based on unit name - always using English names for consistency
   const generatePortraitUrl = () => {
     if (!portraitUrl) {
       // Clean up the name for URL generation - handle special characters and accents
@@ -39,11 +39,13 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       let portraitImageUrl = portraitUrl.replace('/art/card/', '/art/portrait/');
       
       // Handle different filename extensions and patterns
+      // Always use the English base name (without language suffix)
       if (portraitUrl.endsWith('_card.jpg')) {
         portraitImageUrl = portraitImageUrl.replace('_card.jpg', '_portrait.jpg');
       } else if (portraitUrl.endsWith('_card.png')) {
         portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); 
       } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg')) {
+        // Always use English portrait versions regardless of card language
         portraitImageUrl = portraitImageUrl
           .replace('_card_sp.jpg', '_portrait.jpg')
           .replace('_card_fr.jpg', '_portrait.jpg');
@@ -60,7 +62,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
   
   // Log the generated URL for debugging
-  if (name.includes("Dragoslav") || name.includes("Agressors")) {
+  if (name.includes("Dragoslav") || name.includes("Aggressors")) {
     console.log(`Generated portrait URL for ${name}:`, portraitImageUrl);
   }
 

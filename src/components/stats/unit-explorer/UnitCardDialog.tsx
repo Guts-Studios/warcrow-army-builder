@@ -21,7 +21,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const [imageError, setImageError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isMobile = useIsMobile();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   
   // Reset state when dialog opens or URL changes
   useEffect(() => {
@@ -57,7 +57,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       >
         <DialogTitle className="sr-only">{unitName} {getCardText()}</DialogTitle>
         <DialogDescription className="sr-only">
-          {t('unitCardFor', { unitName })}
+          Detailed card for {unitName} unit
         </DialogDescription>
         
         <DialogClose className="absolute right-2 top-2 z-50 rounded-full bg-black/70 p-1 text-warcrow-gold hover:bg-black/90">

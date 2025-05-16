@@ -24,10 +24,11 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   const [cardUrl, setCardUrl] = useState<string>("");
   
-  // Translate unit name based on the selected language
+  // Translate unit name based on the selected language for display only
   const displayName = translateUnitName(unit.name, language);
 
-  // Improved function to generate the correct GitHub card URL based on the unit name and language
+  // Improved function to generate the correct GitHub card URL based on the unit name 
+  // Always using English names for file paths regardless of selected language
   const getCardUrl = () => {
     // Debug the incoming unit name
     console.log(`Getting card URL for: ${unit.name} (${unit.id})`);
@@ -81,7 +82,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     // Base URL pointing to the card directory
     const baseUrl = `/art/card/${baseNameForUrl}_card`;
     
-    // Add language suffix if not English
+    // Add language suffix for display purposes, but always fall back to English if localized version doesn't exist
     let suffix = '';
     if (language === 'es') {
       suffix = '_sp';
@@ -89,7 +90,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       suffix = '_fr';
     }
     
-    // Generate full URL
+    // Generate full URL - note that we'll attempt to load the localized version first
+    // but the onError handler will try the English version if needed
     const fullUrl = `${baseUrl}${suffix}.jpg`;
     console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
     return fullUrl;
@@ -105,6 +107,22 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         // Create a new Image to preload
         const img = new Image();
         img.src = url;
+        
+        // If localized version fails, try loading the English version as fallback
+        img.onerror = () => {
+          // If error and we have a language suffix, try the English version
+          if (language !== 'en') {
+            const englishUrl = url.replace(/_sp\.jpg$|_fr\.jpg$/, '.jpg');
+            console.log(`Localized image failed, trying English version: ${englishUrl}`);
+            
+            // Set the fallback URL
+            setCardUrl(englishUrl);
+            
+            // Preload the English version too
+            const fallbackImg = new Image();
+            fallbackImg.src = englishUrl;
+          }
+        };
         
         console.log(`Preloading image for ${unit.name}: ${url}`);
       }
