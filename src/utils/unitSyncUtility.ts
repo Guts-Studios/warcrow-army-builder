@@ -158,33 +158,37 @@ export async function generateFactionFileContent(factionId: string): Promise<{
     const characters = localUnits.filter(u => !u.highCommand && u.command === 1);
     const highCommand = localUnits.filter(u => u.highCommand || u.command === 2);
     
+    // Helper function to create ApiUnit with required fields
+    const createApiUnitForGeneration = (unit: Unit): ApiUnit => {
+      return {
+        id: unit.id,
+        name: unit.name,
+        faction: unit.faction,
+        type: 'unit', // Add the required 'type' field
+        points: unit.pointsCost,
+        keywords: unit.keywords.map(k => k.name),
+        special_rules: unit.specialRules || [],
+        characteristics: {
+          availability: unit.availability, 
+          command: unit.command, 
+          highCommand: unit.highCommand
+        } as Record<string, any>,
+        faction_display: unit.faction
+      };
+    };
+    
     // Generate code for each group
-    const troopsCode = troops.map(unit => generateUnitCode({
-      ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
-      special_rules: unit.specialRules,
-      points: unit.pointsCost,
-      keywords: unit.keywords.map(k => k.name),
-      faction_display: unit.faction
-    } as ApiUnit)).join(',\n\n');
+    const troopsCode = troops.map(unit => 
+      generateUnitCode(createApiUnitForGeneration(unit))
+    ).join(',\n\n');
     
-    const charactersCode = characters.map(unit => generateUnitCode({
-      ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
-      special_rules: unit.specialRules,
-      points: unit.pointsCost,
-      keywords: unit.keywords.map(k => k.name),
-      faction_display: unit.faction
-    } as ApiUnit)).join(',\n\n');
+    const charactersCode = characters.map(unit => 
+      generateUnitCode(createApiUnitForGeneration(unit))
+    ).join(',\n\n');
     
-    const highCommandCode = highCommand.map(unit => generateUnitCode({
-      ...unit,
-      characteristics: { availability: unit.availability, command: unit.command, highCommand: unit.highCommand } as unknown as Record<string, any>,
-      special_rules: unit.specialRules,
-      points: unit.pointsCost,
-      keywords: unit.keywords.map(k => k.name),
-      faction_display: unit.faction
-    } as ApiUnit)).join(',\n\n');
+    const highCommandCode = highCommand.map(unit => 
+      generateUnitCode(createApiUnitForGeneration(unit))
+    ).join(',\n\n');
     
     return {
       troopsFile: `import { Unit } from "@/types/army";\n\nexport const ${factionId.replace(/-/g, '')}Troops: Unit[] = [\n${troopsCode}\n];\n`,
