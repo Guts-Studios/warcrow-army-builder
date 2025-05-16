@@ -14,10 +14,21 @@ const SpecialRulesSection: React.FC<SpecialRulesSectionProps> = ({ specialRules 
   
   if (!specialRules || specialRules.length === 0) return null;
 
+  const getSectionTitle = (lang: string): string => {
+    switch(lang) {
+      case 'es':
+        return 'Reglas Especiales';
+      case 'fr':
+        return 'Règles Spéciales';
+      default:
+        return 'Special Rules';
+    }
+  };
+
   return (
     <div className="mt-2">
       <span className="text-xs font-semibold text-warcrow-text">
-        {language === 'en' ? 'Special Rules' : (language === 'es' ? 'Reglas Especiales' : 'Règles Spéciales')}:
+        {getSectionTitle(language)}:
       </span>
       <div className="flex flex-wrap gap-1.5 mt-1">
         {specialRules.map((rule, index) => {

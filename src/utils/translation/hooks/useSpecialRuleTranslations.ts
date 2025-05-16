@@ -22,12 +22,10 @@ export const useSpecialRuleTranslations = () => {
           }
           
           // Store translations for non-English languages if available
-          if (item.name_es) translations[item.name]['es'] = item.name_es;
-          if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
-          
-          // If translations aren't available, use same name for all languages
-          if (!translations[item.name]['es']) translations[item.name]['es'] = item.name;
-          if (!translations[item.name]['fr']) translations[item.name]['fr'] = item.name;
+          // Note: name_es and name_fr don't exist in the current schema,
+          // so we use the English name as default for all languages
+          translations[item.name]['es'] = item.name;
+          translations[item.name]['fr'] = item.name;
           
           // Store descriptions separately
           if (!descriptions[item.name]) {
