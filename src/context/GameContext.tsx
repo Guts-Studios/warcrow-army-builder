@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { GameState, GamePhase, Player, Mission, Unit, Turn, GameEvent } from '@/types/game';
 import { toast } from 'sonner';
@@ -292,9 +293,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'RESET_GAME':
-      // Reset to initial state
-      dispatch({ type: 'RESET_GAME', payload: initialGameState });
-      return state;
+      // Simply return a new instance of the initial game state with a new ID
+      return {
+        ...initialGameState,
+        id: `game-${Date.now()}`,
+      };
 
     case 'RESTORE_STATE':
       return action.payload;
