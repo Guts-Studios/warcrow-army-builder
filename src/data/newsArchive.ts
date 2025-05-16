@@ -13,9 +13,17 @@ export let newsItems: NewsItem[] = [];
 
 // Initialize news items from database
 export const initializeNewsItems = async () => {
-  const items = await fetchNewsItems();
-  newsItems = items;
-  return items;
+  try {
+    console.log("Initializing news items from database...");
+    const items = await fetchNewsItems();
+    console.log(`Fetched ${items.length} news items from database`);
+    newsItems = items;
+    return items;
+  } catch (error) {
+    console.error("Error initializing news items:", error);
+    // Return empty array on error to avoid undefined
+    return [];
+  }
 };
 
 // Function to add a new news item locally (after DB update)

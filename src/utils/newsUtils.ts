@@ -202,7 +202,9 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       // Ensure content_fr exists (using an empty string if it doesn't)
       const processedItem = {
         ...item,
-        content_fr: 'content_fr' in item ? item.content_fr : ''
+        content_fr: 'content_fr' in item ? item.content_fr : '',
+        // Ensure news_id exists - sometimes it might be missing in older data
+        news_id: item.news_id || item.id
       } as NewsItemDB;
       
       return processedItem;
@@ -211,14 +213,16 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
     // Update the in-memory translations for each news item
     processedData.forEach(item => {
       translations[item.translation_key] = {
-        en: item.content_en,
-        es: item.content_es,
-        fr: item.content_fr // Use the processed content_fr
+        en: item.content_en || '',
+        es: item.content_es || '',
+        fr: item.content_fr || '' // Use the processed content_fr
       };
     });
     
     // Convert to app format
-    return processedData.map(convertToNewsItem);
+    const newsItems = processedData.map(convertToNewsItem);
+    console.log(`Processed ${newsItems.length} news items successfully`);
+    return newsItems;
   } catch (error) {
     console.error('Error in fetchNewsItems:', error);
     return [];

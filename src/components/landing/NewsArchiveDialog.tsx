@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,27 +9,46 @@ import {
 } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
-import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const NewsArchiveDialog = ({ triggerClassName = "" }) => {
   const { t, language } = useLanguage();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const loadNews = async () => {
-      setIsLoading(true);
+  const loadNews = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      console.log("NewsArchiveDialog: Loading news items...");
       const loadedItems = await initializeNewsItems();
       if (loadedItems && loadedItems.length > 0) {
         setItems(loadedItems);
+        console.log("NewsArchiveDialog: Loaded", loadedItems.length, "news items");
+      } else {
+        console.log("NewsArchiveDialog: No news items found");
+        setLoadError("No news items found");
       }
+    } catch (error) {
+      console.error("NewsArchiveDialog: Error loading news:", error);
+      setLoadError("Failed to load news archive");
+    } finally {
       setIsLoading(false);
-    };
-    
+    }
+  };
+  
+  useEffect(() => {
     loadNews();
   }, []);
+
+  const handleRefresh = async () => {
+    await loadNews();
+    toast.success("News archive refreshed");
+  };
 
   // Function to format news content with highlighted date
   const formatNewsContent = (content: string): React.ReactNode => {
@@ -69,14 +88,37 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-warcrow-gold">
             {t('newsArchive')}
           </DialogTitle>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh} 
+            disabled={isLoading}
+            className="text-warcrow-gold border-warcrow-gold/40"
+          >
+            {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
+          </Button>
         </DialogHeader>
         <div className="space-y-5 py-4">
           {isLoading ? (
-            <p className="text-center">{t('loading')}</p>
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold/70" />
+              <p className="ml-3 text-warcrow-text">{t('loading')}</p>
+            </div>
+          ) : loadError ? (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground mb-4">{loadError}</p>
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh}
+                className="text-warcrow-gold border-warcrow-gold/40"
+              >
+                Try Again
+              </Button>
+            </div>
           ) : items.length === 0 ? (
             <p className="text-center text-muted-foreground">{language === 'en' ? 'No news items found' : language === 'es' ? 'No se encontraron noticias' : 'Aucune nouvelle trouvée'}</p>
           ) : (

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ApiUnit, Unit, Faction } from '@/types/army';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { factions as fallbackFactions } from '@/data/factions';
+import { factions as fallbackFactions, units as fallbackUnits } from '@/data/factions';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -146,7 +146,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
   const { isAuthenticated, isGuest } = useAuth();
   
   return useQuery({
-    queryKey: ['army-builder-units', selectedFaction, isAuthenticated, isGuest],
+    queryKey: ['army-builder-units', selectedFaction],
     queryFn: async () => {
       // Log the authentication state for debugging
       console.log("[useArmyBuilderUnits] Auth state:", { isAuthenticated, isGuest, selectedFaction, timestamp: new Date().toISOString() });
@@ -174,28 +174,27 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         // Log all unit names for debugging
         console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
-          data.map(u => {
-            // Safe access of nested properties
-            const highCommand = u.characteristics && 
-              typeof u.characteristics === 'object' && 
-              'highCommand' in u.characteristics ? 
-              u.characteristics.highCommand : false;
-              
-            return `${u.name}${highCommand ? ' (HC)' : ''}`;
-          }).join(', '));
+          data.map(u => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
         
         // Filter out units that should not be shown in the builder
         const visibleUnits = data
           .filter(unit => {
-            const characteristics = unit.characteristics as Record<string, any> || {};
+            // Make sure characteristics is properly handled as it might be null
+            const characteristics = unit.characteristics && typeof unit.characteristics === 'object' ? 
+              unit.characteristics as Record<string, any> : {};
             // If showInBuilder is explicitly false, exclude the unit
             // Otherwise include it (undefined or true)
             return characteristics.showInBuilder !== false;
           })
           .map(apiUnit => {
+            // Make sure characteristics is properly handled
+            const safeCharacteristics = apiUnit.characteristics && 
+              typeof apiUnit.characteristics === 'object' ? 
+              apiUnit.characteristics as Record<string, any> : {};
+              
             const mappedUnit = mapApiUnitToUnit({
               ...apiUnit,
-              characteristics: apiUnit.characteristics as Record<string, any> || {},
+              characteristics: safeCharacteristics,
               faction_display: apiUnit.faction,
             });
             return mappedUnit;
@@ -224,33 +223,26 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           console.error('[useArmyBuilderUnits] Failed to retrieve cached units:', e);
         }
         
-        // Fall back to local faction data if cache fails
         console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
         
-        // Import all units from local data first (we'll filter by faction later)
-        const { units } = await import('@/data/factions');
-        
-        // Get the faction-specific units
-        let factionUnits: Unit[] = [];
-        
-        if (selectedFaction === 'scions-of-yaldabaoth') {
-          // Import all Scions units explicitly to ensure they're all included
+        // Import directly from the faction-specific file based on the selected faction
+        if (selectedFaction === 'northern-tribes') {
+          const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
+          return northernTribesUnits;
+        } else if (selectedFaction === 'hegemony-of-embersig') {
+          const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
+          return hegemonyOfEmbersigUnits;
+        } else if (selectedFaction === 'scions-of-yaldabaoth') {
           const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
-          factionUnits = scionsOfYaldabaothUnits;
-          
-          // Log all unit names for debugging
-          console.log(`[useArmyBuilderUnits] Local Scions units:`, 
-            factionUnits.map(u => `${u.name}${u.highCommand ? ' (HC)' : ''}`).join(', '));
-            
-          console.log(`[useArmyBuilderUnits] Loaded ${factionUnits.length} Scions units directly from faction file`);
-        } else {
-          // For other factions use the standard filtering
-          factionUnits = units.filter(unit => unit.faction === selectedFaction);
+          return scionsOfYaldabaothUnits;
+        } else if (selectedFaction === 'syenann') {
+          const { syenannUnits } = await import('@/data/factions/syenann');
+          return syenannUnits;
         }
         
-        console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} local units for faction ${selectedFaction}`);
-        
-        return factionUnits;
+        // Fallback to full unit list and filter by faction
+        const { units } = await import('@/data/factions');
+        return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
       }
     },
     retry: 2, // Retry twice to improve chances of success

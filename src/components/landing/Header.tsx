@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { toast } from "sonner";
 
 interface HeaderProps {
   latestVersion: string;
@@ -32,6 +33,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   
   // Only show build failure alert if it's from the latest build
   // And we haven't already shown this specific failure
@@ -46,11 +48,23 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
   useEffect(() => {
     const loadNews = async () => {
       setIsLoading(true);
-      const items = await initializeNewsItems();
-      if (items && items.length > 0) {
-        setLatestNewsItem(items[0]); // Get the most recent news item
+      setLoadingError(null);
+      try {
+        console.log("Header: Loading news items...");
+        const items = await initializeNewsItems();
+        console.log("Header: News items loaded:", items?.length || 0);
+        if (items && items.length > 0) {
+          setLatestNewsItem(items[0]); // Get the most recent news item
+        } else {
+          setLoadingError("No news items found");
+        }
+      } catch (error) {
+        console.error("Header: Error loading news items:", error);
+        setLoadingError("Failed to load news");
+        toast.error("Failed to load news items");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     
     loadNews();
@@ -67,6 +81,27 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
   const handleViewDeployment = (deployUrl: string) => {
     if (deployUrl) {
       window.open(deployUrl, '_blank');
+    }
+  };
+  
+  const handleRefreshNews = async () => {
+    setIsLoading(true);
+    setLoadingError(null);
+    try {
+      const items = await initializeNewsItems();
+      if (items && items.length > 0) {
+        setLatestNewsItem(items[0]);
+        toast.success("News refreshed");
+      } else {
+        setLoadingError("No news items found");
+        toast.info("No news items found");
+      }
+    } catch (error) {
+      console.error("Error refreshing news:", error);
+      setLoadingError("Failed to refresh news");
+      toast.error("Failed to refresh news");
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -122,8 +157,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
         )}
       </p>
       
-      {/* Admin-only Build Failure Alert - Only shown if latest build failed, 
-          is within last 24 hours, AND user is admin AND we haven't shown this specific alert yet */}
+      {/* Admin-only Build Failure Alert */}
       {shouldShowBuildFailure && (
         <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
           <AlertTriangle className="h-4 w-4 text-red-400" />
@@ -148,10 +182,36 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
-          <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefreshNews}
+              disabled={isLoading}
+              className="text-xs text-warcrow-gold/70 hover:text-warcrow-gold"
+            >
+              {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
+            </Button>
+            <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
+          </div>
         </div>
         {isLoading ? (
-          <p className="text-warcrow-text/70 text-sm">Loading latest news...</p>
+          <div className="flex justify-center items-center py-3">
+            <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
+            <span className="ml-2 text-warcrow-text/70 text-sm">Loading latest news...</span>
+          </div>
+        ) : loadingError ? (
+          <div className="text-center py-3">
+            <p className="text-warcrow-text/70 text-sm mb-2">{loadingError}</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefreshNews}
+              className="text-warcrow-gold border-warcrow-gold/40"
+            >
+              Try Again
+            </Button>
+          </div>
         ) : latestNewsItem ? (
           <p className="text-warcrow-text text-sm md:text-base">
             {formatNewsContent(t(latestNewsItem.key))}
