@@ -80,13 +80,14 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
                     {t('loading')}
                   </div>
                 ) : (
-                  selectedFaction === 'all' ? t('allFactions') : 
                   factions.find(f => f.id === selectedFaction)?.name || t('selectFaction')
                 )}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30 max-h-72 overflow-y-auto">
-              <SelectItem value="all">{t('allFactions')}</SelectItem>
+            <SelectContent className="bg-warcrow-background border-warcrow-gold/30 max-h-72 overflow-y-auto z-50">
+              <SelectItem value="all" className="text-warcrow-text hover:bg-warcrow-gold/10">
+                {t('allFactions')}
+              </SelectItem>
               {isLoadingFactions ? (
                 <div className="flex justify-center items-center py-2">
                   <Loader2 className="animate-spin h-4 w-4 mr-2" />
@@ -94,7 +95,11 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
                 </div>
               ) : factions.length > 0 ? (
                 factions.map(faction => (
-                  <SelectItem key={faction.id} value={faction.id}>
+                  <SelectItem 
+                    key={faction.id} 
+                    value={faction.id}
+                    className="text-warcrow-text hover:bg-warcrow-gold/10"
+                  >
                     {faction.name}
                   </SelectItem>
                 ))
