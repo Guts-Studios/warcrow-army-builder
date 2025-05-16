@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState, useEffect } from "react";
 
 interface SaveListSectionProps {
   listName: string;
@@ -30,18 +31,45 @@ const SaveListSection = ({
   refreshSavedLists
 }: SaveListSectionProps) => {
   const { t } = useLanguage();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   
   const handleCloudSave = async () => {
+    if (!isAuthenticated) {
+      toast.error("You must be logged in to use cloud save");
+      return;
+    }
+
+    if (!listName.trim()) {
+      toast.error("Please enter a list name before saving");
+      return;
+    }
+    
     try {
+      setIsSaving(true);
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error("You must be logged in to use cloud save");
-        return;
-      }
-
-      if (!listName.trim()) {
-        toast.error("Please enter a list name before saving");
+        toast.error("Authentication error. Please try logging in again.");
         return;
       }
 
@@ -65,8 +93,9 @@ const SaveListSection = ({
         return;
       }
 
-      console.log("Saving list with WAB ID:", wab_id);
+      console.log(`Saving list with WAB ID: ${wab_id}`);
       
+      // Insert the data, handling possible errors
       const { data, error } = await supabase
         .from('army_lists')
         .insert({
@@ -91,11 +120,15 @@ const SaveListSection = ({
       
       // Call the refreshSavedLists function if it exists to update the saved lists
       if (refreshSavedLists) {
-        refreshSavedLists();
+        setTimeout(() => {
+          refreshSavedLists();
+        }, 500);
       }
     } catch (error) {
       console.error('Error saving to cloud:', error);
       toast.error("Failed to save list to cloud");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -132,17 +165,17 @@ const SaveListSection = ({
             <Button
               onClick={handleCloudSave}
               className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
-              disabled={!supabase.auth.getUser()}
+              disabled={!isAuthenticated || isSaving}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
-              {t('cloudSave')}
+              {isSaving ? 'Saving...' : t('cloudSave')}
             </Button>
           </TooltipTrigger>
           <TooltipContent 
             className="bg-warcrow-background border-warcrow-accent text-warcrow-text"
             side="bottom"
           >
-            Login required to use cloud features
+            {isAuthenticated ? 'Save list to the cloud' : 'Login required to use cloud features'}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

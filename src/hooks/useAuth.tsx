@@ -1,34 +1,8 @@
 
-import { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface AuthContextType {
-  isAuthenticated: boolean | null;
-  isAdmin: boolean;
-  isTester: boolean;
-  userId: string | null;
-  isLoading: boolean;
-  isGuest: boolean;
-  setIsGuest: (value: boolean) => void;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: null,
-  isAdmin: false,
-  isTester: false,
-  userId: null,
-  isLoading: true,
-  isGuest: false,
-  setIsGuest: () => {}
-});
-
-export const useAuth = () => useContext(AuthContext);
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isTester, setIsTester] = useState<boolean>(false);
@@ -42,14 +16,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     let mounted = true;
-
-    const initializeAuth = async () => {
+    const checkAuthStatus = async () => {
       try {
         setIsLoading(true);
         
         // For preview environment, provide dummy authenticated state
         if (isPreview) {
-          console.log("Preview mode detected in AuthProvider, using demo auth state");
+          console.log("Preview mode detected, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);
             setIsAdmin(true);
@@ -60,49 +33,54 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsLoading(false);
           return;
         }
-
-        // Set up auth state listener first
+        
+        // Set up the auth state listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("Auth state changed in AuthProvider:", event);
-            const authState = !!session;
+            console.log("Auth state changed:", event);
             
             if (mounted) {
-              setIsAuthenticated(authState);
+              setIsAuthenticated(!!session);
               setUserId(session?.user?.id || null);
               
+              // If authenticated, check for admin/tester status
               if (session?.user?.id) {
-                // Get user role information
-                const { data, error } = await supabase
-                  .from('profiles')
-                  .select('wab_admin, tester')
-                  .eq('id', session.user.id)
-                  .single();
-                  
-                if (!error && data && mounted) {
-                  setIsAdmin(!!data.wab_admin);
-                  setIsTester(!!data.tester);
+                try {
+                  const { data, error } = await supabase
+                    .from('profiles')
+                    .select('wab_admin, tester')
+                    .eq('id', session.user.id)
+                    .single();
+                    
+                  if (!error && data && mounted) {
+                    setIsAdmin(!!data.wab_admin);
+                    setIsTester(!!data.tester);
+                    setIsGuest(false);
+                  }
+                } catch (err) {
+                  console.error("Error checking user roles:", err);
                 }
               } else {
+                // Not authenticated
                 if (mounted) {
                   setIsAdmin(false);
                   setIsTester(false);
+                  setIsGuest(false);
                 }
               }
             }
           }
         );
         
-        // Get initial session
-        const { data } = await supabase.auth.getSession();
-        const session = data?.session;
+        // Get the initial session state
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (mounted) {
           setIsAuthenticated(!!session);
           setUserId(session?.user?.id || null);
           
+          // If authenticated, check for admin/tester status
           if (session?.user?.id) {
-            // Get user role information
             try {
               const { data, error } = await supabase
                 .from('profiles')
@@ -110,12 +88,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 .eq('id', session.user.id)
                 .single();
                 
-              if (!error && data && mounted) {
+              if (!error && data) {
                 setIsAdmin(!!data.wab_admin);
                 setIsTester(!!data.tester);
+                setIsGuest(false);
               }
             } catch (err) {
-              console.error("Error checking user roles in AuthProvider:", err);
+              console.error("Error checking user roles:", err);
             }
           }
         }
@@ -126,22 +105,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           subscription.unsubscribe();
         };
       } catch (error) {
-        console.error("Error in AuthProvider:", error);
+        console.error("Error in auth hook:", error);
         if (mounted) {
           setIsLoading(false);
           setIsAuthenticated(false);
+          setIsAdmin(false);
+          setIsTester(false);
+          setIsGuest(false);
         }
       }
     };
-
-    initializeAuth();
-
+    
+    checkAuthStatus();
+    
     return () => {
       mounted = false;
     };
   }, [isPreview]);
 
-  const value = {
+  return {
     isAuthenticated,
     isAdmin,
     isTester,
@@ -150,6 +132,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isGuest,
     setIsGuest
   };
+}
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+export default useAuth;

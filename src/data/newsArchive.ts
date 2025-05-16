@@ -61,13 +61,13 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
       console.log("Using cached news items from localStorage while fetching latest");
     }
     
-    // Set up a very short timeout for the fetch (reduced from 2s to 1s for faster fallback)
+    // Set up a very short timeout for the fetch (reduced to 700ms for faster fallback)
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
         console.log("Database fetch timeout, using cached or default news");
         // Return localStorage data or default items if timeout
         resolve(cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS);
-      }, 1000); // Reduced to 1 second for much faster fallback
+      }, 700); // Reduced to 700ms for faster fallback
     });
     
     // Actual fetch
