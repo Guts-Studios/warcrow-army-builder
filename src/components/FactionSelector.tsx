@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { useFactions } from "@/components/stats/unit-explorer/useUnitData";
+import { factions as fallbackFactions } from "@/data/factions";
 
 interface FactionSelectorProps {
   selectedFaction: string;
@@ -18,8 +19,16 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
     data: availableFactions = [], 
     isLoading, 
     isError, 
-    refetch 
+    refetch,
+    isFetching
   } = useFactions(language);
+  
+  const [hasFallbackNotified, setHasFallbackNotified] = useState(false);
+  
+  // Use fallback factions if needed
+  const displayFactions = availableFactions.length > 0 
+    ? availableFactions 
+    : fallbackFactions;
   
   const handleRefetch = () => {
     toast.promise(refetch(), {
@@ -30,13 +39,15 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
   };
   
   useEffect(() => {
-    if (availableFactions.length === 0 && !isLoading && !isError) {
+    // Only show the fallback notification once
+    if (availableFactions.length === 0 && !isLoading && !isError && !isFetching && !hasFallbackNotified) {
       toast.info('Using default factions. No factions found in database.', {
         duration: 5000,
         id: 'faction-fallback-notice' // Prevent duplicate toasts
       });
+      setHasFallbackNotified(true);
     }
-  }, [availableFactions, isLoading, isError]);
+  }, [availableFactions, isLoading, isError, isFetching, hasFallbackNotified]);
   
   return (
     <div className="w-full max-w-xs mb-4 md:mb-8">
@@ -45,7 +56,7 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
           <SelectTrigger className="w-full bg-warcrow-accent text-warcrow-text border-warcrow-gold">
             <SelectValue placeholder="Select a faction">
               {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {selectedFaction ? availableFactions.find(f => f.id === selectedFaction)?.name || "Select a faction" : "Select a faction"}
+              {selectedFaction ? displayFactions.find(f => f.id === selectedFaction)?.name || "Select a faction" : "Select a faction"}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-warcrow-accent border-warcrow-gold max-h-[300px] overflow-y-auto">
@@ -60,8 +71,8 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
               <SelectItem value="error" disabled className="text-red-400">
                 Error loading factions
               </SelectItem>
-            ) : availableFactions.length > 0 ? (
-              availableFactions.map((faction) => (
+            ) : displayFactions.length > 0 ? (
+              displayFactions.map((faction) => (
                 <SelectItem
                   key={faction.id}
                   value={faction.id}
@@ -81,10 +92,11 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
           variant="ghost" 
           size="icon"
           onClick={handleRefetch}
+          disabled={isLoading || isFetching}
           className="text-warcrow-text hover:text-warcrow-gold"
           title="Refresh factions"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className={`h-4 w-4 ${isLoading || isFetching ? 'animate-spin' : ''}`} />
         </Button>
       </div>
     </div>

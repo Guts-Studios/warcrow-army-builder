@@ -1,8 +1,10 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { ApiUnit, Unit, Faction } from '@/types/army';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { factions as fallbackFactions } from '@/data/factions';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -10,40 +12,46 @@ export function useUnitData(selectedFaction: string) {
     queryKey: ['units', selectedFaction],
     queryFn: async () => {
       console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
-      let query = supabase.from('unit_data').select('*');
-      
-      if (selectedFaction !== 'all') {
-        query = query.eq('faction', selectedFaction);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error(`[useUnitData] Error fetching units for faction ${selectedFaction}:`, error);
+      try {
+        let query = supabase.from('unit_data').select('*');
+        
+        if (selectedFaction !== 'all') {
+          query = query.eq('faction', selectedFaction);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error(`[useUnitData] Error fetching units for faction ${selectedFaction}:`, error);
+          throw error;
+        }
+        
+        console.log(`[useUnitData] Successfully fetched ${data?.length || 0} units`);
+        
+        // Log unit names for debugging
+        if (data && data.length > 0) {
+          console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map(u => u.name));
+        }
+        
+        // Add faction_display field and convert Json to proper Record type
+        const unitsWithFactionDisplay = (data || []).map(unit => ({
+          ...unit,
+          faction_display: unit.faction, // Use faction ID as display name for now
+          characteristics: unit.characteristics as Record<string, any> // Convert Json to Record
+        })) as ApiUnit[];
+        
+        return unitsWithFactionDisplay;
+      } catch (error) {
+        console.error(`[useUnitData] Failed to fetch units:`, error);
         throw error;
       }
-      
-      console.log(`[useUnitData] Successfully fetched ${data?.length || 0} units`);
-      
-      // Log unit names for debugging
-      if (data && data.length > 0) {
-        console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map(u => u.name));
-      }
-      
-      // Add faction_display field and convert Json to proper Record type
-      const unitsWithFactionDisplay = (data || []).map(unit => ({
-        ...unit,
-        faction_display: unit.faction, // Use faction ID as display name for now
-        characteristics: unit.characteristics as Record<string, any> // Convert Json to Record
-      })) as ApiUnit[];
-      
-      return unitsWithFactionDisplay;
     },
-    retry: 2 // Retry failed requests up to 2 times
+    retry: 2, // Retry failed requests up to 2 times
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 }
 
-// Updated useFactions hook with better error handling and language support
+// Updated useFactions hook with better error handling, caching and language support
 export function useFactions(language: string = 'en') {
   return useQuery<Faction[]>({
     queryKey: ['factions', language],
@@ -73,30 +81,51 @@ export function useFactions(language: string = 'en') {
           
           console.log(`[useFactions] Successfully fetched ${fetchedFactions.length} factions:`, 
             fetchedFactions.map(f => f.name).join(', '));
+          
+          // Store in localStorage as a backup
+          try {
+            localStorage.setItem('cached_factions', JSON.stringify(fetchedFactions));
+          } catch (e) {
+            console.error('[useFactions] Failed to cache factions in localStorage:', e);
+          }
+          
           return fetchedFactions;
-        } else {
-          console.log('[useFactions] No factions found in database, using default factions');
-          // Provide fallback data if no factions were found
-          return [
-            { id: "northern-tribes", name: "Northern Tribes" },
-            { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
-            { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
-            { id: "syenann", name: "Sÿenann" }
-          ];
+        } 
+        
+        // Try getting from localStorage if no data from API
+        try {
+          const cachedFactions = localStorage.getItem('cached_factions');
+          if (cachedFactions) {
+            console.log('[useFactions] Using cached factions from localStorage');
+            return JSON.parse(cachedFactions);
+          }
+        } catch (e) {
+          console.error('[useFactions] Failed to retrieve cached factions:', e);
         }
+        
+        console.log('[useFactions] No factions found in database or cache, using default factions');
+        // Provide fallback data if no factions were found
+        return fallbackFactions;
       } catch (error) {
         console.error('[useFactions] Failed to fetch factions:', error);
+        
+        // Try getting from localStorage if API fails
+        try {
+          const cachedFactions = localStorage.getItem('cached_factions');
+          if (cachedFactions) {
+            console.log('[useFactions] Using cached factions from localStorage after API error');
+            return JSON.parse(cachedFactions);
+          }
+        } catch (e) {
+          console.error('[useFactions] Failed to retrieve cached factions after API error:', e);
+        }
+        
         // Return fallback data on error
-        return [
-          { id: "northern-tribes", name: "Northern Tribes" },
-          { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
-          { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
-          { id: "syenann", name: "Sÿenann" }
-        ];
+        return fallbackFactions;
       }
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2 // Retry failed requests up to 2 times
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    retry: 2, // Retry failed requests up to 2 times
   });
 }
 
@@ -176,9 +205,28 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         console.log(`[useArmyBuilderUnits] Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
         
+        // Cache the result in localStorage for faster access
+        try {
+          localStorage.setItem(`units_${selectedFaction}`, JSON.stringify(visibleUnits));
+        } catch (e) {
+          console.error('[useArmyBuilderUnits] Failed to cache units in localStorage:', e);
+        }
+        
         return visibleUnits;
       } catch (error) {
-        // Fall back to local faction data for guest users or when database access fails
+        // Try to get units from localStorage cache first
+        try {
+          const cachedUnits = localStorage.getItem(`units_${selectedFaction}`);
+          if (cachedUnits) {
+            const units = JSON.parse(cachedUnits);
+            console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
+            return units;
+          }
+        } catch (e) {
+          console.error('[useArmyBuilderUnits] Failed to retrieve cached units:', e);
+        }
+        
+        // Fall back to local faction data if cache fails
         console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
         
         // Import all units from local data first (we'll filter by faction later)
@@ -207,6 +255,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         return factionUnits;
       }
     },
-    retry: 1, // Only retry once to prevent multiple fallback attempts
+    retry: 2, // Retry twice to improve chances of success
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 }

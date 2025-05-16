@@ -8,6 +8,7 @@ import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
+import { toast } from "sonner";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -18,21 +19,42 @@ export const useArmyList = (selectedFaction: string) => {
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast } = useToast();
   const { isAuthenticated, isGuest } = useAuth();
+  const [isLoadingLists, setIsLoadingLists] = useState(false);
 
   // Use react-query hook to fetch faction units with proper loading/error states
   const { 
     data: factionUnits = [], 
     isLoading: unitsLoading, 
-    error: unitsError 
+    error: unitsError,
+    isError: isUnitsError
   } = useArmyBuilderUnits(selectedFaction);
+
+  // Show toast if units fail to load
+  useEffect(() => {
+    if (isUnitsError && unitsError) {
+      console.error('[useArmyList] Error loading units:', unitsError);
+      toast({
+        title: "Failed to load units",
+        description: "Using fallback units. You can try refreshing the page.",
+        variant: "destructive",
+      });
+    }
+  }, [isUnitsError, unitsError, toast]);
 
   // Fetch saved lists on mount and when auth state changes
   useEffect(() => {
     const loadSavedLists = async () => {
-      console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest });
-      const lists = await fetchSavedLists();
-      console.log(`Fetched ${lists.length} saved lists`);
-      setSavedLists(lists);
+      setIsLoadingLists(true);
+      try {
+        console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest });
+        const lists = await fetchSavedLists();
+        console.log(`Fetched ${lists.length} saved lists`);
+        setSavedLists(lists);
+      } catch (error) {
+        console.error('[useArmyList] Error fetching saved lists:', error);
+      } finally {
+        setIsLoadingLists(false);
+      }
     };
     loadSavedLists();
   }, [isAuthenticated, isGuest]);
@@ -167,6 +189,7 @@ export const useArmyList = (selectedFaction: string) => {
     handleLoadList,
     factionUnits,
     unitsLoading,
-    unitsError
+    unitsError,
+    isLoadingLists
   };
 };
