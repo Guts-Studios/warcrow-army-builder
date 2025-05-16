@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +13,10 @@ interface AuthContextType {
   profile?: Profile | null;
   isGuest: boolean;
   isAdmin: boolean;
+  isWabAdmin: boolean; // Adding this property
+  isTester: boolean; // Adding this property for Index.tsx
+  setIsGuest: (isGuest: boolean) => void; // Adding this property for Login.tsx
+  resendConfirmationEmail?: (email: string) => Promise<void>; // Adding this property for Login.tsx
   login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Profile) => Promise<{ success: boolean; error?: string }>;
@@ -24,6 +29,9 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isGuest: false,
   isAdmin: false,
+  isWabAdmin: false,
+  isTester: false,
+  setIsGuest: () => {},
   login: async () => ({ success: false }),
   logout: async () => {},
   updateProfile: async () => ({ success: false }),
@@ -37,6 +45,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGuest, setIsGuest] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  // Utility function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      
+      if (error) {
+        toast.error(`Failed to resend confirmation: ${error.message}`);
+      } else {
+        toast.success(`Confirmation email sent to ${email}`);
+      }
+    } catch (err: any) {
+      toast.error(`Error sending confirmation: ${err.message}`);
+    }
+  };
 
   const login = async (email: string, password?: string) => {
     setIsLoading(true);
@@ -233,6 +259,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     profile,
     isGuest,
     isAdmin,
+    isWabAdmin: isAdmin, // Alias for backwards compatibility
+    isTester: !!profile?.is_tester, // Added for Index.tsx
+    setIsGuest, // Added for Login.tsx
+    resendConfirmationEmail, // Added for Login.tsx
     login,
     logout,
     updateProfile,
