@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { GameState, GamePhase, Player, Mission, Unit, Turn, GameEvent } from '@/types/game';
 import { toast } from 'sonner';
 
@@ -21,9 +21,10 @@ type GameAction =
   | { type: 'ADD_GAME_EVENT'; payload: GameEvent }
   | { type: 'UPDATE_SCORE'; payload: { playerId: string; score: number; roundNumber?: number } }
   | { type: 'SET_GAME_END_TIME'; payload: number }
-  | { type: 'RESET_GAME' };
+  | { type: 'RESET_GAME' }
+  | { type: 'RESTORE_STATE'; payload: GameState };
 
-const initialState: GameState = {
+const initialGameState: GameState = {
   id: `game-${Date.now()}`,
   players: {},
   mission: null,
@@ -296,6 +297,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         id: `game-${Date.now()}`,
       };
 
+    case 'RESTORE_STATE':
+      return action.payload;
+
     default:
       return state;
   }
@@ -309,31 +313,40 @@ type GameContextType = {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
-
+  const [state, dispatch] = useReducer(gameReducer, initialGameState);
+  const [hasRestoredState, setHasRestoredState] = useState(false);
+  
+  // Load state from localStorage on component mount
   useEffect(() => {
-    const savedGame = localStorage.getItem('warcrowGame');
-    if (savedGame) {
+    const savedState = localStorage.getItem('gameState');
+    
+    // Only restore state if it exists and we haven't already restored it
+    if (savedState && !hasRestoredState) {
       try {
-        const parsedGame = JSON.parse(savedGame);
-        if (parsedGame.currentPhase !== 'summary') {
-          Object.entries(parsedGame.players).forEach(([_, player]) => {
-            dispatch({ type: 'ADD_PLAYER', payload: player as Player });
-          });
-          if (parsedGame.mission) {
-            dispatch({ type: 'SET_MISSION', payload: parsedGame.mission as Mission });
-          }
-          dispatch({ type: 'SET_PHASE', payload: parsedGame.currentPhase as GamePhase });
-          toast.info('Restored previous game session');
+        const parsedState = JSON.parse(savedState);
+        
+        // Only dispatch RESTORE_STATE if there's actually a game in progress
+        // This prevents the notification when there's no real game to restore
+        if (parsedState?.mission && parsedState?.players && Object.keys(parsedState.players).length > 0) {
+          dispatch({ type: 'RESTORE_STATE', payload: parsedState });
+          setHasRestoredState(true);
+        } else {
+          // If there's no meaningful game state, clear localStorage
+          localStorage.removeItem('gameState');
         }
       } catch (error) {
-        console.error('Failed to parse saved game:', error);
+        console.error("Error parsing saved game state:", error);
+        localStorage.removeItem('gameState');
       }
     }
-  }, []);
+  }, [hasRestoredState]);
 
+  // Save state to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('warcrowGame', JSON.stringify(state));
+    // Don't save empty games or games without a mission
+    if (state.mission && Object.keys(state.players || {}).length > 0) {
+      localStorage.setItem('gameState', JSON.stringify(state));
+    }
   }, [state]);
 
   return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>;

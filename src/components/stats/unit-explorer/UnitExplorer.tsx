@@ -15,7 +15,7 @@ import UnitTranslationStatus from './UnitTranslationStatus';
 import { ApiUnit } from '@/types/army';
 
 const UnitExplorer: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedUnit, setSelectedUnit] = useState<ExtendedUnit | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
   const [selectedFaction, setSelectedFaction] = useState<string | 'all'>('all');
@@ -25,9 +25,19 @@ const UnitExplorer: React.FC = () => {
   const [showHidden, setShowHidden] = useState<boolean>(false);
   
   // Get units data
-  const { data: units = [], isLoading: isLoadingUnits, error } = useUnitData(selectedFaction);
+  const { 
+    data: units = [], 
+    isLoading: isLoadingUnits, 
+    error,
+    refetch: refetchUnits
+  } = useUnitData(selectedFaction);
+
   // Get factions separately
-  const { data: factions = [] } = useFactions();
+  const { 
+    data: factions = [], 
+    isLoading: isLoadingFactions,
+    refetch: refetchFactions
+  } = useFactions(language);
   
   // Calculate translation statistics
   const translationStats = React.useMemo(() => {
@@ -40,10 +50,15 @@ const UnitExplorer: React.FC = () => {
     };
   }, [units]);
   
+  // Handle refreshing factions
+  const handleRefreshFactions = async () => {
+    return refetchFactions();
+  };
+
   // Handle translation completion
   const handleTranslationComplete = () => {
     // Refresh the unit data
-    // This will be handled by the query cache invalidation
+    refetchUnits();
   };
 
   // Handle selecting a unit
@@ -85,6 +100,8 @@ const UnitExplorer: React.FC = () => {
         t={t}
         showHidden={showHidden}
         onShowHiddenChange={setShowHidden}
+        isLoadingFactions={isLoadingFactions}
+        onRefreshFactions={handleRefreshFactions}
       />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

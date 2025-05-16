@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw, Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Faction } from "@/types/army";
@@ -76,7 +76,7 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
               <SelectValue placeholder={t('selectFaction')}>
                 {isLoadingFactions ? (
                   <div className="flex items-center">
-                    <div className="animate-spin h-4 w-4 border-2 border-warcrow-gold/70 border-t-transparent rounded-full mr-2" />
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
                     {t('loading')}
                   </div>
                 ) : (
@@ -85,13 +85,24 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
                 )}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30 max-h-72 overflow-y-auto">
               <SelectItem value="all">{t('allFactions')}</SelectItem>
-              {factions.map(faction => (
-                <SelectItem key={faction.id} value={faction.id}>
-                  {faction.name}
-                </SelectItem>
-              ))}
+              {isLoadingFactions ? (
+                <div className="flex justify-center items-center py-2">
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  {t('loading')}
+                </div>
+              ) : factions.length > 0 ? (
+                factions.map(faction => (
+                  <SelectItem key={faction.id} value={faction.id}>
+                    {faction.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="px-2 py-1 text-sm text-warcrow-gold/70">
+                  {t('noFactionsFound')}
+                </div>
+              )}
             </SelectContent>
           </Select>
           

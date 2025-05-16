@@ -7,6 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Edit, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useProfileSession } from '@/hooks/useProfileSession';
 
 interface UnitTableProps {
   filteredUnits: any[];
@@ -21,6 +25,8 @@ export const UnitTable: React.FC<UnitTableProps> = ({
 }) => {
   const { translateKeyword } = useTranslateKeyword();
   const [updatingUnits, setUpdatingUnits] = useState<{[key: string]: boolean}>({});
+  const navigate = useNavigate();
+  const { isAuthenticated } = useProfileSession();
   
   // Create a wrapper function that only takes the keyword parameter
   // This matches the expected function signature in formatKeywords
@@ -81,6 +87,11 @@ export const UnitTable: React.FC<UnitTableProps> = ({
     }
   };
   
+  // Navigate to unit edit page
+  const handleEditUnit = (unitId: string) => {
+    navigate(`/admin/units/edit/${unitId}`);
+  };
+  
   return (
     <div className="border rounded border-warcrow-gold/30 overflow-x-auto">
       <Table>
@@ -97,18 +108,22 @@ export const UnitTable: React.FC<UnitTableProps> = ({
             <TableHead className="text-warcrow-gold">HC</TableHead>
             <TableHead className="text-warcrow-gold">Pts</TableHead>
             <TableHead className="text-warcrow-gold">{t('specialRules')}</TableHead>
+            <TableHead className="text-warcrow-gold">{t('actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={11} className="text-center py-6 text-warcrow-muted">
-                {t('loading')}...
+              <TableCell colSpan={12} className="text-center py-6 text-warcrow-muted">
+                <div className="flex justify-center items-center">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  {t('loading')}...
+                </div>
               </TableCell>
             </TableRow>
           ) : filteredUnits.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={11} className="text-center py-6 text-warcrow-muted">
+              <TableCell colSpan={12} className="text-center py-6 text-warcrow-muted">
                 {t('noUnitsMatch')}
               </TableCell>
             </TableRow>
@@ -142,6 +157,17 @@ export const UnitTable: React.FC<UnitTableProps> = ({
                 </TableCell>
                 <TableCell className="text-warcrow-text">
                   {unit.special_rules?.length || 0}
+                </TableCell>
+                <TableCell className="text-warcrow-text">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-warcrow-gold hover:text-warcrow-gold/70"
+                    onClick={() => handleEditUnit(unit.id)}
+                    title={t('editUnit')}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
