@@ -117,7 +117,15 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         // Log all unit names for debugging
         console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
-          data.map(u => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
+          data.map(u => {
+            // Safe access of nested properties
+            const highCommand = u.characteristics && 
+              typeof u.characteristics === 'object' && 
+              'highCommand' in u.characteristics ? 
+              u.characteristics.highCommand : false;
+              
+            return `${u.name}${highCommand ? ' (HC)' : ''}`;
+          }).join(', '));
         
         // Filter out units that should not be shown in the builder
         const visibleUnits = data
