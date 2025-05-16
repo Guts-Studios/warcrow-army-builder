@@ -9,7 +9,9 @@ import UnitListSection from "./UnitListSection";
 import SelectedUnitsSection from "./SelectedUnitsSection";
 import { SavedList } from "@/types/army";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -46,6 +48,24 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
     }
   }, [initialList, handleLoadList]);
 
+  // Notify user about faction units loading state
+  useEffect(() => {
+    if (unitsLoading) {
+      console.log(`[ArmyList] Loading units for faction: ${selectedFaction}`);
+    } else if (unitsError) {
+      console.error(`[ArmyList] Error loading units:`, unitsError);
+      toast.error(`Could not load units. Falling back to local data.`);
+    } else if (factionUnits.length === 0) {
+      console.warn(`[ArmyList] No units found for faction: ${selectedFaction}`);
+    } else {
+      console.log(`[ArmyList] Loaded ${factionUnits.length} units for faction: ${selectedFaction}`);
+    }
+  }, [factionUnits, unitsLoading, unitsError, selectedFaction]);
+
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
   return (
     <>
       <HighCommandAlert 
@@ -62,9 +82,15 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
                 <p className="text-warcrow-muted">Loading units...</p>
               </div>
             ) : unitsError ? (
-              <div className="text-center p-8 text-red-400">
-                <p>Error loading units. Please try refreshing the page.</p>
-                <p className="text-xs mt-2 text-warcrow-muted">Technical details: {unitsError.message}</p>
+              <div className="text-center p-8">
+                <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
+                <p className="text-red-400 mb-2">Error loading units</p>
+                <p className="text-xs text-warcrow-muted mb-4">
+                  {unitsError.message || "Could not fetch units from the server"}
+                </p>
+                <Button variant="outline" onClick={handleRetry}>
+                  Retry
+                </Button>
               </div>
             ) : factionUnits.length === 0 ? (
               <div className="text-center p-8 text-warcrow-muted">

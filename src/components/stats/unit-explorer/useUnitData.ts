@@ -134,11 +134,21 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         // Fall back to local faction data for guest users or when database access fails
         console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
         
-        // Import the units from local data
+        // Import all units from local data first (we'll filter by faction later)
         const { units } = await import('@/data/factions');
         
-        // Filter the local units based on the selected faction
-        const factionUnits = units.filter(unit => unit.faction === selectedFaction);
+        // Get the faction-specific units
+        let factionUnits: Unit[] = [];
+        
+        if (selectedFaction === 'scions-of-yaldabaoth') {
+          // Import all Scions units explicitly to ensure they're all included
+          const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
+          factionUnits = scionsOfYaldabaothUnits;
+          console.log(`[useArmyBuilderUnits] Loaded ${factionUnits.length} Scions units directly from faction file`);
+        } else {
+          // For other factions use the standard filtering
+          factionUnits = units.filter(unit => unit.faction === selectedFaction);
+        }
         
         console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} local units for faction ${selectedFaction}`);
         

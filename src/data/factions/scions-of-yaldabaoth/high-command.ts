@@ -61,5 +61,26 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
     specialRules: ["Place (5)"],
     command: 3,
     imageUrl: "/art/card/master_nepharim_card.jpg"
+  },
+  {
+    id: "progenitor-sculptor",
+    name: "Progenitor Sculptor",
+    pointsCost: 30,
+    faction: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Intimidating (2)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Infantry, Living Flesh)", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
+    command: 2,
+    imageUrl: "/art/card/progenitor_sculptor_card.jpg"
   }
 ];

@@ -91,5 +91,6 @@ export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
 
 // Legacy synchronous version for backward compatibility
 export const getAllExtendedUnitsSync = (): ExtendedUnit[] => {
+  console.log("[ExtendedUnitService] Using synchronous fallback for extended units");
   return allExtendedUnits;
 };
