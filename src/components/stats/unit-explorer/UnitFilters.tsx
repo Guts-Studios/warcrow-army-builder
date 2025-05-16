@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Search, RefreshCw } from "lucide-react";
@@ -43,6 +43,15 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
       });
     }
   };
+
+  useEffect(() => {
+    if (factions.length === 0 && !isLoadingFactions) {
+      toast.info('Using default factions. No factions found in database.', {
+        duration: 5000,
+        id: 'faction-filter-notice' // Prevent duplicate toasts
+      });
+    }
+  }, [factions, isLoadingFactions]);
 
   return (
     <div className="space-y-4">

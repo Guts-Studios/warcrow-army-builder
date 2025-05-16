@@ -29,6 +29,15 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
     });
   };
   
+  useEffect(() => {
+    if (availableFactions.length === 0 && !isLoading && !isError) {
+      toast.info('Using default factions. No factions found in database.', {
+        duration: 5000,
+        id: 'faction-fallback-notice' // Prevent duplicate toasts
+      });
+    }
+  }, [availableFactions, isLoading, isError]);
+  
   return (
     <div className="w-full max-w-xs mb-4 md:mb-8">
       <div className="flex space-x-2 mb-2 items-center">

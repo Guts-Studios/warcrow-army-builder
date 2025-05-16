@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Check, Shield, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Faction } from '@/types/army';
@@ -28,6 +28,15 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
     isError, 
     refetch 
   } = useFactions(language);
+
+  useEffect(() => {
+    if (nations.length === 0 && !isLoading && !isError) {
+      toast.info('Using default factions. No factions found in database.', {
+        duration: 5000,
+        id: 'faction-fallback-notice' // Prevent duplicate toasts
+      });
+    }
+  }, [nations, isLoading, isError]);
 
   // Handle click based on which prop API is being used
   const handleFactionClick = (faction: Faction) => {
