@@ -260,7 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isGuest,
     isAdmin,
     isWabAdmin: isAdmin, // Alias for backwards compatibility
-    isTester: !!profile?.is_tester, // Added for Index.tsx
+    isTester: !!profile?.tester, // Fixed to use the correct property name from Profile type
     setIsGuest, // Added for Login.tsx
     resendConfirmationEmail, // Added for Login.tsx
     login,

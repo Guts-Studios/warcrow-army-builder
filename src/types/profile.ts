@@ -28,4 +28,5 @@ export interface Profile {
   wab_id: string | null;
   games_won: number;
   games_lost: number;
+  tester?: boolean; // Added this field to match database schema
 }
