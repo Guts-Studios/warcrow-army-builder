@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+// Default translations for backward compatibility
 export const factionTranslations = {
   'hegemony-of-embersig': {
     en: 'Hegemony',
@@ -40,19 +41,22 @@ export const factionTranslations = {
   }
 };
 
-// Function to get faction translations from Supabase
+// Enhanced function to get faction translations from Supabase
 export const getFactionTranslationsFromDb = async () => {
   try {
+    console.log("[getFactionTranslationsFromDb] Fetching faction translations from Supabase");
     const { data, error } = await supabase
       .from('factions')
       .select('*');
       
     if (error) {
-      console.error('Error fetching faction translations:', error);
+      console.error('[getFactionTranslationsFromDb] Error fetching faction translations:', error);
       return factionTranslations; // Return default translations if there's an error
     }
     
     if (data && data.length > 0) {
+      console.log(`[getFactionTranslationsFromDb] Successfully fetched ${data.length} faction translations`);
+      
       // Create a new translations object
       const dbTranslations: Record<string, Record<string, string>> = {};
       
@@ -66,15 +70,22 @@ export const getFactionTranslationsFromDb = async () => {
           es: faction.name_es || faction.name,
           fr: faction.name_fr || faction.name
         };
+        
+        // Log for debugging
+        console.log(`[getFactionTranslationsFromDb] Added faction: ${factionId} => ${faction.name} (ES: ${faction.name_es || 'N/A'}, FR: ${faction.name_fr || 'N/A'})`);
       });
       
       // Merge with backwards compatibility entries
-      return { ...dbTranslations, ...factionTranslations };
+      const mergedTranslations = { ...dbTranslations, ...factionTranslations };
+      console.log('[getFactionTranslationsFromDb] Merged translations:', Object.keys(mergedTranslations).length);
+      
+      return mergedTranslations;
     }
     
+    console.log('[getFactionTranslationsFromDb] No faction data found, using default translations');
     return factionTranslations;
   } catch (error) {
-    console.error('Failed to fetch faction translations:', error);
+    console.error('[getFactionTranslationsFromDb] Failed to fetch faction translations:', error);
     return factionTranslations;
   }
 };

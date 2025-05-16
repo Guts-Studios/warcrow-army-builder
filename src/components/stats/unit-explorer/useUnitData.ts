@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
@@ -44,17 +43,50 @@ export function useUnitData(selectedFaction: string) {
   });
 }
 
-// Separate function to fetch factions
-export function useFactions() {
+// Updated useFactions hook with better error handling and language support
+export function useFactions(language: string = 'en') {
   return useQuery<Faction[]>({
-    queryKey: ['factions'],
+    queryKey: ['factions', language],
     queryFn: async () => {
-      console.log("[useFactions] Fetching factions from Supabase");
-      const { data, error } = await supabase.from('factions').select('*');
-      
-      if (error) {
-        console.error("[useFactions] Error fetching factions:", error);
-        // Provide fallback data if the fetch fails
+      console.log("[useFactions] Fetching factions from Supabase with language:", language);
+      try {
+        const { data, error } = await supabase
+          .from('factions')
+          .select('*')
+          .order('name');
+          
+        if (error) {
+          console.error("[useFactions] Error fetching factions:", error);
+          throw error;
+        }
+        
+        if (data && data.length > 0) {
+          // Transform to expected Faction type with language support
+          const fetchedFactions = data.map((faction: any) => ({
+            id: faction.id,
+            name: language === 'es' ? faction.name_es || faction.name :
+                 language === 'fr' ? faction.name_fr || faction.name : 
+                 faction.name,
+            name_es: faction.name_es,
+            name_fr: faction.name_fr
+          }));
+          
+          console.log(`[useFactions] Successfully fetched ${fetchedFactions.length} factions:`, 
+            fetchedFactions.map(f => f.name).join(', '));
+          return fetchedFactions;
+        } else {
+          console.log('[useFactions] No factions found in database, using default factions');
+          // Provide fallback data if no factions were found
+          return [
+            { id: "northern-tribes", name: "Northern Tribes" },
+            { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
+            { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
+            { id: "syenann", name: "Sÿenann" }
+          ];
+        }
+      } catch (error) {
+        console.error('[useFactions] Failed to fetch factions:', error);
+        // Return fallback data on error
         return [
           { id: "northern-tribes", name: "Northern Tribes" },
           { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
@@ -62,10 +94,8 @@ export function useFactions() {
           { id: "syenann", name: "Sÿenann" }
         ];
       }
-      
-      console.log(`[useFactions] Successfully fetched ${data?.length || 0} factions`);
-      return data || [];
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2 // Retry failed requests up to 2 times
   });
 }

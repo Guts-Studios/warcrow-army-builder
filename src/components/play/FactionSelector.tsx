@@ -1,16 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
-import { Check, Shield } from 'lucide-react';
+import React from 'react';
+import { Check, Shield, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Faction } from '@/types/game';
+import { Faction } from '@/types/army';
 import { cn } from '@/lib/utils';
-import { factions } from '@/data/factions';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-// Fallback to our centralized faction definitions
-const defaultFactions: Faction[] = factions;
+import { useFactions } from '@/components/stats/unit-explorer/useUnitData';
+import { toast } from 'sonner';
 
 interface NationSelectorProps {
   selectedFaction: Faction | null;
@@ -25,50 +21,13 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
   selectedFactionId,
   onFactionSelect
 }) => {
-  const [nations, setNations] = useState<Faction[]>(defaultFactions);
-  const [isLoading, setIsLoading] = useState(false);
   const { language } = useLanguage();
-  
-  useEffect(() => {
-    // Try to fetch factions from Supabase
-    const fetchFactions = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('factions')
-          .select('*')
-          .order('name');
-          
-        if (error) {
-          console.error('Error fetching factions in FactionSelector:', error);
-          toast.error('Failed to load factions');
-          return; // Use default factions if there's an error
-        }
-        
-        if (data && data.length > 0) {
-          // Transform to expected Faction type
-          const fetchedFactions = data.map((faction: any) => ({
-            id: faction.id,
-            name: language === 'es' ? faction.name_es || faction.name :
-                 language === 'fr' ? faction.name_fr || faction.name : 
-                 faction.name
-          }));
-          
-          console.log('Fetched factions for play:', fetchedFactions);
-          setNations(fetchedFactions);
-        } else {
-          console.log('No factions found in database for play, using default factions');
-        }
-      } catch (error) {
-        console.error('Failed to fetch factions for play:', error);
-        // If there's an error, we'll use the default factions from the data file
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchFactions();
-  }, [language]);
+  const { 
+    data: nations = [], 
+    isLoading, 
+    isError, 
+    refetch 
+  } = useFactions(language);
 
   // Handle click based on which prop API is being used
   const handleFactionClick = (faction: Faction) => {
@@ -79,10 +38,32 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
     }
   };
 
+  const handleRefetch = () => {
+    toast.promise(refetch(), {
+      loading: 'Refreshing factions...',
+      success: 'Factions refreshed successfully',
+      error: 'Failed to refresh factions'
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-6">
         <div className="w-6 h-6 border-2 border-warcrow-gold border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 bg-red-900/20 border border-red-700/30 rounded-md text-center">
+        <p className="text-red-400 mb-2">Error loading factions</p>
+        <button 
+          onClick={handleRefetch}
+          className="px-3 py-1 bg-red-900/40 hover:bg-red-800/40 text-red-300 rounded-md flex items-center mx-auto"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" /> Retry
+        </button>
       </div>
     );
   }
@@ -124,6 +105,14 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
             )}
           </motion.div>
         ))}
+      </div>
+      <div className="flex justify-end">
+        <button 
+          onClick={handleRefetch}
+          className="flex items-center text-sm text-warcrow-gold/70 hover:text-warcrow-gold px-2 py-1"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" /> Refresh factions
+        </button>
       </div>
     </motion.div>
   );

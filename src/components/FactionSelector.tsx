@@ -1,17 +1,11 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { factions } from "@/data/factions";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
-
-interface Faction {
-  id: string;
-  name: string;
-}
+import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
+import { useFactions } from "@/components/stats/unit-explorer/useUnitData";
 
 interface FactionSelectorProps {
   selectedFaction: string;
@@ -19,50 +13,22 @@ interface FactionSelectorProps {
 }
 
 const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorProps) => {
-  const [availableFactions, setAvailableFactions] = useState<Faction[]>(factions);
-  const [isLoading, setIsLoading] = useState(false);
   const { language } = useLanguage();
+  const { 
+    data: availableFactions = [], 
+    isLoading, 
+    isError, 
+    refetch 
+  } = useFactions(language);
   
-  const fetchFactions = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('factions')
-        .select('*')
-        .order('name');
-        
-      if (error) {
-        console.error('Error fetching factions in dropdown:', error);
-        toast.error('Failed to load factions');
-        return; // Use default factions if there's an error
-      }
-      
-      if (data && data.length > 0) {
-        // Transform to expected Faction type
-        const fetchedFactions = data.map((faction: any) => ({
-          id: faction.id,
-          name: language === 'es' ? faction.name_es || faction.name :
-               language === 'fr' ? faction.name_fr || faction.name : 
-               faction.name
-        }));
-        
-        console.log('Fetched factions for dropdown:', fetchedFactions);
-        setAvailableFactions(fetchedFactions);
-      } else {
-        console.log('No factions found in database for dropdown, using default factions');
-      }
-    } catch (error) {
-      console.error('Failed to fetch factions for dropdown:', error);
-      // If there's an error, we'll use the default factions from the data file
-    } finally {
-      setIsLoading(false);
-    }
+  const handleRefetch = () => {
+    toast.promise(refetch(), {
+      loading: 'Refreshing factions...',
+      success: 'Factions refreshed successfully',
+      error: 'Failed to refresh factions'
+    });
   };
   
-  useEffect(() => {
-    fetchFactions();
-  }, [language]);
-
   return (
     <div className="w-full max-w-xs mb-4 md:mb-8">
       <div className="flex space-x-2 mb-2 items-center">
@@ -80,6 +46,10 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   Loading factions...
                 </div>
+              </SelectItem>
+            ) : isError ? (
+              <SelectItem value="error" disabled className="text-red-400">
+                Error loading factions
               </SelectItem>
             ) : availableFactions.length > 0 ? (
               availableFactions.map((faction) => (
@@ -101,7 +71,7 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={fetchFactions}
+          onClick={handleRefetch}
           className="text-warcrow-text hover:text-warcrow-gold"
           title="Refresh factions"
         >

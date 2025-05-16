@@ -2,12 +2,15 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Faction } from "@/types/army";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface UnitFiltersProps {
-  factions: any[];
+  factions: Faction[];
   selectedFaction: string;
   onFactionChange: (value: string) => void;
   searchQuery: string;
@@ -15,6 +18,8 @@ interface UnitFiltersProps {
   t: (key: string) => string;
   showHidden: boolean;
   onShowHiddenChange: (value: boolean) => void;
+  isLoadingFactions?: boolean;
+  onRefreshFactions?: () => Promise<any>;
 }
 
 export const UnitFilters: React.FC<UnitFiltersProps> = ({
@@ -25,8 +30,20 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
   onSearchChange,
   t,
   showHidden,
-  onShowHiddenChange
+  onShowHiddenChange,
+  isLoadingFactions = false,
+  onRefreshFactions
 }) => {
+  const handleRefreshFactions = () => {
+    if (onRefreshFactions) {
+      toast.promise(onRefreshFactions(), {
+        loading: 'Refreshing factions...',
+        success: 'Factions refreshed',
+        error: 'Failed to refresh factions'
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -41,22 +58,47 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
           />
         </div>
         
-        <Select
-          value={selectedFaction}
-          onValueChange={onFactionChange}
-        >
-          <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30 text-warcrow-text">
-            <SelectValue placeholder={t('selectFaction')} />
-          </SelectTrigger>
-          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-            <SelectItem value="all">{t('allFactions')}</SelectItem>
-            {factions.map(faction => (
-              <SelectItem key={faction.id} value={faction.id}>
-                {faction.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select
+            value={selectedFaction}
+            onValueChange={onFactionChange}
+          >
+            <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30 text-warcrow-text flex-1">
+              <SelectValue placeholder={t('selectFaction')}>
+                {isLoadingFactions ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin h-4 w-4 border-2 border-warcrow-gold/70 border-t-transparent rounded-full mr-2" />
+                    {t('loading')}
+                  </div>
+                ) : (
+                  selectedFaction === 'all' ? t('allFactions') : 
+                  factions.find(f => f.id === selectedFaction)?.name || t('selectFaction')
+                )}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+              <SelectItem value="all">{t('allFactions')}</SelectItem>
+              {factions.map(faction => (
+                <SelectItem key={faction.id} value={faction.id}>
+                  {faction.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {onRefreshFactions && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefreshFactions}
+              disabled={isLoadingFactions}
+              className="text-warcrow-text hover:text-warcrow-gold"
+              title={t('refreshFactions')}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoadingFactions ? 'animate-spin' : ''}`} />
+            </Button>
+          )}
+        </div>
 
         <div className="flex items-center space-x-2">
           <Switch 

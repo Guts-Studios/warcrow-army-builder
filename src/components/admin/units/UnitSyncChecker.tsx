@@ -1,50 +1,23 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { Database, RefreshCw, Loader2 } from 'lucide-react';
 import { findMissingUnits, generateFactionFileContent } from '@/utils/unitSyncUtility';
+import { useFactions } from '@/components/stats/unit-explorer/useUnitData';
 
 const UnitSyncChecker: React.FC = () => {
   const [factionId, setFactionId] = useState<string | null>(null);
-  const [factions, setFactions] = useState<{id: string, name: string}[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResults, setSyncResults] = useState<any>(null);
-  const [isLoadingFactions, setIsLoadingFactions] = useState(false);
-
-  // Fetch available factions
-  const fetchFactions = async () => {
-    setIsLoadingFactions(true);
-    try {
-      const { data, error } = await supabase
-        .from('factions')
-        .select('id, name')
-        .order('name');
-      
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        console.log('Fetched factions for UnitSyncChecker:', data);
-        setFactions(data);
-      } else {
-        console.log('No factions found in database for UnitSyncChecker');
-        toast.error('No factions found. Please add factions first.');
-      }
-    } catch (err) {
-      console.error('Error fetching factions for UnitSyncChecker:', err);
-      toast.error('Failed to fetch factions');
-    } finally {
-      setIsLoadingFactions(false);
-    }
-  };
-
-  // Call fetchFactions when component loads
-  useEffect(() => {
-    fetchFactions();
-  }, []);
+  
+  // Use our consolidated factions hook
+  const { 
+    data: factions = [],
+    isLoading: isLoadingFactions,
+    refetch: refetchFactions
+  } = useFactions();
 
   // Create the file contents for the selected faction
   const handleCreateFiles = async () => {
@@ -77,6 +50,14 @@ const UnitSyncChecker: React.FC = () => {
     }
   };
 
+  const handleRefreshFactions = () => {
+    toast.promise(refetchFactions(), {
+      loading: 'Refreshing factions...',
+      success: 'Factions refreshed',
+      error: 'Failed to refresh factions'
+    });
+  };
+
   return (
     <Card className="p-4 bg-black border-warcrow-gold/30">
       <div className="space-y-4">
@@ -94,7 +75,18 @@ const UnitSyncChecker: React.FC = () => {
           <div className="flex items-center gap-2">
             <Select value={factionId || ''} onValueChange={setFactionId}>
               <SelectTrigger className="w-[250px] bg-warcrow-accent/50 border-warcrow-gold/30">
-                <SelectValue placeholder="Select Faction" />
+                <SelectValue placeholder="Select Faction">
+                  {isLoadingFactions ? (
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Loading factions...
+                    </div>
+                  ) : (
+                    factionId ? 
+                      factions.find(f => f.id === factionId)?.name || "Select Faction" : 
+                      "Select Faction"
+                  )}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30 max-h-[200px] overflow-y-auto">
                 {isLoadingFactions ? (
@@ -114,7 +106,7 @@ const UnitSyncChecker: React.FC = () => {
             <Button 
               variant="outline" 
               size="icon"
-              onClick={fetchFactions}
+              onClick={handleRefreshFactions}
               disabled={isLoadingFactions}
               className="border-warcrow-gold/30 text-warcrow-text hover:bg-black/50"
               title="Refresh faction list"
