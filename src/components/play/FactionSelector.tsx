@@ -40,7 +40,8 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
           .order('name');
           
         if (error) {
-          console.error('Error fetching factions:', error);
+          console.error('Error fetching factions in FactionSelector:', error);
+          toast.error('Failed to load factions');
           return; // Use default factions if there's an error
         }
         

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,11 @@ const UnitSyncChecker: React.FC = () => {
   const [factions, setFactions] = useState<{id: string, name: string}[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResults, setSyncResults] = useState<any>(null);
+  const [isLoadingFactions, setIsLoadingFactions] = useState(false);
 
   // Fetch available factions
   const fetchFactions = async () => {
+    setIsLoadingFactions(true);
     try {
       const { data, error } = await supabase
         .from('factions')
@@ -22,9 +25,19 @@ const UnitSyncChecker: React.FC = () => {
         .order('name');
       
       if (error) throw error;
-      setFactions(data || []);
+      
+      if (data && data.length > 0) {
+        console.log('Fetched factions for UnitSyncChecker:', data);
+        setFactions(data);
+      } else {
+        console.log('No factions found in database for UnitSyncChecker');
+        toast.error('No factions found. Please add factions first.');
+      }
     } catch (err) {
-      console.error('Error fetching factions:', err);
+      console.error('Error fetching factions for UnitSyncChecker:', err);
+      toast.error('Failed to fetch factions');
+    } finally {
+      setIsLoadingFactions(false);
     }
   };
 
@@ -82,12 +95,18 @@ const UnitSyncChecker: React.FC = () => {
             <SelectTrigger className="w-[250px] bg-warcrow-accent/50 border-warcrow-gold/30">
               <SelectValue placeholder="Select Faction" />
             </SelectTrigger>
-            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-              {factions.map((faction) => (
-                <SelectItem key={faction.id} value={faction.id}>
-                  {faction.name}
-                </SelectItem>
-              ))}
+            <SelectContent className="bg-warcrow-accent border-warcrow-gold/30 max-h-[200px] overflow-y-auto">
+              {isLoadingFactions ? (
+                <SelectItem value="loading" disabled>Loading factions...</SelectItem>
+              ) : factions.length > 0 ? (
+                factions.map((faction) => (
+                  <SelectItem key={faction.id} value={faction.id}>
+                    {faction.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="none" disabled>No factions found</SelectItem>
+              )}
             </SelectContent>
           </Select>
           
@@ -98,6 +117,15 @@ const UnitSyncChecker: React.FC = () => {
           >
             {isSyncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Generate Local Files
+          </Button>
+
+          <Button
+            onClick={fetchFactions}
+            variant="outline"
+            className="border-warcrow-gold/30 text-warcrow-text hover:bg-black/50"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh Factions
           </Button>
         </div>
 
