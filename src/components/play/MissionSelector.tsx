@@ -112,7 +112,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       turnCount: 5,
       roundCount: 3,
       specialRules: ['Colored objective markers', 'Higher value for center objective'],
-      mapImage: '/art/missions/breached_front.jpg', // Updated path
+      mapImage: '/art/missions/breached_front.jpg',
       objectiveMarkers: [
         { id: 'obj1', name: 'Center Neutral', value: 2 },
         { id: 'obj2', name: 'East Neutral', value: 1 },
@@ -133,7 +133,7 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       turnCount: 5,
       roundCount: 3,
       specialRules: ['Colored objective markers', 'Supply Chest mechanics', 'Extra unit activation'],
-      mapImage: '/art/missions/battle_lines.jpg', // Updated path
+      mapImage: '/art/missions/battle_lines.jpg',
       objectiveMarkers: [
         { id: 'objA1', name: 'Your Color A', value: 1 },
         { id: 'objA2', name: 'Opponent Color A', value: 2 },
@@ -143,6 +143,74 @@ const MissionSelector: React.FC<MissionSelectorProps> = ({
       ],
       isHomebrew: true,
       communityCreator: 'Anthony Pham, aka Viridian'
+    },
+    {
+      id: 'community-ghosts-from-mist',
+      title: 'Ghosts from the Mist',
+      name: 'Ghosts from the Mist',
+      description: 'Control fog ghosts to gain advantages and score points.',
+      objective: 'Control fog ghost markers',
+      details: 'Preparation\n\nPlace 4 fog ghosts (represented by generic objective markers) at centerline of the battlefield, also place 2 coloured objective markers on each half of the battlefield as shown in the diagram.\nPlace an event marker on position 2 on a dial.\n\nRounds\n\nEach round lasts 4 turns\n\nEvent\n\nWhen event is activated do the following:\n\nStarting with a player who has the initiative, whoever controls fog ghost markers can place them 5 strides from their current position. \nIf fog ghost marker player controls is placed adjusted to enemy unit- that unit must roll defence roll at **** and takes as much damage as * is not blocked.\nIf fog ghost marker player controls is placed adjusted to allied unit- that unit may clear 1 stress.\nAdvance event token 2 positions on the turn counter.\n\nScoring\n\nAt the end of each round you score:\n\n- 1 VP if more fog ghosts are fully on the opponent\'s half of the board than on your side of a board.\n- 1 VP if you control 3 fog ghosts or more\n- 1 VP if you control at least 1 fog ghost\n- 3 VP if fog ghost under your control is within 3 of the objective marker of your colour for each fog ghost marker within 3 of the objective marker of your colour. After scoring VPs this way, remove every fog ghost marker under your control within 3 of the objective marker of your colour from the game.\n\nEnd of the Game\n\nThe game ends at the end of round 3 or when one company has no units left on the battlefield.\n\nThis Homebrew mission was created by our Community member Vladimir Sagalov aka FinalForm',
+      objectiveDescription: 'Control fog ghosts and position them strategically',
+      turnCount: 4,
+      roundCount: 3,
+      specialRules: ['Fog ghost movement', 'Ghost damage mechanics', 'Stress clearing'],
+      mapImage: '/art/missions/ghosts_from_the_mist.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Fog Ghost 1', value: 1 },
+        { id: 'obj2', name: 'Fog Ghost 2', value: 1 },
+        { id: 'obj3', name: 'Fog Ghost 3', value: 1 },
+        { id: 'obj4', name: 'Fog Ghost 4', value: 1 },
+        { id: 'obj5', name: 'Objective 1', value: 3 },
+        { id: 'obj6', name: 'Objective 2', value: 3 }
+      ],
+      isHomebrew: true,
+      communityCreator: 'Vladimir Sagalov aka FinalForm'
+    },
+    {
+      id: 'community-sacred-land',
+      title: 'Sacred Land',
+      name: 'Sacred Land',
+      description: 'Control altars and perform prayers and offerings to gain advantages.',
+      objective: 'Control sacred and lesser altars',
+      details: 'Preparation\n\nPlace 2 sacred altars and 3 lesser altars objective markers as shown in the diagram.\n\nRounds\n\nFirst round lasts 2 turns, Second round lasts 3 turns, Third round lasts 4 turns and Fourth round lasts 5 turns\n\nPrayers and Offerings\n\nIn this mission any unit may use special simple action Pray and special command ability Deity Offering\n\nPray: when your unit is within 3 from the lesser altar - you can use this action. Mark the unit that took this action with a Prayer token, it gets +1 to the conquest characteristic until the end of the game. This action can be used multiple times, to get multiple +1 conquest.\n\nDeity Offering: when your unit is within 3 from the sacred altar - you can use this command ability during the unit\'s activation. \n\nScoring\n\nAt the end of each round you score:\n\n- 1 VP if you control 2 or more lesser altars\n- 1 VP if you control 1 or more sacred altars\n- 1 VP if one or more units of your units with Prayer token is within 3 of lesser altar\n- 2 VP if one or more of your units with Prayer token are within 3 of sacred altar and they have High command characteristic or Spellcaster characteristic\n- 3 VP if you used Deity Offering on both sacred altars. You can score this 3 VPs only once per game.\n\nEnd of the Game\n\nThe game ends at the end of round 4 or when one company has no units left on the battlefield.\n\nThis Homebrew mission was created by our Community member Vladimir Sagalov aka FinalForm',
+      objectiveDescription: 'Control altars and perform prayers for bonuses',
+      turnCount: 5,
+      roundCount: 4,
+      specialRules: ['Variable round length', 'Prayer action', 'Deity Offering', 'Conquest bonuses'],
+      mapImage: '/art/missions/sacred_lands.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Sacred Altar 1', value: 2 },
+        { id: 'obj2', name: 'Sacred Altar 2', value: 2 },
+        { id: 'obj3', name: 'Lesser Altar 1', value: 1 },
+        { id: 'obj4', name: 'Lesser Altar 2', value: 1 },
+        { id: 'obj5', name: 'Lesser Altar 3', value: 1 }
+      ],
+      isHomebrew: true,
+      communityCreator: 'Vladimir Sagalov aka FinalForm'
+    },
+    {
+      id: 'community-rescue-mission',
+      title: 'Rescue Mission',
+      name: 'Rescue Mission',
+      description: 'Rescue fallen comrades and avenge them in battle.',
+      objective: 'Rescue and avenge fallen comrades',
+      details: 'Preparation\n\nPlace 6 Fallen comrade markers(represented by coloured objective markers) as shown in the diagram.\nPlace an event marker on position 5 on a dial.\n\nRounds\n\nEach round lasts 4 turns\n\nEvent\n\nWhen event is activated do the following:\n\nReplace all Fallen comrade markers with Mournful sights markers (represented by coloured objective markers of the same colour).\n\nRemove the event marker from the dial.\n\nRescuing the wounded\n\nIn this mission any unit may use special simple action Ensure survival: when your unit is within 3 from the Fallen comrade marker of your colour - you can use this action. \nYou can choose to place Survivor token on this unit or on any allied unit within 8. You can recover 1 trooper model in that unit. Remove that Fallen comrade marker from the game. \n\nIf unit with Survivor token is destroyed - discard Survivor token.\nIf an officer or support leaves the unit, you can choose which of them retains the Survivor token.\n\nAvenge the fallen\n\nIn this mission after your unit inficts any amount of damage to an enemy unit- place 1 vengeance token on that unit (you can represent it by d6 dice)\nIf your unit destroys an enemy unit - place 3 vengeance tokens on that unit instead. Your unit can never have more than 6 vengeance tokens. If you have to place any excessive vengeance tokens on a unit- discard them so there are no more than 6 vengeance tokens on your unit.\nUnit can repeat the number of dice on your attack rolls up to the number of vengeance tokens on it.\n\nScoring\n\nAt the end of each round you score:\n\n- 1 VP for each Fallen comrade token you control\n- 1 VP for each Survivor token on your units that are on the battlefield and are not engaged.\n- 1 VP for each 2 vengeance tokens on your units within 3 of Mournful sights markers of your colour. After scoring VPs this way, remove all the vengeance tokens from your units within 3 of Mournful sights markers of your colour. \n\nEnd of the Game\n\nThe game ends at the end of round 3 or when one company has no units left on the battlefield.\n\nThis Homebrew mission was created by our Community member Vladimir Sagalov aka FinalForm',
+      objectiveDescription: 'Rescue fallen comrades and gain vengeance bonuses',
+      turnCount: 4,
+      roundCount: 3,
+      specialRules: ['Fallen comrade mechanics', 'Survivor tokens', 'Vengeance tokens', 'Attack roll repeats'],
+      mapImage: '/art/missions/rescue_mission.jpg',
+      objectiveMarkers: [
+        { id: 'obj1', name: 'Fallen Comrade 1', value: 1 },
+        { id: 'obj2', name: 'Fallen Comrade 2', value: 1 },
+        { id: 'obj3', name: 'Fallen Comrade 3', value: 1 },
+        { id: 'obj4', name: 'Fallen Comrade 4', value: 1 },
+        { id: 'obj5', name: 'Fallen Comrade 5', value: 1 },
+        { id: 'obj6', name: 'Fallen Comrade 6', value: 1 }
+      ],
+      isHomebrew: true,
+      communityCreator: 'Vladimir Sagalov aka FinalForm'
     }
   ];
 

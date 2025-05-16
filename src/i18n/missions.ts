@@ -56,4 +56,20 @@ export const missionTranslations = {
     es: 'Seleccionar Misión',
     fr: 'Sélectionner Mission'
   },
+  // New community mission translations
+  ghostsFromTheMist: {
+    en: 'Ghosts from the Mist',
+    es: 'Fantasmas de la Niebla',
+    fr: 'Fantômes de la Brume'
+  },
+  sacredLand: {
+    en: 'Sacred Land',
+    es: 'Tierra Sagrada',
+    fr: 'Terre Sacrée'
+  },
+  rescueMission: {
+    en: 'Rescue Mission',
+    es: 'Misión de Rescate',
+    fr: 'Mission de Sauvetage'
+  },
 };

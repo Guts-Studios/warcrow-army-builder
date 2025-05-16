@@ -12,9 +12,12 @@ const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
   'Take Positions': '/art/missions/take_positions.jpg',
   'Fog of Death': '/art/missions/fog_of_death.jpg',
-  'Tree Mother': '/art/missions/tree_mother.jpg', // Main mission image
+  'Tree Mother': '/art/missions/tree_mother.jpg',
   'Breached Front': '/art/missions/breached_front.jpg',
   'Battle Lines': '/art/missions/battle_lines.jpg',
+  'Ghosts from the Mist': '/art/missions/ghosts_from_the_mist.jpg',
+  'Sacred Land': '/art/missions/sacred_lands.jpg',
+  'Rescue Mission': '/art/missions/rescue_mission.jpg',
 };
 
 // Special card images for missions that have them
@@ -44,7 +47,13 @@ const HIGHLIGHTED_WORDS = [
   'Woods',
   'Sÿena sprouts',
   'Destroy a sprout',
-  'Return home'
+  'Return home',
+  'Prayers and Offerings',
+  'Pray',
+  'Deity Offering',
+  'Rescuing the wounded',
+  'Ensure survival',
+  'Avenge the fallen'
 ];
 
 interface MissionDetailsProps {
@@ -175,7 +184,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         )}
         {/* Display mission image */}
         <img
-          src={MISSION_IMAGES[mission.title]}
+          src={MISSION_IMAGES[mission.title] || '/placeholder.svg'}
           alt={`${mission.title} ${t('mission')}`}
           className="w-full rounded-lg shadow-lg object-contain max-h-[400px]"
         />
