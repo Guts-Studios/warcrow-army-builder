@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
@@ -30,7 +31,7 @@ interface UpdateNewsRequest {
 // Function to convert database item to app format
 const convertToNewsItem = (dbItem: NewsItemDB): NewsItem => {
   return {
-    id: dbItem.news_id,
+    id: dbItem.news_id || dbItem.id, // Ensure we always have an ID
     date: dbItem.date,
     key: dbItem.translation_key
   };
@@ -177,12 +178,12 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
     
     const startTime = performance.now();
     
-    // Set a timeout for the database query
+    // Set a timeout for the database query - reduce from 4s to 2s for faster fallback
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
-        console.log('Database fetch timeout after 4 seconds');
+        console.log('Database fetch timeout after 2 seconds');
         resolve([]);
-      }, 4000);
+      }, 2000); // 2-second timeout
     });
     
     // The actual fetch promise
@@ -211,12 +212,14 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       
       // Handle existing data that might not have content_fr yet
       const processedData = data.map(item => {
+        // Ensure we have news_id - crucial fix for ID handling
+        const newsId = item.news_id || item.id;
+        
         // Ensure content_fr exists (using an empty string if it doesn't)
         const processedItem = {
           ...item,
           content_fr: 'content_fr' in item ? item.content_fr : '',
-          // Ensure news_id exists - sometimes it might be missing in older data
-          news_id: item.news_id || item.id
+          news_id: newsId
         } as NewsItemDB;
         
         return processedItem;

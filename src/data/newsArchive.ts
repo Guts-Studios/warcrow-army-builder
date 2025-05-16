@@ -53,52 +53,76 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
     console.log("Initializing news items from database...");
     
-    // Set up a timeout for the fetch
+    // Set up a timeout for the fetch (reduced from 3s to 2s for faster fallback)
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
         console.log("Database fetch timeout, using cached or default news");
         // Return localStorage data or default items if timeout
         const cachedNews = tryLoadFromLocalStorage();
-        resolve(cachedNews.length > 0 ? cachedNews : newsItems);
-      }, 3000); // 3 second timeout
+        resolve(cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS);
+      }, 2000); // Reduced to 2 seconds for faster fallback
     });
     
     // Actual fetch
-    const fetchPromise = fetchNewsItems().then(items => {
-      console.log(`Fetched ${items.length} news items from database`);
-      
-      // Cache in localStorage for future use
-      try {
-        localStorage.setItem('cached_news_items', JSON.stringify(items));
-        console.log('Cached news items in localStorage');
-      } catch (e) {
-        console.error('Failed to cache news items:', e);
-      }
-      
-      // Update the global variable
-      if (items.length > 0) {
+    const fetchPromise = fetchNewsItems()
+      .then(items => {
+        console.log(`Fetched ${items.length} news items from database`);
+        
+        if (items.length === 0) {
+          console.log("No news items returned from database, using cached or defaults");
+          const cachedNews = tryLoadFromLocalStorage();
+          return cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS;
+        }
+        
+        // Cache in localStorage for future use
+        try {
+          localStorage.setItem('cached_news_items', JSON.stringify(items));
+          console.log('Cached news items in localStorage');
+        } catch (e) {
+          console.error('Failed to cache news items:', e);
+        }
+        
+        // Update the global variable
         newsItems = items;
-      }
-      
-      return items;
-    });
+        
+        return items;
+      })
+      .catch(error => {
+        console.error("Error fetching news items:", error);
+        // Use localStorage on error
+        const cachedNews = tryLoadFromLocalStorage();
+        if (cachedNews.length > 0) {
+          console.log('Using cached news after fetch error');
+          return cachedNews;
+        }
+        console.log('No cached news available, using defaults');
+        return DEFAULT_NEWS_ITEMS;
+      });
     
     // Race between the timeout and the fetch
     const result = await Promise.race([fetchPromise, timeoutPromise]);
-    return result.length > 0 ? result : DEFAULT_NEWS_ITEMS;
+    
+    // Make sure we have at least the default items
+    if (!result || result.length === 0) {
+      console.log("No news items from any source, using defaults");
+      return DEFAULT_NEWS_ITEMS;
+    }
+    
+    return result;
   } catch (error) {
     console.error("Error initializing news items:", error);
     
     // Try localStorage on error
     const cachedNews = tryLoadFromLocalStorage();
     if (cachedNews.length > 0) {
-      console.log('Using cached news after error');
+      console.log('Using cached news after initialization error');
       newsItems = cachedNews;
       return cachedNews;
     }
     
-    // Return current items (which may be default) on error
-    return newsItems;
+    // Return default items on error
+    console.log('Using default news items after error');
+    return DEFAULT_NEWS_ITEMS;
   }
 };
 

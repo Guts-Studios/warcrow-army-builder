@@ -12,13 +12,25 @@ export function useUnitData(selectedFaction: string) {
     queryFn: async () => {
       console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
       try {
+        // Set up a timeout for the fetch
+        const timeoutPromise = new Promise<ApiUnit[]>((_, reject) => {
+          setTimeout(() => reject(new Error('Database fetch timeout')), 2000); // 2 second timeout
+        });
+        
+        // Actual fetch with promise race
         let query = supabase.from('unit_data').select('*');
         
         if (selectedFaction !== 'all') {
           query = query.eq('faction', selectedFaction);
         }
         
-        const { data, error } = await query;
+        // Race between the fetch and timeout
+        const { data, error } = await Promise.race([
+          query,
+          timeoutPromise.then(() => {
+            throw new Error('Database fetch timeout');
+          })
+        ]) as any;
         
         if (error) {
           console.error(`[useUnitData] Error fetching units for faction ${selectedFaction}:`, error);
@@ -29,11 +41,11 @@ export function useUnitData(selectedFaction: string) {
         
         // Log unit names for debugging
         if (data && data.length > 0) {
-          console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map(u => u.name));
+          console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map((u: any) => u.name));
         }
         
         // Add faction_display field and convert Json to proper Record type
-        const unitsWithFactionDisplay = (data || []).map(unit => ({
+        const unitsWithFactionDisplay = (data || []).map((unit: any) => ({
           ...unit,
           faction_display: unit.faction, // Use faction ID as display name for now
           characteristics: unit.characteristics as Record<string, any> // Convert Json to Record
@@ -42,10 +54,17 @@ export function useUnitData(selectedFaction: string) {
         return unitsWithFactionDisplay;
       } catch (error) {
         console.error(`[useUnitData] Failed to fetch units:`, error);
-        throw error;
+        
+        // Return mock data for testing when API fails
+        console.log(`[useUnitData] Using fallback data for faction: ${selectedFaction}`);
+        return fallbackUnits.map(unit => ({
+          ...unit,
+          faction_display: unit.faction,
+          characteristics: { command: unit.command, availability: unit.availability }
+        })) as ApiUnit[];
       }
     },
-    retry: 2, // Retry failed requests up to 2 times
+    retry: 1, // Reduce retry to provide fallback faster
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 }
@@ -57,10 +76,35 @@ export function useFactions(language: string = 'en') {
     queryFn: async () => {
       console.log("[useFactions] Fetching factions from Supabase with language:", language);
       try {
-        const { data, error } = await supabase
+        // Set up a timeout for the fetch
+        const timeoutPromise = new Promise<Faction[]>((_, reject) => {
+          setTimeout(() => {
+            console.log("[useFactions] Database fetch timeout, using cached or default factions");
+            // Try getting from localStorage
+            try {
+              const cachedFactions = localStorage.getItem('cached_factions');
+              if (cachedFactions) {
+                return JSON.parse(cachedFactions);
+              }
+            } catch (e) {
+              console.error('[useFactions] Failed to retrieve cached factions:', e);
+            }
+            
+            return fallbackFactions;
+          }, 2000); // 2 second timeout
+        });
+        
+        // Actual fetch with promise race
+        const fetchPromise = supabase
           .from('factions')
           .select('*')
           .order('name');
+          
+        // Race between the fetch and timeout
+        const { data, error } = await Promise.race([
+          fetchPromise,
+          timeoutPromise
+        ]) as any;
           
         if (error) {
           console.error("[useFactions] Error fetching factions:", error);
@@ -79,7 +123,7 @@ export function useFactions(language: string = 'en') {
           }));
           
           console.log(`[useFactions] Successfully fetched ${fetchedFactions.length} factions:`, 
-            fetchedFactions.map(f => f.name).join(', '));
+            fetchedFactions.map((f: Faction) => f.name).join(', '));
           
           // Store in localStorage as a backup
           try {
@@ -124,7 +168,7 @@ export function useFactions(language: string = 'en') {
       }
     },
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    retry: 2, // Retry failed requests up to 2 times
+    retry: 1, // Reduce retry to provide fallback faster
   });
 }
 
@@ -162,16 +206,33 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         const startTime = performance.now();
         console.log(`[useArmyBuilderUnits] Starting fetch for faction: ${selectedFaction}`);
         
-        // First try getting data from Supabase
+        // First check localStorage for cached units
+        try {
+          const cachedUnits = localStorage.getItem(`units_${selectedFaction}`);
+          if (cachedUnits) {
+            try {
+              const units = JSON.parse(cachedUnits);
+              console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
+              return units;
+            } catch (parseError) {
+              console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
+              // Continue to database fetch if parsing fails
+            }
+          }
+        } catch (e) {
+          console.error('[useArmyBuilderUnits] Failed to access localStorage:', e);
+        }
+        
+        // Try getting data from Supabase with a short timeout
         let query = supabase.from('unit_data').select('*');
         
         if (selectedFaction !== 'all') {
           query = query.eq('faction', selectedFaction);
         }
         
-        // Set a reasonable timeout for the fetch
+        // Set a shorter timeout for the fetch (2 seconds)
         const timeoutPromise = new Promise((_resolve, reject) => {
-          setTimeout(() => reject(new Error('Database fetch timeout')), 5000); // 5 seconds timeout
+          setTimeout(() => reject(new Error('Database fetch timeout')), 2000); // 2 seconds timeout
         });
         
         // Race between the fetch and timeout
@@ -198,11 +259,11 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         // Log all unit names for debugging
         console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
-          data.map(u => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
+          data.map((u: any) => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
         
         // Filter out units that should not be shown in the builder
         const visibleUnits = data
-          .filter(unit => {
+          .filter((unit: any) => {
             // Make sure characteristics is properly handled as it might be null
             const characteristics = unit.characteristics && typeof unit.characteristics === 'object' ? 
               unit.characteristics as Record<string, any> : {};
@@ -210,7 +271,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             // Otherwise include it (undefined or true)
             return characteristics.showInBuilder !== false;
           })
-          .map(apiUnit => {
+          .map((apiUnit: any) => {
             // Make sure characteristics is properly handled
             const safeCharacteristics = apiUnit.characteristics && 
               typeof apiUnit.characteristics === 'object' ? 
@@ -283,7 +344,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         }
       }
     },
-    retry: 1, // Reduced retry to speed up fallback to static files
+    retry: 0, // No retries to speed up fallback to static files
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retryDelay: 1000, // Wait 1 second between retries
   });

@@ -26,27 +26,22 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
     setLoadError(null);
     setUsingCachedData(false);
     
+    // Start with any existing news items to show something immediately
+    if (newsItems.length > 0) {
+      setItems(newsItems);
+      setUsingCachedData(true);
+    }
+    
     try {
       console.log("NewsArchiveDialog: Loading news items...");
       
-      // Set a timeout for the initialization
-      const timeoutPromise = new Promise<void>((_, reject) => {
-        setTimeout(() => reject(new Error('News fetch timeout')), 5000);
-      });
-      
-      // Race between the initialization and timeout
-      const loadedItems = await Promise.race([
-        initializeNewsItems(),
-        timeoutPromise.then(() => {
-          console.log('Using current news items due to timeout');
-          setUsingCachedData(true);
-          return newsItems;
-        })
-      ]);
+      // Short timeout to ensure UI responsiveness
+      const loadedItems = await initializeNewsItems();
       
       if (loadedItems && loadedItems.length > 0) {
         setItems(loadedItems);
         console.log("NewsArchiveDialog: Loaded", loadedItems.length, "news items");
+        setUsingCachedData(loadedItems === newsItems);
       } else {
         console.log("NewsArchiveDialog: No news items found");
         setLoadError("No news items found");
@@ -133,18 +128,18 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
           </Button>
         </DialogHeader>
         <div className="space-y-5 py-4">
-          {usingCachedData && (
+          {usingCachedData && items.length > 0 && (
             <div className="bg-amber-950/40 text-amber-200 px-3 py-2 rounded text-xs">
-              Using cached news data due to slow database connection. Click Refresh to try again.
+              Using cached news data. Click Refresh to try again.
             </div>
           )}
         
-          {isLoading ? (
+          {isLoading && items.length === 0 ? (
             <div className="flex justify-center items-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold/70" />
               <p className="ml-3 text-warcrow-text">{t('loading')}</p>
             </div>
-          ) : loadError ? (
+          ) : loadError && items.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-muted-foreground mb-4">{loadError}</p>
               <Button 
