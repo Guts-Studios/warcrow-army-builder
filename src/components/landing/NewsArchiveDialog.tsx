@@ -19,13 +19,31 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [usingCachedData, setUsingCachedData] = useState(false);
   
   const loadNews = async () => {
     setIsLoading(true);
     setLoadError(null);
+    setUsingCachedData(false);
+    
     try {
       console.log("NewsArchiveDialog: Loading news items...");
-      const loadedItems = await initializeNewsItems();
+      
+      // Set a timeout for the initialization
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('News fetch timeout')), 5000);
+      });
+      
+      // Race between the initialization and timeout
+      const loadedItems = await Promise.race([
+        initializeNewsItems(),
+        timeoutPromise.then(() => {
+          console.log('Using current news items due to timeout');
+          setUsingCachedData(true);
+          return newsItems;
+        })
+      ]);
+      
       if (loadedItems && loadedItems.length > 0) {
         setItems(loadedItems);
         console.log("NewsArchiveDialog: Loaded", loadedItems.length, "news items");
@@ -35,7 +53,15 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
       }
     } catch (error) {
       console.error("NewsArchiveDialog: Error loading news:", error);
-      setLoadError("Failed to load news archive");
+      
+      // If we have items in the global variable, use them
+      if (newsItems.length > 0) {
+        setItems(newsItems);
+        setUsingCachedData(true);
+        console.log("NewsArchiveDialog: Using cached news items after error");
+      } else {
+        setLoadError("Failed to load news archive");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +73,11 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
 
   const handleRefresh = async () => {
     await loadNews();
-    toast.success("News archive refreshed");
+    if (!usingCachedData) {
+      toast.success("News archive refreshed");
+    } else {
+      toast.info("Using cached news (database fetch was slow)");
+    }
   };
 
   // Function to format news content with highlighted date
@@ -103,6 +133,12 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
           </Button>
         </DialogHeader>
         <div className="space-y-5 py-4">
+          {usingCachedData && (
+            <div className="bg-amber-950/40 text-amber-200 px-3 py-2 rounded text-xs">
+              Using cached news data due to slow database connection. Click Refresh to try again.
+            </div>
+          )}
+        
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-warcrow-gold/70" />

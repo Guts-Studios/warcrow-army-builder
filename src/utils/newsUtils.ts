@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
@@ -176,53 +175,70 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
     // Log the start of the fetch process for debugging
     console.log('Fetching news items from Supabase...');
     
-    const { data, error } = await supabase
-      .from('news_items')
-      .select('*')
-      .order('date', { ascending: false });
+    const startTime = performance.now();
     
-    if (error) {
-      console.error('Error fetching news items:', error);
-      return [];
-    }
+    // Set a timeout for the database query
+    const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
+      setTimeout(() => {
+        console.log('Database fetch timeout after 4 seconds');
+        resolve([]);
+      }, 4000);
+    });
     
-    if (!data || data.length === 0) {
-      console.log('No news items found in database');
-      return [];
-    }
-    
-    console.log(`Found ${data.length} news items in database`);
-    
-    // Check if content_fr exists in the database schema
-    const hasFrenchContent = data.some(item => 'content_fr' in item);
-    console.log('Database has content_fr field:', hasFrenchContent);
-    
-    // Handle existing data that might not have content_fr yet
-    const processedData = data.map(item => {
-      // Ensure content_fr exists (using an empty string if it doesn't)
-      const processedItem = {
-        ...item,
-        content_fr: 'content_fr' in item ? item.content_fr : '',
-        // Ensure news_id exists - sometimes it might be missing in older data
-        news_id: item.news_id || item.id
-      } as NewsItemDB;
+    // The actual fetch promise
+    const fetchPromise = (async (): Promise<NewsItem[]> => {
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false });
       
-      return processedItem;
-    });
+      if (error) {
+        console.error('Error fetching news items:', error);
+        return [];
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No news items found in database');
+        return [];
+      }
+      
+      const fetchTime = performance.now() - startTime;
+      console.log(`Found ${data.length} news items in database (fetch took ${fetchTime.toFixed(2)}ms)`);
+      
+      // Check if content_fr exists in the database schema
+      const hasFrenchContent = data.some(item => 'content_fr' in item);
+      console.log('Database has content_fr field:', hasFrenchContent);
+      
+      // Handle existing data that might not have content_fr yet
+      const processedData = data.map(item => {
+        // Ensure content_fr exists (using an empty string if it doesn't)
+        const processedItem = {
+          ...item,
+          content_fr: 'content_fr' in item ? item.content_fr : '',
+          // Ensure news_id exists - sometimes it might be missing in older data
+          news_id: item.news_id || item.id
+        } as NewsItemDB;
+        
+        return processedItem;
+      });
+      
+      // Update the in-memory translations for each news item
+      processedData.forEach(item => {
+        translations[item.translation_key] = {
+          en: item.content_en || '',
+          es: item.content_es || '',
+          fr: item.content_fr || '' // Use the processed content_fr
+        };
+      });
+      
+      // Convert to app format
+      const newsItems = processedData.map(convertToNewsItem);
+      console.log(`Processed ${newsItems.length} news items successfully`);
+      return newsItems;
+    })();
     
-    // Update the in-memory translations for each news item
-    processedData.forEach(item => {
-      translations[item.translation_key] = {
-        en: item.content_en || '',
-        es: item.content_es || '',
-        fr: item.content_fr || '' // Use the processed content_fr
-      };
-    });
-    
-    // Convert to app format
-    const newsItems = processedData.map(convertToNewsItem);
-    console.log(`Processed ${newsItems.length} news items successfully`);
-    return newsItems;
+    // Race between the timeout and the fetch
+    return Promise.race([fetchPromise, timeoutPromise]);
   } catch (error) {
     console.error('Error in fetchNewsItems:', error);
     return [];

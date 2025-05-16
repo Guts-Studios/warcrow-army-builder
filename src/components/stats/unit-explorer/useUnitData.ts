@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ApiUnit, Unit, Faction } from '@/types/army';
@@ -129,16 +130,22 @@ export function useFactions(language: string = 'en') {
 
 // Convert API units to army builder units - ensuring type compatibility
 export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
+  // Safely access characteristics as an object and handle nullability
+  const characteristics = apiUnit.characteristics && 
+    typeof apiUnit.characteristics === 'object' ? 
+    apiUnit.characteristics as Record<string, any> : {};
+    
   return {
     id: apiUnit.id,
     name: apiUnit.name,
     faction: apiUnit.faction,
     pointsCost: apiUnit.points,
-    availability: apiUnit.characteristics?.availability || 0,
-    command: apiUnit.characteristics?.command || 0,
+    availability: characteristics?.availability || 0,
+    command: characteristics?.command || 0,
     keywords: (apiUnit.keywords || []).map(k => ({ name: k })),
     specialRules: apiUnit.special_rules || [],
-    highCommand: apiUnit.characteristics?.highCommand || false,
+    // Fixed the TypeScript error with proper type checking
+    highCommand: Boolean(characteristics?.highCommand) || false,
   };
 }
 
@@ -152,6 +159,9 @@ export function useArmyBuilderUnits(selectedFaction: string) {
       console.log("[useArmyBuilderUnits] Auth state:", { isAuthenticated, isGuest, selectedFaction, timestamp: new Date().toISOString() });
       
       try {
+        const startTime = performance.now();
+        console.log(`[useArmyBuilderUnits] Starting fetch for faction: ${selectedFaction}`);
+        
         // First try getting data from Supabase
         let query = supabase.from('unit_data').select('*');
         
@@ -159,7 +169,18 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           query = query.eq('faction', selectedFaction);
         }
         
-        const { data, error } = await query;
+        // Set a reasonable timeout for the fetch
+        const timeoutPromise = new Promise((_resolve, reject) => {
+          setTimeout(() => reject(new Error('Database fetch timeout')), 5000); // 5 seconds timeout
+        });
+        
+        // Race between the fetch and timeout
+        const { data, error } = await Promise.race([
+          query,
+          timeoutPromise.then(() => {
+            throw new Error('Database fetch timeout');
+          })
+        ]) as any;
         
         if (error) {
           console.error("[useArmyBuilderUnits] Error fetching units from Supabase:", error);
@@ -171,6 +192,9 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           console.info(`[useArmyBuilderUnits] No units found in database for faction: ${selectedFaction}`);
           throw new Error("No units found in database"); // Trigger fallback to local data
         }
+        
+        const fetchTime = performance.now() - startTime;
+        console.log(`[useArmyBuilderUnits] Database fetch completed in ${fetchTime.toFixed(2)}ms`);
         
         // Log all unit names for debugging
         console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
@@ -211,13 +235,20 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         
         return visibleUnits;
       } catch (error) {
+        console.warn(`[useArmyBuilderUnits] Database fetch failed, trying localStorage and fallback...`, error);
+        
         // Try to get units from localStorage cache first
         try {
           const cachedUnits = localStorage.getItem(`units_${selectedFaction}`);
           if (cachedUnits) {
-            const units = JSON.parse(cachedUnits);
-            console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
-            return units;
+            try {
+              const units = JSON.parse(cachedUnits);
+              console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
+              return units;
+            } catch (parseError) {
+              console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
+              // Continue to fallback if parsing fails
+            }
           }
         } catch (e) {
           console.error('[useArmyBuilderUnits] Failed to retrieve cached units:', e);
@@ -226,26 +257,34 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
         
         // Import directly from the faction-specific file based on the selected faction
-        if (selectedFaction === 'northern-tribes') {
-          const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
-          return northernTribesUnits;
-        } else if (selectedFaction === 'hegemony-of-embersig') {
-          const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
-          return hegemonyOfEmbersigUnits;
-        } else if (selectedFaction === 'scions-of-yaldabaoth') {
-          const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
-          return scionsOfYaldabaothUnits;
-        } else if (selectedFaction === 'syenann') {
-          const { syenannUnits } = await import('@/data/factions/syenann');
-          return syenannUnits;
-        }
+        try {
+          if (selectedFaction === 'northern-tribes') {
+            const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
+            return northernTribesUnits;
+          } else if (selectedFaction === 'hegemony-of-embersig') {
+            const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
+            return hegemonyOfEmbersigUnits;
+          } else if (selectedFaction === 'scions-of-yaldabaoth') {
+            const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
+            return scionsOfYaldabaothUnits;
+          } else if (selectedFaction === 'syenann') {
+            const { syenannUnits } = await import('@/data/factions/syenann');
+            return syenannUnits;
+          }
         
-        // Fallback to full unit list and filter by faction
-        const { units } = await import('@/data/factions');
-        return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+          // Fallback to full unit list and filter by faction
+          const { units } = await import('@/data/factions');
+          return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+        } catch (importError) {
+          console.error(`[useArmyBuilderUnits] Failed to import faction units:`, importError);
+          // Final fallback to the global units array
+          const { units } = await import('@/data/factions');
+          return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+        }
       }
     },
-    retry: 2, // Retry twice to improve chances of success
+    retry: 1, // Reduced retry to speed up fallback to static files
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retryDelay: 1000, // Wait 1 second between retries
   });
 }
