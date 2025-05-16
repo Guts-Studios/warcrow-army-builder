@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Plus, RefreshCw, Database, Sync } from 'lucide-react';
+import { Loader2, Plus, RefreshCw, Database, RotateCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { findMissingUnits, generateFactionFileContent } from '@/utils/unitSyncUtility';
 import UnitSyncChecker from './UnitSyncChecker';
@@ -43,6 +43,7 @@ const UnitDataTable = () => {
   const [unitAvailability, setUnitAvailability] = useState('1');
   const [unitCommand, setUnitCommand] = useState('0');
   const [unitHighCommand, setUnitHighCommand] = useState(false);
+  const [unitDescription, setUnitDescription] = useState(''); // Added missing description field
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load units from Supabase
@@ -144,7 +145,7 @@ const UnitDataTable = () => {
         throw new Error('Name, ID and faction are required');
       }
       
-      // Create unit object
+      // Create unit object with required description field
       const newUnit = {
         id: unitId,
         name: unitName,
@@ -153,6 +154,7 @@ const UnitDataTable = () => {
         points: points,
         keywords: keywords,
         special_rules: specialRules,
+        description: unitDescription || ' ', // Add required description field with default value
         characteristics: {
           availability,
           command,
@@ -191,6 +193,7 @@ const UnitDataTable = () => {
     setUnitAvailability('1');
     setUnitCommand('0');
     setUnitHighCommand(false);
+    setUnitDescription('');
     setIsSubmitting(false);
   };
 
@@ -378,6 +381,16 @@ const UnitDataTable = () => {
                       className="bg-warcrow-accent/50 border-warcrow-gold/30"
                     />
                   </div>
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <Label htmlFor="unitDescription">Description</Label>
+                    <Textarea 
+                      id="unitDescription" 
+                      value={unitDescription}
+                      onChange={(e) => setUnitDescription(e.target.value)}
+                      placeholder="Unit description (optional)"
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
@@ -398,7 +411,7 @@ const UnitDataTable = () => {
             <Dialog open={showSyncDialog} onOpenChange={setShowSyncDialog}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10">
-                  <Sync className="w-4 h-4 mr-2" />
+                  <RotateCw className="w-4 h-4 mr-2" />
                   Sync Files
                 </Button>
               </DialogTrigger>
