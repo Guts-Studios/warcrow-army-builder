@@ -45,7 +45,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       } else if (portraitUrl.endsWith('_card.png')) {
         portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); 
       } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg')) {
-        // Always use English portrait versions regardless of card language
+        // Remove language suffixes for portrait URLs to always use English version
         portraitImageUrl = portraitImageUrl
           .replace('_card_sp.jpg', '_portrait.jpg')
           .replace('_card_fr.jpg', '_portrait.jpg');
@@ -60,11 +60,6 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
 
   // For debugging
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
-  
-  // Log the generated URL for debugging
-  if (name.includes("Dragoslav") || name.includes("Aggressors")) {
-    console.log(`Generated portrait URL for ${name}:`, portraitImageUrl);
-  }
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
