@@ -7,6 +7,7 @@ import { units } from "@/data/factions";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -18,10 +19,12 @@ export const useArmyList = (selectedFaction: string) => {
   const { toast } = useToast();
   const { isAuthenticated, isGuest } = useAuth();
 
-  const factionUnits = useMemo(
-    () => units.filter((unit) => unit.faction === selectedFaction),
-    [selectedFaction]
-  );
+  // Use react-query hook to fetch faction units with proper loading/error states
+  const { 
+    data: factionUnits = [], 
+    isLoading: unitsLoading, 
+    error: unitsError 
+  } = useArmyBuilderUnits(selectedFaction);
 
   // Fetch saved lists on mount and when auth state changes
   useEffect(() => {
@@ -163,5 +166,7 @@ export const useArmyList = (selectedFaction: string) => {
     handleSaveList,
     handleLoadList,
     factionUnits,
+    unitsLoading,
+    unitsError
   };
 };

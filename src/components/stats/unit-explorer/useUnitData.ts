@@ -26,6 +26,11 @@ export function useUnitData(selectedFaction: string) {
       
       console.log(`[useUnitData] Successfully fetched ${data?.length || 0} units`);
       
+      // Log unit names for debugging
+      if (data && data.length > 0) {
+        console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map(u => u.name));
+      }
+      
       // Add faction_display field and convert Json to proper Record type
       const unitsWithFactionDisplay = (data || []).map(unit => ({
         ...unit,
@@ -110,6 +115,10 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           throw new Error("No units found in database"); // Trigger fallback to local data
         }
         
+        // Log all unit names for debugging
+        console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
+          data.map(u => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
+        
         // Filter out units that should not be shown in the builder
         const visibleUnits = data
           .filter(unit => {
@@ -144,6 +153,11 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           // Import all Scions units explicitly to ensure they're all included
           const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
           factionUnits = scionsOfYaldabaothUnits;
+          
+          // Log all unit names for debugging
+          console.log(`[useArmyBuilderUnits] Local Scions units:`, 
+            factionUnits.map(u => `${u.name}${u.highCommand ? ' (HC)' : ''}`).join(', '));
+            
           console.log(`[useArmyBuilderUnits] Loaded ${factionUnits.length} Scions units directly from faction file`);
         } else {
           // For other factions use the standard filtering
