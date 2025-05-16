@@ -20,38 +20,47 @@ export const fetchSavedLists = async (wabId?: string) => {
   try {
     let cloudLists: SavedList[] = [];
     
-    // If a WAB ID is provided, fetch lists by that WAB ID
-    if (wabId) {
-      console.log("Fetching cloud lists by WAB ID:", wabId);
-      cloudLists = await fetchListsByWabId(wabId);
-      console.log("Found cloud lists by WAB ID:", cloudLists.length);
-    } else {
-      // Otherwise, try to get the current user's lists
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log("User is authenticated, fetching their lists");
-        const { data, error } = await supabase
-          .from("army_lists")
-          .select("*")
-          .eq("user_id", session.user.id);
-          
-        if (error) {
-          console.error("Error fetching cloud lists by user ID:", error);
-        } else if (data) {
-          console.log("Found cloud lists by user ID:", data.length);
-          cloudLists = data.map((list: any) => ({
-            id: list.id,
-            name: list.name,
-            faction: list.faction,
-            units: list.units,
-            user_id: list.user_id,
-            created_at: list.created_at,
-            wab_id: list.wab_id
-          }));
-        }
-      } else {
-        console.log("User is not authenticated, not fetching cloud lists");
+    // Get current user session
+    const { data: { session } } = await supabase.auth.getSession();
+    const isAuthenticated = !!session?.user;
+    console.log("Auth state:", { isAuthenticated, userId: session?.user?.id });
+    
+    // If user is authenticated, fetch their lists first
+    if (isAuthenticated) {
+      console.log("Fetching cloud lists for authenticated user:", session.user.id);
+      
+      const { data, error } = await supabase
+        .from("army_lists")
+        .select("*")
+        .eq("user_id", session.user.id);
+        
+      if (error) {
+        console.error("Error fetching cloud lists by user ID:", error);
+      } else if (data) {
+        console.log("Found cloud lists by user ID:", data.length);
+        cloudLists = data.map((list: any) => ({
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: list.units,
+          user_id: list.user_id,
+          created_at: list.created_at,
+          wab_id: list.wab_id
+        }));
       }
+    }
+    
+    // If a WAB ID is provided and different from the user's ID, fetch additional lists
+    if (wabId && (!isAuthenticated || wabId !== session.user.id)) {
+      console.log("Fetching additional cloud lists by WAB ID:", wabId);
+      const wabLists = await fetchListsByWabId(wabId);
+      
+      // Only add WAB lists that aren't already in the user's lists
+      const existingIds = new Set(cloudLists.map(list => list.id));
+      const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
+      
+      cloudLists = [...cloudLists, ...newWabLists];
+      console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
     }
 
     const combinedLists = [...localLists, ...cloudLists];

@@ -1,10 +1,11 @@
 
 import { Button } from "@/components/ui/button";
-import { Trash2, CloudOff, Cloud } from "lucide-react";
+import { Trash2, CloudOff, Cloud, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { toast } from "sonner";
 
 interface SavedListsSectionProps {
   savedLists: SavedList[];
@@ -22,6 +23,7 @@ const SavedListsSection = ({
   const { t } = useLanguage();
   const [sortedLists, setSortedLists] = useState<SavedList[]>([]);
   const { isAuthenticated, isGuest } = useAuth();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Filter and sort lists whenever savedLists or selectedFaction changes
   useEffect(() => {
@@ -73,15 +75,31 @@ const SavedListsSection = ({
       timestamp: new Date().toISOString()
     });
     
-  }, [savedLists, selectedFaction, isAuthenticated, isGuest]);
+  }, [savedLists, selectedFaction, isAuthenticated, isGuest, refreshTrigger]);
+
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+    toast.info("Refreshing saved lists...");
+  };
 
   if (sortedLists.length === 0) return null;
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
-      <h3 className="text-lg font-semibold text-warcrow-gold mb-2">
-        {t('savedLists')}
-      </h3>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-semibold text-warcrow-gold">
+          {t('savedLists')}
+        </h3>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-warcrow-accent/50"
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Refresh
+        </Button>
+      </div>
       <div className="space-y-2">
         {sortedLists.map((list) => (
           <div
