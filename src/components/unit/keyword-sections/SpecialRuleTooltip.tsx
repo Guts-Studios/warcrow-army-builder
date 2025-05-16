@@ -16,11 +16,19 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const [openDialog, setOpenDialog] = useState(false);
-  const { translateSpecialRuleDescription } = useTranslateKeyword();
+  const { translateSpecialRule, translateSpecialRuleDescription } = useTranslateKeyword();
   
   // Extract the rule name without any parameters in parentheses
   const lookupName = originalName || ruleName; // Use original name for lookup if provided
   const basicRuleName = lookupName.split('(')[0].trim();
+  
+  // Use translated rule name for display
+  const displayRuleName = translateSpecialRule(basicRuleName, language);
+  
+  // Get the complete rule name with parameters if original had them
+  const fullDisplayName = lookupName.includes('(') ? 
+    `${displayRuleName} (${lookupName.split('(')[1]}` : 
+    displayRuleName;
   
   // Always get the English description first, then fallback to translations if in non-English mode
   const getDescription = (): string => {
@@ -57,7 +65,7 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
         className={className || ''}
         onClick={() => setOpenDialog(true)}
       >
-        {ruleName}
+        {fullDisplayName}
       </button>
 
       {openDialog && (
@@ -76,7 +84,7 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
             >
               ✕
             </button>
-            <h3 className="text-lg font-semibold mb-4">{ruleName}</h3>
+            <h3 className="text-lg font-semibold mb-4">{fullDisplayName}</h3>
             <div className="pt-2">
               <RuleContent />
             </div>
@@ -92,7 +100,7 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
             type="button"
             className={className || ''}
           >
-            {ruleName}
+            {fullDisplayName}
           </button>
         </TooltipTrigger>
         <TooltipContent 
@@ -100,7 +108,7 @@ const SpecialRuleTooltip: React.FC<SpecialRuleTooltipProps> = ({ ruleName, origi
           sideOffset={5}
           className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-h-[300px] overflow-y-auto max-w-[400px] whitespace-normal p-4"
         >
-          <p className="font-medium text-warcrow-gold mb-1">{ruleName}</p>
+          <p className="font-medium text-warcrow-gold mb-1">{fullDisplayName}</p>
           <RuleContent />
         </TooltipContent>
       </Tooltip>

@@ -1,4 +1,3 @@
-
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -22,6 +21,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const { language } = useLanguage();
   const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
 
+  // Filter out certain basic keywords that don't need explanations
   const filteredKeywords = keywords.filter(k => 
     !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
       "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
@@ -32,6 +32,15 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
 
   const getBaseKeyword = (keyword: string) => {
     return keyword.split('(')[0].trim();
+  };
+
+  const getFullKeywordName = (keywordBase: string, originalKeyword: string) => {
+    // If the original has parameters (X), keep them in the translated version
+    if (originalKeyword.includes('(')) {
+      const params = originalKeyword.split('(')[1];
+      return `${keywordBase} (${params}`;
+    }
+    return keywordBase;
   };
 
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => {
@@ -57,11 +66,19 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
 
   return (
     <div className="space-y-2">
-      <span className="text-xs font-semibold text-warcrow-text">Keywords:</span>
+      <span className="text-xs font-semibold text-warcrow-text">
+        {language === 'en' ? 'Keywords' : (language === 'es' ? 'Palabras clave' : 'Mots-clés')}:
+      </span>
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => {
-          // Get translated keyword name
-          const displayName = translateKeyword(keyword.name, language);
+          // Get base keyword name (without parameters)
+          const baseKeywordName = getBaseKeyword(keyword.name);
+          
+          // Get translated base keyword
+          const translatedBase = translateKeyword(baseKeywordName, language);
+          
+          // Get full keyword name with parameters if present
+          const displayName = getFullKeywordName(translatedBase, keyword.name);
             
           return isMobile ? (
             <button 
@@ -114,7 +131,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4">
-              {translateKeyword(openDialogKeyword.name, language)}
+              {getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword.name), language), openDialogKeyword.name)}
             </h3>
             <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />
