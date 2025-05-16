@@ -4,9 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Coffee } from "lucide-react";
 
-// Custom Patreon link
-const CUSTOM_PATREON_LINK = "https://patreon.com/GutzStudio?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=creatorshare_fan&utm_content=join_link";
-
 interface SecondaryActionsProps {
   isGuest: boolean;
   onSignOut: () => void;
@@ -17,7 +14,7 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
   const { t } = useLanguage();
   
   const handleBuyCoffeeClick = () => {
-    window.open(CUSTOM_PATREON_LINK, '_blank');
+    navigate('/about');
   };
   
   return (
