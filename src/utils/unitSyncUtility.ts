@@ -21,7 +21,8 @@ function convertDbUnitToApiUnit(dbUnit: any): ApiUnit {
     special_rules: dbUnit.special_rules || [],
     keywords: dbUnit.keywords || [],
     points: dbUnit.points || 0,
-    faction_display: dbUnit.faction
+    faction_display: dbUnit.faction,
+    type: dbUnit.type || 'unit' // Ensure type property always exists
   };
 }
 

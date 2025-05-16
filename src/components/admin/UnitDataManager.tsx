@@ -13,6 +13,7 @@ import FactionManager from "./units/FactionManager";
 import DeepLUsageStats from "./units/DeepLUsageStats";
 import PopulateDataButton from "./units/PopulateDataButton";
 import UnitDataTable from "./units/UnitDataTable";
+import DataSyncManager from "./units/DataSyncManager";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -90,6 +91,7 @@ const UnitDataManager: React.FC = () => {
 
         <TabsContent value="unittable" className="space-y-4">
           <UnitDataTable />
+          <DataSyncManager />
         </TabsContent>
 
         <TabsContent value="keywords-specialrules" className="space-y-4">

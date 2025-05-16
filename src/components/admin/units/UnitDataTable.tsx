@@ -1,127 +1,52 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Edit, RefreshCw, Trash2, Save, X, Languages } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { batchTranslate } from '@/utils/translation/batchTranslate';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslateKeyword } from '@/utils/translation';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { UnitTable } from '@/components/stats/unit-explorer/UnitTable';
+import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, Plus, RefreshCw, Database, Sync } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { findMissingUnits, generateFactionFileContent } from '@/utils/unitSyncUtility';
+import UnitSyncChecker from './UnitSyncChecker';
 
-interface UnitDataItem {
-  id: string;
-  name: string;
-  name_es?: string;
-  name_fr?: string;
-  faction: string;
-  type: string;
-  points: number;
-  characteristics: {
-    command?: number;
-    availability?: number;
-    highCommand?: boolean;
-  };
-  keywords: string[];
-  special_rules: string[];
-  description?: string;
-  description_es?: string;
-  description_fr?: string;
-  updated_at?: string;
-}
+const UnitDataTable = () => {
+  const [units, setUnits] = useState<any[]>([]);
+  const [filteredUnits, setFilteredUnits] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [factionFilter, setFactionFilter] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [factions, setFactions] = useState<{id: string, name: string}[]>([]);
+  const [showAddUnitDialog, setShowAddUnitDialog] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStats, setSyncStats] = useState<any>(null);
+  const [showSyncDialog, setShowSyncDialog] = useState(false);
+  const [selectedFactionForSync, setSelectedFactionForSync] = useState<string | null>(null);
+  const [syncResult, setSyncResult] = useState<any>(null);
 
-interface FactionItem {
-  id: string;
-  name: string;
-  name_es?: string;
-  name_fr?: string;
-}
+  // New unit form state
+  const [unitName, setUnitName] = useState('');
+  const [unitId, setUnitId] = useState('');
+  const [unitFaction, setUnitFaction] = useState('');
+  const [unitType, setUnitType] = useState('unit');
+  const [unitPoints, setUnitPoints] = useState('0');
+  const [unitKeywords, setUnitKeywords] = useState('');
+  const [unitSpecialRules, setUnitSpecialRules] = useState('');
+  const [unitAvailability, setUnitAvailability] = useState('1');
+  const [unitCommand, setUnitCommand] = useState('0');
+  const [unitHighCommand, setUnitHighCommand] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-interface SpecialRuleItem {
-  id?: string;
-  name: string;
-  description: string;
-  description_es?: string;
-  description_fr?: string;
-}
-
-// Map to normalize older faction IDs to canonical ones
-const factionIdMap: Record<string, string> = {
-  'hegemony': 'hegemony-of-embersig',
-  'tribes': 'northern-tribes',
-  'scions': 'scions-of-yaldabaoth'
-};
-
-const UnitDataTable: React.FC = () => {
-  const [units, setUnits] = useState<UnitDataItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [factionFilter, setFactionFilter] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
-  const [editingUnit, setEditingUnit] = useState<UnitDataItem | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [activeTranslationTab, setActiveTranslationTab] = useState('en');
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [factions, setFactions] = useState<FactionItem[]>([]);
-  const [factionDisplayNames, setFactionDisplayNames] = useState<Record<string, string>>({});
-  const [specialRules, setSpecialRules] = useState<SpecialRuleItem[]>([]);
-  const { language } = useLanguage();
-
-  // Fetch factions from the database
-  const fetchFactions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('factions')
-        .select('*')
-        .order('name');
-        
-      if (error) throw error;
-      
-      setFactions(data || []);
-      
-      // Create mapping of faction IDs to display names
-      const displayNames: Record<string, string> = {};
-      data?.forEach(faction => {
-        displayNames[faction.id] = faction.name;
-      });
-      
-      setFactionDisplayNames(displayNames);
-    } catch (error: any) {
-      console.error("Error fetching factions:", error);
-      toast.error(`Failed to fetch factions: ${error.message}`);
-    }
-  };
-  
-  // Fetch special rules to provide descriptions on hover
-  const fetchSpecialRules = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('special_rules')
-        .select('*')
-        .order('name');
-        
-      if (error) throw error;
-      
-      setSpecialRules(data || []);
-    } catch (error: any) {
-      console.error("Error fetching special rules:", error);
-      // Don't show a toast for this as it's not critical
-    }
-  };
-  
-  const fetchUnitData = async () => {
+  // Load units from Supabase
+  const fetchUnits = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -129,315 +54,205 @@ const UnitDataTable: React.FC = () => {
         .select('*')
         .order('faction')
         .order('name');
-
+      
       if (error) throw error;
       
-      // Process the unit data to ensure consistency and deduplicate
-      const processedData = normalizeAndDeduplicate(data || []);
-      setUnits(processedData);
-    } catch (error: any) {
-      console.error("Error fetching unit data:", error);
-      toast.error(`Failed to fetch unit data: ${error.message}`);
+      setUnits(data || []);
+      setFilteredUnits(data || []);
+    } catch (err) {
+      console.error('Error fetching units:', err);
+      toast.error('Failed to load units');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Normalize faction IDs and deduplicate units
-  const normalizeAndDeduplicate = (data: any[]): UnitDataItem[] => {
-    // First, normalize faction IDs
-    const normalizedData = data.map(item => {
-      // Check if the faction ID needs to be normalized
-      const normalizedFaction = factionIdMap[item.faction] || item.faction;
-      
-      return {
-        ...item,
-        faction: normalizedFaction,
-        characteristics: item.characteristics || {},
-        keywords: item.keywords || [],
-        special_rules: item.special_rules || []
-      };
-    });
-    
-    // Then deduplicate based on name and faction
-    const uniqueUnits: {[key: string]: UnitDataItem} = {};
-    
-    normalizedData.forEach(item => {
-      const key = `${item.name}_${item.faction}`;
-      
-      // Only add if this combination doesn't exist or if this is the newer entry
-      if (!uniqueUnits[key] || 
-          (item.updated_at && uniqueUnits[key].updated_at && 
-           new Date(item.updated_at) > new Date(uniqueUnits[key].updated_at!))) {
-        uniqueUnits[key] = item;
-      }
-    });
-    
-    return Object.values(uniqueUnits);
-  };
-
-  const updateUnit = async () => {
-    if (!editingUnit) return;
-    
+  // Load factions for filtering and adding new units
+  const fetchFactions = async () => {
     try {
-      const { error } = await supabase
-        .from('unit_data')
-        .update({
-          name: editingUnit.name,
-          name_es: editingUnit.name_es,
-          name_fr: editingUnit.name_fr,
-          faction: editingUnit.faction,
-          type: editingUnit.type,
-          points: editingUnit.points,
-          characteristics: editingUnit.characteristics,
-          keywords: editingUnit.keywords,
-          special_rules: editingUnit.special_rules,
-          description: editingUnit.description,
-          description_es: editingUnit.description_es,
-          description_fr: editingUnit.description_fr,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', editingUnit.id);
-
+      const { data, error } = await supabase
+        .from('factions')
+        .select('id, name')
+        .order('name');
+      
       if (error) throw error;
-      
-      toast.success('Unit updated successfully');
-      setIsEditDialogOpen(false);
-      fetchUnitData();
-    } catch (error: any) {
-      console.error("Error updating unit:", error);
-      toast.error(`Failed to update unit: ${error.message}`);
-    }
-  };
-
-  const deleteUnit = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this unit? This action cannot be undone.")) {
-      return;
-    }
-    
-    try {
-      const { error } = await supabase
-        .from('unit_data')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      toast.success('Unit deleted successfully');
-      fetchUnitData();
-    } catch (error: any) {
-      console.error("Error deleting unit:", error);
-      toast.error(`Failed to delete unit: ${error.message}`);
-    }
-  };
-
-  const translateUnitData = async () => {
-    if (!editingUnit) return;
-    
-    setIsTranslating(true);
-    try {
-      let translationUpdates: Partial<UnitDataItem> = {};
-      
-      // Determine which fields to translate based on the active tab
-      if (activeTranslationTab === 'es') {
-        // Translate to Spanish
-        const nameResult = await batchTranslate([editingUnit.name], 'es') as string[];
-        const descriptionResult = editingUnit.description 
-          ? await batchTranslate([editingUnit.description], 'es') as string[]
-          : [''];
-          
-        translationUpdates = {
-          name_es: nameResult[0],
-          description_es: descriptionResult[0]
-        };
-      } else if (activeTranslationTab === 'fr') {
-        // Translate to French
-        const nameResult = await batchTranslate([editingUnit.name], 'fr') as string[];
-        const descriptionResult = editingUnit.description 
-          ? await batchTranslate([editingUnit.description], 'fr') as string[]
-          : [''];
-          
-        translationUpdates = {
-          name_fr: nameResult[0],
-          description_fr: descriptionResult[0]
-        };
-      }
-      
-      setEditingUnit({
-        ...editingUnit,
-        ...translationUpdates
-      });
-      
-      toast.success(`Translation to ${activeTranslationTab === 'es' ? 'Spanish' : 'French'} completed`);
-    } catch (error: any) {
-      console.error("Translation error:", error);
-      toast.error(`Failed to translate: ${error.message}`);
-    } finally {
-      setIsTranslating(false);
+      setFactions(data || []);
+    } catch (err) {
+      console.error('Error fetching factions:', err);
     }
   };
 
   useEffect(() => {
+    fetchUnits();
     fetchFactions();
-    fetchSpecialRules();
-    fetchUnitData();
   }, []);
 
-  const getUniqueValues = (field: keyof UnitDataItem) => {
-    if (field === 'type') {
-      return [...new Set(units.map(unit => unit.type))].filter(Boolean).sort();
+  // Filter units based on search and faction
+  useEffect(() => {
+    if (units.length > 0) {
+      let filtered = [...units];
+      
+      // Apply search filter
+      if (searchQuery) {
+        const search = searchQuery.toLowerCase();
+        filtered = filtered.filter(unit => 
+          unit.name?.toLowerCase().includes(search) ||
+          unit.id?.toLowerCase().includes(search) ||
+          unit.keywords?.some((k: string) => k.toLowerCase().includes(search))
+        );
+      }
+      
+      // Apply faction filter
+      if (factionFilter !== 'all') {
+        filtered = filtered.filter(unit => unit.faction === factionFilter);
+      }
+      
+      setFilteredUnits(filtered);
     }
-    return [];
+  }, [searchQuery, factionFilter, units]);
+
+  // Generate a kebab-case ID from unit name
+  const generateUnitId = (name: string): string => {
+    return name.toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special chars
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
   };
 
-  const filteredUnits = units.filter(unit => {
-    const matchesSearch = searchTerm === '' || 
-      unit.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFaction = factionFilter === '' || unit.faction === factionFilter;
-    
-    const matchesType = typeFilter === '' || unit.type === typeFilter;
-    
-    return matchesSearch && matchesFaction && matchesType;
-  });
-
-  const getCommandValue = (unit: UnitDataItem) => {
-    return unit.characteristics && unit.characteristics.command !== undefined 
-      ? unit.characteristics.command 
-      : '-';
-  };
-
-  const getAvailability = (unit: UnitDataItem) => {
-    return unit.characteristics && unit.characteristics.availability !== undefined 
-      ? unit.characteristics.availability 
-      : '-';
-  };
-
-  const isHighCommand = (unit: UnitDataItem) => {
-    return unit.characteristics && unit.characteristics.highCommand === true;
-  };
-
-  const formatKeywords = (keywords: string[]) => {
-    if (!keywords || keywords.length === 0) return '-';
-    return keywords.join(', ');
-  };
-
-  // Get special rule description for tooltips
-  const getSpecialRuleDescription = (ruleName: string): string => {
-    const rule = specialRules.find(r => r.name.toLowerCase() === ruleName.toLowerCase());
-    return rule?.description || 'No description available';
-  };
-
-  // Format special rules with tooltips
-  const formatSpecialRules = (rules: string[]) => {
-    if (!rules || rules.length === 0) return '-';
-    
-    // Return the JSX for the tooltip-wrapped special rules
-    return (
-      <TooltipProvider>
-        <div className="flex flex-wrap gap-1">
-          {rules.map((rule, index) => {
-            // Extract the rule name without any parameters in parentheses
-            const basicRuleName = rule.split('(')[0].trim();
-            const description = getSpecialRuleDescription(basicRuleName);
-            
-            return (
-              <React.Fragment key={`${rule}-${index}`}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="cursor-help border-b border-dotted border-warcrow-gold/50 hover:border-warcrow-gold">
-                      {rule}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-xs"
-                  >
-                    <p className="font-medium text-warcrow-gold">{rule}</p>
-                    <p className="text-sm mt-1">{description}</p>
-                  </TooltipContent>
-                </Tooltip>
-                {index < rules.length - 1 && <span>, </span>}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </TooltipProvider>
-    );
-  };
-
-  const handleEditUnit = (unit: UnitDataItem) => {
-    setEditingUnit({...unit});
-    setIsEditDialogOpen(true);
-    setActiveTranslationTab('en'); // Reset to English tab when opening edit dialog
-  };
-
-  const handleInputChange = (field: string, value: any) => {
-    if (!editingUnit) return;
-    
-    if (field === 'command' || field === 'availability') {
-      setEditingUnit({
-        ...editingUnit,
-        characteristics: {
-          ...editingUnit.characteristics,
-          [field]: parseInt(value) || 0
-        }
-      });
-    } else if (field === 'highCommand') {
-      setEditingUnit({
-        ...editingUnit,
-        characteristics: {
-          ...editingUnit.characteristics,
-          highCommand: value === 'true'
-        }
-      });
-    } else if (field === 'keywords' || field === 'special_rules') {
-      setEditingUnit({
-        ...editingUnit,
-        [field]: value.split(',').map((item: string) => item.trim()).filter(Boolean)
-      });
-    } else {
-      setEditingUnit({
-        ...editingUnit,
-        [field]: field === 'points' ? parseInt(value) || 0 : value
-      });
+  // Handle unit name change and auto-generate ID
+  const handleNameChange = (value: string) => {
+    setUnitName(value);
+    if (!unitId || unitId === generateUnitId(value.replace(/\s+/g, '-'))) {
+      setUnitId(generateUnitId(value));
     }
   };
 
-  // Handle filter value changes
-  const handleFactionFilterChange = (value: string) => {
-    setFactionFilter(value === 'all-factions' ? '' : value);
+  // Add new unit to Supabase
+  const handleAddUnit = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      // Parse and validate inputs
+      const keywords = unitKeywords.split(',').map(k => k.trim()).filter(Boolean);
+      const specialRules = unitSpecialRules.split(',').map(r => r.trim()).filter(Boolean);
+      const points = parseInt(unitPoints) || 0;
+      const availability = parseInt(unitAvailability) || 1;
+      const command = parseInt(unitCommand) || 0;
+
+      // Validate required fields
+      if (!unitName || !unitId || !unitFaction) {
+        throw new Error('Name, ID and faction are required');
+      }
+      
+      // Create unit object
+      const newUnit = {
+        id: unitId,
+        name: unitName,
+        faction: unitFaction,
+        type: unitType,
+        points: points,
+        keywords: keywords,
+        special_rules: specialRules,
+        characteristics: {
+          availability,
+          command,
+          highCommand: unitHighCommand
+        }
+      };
+      
+      // Insert to Supabase
+      const { error } = await supabase
+        .from('unit_data')
+        .insert(newUnit);
+      
+      if (error) throw error;
+      
+      toast.success(`Unit "${unitName}" added successfully`);
+      setShowAddUnitDialog(false);
+      resetForm();
+      fetchUnits(); // Refresh the unit list
+    } catch (err: any) {
+      console.error('Error adding unit:', err);
+      toast.error(`Failed to add unit: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleTypeFilterChange = (value: string) => {
-    setTypeFilter(value === 'all-types' ? '' : value);
+  // Reset add unit form
+  const resetForm = () => {
+    setUnitName('');
+    setUnitId('');
+    setUnitFaction('');
+    setUnitType('unit');
+    setUnitPoints('0');
+    setUnitKeywords('');
+    setUnitSpecialRules('');
+    setUnitAvailability('1');
+    setUnitCommand('0');
+    setUnitHighCommand(false);
+    setIsSubmitting(false);
   };
 
-  // Get faction display name from faction ID
-  const getFactionDisplayName = (factionId: string): string => {
-    return factionDisplayNames[factionId] || factionId;
+  // Handle sync with local files
+  const handleLocalFileSync = async (factionId: string) => {
+    setIsSyncing(true);
+    setSyncResult(null);
+    
+    try {
+      const syncData = await findMissingUnits(factionId);
+      setSyncResult(syncData);
+      
+      if (syncData.onlyInDatabase.length === 0 && syncData.onlyInLocalData.length === 0) {
+        toast.success(`All units for ${factionId} are in sync!`);
+      } else {
+        toast.info(`Found differences for ${factionId}. Review the results.`);
+      }
+    } catch (error: any) {
+      console.error('Error syncing local files:', error);
+      toast.error(`Error: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
+  // Generate files for a selected faction
+  const handleGenerateFiles = async () => {
+    if (!selectedFactionForSync) return;
+    
+    setIsSyncing(true);
+    try {
+      const files = await generateFactionFileContent(selectedFactionForSync);
+      setSyncStats(files);
+      toast.success(`Generated files for ${selectedFactionForSync}`);
+    } catch (error: any) {
+      console.error('Error generating files:', error);
+      toast.error(`Error: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+  
   return (
-    <Card className="p-4 bg-black border-warcrow-gold/30">
-      <div className="space-y-4">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
-          <h2 className="text-lg font-semibold text-warcrow-gold">Unit Database</h2>
-          
-          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+    <div className="space-y-4">
+      <Card className="p-4 bg-black border-warcrow-gold/30">
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <div className="flex-1">
             <Input
-              placeholder="Search units..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full lg:w-48 bg-black border-warcrow-gold/30 text-warcrow-text"
+              placeholder="Search units by name, id, or keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-warcrow-accent/50 border-warcrow-gold/30"
             />
-            
-            <Select value={factionFilter || 'all-factions'} onValueChange={handleFactionFilterChange}>
-              <SelectTrigger className="w-full lg:w-40 bg-black border-warcrow-gold/30 text-warcrow-text">
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Select value={factionFilter} onValueChange={setFactionFilter}>
+              <SelectTrigger className="w-[200px] bg-warcrow-accent/50 border-warcrow-gold/30">
                 <SelectValue placeholder="All Factions" />
               </SelectTrigger>
               <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                <SelectItem value="all-factions">All Factions</SelectItem>
-                {factions.map(faction => (
+                <SelectItem value="all">All Factions</SelectItem>
+                {factions.map((faction) => (
                   <SelectItem key={faction.id} value={faction.id}>
                     {faction.name}
                   </SelectItem>
@@ -445,352 +260,301 @@ const UnitDataTable: React.FC = () => {
               </SelectContent>
             </Select>
             
-            <Select value={typeFilter || 'all-types'} onValueChange={handleTypeFilterChange}>
-              <SelectTrigger className="w-full lg:w-40 bg-black border-warcrow-gold/30 text-warcrow-text">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                <SelectItem value="all-types">All Types</SelectItem>
-                {getUniqueValues('type').map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Dialog open={showAddUnitDialog} onOpenChange={setShowAddUnitDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Unit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-black border-warcrow-gold/30">
+                <DialogHeader>
+                  <DialogTitle className="text-warcrow-gold">Add New Unit</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="unitName">Unit Name</Label>
+                    <Input 
+                      id="unitName" 
+                      value={unitName}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      placeholder="Unit Name"
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitId">Unit ID</Label>
+                    <Input 
+                      id="unitId" 
+                      value={unitId}
+                      onChange={(e) => setUnitId(e.target.value)}
+                      placeholder="unit-id"
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitFaction">Faction</Label>
+                    <Select value={unitFaction} onValueChange={setUnitFaction}>
+                      <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30">
+                        <SelectValue placeholder="Select Faction" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+                        {factions.map((faction) => (
+                          <SelectItem key={faction.id} value={faction.id}>
+                            {faction.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitType">Type</Label>
+                    <Select value={unitType} onValueChange={setUnitType}>
+                      <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30">
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+                        <SelectItem value="unit">Unit</SelectItem>
+                        <SelectItem value="character">Character</SelectItem>
+                        <SelectItem value="companion">Companion</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitPoints">Points</Label>
+                    <Input 
+                      id="unitPoints" 
+                      type="number"
+                      value={unitPoints}
+                      onChange={(e) => setUnitPoints(e.target.value)}
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitAvailability">Availability</Label>
+                    <Input 
+                      id="unitAvailability" 
+                      type="number"
+                      value={unitAvailability}
+                      onChange={(e) => setUnitAvailability(e.target.value)}
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="unitCommand">Command Value</Label>
+                    <Input 
+                      id="unitCommand" 
+                      type="number"
+                      value={unitCommand}
+                      onChange={(e) => setUnitCommand(e.target.value)}
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-7">
+                    <Checkbox 
+                      id="unitHighCommand"
+                      checked={unitHighCommand}
+                      onCheckedChange={(checked) => setUnitHighCommand(checked === true)}
+                    />
+                    <Label htmlFor="unitHighCommand">High Command</Label>
+                  </div>
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <Label htmlFor="unitKeywords">Keywords (comma separated)</Label>
+                    <Textarea 
+                      id="unitKeywords" 
+                      value={unitKeywords}
+                      onChange={(e) => setUnitKeywords(e.target.value)}
+                      placeholder="Infantry, Elf, Fearless, etc."
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <Label htmlFor="unitSpecialRules">Special Rules (comma separated)</Label>
+                    <Textarea 
+                      id="unitSpecialRules" 
+                      value={unitSpecialRules}
+                      onChange={(e) => setUnitSpecialRules(e.target.value)}
+                      placeholder="Vulnerable, Frightened, Slowed, etc."
+                      className="bg-warcrow-accent/50 border-warcrow-gold/30"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline" className="mt-4 border-warcrow-gold/30">Cancel</Button>
+                  </DialogClose>
+                  <Button 
+                    onClick={handleAddUnit}
+                    disabled={isSubmitting}
+                    className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black"
+                  >
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Unit
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            
+            <Dialog open={showSyncDialog} onOpenChange={setShowSyncDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10">
+                  <Sync className="w-4 h-4 mr-2" />
+                  Sync Files
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-black border-warcrow-gold/30 max-w-3xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-warcrow-gold">Data Synchronization</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <Alert className="bg-black/50 border-amber-500/50">
+                    <AlertDescription className="text-sm text-amber-300">
+                      Use this tool to check for differences between database units and local unit data files,
+                      or generate new files for a faction based on database data.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <div className="w-full md:w-64">
+                      <Select value={selectedFactionForSync || ''} onValueChange={setSelectedFactionForSync}>
+                        <SelectTrigger className="bg-warcrow-accent/50 border-warcrow-gold/30 w-full">
+                          <SelectValue placeholder="Select Faction" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
+                          {factions.map((faction) => (
+                            <SelectItem key={faction.id} value={faction.id}>
+                              {faction.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        disabled={!selectedFactionForSync || isSyncing}
+                        onClick={() => handleLocalFileSync(selectedFactionForSync!)}
+                        className="border-warcrow-gold/30 text-warcrow-text"
+                      >
+                        {isSyncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                        Check Differences
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        disabled={!selectedFactionForSync || isSyncing}
+                        onClick={handleGenerateFiles}
+                        className="border-warcrow-gold/30 text-warcrow-gold"
+                      >
+                        {isSyncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Database className="h-4 w-4 mr-2" />}
+                        Generate Files
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {syncResult && (
+                    <div className="mt-4 space-y-6">
+                      <div>
+                        <h3 className="text-warcrow-gold font-medium mb-2">Units only in Database</h3>
+                        {syncResult.onlyInDatabase.length === 0 ? (
+                          <p className="text-warcrow-text/70 text-sm">No units found only in database</p>
+                        ) : (
+                          <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3 max-h-[200px] overflow-y-auto">
+                            <ul className="space-y-1">
+                              {syncResult.onlyInDatabase.map((unit: any) => (
+                                <li key={unit.id} className="flex items-center gap-2">
+                                  <Badge className="bg-amber-700/70">{unit.id}</Badge>
+                                  <span className="text-warcrow-text/90">{unit.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-warcrow-gold font-medium mb-2">Units only in Local Data</h3>
+                        {syncResult.onlyInLocalData.length === 0 ? (
+                          <p className="text-warcrow-text/70 text-sm">No units found only in local data</p>
+                        ) : (
+                          <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3 max-h-[200px] overflow-y-auto">
+                            <ul className="space-y-1">
+                              {syncResult.onlyInLocalData.map((unit: any) => (
+                                <li key={unit.id} className="flex items-center gap-2">
+                                  <Badge className="bg-blue-700/70">{unit.id}</Badge>
+                                  <span className="text-warcrow-text/90">{unit.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {syncStats && (
+                    <div className="mt-4 space-y-4">
+                      <h3 className="text-warcrow-gold font-medium">Generated Files</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3">
+                          <h4 className="font-medium text-warcrow-text mb-2">Main File</h4>
+                          <pre className="text-xs text-warcrow-text/70 whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                            {syncStats.mainFile}
+                          </pre>
+                        </div>
+                        <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3">
+                          <h4 className="font-medium text-warcrow-text mb-2">Troops File</h4>
+                          <pre className="text-xs text-warcrow-text/70 whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                            {syncStats.troopsFile}
+                          </pre>
+                        </div>
+                        <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3">
+                          <h4 className="font-medium text-warcrow-text mb-2">Characters File</h4>
+                          <pre className="text-xs text-warcrow-text/70 whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                            {syncStats.charactersFile}
+                          </pre>
+                        </div>
+                        <div className="bg-black/50 border border-warcrow-gold/20 rounded-md p-3">
+                          <h4 className="font-medium text-warcrow-text mb-2">High Command File</h4>
+                          <pre className="text-xs text-warcrow-text/70 whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                            {syncStats.highCommandFile}
+                          </pre>
+                        </div>
+                      </div>
+                      <p className="text-sm text-warcrow-text/70">
+                        You can copy these files to update your local data files.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
             
             <Button 
               variant="outline" 
-              onClick={fetchUnitData}
-              className="border-warcrow-gold/30 text-warcrow-gold"
+              onClick={fetchUnits} 
+              className="border-warcrow-gold/30 text-warcrow-text hover:bg-black/50"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
           </div>
         </div>
-        
-        <div className="rounded border border-warcrow-gold/30 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
-                <TableHead className="text-warcrow-gold">Faction</TableHead>
-                <TableHead className="text-warcrow-gold">Type</TableHead>
-                <TableHead className="text-warcrow-gold">Name</TableHead>
-                <TableHead className="text-warcrow-gold">CMD</TableHead>
-                <TableHead className="text-warcrow-gold">AVB</TableHead>
-                <TableHead className="text-warcrow-gold">Keywords</TableHead>
-                <TableHead className="text-warcrow-gold">HC</TableHead>
-                <TableHead className="text-warcrow-gold">Pts</TableHead>
-                <TableHead className="text-warcrow-gold">Rules</TableHead>
-                <TableHead className="text-warcrow-gold">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
-                </TableRow>
-              ) : filteredUnits.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-warcrow-text/70">No unit data found</TableCell>
-                </TableRow>
-              ) : (
-                filteredUnits.map((unit) => (
-                  <TableRow key={unit.id} className="hover:bg-warcrow-accent/5">
-                    <TableCell>{getFactionDisplayName(unit.faction)}</TableCell>
-                    <TableCell>{unit.type}</TableCell>
-                    <TableCell className="font-medium">{unit.name}</TableCell>
-                    <TableCell>{getCommandValue(unit)}</TableCell>
-                    <TableCell>{getAvailability(unit)}</TableCell>
-                    <TableCell className="max-w-xs truncate">{formatKeywords(unit.keywords)}</TableCell>
-                    <TableCell>{isHighCommand(unit) ? 'Yes' : 'No'}</TableCell>
-                    <TableCell>{unit.points}</TableCell>
-                    <TableCell className="max-w-xs">{formatSpecialRules(unit.special_rules)}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleEditUnit(unit)}
-                          className="h-8 w-8 p-0 text-warcrow-gold hover:text-warcrow-gold/80"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => deleteUnit(unit.id)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-400"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        
-        {filteredUnits.length > 0 && (
-          <div className="text-sm text-warcrow-text/70">
-            Showing {filteredUnits.length} of {units.length} units
-          </div>
-        )}
-      </div>
 
-      {/* Edit Unit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-warcrow-accent border-warcrow-gold/30 text-warcrow-text max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="text-warcrow-gold">Edit Unit</DialogTitle>
-          </DialogHeader>
-          
-          {editingUnit && (
-            <>
-              <Tabs value={activeTranslationTab} onValueChange={setActiveTranslationTab} className="w-full mt-2">
-                <TabsList className="grid grid-cols-3 mb-4">
-                  <TabsTrigger value="en" className="text-sm">English</TabsTrigger>
-                  <TabsTrigger value="es" className="text-sm">Español</TabsTrigger>
-                  <TabsTrigger value="fr" className="text-sm">Français</TabsTrigger>
-                </TabsList>
-                
-                {/* English Content */}
-                <TabsContent value="en" className="pt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name</label>
-                        <Input
-                          value={editingUnit.name}
-                          onChange={(e) => handleInputChange('name', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Faction</label>
-                        <Select 
-                          value={editingUnit.faction}
-                          onValueChange={(val) => handleInputChange('faction', val)}
-                        >
-                          <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                            {factions.map(faction => (
-                              <SelectItem key={faction.id} value={faction.id}>
-                                {faction.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Type</label>
-                        <Input
-                          value={editingUnit.type}
-                          onChange={(e) => handleInputChange('type', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Points Cost</label>
-                        <Input
-                          type="number"
-                          value={editingUnit.points}
-                          onChange={(e) => handleInputChange('points', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Command</label>
-                        <Input
-                          type="number"
-                          value={editingUnit.characteristics?.command || ''}
-                          onChange={(e) => handleInputChange('command', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Availability</label>
-                        <Input
-                          type="number"
-                          value={editingUnit.characteristics?.availability || ''}
-                          onChange={(e) => handleInputChange('availability', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">High Command</label>
-                        <Select 
-                          value={String(editingUnit.characteristics?.highCommand || false)} 
-                          onValueChange={(val) => handleInputChange('highCommand', val)}
-                        >
-                          <SelectTrigger className="bg-black/60 border-warcrow-gold/30">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Keywords (comma separated)</label>
-                        <Input
-                          value={editingUnit.keywords.join(', ')}
-                          onChange={(e) => handleInputChange('keywords', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm text-warcrow-text/80 mb-1 block">Special Rules (comma separated)</label>
-                        <Input
-                          value={editingUnit.special_rules.join(', ')}
-                          onChange={(e) => handleInputChange('special_rules', e.target.value)}
-                          className="bg-black/60 border-warcrow-gold/30"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="col-span-1 md:col-span-2">
-                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description</label>
-                      <Textarea
-                        value={editingUnit.description || ''}
-                        onChange={(e) => handleInputChange('description', e.target.value)}
-                        className="bg-black/60 border-warcrow-gold/30 min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                {/* Spanish Content */}
-                <TabsContent value="es" className="pt-2">
-                  <div className="flex justify-end mb-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={translateUnitData}
-                      disabled={isTranslating}
-                      className="border-warcrow-gold/30 text-warcrow-gold"
-                    >
-                      <Languages className="h-4 w-4 mr-2" />
-                      {isTranslating ? 'Translating...' : 'Translate to Spanish'}
-                    </Button>
-                  </div>
-                
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name (Spanish)</label>
-                      <Input
-                        value={editingUnit.name_es || ''}
-                        onChange={(e) => handleInputChange('name_es', e.target.value)}
-                        className="bg-black/60 border-warcrow-gold/30"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (Spanish)</label>
-                      <Textarea
-                        value={editingUnit.description_es || ''}
-                        onChange={(e) => handleInputChange('description_es', e.target.value)}
-                        className="bg-black/60 border-warcrow-gold/30 min-h-[150px]"
-                      />
-                    </div>
-                    
-                    {/* Show original English for reference */}
-                    <div className="p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
-                      <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
-                      <div className="space-y-2 text-sm text-warcrow-text/80">
-                        <p><span className="font-medium">Name:</span> {editingUnit.name}</p>
-                        {editingUnit.description && (
-                          <p><span className="font-medium">Description:</span> {editingUnit.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                {/* French Content */}
-                <TabsContent value="fr" className="pt-2">
-                  <div className="flex justify-end mb-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={translateUnitData}
-                      disabled={isTranslating}
-                      className="border-warcrow-gold/30 text-warcrow-gold"
-                    >
-                      <Languages className="h-4 w-4 mr-2" />
-                      {isTranslating ? 'Translating...' : 'Translate to French'}
-                    </Button>
-                  </div>
-                
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm text-warcrow-text/80 mb-1 block">Unit Name (French)</label>
-                      <Input
-                        value={editingUnit.name_fr || ''}
-                        onChange={(e) => handleInputChange('name_fr', e.target.value)}
-                        className="bg-black/60 border-warcrow-gold/30"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm text-warcrow-text/80 mb-1 block">Description (French)</label>
-                      <Textarea
-                        value={editingUnit.description_fr || ''}
-                        onChange={(e) => handleInputChange('description_fr', e.target.value)}
-                        className="bg-black/60 border-warcrow-gold/30 min-h-[150px]"
-                      />
-                    </div>
-                    
-                    {/* Show original English for reference */}
-                    <div className="p-3 bg-black/30 border border-warcrow-gold/20 rounded-md">
-                      <h4 className="text-sm font-medium text-warcrow-gold mb-2">English Reference</h4>
-                      <div className="space-y-2 text-sm text-warcrow-text/80">
-                        <p><span className="font-medium">Name:</span> {editingUnit.name}</p>
-                        {editingUnit.description && (
-                          <p><span className="font-medium">Description:</span> {editingUnit.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </>
-          )}
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditDialogOpen(false)}
-              className="border-warcrow-gold/30 text-warcrow-text"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
-            <Button 
-              onClick={updateUnit}
-              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+        <UnitTable 
+          filteredUnits={filteredUnits}
+          t={(key) => key} // Simple translation function
+          isLoading={isLoading}
+        />
+
+        <div className="mt-4 text-sm text-right text-warcrow-muted">
+          Showing {filteredUnits.length} of {units.length} units
+        </div>
+      </Card>
+      
+      <UnitSyncChecker />
+    </div>
   );
 };
 
