@@ -53,14 +53,21 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
     console.log("Initializing news items from database...");
     
-    // Set up a timeout for the fetch (reduced from 3s to 2s for faster fallback)
+    // First check localStorage for immediate display
+    const cachedNews = tryLoadFromLocalStorage();
+    if (cachedNews.length > 0) {
+      // Update the global variable immediately for instant access
+      newsItems = cachedNews;
+      console.log("Using cached news items from localStorage while fetching latest");
+    }
+    
+    // Set up a very short timeout for the fetch (reduced from 2s to 1s for faster fallback)
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
         console.log("Database fetch timeout, using cached or default news");
         // Return localStorage data or default items if timeout
-        const cachedNews = tryLoadFromLocalStorage();
         resolve(cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS);
-      }, 2000); // Reduced to 2 seconds for faster fallback
+      }, 1000); // Reduced to 1 second for much faster fallback
     });
     
     // Actual fetch
@@ -70,7 +77,6 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
         
         if (items.length === 0) {
           console.log("No news items returned from database, using cached or defaults");
-          const cachedNews = tryLoadFromLocalStorage();
           return cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS;
         }
         
@@ -90,7 +96,6 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
       .catch(error => {
         console.error("Error fetching news items:", error);
         // Use localStorage on error
-        const cachedNews = tryLoadFromLocalStorage();
         if (cachedNews.length > 0) {
           console.log('Using cached news after fetch error');
           return cachedNews;

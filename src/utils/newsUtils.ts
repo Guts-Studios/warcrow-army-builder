@@ -178,12 +178,12 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
     
     const startTime = performance.now();
     
-    // Set a timeout for the database query - reduce from 4s to 2s for faster fallback
+    // Set a timeout for the database query - reduce from 2s to 800ms for faster fallback
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
-        console.log('Database fetch timeout after 2 seconds');
+        console.log('Database fetch timeout after 800ms');
         resolve([]);
-      }, 2000); // 2-second timeout
+      }, 800); // 800ms timeout for much faster response
     });
     
     // The actual fetch promise

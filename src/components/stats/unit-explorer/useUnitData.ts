@@ -12,9 +12,9 @@ export function useUnitData(selectedFaction: string) {
     queryFn: async () => {
       console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
       try {
-        // Set up a timeout for the fetch
+        // Set up a timeout for the fetch - reduced to 800ms for faster fallback
         const timeoutPromise = new Promise<ApiUnit[]>((_, reject) => {
-          setTimeout(() => reject(new Error('Database fetch timeout')), 2000); // 2 second timeout
+          setTimeout(() => reject(new Error('Database fetch timeout')), 800); // 800ms timeout
         });
         
         // Actual fetch with promise race
@@ -41,7 +41,7 @@ export function useUnitData(selectedFaction: string) {
         
         // Log unit names for debugging
         if (data && data.length > 0) {
-          console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map((u: any) => u.name));
+          console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map((u: any) => u.name).slice(0, 5), `... (${data.length} total)`);
         }
         
         // Add faction_display field and convert Json to proper Record type
@@ -64,7 +64,7 @@ export function useUnitData(selectedFaction: string) {
         })) as ApiUnit[];
       }
     },
-    retry: 1, // Reduce retry to provide fallback faster
+    retry: 0, // No retries to provide fallback faster
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 }
@@ -76,22 +76,26 @@ export function useFactions(language: string = 'en') {
     queryFn: async () => {
       console.log("[useFactions] Fetching factions from Supabase with language:", language);
       try {
-        // Set up a timeout for the fetch
-        const timeoutPromise = new Promise<Faction[]>((_, reject) => {
+        // First check localStorage for immediate display
+        const cachedFactions = localStorage.getItem('cached_factions');
+        let localFactions: Faction[] = [];
+        
+        if (cachedFactions) {
+          try {
+            localFactions = JSON.parse(cachedFactions);
+            console.log('[useFactions] Found cached factions in localStorage:', localFactions.length);
+            // Continue with the fetch but use cached data for faster display
+          } catch (e) {
+            console.error('[useFactions] Failed to parse cached factions:', e);
+          }
+        }
+        
+        // Set up a timeout for the fetch - reduced to 800ms for faster fallback
+        const timeoutPromise = new Promise<Faction[]>((resolve) => {
           setTimeout(() => {
-            console.log("[useFactions] Database fetch timeout, using cached or default factions");
-            // Try getting from localStorage
-            try {
-              const cachedFactions = localStorage.getItem('cached_factions');
-              if (cachedFactions) {
-                return JSON.parse(cachedFactions);
-              }
-            } catch (e) {
-              console.error('[useFactions] Failed to retrieve cached factions:', e);
-            }
-            
-            return fallbackFactions;
-          }, 2000); // 2 second timeout
+            console.log("[useFactions] Database fetch timeout after 800ms, using cached or default factions");
+            return resolve(localFactions.length > 0 ? localFactions : fallbackFactions);
+          }, 800); // 800ms timeout
         });
         
         // Actual fetch with promise race
@@ -103,7 +107,10 @@ export function useFactions(language: string = 'en') {
         // Race between the fetch and timeout
         const { data, error } = await Promise.race([
           fetchPromise,
-          timeoutPromise
+          timeoutPromise.then(() => {
+            // If timeout wins, return a fake response that will trigger fallback
+            return { data: null, error: new Error('Database fetch timeout') };
+          })
         ]) as any;
           
         if (error) {
@@ -135,15 +142,10 @@ export function useFactions(language: string = 'en') {
           return fetchedFactions;
         } 
         
-        // Try getting from localStorage if no data from API
-        try {
-          const cachedFactions = localStorage.getItem('cached_factions');
-          if (cachedFactions) {
-            console.log('[useFactions] Using cached factions from localStorage');
-            return JSON.parse(cachedFactions);
-          }
-        } catch (e) {
-          console.error('[useFactions] Failed to retrieve cached factions:', e);
+        // If we have local factions, return them
+        if (localFactions.length > 0) {
+          console.log('[useFactions] No factions in database, using cached factions');
+          return localFactions;
         }
         
         console.log('[useFactions] No factions found in database or cache, using default factions');
@@ -168,7 +170,7 @@ export function useFactions(language: string = 'en') {
       }
     },
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    retry: 1, // Reduce retry to provide fallback faster
+    retry: 0, // No retry to provide fallback faster
   });
 }
 
@@ -206,33 +208,36 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         const startTime = performance.now();
         console.log(`[useArmyBuilderUnits] Starting fetch for faction: ${selectedFaction}`);
         
-        // First check localStorage for cached units
+        // First check localStorage for cached units - for immediate display
+        let cachedUnits: Unit[] = [];
         try {
-          const cachedUnits = localStorage.getItem(`units_${selectedFaction}`);
-          if (cachedUnits) {
+          const cachedData = localStorage.getItem(`units_${selectedFaction}`);
+          if (cachedData) {
             try {
-              const units = JSON.parse(cachedUnits);
-              console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
-              return units;
+              cachedUnits = JSON.parse(cachedData);
+              console.log(`[useArmyBuilderUnits] Found ${cachedUnits.length} cached units in localStorage for ${selectedFaction}`);
+              // Continue with fetch but use cached data for instant display
             } catch (parseError) {
               console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
-              // Continue to database fetch if parsing fails
             }
           }
         } catch (e) {
           console.error('[useArmyBuilderUnits] Failed to access localStorage:', e);
         }
         
-        // Try getting data from Supabase with a short timeout
+        // Try getting data from Supabase with a very short timeout
         let query = supabase.from('unit_data').select('*');
         
         if (selectedFaction !== 'all') {
           query = query.eq('faction', selectedFaction);
         }
         
-        // Set a shorter timeout for the fetch (2 seconds)
+        // Set a shorter timeout for the fetch (800ms)
         const timeoutPromise = new Promise((_resolve, reject) => {
-          setTimeout(() => reject(new Error('Database fetch timeout')), 2000); // 2 seconds timeout
+          setTimeout(() => {
+            console.log("[useArmyBuilderUnits] Database fetch timeout after 800ms");
+            reject(new Error('Database fetch timeout'));
+          }, 800); // 800ms timeout
         });
         
         // Race between the fetch and timeout
@@ -257,9 +262,10 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         const fetchTime = performance.now() - startTime;
         console.log(`[useArmyBuilderUnits] Database fetch completed in ${fetchTime.toFixed(2)}ms`);
         
-        // Log all unit names for debugging
+        // Log sample of unit names for debugging
         console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
-          data.map((u: any) => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', '));
+          data.slice(0, 3).map((u: any) => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', ') + 
+          (data.length > 3 ? ` and ${data.length - 3} more` : ''));
         
         // Filter out units that should not be shown in the builder
         const visibleUnits = data
@@ -320,25 +326,31 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         // Import directly from the faction-specific file based on the selected faction
         try {
           if (selectedFaction === 'northern-tribes') {
+            console.log('[useArmyBuilderUnits] Loading northern-tribes units from static import');
             const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
             return northernTribesUnits;
           } else if (selectedFaction === 'hegemony-of-embersig') {
+            console.log('[useArmyBuilderUnits] Loading hegemony-of-embersig units from static import');
             const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
             return hegemonyOfEmbersigUnits;
           } else if (selectedFaction === 'scions-of-yaldabaoth') {
+            console.log('[useArmyBuilderUnits] Loading scions-of-yaldabaoth units from static import');
             const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
             return scionsOfYaldabaothUnits;
           } else if (selectedFaction === 'syenann') {
+            console.log('[useArmyBuilderUnits] Loading syenann units from static import');
             const { syenannUnits } = await import('@/data/factions/syenann');
             return syenannUnits;
           }
         
           // Fallback to full unit list and filter by faction
+          console.log('[useArmyBuilderUnits] Loading units from global fallback');
           const { units } = await import('@/data/factions');
           return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
         } catch (importError) {
           console.error(`[useArmyBuilderUnits] Failed to import faction units:`, importError);
           // Final fallback to the global units array
+          console.log('[useArmyBuilderUnits] Using last resort global units fallback');
           const { units } = await import('@/data/factions');
           return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
         }
@@ -346,6 +358,5 @@ export function useArmyBuilderUnits(selectedFaction: string) {
     },
     retry: 0, // No retries to speed up fallback to static files
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retryDelay: 1000, // Wait 1 second between retries
   });
 }

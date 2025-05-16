@@ -30,6 +30,7 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
     if (newsItems.length > 0) {
       setItems(newsItems);
       setUsingCachedData(true);
+      console.log("NewsArchiveDialog: Using existing news items while loading");
     }
     
     try {
