@@ -6,6 +6,7 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isTester, setIsTester] = useState<boolean>(false);
+  const [isWabAdmin, setIsWabAdmin] = useState<boolean>(false); // Add this state
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
@@ -27,6 +28,7 @@ export function useAuth() {
             setIsAuthenticated(true);
             setIsAdmin(true);
             setIsTester(true);
+            setIsWabAdmin(true); // Set this for preview mode
             setUserId("preview-user-id");
             setIsGuest(false);
           }
@@ -55,6 +57,7 @@ export function useAuth() {
                   if (!error && data && mounted) {
                     setIsAdmin(!!data.wab_admin);
                     setIsTester(!!data.tester);
+                    setIsWabAdmin(!!data.wab_admin); // Set isWabAdmin based on profile data
                     setIsGuest(false);
                   }
                 } catch (err) {
@@ -65,6 +68,7 @@ export function useAuth() {
                 if (mounted) {
                   setIsAdmin(false);
                   setIsTester(false);
+                  setIsWabAdmin(false); // Reset when not authenticated
                   setIsGuest(false);
                 }
               }
@@ -91,6 +95,7 @@ export function useAuth() {
               if (!error && data) {
                 setIsAdmin(!!data.wab_admin);
                 setIsTester(!!data.tester);
+                setIsWabAdmin(!!data.wab_admin); // Set based on profile data
                 setIsGuest(false);
               }
             } catch (err) {
@@ -111,6 +116,7 @@ export function useAuth() {
           setIsAuthenticated(false);
           setIsAdmin(false);
           setIsTester(false);
+          setIsWabAdmin(false); // Reset on error
           setIsGuest(false);
         }
       }
@@ -123,14 +129,33 @@ export function useAuth() {
     };
   }, [isPreview]);
 
+  // Add placeholder for resendConfirmationEmail to match the interface
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      
+      if (error) throw error;
+      
+      console.log('Confirmation email resent');
+    } catch (err) {
+      console.error('Error resending confirmation email:', err);
+      throw err;
+    }
+  };
+
   return {
     isAuthenticated,
     isAdmin,
     isTester,
+    isWabAdmin, // Include this in the return value
     userId,
     isLoading,
     isGuest,
-    setIsGuest
+    setIsGuest,
+    resendConfirmationEmail // Include this in the return value
   };
 }
 

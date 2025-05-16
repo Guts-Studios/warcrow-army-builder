@@ -1,25 +1,30 @@
 
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AuthContextType {
   isAuthenticated: boolean | null;
   isAdmin: boolean;
   isTester: boolean;
+  isWabAdmin: boolean; // Add this missing property
   userId: string | null;
   isLoading: boolean;
   isGuest: boolean;
   setIsGuest: (value: boolean) => void;
+  resendConfirmationEmail: (email: string) => Promise<void>; // Add this missing method
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: null,
   isAdmin: false,
   isTester: false,
+  isWabAdmin: false, // Add default value
   userId: null,
   isLoading: true,
   isGuest: false,
-  setIsGuest: () => {}
+  setIsGuest: () => {},
+  resendConfirmationEmail: async () => {} // Add default value
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -32,6 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isTester, setIsTester] = useState<boolean>(false);
+  const [isWabAdmin, setIsWabAdmin] = useState<boolean>(false); // Add this state
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
@@ -39,6 +45,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Check for preview mode
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                    window.location.hostname.endsWith('.lovableproject.com');
+
+  // Function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      
+      if (error) {
+        console.error('Error resending confirmation email:', error);
+        toast.error('Failed to resend confirmation email');
+        throw error;
+      }
+      
+      toast.success('Confirmation email has been sent');
+    } catch (err) {
+      console.error('Error in resendConfirmationEmail:', err);
+      toast.error('Failed to send confirmation email');
+      throw err;
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -54,6 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setIsAuthenticated(true);
             setIsAdmin(true);
             setIsTester(true);
+            setIsWabAdmin(true); // Set this for preview mode
             setUserId("preview-user-id");
             setIsGuest(false);
           }
@@ -82,11 +111,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 if (!error && data && mounted) {
                   setIsAdmin(!!data.wab_admin);
                   setIsTester(!!data.tester);
+                  setIsWabAdmin(!!data.wab_admin); // Set isWabAdmin based on profile data
                 }
               } else {
                 if (mounted) {
                   setIsAdmin(false);
                   setIsTester(false);
+                  setIsWabAdmin(false); // Reset when not authenticated
                 }
               }
             }
@@ -113,6 +144,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               if (!error && data && mounted) {
                 setIsAdmin(!!data.wab_admin);
                 setIsTester(!!data.tester);
+                setIsWabAdmin(!!data.wab_admin); // Set based on profile data
               }
             } catch (err) {
               console.error("Error checking user roles in AuthProvider:", err);
@@ -145,10 +177,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isAuthenticated,
     isAdmin,
     isTester,
+    isWabAdmin, // Add this to the context value
     userId,
     isLoading,
     isGuest,
-    setIsGuest
+    setIsGuest,
+    resendConfirmationEmail // Add this to the context value
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

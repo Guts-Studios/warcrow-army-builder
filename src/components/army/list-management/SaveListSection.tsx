@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth"; // Use the updated hook
 
 interface SaveListSectionProps {
   listName: string;
@@ -31,27 +32,8 @@ const SaveListSection = ({
   refreshSavedLists
 }: SaveListSectionProps) => {
   const { t } = useLanguage();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, userId } = useAuth(); // Use the updated auth hook
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Check if user is authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-    };
-    
-    checkAuth();
-    
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-    });
-    
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
   
   const handleCloudSave = async () => {
     if (!isAuthenticated) {
