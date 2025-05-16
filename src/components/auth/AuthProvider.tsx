@@ -1,221 +1,251 @@
-
-import * as React from 'react';
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Profile } from '@/types/profile';
+import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 interface AuthContextType {
-  isAuthenticated: boolean | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: User | null;
+  profile?: Profile | null;
   isGuest: boolean;
-  isPasswordRecovery: boolean;
-  isTester: boolean;
-  isWabAdmin: boolean;
-  setIsGuest: (value: boolean) => void;
-  resendConfirmationEmail: (email: string) => Promise<void>;
+  isAdmin: boolean;
+  login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Profile) => Promise<{ success: boolean; error?: string }>;
+  sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-export const AuthContext = React.createContext<AuthContextType>({
-  isAuthenticated: null,
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  isLoading: true,
+  user: null,
   isGuest: false,
-  isPasswordRecovery: false,
-  isTester: false,
-  isWabAdmin: false,
-  setIsGuest: () => {},
-  resendConfirmationEmail: async () => {},
+  isAdmin: false,
+  login: async () => ({ success: false }),
+  logout: async () => {},
+  updateProfile: async () => ({ success: false }),
+  sendPasswordReset: async () => ({ success: false }),
 });
 
-export const useAuth = () => React.useContext(AuthContext);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
-  const [isGuest, setIsGuest] = React.useState(false);
-  const [isPasswordRecovery, setIsPasswordRecovery] = React.useState(false);
-  const [isTester, setIsTester] = React.useState(false);
-  const [isWabAdmin, setIsWabAdmin] = React.useState(false);
-  
-  // Check if we're in preview or development mode
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com') ||
-                   window.location.hostname === 'localhost';
-
-  // Function to resend confirmation email
-  const resendConfirmationEmail = async (email: string) => {
+  const login = async (email: string, password?: string) => {
+    setIsLoading(true);
     try {
-      console.log('Attempting to resend confirmation email to:', email);
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-      });
-      
+      const { data, error } = password
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+
       if (error) {
-        console.error('Error resending confirmation email:', error);
-        toast.error(`Failed to resend confirmation email: ${error.message}`);
-        throw error;
+        console.error("Login error:", error);
+        toast.error(`Login failed: ${error.message}`);
+        return { success: false, error: error.message };
       }
-      
-      console.log('Confirmation email resent successfully');
-      toast.success('Confirmation email sent! Please check your inbox and spam folder.');
-    } catch (error) {
-      console.error('Unexpected error resending confirmation email:', error);
-      toast.error('Failed to resend confirmation email. Please try again later.');
+
+      if (data.user) {
+        setUser(data.user);
+        
+        // Fetch user profile data
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileData) {
+          setProfile(profileData);
+          setIsAdmin(!!profileData.wab_admin);
+          console.log(`User ${profileData.username || data.user.email} admin status:`, profileData.wab_admin);
+        }
+        
+        toast.success(`Logged in as ${email}`);
+        return { success: true };
+      } else {
+        toast.info(`Check your email (${email}) for the login link.`);
+        return { success: true }; // Consider this a "success" as the email was sent
+      }
+    } catch (err: any) {
+      console.error("Unexpected login error:", err);
+      toast.error(`Login failed: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    // Check if guest mode was previously set in localStorage
-    const storedGuestMode = localStorage.getItem('warcrow_guest_mode') === 'true';
-    if (storedGuestMode) {
-      setIsGuest(true);
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Logout error:", error);
+        toast.error(`Logout failed: ${error.message}`);
+      } else {
+        setUser(null);
+        setProfile(null);
+        setIsGuest(false);
+        setIsAdmin(false);
+        navigate('/login');
+        toast.success("Logged out successfully");
+      }
+    } catch (err: any) {
+      console.error("Unexpected logout error:", err);
+      toast.error(`Logout failed: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const setupAuth = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const type = hashParams.get('type');
-      const accessToken = hashParams.get('access_token');
-      
-      if (type === 'recovery' && accessToken) {
-        console.log('Password recovery flow detected');
-        setIsPasswordRecovery(true);
-        setIsAuthenticated(false);
-        if (!window.location.pathname.includes('reset-password')) {
-          window.location.href = '/reset-password' + window.location.hash;
+  const updateProfile = async (updates: Profile) => {
+    setIsLoading(true);
+    try {
+      if (!user) throw new Error("No user logged in");
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+
+      if (error) {
+        console.error("Profile update error:", error);
+        toast.error(`Profile update failed: ${error.message}`);
+        return { success: false, error: error.message };
+      }
+
+      // Optimistically update the local state
+      setProfile(prev => ({ ...prev, ...updates }));
+      toast.success("Profile updated successfully");
+      return { success: true };
+    } catch (err: any) {
+      console.error("Unexpected profile update error:", err);
+      toast.error(`Profile update failed: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendPasswordReset = async (email: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
+
+      if (error) {
+        console.error("Password reset error:", error);
+        toast.error(`Password reset failed: ${error.message}`);
+        return { success: false, error: error.message };
+      }
+
+      toast.info(`Password reset email sent to ${email}`);
+      return { success: true };
+    } catch (err: any) {
+      console.error("Unexpected password reset error:", err);
+      toast.error(`Password reset failed: ${err.message}`);
+      return { success: false, error: err.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+
+        if (error) {
+          console.error("Error fetching auth user:", error);
+          setIsLoading(false);
+          return;
         }
-        return;
-      }
 
-      if (isPreview) {
-        console.log('Preview mode detected, setting as authenticated, tester, and wab-admin');
-        setIsAuthenticated(true);
-        setIsTester(true);
-        setIsWabAdmin(true);
-        return;
-      }
-
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Auth session check:', session ? 'Authenticated' : 'Not authenticated');
-      
-      // Set authenticated status - either logged in OR in guest mode
-      setIsAuthenticated(!!session || storedGuestMode);
-      
-      if (session) {
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('tester, wab_admin')
-            .eq('id', session.user.id)
-            .single();
+        if (user) {
+          setUser(user);
           
-          setIsTester(!!data?.tester);
-          setIsWabAdmin(!!data?.wab_admin);
-          console.log('Role checks:', { 
-            tester: data?.tester ? 'Tester' : 'Not tester',
-            wabAdmin: data?.wab_admin ? 'Admin' : 'Not admin'
-          });
-        } catch (error) {
-          console.error('Error checking user roles:', error);
-          setIsTester(false);
-          setIsWabAdmin(false);
+          // Fetch user profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profileData) {
+            setProfile(profileData);
+            // Check if user is admin
+            setIsAdmin(!!profileData.wab_admin);
+            console.log(`User ${profileData.username || user.email} admin status:`, profileData.wab_admin);
+          }
         }
-      }
-      
-      if (!session && !isPreview && !storedGuestMode) {
-        toast('Offline Mode', {
-          description: "You are in offline mode. Cloud features like saving lists will not be available.",
-          duration: 5000,
-        });
+      } catch (error) {
+        console.error("Unexpected error in auth fetch:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    setupAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event triggered:', {
-        event,
-        sessionExists: !!session,
-        userId: session?.user?.id,
-        userEmail: session?.user?.email,
-        userEmailConfirmed: session?.user?.email_confirmed_at
-      });
-
-      if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery event detected');
-        setIsPasswordRecovery(true);
-        setIsAuthenticated(false);
-        return;
-      }
-
-      if (event === 'USER_UPDATED') {
-        console.log('User updated, email confirmation status:', {
-          email: session?.user?.email,
-          confirmed: !!session?.user?.email_confirmed_at
-        });
-        
-        if (!session?.user?.email_confirmed_at) {
-          toast('Verification Email Sent', {
-            description: "Please check your email to confirm your account. Check your spam folder if you don't see it.",
-            duration: 8000,
-          });
-        }
-      }
-
-      if (!isPasswordRecovery) {
-        // If session or guest mode, consider authenticated
-        const isUserAuthenticated = !!session || isGuest;
-        setIsAuthenticated(isUserAuthenticated);
-        
-        if (session) {
-          const checkUserRoles = async () => {
-            try {
-              const { data } = await supabase
-                .from('profiles')
-                .select('tester, wab_admin')
-                .eq('id', session.user.id)
-                .single();
-              
-              setIsTester(!!data?.tester);
-              setIsWabAdmin(!!data?.wab_admin);
-            } catch (error) {
-              console.error('Error checking user roles:', error);
-              setIsTester(false);
-              setIsWabAdmin(false);
-            }
-          };
+    fetchUser();
+    
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state change:", event);
+      if (event === 'INITIAL_SESSION') {
+        await fetchUser();
+      } else if (event === 'SIGNED_IN') {
+        if (session?.user) {
+          setUser(session.user);
           
-          checkUserRoles();
-        } else {
-          setIsTester(false);
-          setIsWabAdmin(false);
+          // Fetch user profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileData) {
+            setProfile(profileData);
+            setIsAdmin(!!profileData.wab_admin);
+            console.log(`User ${profileData.username || session.user.email} admin status:`, profileData.wab_admin);
+          }
         }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        setIsGuest(false);
+        setIsAdmin(false);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [isPreview, isPasswordRecovery]);
-
-  // Update guest mode handler to persist to localStorage
-  const setGuestModeWithStorage = (value: boolean) => {
-    setIsGuest(value);
-    localStorage.setItem('warcrow_guest_mode', value ? 'true' : 'false');
-    // Update authentication state when guest mode changes
-    setIsAuthenticated(value);
-  };
+  }, []);
 
   const value = {
-    isAuthenticated,
+    isAuthenticated: !!user,
+    isLoading,
+    user,
+    profile,
     isGuest,
-    isPasswordRecovery,
-    isTester,
-    isWabAdmin,
-    setIsGuest: setGuestModeWithStorage,
-    resendConfirmationEmail,
+    isAdmin,
+    login,
+    logout,
+    updateProfile,
+    sendPasswordReset,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

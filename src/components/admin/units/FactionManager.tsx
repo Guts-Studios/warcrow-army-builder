@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ const FactionManager: React.FC = () => {
   const [unitCountByFaction, setUnitCountByFaction] = useState<Record<string, number>>({});
   const [activeTranslationTab, setActiveTranslationTab] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFactions();
@@ -61,16 +63,35 @@ const FactionManager: React.FC = () => {
 
   const fetchFactions = async () => {
     setIsLoading(true);
+    setFetchError(null);
     try {
+      console.log("[FactionManager] Fetching factions from database");
       const { data, error } = await supabase
         .from('factions')
         .select('*')
         .order('name');
         
-      if (error) throw error;
-      setFactions(data || []);
+      if (error) {
+        console.error('[FactionManager] Error fetching factions:', error);
+        setFetchError(`Failed to fetch factions: ${error.message}`);
+        toast.error(`Failed to fetch factions: ${error.message}`);
+        throw error;
+      }
+      
+      if (data) {
+        console.log(`[FactionManager] Successfully fetched ${data.length} factions`);
+        setFactions(data);
+        
+        if (data.length === 0) {
+          console.log('[FactionManager] No factions found in database');
+          toast.warning('No factions found in database. You should add some factions.', {
+            duration: 5000,
+            id: 'admin-faction-empty-notice'
+          });
+        }
+      }
     } catch (error: any) {
-      console.error('Error fetching factions:', error);
+      console.error('[FactionManager] Error fetching factions:', error);
       toast.error(`Failed to fetch factions: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -97,7 +118,7 @@ const FactionManager: React.FC = () => {
       }
       setUnitCountByFaction(counts);
     } catch (error: any) {
-      console.error('Error fetching unit counts:', error);
+      console.error('[FactionManager] Error fetching unit counts:', error);
     }
   };
 
@@ -132,7 +153,7 @@ const FactionManager: React.FC = () => {
       fetchFactions();
       fetchUnitCounts();
     } catch (error: any) {
-      console.error('Error deleting faction:', error);
+      console.error('[FactionManager] Error deleting faction:', error);
       toast.error(`Failed to delete faction: ${error.message}`);
     } finally {
       setIsDeleteDialogOpen(false);
@@ -198,7 +219,7 @@ const FactionManager: React.FC = () => {
       setIsModalOpen(false);
       fetchFactions();
     } catch (error: any) {
-      console.error('Error saving faction:', error);
+      console.error('[FactionManager] Error saving faction:', error);
       toast.error(`Failed to save faction: ${error.message}`);
     }
   };
@@ -237,7 +258,7 @@ const FactionManager: React.FC = () => {
       }
       toast.success('Translation completed');
     } catch (error: any) {
-      console.error('Error translating faction name:', error);
+      console.error('[FactionManager] Error translating faction name:', error);
       toast.error(`Translation failed: ${error.message}`);
     } finally {
       setIsTranslating(false);
@@ -253,10 +274,20 @@ const FactionManager: React.FC = () => {
             <Button
               onClick={fetchFactions}
               variant="outline"
+              disabled={isLoading}
               className="border-warcrow-gold/30 text-warcrow-gold"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 mr-2 border-2 border-warcrow-gold/70 border-t-transparent rounded-full animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </>
+              )}
             </Button>
             <Button
               onClick={handleAddNewFaction}
@@ -267,6 +298,20 @@ const FactionManager: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {fetchError && (
+          <div className="bg-red-900/20 border border-red-700/30 p-4 rounded-md mb-4 text-red-300">
+            <p>{fetchError}</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={fetchFactions}
+              className="mt-2 bg-red-900/20 border-red-700/30 text-red-300 hover:bg-red-900/40"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" /> Try Again
+            </Button>
+          </div>
+        )}
 
         <div className="rounded border border-warcrow-gold/30 overflow-x-auto">
           <Table>
@@ -283,11 +328,26 @@ const FactionManager: React.FC = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-warcrow-text/70">Loading...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-warcrow-text/70">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-8 h-8 mb-2 border-2 border-warcrow-gold/70 border-t-transparent rounded-full animate-spin" />
+                      Loading factions...
+                    </div>
+                  </TableCell>
                 </TableRow>
               ) : factions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-warcrow-text/70">No factions found</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8 text-warcrow-text/70">
+                    <p className="mb-2">No factions found</p>
+                    <Button
+                      onClick={handleAddNewFaction}
+                      size="sm"
+                      className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Your First Faction
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ) : (
                 factions.map((faction) => (
@@ -383,8 +443,17 @@ const FactionManager: React.FC = () => {
                   disabled={isTranslating || !newFaction.name}
                   className="border-warcrow-gold/30 text-warcrow-gold"
                 >
-                  <Languages className="h-4 w-4 mr-2" />
-                  {isTranslating ? 'Translating...' : 'Translate to Spanish'}
+                  {isTranslating ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-warcrow-gold/70 border-t-transparent rounded-full animate-spin" />
+                      Translating...
+                    </>
+                  ) : (
+                    <>
+                      <Languages className="h-4 w-4 mr-2" />
+                      Translate to Spanish
+                    </>
+                  )}
                 </Button>
               </div>
               
@@ -415,8 +484,17 @@ const FactionManager: React.FC = () => {
                   disabled={isTranslating || !newFaction.name}
                   className="border-warcrow-gold/30 text-warcrow-gold"
                 >
-                  <Languages className="h-4 w-4 mr-2" />
-                  {isTranslating ? 'Translating...' : 'Translate to French'}
+                  {isTranslating ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-warcrow-gold/70 border-t-transparent rounded-full animate-spin" />
+                      Translating...
+                    </>
+                  ) : (
+                    <>
+                      <Languages className="h-4 w-4 mr-2" />
+                      Translate to French
+                    </>
+                  )}
                 </Button>
               </div>
               

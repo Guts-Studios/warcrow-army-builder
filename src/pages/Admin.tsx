@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,8 @@ import UnitImagesManager from '@/components/admin/units/UnitImagesManager';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useEnsureDefaultFactions } from '@/hooks/useEnsureDefaultFactions';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -26,6 +27,10 @@ const Admin = () => {
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { isAuthenticated, isAdmin: isAdminFromAuth } = useAuth();
+  
+  // Use our new hook to ensure default factions exist
+  useEnsureDefaultFactions();
   
   useEffect(() => {
     const checkAdminStatus = async () => {
