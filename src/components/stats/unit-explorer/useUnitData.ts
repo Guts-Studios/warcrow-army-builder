@@ -1,14 +1,12 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Json } from '@/integrations/supabase/types';
 import { ApiUnit, Unit, Faction } from '@/types/army';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { factions as fallbackFactions } from '@/data/factions';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
-  return useQuery<ApiUnit[]>({
+  return useQuery({
     queryKey: ['units', selectedFaction],
     queryFn: async () => {
       console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
@@ -53,7 +51,7 @@ export function useUnitData(selectedFaction: string) {
 
 // Updated useFactions hook with better error handling, caching and language support
 export function useFactions(language: string = 'en') {
-  return useQuery<Faction[]>({
+  return useQuery({
     queryKey: ['factions', language],
     queryFn: async () => {
       console.log("[useFactions] Fetching factions from Supabase with language:", language);
@@ -147,7 +145,7 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
 export function useArmyBuilderUnits(selectedFaction: string) {
   const { isAuthenticated, isGuest } = useAuth();
   
-  return useQuery<Unit[]>({
+  return useQuery({
     queryKey: ['army-builder-units', selectedFaction, isAuthenticated, isGuest],
     queryFn: async () => {
       // Log the authentication state for debugging

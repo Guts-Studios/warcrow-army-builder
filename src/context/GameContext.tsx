@@ -292,10 +292,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'RESET_GAME':
-      return {
-        ...initialState,
-        id: `game-${Date.now()}`,
-      };
+      // Reset to initial state
+      dispatch({ type: 'RESET_GAME', payload: initialGameState });
+      return state;
 
     case 'RESTORE_STATE':
       return action.payload;
