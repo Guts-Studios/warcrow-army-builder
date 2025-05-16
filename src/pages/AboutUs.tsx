@@ -20,7 +20,14 @@ const AboutUs = () => {
       <PageHeader title={aboutTranslations.aboutTitle[language]} />
       
       <Container className="py-8 pb-24 px-4 md:px-6">
+        {/* Move the Patreon support section to the top */}
+        <div className="mb-16">
+          <PatreonSupportSection />
+        </div>
+        
         <div className="max-w-4xl mx-auto mb-16">
+          <Separator className="my-10 bg-warcrow-gold/20" />
+          
           <h1 className="text-4xl font-bold text-warcrow-gold mb-6 text-center">
             {aboutTranslations.aboutDescription[language]}
           </h1>
@@ -152,12 +159,7 @@ const AboutUs = () => {
               </div>
             </div>
           </div>
-          
-          <Separator className="my-10 bg-warcrow-gold/20" />
         </div>
-        
-        {/* Add our Patreon support section */}
-        <PatreonSupportSection />
         
         {/* Community section with supporters and latest posts */}
         <div className="mt-16">
