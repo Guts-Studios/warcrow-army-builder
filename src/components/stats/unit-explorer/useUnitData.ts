@@ -10,6 +10,7 @@ export function useUnitData(selectedFaction: string) {
   return useQuery<ApiUnit[]>({
     queryKey: ['units', selectedFaction],
     queryFn: async () => {
+      console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
       let query = supabase.from('unit_data').select('*');
       
       if (selectedFaction !== 'all') {
@@ -18,7 +19,12 @@ export function useUnitData(selectedFaction: string) {
       
       const { data, error } = await query;
       
-      if (error) throw error;
+      if (error) {
+        console.error(`[useUnitData] Error fetching units for faction ${selectedFaction}:`, error);
+        throw error;
+      }
+      
+      console.log(`[useUnitData] Successfully fetched ${data?.length || 0} units`);
       
       // Add faction_display field and convert Json to proper Record type
       const unitsWithFactionDisplay = (data || []).map(unit => ({
@@ -28,7 +34,8 @@ export function useUnitData(selectedFaction: string) {
       })) as ApiUnit[];
       
       return unitsWithFactionDisplay;
-    }
+    },
+    retry: 2 // Retry failed requests up to 2 times
   });
 }
 
@@ -37,10 +44,11 @@ export function useFactions() {
   return useQuery<Faction[]>({
     queryKey: ['factions'],
     queryFn: async () => {
+      console.log("[useFactions] Fetching factions from Supabase");
       const { data, error } = await supabase.from('factions').select('*');
       
       if (error) {
-        console.error("Error fetching factions:", error);
+        console.error("[useFactions] Error fetching factions:", error);
         // Provide fallback data if the fetch fails
         return [
           { id: "northern-tribes", name: "Northern Tribes" },
@@ -50,8 +58,10 @@ export function useFactions() {
         ];
       }
       
+      console.log(`[useFactions] Successfully fetched ${data?.length || 0} factions`);
       return data || [];
-    }
+    },
+    retry: 2 // Retry failed requests up to 2 times
   });
 }
 
@@ -77,7 +87,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
     queryKey: ['army-builder-units', selectedFaction, isAuthenticated, isGuest],
     queryFn: async () => {
       // Log the authentication state for debugging
-      console.log("useArmyBuilderUnits - Auth state:", { isAuthenticated, isGuest, selectedFaction });
+      console.log("[useArmyBuilderUnits] Auth state:", { isAuthenticated, isGuest, selectedFaction, timestamp: new Date().toISOString() });
       
       try {
         // First try getting data from Supabase
@@ -90,13 +100,13 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         const { data, error } = await query;
         
         if (error) {
-          console.error("Error fetching units from Supabase:", error);
+          console.error("[useArmyBuilderUnits] Error fetching units from Supabase:", error);
           throw error; // Throw to trigger the fallback path
         }
         
         // Check if we have data
         if (!data || data.length === 0) {
-          console.info("No units found in database for faction:", selectedFaction);
+          console.info(`[useArmyBuilderUnits] No units found in database for faction: ${selectedFaction}`);
           throw new Error("No units found in database"); // Trigger fallback to local data
         }
         
@@ -117,12 +127,12 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             return mappedUnit;
           });
         
-        console.log(`Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
+        console.log(`[useArmyBuilderUnits] Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
         
         return visibleUnits;
       } catch (error) {
         // Fall back to local faction data for guest users or when database access fails
-        console.log("Using fallback unit data from local factions for:", selectedFaction);
+        console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
         
         // Import the units from local data
         const { units } = await import('@/data/factions');
@@ -130,7 +140,7 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         // Filter the local units based on the selected faction
         const factionUnits = units.filter(unit => unit.faction === selectedFaction);
         
-        console.log(`Found ${factionUnits.length} local units for faction ${selectedFaction}`);
+        console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} local units for faction ${selectedFaction}`);
         
         return factionUnits;
       }

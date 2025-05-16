@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Get extended unit data by unit ID
 export const getExtendedUnitById = (unitId: string): ExtendedUnit | undefined => {
-  return allExtendedUnits.find(unit => unit.id === unitId);
+  const unit = allExtendedUnits.find(unit => unit.id === unitId);
+  return unit;
 };
 
 // Get character data by ID
@@ -33,52 +34,59 @@ export const matchWithExtendedData = (selectedUnit: SelectedUnit): ExtendedUnit 
 
 // Get all extended units from Supabase
 export const getAllExtendedUnits = async (): Promise<ExtendedUnit[]> => {
-  // First try to fetch from Supabase
-  const { data, error } = await supabase
-    .from("unit_data")
-    .select("*")
-    .order('faction');
+  console.log("[ExtendedUnitService] Fetching units from Supabase");
+  try {
+    // First try to fetch from Supabase
+    const { data, error } = await supabase
+      .from("unit_data")
+      .select("*")
+      .order('faction');
 
-  if (error) {
-    console.error("Error fetching units from Supabase:", error);
-    // Fallback to local data if there's an error
-    return allExtendedUnits;
-  }
+    if (error) {
+      console.error("Error fetching units from Supabase:", error);
+      console.log("[ExtendedUnitService] Falling back to local data");
+      // Fallback to local data if there's an error
+      return allExtendedUnits;
+    }
 
-  if (!data || data.length === 0) {
-    console.warn("No unit data found in Supabase, using local data instead");
-    return allExtendedUnits;
-  }
-  
-  // Transform the Supabase data to the ExtendedUnit format
-  return data.map(unit => {
-    // Safely access characteristics as an object
-    const characteristics = unit.characteristics as Record<string, any> || {};
+    if (!data || data.length === 0) {
+      console.warn("No unit data found in Supabase, using local data instead");
+      return allExtendedUnits;
+    }
     
-    return {
-      id: unit.id,
-      name: unit.name,
-      cost: unit.points || 0,
-      stats: { 
-        MOV: characteristics.movement?.toString() || "3-3 (9)", 
-        W: characteristics.wounds || 1, 
-        WP: characteristics.resolve?.toString() || "🟠", 
-        MOR: characteristics.command?.toString() || "1", 
-        AVB: characteristics.availability || 1 
-      },
-      type: unit.type || "Infantry",
-      keywords: unit.keywords || [],
-      specialRules: unit.special_rules || [],
-      profiles: [], // This would need more complex mapping
-      abilities: {}, // This would need more complex mapping
-      // The field is not called image_url based on the error, so use a fallback approach
-      // If there's an equivalent field in the database, we should use that instead
-      imageUrl: undefined, // We'll need to determine the correct field name or add it to the schema
-      command: characteristics.command || undefined,
-      availability: characteristics.availability || undefined,
-      points: unit.points
-    };
-  });
+    console.log(`[ExtendedUnitService] Successfully retrieved ${data.length} units from Supabase`);
+    
+    // Transform the Supabase data to the ExtendedUnit format
+    return data.map(unit => {
+      // Safely access characteristics as an object
+      const characteristics = unit.characteristics as Record<string, any> || {};
+      
+      return {
+        id: unit.id,
+        name: unit.name,
+        cost: unit.points || 0,
+        stats: { 
+          MOV: characteristics.movement?.toString() || "3-3 (9)", 
+          W: characteristics.wounds || 1, 
+          WP: characteristics.resolve?.toString() || "🟠", 
+          MOR: characteristics.command?.toString() || "1", 
+          AVB: characteristics.availability || 1 
+        },
+        type: unit.type || "Infantry",
+        keywords: unit.keywords || [],
+        specialRules: unit.special_rules || [],
+        profiles: [], // This would need more complex mapping
+        abilities: {}, // This would need more complex mapping
+        imageUrl: undefined, 
+        command: characteristics.command || undefined,
+        availability: characteristics.availability || undefined,
+        points: unit.points
+      };
+    });
+  } catch (err) {
+    console.error("[ExtendedUnitService] Error in getAllExtendedUnits:", err);
+    return allExtendedUnits; // Return local data as fallback
+  }
 };
 
 // Legacy synchronous version for backward compatibility

@@ -16,7 +16,25 @@ export const useArmyList = (selectedFaction: string) => {
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   
   // Use our new hook that filters out hidden units
-  const { data: factionUnits = [], isLoading: unitsLoading } = useArmyBuilderUnits(selectedFaction);
+  const { data: factionUnits = [], isLoading: unitsLoading, error: unitsError } = useArmyBuilderUnits(selectedFaction);
+
+  useEffect(() => {
+    // Log information about the units being loaded
+    if (unitsLoading) {
+      console.log(`[useArmyList] Loading units for faction: ${selectedFaction}`);
+    } else if (unitsError) {
+      console.error(`[useArmyList] Error loading units for faction ${selectedFaction}:`, unitsError);
+    } else {
+      console.log(`[useArmyList] Loaded ${factionUnits.length} units for faction: ${selectedFaction}`);
+      
+      // Log the first few units for debugging purposes
+      if (factionUnits.length > 0) {
+        console.log(`[useArmyList] Sample units:`, factionUnits.slice(0, 3));
+      } else {
+        console.warn(`[useArmyList] No units found for faction: ${selectedFaction}`);
+      }
+    }
+  }, [factionUnits, unitsLoading, unitsError, selectedFaction]);
 
   // Load saved lists for the current faction
   const fetchSavedLists = useCallback(async () => {
@@ -63,7 +81,10 @@ export const useArmyList = (selectedFaction: string) => {
 
   const handleAdd = (unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
-    if (!unit) return;
+    if (!unit) {
+      console.warn(`[useArmyList] Tried to add unit with ID ${unitId} but it was not found in factionUnits`);
+      return;
+    }
 
     // Perform validation 
     const canAdd = validateUnitAddition(
@@ -93,7 +114,10 @@ export const useArmyList = (selectedFaction: string) => {
 
   const handleRemove = (unitId: string) => {
     const unit = factionUnits.find((u) => u.id === unitId);
-    if (!unit) return;
+    if (!unit) {
+      console.warn(`[useArmyList] Tried to remove unit with ID ${unitId} but it was not found in factionUnits`);
+      return;
+    }
 
     // Update quantities and selected units
     const newQuantities = getUpdatedQuantities(unitId, quantities, false);
@@ -194,6 +218,7 @@ export const useArmyList = (selectedFaction: string) => {
     handleSaveList,
     handleLoadList,
     factionUnits,
-    unitsLoading
+    unitsLoading,
+    unitsError
   };
 };
