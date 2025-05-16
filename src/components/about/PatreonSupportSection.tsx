@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,9 +12,12 @@ import {
 } from "@/utils/patreonUtils";
 import { aboutTranslations } from '@/i18n/about';
 
+// Custom Patreon link
+const CUSTOM_PATREON_LINK = "https://patreon.com/GutzStudio?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=creatorshare_fan&utm_content=join_link";
+
 export function PatreonSupportSection() {
   const [tiers, setTiers] = useState<PatreonTier[]>([]);
-  const [campaignUrl, setCampaignUrl] = useState<string>(getPatreonCampaignUrl());
+  const [campaignUrl, setCampaignUrl] = useState<string>(CUSTOM_PATREON_LINK);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { language } = useLanguage();
@@ -30,7 +32,8 @@ export function PatreonSupportSection() {
           // Check if tiers exist and are published before filtering
           const campaignTiers = campaignInfo.tiers || [];
           setTiers(campaignTiers.filter(tier => tier.published));
-          setCampaignUrl(campaignInfo.url);
+          // We're using our custom link instead of the API link
+          setCampaignUrl(CUSTOM_PATREON_LINK);
         } else {
           setError("Unable to load support options");
         }
@@ -98,7 +101,7 @@ export function PatreonSupportSection() {
           <Button 
             variant="outline" 
             className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:text-warcrow-gold"
-            onClick={() => window.open(getPatreonCampaignUrl(), '_blank')}
+            onClick={() => window.open(CUSTOM_PATREON_LINK, '_blank')}
           >
             <Coffee className="mr-2 h-4 w-4" />
             {aboutTranslations.buyCoffee[language]}
