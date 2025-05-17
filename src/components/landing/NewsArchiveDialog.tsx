@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
+import { newsItems, initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { Loader2 } from "lucide-react";
 import { translations } from "@/i18n/translations";
 
@@ -27,14 +27,35 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     const loadNews = async () => {
       setIsLoading(true);
       try {
-        // First, set items to what we already have
-        setItems(newsItems);
-
+        console.log("NewsArchiveDialog: Loading news items...");
+        
+        // First check if there are already news items available in memory
+        if (newsItems.length > 0) {
+          console.log("NewsArchiveDialog: Using existing items:", newsItems.length);
+          setItems(newsItems);
+          setIsLoading(false);
+        } else {
+          // If not, use default items temporarily
+          console.log("NewsArchiveDialog: No existing items, using defaults temporarily");
+          setItems(defaultNewsItems);
+        }
+        
         // Try to refresh the items
         const refreshedItems = await initializeNewsItems();
-        setItems(refreshedItems);
+        if (refreshedItems.length > 0) {
+          console.log("NewsArchiveDialog: Got refreshed items:", refreshedItems.length);
+          setItems(refreshedItems);
+        } else if (items.length === 0) {
+          // If we still have nothing, use defaults as last resort
+          console.log("NewsArchiveDialog: No refreshed items, using defaults");
+          setItems(defaultNewsItems);
+        }
       } catch (error) {
         console.error("Error loading news items:", error);
+        // If we have nothing at this point, use defaults
+        if (items.length === 0) {
+          setItems(defaultNewsItems);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -43,7 +64,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     loadNews();
   }, []);
   
-  // Safe translation retrieval function
+  // Safe translation retrieval function - ensure we always return something
   const getTranslatedContent = (key: string) => {
     if (!key) return "No content available";
     
@@ -52,8 +73,18 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       if (translations[key]) {
         return t(key);
       }
+      
       // Fall back to showing the key if translation is missing
       console.warn(`Translation key not found: ${key}`);
+      
+      // Add a fallback translation to prevent future failures
+      translations[key] = {
+        en: `Missing translation: ${key}`,
+        es: `Traducción faltante: ${key}`,
+        fr: `Traduction manquante: ${key}`
+      };
+      
+      // Return something meaningful to the user
       return `Missing translation: ${key}`;
     } catch (error) {
       console.error(`Error getting translation for key ${key}:`, error);

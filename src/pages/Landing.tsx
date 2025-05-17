@@ -123,16 +123,18 @@ const Landing = () => {
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated } = useAuth();
 
-  // Enhanced preview detection
+  // Enhanced preview detection with more robust hostname checking
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('lovableproject.com') ||
+                   window.location.hostname.includes('.lovableproject.com') ||
                    window.location.hostname.includes('localhost') ||
-                   window.location.hostname.includes('127.0.0.1');
+                   window.location.hostname.includes('127.0.0.1') ||
+                   // Handle Netlify preview URLs
+                   window.location.hostname.includes('netlify.app');
 
   // Detect if we're in preview mode for debugging
   useEffect(() => {
-    console.log('Current hostname:', window.location.hostname);
-    console.log('Is preview environment:', isPreview);
+    console.log('Landing.tsx: Current hostname:', window.location.hostname);
+    console.log('Landing.tsx: Is preview environment:', isPreview);
   }, [isPreview]);
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
@@ -141,12 +143,10 @@ const Landing = () => {
     refetchOnWindowFocus: false,
     staleTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
-    enabled: true,
-    meta: {
-      onError: (error: any) => {
-        console.error('Failed to fetch user count:', error);
-        toast.error('Failed to fetch user statistics');
-      }
+    enabled: true, // Always enable this query
+    onError: (error: any) => {
+      console.error('Failed to fetch user count:', error);
+      toast.error('Failed to fetch user statistics');
     }
   });
 

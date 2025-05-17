@@ -11,13 +11,17 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
 
-  // Enhanced preview detection
+  // Enhanced preview detection with more robust hostname checking
   const isPreview = () => {
     const hostname = window.location.hostname;
+    console.log("Current hostname for preview check:", hostname);
+    
     return hostname === 'lovableproject.com' || 
-           hostname.includes('lovableproject.com') ||
+           hostname.includes('.lovableproject.com') ||
            hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1');
+           hostname.includes('127.0.0.1') ||
+           // Handle Netlify preview URLs
+           hostname.includes('netlify.app');
   };
 
   useEffect(() => {
@@ -26,10 +30,11 @@ export function useAuth() {
       try {
         setIsLoading(true);
         console.log("Auth hook: Checking auth status");
-        console.log("Auth hook: isPreview =", isPreview());
+        const inPreview = isPreview();
+        console.log("Auth hook: isPreview =", inPreview);
         
         // For preview environment, provide dummy authenticated state
-        if (isPreview()) {
+        if (inPreview) {
           console.log("Preview mode detected, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);

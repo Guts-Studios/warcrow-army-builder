@@ -42,9 +42,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
 
-  // Check for preview mode
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com');
+  // Enhanced preview detection with more robust hostname checking
+  const isPreview = () => {
+    const hostname = window.location.hostname;
+    console.log("AuthProvider: Current hostname for preview check:", hostname);
+    
+    return hostname === 'lovableproject.com' || 
+           hostname.includes('.lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1') ||
+           // Handle Netlify preview URLs
+           hostname.includes('netlify.app');
+  };
 
   // Function to resend confirmation email
   const resendConfirmationEmail = async (email: string) => {
@@ -74,9 +83,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
+        const inPreview = isPreview();
+        console.log("AuthProvider: isPreview =", inPreview);
         
         // For preview environment, provide dummy authenticated state
-        if (isPreview) {
+        if (inPreview) {
           console.log("Preview mode detected in AuthProvider, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);
@@ -186,7 +197,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       mounted = false;
     };
-  }, [isPreview]);
+  }, []);
 
   const value = {
     isAuthenticated,

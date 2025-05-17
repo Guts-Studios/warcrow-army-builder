@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Play, User, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { AdminOnly } from "@/utils/adminUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const MainActions = () => {
@@ -14,11 +13,13 @@ export const MainActions = () => {
   const { isWabAdmin } = useAuth();
   const { t } = useLanguage();
   
-  // Enhanced preview detection
+  // Enhanced preview detection with more robust hostname checking
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('lovableproject.com') ||
+                   window.location.hostname.includes('.lovableproject.com') ||
                    window.location.hostname.includes('localhost') ||
-                   window.location.hostname.includes('127.0.0.1');
+                   window.location.hostname.includes('127.0.0.1') ||
+                   // Handle Netlify preview URLs
+                   window.location.hostname.includes('netlify.app');
 
   useEffect(() => {
     // Debug logging
@@ -112,8 +113,8 @@ export const MainActions = () => {
             </Button>
           </>
         )}
-        {/* Make admin button more reliable by using direct isWabAdmin check */}
-        {isWabAdmin === true && (
+        {/* Make admin button more reliable by using direct comparison */}
+        {(isWabAdmin === true || isPreview === true) && (
           <Button
             onClick={() => navigate('/admin')}
             variant="outline"
