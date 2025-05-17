@@ -22,20 +22,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
 
-  // Define the list of known characteristics
-  const characteristicTypes = [
-    "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
-    "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-    "Construct", "Undead", "Mounted", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
-    "Golem", "Mercenary"
-  ];
-
-  // Filter keywords to only include characteristics
-  const characteristics = keywords.filter(k => 
-    characteristicTypes.includes(typeof k === 'string' ? k : k.name)
-  );
-
-  if (characteristics.length === 0 && !highCommand) return null;
+  // Only display the High Command characteristic if the prop is provided
+  // No longer filtering characteristics from keywords
+  if (!highCommand) return null;
 
   // This component now properly displays just the characteristic name
   const CharacteristicContent = ({ text }: { text: string }) => (
@@ -82,41 +71,6 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
           </TooltipProvider>
         )
       )}
-      {characteristics.map((keyword) => {
-        const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
-        const displayName = language !== 'en' 
-          ? translateCharacteristic(keywordName) 
-          : keywordName;
-          
-        return isMobile ? (
-          <button 
-            key={keywordName}
-            type="button"
-            className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
-            onClick={() => setOpenDialogCharacteristic(keywordName)}
-          >
-            {displayName}
-          </button>
-        ) : (
-          <TooltipProvider key={keywordName}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  type="button"
-                  className="px-2 py-0.5 text-xs rounded bg-warcrow-background/50 border border-warcrow-gold/50 text-warcrow-text"
-                >
-                  {displayName}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent 
-                className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
-              >
-                <CharacteristicContent text={keywordName} />
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      })}
 
       {openDialogCharacteristic && (
         <div 

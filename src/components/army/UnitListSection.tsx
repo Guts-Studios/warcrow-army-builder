@@ -5,7 +5,6 @@ import SortControls from "./SortControls";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 
@@ -33,17 +32,22 @@ const UnitListSection = ({
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [showKeywords, setShowKeywords] = useState(false);
 
+  // Define characteristics to filter by
+  const characteristicTypes = [
+    "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
+    "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
+    "Construct", "Undead", "Mounted", "High Command", "Cavalry"
+  ];
+
   // Get all unique characteristics across all units
   const allCharacteristics = Array.from(
     new Set(
       factionUnits.flatMap(unit => 
         unit.keywords
           .filter(k => 
-            ["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
-             "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-             "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(
-               typeof k === 'string' ? k : k.name
-             )
+            characteristicTypes.includes(
+              typeof k === 'string' ? k : k.name
+            )
           )
           .map(k => typeof k === 'string' ? k : k.name)
       )
@@ -56,11 +60,9 @@ const UnitListSection = ({
       factionUnits.flatMap(unit => 
         unit.keywords
           .filter(k => 
-            !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
-              "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-              "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(
-                typeof k === 'string' ? k : k.name
-              )
+            !characteristicTypes.includes(
+              typeof k === 'string' ? k : k.name
+            )
           )
           .map(k => typeof k === 'string' ? k : k.name)
       )

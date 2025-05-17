@@ -1,3 +1,4 @@
+
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -21,7 +22,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const { language } = useLanguage();
   const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
 
-  // Define the list of known characteristics to exclude
+  // Define the list of characteristic types to exclude
   const characteristicTypes = [
     "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
     "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
@@ -29,7 +30,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     "Golem", "Mercenary", "High Command"
   ];
 
-  // Filter out characteristics
+  // Filter out all characteristics
   const filteredKeywords = keywords.filter(k => {
     const keywordName = typeof k === 'string' ? k : k.name;
     return !characteristicTypes.includes(keywordName);
