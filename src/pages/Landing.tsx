@@ -144,9 +144,11 @@ const Landing = () => {
     staleTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     enabled: true, // Always enable this query
-    onError: (error: any) => {
-      console.error('Failed to fetch user count:', error);
-      toast.error('Failed to fetch user statistics');
+    meta: {
+      onError: (error: any) => {
+        console.error('Failed to fetch user count:', error);
+        toast.error('Failed to fetch user statistics');
+      }
     }
   });
 
