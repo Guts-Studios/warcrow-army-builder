@@ -1,28 +1,59 @@
 
-// Create a new file that re-exports the translation hooks for better import organization
-import { useKeywordTranslations } from './translation/hooks/useKeywordTranslations';
-import { useCharacteristicTranslations } from './translation/hooks/useCharacteristicTranslations';
-import { useSpecialRuleTranslations } from './translation/hooks/useSpecialRuleTranslations';
+import { useTranslation } from "@/hooks/use-translation";
+import { useCallback } from "react";
 
 export const useTranslateKeyword = () => {
-  const { translateKeyword, translateKeywordDescription } = useKeywordTranslations();
-  const { translateCharacteristic, translateCharacteristicDescription } = useCharacteristicTranslations();
-  const { translateSpecialRule, translateSpecialRuleDescription } = useSpecialRuleTranslations();
-  
-  // Add a method to translate unit names
-  const translateUnitName = (name: string, language: string): string => {
-    // This is a simplified implementation - in a real app you'd fetch translations from the server
-    // For now, just return the name as is
-    return name;
-  };
-  
+  const { t } = useTranslation();
+
+  // Translate special rules
+  const translateSpecialRule = useCallback((ruleName: string, language: string) => {
+    if (language === 'en') return ruleName;
+    return t(`specialRules.${ruleName}`, ruleName);
+  }, [t]);
+
+  // Translate special rule descriptions
+  const translateSpecialRuleDescription = useCallback((ruleName: string, language: string) => {
+    if (language === 'en') return '';
+    return t(`specialRuleDescriptions.${ruleName}`, '');
+  }, [t]);
+
+  // Translate keywords
+  const translateKeyword = useCallback((keyword: string, language: string) => {
+    if (language === 'en') return keyword;
+    return t(`keywords.${keyword}`, keyword);
+  }, [t]);
+
+  // Translate keyword descriptions
+  const translateKeywordDescription = useCallback((keyword: string, language: string) => {
+    if (language === 'en') return '';
+    return t(`keywordDescriptions.${keyword}`, '');
+  }, [t]);
+
+  // Translate characteristics
+  const translateCharacteristic = useCallback((characteristic: string, language: string) => {
+    if (language === 'en') return characteristic;
+    return t(`characteristics.${characteristic}`, characteristic);
+  }, [t]);
+
+  // Translate characteristic descriptions
+  const translateCharacteristicDescription = useCallback((characteristic: string, language: string) => {
+    if (language === 'en') return '';
+    return t(`characteristicDescriptions.${characteristic}`, '');
+  }, [t]);
+
+  // Translate unit names
+  const translateUnitName = useCallback((name: string, language: string) => {
+    if (language === 'en') return name;
+    return t(`unitNames.${name}`, name);
+  }, [t]);
+
   return {
     translateKeyword,
     translateKeywordDescription,
-    translateCharacteristic, 
+    translateCharacteristic,
     translateCharacteristicDescription,
+    translateUnitName,
     translateSpecialRule,
-    translateSpecialRuleDescription,
-    translateUnitName
+    translateSpecialRuleDescription
   };
 };

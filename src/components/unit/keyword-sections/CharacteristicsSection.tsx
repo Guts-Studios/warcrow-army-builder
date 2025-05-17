@@ -27,7 +27,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
     "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
     "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
     "Construct", "Undead", "Mounted", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
-    "Golem"
+    "Golem", "Mercenary"
   ];
 
   // Filter keywords to only include characteristics
