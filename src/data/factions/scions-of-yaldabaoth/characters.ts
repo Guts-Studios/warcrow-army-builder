@@ -39,18 +39,17 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
   {
     id: "nuada",
     name: "Nuada",
-    pointsCost: 35,
+    pointsCost: 55,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "Human race" },
+      { name: "Alven", description: "Alven race" },
       { name: "Character", description: "Character unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elite", description: "Elite unit" }
+      { name: "Elf", description: "Elf race" }
     ],
-    highCommand: false,
+    highCommand: true,
     availability: 1,
-    command: 2,
-    specialRules: ["Command (2)", "Aim"],
+    command: 3,
+    specialRules: ["Heal", "Bloodlust", "Fearless", "Slowed"],
     imageUrl: "/art/card/nuada_card.jpg"
   },
   vercana
