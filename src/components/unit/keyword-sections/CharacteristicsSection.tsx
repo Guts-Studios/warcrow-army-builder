@@ -7,9 +7,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
@@ -21,27 +22,48 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
+  const [characteristics, setCharacteristics] = useState<string[]>([]);
 
-  // Define the list of characteristic types
-  const characteristicTypes = [
-    "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
-    "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-    "Construct", "Undead", "Mounted", "High Command", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
-    "Golem", "Mercenary"
-  ];
-
-  // Filter keywords to only include characteristics
-  const characteristics = keywords
-    .filter(k => {
-      const keywordName = typeof k === 'string' ? k : k.name;
-      return characteristicTypes.includes(keywordName);
-    })
-    .map(k => typeof k === 'string' ? k : k.name);
-
-  // Add High Command if the prop is provided
-  if (highCommand && !characteristics.includes("High Command")) {
-    characteristics.push("High Command");
-  }
+  useEffect(() => {
+    // Extract characteristic names from keywords
+    const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
+    
+    // Get all characteristics from supabase
+    const fetchCharacteristics = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('unit_characteristics')
+          .select('name')
+          .order('name');
+        
+        if (error) {
+          console.error('Error fetching characteristics:', error);
+          return;
+        }
+        
+        if (data) {
+          // Get all valid characteristic names from the database
+          const dbCharacteristicNames = data.map(c => c.name);
+          
+          // Filter keywords to only include valid characteristics that exist in the database
+          const validCharacteristics = keywordNames.filter(name => 
+            dbCharacteristicNames.includes(name)
+          );
+          
+          // Add High Command if provided and not already included
+          if (highCommand && !validCharacteristics.includes("High Command")) {
+            validCharacteristics.push("High Command");
+          }
+          
+          setCharacteristics(validCharacteristics);
+        }
+      } catch (error) {
+        console.error('Unexpected error fetching characteristics:', error);
+      }
+    };
+    
+    fetchCharacteristics();
+  }, [keywords, highCommand]);
 
   // If no characteristics, don't render anything
   if (characteristics.length === 0) return null;
