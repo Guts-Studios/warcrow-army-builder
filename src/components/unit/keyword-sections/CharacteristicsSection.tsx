@@ -1,4 +1,3 @@
-
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -7,74 +6,48 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
-import { supabase } from "@/integrations/supabase/client";
+import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];
   highCommand?: boolean;
 }
 
+// List of known characteristic types - keep this in sync with characteristicDefinitions.ts
+const characteristicTypes = [
+  "Human", "Infantry", "Character", "Companion", "Colossal Company", 
+  "Orc", "Human", "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous",
+  "Beast", "Construct", "Undead", "Mounted", "High Command", "Cavalry",
+  "Alven", "Living Flesh", "Elite", "Berserker Rage", "Join", "Spellcaster",
+  "Fearless", "Raging"
+];
+
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
-  const [characteristics, setCharacteristics] = useState<string[]>([]);
-  const [dbCharacteristicNames, setDbCharacteristicNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Extract characteristic names from keywords
-    const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
-    
-    console.log('Keywords from unit:', keywordNames);
-    
-    // Get all characteristics from supabase
-    const fetchCharacteristics = async () => {
-      try {
-        // Fetch all characteristics from the unit_characteristics table in Supabase
-        const { data, error } = await supabase
-          .from('unit_characteristics')
-          .select('name')
-          .order('name');
-        
-        if (error) {
-          console.error('Error fetching characteristics:', error);
-          return;
-        }
-        
-        if (data) {
-          // Get all valid characteristic names from the database
-          const characteristicNamesFromDb = data.map(c => c.name);
-          setDbCharacteristicNames(characteristicNamesFromDb);
-          
-          console.log('Characteristics from database:', characteristicNamesFromDb);
-          
-          // Filter keywords to only include valid characteristics that exist in the database
-          const validCharacteristics = keywordNames.filter(name => 
-            characteristicNamesFromDb.includes(name)
-          );
-          
-          console.log('Valid characteristics (intersection):', validCharacteristics);
-          
-          // Add High Command if provided and not already included
-          if (highCommand && !validCharacteristics.includes("High Command")) {
-            validCharacteristics.push("High Command");
-            console.log('Added High Command characteristic');
-          }
-          
-          setCharacteristics(validCharacteristics);
-        }
-      } catch (error) {
-        console.error('Unexpected error fetching characteristics:', error);
-      }
-    };
-    
-    fetchCharacteristics();
-  }, [keywords, highCommand]);
-
+  
+  // Extract keyword names
+  const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
+  console.log('Keywords from unit:', keywordNames);
+  
+  // Filter to only show keywords that are characteristics
+  let characteristics = keywordNames.filter(name => 
+    characteristicTypes.includes(name)
+  );
+  
+  // Add High Command if provided and not already included
+  if (highCommand && !characteristics.includes("High Command")) {
+    characteristics.push("High Command");
+    console.log('Added High Command characteristic');
+  }
+  
+  console.log('Characteristics to display:', characteristics);
+  
   // If no characteristics, don't render anything
   if (characteristics.length === 0) {
     console.log('No characteristics to display');
@@ -82,18 +55,25 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   }
 
   // This component now properly displays just the characteristic name
-  const CharacteristicContent = ({ text }: { text: string }) => (
-    <p className="text-sm leading-relaxed">
-      {translateCharacteristic(text)}
-    </p>
-  );
+  const CharacteristicContent = ({ text }: { text: string }) => {
+    // Use local definitions if available, otherwise just show the name
+    const definition = characteristicDefinitions[text] || text;
+    return (
+      <p className="text-sm leading-relaxed">
+        {language !== 'en' ? translateCharacteristic(text) : definition}
+      </p>
+    );
+  };
 
   // This component is used for the dialog which shows the full description
-  const CharacteristicDescription = ({ text }: { text: string }) => (
-    <p className="text-sm leading-relaxed">
-      {translateCharacteristicDescription(text)}
-    </p>
-  );
+  const CharacteristicDescription = ({ text }: { text: string }) => {
+    const definition = characteristicDefinitions[text] || text;
+    return (
+      <p className="text-sm leading-relaxed">
+        {language !== 'en' ? translateCharacteristicDescription(text) : definition}
+      </p>
+    );
+  };
 
   return (
     <div className="flex flex-wrap gap-1">
