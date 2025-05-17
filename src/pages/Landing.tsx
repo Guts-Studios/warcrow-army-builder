@@ -120,6 +120,15 @@ const Landing = () => {
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated } = useAuth();
 
+  const isPreview = window.location.hostname === 'lovableproject.com' || 
+                   window.location.hostname.includes('lovableproject.com');
+
+  // Detect if we're in preview mode for debugging
+  useEffect(() => {
+    console.log('Current hostname:', window.location.hostname);
+    console.log('Is preview environment:', isPreview);
+  }, [isPreview]);
+
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
@@ -177,6 +186,9 @@ const Landing = () => {
         }
       }
     };
+    
+    // Always log isWabAdmin value for debugging
+    console.log('isWabAdmin value:', isWabAdmin);
     
     fetchBuildStatus();
     

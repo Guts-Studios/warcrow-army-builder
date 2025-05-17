@@ -11,15 +11,17 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
 
-  // Check for preview mode
+  // Check for preview mode - update detection logic
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com');
+                   window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
     let mounted = true;
     const checkAuthStatus = async () => {
       try {
         setIsLoading(true);
+        console.log("Auth hook: Checking auth status");
+        console.log("Auth hook: isPreview =", isPreview);
         
         // For preview environment, provide dummy authenticated state
         if (isPreview) {
@@ -63,9 +65,21 @@ export function useAuth() {
                     setIsGuest(false);
                   } else {
                     console.error("Error or no data when checking user roles:", error);
+                    if (mounted) {
+                      // Explicit fallbacks when profile fetch fails
+                      setIsAdmin(false);
+                      setIsTester(false);
+                      setIsWabAdmin(false);
+                    }
                   }
                 } catch (err) {
                   console.error("Error checking user roles:", err);
+                  if (mounted) {
+                    // Explicit fallbacks when profile fetch errors
+                    setIsAdmin(false);
+                    setIsTester(false);
+                    setIsWabAdmin(false);
+                  }
                 }
               } else {
                 // Not authenticated
@@ -73,7 +87,7 @@ export function useAuth() {
                   setIsAdmin(false);
                   setIsTester(false);
                   setIsWabAdmin(false);
-                  setIsGuest(false);
+                  setIsGuest(true);
                 }
               }
             }
@@ -82,6 +96,7 @@ export function useAuth() {
         
         // Get the initial session state
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial auth session:", session ? "Found" : "Not found");
         
         if (mounted) {
           setIsAuthenticated(!!session);
@@ -105,10 +120,26 @@ export function useAuth() {
                 setIsGuest(false);
               } else {
                 console.error("Error or no data when checking initial user roles:", error);
+                // Explicit fallbacks
+                setIsAdmin(false);
+                setIsTester(false);
+                setIsWabAdmin(false);
+                setIsGuest(!session);
               }
             } catch (err) {
               console.error("Error checking user roles:", err);
+              // Explicit fallbacks
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+              setIsGuest(!session);
             }
+          } else {
+            // Not authenticated, set guest mode
+            setIsAdmin(false);
+            setIsTester(false);
+            setIsWabAdmin(false);
+            setIsGuest(true);
           }
         }
         
@@ -125,7 +156,7 @@ export function useAuth() {
           setIsAdmin(false);
           setIsTester(false);
           setIsWabAdmin(false);
-          setIsGuest(false);
+          setIsGuest(true);
         }
       }
     };

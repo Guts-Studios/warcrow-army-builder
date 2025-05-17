@@ -1,10 +1,9 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Play, User, Shield } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { AdminOnly } from "@/utils/adminUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -13,13 +12,20 @@ export const MainActions = () => {
   const [isTester, setIsTester] = useState(false);
   const { isWabAdmin } = useAuth();
   const { t } = useLanguage();
+  
+  // Update preview detection logic
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.endsWith('.lovableproject.com');
+                   window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
+    // Debug logging
+    console.log('MainActions: isWabAdmin =', isWabAdmin);
+    console.log('MainActions: isPreview =', isPreview);
+    
     const checkUserRole = async () => {
       // If in preview mode, set as tester
       if (isPreview) {
+        console.log('Setting tester mode due to preview environment');
         setIsTester(true);
         return;
       }
@@ -35,13 +41,18 @@ export const MainActions = () => {
           .single();
           
         if (!error && data && data.tester) {
+          console.log('User has tester role in database');
           setIsTester(true);
+        } else {
+          console.log('User does not have tester role:', error || 'No data or tester role');
         }
+      } else {
+        console.log('No session found for role check');
       }
     };
 
     checkUserRole();
-  }, [isPreview]);
+  }, [isPreview, isWabAdmin]);
 
   return (
     <>
@@ -77,6 +88,7 @@ export const MainActions = () => {
           <User className="mr-2 h-4 w-4" />
           {t('profile')}
         </Button>
+        {/* Using explicit debug render for tester features */}
         {(isTester || isWabAdmin || isPreview) && (
           <>
             <Button
@@ -96,7 +108,8 @@ export const MainActions = () => {
             </Button>
           </>
         )}
-        <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
+        {/* Make admin button more reliable by using a more direct check */}
+        {isWabAdmin && (
           <Button
             onClick={() => navigate('/admin')}
             variant="outline"
@@ -105,7 +118,7 @@ export const MainActions = () => {
             <Shield className="mr-2 h-4 w-4" />
             {t('admin')}
           </Button>
-        </AdminOnly>
+        )}
       </div>
     </>
   );

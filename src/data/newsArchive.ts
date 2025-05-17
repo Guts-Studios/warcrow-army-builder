@@ -1,189 +1,166 @@
 
+import { supabase } from "@/integrations/supabase/client";
 import { translations } from "@/i18n/translations";
-import { fetchNewsItems } from "@/utils/newsUtils";
 
-export type NewsItem = {
+export interface NewsItem {
   id: string;
   date: string;
-  key: string; // Key in translations object
-};
+  key: string;
+}
 
-// Default news items that can be used when database fetch fails or is too slow
-const DEFAULT_NEWS_ITEMS: NewsItem[] = [
+// Default news items as fallback
+export const defaultNewsItems: NewsItem[] = [
   {
-    id: "default-news-1",
+    id: "news-default-1",
     date: new Date().toISOString(),
     key: "news.default.latest"
   },
   {
-    id: "default-news-2",
-    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+    id: "news-default-2",
+    date: new Date(Date.now() - 86400000).toISOString(), // yesterday
     key: "news.default.previous"
   }
 ];
 
-// This will be populated from the database on initial load
-export let newsItems: NewsItem[] = [...DEFAULT_NEWS_ITEMS];
+// Start with an empty array, will be populated by initializeNewsItems
+export let newsItems: NewsItem[] = [];
 
-// Try to get news from localStorage
-const tryLoadFromLocalStorage = (): NewsItem[] => {
-  try {
-    const cachedNews = localStorage.getItem('cached_news_items');
-    if (cachedNews) {
-      const parsed = JSON.parse(cachedNews);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log(`Loaded ${parsed.length} news items from localStorage`);
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.error('Error loading news from localStorage:', e);
-  }
-  return [];
-};
-
-// Initialize with localStorage data if available
-const localStorageNews = tryLoadFromLocalStorage();
-if (localStorageNews.length > 0) {
-  newsItems = localStorageNews;
-}
-
-// Initialize news items from database with timeout
+// Function to initialize news items from the database
 export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
     console.log("Initializing news items from database...");
     
-    // First check localStorage for immediate display
-    const cachedNews = tryLoadFromLocalStorage();
-    if (cachedNews.length > 0) {
-      // Update the global variable immediately for instant access
-      newsItems = cachedNews;
-      console.log("Using cached news items from localStorage while fetching latest");
-    }
-    
-    // Set up a very short timeout for the fetch (reduced to 1500ms for better results in production)
+    // Set a timeout to avoid long waiting time
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
         console.log("Database fetch timeout after 1500ms");
-        // Return localStorage data or default items if timeout
-        resolve(cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS);
-      }, 1500); // Increased to 1500ms for production environments
+        
+        // Use cached items first if available
+        const cachedItems = getCachedNewsItems();
+        if (cachedItems.length > 0) {
+          resolve(cachedItems);
+          return;
+        }
+        
+        // Fall back to defaults if no cached items
+        resolve([...defaultNewsItems]);
+      }, 1500); // 1.5 seconds timeout for faster response
     });
     
-    // Actual fetch
-    const fetchPromise = fetchNewsItems()
-      .then(items => {
-        console.log(`Fetched ${items.length} news items from database`);
+    // Database fetch promise
+    const fetchPromise = (async (): Promise<NewsItem[]> => {
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching news items:', error);
         
-        if (items.length === 0) {
-          console.log("No news items returned from database, using cached or defaults");
-          return cachedNews.length > 0 ? cachedNews : DEFAULT_NEWS_ITEMS;
-        }
+        // Try to use cached items
+        const cachedItems = getCachedNewsItems();
+        if (cachedItems.length > 0) return cachedItems;
         
-        // Cache in localStorage for future use
+        return [...defaultNewsItems];
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No news items found in database');
+        
+        // Try to use cached items
+        const cachedItems = getCachedNewsItems();
+        if (cachedItems.length > 0) return cachedItems;
+        
+        return [...defaultNewsItems];
+      }
+      
+      console.log(`Fetched ${data.length} news items from database`);
+      
+      const items: NewsItem[] = data.map(item => {
+        // Update translations with available content
         try {
-          localStorage.setItem('cached_news_items', JSON.stringify(items));
-          console.log('Cached news items in localStorage');
+          translations[item.translation_key] = {
+            en: item.content_en || '',
+            es: item.content_es || '',
+            fr: item.content_fr || ''
+          };
         } catch (e) {
-          console.error('Failed to cache news items:', e);
+          console.error('Error updating translation for:', item.translation_key, e);
         }
         
-        // Update the global variable
-        newsItems = items;
-        
-        return items;
-      })
-      .catch(error => {
-        console.error("Error fetching news items:", error);
-        // Use localStorage on error
-        if (cachedNews.length > 0) {
-          console.log('Using cached news after fetch error');
-          return cachedNews;
-        }
-        console.log('No cached news available, using defaults');
-        return DEFAULT_NEWS_ITEMS;
+        return {
+          id: item.news_id || item.id,
+          date: item.date,
+          key: item.translation_key
+        };
       });
+      
+      // Cache the items for offline use
+      try {
+        localStorage.setItem('cached_news_items', JSON.stringify(items));
+        localStorage.setItem('cached_news_items_timestamp', Date.now().toString());
+        console.log('Cached news items in localStorage');
+      } catch (e) {
+        console.error('Error caching news items:', e);
+      }
+      
+      // Update the module-level newsItems variable
+      newsItems = [...items];
+      return items;
+    })();
     
-    // Race between the timeout and the fetch
-    const result = await Promise.race([fetchPromise, timeoutPromise]);
+    // Race between timeout and actual fetch
+    return Promise.race([fetchPromise, timeoutPromise]).then(items => {
+      newsItems = [...items]; // Update the module variable
+      return items;
+    });
     
-    // Make sure we have at least the default items
-    if (!result || result.length === 0) {
-      console.log("No news items from any source, using defaults");
-      return DEFAULT_NEWS_ITEMS;
-    }
-    
-    return result;
   } catch (error) {
-    console.error("Error initializing news items:", error);
+    console.error('Error initializing news items:', error);
     
-    // Try localStorage on error
-    const cachedNews = tryLoadFromLocalStorage();
-    if (cachedNews.length > 0) {
-      console.log('Using cached news after initialization error');
-      newsItems = cachedNews;
-      return cachedNews;
+    // Try to use cached items first
+    const cachedItems = getCachedNewsItems();
+    if (cachedItems.length > 0) {
+      newsItems = [...cachedItems];
+      return cachedItems;
     }
     
-    // Return default items on error
-    console.log('Using default news items after error');
-    return DEFAULT_NEWS_ITEMS;
+    // Fallback to defaults
+    newsItems = [...defaultNewsItems];
+    return [...defaultNewsItems];
   }
 };
 
-// Function to add a new news item locally (after DB update)
-export const addNewsItem = (id: string, date: string, key: string) => {
-  // Add news item to the beginning of the array (newest first)
-  newsItems.unshift({
-    id,
-    date,
-    key
-  });
-  
-  // Update localStorage
+// Helper function to get cached news items
+const getCachedNewsItems = (): NewsItem[] => {
   try {
-    localStorage.setItem('cached_news_items', JSON.stringify(newsItems));
+    const cachedNews = localStorage.getItem('cached_news_items');
+    const cachedTimestamp = localStorage.getItem('cached_news_items_timestamp');
+    
+    if (cachedNews && cachedTimestamp) {
+      const items = JSON.parse(cachedNews);
+      console.log(`Found ${items.length} cached news items from ${new Date(parseInt(cachedTimestamp)).toLocaleString()}`);
+      return items;
+    }
   } catch (e) {
-    console.error('Failed to update news cache:', e);
+    console.error('Error retrieving cached news:', e);
   }
+  
+  return [];
 };
 
-// Function to update an existing news item locally (after DB update)
-export const updateNewsItemInArchive = (id: string, date: string, key: string) => {
-  const index = newsItems.findIndex(item => item.id === id);
-  if (index !== -1) {
-    newsItems[index] = {
-      id,
-      date,
-      key
-    };
-    
-    // Update localStorage
-    try {
-      localStorage.setItem('cached_news_items', JSON.stringify(newsItems));
-    } catch (e) {
-      console.error('Failed to update news cache:', e);
-    }
-    
-    return true;
+// Initialize news items on module load
+if (typeof window !== 'undefined') {
+  // Try to load cached items first for immediate display
+  const cachedItems = getCachedNewsItems();
+  if (cachedItems.length > 0) {
+    newsItems = cachedItems;
+  } else {
+    newsItems = [...defaultNewsItems];
   }
-  return false;
-};
-
-// Function to delete a news item locally (after DB delete)
-export const deleteNewsItemFromArchive = (id: string) => {
-  const index = newsItems.findIndex(item => item.id === id);
-  if (index !== -1) {
-    newsItems.splice(index, 1);
-    
-    // Update localStorage
-    try {
-      localStorage.setItem('cached_news_items', JSON.stringify(newsItems));
-    } catch (e) {
-      console.error('Failed to update news cache:', e);
-    }
-    
-    return true;
-  }
-  return false;
-};
+  
+  // Then asynchronously load from database
+  initializeNewsItems().catch(err => {
+    console.error('Error initializing news items during module load:', err);
+  });
+}
