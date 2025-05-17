@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NewsItem, newsItems } from '@/data/newsArchive';
@@ -198,11 +197,8 @@ export const Header = () => {
         </div>
       </div>
       
-      {/* News Archive Dialog */}
-      <NewsArchiveDialog
-        open={showNewsArchiveDialog}
-        onOpenChange={setShowNewsArchiveDialog}
-      />
+      {/* News Archive Dialog - Using the correct component API */}
+      <NewsArchiveDialog triggerClassName="" />
     </header>
   );
 };

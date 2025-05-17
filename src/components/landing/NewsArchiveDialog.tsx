@@ -14,12 +14,30 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-const NewsArchiveDialog = ({ triggerClassName = "" }) => {
+interface NewsArchiveDialogProps {
+  triggerClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+const NewsArchiveDialog = ({ 
+  triggerClassName = "",
+  open,
+  onOpenChange
+}: NewsArchiveDialogProps) => {
   const { t, language } = useLanguage();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [usingCachedData, setUsingCachedData] = useState(false);
+  
+  // For internal state if not controlled externally
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Determine if component is controlled or uncontrolled
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
+  const setDialogOpen = isControlled ? onOpenChange : setInternalOpen;
   
   const loadNews = async () => {
     setIsLoading(true);
@@ -64,8 +82,11 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
   };
   
   useEffect(() => {
-    loadNews();
-  }, []);
+    // Only load news when the dialog is opened
+    if (dialogOpen) {
+      loadNews();
+    }
+  }, [dialogOpen]);
 
   const handleRefresh = async () => {
     await loadNews();
@@ -107,12 +128,14 @@ const NewsArchiveDialog = ({ triggerClassName = "" }) => {
   };
   
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="link" className={triggerClassName}>
-          {t('newsArchive')}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button variant="link" className={triggerClassName}>
+            {t('newsArchive')}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-warcrow-gold">
