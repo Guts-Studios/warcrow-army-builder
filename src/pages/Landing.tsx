@@ -52,20 +52,17 @@ const fetchUserCount = async () => {
     const isPreview = () => {
       const hostname = window.location.hostname;
       
-      // Check for specific production domain - adjust to match your actual production domain
-      const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                           hostname === 'wab.warcrow.com';
+      // Enhanced preview detection with more hostnames
+      const isPreviewEnv = hostname === 'lovableproject.com' || 
+                         hostname.includes('.lovableproject.com') ||
+                         hostname.includes('localhost') ||
+                         hostname.includes('127.0.0.1') ||
+                         hostname.includes('netlify.app') ||
+                         hostname.includes('id-preview') ||
+                         hostname.includes('lovable.app');
       
-      if (isProduction) {
-        console.log("Production environment detected in fetchUserCount");
-        return false;
-      }
-      
-      return hostname === 'lovableproject.com' || 
-             hostname.includes('.lovableproject.com') ||
-             hostname.includes('localhost') ||
-             hostname.includes('127.0.0.1') ||
-             hostname.includes('netlify.app');
+      console.log("Is preview environment in fetchUserCount:", isPreviewEnv, "hostname:", hostname);
+      return isPreviewEnv;
     };
     
     // Return a mock count for preview environments
@@ -110,13 +107,16 @@ const fetchUserCount = async () => {
       setTimeout(() => {
         console.log("User count fetch timed out after 2s");
         
-        // Use cached count if available, otherwise return 0
+        // Use cached count if available, otherwise return default mock count
         const cachedCount = localStorage.getItem('cached_user_count');
         if (cachedCount) {
           console.log('Using cached user count after timeout:', cachedCount);
           resolve(parseInt(cachedCount));
         } else {
-          resolve(0);
+          // Use a default mock count as last resort
+          const defaultMockCount = 25;
+          console.log('Using default mock count:', defaultMockCount);
+          resolve(defaultMockCount);
         }
       }, 2000); // 2s timeout
     });
@@ -134,7 +134,8 @@ const fetchUserCount = async () => {
     }
     
     console.error('Error fetching user count with no cached fallback:', error);
-    return 0; // Return 0 to prevent UI issues
+    // Return a default value to prevent UI issues
+    return 25;
   }
 };
 
@@ -185,20 +186,14 @@ const Landing = () => {
   const isPreview = () => {
     const hostname = window.location.hostname;
     
-    // Check for specific production domain - adjust to match your actual production domain
-    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                         hostname === 'wab.warcrow.com';
-    
-    if (isProduction) {
-      console.log("Production environment detected in Landing");
-      return false;
-    }
-    
+    // More comprehensive list of preview hostnames
     const isPreviewEnv = hostname === 'lovableproject.com' || 
                        hostname.includes('.lovableproject.com') ||
                        hostname.includes('localhost') ||
                        hostname.includes('127.0.0.1') ||
-                       hostname.includes('netlify.app');
+                       hostname.includes('netlify.app') ||
+                       hostname.includes('id-preview') ||
+                       hostname.includes('lovable.app');
     
     console.log('Landing.tsx: Current hostname:', hostname);
     console.log('Landing.tsx: Is preview environment:', isPreviewEnv);

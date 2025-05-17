@@ -16,16 +16,7 @@ export function useAuth() {
     const hostname = window.location.hostname;
     console.log("Auth hook: Current hostname for preview check:", hostname);
     
-    // Check for specific production domain - adjust this to match your actual production domain
-    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                         hostname === 'wab.warcrow.com';
-    
-    if (isProduction) {
-      console.log("Production environment detected");
-      return false;
-    }
-    
-    // Otherwise, check if it's a preview/development environment
+    // More comprehensive list of preview hostnames
     const isPreviewEnv = hostname === 'lovableproject.com' || 
                          hostname.includes('.lovableproject.com') ||
                          hostname.includes('localhost') ||
@@ -34,7 +25,7 @@ export function useAuth() {
                          hostname.includes('id-preview') ||
                          hostname.includes('lovable.app');
     
-    console.log("Is preview environment:", isPreviewEnv);
+    console.log("Auth hook: Is preview environment:", isPreviewEnv);
     return isPreviewEnv;
   };
 

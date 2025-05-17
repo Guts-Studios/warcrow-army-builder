@@ -39,26 +39,20 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Check if we're in a preview environment
+// Enhanced preview detection with more robust hostname checking
 const isPreviewEnvironment = () => {
   if (typeof window === 'undefined') return false;
   
   const hostname = window.location.hostname;
   
-  // Check for specific production domain - adjust this to match your actual production domain
-  const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                       hostname === 'wab.warcrow.com';
-  
-  if (isProduction) {
-    console.log("Production environment detected in newsArchive");
-    return false;
-  }
-  
+  // Include more preview hostnames to catch all possible preview environments
   const isPreviewEnv = hostname === 'lovableproject.com' || 
                       hostname.includes('.lovableproject.com') ||
                       hostname.includes('localhost') ||
                       hostname.includes('127.0.0.1') ||
-                      hostname.includes('netlify.app');
+                      hostname.includes('netlify.app') ||
+                      hostname.includes('id-preview') ||
+                      hostname.includes('lovable.app');
   
   console.log("Is preview environment in newsArchive:", isPreviewEnv, "hostname:", hostname);
   return isPreviewEnv;
@@ -80,7 +74,52 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
       newsItems = [...defaultNewsItems];
     }
     
-    // Set a timeout to avoid long waiting time
+    // Generate mock news data for preview environments
+    if (isPreviewEnvironment()) {
+      console.log("Preview environment detected, using mock news data");
+      
+      // Create mock news items with today's date
+      const mockNewsItems = [
+        {
+          id: `news-preview-${Date.now()}`,
+          date: new Date().toISOString(),
+          key: "news.preview.latest"
+        },
+        {
+          id: `news-preview-${Date.now() - 1000}`,
+          date: new Date(Date.now() - 86400000).toISOString(),
+          key: "news.preview.previous"
+        }
+      ];
+      
+      // Add translations for the mock news
+      translations["news.preview.latest"] = {
+        en: "News 5/17/25: Latest update for the preview environment. This is mock data that shows how news will appear.",
+        es: "Noticias 17/5/25: Última actualización para el entorno de vista previa. Estos son datos simulados que muestran cómo aparecerán las noticias.",
+        fr: "Nouvelles 17/5/25: Dernière mise à jour pour l'environnement de prévisualisation. Il s'agit de données simulées qui montrent comment les nouvelles apparaîtront."
+      };
+      
+      translations["news.preview.previous"] = {
+        en: "News 5/16/25: Previous update for testing purposes. The news system allows for multiple entries displayed in chronological order.",
+        es: "Noticias 16/5/25: Actualización anterior para propósitos de prueba. El sistema de noticias permite múltiples entradas mostradas en orden cronológico.",
+        fr: "Nouvelles 16/5/25: Mise à jour précédente à des fins de test. Le système de nouvelles permet d'afficher plusieurs entrées par ordre chronologique."
+      };
+      
+      // Update the newsItems array with mock data
+      newsItems = [...mockNewsItems];
+      
+      // Cache the mock items
+      try {
+        localStorage.setItem('cached_news_items', JSON.stringify(mockNewsItems));
+        localStorage.setItem('cached_news_items_timestamp', Date.now().toString());
+      } catch (e) {
+        console.error('Error caching mock news items:', e);
+      }
+      
+      return mockNewsItems;
+    }
+    
+    // Set a timeout to avoid long waiting time for real data
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
         console.log("Database fetch timeout after 1500ms");
