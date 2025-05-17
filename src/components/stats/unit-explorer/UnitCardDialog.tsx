@@ -32,8 +32,13 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     }
   }, [isOpen, cardUrl, language]);
 
-  // Special case handling for Lady Télia
-  const actualCardUrl = unitName.includes("Lady Télia") ? "/art/card/lady_telia.jpg" : cardUrl;
+  // Determine the correct URL to use
+  let actualCardUrl = cardUrl;
+  
+  // Special case handling for Lady Télia - use the card version not the unit version
+  if (unitName.includes("Lady Télia") || unitName.includes("Lady Telia")) {
+    actualCardUrl = "/art/card/lady_telia_card.jpg";
+  }
   
   const getCardText = () => {
     if (language === 'en') return 'Unit Card';

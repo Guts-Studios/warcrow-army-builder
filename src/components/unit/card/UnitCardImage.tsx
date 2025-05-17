@@ -29,7 +29,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
           className={`bg-black/20 overflow-hidden rounded-md ${isMobile ? 'max-h-[200px]' : 'max-h-[300px]'}`}
         >
           <img
-            src="/art/card/lady_telia.jpg"
+            src="/art/card/lady_telia_card.jpg"
             alt="Lady Télia"
             className="h-full w-full object-contain"
             onError={(e) => {
@@ -49,12 +49,12 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     }
     
     // Special case for Lady Télia who has a different naming pattern
-    if (baseUrl.includes('lady_telia.jpg')) {
+    if (baseUrl.includes('lady_telia')) {
       // Handle Lady Telia's special case
       if (language === 'es') {
-        return baseUrl.replace('.jpg', '_sp.jpg');
+        return baseUrl.replace('.jpg', '_sp.jpg').replace('_card', '_card');
       } else if (language === 'fr') {
-        return baseUrl.replace('.jpg', '_fr.jpg');
+        return baseUrl.replace('.jpg', '_fr.jpg').replace('_card', '_card');
       }
       return baseUrl;
     }

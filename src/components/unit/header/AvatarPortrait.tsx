@@ -18,7 +18,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const { language } = useLanguage();
   
   // Special handling for Lady Télia
-  if (name.includes("Lady Télia")) {
+  if (name.includes("Lady Télia") || name.includes("Lady Telia")) {
     return (
       <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
         <AvatarImage 
@@ -54,8 +54,8 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     }
     
     // Special case for Lady Télia
-    if (portraitUrl.includes('lady_telia.jpg')) {
-      return portraitUrl.replace('/art/card/lady_telia.jpg', '/art/portrait/lady_telia_portrait.jpg');
+    if (portraitUrl.includes('lady_telia')) {
+      return '/art/portrait/lady_telia_portrait.jpg';
     }
     
     // If URL provided but not in portrait format, convert card URL to portrait URL
