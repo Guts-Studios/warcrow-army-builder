@@ -1,3 +1,4 @@
+
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -9,7 +10,7 @@ import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from '@/utils/translationUtils';
+import { useTranslateKeyword } from '@/utils/translation/hooks/useKeywordTranslations';
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
@@ -21,12 +22,19 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   const { language } = useLanguage();
   const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
 
-  // Filter out certain basic keywords that don't need explanations
-  const filteredKeywords = keywords.filter(k => 
-    !["Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
-      "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
-      "Construct", "Undead", "Mounted", "High Command", "Cavalry"].includes(k.name)
-  );
+  // Define the list of known characteristics to exclude
+  const characteristicTypes = [
+    "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
+    "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
+    "Construct", "Undead", "Mounted", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
+    "Golem", "High Command"
+  ];
+
+  // Filter out characteristics
+  const filteredKeywords = keywords.filter(k => {
+    const keywordName = typeof k === 'string' ? k : k.name;
+    return !characteristicTypes.includes(keywordName);
+  });
 
   if (filteredKeywords.length === 0) return null;
 
@@ -44,8 +52,9 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
   };
 
   const KeywordContent = ({ keyword }: { keyword: Keyword }) => {
+    const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
     // Get the appropriate definition based on language
-    const baseKeyword = getBaseKeyword(keyword.name);
+    const baseKeyword = getBaseKeyword(keywordName);
     let definition = translateKeywordDescription(baseKeyword, language);
     
     // If no translated description is found, fall back to static definitions
@@ -71,18 +80,19 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
       </span>
       <div className="flex flex-wrap gap-1.5">
         {filteredKeywords.map((keyword) => {
+          const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
           // Get base keyword name (without parameters)
-          const baseKeywordName = getBaseKeyword(keyword.name);
+          const baseKeywordName = getBaseKeyword(keywordName);
           
           // Get translated base keyword
           const translatedBase = translateKeyword(baseKeywordName, language);
           
           // Get full keyword name with parameters if present
-          const displayName = getFullKeywordName(translatedBase, keyword.name);
+          const displayName = getFullKeywordName(translatedBase, keywordName);
             
           return isMobile ? (
             <button 
-              key={keyword.name}
+              key={keywordName}
               type="button"
               className="px-2.5 py-1 text-xs rounded bg-warcrow-gold/20 border border-warcrow-gold hover:bg-warcrow-gold/30 transition-colors text-warcrow-text"
               onClick={() => setOpenDialogKeyword(keyword)}
@@ -90,7 +100,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               {displayName}
             </button>
           ) : (
-            <TooltipProvider key={keyword.name} delayDuration={0}>
+            <TooltipProvider key={keywordName} delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button 
@@ -131,7 +141,9 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4">
-              {getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword.name), language), openDialogKeyword.name)}
+              {typeof openDialogKeyword === 'string' 
+                ? getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword), language), openDialogKeyword)
+                : getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword.name), language), openDialogKeyword.name)}
             </h3>
             <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />

@@ -1,29 +1,24 @@
 
-import { useTranslateKeyword } from './translation/useTranslateKeyword';
-import { landingTranslations } from '@/i18n/landing';
-import { commonTranslations } from '@/i18n/common';
-import { uiTranslations } from '@/i18n/ui';
-import { batchTranslate, translateText, translateToFrench } from './translation/batchTranslate';
-import toast from '@/components/ui/toast-core';
-import { useUnitNameTranslations } from './translation/hooks/useUnitNameTranslations';
-import { useKeywordTranslations } from './translation/hooks/useKeywordTranslations';
-import { useSpecialRuleTranslations } from './translation/hooks/useSpecialRuleTranslations';
+// Create a new file that re-exports the translation hooks for better import organization
+import { useTranslateKeyword as useTranslateKeywordBase } from './translation/hooks/useKeywordTranslations';
 import { useCharacteristicTranslations } from './translation/hooks/useCharacteristicTranslations';
-import { batchTranslateAndUpdate, translateAllMissingContent } from './translation/deepLBatchTranslator';
 
-export { 
-  useTranslateKeyword, 
-  useUnitNameTranslations,
-  useKeywordTranslations,
-  useSpecialRuleTranslations,
-  useCharacteristicTranslations,
-  landingTranslations, 
-  commonTranslations, 
-  uiTranslations,
-  batchTranslate,
-  translateText,
-  translateToFrench,
-  toast,
-  batchTranslateAndUpdate,
-  translateAllMissingContent
+export const useTranslateKeyword = () => {
+  const { translateKeyword, translateKeywordDescription } = useTranslateKeywordBase();
+  const { translateCharacteristic, translateCharacteristicDescription } = useCharacteristicTranslations();
+  
+  // Add a method to translate unit names
+  const translateUnitName = (name: string, language: string): string => {
+    // This is a simplified implementation - in a real app you'd fetch translations from the server
+    // For now, just return the name as is
+    return name;
+  };
+  
+  return {
+    translateKeyword,
+    translateKeywordDescription,
+    translateCharacteristic, 
+    translateCharacteristicDescription,
+    translateUnitName
+  };
 };

@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import UnitKeywords from "../UnitKeywords";
 
@@ -9,7 +10,11 @@ interface UnitCardKeywordsProps {
 const UnitCardKeywords = ({ unit, isMobile }: UnitCardKeywordsProps) => {
   return (
     <div className="space-y-4">
-      <UnitKeywords keywords={unit.keywords} specialRules={unit.specialRules} />
+      <UnitKeywords 
+        keywords={unit.keywords} 
+        specialRules={unit.specialRules} 
+        highCommand={unit.highCommand}
+      />
     </div>
   );
 };
