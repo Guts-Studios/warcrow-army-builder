@@ -1,11 +1,13 @@
 
 // Create a new file that re-exports the translation hooks for better import organization
-import { useTranslateKeyword as useTranslateKeywordBase } from './translation/hooks/useKeywordTranslations';
+import { useKeywordTranslations } from './translation/hooks/useKeywordTranslations';
 import { useCharacteristicTranslations } from './translation/hooks/useCharacteristicTranslations';
+import { useSpecialRuleTranslations } from './translation/hooks/useSpecialRuleTranslations';
 
 export const useTranslateKeyword = () => {
-  const { translateKeyword, translateKeywordDescription } = useTranslateKeywordBase();
+  const { translateKeyword, translateKeywordDescription } = useKeywordTranslations();
   const { translateCharacteristic, translateCharacteristicDescription } = useCharacteristicTranslations();
+  const { translateSpecialRule, translateSpecialRuleDescription } = useSpecialRuleTranslations();
   
   // Add a method to translate unit names
   const translateUnitName = (name: string, language: string): string => {
@@ -19,6 +21,8 @@ export const useTranslateKeyword = () => {
     translateKeywordDescription,
     translateCharacteristic, 
     translateCharacteristicDescription,
+    translateSpecialRule,
+    translateSpecialRuleDescription,
     translateUnitName
   };
 };

@@ -9,7 +9,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslateKeyword } from "@/utils/translation/hooks/useKeywordTranslations";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface CharacteristicsSectionProps {
   keywords: Keyword[];

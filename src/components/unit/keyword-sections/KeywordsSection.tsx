@@ -10,7 +10,7 @@ import { keywordDefinitions } from "@/data/keywordDefinitions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from '@/utils/translation/hooks/useKeywordTranslations';
+import { useTranslateKeyword } from '@/utils/translationUtils';
 
 interface KeywordsSectionProps {
   keywords: Keyword[];
