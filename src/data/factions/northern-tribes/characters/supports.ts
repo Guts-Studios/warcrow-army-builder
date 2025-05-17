@@ -1,7 +1,8 @@
-
-import { Unit } from "../../../../types/army";
+import { Unit } from "@/types/army";
+import { vercana } from "./vercana";
 
 export const northernTribesSupports: Unit[] = [
+  vercana,
   {
     id: "wisemane",
     name: "Wisemane",
