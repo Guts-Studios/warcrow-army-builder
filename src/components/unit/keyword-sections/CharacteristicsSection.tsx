@@ -20,7 +20,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const isMobile = useIsMobile();
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
   const { language } = useLanguage();
-  const { translateKeyword, translateKeywordDescription } = useTranslateKeyword();
+  const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
 
   // Define the list of known characteristics
   const characteristicTypes = [
@@ -40,14 +40,14 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   // This component now properly displays just the characteristic name
   const CharacteristicContent = ({ text }: { text: string }) => (
     <p className="text-sm leading-relaxed">
-      {translateKeyword(text, language)}
+      {translateCharacteristic(text, language)}
     </p>
   );
 
   // This component is used for the dialog which shows the full description
   const CharacteristicDescription = ({ text }: { text: string }) => (
     <p className="text-sm leading-relaxed">
-      {translateKeywordDescription(text, language)}
+      {translateCharacteristicDescription(text, language)}
     </p>
   );
 
@@ -60,7 +60,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
             onClick={() => setOpenDialogCharacteristic("High Command")}
           >
-            {language !== 'en' ? translateKeyword("High Command", language) : "High Command"}
+            {language !== 'en' ? translateCharacteristic("High Command", language) : "High Command"}
           </button>
         ) : (
           <TooltipProvider>
@@ -70,7 +70,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
                   type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
                 >
-                  {language !== 'en' ? translateKeyword("High Command", language) : "High Command"}
+                  {language !== 'en' ? translateCharacteristic("High Command", language) : "High Command"}
                 </button>
               </TooltipTrigger>
               <TooltipContent 
@@ -85,7 +85,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
       {characteristics.map((keyword) => {
         const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
         const displayName = language !== 'en' 
-          ? translateKeyword(keywordName, language) 
+          ? translateCharacteristic(keywordName, language) 
           : keywordName;
           
         return isMobile ? (
@@ -136,7 +136,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
             </button>
             <h3 className="text-lg font-semibold mb-4">
               {language !== 'en' 
-                ? translateKeyword(openDialogCharacteristic, language)
+                ? translateCharacteristic(openDialogCharacteristic, language)
                 : openDialogCharacteristic}
             </h3>
             <div className="pt-2">
