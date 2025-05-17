@@ -19,7 +19,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     ],
     specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a Die"],
     highCommand: true,
-    imageUrl: "/art/card/dragoslav_card.jpg"
+    imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card.jpg"
   },
   {
     id: "amelia-hellbroth",
