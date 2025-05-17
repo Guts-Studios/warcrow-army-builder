@@ -5,6 +5,16 @@ export const landingTranslations = {
     es: 'Bienvenido al Constructor de Ejércitos de Warcrow',
     fr: 'Bienvenue sur le Constructeur d\'Armée Warcrow'
   },
+  welcomeTitle: {
+    en: 'Welcome to Warcrow Army Builder',
+    es: 'Bienvenido al Constructor de Ejércitos de Warcrow',
+    fr: 'Bienvenue sur le Constructeur d\'Armée Warcrow'
+  },
+  welcomeDescription: {
+    en: 'Create, manage and share your Warcrow armies with this unofficial fan-made tool.',
+    es: 'Crea, gestiona y comparte tus ejércitos de Warcrow con esta herramienta no oficial creada por fans.',
+    fr: 'Créez, gérez et partagez vos armées Warcrow avec cet outil non officiel créé par des fans.'
+  },
   version: {
     en: 'Version',
     es: 'Versión',
@@ -24,6 +34,11 @@ export const landingTranslations = {
     en: 'Rules Reference',
     es: 'Referencia de Reglas',
     fr: 'Référence des Règles'
+  },
+  userCount: {
+    en: 'Join {count} players building armies',
+    es: 'Únete a {count} jugadores construyendo ejércitos',
+    fr: 'Rejoignez {count} joueurs construisant des armées'
   },
   userCountMessage: {
     en: 'Join {count} players building armies',
@@ -100,5 +115,60 @@ export const landingTranslations = {
     en: 'Buy us a Coffee',
     es: 'Invítanos a un Café',
     fr: 'Offrez-nous un Café'
+  },
+  faqTitle: {
+    en: 'FAQ',
+    es: 'Preguntas Frecuentes',
+    fr: 'FAQ'
+  },
+  tryAgain: {
+    en: 'Try Again',
+    es: 'Intentar de nuevo',
+    fr: 'Réessayer'
+  },
+  refresh: {
+    en: 'Refresh',
+    es: 'Actualizar',
+    fr: 'Actualiser'
+  },
+  usingCachedData: {
+    en: 'Using cached news data. Click Refresh to try again.',
+    es: 'Usando datos de noticias en caché. Haz clic en Actualizar para intentarlo de nuevo.',
+    fr: 'Utilisation des données de nouvelles en cache. Cliquez sur Actualiser pour réessayer.'
+  },
+  errorLoadingUserCount: {
+    en: 'Error loading user count',
+    es: 'Error al cargar el recuento de usuarios',
+    fr: 'Erreur lors du chargement du nombre d\'utilisateurs'
+  },
+  signedOutAsGuest: {
+    en: 'Signed out as guest',
+    es: 'Sesión cerrada como invitado',
+    fr: 'Déconnecté en tant qu\'invité'
+  },
+  signedOut: {
+    en: 'Signed out successfully',
+    es: 'Sesión cerrada exitosamente',
+    fr: 'Déconnecté avec succès'
+  },
+  errorSigningOut: {
+    en: 'Error signing out',
+    es: 'Error al cerrar sesión',
+    fr: 'Erreur lors de la déconnexion'
+  },
+  continueAsGuest: {
+    en: 'Continue as Guest',
+    es: 'Continuar como Invitado',
+    fr: 'Continuer en tant qu\'invité'
+  },
+  signUp: {
+    en: 'Sign Up',
+    es: 'Registrarse',
+    fr: 'S\'inscrire'
+  },
+  signIn: {
+    en: 'Sign In',
+    es: 'Iniciar Sesión',
+    fr: 'Se connecter'
   }
 };
