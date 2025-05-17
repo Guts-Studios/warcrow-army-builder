@@ -16,14 +16,14 @@ import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface HeaderProps {
   latestVersion: string;
   userCount: number | null;
   isLoadingUserCount: boolean;
-  latestFailedBuild?: any; // Changed from buildFailures to latestFailedBuild
+  latestFailedBuild?: any;
 }
 
 export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFailedBuild }: HeaderProps) => {
@@ -51,17 +51,51 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
       setLoadingError(null);
       try {
         console.log("Header: Loading news items...");
-        const items = await initializeNewsItems();
+        // Use default news items if fetch fails or takes too long
+        const defaultNewsItem = {
+          id: "default-news-1",
+          date: new Date().toISOString(),
+          key: "news.default.latest"
+        };
+        
+        // Try to load from localStorage first for immediate display
+        let localStorageItems = null;
+        try {
+          const cachedNews = localStorage.getItem('cached_news_items');
+          if (cachedNews) {
+            localStorageItems = JSON.parse(cachedNews);
+            if (Array.isArray(localStorageItems) && localStorageItems.length > 0) {
+              console.log("Header: Found cached news in localStorage:", localStorageItems.length);
+              setLatestNewsItem(localStorageItems[0]);
+            }
+          }
+        } catch (e) {
+          console.error("Error loading from localStorage:", e);
+        }
+        
+        // Still attempt to initialize news items from the database
+        const items = await initializeNewsItems().catch(err => {
+          console.error("Error initializing news:", err);
+          return localStorageItems || [defaultNewsItem];
+        });
+        
         console.log("Header: News items loaded:", items?.length || 0);
+        
         if (items && items.length > 0) {
           setLatestNewsItem(items[0]); // Get the most recent news item
         } else {
-          setLoadingError("No news items found");
+          setLatestNewsItem(defaultNewsItem); // Fallback to default
+          setLoadingError("Using default news");
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
         setLoadingError("Failed to load news");
-        toast.error("Failed to load news items");
+        // Use a default news item as fallback
+        setLatestNewsItem({
+          id: "default-news-1",
+          date: new Date().toISOString(),
+          key: "news.default.latest"
+        });
       } finally {
         setIsLoading(false);
       }
@@ -107,7 +141,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
   
   // Function to format news content with highlighted date
   const formatNewsContent = (content: string): React.ReactNode => {
-    if (!content) return '';
+    if (!content) return 'Latest news will appear here...';
 
     // Look for date patterns like "News 5/3/25:" or similar date formats with the word "News" before
     const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
@@ -153,7 +187,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
         {isLoadingUserCount ? (
           t('loadingUserCount')
         ) : (
-          t('userCountMessage').replace('{count}', String(userCount))
+          userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
         )}
       </p>
       
@@ -214,7 +248,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
           </div>
         ) : latestNewsItem ? (
           <p className="text-warcrow-text text-sm md:text-base">
-            {formatNewsContent(t(latestNewsItem.key))}
+            {formatNewsContent(t(latestNewsItem.key, "Latest news will appear here..."))}
           </p>
         ) : (
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>

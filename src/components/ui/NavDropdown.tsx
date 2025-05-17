@@ -14,55 +14,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
+import { useAuth } from "@/hooks/useAuth";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
-  const [isTester, setIsTester] = useState(false);
-  const [isWabAdmin, setIsWabAdmin] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, isWabAdmin, userId, isLoading } = useAuth();
   const [isPreview, setIsPreview] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   
   useEffect(() => {
-    const checkUserRole = async () => {
-      // Check for preview mode
-      const isPreviewMode = window.location.hostname === 'lovableproject.com' || 
-                      window.location.hostname.endsWith('.lovableproject.com');
-      
-      setIsPreview(isPreviewMode);
-      
-      if (isPreviewMode) {
-        setIsTester(true);
-        setIsWabAdmin(true);
-        setIsAuthenticated(true);
-        setUserId("preview-user-id");
-        return;
-      }
-      
-      // Check auth status and roles
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      
-      if (session) {
-        setUserId(session.user.id);
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('tester, wab_admin')
-            .eq('id', session.user.id)
-            .single();
-          
-          setIsTester(!!data?.tester);
-          setIsWabAdmin(!!data?.wab_admin);
-        } catch (error) {
-          console.error('Error checking user roles:', error);
-          setIsTester(false);
-          setIsWabAdmin(false);
-        }
-      }
-    };
+    // Check for preview mode
+    const isPreviewMode = window.location.hostname === 'lovableproject.com' || 
+                    window.location.hostname.endsWith('.lovableproject.com');
     
-    checkUserRole();
+    setIsPreview(isPreviewMode);
   }, []);
   
   return (
@@ -131,7 +95,8 @@ export const NavDropdown = () => {
             Profile
           </DropdownMenuItem>
           
-          {isWabAdmin && (
+          {/* Admin section - Important to ensure this is displayed when isWabAdmin is true */}
+          {(isWabAdmin || isPreview) && (
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />
               <DropdownMenuGroup>

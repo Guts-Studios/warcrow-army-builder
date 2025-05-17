@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,19 +29,52 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { getBuildFailureNotifications } from "@/utils/notificationUtils";
 import { AlertTriangle } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const fetchUserCount = async () => {
-  const { count, error } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
-  
-  if (error) {
-    console.error('Error fetching user count:', error);
+  try {
+    // First check if we have a cached count
+    const cachedCount = localStorage.getItem('cached_user_count');
+    const cachedTimestamp = localStorage.getItem('cached_user_count_timestamp');
+    
+    // Use cached count if it's less than 1 hour old
+    if (cachedCount && cachedTimestamp) {
+      const timeDiff = Date.now() - parseInt(cachedTimestamp);
+      if (timeDiff < 60 * 60 * 1000) { // 1 hour
+        console.log('Using cached user count:', cachedCount);
+        return parseInt(cachedCount);
+      }
+    }
+    
+    // Otherwise fetch from database
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) {
+      console.error('Error fetching user count:', error);
+      throw error;
+    }
+    
+    // Cache the count for 1 hour
+    if (count !== null) {
+      localStorage.setItem('cached_user_count', count.toString());
+      localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
+    }
+    
+    return count || 0;
+  } catch (error) {
+    // If fetch fails, try to use cached count regardless of age
+    const cachedCount = localStorage.getItem('cached_user_count');
+    if (cachedCount) {
+      console.log('Using cached user count after error:', cachedCount);
+      return parseInt(cachedCount);
+    }
+    
+    console.error('Error fetching user count with no cached fallback:', error);
     throw error;
   }
-  
-  return count || 0;
 };
 
 // Function to check if the latest deployment is a failure
@@ -85,12 +117,18 @@ const Landing = () => {
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
   const latestVersion = getLatestVersion(changelogContent);
   const { t } = useLanguage();
-  const { isWabAdmin } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     refetchOnWindowFocus: false,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    retry: 3,
+    onError: (error) => {
+      console.error('Failed to fetch user count:', error);
+      toast.error('Failed to fetch user statistics');
+    }
   });
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
@@ -101,30 +139,39 @@ const Landing = () => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('tester')
+        .select('tester, wab_admin')
         .eq('id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
       return data;
     },
-    enabled: !isGuest,
+    enabled: isAuthenticated && !isGuest,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2
   });
 
   // Only fetch build status if user is admin
   useEffect(() => {
     const fetchBuildStatus = async () => {
       if (isWabAdmin) {
-        // Get build failure notifications for the notification system
-        const { notifications, error } = await getBuildFailureNotifications();
-        if (!error && notifications.length > 0) {
-          setBuildFailures(notifications);
+        try {
+          // Get build failure notifications for the notification system
+          const { notifications, error } = await getBuildFailureNotifications();
+          if (!error && notifications.length > 0) {
+            setBuildFailures(notifications);
+          }
+          
+          // Check if the latest build specifically has failed
+          const latestFailure = await checkLatestBuildStatus();
+          console.log('checkLatestBuildStatus returned:', latestFailure);
+          setLatestFailedBuild(latestFailure);
+        } catch (err) {
+          console.error('Error checking build status:', err);
         }
-        
-        // Check if the latest build specifically has failed
-        const latestFailure = await checkLatestBuildStatus();
-        console.log('checkLatestBuildStatus returned:', latestFailure);
-        setLatestFailedBuild(latestFailure);
       }
     };
     
