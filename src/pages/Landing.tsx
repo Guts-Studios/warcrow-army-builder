@@ -152,7 +152,7 @@ const Landing = () => {
       }
       return data;
     },
-    enabled: isAuthenticated && !isGuest,
+    enabled: isAuthenticated === true && isGuest === false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2
   });
