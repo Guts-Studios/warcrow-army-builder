@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { Button } from '@/components/ui/button';
-import { Sword, Book, Target, User, Coffee, UserCircle } from 'lucide-react';
+import { Sword, Book, Target, UserCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { MainActions } from '@/components/landing/MainActions';

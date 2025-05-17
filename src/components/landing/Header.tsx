@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NewsItem, newsItems } from '@/data/newsArchive';
@@ -80,16 +79,15 @@ export const Header = () => {
   const currentNewsItem = currentNewsItems[newsIndex];
   
   // Provide a default news key that we know exists in translations
-  let newsTranslationKey = 'loading';
+  let newsTranslationKey = 'news.default.latest';
   if (currentNewsItem && currentNewsItem.key) {
     newsTranslationKey = currentNewsItem.key;
   }
 
   // Use a safer approach to access translations - check if the key exists first
-  // Also ensure we have a fallback if the translation doesn't exist
   const newsText = translations[newsTranslationKey] ? 
     (translations[newsTranslationKey][language] || translations[newsTranslationKey]['en'] || 'News update') :
-    translations['loading'][language] || 'Loading...';
+    translations['news.default.latest'][language] || translations['news.default.latest']['en'] || 'Loading...';
   
   // Format the news date
   const formattedDate = currentNewsItem?.date 
