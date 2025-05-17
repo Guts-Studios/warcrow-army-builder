@@ -1,5 +1,6 @@
 
 import { Unit } from "@/types/army";
+import { vercana } from "./characters/vercana";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
   {
@@ -34,5 +35,6 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     specialRules: ["Place (6)", "Repeat a Die"],
     imageUrl: "/art/card/progenitor_sculptor_card.jpg"
-  }
+  },
+  vercana
 ];
