@@ -25,7 +25,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
       </span>
       <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => {
-          const displayName = language !== 'en' ? translateSpecialRule(rule, language) : rule;
+          const displayName = language !== 'en' ? translateSpecialRule(rule) : rule;
           
           return isMobile ? (
             <button 
@@ -78,7 +78,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4">
-              {language !== 'en' ? translateSpecialRule(openDialogRule, language) : openDialogRule}
+              {language !== 'en' ? translateSpecialRule(openDialogRule) : openDialogRule}
             </h3>
             <div className="pt-2">
               <SpecialRuleTooltip ruleName={openDialogRule} />

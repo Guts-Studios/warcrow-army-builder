@@ -6,46 +6,46 @@ export const useTranslateKeyword = () => {
   const { t, language } = useLanguage();
 
   // Translate special rules
-  const translateSpecialRule = useCallback((ruleName: string, targetLang: string) => {
-    if (targetLang === 'en') return ruleName;
+  const translateSpecialRule = useCallback((ruleName: string) => {
+    if (language === 'en') return ruleName;
     return t(`specialRules.${ruleName}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate special rule descriptions
-  const translateSpecialRuleDescription = useCallback((ruleName: string, targetLang: string) => {
-    if (targetLang === 'en') return '';
+  const translateSpecialRuleDescription = useCallback((ruleName: string) => {
+    if (language === 'en') return '';
     return t(`specialRuleDescriptions.${ruleName}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate keywords
-  const translateKeyword = useCallback((keyword: string, targetLang: string) => {
-    if (targetLang === 'en') return keyword;
+  const translateKeyword = useCallback((keyword: string) => {
+    if (language === 'en') return keyword;
     return t(`keywords.${keyword}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate keyword descriptions
-  const translateKeywordDescription = useCallback((keyword: string, targetLang: string) => {
-    if (targetLang === 'en') return '';
+  const translateKeywordDescription = useCallback((keyword: string) => {
+    if (language === 'en') return '';
     return t(`keywordDescriptions.${keyword}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate characteristics
-  const translateCharacteristic = useCallback((characteristic: string, targetLang: string) => {
-    if (targetLang === 'en') return characteristic;
+  const translateCharacteristic = useCallback((characteristic: string) => {
+    if (language === 'en') return characteristic;
     return t(`characteristics.${characteristic}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate characteristic descriptions
-  const translateCharacteristicDescription = useCallback((characteristic: string, targetLang: string) => {
-    if (targetLang === 'en') return '';
+  const translateCharacteristicDescription = useCallback((characteristic: string) => {
+    if (language === 'en') return '';
     return t(`characteristicDescriptions.${characteristic}`);
-  }, [t]);
+  }, [t, language]);
 
   // Translate unit names
-  const translateUnitName = useCallback((name: string, targetLang: string) => {
-    if (targetLang === 'en') return name;
+  const translateUnitName = useCallback((name: string) => {
+    if (language === 'en') return name;
     return t(`unitNames.${name}`);
-  }, [t]);
+  }, [t, language]);
 
   return {
     translateKeyword,

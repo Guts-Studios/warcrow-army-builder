@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from "@/utils/translation";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 // Map to normalize older faction naming to canonical kebab-case versions
 const factionNameMap: Record<string, string> = {

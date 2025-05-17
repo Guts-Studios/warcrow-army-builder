@@ -27,7 +27,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
     "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
     "Construct", "Undead", "Mounted", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
-    "Golem", "High Command"
+    "Golem", "Mercenary", "High Command"
   ];
 
   // Filter out characteristics
