@@ -1,11 +1,11 @@
 
 import { Unit } from "../../types/army";
-import { hegemonyTroops } from "./hegemony/troops";
+import { hegemonyOfEmbersigTroops } from "./hegemony-of-embersig/troops";
 import { hegemonyOfEmbersigCharacters } from "./hegemony-of-embersig/characters";
-import { hegemonyHighCommand } from "./hegemony/high-command";
+import { hegemonyOfEmbersigHighCommand } from "./hegemony-of-embersig/high-command";
 
 export const hegemonyOfEmbersigUnits: Unit[] = [
-  ...hegemonyTroops,
+  ...hegemonyOfEmbersigTroops,
   ...hegemonyOfEmbersigCharacters,
-  ...hegemonyHighCommand
+  ...hegemonyOfEmbersigHighCommand
 ];
