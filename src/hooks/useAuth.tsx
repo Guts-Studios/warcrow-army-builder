@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,7 +30,9 @@ export function useAuth() {
                          hostname.includes('.lovableproject.com') ||
                          hostname.includes('localhost') ||
                          hostname.includes('127.0.0.1') ||
-                         hostname.includes('netlify.app');
+                         hostname.includes('netlify.app') ||
+                         hostname.includes('id-preview') ||
+                         hostname.includes('lovable.app');
     
     console.log("Is preview environment:", isPreviewEnv);
     return isPreviewEnv;

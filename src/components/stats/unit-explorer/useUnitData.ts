@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ApiUnit, Unit, Faction } from '@/types/army';
@@ -42,6 +41,9 @@ export function useUnitData(selectedFaction: string) {
         // Log unit names for debugging
         if (data && data.length > 0) {
           console.log(`[useUnitData] Units for ${selectedFaction}:`, data.map((u: any) => u.name).slice(0, 5), `... (${data.length} total)`);
+          // Also log faction values to check for mismatches
+          const factionValues = [...new Set(data.map((u: any) => u.faction))];
+          console.log(`[useUnitData] Faction values in results:`, factionValues);
         }
         
         // Add faction_display field and convert Json to proper Record type
@@ -174,24 +176,41 @@ export function useFactions(language: string = 'en') {
   });
 }
 
-// Convert API units to army builder units - ensuring type compatibility
+// Fixed the mapApiUnitToUnit function to ensure proper faction assignment
 export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
   // Safely access characteristics as an object and handle nullability
   const characteristics = apiUnit.characteristics && 
     typeof apiUnit.characteristics === 'object' ? 
     apiUnit.characteristics as Record<string, any> : {};
     
+  // Normalize the faction ID to ensure it matches our expected format
+  let normalizedFaction = apiUnit.faction;
+  
+  // Some known normalization mappings
+  const factionMappings: Record<string, string> = {
+    "hegemony": "hegemony-of-embersig",
+    "northern": "northern-tribes",
+    "scions": "scions-of-yaldabaoth",
+    "syenann": "syenann"
+  };
+  
+  // Apply faction normalization if needed
+  if (factionMappings[normalizedFaction]) {
+    normalizedFaction = factionMappings[normalizedFaction];
+    console.log(`[mapApiUnitToUnit] Normalized faction from ${apiUnit.faction} to ${normalizedFaction} for unit ${apiUnit.name}`);
+  }
+    
   return {
     id: apiUnit.id,
     name: apiUnit.name,
-    faction: apiUnit.faction,
+    faction: normalizedFaction,
     pointsCost: apiUnit.points,
     availability: characteristics?.availability || 0,
     command: characteristics?.command || 0,
     keywords: (apiUnit.keywords || []).map(k => ({ name: k })),
     specialRules: apiUnit.special_rules || [],
-    // Fixed the TypeScript error with proper type checking
     highCommand: Boolean(characteristics?.highCommand) || false,
+    imageUrl: characteristics?.imageUrl || `/art/card/${apiUnit.id}_card.jpg`
   };
 }
 
@@ -290,6 +309,13 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             });
             return mappedUnit;
           });
+        
+        // Verify faction consistency and log any discrepancies
+        const factionMismatch = visibleUnits.filter(unit => unit.faction !== selectedFaction);
+        if (factionMismatch.length > 0 && selectedFaction !== 'all') {
+          console.warn(`[useArmyBuilderUnits] Found ${factionMismatch.length} units with mismatched faction:`, 
+            factionMismatch.map(u => `${u.name} (${u.faction} vs expected ${selectedFaction})`));
+        }
         
         console.log(`[useArmyBuilderUnits] Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
         

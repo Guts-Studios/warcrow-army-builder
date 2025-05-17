@@ -52,7 +52,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       "Trabor Slepmund": "trabor_slepmund",
       "Darach Wildling": "darach_wildling",
       "Marhael The Refused": "marhael_the_refused",
-      // Add more special cases as needed
+      // Add more special cases here as needed
     };
     
     // First check if we have a special case mapping for this unit
@@ -77,6 +77,12 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           .replace(/[']/g, '')   // Remove apostrophes
           .replace(/[^a-z0-9_-]/g, ''); // Remove any other non-alphanumeric characters
       }
+    }
+    
+    // If a unit has its own imageUrl property, use that directly
+    if (unit.imageUrl) {
+      console.log(`Using provided imageUrl for ${unit.name}: ${unit.imageUrl}`);
+      return unit.imageUrl;
     }
     
     // Base URL pointing to the card directory
@@ -121,6 +127,18 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
             // Preload the English version too
             const fallbackImg = new Image();
             fallbackImg.src = englishUrl;
+            
+            // If English version fails too, try with unit ID as last resort
+            fallbackImg.onerror = () => {
+              const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
+              console.log(`English image failed, trying ID-based URL: ${idBasedUrl}`);
+              setCardUrl(idBasedUrl);
+            };
+          } else {
+            // For English, try with unit ID as fallback
+            const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
+            console.log(`Primary image failed, trying ID-based URL: ${idBasedUrl}`);
+            setCardUrl(idBasedUrl);
           }
         };
         
@@ -129,7 +147,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     };
     
     preloadImage();
-  }, [language, unit.name, unit.id]);
+  }, [language, unit.name, unit.id, unit.imageUrl]);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {

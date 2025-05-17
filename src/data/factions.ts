@@ -13,16 +13,28 @@ export const factions: Faction[] = [
   { id: "syenann", name: "Sÿenann" }
 ];
 
-// Map for normalizing faction names
-const factionNameMap: Record<string, string> = {
+// Expanded map for normalizing faction names with more variations
+export const factionNameMap: Record<string, string> = {
+  // Display names to IDs
   'Hegemony of Embersig': 'hegemony-of-embersig',
   'Northern Tribes': 'northern-tribes',
   'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
   'Sÿenann': 'syenann',
   'Syenann': 'syenann',
+  
+  // Short names and common variations
   'hegemony': 'hegemony-of-embersig',
   'tribes': 'northern-tribes',
-  'scions': 'scions-of-yaldabaoth'
+  'northern': 'northern-tribes',
+  'scions': 'scions-of-yaldabaoth',
+  'yaldabaoth': 'scions-of-yaldabaoth',
+  
+  // Handle potential database inconsistencies
+  'hegemony-embersig': 'hegemony-of-embersig',
+  'hegemony_of_embersig': 'hegemony-of-embersig',
+  'northern_tribes': 'northern-tribes',
+  'scions_of_yaldabaoth': 'scions-of-yaldabaoth',
+  'syenann_': 'syenann'
 };
 
 // Improved normalize and deduplicate units function
@@ -35,12 +47,13 @@ const normalizeUnits = () => {
   console.log(`Processing ${allUnits.length} units for normalization`);
   console.log(`Northern Tribes: ${northernTribesUnits.length}, Hegemony: ${hegemonyOfEmbersigUnits.length}, Scions: ${scionsOfYaldabaothUnits.length}, Syenann: ${syenannUnits.length}`);
   
-  // Check for Battle-Scarred specifically
-  const battleScarredUnit = allUnits.find(unit => unit.name === "Battle-Scarred");
-  if (battleScarredUnit) {
-    console.log("Found Battle-Scarred unit:", battleScarredUnit);
-  } else {
-    console.log("Battle-Scarred unit not found in original data!");
+  // Check for problematic units (like Battle-Scarred) specifically
+  const problematicUnits = ['Battle-Scarred', 'Battle Scarred', 'BattleScarred'].map(
+    name => allUnits.find(unit => unit.name === name)
+  ).filter(Boolean);
+  
+  if (problematicUnits.length > 0) {
+    console.log("Found problematic units:", problematicUnits);
   }
   
   for (const unit of allUnits) {
@@ -80,12 +93,12 @@ const normalizeUnits = () => {
   
   console.log(`Normalized units: ${uniqueUnits.length} out of original ${allUnits.length}`);
   
-  // Verify if Battle-Scarred made it to the final list
-  const finalBattleScared = uniqueUnits.find(unit => unit.name === "Battle-Scarred");
-  if (finalBattleScared) {
-    console.log("Battle-Scarred unit is in the final normalized list");
-  } else {
-    console.log("Battle-Scarred unit did NOT make it to the final list!");
+  // Verify if problematic units made it to the final list
+  for (const name of ['Battle-Scarred', 'Battle Scarred', 'BattleScarred']) {
+    const finalUnit = uniqueUnits.find(unit => unit.name === name);
+    if (finalUnit) {
+      console.log(`${name} unit is in the final normalized list`);
+    }
   }
   
   return uniqueUnits;
@@ -93,3 +106,32 @@ const normalizeUnits = () => {
 
 // Export normalized and deduplicated units
 export const units = normalizeUnits();
+
+// Add a helper function to normalize faction IDs (can be used throughout the app)
+export const normalizeFactionId = (factionId: string): string => {
+  if (!factionId) return 'northern-tribes'; // Default faction
+  
+  // Handle direct match in map
+  if (factionNameMap[factionId]) {
+    return factionNameMap[factionId];
+  }
+  
+  // Handle case insensitive match
+  const lowercaseFactionId = factionId.toLowerCase();
+  for (const [key, value] of Object.entries(factionNameMap)) {
+    if (key.toLowerCase() === lowercaseFactionId) {
+      return value;
+    }
+  }
+  
+  // If no match found, attempt to normalize kebab-case
+  if (factionId.includes(' ')) {
+    const kebabFactionId = factionId.toLowerCase().replace(/\s+/g, '-');
+    if (factionNameMap[kebabFactionId]) {
+      return factionNameMap[kebabFactionId];
+    }
+  }
+  
+  // If all else fails, return the original (but ensure it's lowercase and kebab-case)
+  return factionId.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+};

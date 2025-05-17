@@ -30,7 +30,9 @@ export const MainActions = () => {
                         hostname.includes('.lovableproject.com') ||
                         hostname.includes('localhost') ||
                         hostname.includes('127.0.0.1') ||
-                        hostname.includes('netlify.app');
+                        hostname.includes('netlify.app') ||
+                        hostname.includes('id-preview') ||
+                        hostname.includes('lovable.app');
                         
     console.log("MainActions: Current hostname =", hostname);
     console.log("MainActions: isPreview =", isPreviewEnv);
