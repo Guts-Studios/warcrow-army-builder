@@ -11,9 +11,14 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
 
-  // Check for preview mode - update detection logic
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('lovableproject.com');
+  // Enhanced preview detection
+  const isPreview = () => {
+    const hostname = window.location.hostname;
+    return hostname === 'lovableproject.com' || 
+           hostname.includes('lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1');
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -21,10 +26,10 @@ export function useAuth() {
       try {
         setIsLoading(true);
         console.log("Auth hook: Checking auth status");
-        console.log("Auth hook: isPreview =", isPreview);
+        console.log("Auth hook: isPreview =", isPreview());
         
         // For preview environment, provide dummy authenticated state
-        if (isPreview) {
+        if (isPreview()) {
           console.log("Preview mode detected, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);
@@ -166,7 +171,7 @@ export function useAuth() {
     return () => {
       mounted = false;
     };
-  }, [isPreview]);
+  }, []);
 
   // Resend confirmation email method
   const resendConfirmationEmail = async (email: string) => {

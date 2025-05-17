@@ -10,8 +10,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { newsItems, NewsItem } from "@/data/newsArchive";
+import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
 import { Loader2 } from "lucide-react";
+import { translations } from "@/i18n/translations";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -23,10 +24,42 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Simply use the already initialized news items
-    setItems(newsItems);
-    setIsLoading(false);
+    const loadNews = async () => {
+      setIsLoading(true);
+      try {
+        // First, set items to what we already have
+        setItems(newsItems);
+
+        // Try to refresh the items
+        const refreshedItems = await initializeNewsItems();
+        setItems(refreshedItems);
+      } catch (error) {
+        console.error("Error loading news items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNews();
   }, []);
+  
+  // Safe translation retrieval function
+  const getTranslatedContent = (key: string) => {
+    if (!key) return "No content available";
+    
+    try {
+      // If the translation exists, use it
+      if (translations[key]) {
+        return t(key);
+      }
+      // Fall back to showing the key if translation is missing
+      console.warn(`Translation key not found: ${key}`);
+      return `Missing translation: ${key}`;
+    } catch (error) {
+      console.error(`Error getting translation for key ${key}:`, error);
+      return "Translation error";
+    }
+  };
   
   return (
     <Dialog>
@@ -60,7 +93,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
                       {format(new Date(item.date), 'MMM dd, yyyy')}
                     </h3>
                   </div>
-                  <p className="text-warcrow-text">{t(item.key)}</p>
+                  <p className="text-warcrow-text">{getTranslatedContent(item.key)}</p>
                 </div>
               ))}
             </div>

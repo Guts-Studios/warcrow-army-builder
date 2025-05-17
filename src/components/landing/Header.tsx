@@ -15,9 +15,10 @@ import {
 import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
+import { newsItems, initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { translations } from "@/i18n/translations";
 
 interface HeaderProps {
   latestVersion: string;
@@ -51,51 +52,75 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
       setLoadingError(null);
       try {
         console.log("Header: Loading news items...");
-        // Use default news items if fetch fails or takes too long
+        
+        // First try to use any existing items
+        if (newsItems.length > 0) {
+          console.log("Header: Using existing news items:", newsItems.length);
+          setLatestNewsItem(newsItems[0]);
+          setIsLoading(false);
+        }
+        
+        // Set a default news item in case all else fails
         const defaultNewsItem = {
           id: "default-news-1",
           date: new Date().toISOString(),
           key: "news.default.latest"
         };
         
-        // Try to load from localStorage first for immediate display
-        let localStorageItems = null;
+        // Also try to load from localStorage for immediate display
         try {
           const cachedNews = localStorage.getItem('cached_news_items');
           if (cachedNews) {
-            localStorageItems = JSON.parse(cachedNews);
+            const localStorageItems = JSON.parse(cachedNews);
             if (Array.isArray(localStorageItems) && localStorageItems.length > 0) {
               console.log("Header: Found cached news in localStorage:", localStorageItems.length);
               setLatestNewsItem(localStorageItems[0]);
+              setIsLoading(false);
             }
           }
         } catch (e) {
           console.error("Error loading from localStorage:", e);
         }
         
-        // Still attempt to initialize news items from the database
+        // Then attempt to initialize news items from the database
         const items = await initializeNewsItems().catch(err => {
           console.error("Error initializing news:", err);
-          return localStorageItems || [defaultNewsItem];
+          return null;
         });
         
-        console.log("Header: News items loaded:", items?.length || 0);
-        
         if (items && items.length > 0) {
+          console.log("Header: News items loaded:", items.length);
           setLatestNewsItem(items[0]); // Get the most recent news item
-        } else {
+        } else if (!latestNewsItem) {
+          // Only set default if we haven't set anything yet
+          console.log("Header: Using default news");
           setLatestNewsItem(defaultNewsItem); // Fallback to default
           setLoadingError("Using default news");
+          
+          // Add default translation if not already present
+          if (!translations[defaultNewsItem.key]) {
+            translations[defaultNewsItem.key] = {
+              en: 'Latest news will appear here...',
+              es: 'Las últimas noticias aparecerán aquí...',
+              fr: 'Les dernières nouvelles apparaîtront ici...'
+            };
+          }
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
         setLoadingError("Failed to load news");
+        
         // Use a default news item as fallback
-        setLatestNewsItem({
-          id: "default-news-1",
-          date: new Date().toISOString(),
-          key: "news.default.latest"
-        });
+        setLatestNewsItem(defaultNewsItems[0]);
+        
+        // Add default translation if not already present
+        if (!translations[defaultNewsItems[0].key]) {
+          translations[defaultNewsItems[0].key] = {
+            en: 'Latest news will appear here...',
+            es: 'Las últimas noticias aparecerán aquí...',
+            fr: 'Les dernières nouvelles apparaîtront ici...'
+          };
+        }
       } finally {
         setIsLoading(false);
       }
@@ -148,9 +173,13 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
     
     if (dateRegex.test(content)) {
       const parts = content.split(dateRegex);
+      
+      // Filter out empty strings and undefined values
+      const filteredParts = parts.filter(part => part !== undefined && part !== '');
+      
       return (
         <>
-          {parts.map((part, i) => {
+          {filteredParts.map((part, i) => {
             // If this part matches the date pattern, highlight it
             if (dateRegex.test(part)) {
               return (
@@ -167,6 +196,26 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
     
     // If no date found, just return the content
     return content;
+  };
+  
+  // Safe translation getter
+  const getTranslatedContent = (key: string | undefined): string => {
+    if (!key) return "Latest news will appear here...";
+    
+    try {
+      // If the translation exists, use it
+      if (translations[key]) {
+        const translation = t(key);
+        return translation || "Latest news will appear here...";
+      }
+      
+      // If not found, provide a default message
+      console.warn(`Translation key not found in Header: ${key}`);
+      return "Latest news will appear here...";
+    } catch (error) {
+      console.error(`Error getting translation for key ${key}:`, error);
+      return "Latest news will appear here...";
+    }
   };
   
   return (
@@ -248,7 +297,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
           </div>
         ) : latestNewsItem ? (
           <p className="text-warcrow-text text-sm md:text-base">
-            {formatNewsContent(t(latestNewsItem.key))}
+            {formatNewsContent(getTranslatedContent(latestNewsItem.key))}
           </p>
         ) : (
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>

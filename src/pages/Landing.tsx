@@ -35,6 +35,7 @@ import { toast } from "sonner";
 
 const fetchUserCount = async () => {
   try {
+    console.log("Fetching user count...");
     // First check if we have a cached count
     const cachedCount = localStorage.getItem('cached_user_count');
     const cachedTimestamp = localStorage.getItem('cached_user_count_timestamp');
@@ -62,10 +63,12 @@ const fetchUserCount = async () => {
     if (count !== null) {
       localStorage.setItem('cached_user_count', count.toString());
       localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
+      console.log('Cached new user count:', count);
     }
     
     return count || 0;
   } catch (error) {
+    console.error('Error in fetchUserCount:', error);
     // If fetch fails, try to use cached count regardless of age
     const cachedCount = localStorage.getItem('cached_user_count');
     if (cachedCount) {
@@ -120,8 +123,11 @@ const Landing = () => {
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated } = useAuth();
 
+  // Enhanced preview detection
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('lovableproject.com');
+                   window.location.hostname.includes('lovableproject.com') ||
+                   window.location.hostname.includes('localhost') ||
+                   window.location.hostname.includes('127.0.0.1');
 
   // Detect if we're in preview mode for debugging
   useEffect(() => {
@@ -135,6 +141,7 @@ const Landing = () => {
     refetchOnWindowFocus: false,
     staleTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
+    enabled: true,
     meta: {
       onError: (error: any) => {
         console.error('Failed to fetch user count:', error);
@@ -143,7 +150,7 @@ const Landing = () => {
     }
   });
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();

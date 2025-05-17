@@ -33,7 +33,7 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
     // Set a timeout to avoid long waiting time
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
-        console.log("Database fetch timeout after 1500ms");
+        console.log("Database fetch timeout after 800ms");
         
         // Use cached items first if available
         const cachedItems = getCachedNewsItems();
@@ -44,7 +44,7 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
         
         // Fall back to defaults if no cached items
         resolve([...defaultNewsItems]);
-      }, 1500); // 1.5 seconds timeout for faster response
+      }, 800); // 800ms timeout for faster response
     });
     
     // Database fetch promise
@@ -77,7 +77,7 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
       console.log(`Fetched ${data.length} news items from database`);
       
       const items: NewsItem[] = data.map(item => {
-        // Update translations with available content
+        // Add translations to the translations object
         try {
           translations[item.translation_key] = {
             en: item.content_en || '',
@@ -140,6 +140,19 @@ const getCachedNewsItems = (): NewsItem[] => {
     if (cachedNews && cachedTimestamp) {
       const items = JSON.parse(cachedNews);
       console.log(`Found ${items.length} cached news items from ${new Date(parseInt(cachedTimestamp)).toLocaleString()}`);
+      
+      // Add translations from cached items to the translations object
+      items.forEach((item: NewsItem) => {
+        // If translation doesn't exist, add a placeholder
+        if (!translations[item.key]) {
+          translations[item.key] = {
+            en: 'Loading news...',
+            es: 'Cargando noticias...',
+            fr: 'Chargement des nouvelles...'
+          };
+        }
+      });
+      
       return items;
     }
   } catch (e) {
@@ -157,6 +170,15 @@ if (typeof window !== 'undefined') {
     newsItems = cachedItems;
   } else {
     newsItems = [...defaultNewsItems];
+    
+    // Add default translations
+    defaultNewsItems.forEach(item => {
+      translations[item.key] = {
+        en: 'Latest news will appear here...',
+        es: 'Las últimas noticias aparecerán aquí...',
+        fr: 'Les dernières nouvelles apparaîtront ici...'
+      };
+    });
   }
   
   // Then asynchronously load from database

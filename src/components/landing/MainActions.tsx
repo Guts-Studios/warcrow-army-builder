@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,14 +14,17 @@ export const MainActions = () => {
   const { isWabAdmin } = useAuth();
   const { t } = useLanguage();
   
-  // Update preview detection logic
+  // Enhanced preview detection
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('lovableproject.com');
+                   window.location.hostname.includes('lovableproject.com') ||
+                   window.location.hostname.includes('localhost') ||
+                   window.location.hostname.includes('127.0.0.1');
 
   useEffect(() => {
     // Debug logging
     console.log('MainActions: isWabAdmin =', isWabAdmin);
     console.log('MainActions: isPreview =', isPreview);
+    console.log('MainActions: Current hostname =', window.location.hostname);
     
     const checkUserRole = async () => {
       // If in preview mode, set as tester
@@ -108,8 +112,8 @@ export const MainActions = () => {
             </Button>
           </>
         )}
-        {/* Make admin button more reliable by using a more direct check */}
-        {isWabAdmin && (
+        {/* Make admin button more reliable by using direct isWabAdmin check */}
+        {isWabAdmin === true && (
           <Button
             onClick={() => navigate('/admin')}
             variant="outline"
