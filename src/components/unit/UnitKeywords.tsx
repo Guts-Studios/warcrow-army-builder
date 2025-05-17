@@ -2,7 +2,6 @@
 import { Keyword } from "@/types/army";
 import KeywordsSection from "./keyword-sections/KeywordsSection";
 import SpecialRulesSection from "./keyword-sections/SpecialRulesSection";
-import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
 
 interface UnitKeywordsProps {
   keywords: Keyword[] | string[];
@@ -31,7 +30,7 @@ const UnitKeywords = ({ keywords, specialRules, highCommand }: UnitKeywordsProps
 
   return (
     <div className="space-y-2">
-      <CharacteristicsSection keywords={processedKeywords} highCommand={highCommand} />
+      {/* CharacteristicsSection is now only rendered in UnitHeader */}
       <KeywordsSection keywords={processedKeywords} />
       <SpecialRulesSection specialRules={uniqueSpecialRules} />
     </div>
