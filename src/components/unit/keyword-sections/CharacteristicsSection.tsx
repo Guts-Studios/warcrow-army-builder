@@ -22,9 +22,29 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
 
-  // Only display the High Command characteristic if the prop is provided
-  // No longer filtering characteristics from keywords
-  if (!highCommand) return null;
+  // Define the list of characteristic types
+  const characteristicTypes = [
+    "Infantry", "Character", "Companion", "Colossal Company", "Orc", "Human", 
+    "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous", "Beast", 
+    "Construct", "Undead", "Mounted", "High Command", "Cavalry", "Red Cap", "Living Flesh", "Dead Flesh",
+    "Golem", "Mercenary"
+  ];
+
+  // Filter keywords to only include characteristics
+  const characteristics = keywords
+    .filter(k => {
+      const keywordName = typeof k === 'string' ? k : k.name;
+      return characteristicTypes.includes(keywordName);
+    })
+    .map(k => typeof k === 'string' ? k : k.name);
+
+  // Add High Command if the prop is provided
+  if (highCommand && !characteristics.includes("High Command")) {
+    characteristics.push("High Command");
+  }
+
+  // If no characteristics, don't render anything
+  if (characteristics.length === 0) return null;
 
   // This component now properly displays just the characteristic name
   const CharacteristicContent = ({ text }: { text: string }) => (
@@ -42,35 +62,36 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   return (
     <div className="flex flex-wrap gap-1">
-      {highCommand && (
+      {characteristics.map((characteristic) => (
         isMobile ? (
           <button 
+            key={characteristic}
             type="button"
             className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
-            onClick={() => setOpenDialogCharacteristic("High Command")}
+            onClick={() => setOpenDialogCharacteristic(characteristic)}
           >
-            {language !== 'en' ? translateCharacteristic("High Command") : "High Command"}
+            {language !== 'en' ? translateCharacteristic(characteristic) : characteristic}
           </button>
         ) : (
-          <TooltipProvider>
+          <TooltipProvider key={characteristic}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   type="button"
                   className="px-2 py-0.5 text-xs rounded bg-warcrow-gold text-black"
                 >
-                  {language !== 'en' ? translateCharacteristic("High Command") : "High Command"}
+                  {language !== 'en' ? translateCharacteristic(characteristic) : characteristic}
                 </button>
               </TooltipTrigger>
               <TooltipContent 
                 className="bg-warcrow-background border-warcrow-gold text-warcrow-text max-w-[250px] whitespace-normal"
               >
-                <CharacteristicContent text="High Command" />
+                <CharacteristicContent text={characteristic} />
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )
-      )}
+      ))}
 
       {openDialogCharacteristic && (
         <div 
