@@ -26,6 +26,17 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     if (baseUrl.endsWith(`_${language}.jpg`) || baseUrl.endsWith(`_${language}.png`)) {
       return baseUrl;
     }
+    
+    // Special case for Lady Télia who has a different naming pattern
+    if (baseUrl.includes('lady_telia.jpg')) {
+      // Handle Lady Telia's special case
+      if (language === 'es') {
+        return baseUrl.replace('.jpg', '_sp.jpg');
+      } else if (language === 'fr') {
+        return baseUrl.replace('.jpg', '_fr.jpg');
+      }
+      return baseUrl;
+    }
 
     // Only apply language suffix if it's Spanish or French
     if (language === 'es' || language === 'fr') {

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -21,9 +20,10 @@ import { scionsOfYaldabaothHighCommand } from "@/data/factions/scions-of-yaldaba
 import { scionsOfYaldabaothTroops } from "@/data/factions/scions-of-yaldabaoth/troops";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { hegemonyHighCommand } from "@/data/factions/hegemony/high-command";
-import { hegemonyTroops } from "@/data/factions/hegemony/troops";
-import { hegemonyCharacters } from "@/data/factions/hegemony/characters";
+import { hegemonyCharactersElites } from "@/data/factions/hegemony-of-embersig/characters/elites";
+import { hegemonyHighCommand } from "@/data/factions/hegemony-of-embersig/high-command";
+import { hegemonyTroops } from "@/data/factions/hegemony-of-embersig/troops";
+import { hegemonyCharacters } from "@/data/factions/hegemony-of-embersig/characters";
 
 // Combine all portrait sources
 const getAllUnitPortraits = () => {

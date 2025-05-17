@@ -33,6 +33,11 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
+    // Special case for Lady Télia
+    if (portraitUrl.includes('lady_telia.jpg')) {
+      return portraitUrl.replace('/art/card/lady_telia.jpg', '/art/portrait/lady_telia_portrait.jpg');
+    }
+    
     // If URL provided but not in portrait format, convert card URL to portrait URL
     if (portraitUrl.includes('/art/card/')) {
       // Replace the directory path
@@ -49,6 +54,9 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         portraitImageUrl = portraitImageUrl
           .replace('_card_sp.jpg', '_portrait.jpg')
           .replace('_card_fr.jpg', '_portrait.jpg');
+      } else if (portraitUrl.endsWith('.jpg')) {
+        // For files without _card suffix, just replace with _portrait
+        portraitImageUrl = portraitImageUrl.replace('.jpg', '_portrait.jpg');
       }
       
       return portraitImageUrl;

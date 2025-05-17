@@ -34,6 +34,6 @@ export const hegemonyCharactersElites: Unit[] = [
     ],
     specialRules: ["Frightened", "Aim", "Repeat a Die"],
     highCommand: false,
-    imageUrl: "/art/card/lady_telia_card.jpg"
+    imageUrl: "/art/card/lady_telia.jpg" // Updated to match the actual file path
   }
 ];

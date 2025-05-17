@@ -41,7 +41,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       "Battle Scarred": "battle-scarred", // Alternative spelling
       "BattleScarred": "battle-scarred", // Alternative spelling
       "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
-      "Lady Telia": "lady_telia",
+      "Lady Télia": "lady_telia", // Special case for Lady Télia
+      "Lady Telia": "lady_telia", // Alternative spelling without accent
       "Nayra Caladren": "nayra_caladren",
       "Naergon Caladren": "naergon_caladren",
       "Eskold The Executioner": "eskold_the_executioner",
@@ -82,6 +83,11 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     if (unit.imageUrl) {
       console.log(`Using provided imageUrl for ${unit.name}: ${unit.imageUrl}`);
       return unit.imageUrl;
+    }
+    
+    // Special case for Lady Télia who has a different file name structure
+    if (unit.name.includes("Lady Télia") || unit.id === "lady-telia") {
+      return "/art/card/lady_telia.jpg";
     }
     
     // Base URL pointing to the card directory
