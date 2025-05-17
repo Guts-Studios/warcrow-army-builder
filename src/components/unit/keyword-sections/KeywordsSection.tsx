@@ -1,4 +1,3 @@
-
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -55,7 +54,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
     const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
     // Get the appropriate definition based on language
     const baseKeyword = getBaseKeyword(keywordName);
-    let definition = translateKeywordDescription(baseKeyword, language);
+    let definition = translateKeywordDescription(baseKeyword);
     
     // If no translated description is found, fall back to static definitions
     if (!definition) {
@@ -85,7 +84,7 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
           const baseKeywordName = getBaseKeyword(keywordName);
           
           // Get translated base keyword
-          const translatedBase = translateKeyword(baseKeywordName, language);
+          const translatedBase = translateKeyword(baseKeywordName);
           
           // Get full keyword name with parameters if present
           const displayName = getFullKeywordName(translatedBase, keywordName);
@@ -142,8 +141,8 @@ const KeywordsSection = ({ keywords }: KeywordsSectionProps) => {
             </button>
             <h3 className="text-lg font-semibold mb-4">
               {typeof openDialogKeyword === 'string' 
-                ? getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword), language), openDialogKeyword)
-                : getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword.name), language), openDialogKeyword.name)}
+                ? getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword)), openDialogKeyword)
+                : getFullKeywordName(translateKeyword(getBaseKeyword(openDialogKeyword.name)), openDialogKeyword.name)}
             </h3>
             <div className="pt-2">
               <KeywordContent keyword={openDialogKeyword} />

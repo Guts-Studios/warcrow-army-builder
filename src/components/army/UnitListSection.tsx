@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
@@ -150,7 +149,7 @@ const UnitListSection = ({
   // Function to translate and display characteristics/keywords
   const displayKeyword = (keywordText: string): string => {
     if (language !== 'en') {
-      return translateKeyword(keywordText, language);
+      return translateKeyword(keywordText);
     }
     return keywordText;
   };

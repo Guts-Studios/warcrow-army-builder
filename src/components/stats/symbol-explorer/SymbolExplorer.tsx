@@ -136,7 +136,7 @@ const SymbolExplorer = () => {
     
     return unit.keywords.map(k => {
       const keywordName = typeof k === 'string' ? k : k.name;
-      return translateKeyword(keywordName, 'en');
+      return translateKeyword(keywordName);
     }).join(', ');
   };
 

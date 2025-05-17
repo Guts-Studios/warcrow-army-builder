@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Unit } from '@/types/army';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -43,10 +42,10 @@ const ArmyListTable: React.FC<ArmyListTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {sortedUnits.map(({ unit, quantity }) => (
+          {units.map(({ unit, quantity }) => (
             <tr key={unit.id} className="border-b border-warcrow-gold/20">
               <td className="px-4 py-3 text-sm">
-                {translateUnitName(unit.name, language)}
+                {translateUnitName(unit.name)}
                 {unit.command ? 
                   <span className="ml-2 text-xs bg-warcrow-gold/20 border border-warcrow-gold px-1 py-0.5 rounded">
                     {t('command')}: {unit.command}

@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
@@ -25,7 +24,7 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const [cardUrl, setCardUrl] = useState<string>("");
   
   // Translate unit name based on the selected language for display only
-  const displayName = translateUnitName(unit.name, language);
+  const displayName = translateUnitName(unit.name);
 
   // Improved function to generate the correct GitHub card URL based on the unit name 
   // Always using English names for file paths regardless of selected language

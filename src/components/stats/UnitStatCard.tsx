@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ExtendedUnit } from '@/types/extendedUnit';
 import { GameSymbol } from './GameSymbol';
@@ -20,7 +19,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
   const { translateUnitName } = useTranslateKeyword();
   
   // Get translated unit name
-  const displayName = translateUnitName(unit.name, language);
+  const displayName = translateUnitName(unit.name);
 
   // Helper function to render a stat row
   const renderStatRow = (label: string, value: React.ReactNode) => (

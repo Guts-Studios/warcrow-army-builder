@@ -1,4 +1,3 @@
-
 import { Button } from "./ui/button";
 import { Minus, Eye, Check, Diamond } from "lucide-react";
 import { SelectedUnit } from "@/types/army";
@@ -47,7 +46,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
   const formatUnitDisplay = (name: string, quantity: number | undefined) => {
     if (!name || typeof quantity !== 'number') return "";
     // Translate unit name if not in English
-    const displayName = language !== 'en' ? translateUnitName(name, language) : name;
+    const displayName = language !== 'en' ? translateUnitName(name) : name;
     const displayQuantity = Math.min(quantity, 9);
     return `${displayName} x${displayQuantity}`;
   };
@@ -110,12 +109,12 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                     </DialogTrigger>
                     <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
                       <DialogTitle className="sr-only">
-                        {language !== 'en' ? translateUnitName(unit.name, language) : unit.name} {t('cardImage')}
+                        {language !== 'en' ? translateUnitName(unit.name) : unit.name} {t('cardImage')}
                       </DialogTitle>
                       {unit.imageUrl ? (
                         <img 
                           src={unit.imageUrl} 
-                          alt={language !== 'en' ? translateUnitName(unit.name, language) : unit.name}
+                          alt={language !== 'en' ? translateUnitName(unit.name) : unit.name}
                           className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
                           loading="eager"
                         />

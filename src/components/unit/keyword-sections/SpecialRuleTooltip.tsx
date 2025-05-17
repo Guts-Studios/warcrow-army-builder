@@ -12,7 +12,7 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
   const { translateSpecialRuleDescription } = useTranslateKeyword();
   
   // Get translated rule description
-  const ruleDescription = translateSpecialRuleDescription(ruleName, language);
+  const ruleDescription = translateSpecialRuleDescription(ruleName);
   
   // Fall back to static definitions if translations aren't available
   const staticDescription = specialRuleDefinitions[ruleName] || "Description coming soon";
