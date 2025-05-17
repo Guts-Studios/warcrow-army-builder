@@ -10,10 +10,10 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     pointsCost: 40,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Character", description: "Character unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Elite", description: "Elite unit" }
     ],
     highCommand: false,
     availability: 1,
@@ -27,10 +27,10 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     pointsCost: 45,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Character", description: "Character unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Elite", description: "Elite unit" }
     ],
     highCommand: false,
     availability: 1,

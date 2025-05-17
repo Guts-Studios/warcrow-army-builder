@@ -7,10 +7,10 @@ export const vercana: Unit = {
   pointsCost: 30,
   faction: "scions-of-yaldabaoth",
   keywords: [
-    { name: "Human", description: "" },
-    { name: "Character", description: "" },
-    { name: "Mercenary", description: "" },
-    { name: "Ambusher", description: "" }
+    { name: "Human", description: "Human race" },
+    { name: "Character", description: "Character unit type" },
+    { name: "Mercenary", description: "Can be hired by different factions" },
+    { name: "Ambusher", description: "Can ambush enemy units" }
   ],
   highCommand: false,
   availability: 1,

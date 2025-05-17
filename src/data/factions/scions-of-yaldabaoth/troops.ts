@@ -8,9 +8,9 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 20,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Projectile", description: "" },
-      { name: "Red Cap", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Projectile", description: "Has ranged attacks" },
+      { name: "Red Cap", description: "Red Cap race" }
     ],
     highCommand: false,
     availability: 1,
@@ -22,9 +22,8 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 20,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Projectile", description: "" },
-      { name: "Red Cap", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Red Cap", description: "Red Cap race" }
     ],
     highCommand: false,
     availability: 1,
@@ -37,11 +36,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Projectile", description: "" },
-      { name: "Red Cap", description: "" },
-      { name: "Favorable Terrain (Rugged)", description: "" },
-      { name: "Intimidating (1)", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Favorable Terrain (Rugged)", description: "Gains advantage in rugged terrain" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
     ],
     highCommand: false,
     availability: 1,
@@ -54,10 +52,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Projectile", description: "" },
-      { name: "Red Cap", description: "" },
-      { name: "Cover (BLU)", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Projectile", description: "Has ranged attacks" },
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Cover (BLU)", description: "Provides cover against BLU damage" }
     ],
     highCommand: false,
     availability: 1,
@@ -70,15 +68,15 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Projectile", description: "" },
-      { name: "Red Cap", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Scout", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Projectile", description: "Has ranged attacks" },
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Fearless", description: "Immune to fear effects" },
+      { name: "Scout", description: "Can deploy in advanced positions" }
     ],
     highCommand: false,
     availability: 1,
-    specialRules: ["Slowed", "Diplsace (8)"],
+    specialRules: ["Slowed", "Displace (8)"],
     imageUrl: "/art/card/gobblers_card.jpg"
   },
   {
@@ -87,11 +85,11 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 55,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Red Cap", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Golem", description: "" },
-      { name: "Intimidating (1)", description: "" },
-      { name: "Large", description: "" }
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Dispel (BLU)", description: "Can dispel BLU effects" },
+      { name: "Golem", description: "Artificial construct" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" },
+      { name: "Large", description: "Unit is of large size" }
     ],
     highCommand: false,
     availability: 1,
@@ -104,9 +102,9 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" }
     ],
     highCommand: false,
     availability: 1,
@@ -119,11 +117,11 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 45,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Intimidating (1)", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Fearless", description: "Immune to fear effects" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
     ],
     highCommand: false,
     availability: 1,
@@ -135,9 +133,9 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 35,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" }
     ],
     highCommand: false,
     availability: 1,
@@ -150,10 +148,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Scout", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Scout", description: "Can deploy in advanced positions" }
     ],
     highCommand: false,
     availability: 1,
@@ -166,10 +164,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 15,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Dead Flesh", description: "" },
-      { name: "Risen", description: "" },
-      { name: "Golem", description: "" }
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Dead Flesh", description: "Dead unit type" },
+      { name: "Risen", description: "Reanimated unit" },
+      { name: "Golem", description: "Artificial construct" }
     ],
     highCommand: false,
     availability: 2,
@@ -182,11 +180,11 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 40,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Elf", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Golem", description: "" },
-      { name: "Intimidating (1)", description: "" }
+      { name: "Elf", description: "Elf race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Elite", description: "Elite unit" },
+      { name: "Golem", description: "Artificial construct" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
     ],
     highCommand: false,
     availability: 1,
@@ -200,11 +198,11 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 50,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Living Flesh", description: "" },
-      { name: "Dispel (BLK)", description: "" },
-      { name: "Golem", description: "" },
-      { name: "Large", description: "" },
-      { name: "Intimidating (2)", description: "" }
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Dispel (BLK)", description: "Can dispel BLK effects" },
+      { name: "Golem", description: "Artificial construct" },
+      { name: "Large", description: "Unit is of large size" },
+      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" }
     ],
     highCommand: false,
     availability: 1,
@@ -217,50 +215,16 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Living Flesh", description: "" },
-      { name: "Ambusher", description: "" },
-      { name: "Golem", description: "" },
-      { name: "Large", description: "" },
-      { name: "Intimidating (1)", description: "" }
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Ambusher", description: "Can ambush enemy units" },
+      { name: "Golem", description: "Artificial construct" },
+      { name: "Large", description: "Unit is of large size" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
     ],
     highCommand: false,
     availability: 1,
-    specialRules: ["Slowed", "Frightened", "Place", "Displace", "Repeat a Die"],
+    specialRules: ["Slowed", "Frightened", "Place (5)", "Displace (5)", "Repeat a Die"],
     imageUrl: "/art/card/kipleacht_card.jpg"
-  },
-  // Add any missing units from Supabase that weren't in the original file
-  {
-    id: "master-nepharim",
-    name: "Master Nepharim",
-    pointsCost: 50,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Intimidating (1)", description: "" }
-    ],
-    highCommand: true,
-    availability: 1,
-    specialRules: ["Command (2)", "Repeat a Die"],
-    command: 2,
-    imageUrl: "/art/card/master_nepharim_card.jpg"
-  },
-  {
-    id: "tattooist",
-    name: "Tattooist",
-    pointsCost: 35,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Repeat a Die"],
-    imageUrl: "/art/card/tattooist_card.jpg"
   },
   {
     id: "puppeteer",
@@ -268,9 +232,9 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 40,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" }
     ],
     highCommand: false,
     availability: 1,
@@ -283,10 +247,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Elite", description: "Elite unit" }
     ],
     highCommand: false,
     availability: 1,

@@ -8,11 +8,11 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
     pointsCost: 50,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Intimidating (1)", description: "" }
+      { name: "Human", description: "Human race" },
+      { name: "Character", description: "Character unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Elite", description: "Elite unit" },
+      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
     ],
     highCommand: true,
     availability: 1,
