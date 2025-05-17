@@ -91,7 +91,7 @@ const NewsArchiveDialog = ({
   const handleRefresh = async () => {
     await loadNews();
     if (!usingCachedData) {
-      toast.success("News archive refreshed");
+      toast.success(t('newsRefreshed') || "News archive refreshed");
     } else {
       toast.info("Using cached news (database fetch was slow)");
     }
@@ -148,13 +148,13 @@ const NewsArchiveDialog = ({
             disabled={isLoading}
             className="text-warcrow-gold border-warcrow-gold/40"
           >
-            {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
+            {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : t('refresh') || "Refresh"}
           </Button>
         </DialogHeader>
         <div className="space-y-5 py-4">
           {usingCachedData && items.length > 0 && (
             <div className="bg-amber-950/40 text-amber-200 px-3 py-2 rounded text-xs">
-              Using cached news data. Click Refresh to try again.
+              {t('usingCachedData') || "Using cached news data. Click Refresh to try again."}
             </div>
           )}
         
@@ -171,7 +171,7 @@ const NewsArchiveDialog = ({
                 onClick={handleRefresh}
                 className="text-warcrow-gold border-warcrow-gold/40"
               >
-                Try Again
+                {t('tryAgain') || "Try Again"}
               </Button>
             </div>
           ) : items.length === 0 ? (
@@ -183,7 +183,7 @@ const NewsArchiveDialog = ({
                   {item.date ? format(parseISO(item.date), 'MMM d, yyyy') : ''}
                 </p>
                 <p className="text-sm text-warcrow-text">
-                  {formatNewsContent(t(item.key))}
+                  {formatNewsContent(t(item.key) || "")}
                 </p>
               </div>
             ))

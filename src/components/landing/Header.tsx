@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NewsItem, newsItems } from '@/data/newsArchive';
@@ -78,13 +79,17 @@ export const Header = () => {
 
   const currentNewsItem = currentNewsItems[newsIndex];
   
-  let newsTranslationKey = 'news.default.latest';
-  if (currentNewsItem) {
+  // Provide a default news key that we know exists in translations
+  let newsTranslationKey = 'loading';
+  if (currentNewsItem && currentNewsItem.key) {
     newsTranslationKey = currentNewsItem.key;
   }
 
-  // Determine which translations to use based on currentNewsItem
-  const newsText = translations[newsTranslationKey]?.[language] || translations['news.default.latest'][language];
+  // Use a safer approach to access translations - check if the key exists first
+  // Also ensure we have a fallback if the translation doesn't exist
+  const newsText = translations[newsTranslationKey] ? 
+    (translations[newsTranslationKey][language] || translations[newsTranslationKey]['en'] || 'News update') :
+    translations['loading'][language] || 'Loading...';
   
   // Format the news date
   const formattedDate = currentNewsItem?.date 
@@ -197,8 +202,11 @@ export const Header = () => {
         </div>
       </div>
       
-      {/* News Archive Dialog - Using the correct component API */}
-      <NewsArchiveDialog triggerClassName="" />
+      {/* News Archive Dialog - Using the controlled component API */}
+      <NewsArchiveDialog 
+        open={showNewsArchiveDialog} 
+        onOpenChange={setShowNewsArchiveDialog}
+      />
     </header>
   );
 };
