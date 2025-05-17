@@ -1,8 +1,7 @@
+
 import { Unit } from "@/types/army";
-import { vercana } from "./vercana";
 
 export const hegemonyOfEmbersigSupports: Unit[] = [
-  vercana,
   {
     id: "technician-adept",
     name: "Technician Adept",
