@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NewsItem, newsItems } from '@/data/newsArchive';
@@ -18,8 +19,8 @@ import {
 } from 'lucide-react';
 import { initializeNewsItems } from '@/data/newsArchive';
 
-// Import existing components
-import { NewsArchiveDialog } from './NewsArchiveDialog';
+// Import NewsArchiveDialog as default export
+import NewsArchiveDialog from './NewsArchiveDialog';
 
 export const Header = () => {
   const navigate = useNavigate();
