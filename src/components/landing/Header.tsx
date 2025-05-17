@@ -1,210 +1,283 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { NewsItem, newsItems } from '@/data/newsArchive';
-import { translations } from '@/i18n/translations';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { 
-  Info, 
-  Book, 
-  Menu, 
-  RefreshCcw, 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight, 
-  HelpCircle 
-} from 'lucide-react';
-import { initializeNewsItems } from '@/data/newsArchive';
 
-// Import NewsArchiveDialog as default export
-import NewsArchiveDialog from './NewsArchiveDialog';
+import { getLatestVersion } from "@/utils/version";
+import { useLanguage } from "@/contexts/LanguageContext";
+import NewsArchiveDialog from "./NewsArchiveDialog";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import changelogContent from '../../../CHANGELOG.md?raw';
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { newsItems, initializeNewsItems, NewsItem } from "@/data/newsArchive";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
-export const Header = () => {
-  const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { isAuthenticated } = useAuth();
+interface HeaderProps {
+  latestVersion: string;
+  userCount: number | null;
+  isLoadingUserCount: boolean;
+  latestFailedBuild?: any;
+}
+
+export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFailedBuild }: HeaderProps) => {
+  const { t } = useLanguage();
+  const { isWabAdmin } = useAuth();
+  const todaysDate = format(new Date(), 'MM/dd/yy');
+  const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   
-  const [newsIndex, setNewsIndex] = useState(0);
-  const [showNewsArchiveDialog, setShowNewsArchiveDialog] = useState(false);
-  const [currentNewsItems, setCurrentNewsItems] = useState<NewsItem[]>(newsItems);
-  const [isRefreshingNews, setIsRefreshingNews] = useState(false);
-
+  // Only show build failure alert if it's from the latest build
+  // And we haven't already shown this specific failure
+  const shouldShowBuildFailure = isWabAdmin && 
+    latestFailedBuild && 
+    latestFailedBuild.id && 
+    latestFailedBuild.id !== shownBuildFailureId && 
+    // Check if the build was in the last 24 hours
+    latestFailedBuild.created_at && 
+    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000);
+  
   useEffect(() => {
-    // Initialize news items when component mounts
-    const loadNewsItems = async () => {
+    const loadNews = async () => {
+      setIsLoading(true);
+      setLoadingError(null);
       try {
-        const items = await initializeNewsItems();
-        setCurrentNewsItems(items);
+        console.log("Header: Loading news items...");
+        // Use default news items if fetch fails or takes too long
+        const defaultNewsItem = {
+          id: "default-news-1",
+          date: new Date().toISOString(),
+          key: "news.default.latest"
+        };
+        
+        // Try to load from localStorage first for immediate display
+        let localStorageItems = null;
+        try {
+          const cachedNews = localStorage.getItem('cached_news_items');
+          if (cachedNews) {
+            localStorageItems = JSON.parse(cachedNews);
+            if (Array.isArray(localStorageItems) && localStorageItems.length > 0) {
+              console.log("Header: Found cached news in localStorage:", localStorageItems.length);
+              setLatestNewsItem(localStorageItems[0]);
+            }
+          }
+        } catch (e) {
+          console.error("Error loading from localStorage:", e);
+        }
+        
+        // Still attempt to initialize news items from the database
+        const items = await initializeNewsItems().catch(err => {
+          console.error("Error initializing news:", err);
+          return localStorageItems || [defaultNewsItem];
+        });
+        
+        console.log("Header: News items loaded:", items?.length || 0);
+        
+        if (items && items.length > 0) {
+          setLatestNewsItem(items[0]); // Get the most recent news item
+        } else {
+          setLatestNewsItem(defaultNewsItem); // Fallback to default
+          setLoadingError("Using default news");
+        }
       } catch (error) {
-        console.error("Error loading news items:", error);
-        // Keep using the current items (which might be from static data)
+        console.error("Header: Error loading news items:", error);
+        setLoadingError("Failed to load news");
+        // Use a default news item as fallback
+        setLatestNewsItem({
+          id: "default-news-1",
+          date: new Date().toISOString(),
+          key: "news.default.latest"
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    loadNewsItems();
+    loadNews();
   }, []);
+  
+  // Update the shown build failure ID when a new one comes in
+  useEffect(() => {
+    if (shouldShowBuildFailure && latestFailedBuild?.id) {
+      setShownBuildFailureId(latestFailedBuild.id);
+    }
+  }, [latestFailedBuild, shouldShowBuildFailure]);
 
+  // Function to handle viewing a deployment
+  const handleViewDeployment = (deployUrl: string) => {
+    if (deployUrl) {
+      window.open(deployUrl, '_blank');
+    }
+  };
+  
   const handleRefreshNews = async () => {
+    setIsLoading(true);
+    setLoadingError(null);
     try {
-      setIsRefreshingNews(true);
-      // Clear the localStorage cache
-      localStorage.removeItem('cached_news_items');
-      // Re-fetch from database
       const items = await initializeNewsItems();
-      
-      setCurrentNewsItems(items);
-      toast.success(t('newsRefreshed'));
+      if (items && items.length > 0) {
+        setLatestNewsItem(items[0]);
+        toast.success("News refreshed");
+      } else {
+        setLoadingError("No news items found");
+        toast.info("No news items found");
+      }
     } catch (error) {
       console.error("Error refreshing news:", error);
-      toast.error(t('errorRefreshingNews'));
+      setLoadingError("Failed to refresh news");
+      toast.error("Failed to refresh news");
     } finally {
-      setIsRefreshingNews(false);
+      setIsLoading(false);
     }
   };
-
-  const navigateToPreviousNews = () => {
-    if (newsIndex < currentNewsItems.length - 1) {
-      setNewsIndex(newsIndex + 1);
-    }
-  };
-
-  const navigateToNextNews = () => {
-    if (newsIndex > 0) {
-      setNewsIndex(newsIndex - 1);
-    }
-  };
-
-  const currentNewsItem = currentNewsItems[newsIndex];
   
-  // Provide a default news key that we know exists in translations
-  let newsTranslationKey = 'news.default.latest';
-  if (currentNewsItem && currentNewsItem.key) {
-    newsTranslationKey = currentNewsItem.key;
-  }
+  // Function to format news content with highlighted date
+  const formatNewsContent = (content: string): React.ReactNode => {
+    if (!content) return 'Latest news will appear here...';
 
-  // Use a safer approach to access translations - check if the key exists first
-  const newsText = translations[newsTranslationKey] ? 
-    (translations[newsTranslationKey][language] || translations[newsTranslationKey]['en'] || 'News update') :
-    translations['news.default.latest'][language] || translations['news.default.latest']['en'] || 'Loading...';
-  
-  // Format the news date
-  const formattedDate = currentNewsItem?.date 
-    ? new Date(currentNewsItem.date).toLocaleDateString(
-        language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'en-US', 
-        { year: 'numeric', month: '2-digit', day: '2-digit' }
-      )
-    : new Date().toLocaleDateString(
-        language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'en-US', 
-        { year: 'numeric', month: '2-digit', day: '2-digit' }
+    // Look for date patterns like "News 5/3/25:" or similar date formats with the word "News" before
+    const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+    
+    if (dateRegex.test(content)) {
+      const parts = content.split(dateRegex);
+      return (
+        <>
+          {parts.map((part, i) => {
+            // If this part matches the date pattern, highlight it
+            if (dateRegex.test(part)) {
+              return (
+                <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
+                  {part}
+                </span>
+              );
+            }
+            return <span key={i}>{part}</span>;
+          })}
+        </>
       );
+    }
+    
+    // If no date found, just return the content
+    return content;
+  };
   
   return (
-    <header className="bg-black text-white py-4 px-4 border-b border-warcrow-gold/20">
-      <div className="container mx-auto flex flex-col gap-4">
-        {/* Logo and Title */}
-        <div className="flex flex-col sm:flex-row justify-between items-center">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <Link to="/" className="flex items-center">
-              <h1 className="text-3xl font-bold text-warcrow-gold">
-                Warcrow Army Builder
-              </h1>
-            </Link>
+    <div className="text-center space-y-6 md:space-y-8">
+      <img 
+        src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
+        alt={t('logoAlt')} 
+        className="w-64 md:w-[32rem] mx-auto"
+      />
+      <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
+        {t('welcomeMessage')}
+      </h1>
+      <div className="text-warcrow-gold/80 text-xs md:text-sm">{t('version')} {latestVersion}</div>
+      <p className="text-lg md:text-xl text-warcrow-text">
+        {t('appDescription')}
+      </p>
+      <p className="text-md md:text-lg text-warcrow-gold/80">
+        {isLoadingUserCount ? (
+          t('loadingUserCount')
+        ) : (
+          userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
+        )}
+      </p>
+      
+      {/* Admin-only Build Failure Alert */}
+      {shouldShowBuildFailure && (
+        <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
+          <AlertTriangle className="h-4 w-4 text-red-400" />
+          <AlertTitle className="text-red-200">
+            Latest Build Failed
+          </AlertTitle>
+          <AlertDescription className="text-red-300 mt-1">
+            <div className="mb-2">
+              <p className="mb-1">{latestFailedBuild.site_name} ({latestFailedBuild.branch})</p>
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                onClick={() => handleViewDeployment(latestFailedBuild.deploy_url)}
+              >
+                View deployment details
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefreshNews}
+              disabled={isLoading}
+              className="text-xs text-warcrow-gold/70 hover:text-warcrow-gold"
+            >
+              {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
+            </Button>
+            <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
           </div>
-          
-          <div className="flex gap-2">
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-3">
+            <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
+            <span className="ml-2 text-warcrow-text/70 text-sm">Loading latest news...</span>
+          </div>
+        ) : loadingError ? (
+          <div className="text-center py-3">
+            <p className="text-warcrow-text/70 text-sm mb-2">{loadingError}</p>
             <Button 
               variant="outline" 
-              size="sm"
-              onClick={() => navigate('/faq')}
-              className="border-warcrow-gold/30 text-warcrow-gold"
+              size="sm" 
+              onClick={handleRefreshNews}
+              className="text-warcrow-gold border-warcrow-gold/40"
             >
-              <HelpCircle className="mr-2 h-4 w-4" />
-              FAQ
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/changelog')}
-              className="border-warcrow-gold/30 text-warcrow-gold"
-            >
-              <Info className="mr-2 h-4 w-4" />
-              {t('changelog')}
+              Try Again
             </Button>
           </div>
-        </div>
+        ) : latestNewsItem ? (
+          <p className="text-warcrow-text text-sm md:text-base">
+            {formatNewsContent(t(latestNewsItem.key, "Latest news will appear here..."))}
+          </p>
+        ) : (
+          <p className="text-warcrow-text/70 text-sm">No recent news available.</p>
+        )}
         
-        {/* News Section */}
-        <div className="p-4 border border-warcrow-gold/30 rounded-md bg-black/60 backdrop-blur">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center">
-              <h2 className="text-lg font-bold text-warcrow-gold flex items-center">
-                {t('news')} {formattedDate}
-              </h2>
-            </div>
-            <div className="flex gap-2">
+        {/* Changelog button and dialog - moved from Landing.tsx */}
+        <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
+          <Dialog>
+            <DialogTrigger asChild>
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleRefreshNews}
-                disabled={isRefreshingNews}
-                className={`h-8 w-8 text-warcrow-gold/70 hover:text-warcrow-gold ${isRefreshingNews ? 'animate-spin' : ''}`}
+                variant="link"
+                className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm"
               >
-                <RefreshCcw className="h-4 w-4" />
+                {t('viewChangelog')}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNewsArchiveDialog(true)}
-                className="h-8 text-warcrow-gold/70 hover:text-warcrow-gold"
-              >
-                <Clock className="h-4 w-4 mr-1" />
-                {t('newsArchive')}
-              </Button>
-            </div>
-          </div>
-          
-          <div className="relative min-h-[60px]">
-            <div className="py-1 text-sm text-warcrow-text">
-              {newsText}
-            </div>
-            
-            {currentNewsItems.length > 1 && (
-              <div className="flex justify-between mt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={navigateToPreviousNews}
-                  disabled={newsIndex >= currentNewsItems.length - 1}
-                  className={`h-8 px-2 ${newsIndex >= currentNewsItems.length - 1 ? 'text-warcrow-gold/30' : 'text-warcrow-gold/70 hover:text-warcrow-gold'}`}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  {t('older')}
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={navigateToNextNews}
-                  disabled={newsIndex <= 0}
-                  className={`h-8 px-2 ${newsIndex <= 0 ? 'text-warcrow-gold/30' : 'text-warcrow-gold/70 hover:text-warcrow-gold'}`}
-                >
-                  {t('newer')}
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-warcrow-gold">
+                  {t('changelog')}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="whitespace-pre-wrap font-mono text-sm">
+                {changelogContent}
               </div>
-            )}
-          </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-      
-      {/* News Archive Dialog - Using the controlled component API */}
-      <NewsArchiveDialog 
-        open={showNewsArchiveDialog} 
-        onOpenChange={setShowNewsArchiveDialog}
-      />
-    </header>
+    </div>
   );
 };

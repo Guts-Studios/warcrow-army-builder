@@ -14,30 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-interface NewsArchiveDialogProps {
-  triggerClassName?: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
-
-const NewsArchiveDialog = ({ 
-  triggerClassName = "",
-  open,
-  onOpenChange
-}: NewsArchiveDialogProps) => {
+const NewsArchiveDialog = ({ triggerClassName = "" }) => {
   const { t, language } = useLanguage();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [usingCachedData, setUsingCachedData] = useState(false);
-  
-  // For internal state if not controlled externally
-  const [internalOpen, setInternalOpen] = useState(false);
-  
-  // Determine if component is controlled or uncontrolled
-  const isControlled = open !== undefined && onOpenChange !== undefined;
-  const dialogOpen = isControlled ? open : internalOpen;
-  const setDialogOpen = isControlled ? onOpenChange : setInternalOpen;
   
   const loadNews = async () => {
     setIsLoading(true);
@@ -82,16 +64,13 @@ const NewsArchiveDialog = ({
   };
   
   useEffect(() => {
-    // Only load news when the dialog is opened
-    if (dialogOpen) {
-      loadNews();
-    }
-  }, [dialogOpen]);
+    loadNews();
+  }, []);
 
   const handleRefresh = async () => {
     await loadNews();
     if (!usingCachedData) {
-      toast.success(t('newsRefreshed') || "News archive refreshed");
+      toast.success("News archive refreshed");
     } else {
       toast.info("Using cached news (database fetch was slow)");
     }
@@ -128,14 +107,12 @@ const NewsArchiveDialog = ({
   };
   
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      {!isControlled && (
-        <DialogTrigger asChild>
-          <Button variant="link" className={triggerClassName}>
-            {t('newsArchive')}
-          </Button>
-        </DialogTrigger>
-      )}
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link" className={triggerClassName}>
+          {t('newsArchive')}
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-warcrow-gold">
@@ -148,13 +125,13 @@ const NewsArchiveDialog = ({
             disabled={isLoading}
             className="text-warcrow-gold border-warcrow-gold/40"
           >
-            {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : t('refresh') || "Refresh"}
+            {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
           </Button>
         </DialogHeader>
         <div className="space-y-5 py-4">
           {usingCachedData && items.length > 0 && (
             <div className="bg-amber-950/40 text-amber-200 px-3 py-2 rounded text-xs">
-              {t('usingCachedData') || "Using cached news data. Click Refresh to try again."}
+              Using cached news data. Click Refresh to try again.
             </div>
           )}
         
@@ -171,7 +148,7 @@ const NewsArchiveDialog = ({
                 onClick={handleRefresh}
                 className="text-warcrow-gold border-warcrow-gold/40"
               >
-                {t('tryAgain') || "Try Again"}
+                Try Again
               </Button>
             </div>
           ) : items.length === 0 ? (
@@ -183,7 +160,7 @@ const NewsArchiveDialog = ({
                   {item.date ? format(parseISO(item.date), 'MMM d, yyyy') : ''}
                 </p>
                 <p className="text-sm text-warcrow-text">
-                  {formatNewsContent(t(item.key) || "")}
+                  {formatNewsContent(t(item.key))}
                 </p>
               </div>
             ))

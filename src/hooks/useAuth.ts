@@ -1,9 +1,4 @@
 
-// Import the useAuth hook from AuthProvider
-import { useAuth } from "@/components/auth/AuthProvider";
-
-// Re-export the hook
-export { useAuth };
-
-// Default export
+// Re-export useAuth hook from the implementation in useAuth.tsx
+export { useAuth } from './useAuth.tsx';
 export default useAuth;

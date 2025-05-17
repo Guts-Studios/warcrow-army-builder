@@ -230,37 +230,6 @@ export const translations: TranslationsType = {
     es: "Warcrow © 2024 Corvus Belli S.L. - Todos los derechos reservados. Esta es una herramienta no oficial creada por fans.",
     fr: "Warcrow © 2024 Corvus Belli S.L. - Tous droits réservés. Ceci est un outil non officiel créé par des fans."
   },
-  news: {
-    en: "News",
-    es: "Noticias",
-    fr: "Nouvelles"
-  },
-  newsRefreshed: {
-    en: "News refreshed",
-    es: "Noticias actualizadas",
-    fr: "Nouvelles actualisées"
-  },
-  errorRefreshingNews: {
-    en: "Error refreshing news",
-    es: "Error al actualizar noticias",
-    fr: "Erreur lors de l'actualisation des nouvelles"
-  },
-  newer: {
-    en: "Newer",
-    es: "Más reciente",
-    fr: "Plus récent"
-  },
-  older: {
-    en: "Older",
-    es: "Más antiguo",
-    fr: "Plus ancien"
-  },
-  // Default news item to use as fallback
-  'news.default.latest': {
-    en: "Welcome to Warcrow Army Builder. Stay tuned for the latest news and updates.",
-    es: "Bienvenido a Warcrow Army Builder. Mantente atento a las últimas noticias y actualizaciones.",
-    fr: "Bienvenue dans Warcrow Army Builder. Restez à l'écoute pour les dernières nouvelles et mises à jour."
-  },
   
   // Include all landing page translations
   ...landingTranslations,
