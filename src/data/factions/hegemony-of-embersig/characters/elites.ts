@@ -20,7 +20,7 @@ export const hegemonyCharactersElites: Unit[] = [
   },
   {
     id: "lady-telia",
-    name: "Lady Télia",
+    name: "Lady Telia",
     faction: "hegemony-of-embersig",
     pointsCost: 25,
     availability: 1,
