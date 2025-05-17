@@ -23,14 +23,18 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
   const [characteristics, setCharacteristics] = useState<string[]>([]);
+  const [dbCharacteristicNames, setDbCharacteristicNames] = useState<string[]>([]);
 
   useEffect(() => {
     // Extract characteristic names from keywords
     const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
     
+    console.log('Keywords from unit:', keywordNames);
+    
     // Get all characteristics from supabase
     const fetchCharacteristics = async () => {
       try {
+        // Fetch all characteristics from the unit_characteristics table in Supabase
         const { data, error } = await supabase
           .from('unit_characteristics')
           .select('name')
@@ -43,16 +47,22 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
         
         if (data) {
           // Get all valid characteristic names from the database
-          const dbCharacteristicNames = data.map(c => c.name);
+          const characteristicNamesFromDb = data.map(c => c.name);
+          setDbCharacteristicNames(characteristicNamesFromDb);
+          
+          console.log('Characteristics from database:', characteristicNamesFromDb);
           
           // Filter keywords to only include valid characteristics that exist in the database
           const validCharacteristics = keywordNames.filter(name => 
-            dbCharacteristicNames.includes(name)
+            characteristicNamesFromDb.includes(name)
           );
+          
+          console.log('Valid characteristics (intersection):', validCharacteristics);
           
           // Add High Command if provided and not already included
           if (highCommand && !validCharacteristics.includes("High Command")) {
             validCharacteristics.push("High Command");
+            console.log('Added High Command characteristic');
           }
           
           setCharacteristics(validCharacteristics);
@@ -66,7 +76,10 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   }, [keywords, highCommand]);
 
   // If no characteristics, don't render anything
-  if (characteristics.length === 0) return null;
+  if (characteristics.length === 0) {
+    console.log('No characteristics to display');
+    return null;
+  }
 
   // This component now properly displays just the characteristic name
   const CharacteristicContent = ({ text }: { text: string }) => (
