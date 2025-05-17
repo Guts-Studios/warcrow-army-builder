@@ -21,10 +21,12 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
           subtitle={subtitle}
           command={unit.command || Boolean(unit.command)}
         />
-        <CharacteristicsSection 
-          keywords={unit.keywords}
-          highCommand={unit.highCommand}
-        />
+        <div className="mt-0.5">
+          <CharacteristicsSection 
+            keywords={unit.keywords}
+            highCommand={unit.highCommand}
+          />
+        </div>
       </div>
     </div>
   );

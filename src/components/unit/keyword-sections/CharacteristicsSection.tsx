@@ -73,7 +73,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   };
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1 items-center">
       {characteristics.map((characteristic) => (
         isMobile ? (
           <button 
