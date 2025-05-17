@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import { vercana } from "./characters/vercana";
 
@@ -35,41 +36,5 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     specialRules: ["Place (6)", "Repeat a Die"],
     imageUrl: "/art/card/progenitor_sculptor_card.jpg"
-  },
-  {
-    id: "marhael-the-refused",
-    name: "Marhael the Refused",
-    pointsCost: 55,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" }, 
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Fearless", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Command (1)", "Repeat a Die"],
-    command: 1,
-    imageUrl: "/art/card/marhael_the_refused_card.jpg"
-  },
-  {
-    id: "darkmaster",
-    name: "Darkmaster",
-    pointsCost: 65,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Living Flesh", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Intimidating (2)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Command (1)", "Repeat a Die"],
-    command: 1,
-    imageUrl: "/art/card/darkmaster_card.jpg"
   }
 ];
