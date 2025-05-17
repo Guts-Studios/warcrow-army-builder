@@ -248,7 +248,7 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
           </div>
         ) : latestNewsItem ? (
           <p className="text-warcrow-text text-sm md:text-base">
-            {formatNewsContent(t(latestNewsItem.key, "Latest news will appear here..."))}
+            {formatNewsContent(t(latestNewsItem.key))}
           </p>
         ) : (
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>

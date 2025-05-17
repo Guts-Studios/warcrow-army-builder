@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,9 +126,11 @@ const Landing = () => {
     refetchOnWindowFocus: false,
     staleTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
-    onError: (error) => {
-      console.error('Failed to fetch user count:', error);
-      toast.error('Failed to fetch user statistics');
+    meta: {
+      onError: (error: any) => {
+        console.error('Failed to fetch user count:', error);
+        toast.error('Failed to fetch user statistics');
+      }
     }
   });
 
