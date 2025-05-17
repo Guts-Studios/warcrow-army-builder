@@ -1,5 +1,5 @@
 
-import { Unit } from "@/types/army";
+import { Unit } from "../../../types/army";
 import { hegemonyCharactersLeaders } from "./characters/leaders";
 import { hegemonyOfEmbersigSupports } from "./characters/supports";
 import { hegemonyCharactersElites } from "./characters/elites";

@@ -21,9 +21,9 @@ import { scionsOfYaldabaothTroops } from "@/data/factions/scions-of-yaldabaoth/t
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { hegemonyCharactersElites } from "@/data/factions/hegemony-of-embersig/characters/elites";
-import { hegemonyHighCommand } from "@/data/factions/hegemony-of-embersig/high-command";
-import { hegemonyTroops } from "@/data/factions/hegemony-of-embersig/troops";
-import { hegemonyCharacters } from "@/data/factions/hegemony-of-embersig/characters";
+import { hegemonyOfEmbersigHighCommand } from "@/data/factions/hegemony-of-embersig/high-command";
+import { hegemonyOfEmbersigTroops } from "@/data/factions/hegemony-of-embersig/troops";
+import { hegemonyOfEmbersigCharacters } from "@/data/factions/hegemony-of-embersig/characters";
 
 // Combine all portrait sources
 const getAllUnitPortraits = () => {
@@ -37,9 +37,9 @@ const getAllUnitPortraits = () => {
     ...scionsOfYaldabaothCharacters,
     ...scionsOfYaldabaothHighCommand,
     ...scionsOfYaldabaothTroops,
-    ...hegemonyHighCommand,
-    ...hegemonyTroops,
-    ...hegemonyCharacters,
+    ...hegemonyOfEmbersigHighCommand,
+    ...hegemonyOfEmbersigTroops,
+    ...hegemonyOfEmbersigCharacters,
   ];
   
   return allUnits
