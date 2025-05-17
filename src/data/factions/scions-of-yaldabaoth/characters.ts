@@ -36,5 +36,22 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     specialRules: ["Place (6)", "Repeat a Die"],
     imageUrl: "/art/card/progenitor_sculptor_card.jpg"
   },
+  {
+    id: "nuada",
+    name: "Nuada",
+    pointsCost: 35,
+    faction: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Human", description: "Human race" },
+      { name: "Character", description: "Character unit type" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Elite", description: "Elite unit" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 2,
+    specialRules: ["Command (2)", "Aim"],
+    imageUrl: "/art/card/nuada_card.jpg"
+  },
   vercana
 ];
