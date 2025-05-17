@@ -17,13 +17,7 @@ interface CharacteristicsSectionProps {
 }
 
 // List of known characteristic types - keep this in sync with characteristicDefinitions.ts
-const characteristicTypes = [
-  "Human", "Infantry", "Character", "Companion", "Colossal Company", 
-  "Orc", "Human", "Dwarf", "Ghent", "Aestari", "Elf", "Varank", "Nemorous",
-  "Beast", "Construct", "Undead", "Mounted", "High Command", "Cavalry",
-  "Alven", "Living Flesh", "Elite", "Berserker Rage", "Join", "Spellcaster",
-  "Fearless", "Raging"
-];
+const characteristicTypes = Object.keys(characteristicDefinitions);
 
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
@@ -35,7 +29,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
   console.log('Keywords from unit:', keywordNames);
   
-  // Filter to only show keywords that are characteristics
+  // Filter to only show keywords that are characteristics and ensure no duplicates
   let characteristics = keywordNames.filter(name => 
     characteristicTypes.includes(name)
   );
@@ -45,6 +39,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
     characteristics.push("High Command");
     console.log('Added High Command characteristic');
   }
+  
+  // Remove duplicates by converting to Set and back to array
+  characteristics = [...new Set(characteristics)];
   
   console.log('Characteristics to display:', characteristics);
   

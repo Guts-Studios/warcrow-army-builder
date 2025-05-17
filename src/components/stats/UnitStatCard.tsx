@@ -29,6 +29,9 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
     </div>
   );
 
+  // Remove duplicate keywords if any
+  const uniqueKeywords = unit.keywords ? [...new Set(unit.keywords)] : [];
+
   // Choose either the extended unit format or use the stats object
   const commandValue = unit.command !== undefined ? unit.command : (unit.stats?.MOR !== undefined ? unit.stats.MOR : '-');
   const availabilityValue = unit.availability !== undefined ? unit.availability : (unit.stats?.AVB !== undefined ? unit.stats.AVB : '-');
@@ -44,7 +47,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-warcrow-gold">{displayName}</h2>
           <div className="flex flex-wrap gap-2">
-            {unit.keywords?.map((keyword, index) => (
+            {uniqueKeywords.map((keyword, index) => (
               <span key={index} className="text-xs bg-warcrow-gold/20 border border-warcrow-gold px-2 py-1 rounded">
                 {keyword}
               </span>
@@ -147,7 +150,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
               <h3 className="text-lg font-semibold text-warcrow-gold">Special Rules</h3>
               <div className="bg-black/60 border border-warcrow-gold/30 rounded-md p-4">
                 <div className="flex flex-wrap gap-2">
-                  {unit.specialRules.map((rule, index) => (
+                  {[...new Set(unit.specialRules)].map((rule, index) => (
                     <span key={index} className="text-xs bg-warcrow-gold/20 border border-warcrow-gold px-2 py-1 rounded">
                       {rule}
                     </span>

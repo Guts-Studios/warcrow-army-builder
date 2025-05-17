@@ -11,22 +11,29 @@ interface UnitKeywordsProps {
 }
 
 const UnitKeywords = ({ keywords, specialRules, highCommand }: UnitKeywordsProps) => {
-  // Convert string[] to Keyword[] if needed
-  const processedKeywords: Keyword[] = keywords.map(keyword => {
-    if (typeof keyword === 'string') {
-      return { 
-        name: keyword, 
-        description: "" 
-      };
-    }
-    return keyword;
+  // Convert string[] to Keyword[] if needed and remove duplicates
+  const processedKeywords: Keyword[] = Array.from(new Set(
+    keywords.map(keyword => {
+      if (typeof keyword === 'string') {
+        return keyword;
+      }
+      return keyword.name;
+    })
+  )).map(keywordName => {
+    return { 
+      name: keywordName, 
+      description: "" 
+    };
   });
+
+  // Remove duplicates from special rules if any
+  const uniqueSpecialRules = specialRules ? [...new Set(specialRules)] : undefined;
 
   return (
     <div className="space-y-2">
       <CharacteristicsSection keywords={processedKeywords} highCommand={highCommand} />
       <KeywordsSection keywords={processedKeywords} />
-      <SpecialRulesSection specialRules={specialRules} />
+      <SpecialRulesSection specialRules={uniqueSpecialRules} />
     </div>
   );
 };
