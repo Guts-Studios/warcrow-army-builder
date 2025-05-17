@@ -1,9 +1,9 @@
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback } from "react";
 
 export const useTranslateKeyword = () => {
-  const { t } = useTranslation();
+  const { t, language } = useLanguage();
 
   // Translate special rules
   const translateSpecialRule = useCallback((ruleName: string, language: string) => {
