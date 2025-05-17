@@ -31,6 +31,9 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       console.log(`Dialog opened with card URL: ${cardUrl}, language: ${language}`);
     }
   }, [isOpen, cardUrl, language]);
+
+  // Special case handling for Lady Télia
+  const actualCardUrl = unitName.includes("Lady Télia") ? "/art/card/lady_telia.jpg" : cardUrl;
   
   const getCardText = () => {
     if (language === 'en') return 'Unit Card';
@@ -74,15 +77,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
           
           {!imageError && (
             <img
-              src={cardUrl}
+              src={actualCardUrl}
               alt={`${unitName} ${getCardText()}`}
               className={`w-auto max-h-[80vh] transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               onLoad={() => {
-                console.log(`Image loaded successfully: ${cardUrl}`);
+                console.log(`Image loaded successfully: ${actualCardUrl}`);
                 setIsLoading(false);
               }}
               onError={(e) => {
-                console.error(`Image load error: ${cardUrl}`);
+                console.error(`Image load error: ${actualCardUrl}`);
                 setImageError(true);
                 setIsLoading(false);
               }}

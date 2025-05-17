@@ -20,6 +20,27 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     return null;
   }
 
+  // Special handling for Lady Télia
+  if (unit.id === "lady-telia") {
+    return (
+      <div className="w-full mt-2">
+        <AspectRatio 
+          ratio={16 / 9} 
+          className={`bg-black/20 overflow-hidden rounded-md ${isMobile ? 'max-h-[200px]' : 'max-h-[300px]'}`}
+        >
+          <img
+            src="/art/card/lady_telia.jpg"
+            alt="Lady Télia"
+            className="h-full w-full object-contain"
+            onError={(e) => {
+              console.error('Image load error for Lady Télia');
+            }}
+          />
+        </AspectRatio>
+      </div>
+    );
+  }
+
   // Function to generate the appropriate URL based on language
   const getLanguageSpecificUrl = (baseUrl: string): string => {
     // Check if we've already adjusted the URL with language suffix

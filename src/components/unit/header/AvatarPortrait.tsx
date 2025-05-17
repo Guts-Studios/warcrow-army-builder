@@ -17,6 +17,26 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const [imageError, setImageError] = useState(false);
   const { language } = useLanguage();
   
+  // Special handling for Lady Télia
+  if (name.includes("Lady Télia")) {
+    return (
+      <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
+        <AvatarImage 
+          src="/art/portrait/lady_telia_portrait.jpg" 
+          alt="Lady Télia" 
+          className="object-cover"
+          onError={(e) => {
+            console.error('Portrait image failed to load for Lady Télia');
+            setImageError(true);
+          }}
+        />
+        <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
+          LT
+        </AvatarFallback>
+      </Avatar>
+    );
+  }
+  
   // Generate portrait URL based on unit name - always using English names for consistency
   const generatePortraitUrl = () => {
     if (!portraitUrl) {

@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
@@ -156,7 +157,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
   // Function to handle view card button click
   const handleViewCardClick = () => {
-    const url = getCardUrl();
+    // For Lady Télia, use a specific hardcoded path that we know exists
+    let url = unit.id === "lady-telia" ? "/art/card/lady_telia.jpg" : getCardUrl();
     console.log("Opening card dialog with URL:", url);
     setCardUrl(url);
     setIsCardDialogOpen(true);
