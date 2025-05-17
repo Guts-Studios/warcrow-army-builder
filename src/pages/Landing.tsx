@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,24 +48,82 @@ const fetchUserCount = async () => {
       }
     }
     
-    // Otherwise fetch from database
-    const { count, error } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
+    // Check if we're in a preview environment
+    const isPreview = () => {
+      const hostname = window.location.hostname;
+      
+      // Check for specific production domain - adjust to match your actual production domain
+      const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                           hostname === 'wab.warcrow.com';
+      
+      if (isProduction) {
+        console.log("Production environment detected in fetchUserCount");
+        return false;
+      }
+      
+      return hostname === 'lovableproject.com' || 
+             hostname.includes('.lovableproject.com') ||
+             hostname.includes('localhost') ||
+             hostname.includes('127.0.0.1') ||
+             hostname.includes('netlify.app');
+    };
     
-    if (error) {
-      console.error('Error fetching user count:', error);
-      throw error;
-    }
-    
-    // Cache the count for 1 hour
-    if (count !== null) {
-      localStorage.setItem('cached_user_count', count.toString());
+    // Return a mock count for preview environments
+    if (isPreview()) {
+      console.log('Preview environment detected in fetchUserCount, using mock count');
+      const mockCount = 42;
+      // Cache the mock count
+      localStorage.setItem('cached_user_count', mockCount.toString());
       localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
-      console.log('Cached new user count:', count);
+      return mockCount;
     }
     
-    return count || 0;
+    // Otherwise fetch from database with a timeout for production environments
+    const fetchPromise = new Promise<number>(async (resolve, reject) => {
+      try {
+        const { count, error } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+        
+        if (error) {
+          console.error('Error fetching user count:', error);
+          reject(error);
+          return;
+        }
+        
+        // Cache the count for 1 hour
+        if (count !== null) {
+          localStorage.setItem('cached_user_count', count.toString());
+          localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
+          console.log('Cached new user count:', count);
+        }
+        
+        resolve(count || 0);
+      } catch (error) {
+        console.error('Error in fetchUserCount inner promise:', error);
+        reject(error);
+      }
+    });
+    
+    // Set a timeout to avoid long waiting time
+    const timeoutPromise = new Promise<number>((resolve) => {
+      setTimeout(() => {
+        console.log("User count fetch timed out after 2s");
+        
+        // Use cached count if available, otherwise return 0
+        const cachedCount = localStorage.getItem('cached_user_count');
+        if (cachedCount) {
+          console.log('Using cached user count after timeout:', cachedCount);
+          resolve(parseInt(cachedCount));
+        } else {
+          resolve(0);
+        }
+      }, 2000); // 2s timeout
+    });
+    
+    // Race between timeout and actual fetch
+    return Promise.race([fetchPromise, timeoutPromise]);
+    
   } catch (error) {
     console.error('Error in fetchUserCount:', error);
     // If fetch fails, try to use cached count regardless of age
@@ -77,13 +134,14 @@ const fetchUserCount = async () => {
     }
     
     console.error('Error fetching user count with no cached fallback:', error);
-    throw error;
+    return 0; // Return 0 to prevent UI issues
   }
 };
 
 // Function to check if the latest deployment is a failure
 const checkLatestBuildStatus = async () => {
   try {
+    console.log("Checking latest build status...");
     const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
     
     if (error || !data || !data.deployments || data.deployments.length === 0) {
@@ -124,18 +182,34 @@ const Landing = () => {
   const { isWabAdmin, isAuthenticated } = useAuth();
 
   // Enhanced preview detection with more robust hostname checking
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('.lovableproject.com') ||
-                   window.location.hostname.includes('localhost') ||
-                   window.location.hostname.includes('127.0.0.1') ||
-                   // Handle Netlify preview URLs
-                   window.location.hostname.includes('netlify.app');
+  const isPreview = () => {
+    const hostname = window.location.hostname;
+    
+    // Check for specific production domain - adjust to match your actual production domain
+    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                         hostname === 'wab.warcrow.com';
+    
+    if (isProduction) {
+      console.log("Production environment detected in Landing");
+      return false;
+    }
+    
+    const isPreviewEnv = hostname === 'lovableproject.com' || 
+                       hostname.includes('.lovableproject.com') ||
+                       hostname.includes('localhost') ||
+                       hostname.includes('127.0.0.1') ||
+                       hostname.includes('netlify.app');
+    
+    console.log('Landing.tsx: Current hostname:', hostname);
+    console.log('Landing.tsx: Is preview environment:', isPreviewEnv);
+    return isPreviewEnv;
+  };
 
   // Detect if we're in preview mode for debugging
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreview);
-  }, [isPreview]);
+    console.log('Landing.tsx: Is preview environment:', isPreview());
+  }, []);
 
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
     queryKey: ['userCount'],
@@ -178,7 +252,7 @@ const Landing = () => {
   // Only fetch build status if user is admin
   useEffect(() => {
     const fetchBuildStatus = async () => {
-      if (isWabAdmin) {
+      if (isWabAdmin || isPreview()) {
         try {
           // Get build failure notifications for the notification system
           const { notifications, error } = await getBuildFailureNotifications();
@@ -202,7 +276,7 @@ const Landing = () => {
     fetchBuildStatus();
     
     // Set up a refresh interval only if user is admin
-    const intervalId = isWabAdmin ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
+    const intervalId = (isWabAdmin || isPreview()) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
     
     return () => {
       if (intervalId) clearInterval(intervalId);
@@ -230,7 +304,7 @@ const Landing = () => {
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin */}
-      {isWabAdmin && latestFailedBuild && (
+      {(!!isWabAdmin || isPreview()) && latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
             <AlertTriangle className="h-5 w-5 text-red-300" />

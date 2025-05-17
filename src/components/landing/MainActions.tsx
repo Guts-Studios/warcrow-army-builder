@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,22 +13,38 @@ export const MainActions = () => {
   const { t } = useLanguage();
   
   // Enhanced preview detection with more robust hostname checking
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                   window.location.hostname.includes('.lovableproject.com') ||
-                   window.location.hostname.includes('localhost') ||
-                   window.location.hostname.includes('127.0.0.1') ||
-                   // Handle Netlify preview URLs
-                   window.location.hostname.includes('netlify.app');
+  const isPreview = () => {
+    const hostname = window.location.hostname;
+    
+    // Check for specific production domain - adjust to match your actual production domain
+    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                         hostname === 'wab.warcrow.com';
+    
+    if (isProduction) {
+      console.log("Production environment detected in MainActions");
+      return false;
+    }
+    
+    // Otherwise, check if it's a preview/development environment
+    const isPreviewEnv = hostname === 'lovableproject.com' || 
+                        hostname.includes('.lovableproject.com') ||
+                        hostname.includes('localhost') ||
+                        hostname.includes('127.0.0.1') ||
+                        hostname.includes('netlify.app');
+                        
+    console.log("MainActions: Current hostname =", hostname);
+    console.log("MainActions: isPreview =", isPreviewEnv);
+    return isPreviewEnv;
+  };
 
   useEffect(() => {
     // Debug logging
     console.log('MainActions: isWabAdmin =', isWabAdmin);
-    console.log('MainActions: isPreview =', isPreview);
-    console.log('MainActions: Current hostname =', window.location.hostname);
+    console.log('MainActions: isPreview =', isPreview());
     
     const checkUserRole = async () => {
       // If in preview mode, set as tester
-      if (isPreview) {
+      if (isPreview()) {
         console.log('Setting tester mode due to preview environment');
         setIsTester(true);
         return;
@@ -57,7 +72,7 @@ export const MainActions = () => {
     };
 
     checkUserRole();
-  }, [isPreview, isWabAdmin]);
+  }, [isWabAdmin]);
 
   return (
     <>
@@ -93,8 +108,13 @@ export const MainActions = () => {
           <User className="mr-2 h-4 w-4" />
           {t('profile')}
         </Button>
-        {/* Using explicit debug render for tester features */}
-        {(isTester || isWabAdmin || isPreview) && (
+        {/* Debug output for values */}
+        <div className="hidden">
+          isTester: {String(isTester)}, isWabAdmin: {String(isWabAdmin)}, isPreview: {String(isPreview())}
+        </div>
+        
+        {/* Using more boolean coercion to ensure these render correctly */}
+        {(!!isTester || !!isWabAdmin || isPreview()) && (
           <>
             <Button
               onClick={() => navigate('/unit-stats')}
@@ -113,8 +133,8 @@ export const MainActions = () => {
             </Button>
           </>
         )}
-        {/* Make admin button more reliable by using direct comparison */}
-        {(isWabAdmin === true || isPreview === true) && (
+        {/* Ensure admin button always shows up in preview environment */}
+        {(isPreview() || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
           <Button
             onClick={() => navigate('/admin')}
             variant="outline"

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -13,6 +12,8 @@ import { format } from "date-fns";
 import { newsItems, initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { Loader2 } from "lucide-react";
 import { translations } from "@/i18n/translations";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -22,6 +23,67 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const { t } = useLanguage();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const isPreviewEnvironment = () => {
+    const hostname = window.location.hostname;
+    // Check for specific production domain - adjust this to match your actual production domain
+    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                         hostname === 'wab.warcrow.com';
+    
+    if (isProduction) {
+      return false;
+    }
+    
+    // Otherwise, check if it's a preview/development environment
+    return hostname === 'lovableproject.com' || 
+           hostname.includes('.lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1') ||
+           hostname.includes('netlify.app');
+  };
+  
+  // Directly fetch news items from the database
+  const fetchNewsItemsDirectly = async () => {
+    try {
+      console.log("NewsArchiveDialog: Fetching news items directly from database");
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false });
+        
+      if (error) {
+        console.error('Error directly fetching news items:', error);
+        return null;
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No news items found in direct database fetch');
+        return null;
+      }
+      
+      console.log(`Directly fetched ${data.length} news items from database`);
+      
+      const formattedItems: NewsItem[] = data.map(item => {
+        // Add translations to the translations object
+        translations[item.translation_key] = {
+          en: item.content_en || 'No content available',
+          es: item.content_es || 'No content available',
+          fr: item.content_fr || 'No content available'
+        };
+        
+        return {
+          id: item.news_id || item.id,
+          date: item.date,
+          key: item.translation_key
+        };
+      });
+      
+      return formattedItems;
+    } catch (error) {
+      console.error("Error in direct database fetch:", error);
+      return null;
+    }
+  };
   
   useEffect(() => {
     const loadNews = async () => {
@@ -40,15 +102,44 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
           setItems(defaultNewsItems);
         }
         
-        // Try to refresh the items
-        const refreshedItems = await initializeNewsItems();
-        if (refreshedItems.length > 0) {
-          console.log("NewsArchiveDialog: Got refreshed items:", refreshedItems.length);
-          setItems(refreshedItems);
-        } else if (items.length === 0) {
-          // If we still have nothing, use defaults as last resort
-          console.log("NewsArchiveDialog: No refreshed items, using defaults");
-          setItems(defaultNewsItems);
+        // Try to refresh the items through the standard method
+        try {
+          const refreshedItems = await initializeNewsItems();
+          if (refreshedItems.length > 0) {
+            console.log("NewsArchiveDialog: Got refreshed items:", refreshedItems.length);
+            setItems(refreshedItems);
+          } else {
+            // If standard method fails, try direct fetch in production
+            if (!isPreviewEnvironment()) {
+              console.log("NewsArchiveDialog: In production, trying direct fetch");
+              const directItems = await fetchNewsItemsDirectly();
+              if (directItems && directItems.length > 0) {
+                console.log("NewsArchiveDialog: Got direct items:", directItems.length);
+                setItems(directItems);
+              } else if (items.length === 0) {
+                // If we still have nothing, use defaults as last resort
+                console.log("NewsArchiveDialog: No direct items, using defaults");
+                setItems(defaultNewsItems);
+              }
+            } else if (items.length === 0) {
+              // If we still have nothing, use defaults as last resort
+              console.log("NewsArchiveDialog: No refreshed items, using defaults");
+              setItems(defaultNewsItems);
+            }
+          }
+        } catch (refreshError) {
+          console.error("Error refreshing news items:", refreshError);
+          // Try direct fetch if we're in production
+          if (!isPreviewEnvironment()) {
+            const directItems = await fetchNewsItemsDirectly();
+            if (directItems && directItems.length > 0) {
+              setItems(directItems);
+            } else if (items.length === 0) {
+              setItems(defaultNewsItems);
+            }
+          } else if (items.length === 0) {
+            setItems(defaultNewsItems);
+          }
         }
       } catch (error) {
         console.error("Error loading news items:", error);
@@ -56,6 +147,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
         if (items.length === 0) {
           setItems(defaultNewsItems);
         }
+        toast.error("Failed to load news archive");
       } finally {
         setIsLoading(false);
       }

@@ -39,6 +39,31 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Check if we're in a preview environment
+const isPreviewEnvironment = () => {
+  if (typeof window === 'undefined') return false;
+  
+  const hostname = window.location.hostname;
+  
+  // Check for specific production domain - adjust this to match your actual production domain
+  const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                       hostname === 'wab.warcrow.com';
+  
+  if (isProduction) {
+    console.log("Production environment detected in newsArchive");
+    return false;
+  }
+  
+  const isPreviewEnv = hostname === 'lovableproject.com' || 
+                      hostname.includes('.lovableproject.com') ||
+                      hostname.includes('localhost') ||
+                      hostname.includes('127.0.0.1') ||
+                      hostname.includes('netlify.app');
+  
+  console.log("Is preview environment in newsArchive:", isPreviewEnv, "hostname:", hostname);
+  return isPreviewEnv;
+};
+
 // Function to initialize news items from the database
 export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
@@ -58,16 +83,17 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
     // Set a timeout to avoid long waiting time
     const timeoutPromise = new Promise<NewsItem[]>((resolve) => {
       setTimeout(() => {
-        console.log("Database fetch timeout after 800ms");
+        console.log("Database fetch timeout after 1500ms");
         
         // Return what we have so far - this could be cached items or defaultNewsItems
         resolve([...newsItems]);
-      }, 800); // 800ms timeout for faster response
+      }, 1500); // 1.5s timeout for more lenient response time
     });
     
     // Database fetch promise
     const fetchPromise = (async (): Promise<NewsItem[]> => {
       try {
+        console.log("Starting database fetch with isPreview:", isPreviewEnvironment());
         const { data, error } = await supabase
           .from('news_items')
           .select('*')

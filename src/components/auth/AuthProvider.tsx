@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -47,12 +46,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const hostname = window.location.hostname;
     console.log("AuthProvider: Current hostname for preview check:", hostname);
     
-    return hostname === 'lovableproject.com' || 
-           hostname.includes('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           // Handle Netlify preview URLs
-           hostname.includes('netlify.app');
+    // Check for specific production domain - adjust this to match your actual production domain
+    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                         hostname === 'wab.warcrow.com';
+    
+    if (isProduction) {
+      console.log("Production environment detected in AuthProvider");
+      return false;
+    }
+    
+    // Otherwise, check if it's a preview/development environment
+    const isPreviewEnv = hostname === 'lovableproject.com' || 
+                         hostname.includes('.lovableproject.com') ||
+                         hostname.includes('localhost') ||
+                         hostname.includes('127.0.0.1') ||
+                         hostname.includes('netlify.app');
+    
+    console.log("Is preview environment in AuthProvider:", isPreviewEnv);
+    return isPreviewEnv;
   };
 
   // Function to resend confirmation email
@@ -96,12 +107,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setIsWabAdmin(true);
             setUserId("preview-user-id");
             setIsGuest(false);
+            setIsLoading(false);
           }
-          setIsLoading(false);
           return;
         }
 
-        // Set up auth state listener first
+        // Set up auth state listener for production environments
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log("Auth state changed in AuthProvider:", event);
@@ -110,6 +121,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (mounted) {
               setIsAuthenticated(authState);
               setUserId(session?.user?.id || null);
+              setIsGuest(!session);
               
               if (session?.user?.id) {
                 // Get user role information
@@ -128,9 +140,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     setIsWabAdmin(isAdminUser);
                   } else {
                     console.error("Error or no data in onAuthStateChange:", error);
+                    if (mounted) {
+                      setIsAdmin(false);
+                      setIsTester(false);
+                      setIsWabAdmin(false);
+                    }
                   }
                 } catch (err) {
                   console.error("Error checking user roles in auth state change:", err);
+                  if (mounted) {
+                    setIsAdmin(false);
+                    setIsTester(false);
+                    setIsWabAdmin(false);
+                  }
                 }
               } else {
                 if (mounted) {
@@ -150,6 +172,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (mounted) {
           setIsAuthenticated(!!session);
           setUserId(session?.user?.id || null);
+          setIsGuest(!session);
           
           if (session?.user?.id) {
             // Get user role information
@@ -168,14 +191,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 setIsWabAdmin(isAdminUser);
               } else {
                 console.error("Error or no data in initial session check:", error);
+                if (mounted) {
+                  setIsAdmin(false);
+                  setIsTester(false);
+                  setIsWabAdmin(false);
+                }
               }
             } catch (err) {
               console.error("Error checking user roles in AuthProvider:", err);
+              if (mounted) {
+                setIsAdmin(false);
+                setIsTester(false);
+                setIsWabAdmin(false);
+              }
+            }
+          } else {
+            // Not authenticated
+            if (mounted) {
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
             }
           }
+          
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
         
         return () => {
           subscription.unsubscribe();
@@ -188,6 +228,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsAdmin(false);
           setIsTester(false);
           setIsWabAdmin(false);
+          setIsGuest(true);
         }
       }
     };

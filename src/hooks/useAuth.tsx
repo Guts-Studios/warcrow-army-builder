@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,18 +13,48 @@ export function useAuth() {
   // Enhanced preview detection with more robust hostname checking
   const isPreview = () => {
     const hostname = window.location.hostname;
-    console.log("Current hostname for preview check:", hostname);
+    console.log("Auth hook: Current hostname for preview check:", hostname);
     
-    return hostname === 'lovableproject.com' || 
-           hostname.includes('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           // Handle Netlify preview URLs
-           hostname.includes('netlify.app');
+    // Check for specific production domain - adjust this to match your actual production domain
+    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
+                         hostname === 'wab.warcrow.com';
+    
+    if (isProduction) {
+      console.log("Production environment detected");
+      return false;
+    }
+    
+    // Otherwise, check if it's a preview/development environment
+    const isPreviewEnv = hostname === 'lovableproject.com' || 
+                         hostname.includes('.lovableproject.com') ||
+                         hostname.includes('localhost') ||
+                         hostname.includes('127.0.0.1') ||
+                         hostname.includes('netlify.app');
+    
+    console.log("Is preview environment:", isPreviewEnv);
+    return isPreviewEnv;
+  };
+
+  // Resend confirmation email method
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      
+      if (error) throw error;
+      
+      console.log('Confirmation email resent');
+    } catch (err) {
+      console.error('Error resending confirmation email:', err);
+      throw err;
+    }
   };
 
   useEffect(() => {
     let mounted = true;
+
     const checkAuthStatus = async () => {
       try {
         setIsLoading(true);
@@ -43,12 +72,12 @@ export function useAuth() {
             setIsWabAdmin(true);
             setUserId("preview-user-id");
             setIsGuest(false);
+            setIsLoading(false);
           }
-          setIsLoading(false);
           return;
         }
         
-        // Set up the auth state listener first
+        // Set up the auth state listener for production environments
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log("Auth state changed:", event);
@@ -56,6 +85,7 @@ export function useAuth() {
             if (mounted) {
               setIsAuthenticated(!!session);
               setUserId(session?.user?.id || null);
+              setIsGuest(!session);
               
               // If authenticated, check for admin/tester status
               if (session?.user?.id) {
@@ -72,7 +102,6 @@ export function useAuth() {
                     setIsAdmin(isAdminUser);
                     setIsTester(!!data.tester);
                     setIsWabAdmin(isAdminUser);
-                    setIsGuest(false);
                   } else {
                     console.error("Error or no data when checking user roles:", error);
                     if (mounted) {
@@ -97,7 +126,6 @@ export function useAuth() {
                   setIsAdmin(false);
                   setIsTester(false);
                   setIsWabAdmin(false);
-                  setIsGuest(true);
                 }
               }
             }
@@ -111,6 +139,7 @@ export function useAuth() {
         if (mounted) {
           setIsAuthenticated(!!session);
           setUserId(session?.user?.id || null);
+          setIsGuest(!session);
           
           // If authenticated, check for admin/tester status
           if (session?.user?.id) {
@@ -127,14 +156,12 @@ export function useAuth() {
                 setIsAdmin(isAdminUser);
                 setIsTester(!!data.tester);
                 setIsWabAdmin(isAdminUser);
-                setIsGuest(false);
               } else {
                 console.error("Error or no data when checking initial user roles:", error);
                 // Explicit fallbacks
                 setIsAdmin(false);
                 setIsTester(false);
                 setIsWabAdmin(false);
-                setIsGuest(!session);
               }
             } catch (err) {
               console.error("Error checking user roles:", err);
@@ -142,18 +169,16 @@ export function useAuth() {
               setIsAdmin(false);
               setIsTester(false);
               setIsWabAdmin(false);
-              setIsGuest(!session);
             }
           } else {
             // Not authenticated, set guest mode
             setIsAdmin(false);
             setIsTester(false);
             setIsWabAdmin(false);
-            setIsGuest(true);
           }
+          
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
         
         return () => {
           subscription.unsubscribe();
@@ -177,23 +202,6 @@ export function useAuth() {
       mounted = false;
     };
   }, []);
-
-  // Resend confirmation email method
-  const resendConfirmationEmail = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email
-      });
-      
-      if (error) throw error;
-      
-      console.log('Confirmation email resent');
-    } catch (err) {
-      console.error('Error resending confirmation email:', err);
-      throw err;
-    }
-  };
 
   return {
     isAuthenticated,
