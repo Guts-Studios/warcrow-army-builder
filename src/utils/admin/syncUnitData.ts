@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -165,12 +166,12 @@ const writeToStaticFilesRepo = async (fileName: string, content: string): Promis
     // These values would typically come from environment variables
     const repoOwner = 'your-organization';
     const repoName = 'your-repository';
-    const branch = 'main';
+    const branch = 'DEV'; // Changed from 'main' to 'DEV'
     const path = `static/data/${fileName}`;
     const token = 'YOUR_GITHUB_TOKEN'; // In production, this would be securely stored
     const commitMessage = `Update ${fileName} from Admin Panel`;
     
-    console.log(`Writing file ${fileName} to GitHub repository...`);
+    console.log(`Writing file ${fileName} to GitHub repository on branch ${branch}...`);
     
     // First, get the current file SHA (if it exists)
     let fileSha: string | undefined;
@@ -212,7 +213,7 @@ const writeToStaticFilesRepo = async (fileName: string, content: string): Promis
     };
     
     // For demonstration only - in production this would actually call the GitHub API
-    console.log(`Would send update to GitHub API for ${fileName}`);
+    console.log(`Would send update to GitHub API for ${fileName} on branch ${branch}`);
     
     // Simulate API call success
     await new Promise(resolve => setTimeout(resolve, 500));
