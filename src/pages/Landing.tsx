@@ -39,10 +39,10 @@ const fetchUserCount = async () => {
     const cachedCount = localStorage.getItem('cached_user_count');
     const cachedTimestamp = localStorage.getItem('cached_user_count_timestamp');
     
-    // Use cached count if it's less than 1 hour old
+    // Use cached count if it's less than 30 minutes old (reduced from 1 hour)
     if (cachedCount && cachedTimestamp) {
       const timeDiff = Date.now() - parseInt(cachedTimestamp);
-      if (timeDiff < 60 * 60 * 1000) { // 1 hour
+      if (timeDiff < 30 * 60 * 1000) { // 30 minutes
         console.log('Using cached user count:', cachedCount);
         return parseInt(cachedCount);
       }
@@ -80,7 +80,9 @@ const fetchUserCount = async () => {
       try {
         const { count, error } = await supabase
           .from('profiles')
-          .select('*', { count: 'exact', head: true });
+          .select('*', { count: 'exact', head: true })
+          .eq('banned', false)
+          .eq('deactivated', false);
         
         if (error) {
           console.error('Error fetching user count:', error);
@@ -88,7 +90,7 @@ const fetchUserCount = async () => {
           return;
         }
         
-        // Cache the count for 1 hour
+        // Cache the count for 30 minutes
         if (count !== null) {
           localStorage.setItem('cached_user_count', count.toString());
           localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
@@ -206,11 +208,15 @@ const Landing = () => {
     console.log('Landing.tsx: Is preview environment:', isPreview());
   }, []);
 
-  const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
+  const { 
+    data: userCount, 
+    isLoading: isLoadingUserCount,
+    refetch: refetchUserCount 
+  } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     refetchOnWindowFocus: false,
-    staleTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 30 * 60 * 1000, // 30 minutes (reduced from 1 hour)
     retry: 3,
     enabled: true, // Always enable this query
     meta: {
@@ -287,6 +293,14 @@ const Landing = () => {
     checkAuthStatus();
   }, []);
 
+  const handleRefreshUserCount = () => {
+    // Clear localStorage cache
+    localStorage.removeItem('cached_user_count');
+    localStorage.removeItem('cached_user_count_timestamp');
+    // Force refetch from database
+    refetchUserCount();
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/login');
@@ -326,6 +340,7 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
+          onRefreshUserCount={handleRefreshUserCount}
         />
         <MainActions />
         <SecondaryActions isGuest={isGuest} onSignOut={handleSignOut} />

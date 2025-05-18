@@ -1,10 +1,9 @@
-
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,9 +24,16 @@ interface HeaderProps {
   userCount: number | null;
   isLoadingUserCount: boolean;
   latestFailedBuild?: any;
+  onRefreshUserCount?: () => void;
 }
 
-export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFailedBuild }: HeaderProps) => {
+export const Header = ({ 
+  latestVersion, 
+  userCount, 
+  isLoadingUserCount, 
+  latestFailedBuild,
+  onRefreshUserCount 
+}: HeaderProps) => {
   const { t } = useLanguage();
   const { isWabAdmin } = useAuth();
   const todaysDate = format(new Date(), 'MM/dd/yy');
@@ -163,7 +169,17 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
       setIsLoading(false);
     }
   };
-  
+
+  const handleRefreshUserCount = () => {
+    if (onRefreshUserCount) {
+      // Clear the cached user count to force a fresh fetch
+      localStorage.removeItem('cached_user_count');
+      localStorage.removeItem('cached_user_count_timestamp');
+      onRefreshUserCount();
+      toast.success("Refreshing user count...");
+    }
+  };
+
   // Function to format news content with highlighted date
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return 'Latest news will appear here...';
@@ -232,13 +248,27 @@ export const Header = ({ latestVersion, userCount, isLoadingUserCount, latestFai
       <p className="text-lg md:text-xl text-warcrow-text">
         {t('appDescription')}
       </p>
-      <p className="text-md md:text-lg text-warcrow-gold/80">
-        {isLoadingUserCount ? (
-          t('loadingUserCount')
-        ) : (
-          userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
+      <div className="flex items-center justify-center gap-2">
+        <p className="text-md md:text-lg text-warcrow-gold/80">
+          {isLoadingUserCount ? (
+            t('loadingUserCount')
+          ) : (
+            userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
+          )}
+        </p>
+        {isWabAdmin && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 rounded-full text-warcrow-gold/60 hover:text-warcrow-gold hover:bg-transparent"
+            onClick={handleRefreshUserCount}
+            disabled={isLoadingUserCount}
+            title="Refresh user count"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoadingUserCount ? 'animate-spin' : ''}`} />
+          </Button>
         )}
-      </p>
+      </div>
       
       {/* Admin-only Build Failure Alert */}
       {shouldShowBuildFailure && (
