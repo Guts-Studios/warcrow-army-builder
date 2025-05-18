@@ -196,12 +196,30 @@ export const getBuildFailureNotifications = async () => {
       return { notifications: [], error };
     }
     
-    // Filter to only show notifications from the last 24 hours
-    const recentNotifications = data ? data.filter(notification => {
-      return new Date().getTime() - new Date(notification.created_at).getTime() < 24 * 60 * 60 * 1000;
+    // Filter out notifications for specific site IDs we want to ignore
+    const ignoreSiteIds = ['bejewelled-jelly-3f6b58'];
+    
+    const filteredNotifications = data ? data.filter(notification => {
+      try {
+        // Parse the content if it's a string
+        const content = typeof notification.content === 'string' 
+          ? JSON.parse(notification.content) 
+          : notification.content;
+        
+        // If this notification is for a site we should ignore, filter it out
+        if (content && ignoreSiteIds.includes(content.site_name)) {
+          return false;
+        }
+        
+        // Only include notifications from the last 24 hours
+        return new Date().getTime() - new Date(notification.created_at).getTime() < 24 * 60 * 60 * 1000;
+      } catch (err) {
+        console.error("Error parsing notification content:", err);
+        return false;
+      }
     }) : [];
     
-    return { notifications: recentNotifications || [], error: null };
+    return { notifications: filteredNotifications || [], error: null };
   } catch (err) {
     console.error("Error fetching build failure notifications:", err);
     return { notifications: [], error: err };

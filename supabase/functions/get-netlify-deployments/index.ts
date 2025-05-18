@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -18,10 +19,19 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Track the latest successful build
 let latestSuccessfulBuildTime: Date | null = null;
 
+// List of site IDs to ignore
+const ignoreSiteIds = ['bejewelled-jelly-3f6b58'];
+
 // Create a notification for admin users when a build fails
 async function createBuildFailureNotification(deploy: any) {
   try {
     console.log("Creating build failure notification for:", deploy.id);
+    
+    // Ignore notifications from sites in our ignore list
+    if (ignoreSiteIds.includes(deploy.site_name)) {
+      console.log(`Skipping notification for ignored site: ${deploy.site_name}`);
+      return;
+    }
     
     // Check if this notification already exists to avoid duplicates
     const { data: existingNotifications, error: checkError } = await supabase
@@ -161,21 +171,22 @@ serve(async (req) => {
     // Find the latest failed build - only looking at the most recent one
     const latestBuild = deploymentsData[0]; // First one should be the latest build due to sorting
     
-    // Only send a notification if the latest build is a failure
-    // We're not keeping track of all failed builds, just the latest one
-    const isLatestBuildFailed = latestBuild && latestBuild.state === 'error';
+    // Filter out builds from sites we want to ignore
+    const shouldNotify = latestBuild && 
+                        latestBuild.state === 'error' && 
+                        !ignoreSiteIds.includes(latestBuild.name || latestBuild.site_name);
     
-    // If the latest build is a failure, create/update the notification
-    if (isLatestBuildFailed) {
+    // Only send a notification if the latest build is a failure and not from an ignored site
+    if (shouldNotify) {
       // Only create a notification for the most recent failure
       await createBuildFailureNotification(latestBuild);
     } else {
-      console.log("Latest build is successful, no need to create failure notifications");
+      console.log("Latest build is successful or from ignored site, no need to create failure notifications");
     }
 
     return new Response(JSON.stringify({ 
       deployments,
-      isLatestBuildFailed
+      isLatestBuildFailed: shouldNotify
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
