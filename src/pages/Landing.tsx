@@ -48,34 +48,10 @@ const fetchUserCount = async () => {
       }
     }
     
-    // Check if we're in a preview environment
-    const isPreview = () => {
-      const hostname = window.location.hostname;
-      
-      // Enhanced preview detection with more hostnames
-      const isPreviewEnv = hostname === 'lovableproject.com' || 
-                         hostname.includes('.lovableproject.com') ||
-                         hostname.includes('localhost') ||
-                         hostname.includes('127.0.0.1') ||
-                         hostname.includes('netlify.app') ||
-                         hostname.includes('id-preview') ||
-                         hostname.includes('lovable.app');
-      
-      console.log("Is preview environment in fetchUserCount:", isPreviewEnv, "hostname:", hostname);
-      return isPreviewEnv;
-    };
+    // Always fetch from database, even in preview environments
+    // Remove the isPreview check that was returning a mock count
     
-    // Return a mock count for preview environments
-    if (isPreview()) {
-      console.log('Preview environment detected in fetchUserCount, using mock count');
-      const mockCount = 42;
-      // Cache the mock count
-      localStorage.setItem('cached_user_count', mockCount.toString());
-      localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
-      return mockCount;
-    }
-    
-    // Otherwise fetch from database with a timeout for production environments
+    // Fetch from database with a timeout
     const fetchPromise = new Promise<number>(async (resolve, reject) => {
       try {
         const { count, error } = await supabase
@@ -116,7 +92,7 @@ const fetchUserCount = async () => {
           resolve(parseInt(cachedCount));
         } else {
           // Use a default mock count as last resort
-          const defaultMockCount = 25;
+          const defaultMockCount = 470; // Changed from 25 to 470
           console.log('Using default mock count:', defaultMockCount);
           resolve(defaultMockCount);
         }
@@ -137,7 +113,7 @@ const fetchUserCount = async () => {
     
     console.error('Error fetching user count with no cached fallback:', error);
     // Return a default value to prevent UI issues
-    return 25;
+    return 470; // Changed from 25 to 470
   }
 };
 
