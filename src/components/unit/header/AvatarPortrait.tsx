@@ -15,6 +15,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   fallback
 }) => {
   const [imageError, setImageError] = useState(false);
+  const [fallbackAttempted, setFallbackAttempted] = useState(false);
   const { language } = useLanguage();
   
   // Special handling for Lady Télia
@@ -58,6 +59,22 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       return '/art/portrait/lady_telia_portrait.jpg';
     }
     
+    // Check if URL is a UUID-based URL
+    if (portraitUrl && (portraitUrl.length > 60 || portraitUrl.includes('uuid'))) {
+      // Try to use the name instead
+      const cleanName = name
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^\w-]/g, '')
+        .replace(/é|è|ê|ë/g, 'e')
+        .replace(/á|à|â|ä/g, 'a')
+        .replace(/í|ì|î|ï/g, 'i')
+        .replace(/ó|ò|ô|ö/g, 'o')
+        .replace(/ú|ù|û|ü/g, 'u');
+      
+      return `/art/portrait/${cleanName}_portrait.jpg`;
+    }
+    
     // If URL provided but not in portrait format, convert card URL to portrait URL
     if (portraitUrl.includes('/art/card/')) {
       // Replace the directory path
@@ -97,6 +114,22 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         className="object-cover"
         onError={(e) => {
           console.error(`Portrait image failed to load for ${name}:`, portraitImageUrl);
+          
+          // If first attempt failed but we haven't tried a fallback yet, try a different naming pattern
+          if (!fallbackAttempted && portraitImageUrl) {
+            setFallbackAttempted(true);
+            
+            // Try a simpler filename structure
+            const simpleNameId = name.split(' ')[0].toLowerCase();
+            const fallbackUrl = `/art/portrait/${simpleNameId}_portrait.jpg`;
+            
+            if (fallbackUrl !== portraitImageUrl) {
+              console.log(`Trying alternative portrait URL: ${fallbackUrl}`);
+              (e.target as HTMLImageElement).src = fallbackUrl;
+              return; // Don't set error state yet
+            }
+          }
+          
           setImageError(true);
         }}
       />

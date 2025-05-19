@@ -40,6 +40,25 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     actualCardUrl = "/art/card/lady_telia_card.jpg";
   }
   
+  // Handle cases where UUID is in the URL instead of a meaningful name
+  if (cardUrl && cardUrl.includes('/art/card/') && cardUrl.includes('-') && 
+      (cardUrl.length > 60 || cardUrl.includes('uuid'))) {
+    // Attempt to generate a name-based path from the unitName
+    const cleanName = unitName
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^\w-]/g, '')
+      .replace(/é|è|ê|ë/g, 'e')
+      .replace(/á|à|â|ä/g, 'a')
+      .replace(/í|ì|î|ï/g, 'i')
+      .replace(/ó|ò|ô|ö/g, 'o')
+      .replace(/ú|ù|û|ü/g, 'u');
+      
+    // Try a standard naming pattern
+    actualCardUrl = `/art/card/${cleanName}_card.jpg`;
+    console.log(`Converting UUID-based URL to name-based URL: ${actualCardUrl}`);
+  }
+  
   const getCardText = () => {
     if (language === 'en') return 'Unit Card';
     if (language === 'es') return 'Tarjeta de Unidad';
@@ -91,6 +110,24 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
               }}
               onError={(e) => {
                 console.error(`Image load error: ${actualCardUrl}`);
+                
+                // If language-specific version failed, try English version
+                if (language !== 'en' && (actualCardUrl.includes('_sp.jpg') || actualCardUrl.includes('_fr.jpg'))) {
+                  const englishUrl = actualCardUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
+                  console.log(`Attempting English fallback: ${englishUrl}`);
+                  (e.target as HTMLImageElement).src = englishUrl;
+                  return; // Don't set error state yet, give the fallback a chance
+                }
+                
+                // If card has alternative extension, try that
+                if (actualCardUrl.endsWith('.jpg')) {
+                  const pngUrl = actualCardUrl.replace('.jpg', '.png');
+                  console.log(`Attempting PNG fallback: ${pngUrl}`);
+                  (e.target as HTMLImageElement).src = pngUrl;
+                  return; // Don't set error state yet, give the fallback a chance
+                }
+                
+                // If all fallbacks failed
                 setImageError(true);
                 setIsLoading(false);
                 
