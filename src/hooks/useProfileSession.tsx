@@ -19,6 +19,8 @@ export const useProfileSession = (): ProfileSession => {
   const { isPreview, isProduction, hostname } = useEnvironment();
   
   // Determine if we should use preview data based on environment
+  // Modified to be more strict: only use preview data for specific preview environments
+  // and never for production environments
   const usePreviewData = isPreview && !isProduction;
 
   useEffect(() => {

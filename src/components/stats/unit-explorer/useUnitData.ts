@@ -71,13 +71,33 @@ export function useUnitData(selectedFaction: string) {
   });
 }
 
-// Updated useFactions hook with better error handling, caching and language support
+// Updated useFactions hook with better environment detection
 export function useFactions(language: string = 'en') {
   return useQuery({
     queryKey: ['factions', language],
     queryFn: async () => {
       console.log("[useFactions] Fetching factions from Supabase with language:", language);
       try {
+        // Check environment to determine if we should use real data
+        const hostname = window.location.hostname;
+        const isPreview = hostname === 'localhost' || 
+                         hostname === '127.0.0.1' || 
+                         hostname.includes('lovableproject.com') || 
+                         hostname.endsWith('.lovableproject.com') ||
+                         hostname.includes('netlify.app') || 
+                         hostname.includes('lovable.app') ||
+                         hostname.includes('id-preview');
+        const isProduction = hostname === 'warcrowarmy.com' || 
+                            hostname.endsWith('.warcrowarmy.com');
+                            
+        // Only use mock/fallback data in specific preview environments and not in production
+        const useRealData = !isPreview || isProduction;
+        
+        if (!useRealData) {
+          console.log('[useFactions] Preview environment detected, using fallback factions');
+          return fallbackFactions;
+        }
+        
         // First check localStorage for immediate display
         const cachedFactions = localStorage.getItem('cached_factions');
         let localFactions: Faction[] = [];

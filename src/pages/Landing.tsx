@@ -36,17 +36,17 @@ const fetchUserCount = async () => {
   try {
     console.log("Fetching user count...");
     
-    // Check if in preview mode first
     const hostname = window.location.hostname;
-    const isPreview = hostname === 'lovableproject.com' || 
-                      hostname.includes('.lovableproject.com') ||
-                      hostname.includes('localhost') ||
-                      hostname.includes('127.0.0.1') ||
-                      hostname.includes('netlify.app') ||
-                      hostname.includes('id-preview') ||
-                      hostname.includes('lovable.app');
+    const isPreview = hostname === 'localhost' || 
+                      hostname === '127.0.0.1' || 
+                      hostname.includes('lovableproject.com') || 
+                      hostname.endsWith('.lovableproject.com') ||
+                      hostname.includes('netlify.app') || 
+                      hostname.includes('lovable.app') ||
+                      hostname.includes('id-preview');
     
-    if (isPreview) {
+    // Only use mock data in specific preview environments
+    if (isPreview && !hostname.includes('warcrowarmy.com')) {
       console.log('Preview environment detected, returning mock user count');
       return 572; // Return a consistent mock count for preview
     }
@@ -127,27 +127,23 @@ const Landing = () => {
   const { isWabAdmin, isAuthenticated } = useAuth();
 
   // Enhanced preview detection with more robust hostname checking
-  const isPreview = () => {
+  const isPreviewMode = () => {
     const hostname = window.location.hostname;
     
-    // More comprehensive list of preview hostnames
-    const isPreviewEnv = hostname === 'lovableproject.com' || 
-                       hostname.includes('.lovableproject.com') ||
-                       hostname.includes('localhost') ||
-                       hostname.includes('127.0.0.1') ||
-                       hostname.includes('netlify.app') ||
-                       hostname.includes('id-preview') ||
-                       hostname.includes('lovable.app');
-    
-    console.log('Landing.tsx: Current hostname:', hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreviewEnv);
-    return isPreviewEnv;
+    // Comprehensive list of preview hostnames that should use mock data
+    return hostname === 'localhost' || 
+           hostname === '127.0.0.1' || 
+           hostname.includes('lovableproject.com') || 
+           hostname.endsWith('.lovableproject.com') ||
+           hostname.includes('netlify.app') || 
+           hostname.includes('lovable.app') ||
+           hostname.includes('id-preview');
   };
 
   // Detect if we're in preview mode for debugging
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreview());
+    console.log('Landing.tsx: Is preview environment:', isPreviewMode());
   }, []);
 
   const { 
@@ -195,7 +191,7 @@ const Landing = () => {
   // Only fetch build status if user is admin
   useEffect(() => {
     const fetchBuildStatus = async () => {
-      if (isWabAdmin || isPreview()) {
+      if (isWabAdmin || isPreviewMode()) {
         try {
           // Get build failure notifications for the notification system
           const { notifications, error } = await getBuildFailureNotifications();
@@ -219,7 +215,7 @@ const Landing = () => {
     fetchBuildStatus();
     
     // Set up a refresh interval only if user is admin
-    const intervalId = (isWabAdmin || isPreview()) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
+    const intervalId = (isWabAdmin || isPreviewMode()) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
     
     return () => {
       if (intervalId) clearInterval(intervalId);
@@ -252,7 +248,7 @@ const Landing = () => {
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
-      {(!!isWabAdmin || isPreview()) && latestFailedBuild && (
+      {(!!isWabAdmin || isPreviewMode()) && latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
             <AlertTriangle className="h-5 w-5 text-red-300" />
