@@ -1,14 +1,14 @@
 
 import { Unit } from "@/types/army";
-import UnitHeader from "./unit/UnitHeader";
-import UnitControls from "./unit/UnitControls";
+import UnitHeader from "@/components/unit/UnitHeader";
+import UnitControls from "@/components/unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
-import UnitCardKeywords from "./unit/card/UnitCardKeywords";
+import UnitCardKeywords from "@/components/unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
+import UnitCardDialog from "@/components/stats/unit-explorer/UnitCardDialog";
 
 interface UnitCardProps {
   unit: Unit;
