@@ -8,12 +8,18 @@ interface ProfileSession {
   userId: string | null;
   isPreview: boolean;
   isProduction: boolean;
+  sessionChecked: boolean;
+  usePreviewData: boolean;
 }
 
 export const useProfileSession = (): ProfileSession => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [sessionChecked, setSessionChecked] = useState<boolean>(false);
   const { isPreview, isProduction, hostname } = useEnvironment();
+  
+  // Determine if we should use preview data based on environment
+  const usePreviewData = isPreview && !isProduction;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,7 +28,8 @@ export const useProfileSession = (): ProfileSession => {
         
         console.log("[useProfileSession] Auth check:", {
           hasSession: !!session,
-          environment: { isPreview, isProduction, hostname }
+          environment: { isPreview, isProduction, hostname },
+          usePreviewData
         });
         
         if (session && session.user) {
@@ -32,10 +39,12 @@ export const useProfileSession = (): ProfileSession => {
           setIsAuthenticated(false);
           setUserId(null);
         }
+        setSessionChecked(true);
       } catch (error) {
         console.error('[useProfileSession] Error checking authentication:', error);
         setIsAuthenticated(false);
         setUserId(null);
+        setSessionChecked(true);
       }
     };
 
@@ -45,7 +54,8 @@ export const useProfileSession = (): ProfileSession => {
       (event, session) => {
         console.log("[useProfileSession] Auth state changed:", event, {
           hasUser: !!session?.user,
-          environment: { isPreview, isProduction, hostname }
+          environment: { isPreview, isProduction, hostname },
+          usePreviewData
         });
         
         if (event === 'SIGNED_IN' && session) {
@@ -55,6 +65,7 @@ export const useProfileSession = (): ProfileSession => {
           setIsAuthenticated(false);
           setUserId(null);
         }
+        setSessionChecked(true);
       }
     );
 
@@ -63,9 +74,16 @@ export const useProfileSession = (): ProfileSession => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [isPreview, isProduction, hostname]);
+  }, [isPreview, isProduction, hostname, usePreviewData]);
 
-  return { isAuthenticated, userId, isPreview, isProduction };
+  return { 
+    isAuthenticated, 
+    userId, 
+    isPreview, 
+    isProduction,
+    sessionChecked,
+    usePreviewData
+  };
 };
 
 export default useProfileSession;
