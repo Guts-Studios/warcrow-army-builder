@@ -59,6 +59,18 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
       console.warn(`[ArmyList] No units found for faction: ${selectedFaction}`);
     } else {
       console.log(`[ArmyList] Loaded ${factionUnits.length} units for faction: ${selectedFaction}`);
+      
+      // Debug: Check if any units have mismatched faction
+      const mismatchedUnits = factionUnits.filter(unit => 
+        unit.faction !== selectedFaction && selectedFaction !== 'all'
+      );
+      
+      if (mismatchedUnits.length > 0) {
+        console.warn(
+          `[ArmyList] Found ${mismatchedUnits.length} units with mismatched faction:`,
+          mismatchedUnits.map(u => `${u.name} (${u.faction} vs expected ${selectedFaction})`)
+        );
+      }
     }
   }, [factionUnits, unitsLoading, unitsError, selectedFaction]);
 

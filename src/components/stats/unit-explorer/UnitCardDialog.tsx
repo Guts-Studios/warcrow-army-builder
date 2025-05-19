@@ -93,6 +93,10 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 console.error(`Image load error: ${actualCardUrl}`);
                 setImageError(true);
                 setIsLoading(false);
+                
+                // Add additional debugging for troubleshooting
+                const img = e.currentTarget;
+                console.log(`Failed to load image: ${img.src}, size: ${img.naturalWidth}x${img.naturalHeight}`);
               }}
             />
           )}

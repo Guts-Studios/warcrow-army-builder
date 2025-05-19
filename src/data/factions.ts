@@ -1,4 +1,3 @@
-
 import { Faction } from "../types/army";
 import { northernTribesUnits } from "./factions/northern-tribes";
 import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";
@@ -43,24 +42,27 @@ const normalizeUnits = () => {
   const uniqueUnits = [];
   const seen = new Set();
   
-  // Debug which units are being processed
-  console.log(`Processing ${allUnits.length} units for normalization`);
-  console.log(`Northern Tribes: ${northernTribesUnits.length}, Hegemony: ${hegemonyOfEmbersigUnits.length}, Scions: ${scionsOfYaldabaothUnits.length}, Syenann: ${syenannUnits.length}`);
+  // Debug info about units before normalization
+  console.log(`Normalizing ${allUnits.length} total units:`);
+  console.log(`- Northern Tribes: ${northernTribesUnits.length}`);
+  console.log(`- Hegemony: ${hegemonyOfEmbersigUnits.length}`);
+  console.log(`- Scions: ${scionsOfYaldabaothUnits.length}`);
+  console.log(`- Syenann: ${syenannUnits.length}`);
   
-  // Check for problematic units (like Battle-Scarred) specifically
-  const problematicUnits = ['Battle-Scarred', 'Battle Scarred', 'BattleScarred'].map(
-    name => allUnits.find(unit => unit.name === name)
-  ).filter(Boolean);
-  
-  if (problematicUnits.length > 0) {
-    console.log("Found problematic units:", problematicUnits);
-  }
+  // Keep track of faction distribution
+  const factionCounts = {
+    'northern-tribes': 0,
+    'hegemony-of-embersig': 0,
+    'scions-of-yaldabaoth': 0,
+    'syenann': 0,
+    'unknown': 0
+  };
   
   for (const unit of allUnits) {
     // Normalize faction name
     let normalizedFaction = unit.faction.toLowerCase();
     
-    // Check if faction name needs normalization
+    // Check if faction name needs normalization from the map
     if (factionNameMap[unit.faction]) {
       normalizedFaction = factionNameMap[unit.faction];
     }
@@ -76,30 +78,34 @@ const normalizeUnits = () => {
       faction: normalizedFaction
     };
     
-    // Create a unique key including both name and id to guarantee uniqueness
+    // Create a unique key including both ID to guarantee uniqueness
     const key = `${normalizedUnit.id}`;
     
     // Log any potential duplicates for debugging
     if (seen.has(key)) {
-      console.log(`Found duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
+      console.warn(`Found duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
     }
     
     // Only add if we haven't seen this key before
     if (!seen.has(key)) {
       seen.add(key);
       uniqueUnits.push(normalizedUnit);
+      
+      // Count by faction
+      if (factionCounts[normalizedFaction]) {
+        factionCounts[normalizedFaction]++;
+      } else {
+        factionCounts['unknown']++;
+        console.warn(`Unit ${normalizedUnit.name} has unknown faction: ${normalizedFaction}`);
+      }
     }
   }
   
-  console.log(`Normalized units: ${uniqueUnits.length} out of original ${allUnits.length}`);
-  
-  // Verify if problematic units made it to the final list
-  for (const name of ['Battle-Scarred', 'Battle Scarred', 'BattleScarred']) {
-    const finalUnit = uniqueUnits.find(unit => unit.name === name);
-    if (finalUnit) {
-      console.log(`${name} unit is in the final normalized list`);
-    }
-  }
+  // Log faction distribution after normalization
+  console.log('Final faction distribution:');
+  Object.entries(factionCounts).forEach(([faction, count]) => {
+    console.log(`- ${faction}: ${count} units`);
+  });
   
   return uniqueUnits;
 };
