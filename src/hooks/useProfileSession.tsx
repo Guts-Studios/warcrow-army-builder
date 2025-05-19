@@ -18,10 +18,8 @@ export const useProfileSession = (): ProfileSession => {
   const [sessionChecked, setSessionChecked] = useState<boolean>(false);
   const { isPreview, isProduction, hostname } = useEnvironment();
   
-  // Determine if we should use preview data based on environment
-  // Modified to be more strict: only use preview data for specific preview environments
-  // and never for production environments
-  const usePreviewData = isPreview && !isProduction;
+  // Important: Set usePreviewData to false for both preview and production
+  const usePreviewData = false;
 
   useEffect(() => {
     const checkAuth = async () => {

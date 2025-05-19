@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
@@ -94,17 +93,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     // Base URL pointing to the card directory
     const baseUrl = `/art/card/${baseNameForUrl}_card`;
     
-    // Add language suffix for display purposes, but always fall back to English if localized version doesn't exist
-    let suffix = '';
-    if (language === 'es') {
-      suffix = '_sp';
-    } else if (language === 'fr') {
-      suffix = '_fr';
-    }
-    
-    // Generate full URL - note that we'll attempt to load the localized version first
-    // but the onError handler will try the English version if needed
-    const fullUrl = `${baseUrl}${suffix}.jpg`;
+    // Generate full URL with English version, as we'll handle language-specific versions in the onError handler
+    const fullUrl = `${baseUrl}.jpg`;
     console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
     return fullUrl;
   };
@@ -120,32 +110,27 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         const img = new Image();
         img.src = url;
         
-        // If localized version fails, try loading the English version as fallback
+        // If English version fails, try with unit ID as fallback
         img.onerror = () => {
-          // If error and we have a language suffix, try the English version
-          if (language !== 'en') {
-            const englishUrl = url.replace(/_sp\.jpg$|_fr\.jpg$/, '.jpg');
-            console.log(`Localized image failed, trying English version: ${englishUrl}`);
-            
-            // Set the fallback URL
-            setCardUrl(englishUrl);
-            
-            // Preload the English version too
-            const fallbackImg = new Image();
-            fallbackImg.src = englishUrl;
-            
-            // If English version fails too, try with unit ID as last resort
-            fallbackImg.onerror = () => {
-              const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
-              console.log(`English image failed, trying ID-based URL: ${idBasedUrl}`);
-              setCardUrl(idBasedUrl);
-            };
-          } else {
-            // For English, try with unit ID as fallback
-            const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
-            console.log(`Primary image failed, trying ID-based URL: ${idBasedUrl}`);
-            setCardUrl(idBasedUrl);
-          }
+          // If error, try using the ID as fallback
+          const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
+          console.log(`Primary image failed, trying ID-based URL: ${idBasedUrl}`);
+          setCardUrl(idBasedUrl);
+          
+          // Try loading the ID-based image
+          const fallbackImg = new Image();
+          fallbackImg.src = idBasedUrl;
+          
+          // If that fails too, use a final fallback URL that's based on cleaned name
+          fallbackImg.onerror = () => {
+            const cleanedName = unit.name
+              .toLowerCase()
+              .replace(/\s+/g, '_')
+              .replace(/[^\w-]/g, '');
+            const finalFallbackUrl = `/art/card/${cleanedName}_card.jpg`;
+            console.log(`ID-based image failed, trying cleaned name URL: ${finalFallbackUrl}`);
+            setCardUrl(finalFallbackUrl);
+          };
         };
         
         console.log(`Preloading image for ${unit.name}: ${url}`);

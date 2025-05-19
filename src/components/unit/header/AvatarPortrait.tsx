@@ -20,7 +20,6 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const [fallbackAttempted, setFallbackAttempted] = useState(false);
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
-  const { isPreview } = useProfileSession();
   
   // Display properly translated name when available
   const displayName = language === 'en' ? name : translateUnitName(name, language);
@@ -117,7 +116,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   // For debugging
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
   
-  console.log(`[AvatarPortrait] Using portrait for "${name}": ${portraitImageUrl} (isPreview: ${isPreview})`);
+  console.log(`[AvatarPortrait] Using portrait for "${name}": ${portraitImageUrl}`);
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">

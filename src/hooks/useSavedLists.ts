@@ -12,17 +12,6 @@ export const useSavedLists = (player?: Player) => {
   const [lastFetchedWabId, setLastFetchedWabId] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<number>(Date.now());
 
-  // Function to determine if we're in preview mode, including lovable.app domain
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    return hostname === 'lovableproject.com' || 
-           hostname.includes('.lovableproject.com') || 
-           hostname.includes('localhost') || 
-           hostname.includes('127.0.0.1') || 
-           hostname.includes('netlify.app') ||
-           hostname.includes('lovable.app');
-  };
-
   const fetchLists = async (wabId: string) => {
     if (!wabId) {
       console.log('No WAB ID provided, skipping fetch');
@@ -38,7 +27,7 @@ export const useSavedLists = (player?: Player) => {
     try {
       setLastFetchedWabId(wabId);
       setLastRefresh(Date.now());
-      console.log(`Fetching lists for WAB ID: ${wabId}, preview mode: ${isPreviewMode()}`);
+      console.log(`Fetching lists for WAB ID: ${wabId}`);
       
       // First try to get the user's own lists if they're logged in
       const { data: { session } } = await supabase.auth.getSession();

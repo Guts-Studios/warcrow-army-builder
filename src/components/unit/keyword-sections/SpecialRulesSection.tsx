@@ -1,13 +1,20 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import SpecialRuleTooltip from "./SpecialRuleTooltip";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SpecialRulesSectionProps {
   specialRules?: string[];
+}
+
+interface RuleTranslation {
+  name: string;
+  name_es?: string;
+  name_fr?: string;
 }
 
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
@@ -15,12 +22,77 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
   const { language } = useLanguage();
   const { translateSpecialRule } = useTranslateKeyword();
+  const [dbTranslations, setDbTranslations] = useState<Record<string, RuleTranslation>>({});
+
+  // Fetch all special rule translations from database
+  useEffect(() => {
+    const fetchSpecialRuleTranslations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('special_rules')
+          .select('name, name_es, name_fr');
+          
+        if (error) {
+          console.error('Error fetching special rule translations:', error);
+          return;
+        }
+        
+        if (data) {
+          // Convert array to record for easy lookup
+          const translationsRecord: Record<string, RuleTranslation> = {};
+          data.forEach(rule => {
+            translationsRecord[rule.name] = rule;
+          });
+          
+          setDbTranslations(translationsRecord);
+        }
+      } catch (err) {
+        console.error('Error in fetchSpecialRuleTranslations:', err);
+      }
+    };
+    
+    fetchSpecialRuleTranslations();
+  }, []);
 
   if (!specialRules || specialRules.length === 0) return null;
 
   // Get section title based on language
   const sectionTitle = language === 'en' ? 'Special Rules' : 
                       (language === 'es' ? 'Reglas especiales' : 'Règles spéciales');
+
+  // Function to get translated rule name, prioritizing database translations
+  const getTranslatedRuleName = (ruleName: string) => {
+    // Extract base rule name without parameters
+    const baseRuleName = ruleName.split('(')[0].trim();
+    
+    // Get potential parameters
+    const hasParams = ruleName.includes('(');
+    const params = hasParams ? ruleName.substring(ruleName.indexOf('(')) : '';
+    
+    // Look for translation in database first
+    if (dbTranslations[baseRuleName]) {
+      const translation = language === 'es' ? 
+        dbTranslations[baseRuleName].name_es : 
+        (language === 'fr' ? 
+          dbTranslations[baseRuleName].name_fr : 
+          baseRuleName);
+          
+      if (translation) {
+        return hasParams ? `${translation} ${params}` : translation;
+      }
+    }
+    
+    // Fall back to utility translation
+    if (language !== 'en') {
+      const utilityTranslation = translateSpecialRule(ruleName);
+      if (utilityTranslation !== ruleName) {
+        return utilityTranslation;
+      }
+    }
+    
+    // If no translation found, return original name
+    return ruleName;
+  };
 
   return (
     <div className="space-y-2">
@@ -30,7 +102,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
       <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => {
           // Get translated rule name
-          const displayName = language !== 'en' ? translateSpecialRule(rule) : rule;
+          const displayName = getTranslatedRuleName(rule);
           
           return isMobile ? (
             <button 
@@ -83,7 +155,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               ✕
             </button>
             <h3 className="text-lg font-semibold mb-4">
-              {language !== 'en' ? translateSpecialRule(openDialogRule) : openDialogRule}
+              {getTranslatedRuleName(openDialogRule)}
             </h3>
             <div className="pt-2">
               <SpecialRuleTooltip ruleName={openDialogRule} />

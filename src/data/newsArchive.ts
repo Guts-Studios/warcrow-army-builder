@@ -39,67 +39,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// More consistent preview detection that properly handles lovable.app domains
-export const isPreviewEnvironment = () => {
-  if (typeof window === 'undefined') return false;
-  
-  const hostname = window.location.hostname;
-  
-  // Include all possible preview hostnames including lovable.app
-  const isPreviewEnv = hostname === 'lovableproject.com' || 
-                      hostname.includes('.lovableproject.com') ||
-                      hostname.includes('localhost') ||
-                      hostname.includes('127.0.0.1') ||
-                      hostname.includes('netlify.app') ||
-                      hostname.includes('id-preview') ||
-                      hostname.includes('lovable.app');
-  
-  console.log("Is preview environment in newsArchive:", isPreviewEnv, "hostname:", hostname);
-  return isPreviewEnv;
-};
-
 // Function to initialize news items from the database - no caching
 export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
     console.log("Initializing news items from database (no caching)...");
     
-    // Generate mock news data for preview environments
-    if (isPreviewEnvironment()) {
-      console.log("Preview environment detected, using mock news data");
-      
-      // Create mock news items with today's date
-      const mockNewsItems = [
-        {
-          id: `news-preview-${Date.now()}`,
-          date: new Date().toISOString(),
-          key: "news.preview.latest"
-        },
-        {
-          id: `news-preview-${Date.now() - 1000}`,
-          date: new Date(Date.now() - 86400000).toISOString(),
-          key: "news.preview.previous"
-        }
-      ];
-      
-      // Add translations for the mock news
-      translations["news.preview.latest"] = {
-        en: "News 5/19/25: Latest update for the preview environment. This is mock data that shows how news will appear.",
-        es: "Noticias 19/5/25: Última actualización para el entorno de vista previa. Estos son datos simulados que muestran cómo aparecerán las noticias.",
-        fr: "Nouvelles 19/5/25: Dernière mise à jour pour l'environnement de prévisualisation. Il s'agit de données simulées qui montrent comment les nouvelles apparaîtront."
-      };
-      
-      translations["news.preview.previous"] = {
-        en: "News 5/18/25: Previous update for testing purposes. The news system allows for multiple entries displayed in chronological order.",
-        es: "Noticias 18/5/25: Actualización anterior para propósitos de prueba. El sistema de noticias permite múltiples entradas mostradas en orden cronológico.",
-        fr: "Nouvelles 18/5/25: Mise à jour précédente à des fins de test. Le système de nouvelles permet d'afficher plusieurs entrées par ordre chronologique."
-      };
-      
-      // Update the newsItems array with mock data
-      newsItems = [...mockNewsItems];
-      return mockNewsItems;
-    }
-    
-    // Database fetch - direct fetch with no caching
+    // Always try to fetch from database first, regardless of environment
     try {
       console.log("Starting direct database fetch for news items");
       const { data, error } = await supabase
