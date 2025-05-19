@@ -2,6 +2,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Warcrow site constants
+const WARCROW_SITE_NAME = "warcrow-army-builder";
+const WARCROW_SITE_ALT_NAME = "warcrowarmy.com";
+
 // Format notification content based on type
 export const formatNotificationContent = (notification: any) => {
   if (notification.type === 'direct_message') {
@@ -76,11 +80,28 @@ export const fetchNotifications = async (userId: string, isPreviewId: boolean) =
       });
     }
     
-    // Only show the most recent build failure notification if it's from the last 24 hours and unread
+    // Check if a notification is for warcrow site
+    const isWarcrowSite = (notification: any) => {
+      if (notification.type !== 'build_failure') return false;
+      
+      try {
+        const content = typeof notification.content === 'string' 
+          ? JSON.parse(notification.content) 
+          : notification.content;
+          
+        return content?.site_name === WARCROW_SITE_NAME || 
+               content?.site_name === WARCROW_SITE_ALT_NAME;
+      } catch {
+        return false;
+      }
+    };
+    
+    // Only show the most recent warcrow build failure notification if it's unread and from the last 24 hours
     let hasShownBuildFailureNotification = false;
     const recentBuildFailures = data ? data.filter(n => {
       const isRecent = n.type === 'build_failure' && 
              !n.read && 
+             isWarcrowSite(n) &&
              // Check if created within the last 24 hours
              (new Date().getTime() - new Date(n.created_at).getTime() < 24 * 60 * 60 * 1000);
       
@@ -196,9 +217,7 @@ export const getBuildFailureNotifications = async () => {
       return { notifications: [], error };
     }
     
-    // Filter out notifications for specific site IDs we want to ignore
-    const ignoreSiteIds = ['bejewelled-jelly-3f6b58'];
-    
+    // Filter out notifications for non-warcrow sites
     const filteredNotifications = data ? data.filter(notification => {
       try {
         // Parse the content if it's a string
@@ -206,8 +225,8 @@ export const getBuildFailureNotifications = async () => {
           ? JSON.parse(notification.content) 
           : notification.content;
         
-        // If this notification is for a site we should ignore, filter it out
-        if (content && ignoreSiteIds.includes(content.site_name)) {
+        // Only include warcrow site notifications
+        if (!(content?.site_name === WARCROW_SITE_NAME || content?.site_name === WARCROW_SITE_ALT_NAME)) {
           return false;
         }
         

@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,85 +36,25 @@ import { toast } from "sonner";
 const fetchUserCount = async () => {
   try {
     console.log("Fetching user count...");
-    // First check if we have a cached count
-    const cachedCount = localStorage.getItem('cached_user_count');
-    const cachedTimestamp = localStorage.getItem('cached_user_count_timestamp');
     
-    // Use cached count if it's less than 30 minutes old (reduced from 1 hour)
-    if (cachedCount && cachedTimestamp) {
-      const timeDiff = Date.now() - parseInt(cachedTimestamp);
-      if (timeDiff < 30 * 60 * 1000) { // 30 minutes
-        console.log('Using cached user count:', cachedCount);
-        return parseInt(cachedCount);
-      }
+    // Always fetch from database
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('banned', false)
+      .eq('deactivated', false);
+    
+    if (error) {
+      console.error('Error fetching user count:', error);
+      throw error;
     }
     
-    // Always fetch from database, even in preview environments
-    // Remove the isPreview check that was returning a mock count
-    
-    // Fetch from database with a timeout
-    const fetchPromise = new Promise<number>(async (resolve, reject) => {
-      try {
-        const { count, error } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .eq('banned', false)
-          .eq('deactivated', false);
-        
-        if (error) {
-          console.error('Error fetching user count:', error);
-          reject(error);
-          return;
-        }
-        
-        // Cache the count for 30 minutes
-        if (count !== null) {
-          localStorage.setItem('cached_user_count', count.toString());
-          localStorage.setItem('cached_user_count_timestamp', Date.now().toString());
-          console.log('Cached new user count:', count);
-        }
-        
-        resolve(count || 0);
-      } catch (error) {
-        console.error('Error in fetchUserCount inner promise:', error);
-        reject(error);
-      }
-    });
-    
-    // Set a timeout to avoid long waiting time
-    const timeoutPromise = new Promise<number>((resolve) => {
-      setTimeout(() => {
-        console.log("User count fetch timed out after 2s");
-        
-        // Use cached count if available, otherwise return default mock count
-        const cachedCount = localStorage.getItem('cached_user_count');
-        if (cachedCount) {
-          console.log('Using cached user count after timeout:', cachedCount);
-          resolve(parseInt(cachedCount));
-        } else {
-          // Use a default mock count as last resort
-          const defaultMockCount = 470; // Changed from 25 to 470
-          console.log('Using default mock count:', defaultMockCount);
-          resolve(defaultMockCount);
-        }
-      }, 2000); // 2s timeout
-    });
-    
-    // Race between timeout and actual fetch
-    return Promise.race([fetchPromise, timeoutPromise]);
-    
+    console.log('Retrieved user count:', count);
+    return count || 470; // Default to 470 if count is null
   } catch (error) {
     console.error('Error in fetchUserCount:', error);
-    // If fetch fails, try to use cached count regardless of age
-    const cachedCount = localStorage.getItem('cached_user_count');
-    if (cachedCount) {
-      console.log('Using cached user count after error:', cachedCount);
-      return parseInt(cachedCount);
-    }
-    
-    console.error('Error fetching user count with no cached fallback:', error);
     // Return a default value to prevent UI issues
-    return 470; // Changed from 25 to 470
+    return 470;
   }
 };
 
@@ -121,7 +62,13 @@ const fetchUserCount = async () => {
 const checkLatestBuildStatus = async () => {
   try {
     console.log("Checking latest build status...");
-    const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
+    const { data, error } = await supabase.functions.invoke('get-netlify-deployments', {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     
     if (error || !data || !data.deployments || data.deployments.length === 0) {
       console.error('Error fetching deployments:', error);
@@ -136,13 +83,18 @@ const checkLatestBuildStatus = async () => {
     // Check if the latest deployment is a failure
     const latestDeployment = sortedDeployments[0];
     
-    // If the latest deployment was successful, we should return null (no failure)
-    if (latestDeployment.state !== 'error') {
-      console.log('Latest deployment was successful, not showing failure alert');
+    // Only return warcrow site failures (not other sites)
+    const isWarcrowSite = (site) => {
+      return site === "warcrow-army-builder" || site === "warcrowarmy.com";
+    };
+    
+    // If the latest deployment was successful or not a warcrow site, we should return null (no failure)
+    if (latestDeployment.state !== 'error' || !isWarcrowSite(latestDeployment.site_name)) {
+      console.log('Latest warcrow deployment was successful or not a warcrow site, not showing failure alert');
       return null;
     }
     
-    console.log('Latest deployment failed, showing failure alert:', latestDeployment);
+    console.log('Latest warcrow deployment failed, showing failure alert:', latestDeployment);
     return latestDeployment;
   } catch (err) {
     console.error('Error checking latest build status:', err);
@@ -192,7 +144,7 @@ const Landing = () => {
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     refetchOnWindowFocus: false,
-    staleTime: 30 * 60 * 1000, // 30 minutes (reduced from 1 hour)
+    staleTime: 0, // No caching
     retry: 3,
     enabled: true, // Always enable this query
     meta: {
@@ -222,7 +174,7 @@ const Landing = () => {
       return data;
     },
     enabled: isAuthenticated === true && isGuest === false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // No caching
     retry: 2
   });
 
@@ -270,9 +222,6 @@ const Landing = () => {
   }, []);
 
   const handleRefreshUserCount = () => {
-    // Clear localStorage cache
-    localStorage.removeItem('cached_user_count');
-    localStorage.removeItem('cached_user_count_timestamp');
     // Force refetch from database
     refetchUserCount();
   };
@@ -288,7 +237,7 @@ const Landing = () => {
         <LanguageSwitcher />
       </div>
       
-      {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin */}
+      {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
       {(!!isWabAdmin || isPreview()) && latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">

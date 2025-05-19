@@ -22,6 +22,9 @@ let latestSuccessfulBuildTime: Date | null = null;
 // List of site IDs to ignore
 const ignoreSiteIds = ['bejewelled-jelly-3f6b58'];
 
+// Only track warcrow deployments - exact site name to monitor
+const WARCROW_SITE_NAME = "warcrow-army-builder";
+
 // Create a notification for admin users when a build fails
 async function createBuildFailureNotification(deploy: any) {
   try {
@@ -30,6 +33,12 @@ async function createBuildFailureNotification(deploy: any) {
     // Ignore notifications from sites in our ignore list
     if (ignoreSiteIds.includes(deploy.site_name)) {
       console.log(`Skipping notification for ignored site: ${deploy.site_name}`);
+      return;
+    }
+
+    // Only create notifications for the warcrow site
+    if (deploy.site_name !== WARCROW_SITE_NAME && deploy.name !== WARCROW_SITE_NAME) {
+      console.log(`Skipping notification for non-warcrow site: ${deploy.site_name || deploy.name}`);
       return;
     }
     
@@ -123,10 +132,20 @@ serve(async (req) => {
     
     const sites = await sitesResponse.json();
     
-    // If sites were found, use the first one's ID (or you could filter by name)
-    if (sites.length > 0) {
+    // Find the warcrow site specifically
+    const warcrowSite = sites.find(site => 
+      site.name === WARCROW_SITE_NAME || 
+      site.site_id === SITE_ID
+    );
+    
+    // If warcrow site was found, use its ID
+    if (warcrowSite) {
+      siteId = warcrowSite.site_id;
+      console.log(`Found warcrow site: ${warcrowSite.name} with ID: ${siteId}`);
+    } else if (sites.length > 0) {
+      // Fallback to first site if warcrow site not found
       siteId = sites[0].site_id;
-      console.log(`Found site: ${sites[0].name} with ID: ${siteId}`);
+      console.log(`Warcrow site not found, falling back to site: ${sites[0].name} with ID: ${siteId}`);
     }
 
     // Fetch deployments for the site
@@ -134,6 +153,9 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${NETLIFY_API_KEY}`,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
     });
 
@@ -171,30 +193,48 @@ serve(async (req) => {
     // Find the latest failed build - only looking at the most recent one
     const latestBuild = deploymentsData[0]; // First one should be the latest build due to sorting
     
-    // Filter out builds from sites we want to ignore
+    // Only check for warcrow builds
+    const isWarcrowSite = (site: string | undefined) => {
+      return site === WARCROW_SITE_NAME || site === "warcrowarmy.com";
+    };
+    
+    // Determine if we should send a notification - only for warcrow site failures
     const shouldNotify = latestBuild && 
                         latestBuild.state === 'error' && 
-                        !ignoreSiteIds.includes(latestBuild.name || latestBuild.site_name);
+                        isWarcrowSite(latestBuild.name || latestBuild.site_name);
     
-    // Only send a notification if the latest build is a failure and not from an ignored site
+    // Only send a notification if the latest build is a failure and from warcrow site
     if (shouldNotify) {
       // Only create a notification for the most recent failure
       await createBuildFailureNotification(latestBuild);
+      console.log("Created notification for warcrow site build failure");
     } else {
-      console.log("Latest build is successful or from ignored site, no need to create failure notifications");
+      console.log("Latest warcrow build is successful or not a warcrow site, no need to create failure notifications");
     }
 
     return new Response(JSON.stringify({ 
       deployments,
       isLatestBuildFailed: shouldNotify
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      },
       status: 200,
     });
   } catch (error) {
     console.error("Error in get-netlify-deployments:", error);
     return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      },
       status: 500,
     });
   }

@@ -102,7 +102,7 @@ export const MainActions = () => {
           {t('profile')}
         </Button>
         
-        {/* Using more boolean coercion to ensure these render correctly */}
+        {/* In preview mode, always show tester/admin features */}
         {(!!isTester || !!isWabAdmin || isPreview()) && (
           <>
             <Button
@@ -122,6 +122,7 @@ export const MainActions = () => {
             </Button>
           </>
         )}
+        
         {/* Show admin button in preview environment or for actual admin users */}
         {(isPreview() || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
           <Button

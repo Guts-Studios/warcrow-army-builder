@@ -1,3 +1,4 @@
+
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
@@ -42,8 +43,12 @@ export const Header = ({
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   
-  // Only show build failure alert if it's from the latest build
-  // And we haven't already shown this specific failure
+  // Only show build failure alert if:
+  // 1. User is an admin
+  // 2. It's from the latest build
+  // 3. We haven't already shown this specific failure
+  // 4. The build was in the last 24 hours
+  // 5. It's a warcrow site deployment (checked in Landing.tsx)
   const shouldShowBuildFailure = isWabAdmin && 
     latestFailedBuild && 
     latestFailedBuild.id && 
@@ -59,34 +64,12 @@ export const Header = ({
       try {
         console.log("Header: Loading news items...");
         
-        // First try to use any existing items
-        if (newsItems.length > 0) {
-          console.log("Header: Using existing news items:", newsItems.length);
-          setLatestNewsItem(newsItems[0]);
-          setIsLoading(false);
-        }
-        
         // Set a default news item in case all else fails
         const defaultNewsItem = {
           id: "default-news-1",
           date: new Date().toISOString(),
           key: "news.default.latest"
         };
-        
-        // Also try to load from localStorage for immediate display
-        try {
-          const cachedNews = localStorage.getItem('cached_news_items');
-          if (cachedNews) {
-            const localStorageItems = JSON.parse(cachedNews);
-            if (Array.isArray(localStorageItems) && localStorageItems.length > 0) {
-              console.log("Header: Found cached news in localStorage:", localStorageItems.length);
-              setLatestNewsItem(localStorageItems[0]);
-              setIsLoading(false);
-            }
-          }
-        } catch (e) {
-          console.error("Error loading from localStorage:", e);
-        }
         
         // Then attempt to initialize news items from the database
         const items = await initializeNewsItems().catch(err => {
@@ -172,9 +155,6 @@ export const Header = ({
 
   const handleRefreshUserCount = () => {
     if (onRefreshUserCount) {
-      // Clear the cached user count to force a fresh fetch
-      localStorage.removeItem('cached_user_count');
-      localStorage.removeItem('cached_user_count_timestamp');
       onRefreshUserCount();
       toast.success("Refreshing user count...");
     }

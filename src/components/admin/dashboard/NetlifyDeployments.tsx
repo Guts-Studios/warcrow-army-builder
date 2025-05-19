@@ -28,13 +28,22 @@ const NetlifyDeployments: React.FC = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [lastNotifiedDeploymentId, setLastNotifiedDeploymentId] = useState<string | null>(null);
 
+  // Warcrow site constants
+  const WARCROW_SITE_NAME = "warcrow-army-builder";
+
   const fetchDeployments = async () => {
     try {
       setRefreshing(true);
       setError(null);
       
-      // Call our Supabase Edge Function to fetch deployments
-      const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
+      // Call our Supabase Edge Function to fetch deployments with no-cache headers
+      const { data, error } = await supabase.functions.invoke('get-netlify-deployments', {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       
       if (error) {
         console.error('Error fetching deployments:', error);
@@ -44,13 +53,19 @@ const NetlifyDeployments: React.FC = () => {
       if (!data || !data.deployments) {
         throw new Error('No deployment data returned');
       }
+
+      // Filter to only show warcrow deployments
+      const warcrowDeployments = data.deployments.filter(deployment => {
+        return deployment.site_name === WARCROW_SITE_NAME || 
+               deployment.site_name === "warcrowarmy.com";
+      });
       
-      setDeployments(data.deployments);
+      setDeployments(warcrowDeployments.length > 0 ? warcrowDeployments : data.deployments);
       
       // Only show notifications for the latest deployment if we haven't shown it before
       // and it's either a failure or a success
-      if (data.deployments && data.deployments.length > 0) {
-        const latestDeployment = data.deployments[0];
+      if (warcrowDeployments && warcrowDeployments.length > 0) {
+        const latestDeployment = warcrowDeployments[0];
         
         // Only notify if this is a different deployment than we've already notified about
         if (latestDeployment.id !== lastNotifiedDeploymentId) {
