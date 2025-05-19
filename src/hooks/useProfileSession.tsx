@@ -7,12 +7,14 @@ export const useProfileSession = () => {
   // State to track if we've initialized the session check
   const [sessionChecked, setSessionChecked] = useState(false);
   
-  // Check if we're running in preview mode - now correctly identifying lovable.app
+  // Check if we're running in preview mode - now correctly identifying all preview domains
   const isPreview = window.location.hostname === 'lovableproject.com' || 
                   window.location.hostname.endsWith('.lovableproject.com') ||
                   window.location.hostname.includes('localhost') ||
+                  window.location.hostname.includes('127.0.0.1') ||
                   window.location.hostname.includes('netlify.app') ||
-                  window.location.hostname.includes('lovable.app');
+                  window.location.hostname.includes('lovable.app') ||
+                  window.location.hostname.includes('warcrow-army-builder.lovable.app');
 
   // Get the session to check if user is authenticated
   const { data: sessionData, error: sessionError, refetch } = useQuery({
@@ -25,6 +27,8 @@ export const useProfileSession = () => {
     },
     retry: 1,
     enabled: true, // Always enable the query to ensure we have the latest session data
+    staleTime: 0, // Don't cache the session data
+    gcTime: 0, // Don't keep the session data in cache
   });
 
   // Effect to listen for auth state changes and refetch session data
@@ -70,6 +74,7 @@ export const useProfileSession = () => {
     sessionData,
     sessionError,
     userId,
-    sessionChecked
+    sessionChecked,
+    isPreview // Explicitly return isPreview flag for use in other components
   };
 };

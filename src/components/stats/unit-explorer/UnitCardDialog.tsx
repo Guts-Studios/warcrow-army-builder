@@ -37,7 +37,14 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   
   // Special case handling for Lady Télia - use the card version not the unit version
   if (unitName.includes("Lady Télia") || unitName.includes("Lady Telia")) {
-    actualCardUrl = "/art/card/lady_telia_card.jpg";
+    // Updated path using language-specific suffix
+    if (language === 'es') {
+      actualCardUrl = "/art/card/lady_telia_card_sp.jpg";
+    } else if (language === 'fr') {
+      actualCardUrl = "/art/card/lady_telia_card_fr.jpg";
+    } else {
+      actualCardUrl = "/art/card/lady_telia_card_en.jpg";
+    }
   }
   
   // Handle cases where UUID is in the URL instead of a meaningful name
@@ -54,10 +61,23 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       .replace(/ó|ò|ô|ö/g, 'o')
       .replace(/ú|ù|û|ü/g, 'u');
       
-    // Try a standard naming pattern
-    actualCardUrl = `/art/card/${cleanName}_card.jpg`;
+    // Try a standard naming pattern with language suffix
+    const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
+    actualCardUrl = `/art/card/${cleanName}_card${langSuffix}.jpg`;
     console.log(`Converting UUID-based URL to name-based URL: ${actualCardUrl}`);
+  } else if (language === 'es' && !actualCardUrl.includes('_sp')) {
+    // Convert to Spanish version
+    actualCardUrl = actualCardUrl.replace('_en.jpg', '_sp.jpg').replace('.jpg', '_sp.jpg');
+  } else if (language === 'fr' && !actualCardUrl.includes('_fr')) {
+    // Convert to French version
+    actualCardUrl = actualCardUrl.replace('_en.jpg', '_fr.jpg').replace('.jpg', '_fr.jpg');
+  } else if (language === 'en' && !actualCardUrl.includes('_en') && 
+            !actualCardUrl.includes('_sp') && !actualCardUrl.includes('_fr')) {
+    // Add English suffix if no language suffix exists
+    actualCardUrl = actualCardUrl.replace('.jpg', '_en.jpg');
   }
+  
+  console.log(`Final card URL: ${actualCardUrl}`);
   
   // Use direct translation rather than looking up keys
   const getCardText = () => {
@@ -112,29 +132,35 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
               onError={(e) => {
                 console.error(`Image load error: ${actualCardUrl}`);
                 
-                // If language-specific version failed, try English version
-                if (language !== 'en' && (actualCardUrl.includes('_sp.jpg') || actualCardUrl.includes('_fr.jpg'))) {
-                  const englishUrl = actualCardUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
-                  console.log(`Attempting English fallback: ${englishUrl}`);
-                  (e.target as HTMLImageElement).src = englishUrl;
-                  return; // Don't set error state yet, give the fallback a chance
+                const currentSrc = (e.target as HTMLImageElement).src;
+                
+                // Try a series of fallbacks
+                if (currentSrc.includes('_sp.jpg') || currentSrc.includes('_fr.jpg') || currentSrc.includes('_en.jpg')) {
+                  // If language-specific version failed, try without language suffix
+                  const baseUrl = currentSrc
+                    .replace('_sp.jpg', '.jpg')
+                    .replace('_fr.jpg', '.jpg')
+                    .replace('_en.jpg', '.jpg');
+                    
+                  console.log(`Trying without language suffix: ${baseUrl}`);
+                  (e.target as HTMLImageElement).src = baseUrl;
+                  return;
                 }
                 
-                // If card has alternative extension, try that
-                if (actualCardUrl.endsWith('.jpg')) {
-                  const pngUrl = actualCardUrl.replace('.jpg', '.png');
-                  console.log(`Attempting PNG fallback: ${pngUrl}`);
+                // If no language suffix and still failed, try with .png extension
+                if (currentSrc.endsWith('.jpg')) {
+                  const pngUrl = currentSrc.replace('.jpg', '.png');
+                  console.log(`Trying PNG format: ${pngUrl}`);
                   (e.target as HTMLImageElement).src = pngUrl;
-                  return; // Don't set error state yet, give the fallback a chance
+                  return;
                 }
                 
                 // If all fallbacks failed
                 setImageError(true);
                 setIsLoading(false);
                 
-                // Add additional debugging for troubleshooting
-                const img = e.currentTarget;
-                console.log(`Failed to load image: ${img.src}, size: ${img.naturalWidth}x${img.naturalHeight}`);
+                // Log the failure for debugging
+                console.log(`All fallbacks failed for card: ${unitName}`);
               }}
             />
           )}

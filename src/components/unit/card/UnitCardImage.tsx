@@ -28,6 +28,10 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
 
   // Special handling for Lady Télia
   if (unit.id === "lady-telia") {
+    const ladyTeliaUrl = language === 'es' ? "/art/card/lady_telia_card_sp.jpg" :
+                          language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
+                          "/art/card/lady_telia_card_en.jpg";
+    
     return (
       <div className="w-full mt-2">
         <AspectRatio 
@@ -35,17 +39,15 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
           className={`bg-black/20 overflow-hidden rounded-md ${isMobile ? 'max-h-[200px]' : 'max-h-[300px]'}`}
         >
           <img
-            src="/art/card/lady_telia_card.jpg"
+            src={ladyTeliaUrl}
             alt={displayName}
             className="h-full w-full object-contain"
             onError={(e) => {
               console.error('Image load error for Lady Télia');
-              // Try localized version as fallback
-              if (language === 'es') {
-                (e.target as HTMLImageElement).src = "/art/card/lady_telia_card_sp.jpg";
-              } else if (language === 'fr') {
-                (e.target as HTMLImageElement).src = "/art/card/lady_telia_card_fr.jpg";
-              }
+              // Try fallback without language suffix
+              const fallbackUrl = "/art/card/lady_telia_card.jpg";
+              console.log(`Trying fallback for Lady Télia: ${fallbackUrl}`);
+              (e.target as HTMLImageElement).src = fallbackUrl;
             }}
           />
         </AspectRatio>
@@ -55,8 +57,11 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
 
   // Function to generate the appropriate URL based on language
   const getLanguageSpecificUrl = (baseUrl: string): string => {
-    // Check if we've already adjusted the URL with language suffix
-    if (baseUrl.endsWith(`_${language}.jpg`) || baseUrl.endsWith(`_${language}.png`)) {
+    // If already has a language suffix, return as-is
+    if (baseUrl.endsWith(`_${language}.jpg`) || 
+        baseUrl.endsWith(`_en.jpg`) ||
+        baseUrl.endsWith(`_sp.jpg`) ||
+        baseUrl.endsWith(`_fr.jpg`)) {
       return baseUrl;
     }
     
@@ -67,6 +72,8 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
         return baseUrl.replace('.jpg', '_sp.jpg').replace('_card', '_card');
       } else if (language === 'fr') {
         return baseUrl.replace('.jpg', '_fr.jpg').replace('_card', '_card');
+      } else {
+        return baseUrl.replace('.jpg', '_en.jpg').replace('_card', '_card');
       }
       return baseUrl;
     }
@@ -85,28 +92,32 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       
       const newBaseUrl = `/art/card/${cleanUnitName}_card`;
       
-      // Add language suffix if needed
+      // Add language suffix
       if (language === 'es') {
         return `${newBaseUrl}_sp.jpg`;
       } else if (language === 'fr') {
         return `${newBaseUrl}_fr.jpg`;
+      } else {
+        return `${newBaseUrl}_en.jpg`;
       }
-      
-      return `${newBaseUrl}.jpg`;
     }
 
-    // For standard URLs, add language suffix for non-English versions
-    if (language === 'es' && !baseUrl.includes('_sp.')) {
+    // For standard URLs, add appropriate language suffix
+    if (language === 'es') {
       // For Spanish
       return baseUrl.replace('_card.jpg', '_card_sp.jpg')
-                    .replace('_card.png', '_card_sp.jpg');
-    } else if (language === 'fr' && !baseUrl.includes('_fr.')) {
+                    .replace('_card.png', '_card_sp.jpg')
+                    .replace('_card_en.jpg', '_card_sp.jpg');
+    } else if (language === 'fr') {
       // For French
       return baseUrl.replace('_card.jpg', '_card_fr.jpg')
-                    .replace('_card.png', '_card_fr.jpg');
+                    .replace('_card.png', '_card_fr.jpg')
+                    .replace('_card_en.jpg', '_card_fr.jpg');
+    } else {
+      // For English
+      return baseUrl.replace('_card.jpg', '_card_en.jpg')
+                    .replace('_card.png', '_card_en.jpg');
     }
-    
-    return baseUrl;
   };
   
   return (
@@ -123,33 +134,56 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
             onError={(e) => {
               console.error('Image load error:', unit.imageUrl);
               
-              // If this is a language specific URL that failed, try English version
               const currentSrc = (e.target as HTMLImageElement).src;
-              if ((language === 'es' && currentSrc.includes('_sp')) || 
-                  (language === 'fr' && currentSrc.includes('_fr'))) {
-                // Try the English version
-                const englishUrl = unit.imageUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
-                console.log(`Trying English version: ${englishUrl}`);
+              console.log(`Current src that failed: ${currentSrc}`);
+              
+              // Series of fallback attempts
+              
+              // 1. If this is a language-specific URL that failed, try base version without language suffix
+              if (currentSrc.includes('_en.jpg') || currentSrc.includes('_sp.jpg') || currentSrc.includes('_fr.jpg')) {
+                const baseUrl = currentSrc
+                  .replace('_en.jpg', '.jpg')
+                  .replace('_sp.jpg', '.jpg')
+                  .replace('_fr.jpg', '.jpg');
+                  
+                console.log(`Trying without language suffix: ${baseUrl}`);
                 
                 if (!fallbackAttempted) {
                   setFallbackAttempted(true);
-                  (e.target as HTMLImageElement).src = englishUrl;
-                  return; // Don't set error yet
+                  (e.target as HTMLImageElement).src = baseUrl;
+                  return;
                 }
               }
               
-              // If this is a first attempt for an image format failure, try another format
-              if (!alternateErrorShown) {
+              // 2. If this is a JPG that failed, try PNG
+              if (currentSrc.endsWith('.jpg') && !alternateErrorShown) {
                 setAlternateErrorShown(true);
                 
                 // Try alternate extension
-                const altFormat = unit.imageUrl.endsWith('.jpg') 
-                  ? unit.imageUrl.replace('.jpg', '.png') 
-                  : unit.imageUrl.replace('.png', '.jpg');
+                const pngUrl = currentSrc.replace('.jpg', '.png');
                   
-                console.log(`Trying alternate format: ${altFormat}`);
-                (e.target as HTMLImageElement).src = altFormat;
-                return; // Don't set error yet
+                console.log(`Trying PNG format: ${pngUrl}`);
+                (e.target as HTMLImageElement).src = pngUrl;
+                return;
+              }
+              
+              // 3. Try with unit ID as last resort
+              if (alternateErrorShown && fallbackAttempted) {
+                const idUrl = `/art/card/${unit.id}_card`;
+                let finalUrl;
+                
+                // Add appropriate language suffix
+                if (language === 'es') {
+                  finalUrl = `${idUrl}_sp.jpg`;
+                } else if (language === 'fr') {
+                  finalUrl = `${idUrl}_fr.jpg`;
+                } else {
+                  finalUrl = `${idUrl}_en.jpg`;
+                }
+                
+                console.log(`Trying ID-based URL with language: ${finalUrl}`);
+                (e.target as HTMLImageElement).src = finalUrl;
+                return;
               }
               
               // Finally give up and show error state

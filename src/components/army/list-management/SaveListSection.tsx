@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth"; // Use the updated hook
+import { useProfileSession } from "@/hooks/useProfileSession"; // Use the updated hook
 
 interface SaveListSectionProps {
   listName: string;
@@ -32,29 +32,18 @@ const SaveListSection = ({
   refreshSavedLists
 }: SaveListSectionProps) => {
   const { t } = useLanguage();
-  const { isAuthenticated, userId } = useAuth(); // Use the updated auth hook
+  const { isAuthenticated, userId, isPreview } = useProfileSession(); // Use the updated session hook
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Function to determine if we're in preview mode
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    return hostname === 'lovableproject.com' || 
-           hostname.includes('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           hostname.includes('netlify.app') ||
-           hostname.includes('lovable.app');
-  };
   
   // Log our environment for debugging
   useEffect(() => {
     console.log("SaveListSection - Environment:", {
       hostname: window.location.hostname,
-      isPreview: isPreviewMode(),
+      isPreview,
       isAuthenticated,
       userId
     });
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, userId, isPreview]);
   
   const handleCloudSave = async () => {
     if (!isAuthenticated) {
