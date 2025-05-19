@@ -95,98 +95,75 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       return `${newBaseUrl}.jpg`;
     }
 
-    // Only apply language suffix if it's Spanish or French
-    if (language === 'es' || language === 'fr') {
-      const langSuffix = language === 'es' ? '_sp' : '_fr';
-      
-      // Handle the different file naming conventions
-      if (baseUrl.endsWith('.jpg')) {
-        return baseUrl.replace('.jpg', `${langSuffix}.jpg`);
-      } else if (baseUrl.endsWith('.png')) {
-        return baseUrl.replace('.png', `${langSuffix}.png`);
-      } else if (baseUrl.endsWith('_card.jpg')) {
-        return baseUrl.replace('_card.jpg', `_card${langSuffix}.jpg`);
-      } else if (baseUrl.endsWith('_card.png')) {
-        return baseUrl.replace('_card.png', `_card${langSuffix}.png`);
-      }
+    // For standard URLs, add language suffix for non-English versions
+    if (language === 'es' && !baseUrl.includes('_sp.')) {
+      // For Spanish
+      return baseUrl.replace('_card.jpg', '_card_sp.jpg')
+                    .replace('_card.png', '_card_sp.jpg');
+    } else if (language === 'fr' && !baseUrl.includes('_fr.')) {
+      // For French
+      return baseUrl.replace('_card.jpg', '_card_fr.jpg')
+                    .replace('_card.png', '_card_fr.jpg');
     }
     
     return baseUrl;
   };
-
-  // Start with the original URL from the unit
-  let imageUrl = unit.imageUrl;
   
-  // Apply language-specific changes if not in error state
-  if (!imageError) {
-    imageUrl = getLanguageSpecificUrl(imageUrl);
-  } else if (!alternateErrorShown) {
-    // If first attempt failed, try with a different extension
-    if (imageUrl.endsWith('.jpg')) {
-      imageUrl = imageUrl.replace('.jpg', '.png');
-    } else if (imageUrl.endsWith('.png')) {
-      imageUrl = imageUrl.replace('.png', '.jpg');
-    } else if (imageUrl.endsWith('_sp.jpg') || imageUrl.endsWith('_fr.jpg')) {
-      // If language-specific version failed, try the default English version
-      imageUrl = imageUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
-    } else if (imageUrl.endsWith('_sp.png') || imageUrl.endsWith('_fr.png')) {
-      imageUrl = imageUrl.replace('_sp.png', '.png').replace('_fr.png', '.png');
-    }
-  }
-
   return (
     <div className="w-full mt-2">
       <AspectRatio 
         ratio={16 / 9} 
         className={`bg-black/20 overflow-hidden rounded-md ${isMobile ? 'max-h-[200px]' : 'max-h-[300px]'}`}
       >
-        <img
-          src={imageUrl}
-          alt={displayName}
-          className="h-full w-full object-contain"
-          onError={(e) => {
-            console.error('Image load error:', imageUrl);
-            
-            // If first error and not yet attempted a fallback
-            if (!imageError && !fallbackAttempted) {
-              setFallbackAttempted(true);
+        {!imageError ? (
+          <img
+            src={getLanguageSpecificUrl(unit.imageUrl)}
+            alt={displayName}
+            className="h-full w-full object-contain"
+            onError={(e) => {
+              console.error('Image load error:', unit.imageUrl);
               
-              // Try name-based URL as fallback
-              const cleanNameId = unit.name
-                .toLowerCase()
-                .replace(/\s+/g, '_')
-                .replace(/[^\w-]/g, '')
-                .replace(/é|è|ê|ë/g, 'e')
-                .replace(/á|à|â|ä/g, 'a');
+              // If this is a language specific URL that failed, try English version
+              const currentSrc = (e.target as HTMLImageElement).src;
+              if ((language === 'es' && currentSrc.includes('_sp')) || 
+                  (language === 'fr' && currentSrc.includes('_fr'))) {
+                // Try the English version
+                const englishUrl = unit.imageUrl.replace('_sp.jpg', '.jpg').replace('_fr.jpg', '.jpg');
+                console.log(`Trying English version: ${englishUrl}`);
                 
-              let fallbackUrl = `/art/card/${cleanNameId}_card`;
-              
-              // Add language suffix if needed
-              if (language === 'es') {
-                fallbackUrl += '_sp.jpg';
-              } else if (language === 'fr') {
-                fallbackUrl += '_fr.jpg';
-              } else {
-                fallbackUrl += '.jpg';
+                if (!fallbackAttempted) {
+                  setFallbackAttempted(true);
+                  (e.target as HTMLImageElement).src = englishUrl;
+                  return; // Don't set error yet
+                }
               }
               
-              if (fallbackUrl !== imageUrl) {
-                console.log(`Trying alternative card URL: ${fallbackUrl}`);
-                (e.target as HTMLImageElement).src = fallbackUrl;
-                return; // Don't set error state yet
+              // If this is a first attempt for an image format failure, try another format
+              if (!alternateErrorShown) {
+                setAlternateErrorShown(true);
+                
+                // Try alternate extension
+                const altFormat = unit.imageUrl.endsWith('.jpg') 
+                  ? unit.imageUrl.replace('.jpg', '.png') 
+                  : unit.imageUrl.replace('.png', '.jpg');
+                  
+                console.log(`Trying alternate format: ${altFormat}`);
+                (e.target as HTMLImageElement).src = altFormat;
+                return; // Don't set error yet
               }
-            }
-            
-            if (!imageError) {
+              
+              // Finally give up and show error state
               setImageError(true);
-            } else if (!alternateErrorShown) {
-              setAlternateErrorShown(true);
-            }
-          }}
-        />
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-warcrow-text/70 text-sm p-4 text-center">
+            Image not available
+          </div>
+        )}
       </AspectRatio>
     </div>
   );
-};
+}
 
 export default UnitCardImage;

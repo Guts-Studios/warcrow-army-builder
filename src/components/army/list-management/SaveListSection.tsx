@@ -35,6 +35,27 @@ const SaveListSection = ({
   const { isAuthenticated, userId } = useAuth(); // Use the updated auth hook
   const [isSaving, setIsSaving] = useState(false);
   
+  // Function to determine if we're in preview mode
+  const isPreviewMode = () => {
+    const hostname = window.location.hostname;
+    return hostname === 'lovableproject.com' || 
+           hostname.includes('.lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1') ||
+           hostname.includes('netlify.app') ||
+           hostname.includes('lovable.app');
+  };
+  
+  // Log our environment for debugging
+  useEffect(() => {
+    console.log("SaveListSection - Environment:", {
+      hostname: window.location.hostname,
+      isPreview: isPreviewMode(),
+      isAuthenticated,
+      userId
+    });
+  }, [isAuthenticated, userId]);
+  
   const handleCloudSave = async () => {
     if (!isAuthenticated) {
       toast.error("You must be logged in to use cloud save");
@@ -54,6 +75,8 @@ const SaveListSection = ({
         toast.error("Authentication error. Please try logging in again.");
         return;
       }
+
+      console.log("Cloud save - Auth user:", user.id);
 
       // First, fetch the user's profile to get their WAB ID
       const { data: profileData, error: profileError } = await supabase

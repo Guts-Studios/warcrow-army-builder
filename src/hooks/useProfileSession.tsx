@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,9 +7,12 @@ export const useProfileSession = () => {
   // State to track if we've initialized the session check
   const [sessionChecked, setSessionChecked] = useState(false);
   
-  // Check if we're running in preview mode
+  // Check if we're running in preview mode - now correctly identifying lovable.app
   const isPreview = window.location.hostname === 'lovableproject.com' || 
-                  window.location.hostname.endsWith('.lovableproject.com');
+                  window.location.hostname.endsWith('.lovableproject.com') ||
+                  window.location.hostname.includes('localhost') ||
+                  window.location.hostname.includes('netlify.app') ||
+                  window.location.hostname.includes('lovable.app');
 
   // Get the session to check if user is authenticated
   const { data: sessionData, error: sessionError, refetch } = useQuery({
@@ -56,6 +60,7 @@ export const useProfileSession = () => {
     isAuthenticated, 
     usePreviewData, 
     sessionChecked,
+    hostname: window.location.hostname,
     userId: sessionData?.session?.user?.id 
   });
 

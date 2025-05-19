@@ -39,13 +39,13 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Enhanced preview detection with more robust hostname checking
-const isPreviewEnvironment = () => {
+// More consistent preview detection that properly handles lovable.app domains
+export const isPreviewEnvironment = () => {
   if (typeof window === 'undefined') return false;
   
   const hostname = window.location.hostname;
   
-  // Include more preview hostnames to catch all possible preview environments
+  // Include all possible preview hostnames including lovable.app
   const isPreviewEnv = hostname === 'lovableproject.com' || 
                       hostname.includes('.lovableproject.com') ||
                       hostname.includes('localhost') ||
@@ -83,15 +83,15 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
       
       // Add translations for the mock news
       translations["news.preview.latest"] = {
-        en: "News 5/17/25: Latest update for the preview environment. This is mock data that shows how news will appear.",
-        es: "Noticias 17/5/25: Última actualización para el entorno de vista previa. Estos son datos simulados que muestran cómo aparecerán las noticias.",
-        fr: "Nouvelles 17/5/25: Dernière mise à jour pour l'environnement de prévisualisation. Il s'agit de données simulées qui montrent comment les nouvelles apparaîtront."
+        en: "News 5/19/25: Latest update for the preview environment. This is mock data that shows how news will appear.",
+        es: "Noticias 19/5/25: Última actualización para el entorno de vista previa. Estos son datos simulados que muestran cómo aparecerán las noticias.",
+        fr: "Nouvelles 19/5/25: Dernière mise à jour pour l'environnement de prévisualisation. Il s'agit de données simulées qui montrent comment les nouvelles apparaîtront."
       };
       
       translations["news.preview.previous"] = {
-        en: "News 5/16/25: Previous update for testing purposes. The news system allows for multiple entries displayed in chronological order.",
-        es: "Noticias 16/5/25: Actualización anterior para propósitos de prueba. El sistema de noticias permite múltiples entradas mostradas en orden cronológico.",
-        fr: "Nouvelles 16/5/25: Mise à jour précédente à des fins de test. Le système de nouvelles permet d'afficher plusieurs entrées par ordre chronologique."
+        en: "News 5/18/25: Previous update for testing purposes. The news system allows for multiple entries displayed in chronological order.",
+        es: "Noticias 18/5/25: Actualización anterior para propósitos de prueba. El sistema de noticias permite múltiples entradas mostradas en orden cronológico.",
+        fr: "Nouvelles 18/5/25: Mise à jour précédente à des fins de test. Le système de nouvelles permet d'afficher plusieurs entrées par ordre chronologique."
       };
       
       // Update the newsItems array with mock data
