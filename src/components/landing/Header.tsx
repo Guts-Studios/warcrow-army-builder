@@ -15,10 +15,11 @@ import {
 import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { newsItems, initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
+import { initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translations } from "@/i18n/translations";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderProps {
   latestVersion: string;
@@ -48,14 +49,56 @@ export const Header = ({
   // 2. It's from the latest build
   // 3. We haven't already shown this specific failure
   // 4. The build was in the last 24 hours
-  // 5. It's a warcrow site deployment (checked in Landing.tsx)
-  const shouldShowBuildFailure = isWabAdmin && 
+  // 5. It's a warcrow site deployment (check site_name)
+  const shouldShowBuildFailure = 
+    isWabAdmin && 
     latestFailedBuild && 
     latestFailedBuild.id && 
     latestFailedBuild.id !== shownBuildFailureId && 
-    // Check if the build was in the last 24 hours
     latestFailedBuild.created_at && 
-    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000);
+    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000) &&
+    (latestFailedBuild.site_name === "warcrow-army-builder" || latestFailedBuild.site_name === "warcrowarmy.com");
+  
+  // Function to directly fetch news from the database
+  const fetchNewsFromDatabase = async () => {
+    try {
+      console.log("Header: Directly fetching news from database");
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1);
+      
+      if (error) {
+        console.error("Error fetching news from database:", error);
+        return null;
+      }
+      
+      if (!data || data.length === 0) {
+        console.log("No news items found in database");
+        return null;
+      }
+      
+      console.log("Fetched latest news item from database");
+      
+      // Add translations for the news item
+      const item = data[0];
+      translations[item.translation_key] = {
+        en: item.content_en || "No content available",
+        es: item.content_es || "No content available",
+        fr: item.content_fr || "No content available"
+      };
+      
+      return {
+        id: item.news_id || item.id,
+        date: item.date,
+        key: item.translation_key
+      };
+    } catch (error) {
+      console.error("Error in fetchNewsFromDatabase:", error);
+      return null;
+    }
+  };
   
   useEffect(() => {
     const loadNews = async () => {
@@ -64,52 +107,45 @@ export const Header = ({
       try {
         console.log("Header: Loading news items...");
         
-        // Set a default news item in case all else fails
-        const defaultNewsItem = {
-          id: "default-news-1",
-          date: new Date().toISOString(),
-          key: "news.default.latest"
-        };
+        // Use default news item temporarily while loading
+        const defaultNewsItem = defaultNewsItems[0];
         
-        // Then attempt to initialize news items from the database
-        const items = await initializeNewsItems().catch(err => {
-          console.error("Error initializing news:", err);
-          return null;
-        });
-        
-        if (items && items.length > 0) {
-          console.log("Header: News items loaded:", items.length);
-          setLatestNewsItem(items[0]); // Get the most recent news item
-        } else if (!latestNewsItem) {
-          // Only set default if we haven't set anything yet
-          console.log("Header: Using default news");
-          setLatestNewsItem(defaultNewsItem); // Fallback to default
-          setLoadingError("Using default news");
+        // First try direct database fetch (no caching)
+        const directNewsItem = await fetchNewsFromDatabase();
+        if (directNewsItem) {
+          console.log("Header: Got direct news item:", directNewsItem);
+          setLatestNewsItem(directNewsItem);
+        } else {
+          // If direct fetch fails, try the regular initialize method
+          console.log("Header: Direct fetch failed, trying initialize");
+          const items = await initializeNewsItems().catch(err => {
+            console.error("Error initializing news:", err);
+            return null;
+          });
           
-          // Add default translation if not already present
-          if (!translations[defaultNewsItem.key]) {
-            translations[defaultNewsItem.key] = {
-              en: 'Latest news will appear here...',
-              es: 'Las últimas noticias aparecerán aquí...',
-              fr: 'Les dernières nouvelles apparaîtront ici...'
-            };
+          if (items && items.length > 0) {
+            console.log("Header: News items loaded:", items.length);
+            setLatestNewsItem(items[0]); // Get the most recent news item
+          } else {
+            // Use default as last resort
+            console.log("Header: Using default news");
+            setLatestNewsItem(defaultNewsItem);
+            setLoadingError("Using default news");
+            
+            // Add default translation if not already present
+            if (!translations[defaultNewsItem.key]) {
+              translations[defaultNewsItem.key] = {
+                en: 'Latest news will appear here...',
+                es: 'Las últimas noticias aparecerán aquí...',
+                fr: 'Les dernières nouvelles apparaîtront ici...'
+              };
+            }
           }
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
         setLoadingError("Failed to load news");
-        
-        // Use a default news item as fallback
         setLatestNewsItem(defaultNewsItems[0]);
-        
-        // Add default translation if not already present
-        if (!translations[defaultNewsItems[0].key]) {
-          translations[defaultNewsItems[0].key] = {
-            en: 'Latest news will appear here...',
-            es: 'Las últimas noticias aparecerán aquí...',
-            fr: 'Les dernières nouvelles apparaîtront ici...'
-          };
-        }
       } finally {
         setIsLoading(false);
       }
@@ -136,13 +172,21 @@ export const Header = ({
     setIsLoading(true);
     setLoadingError(null);
     try {
-      const items = await initializeNewsItems();
-      if (items && items.length > 0) {
-        setLatestNewsItem(items[0]);
+      // Try direct database fetch first
+      const directNewsItem = await fetchNewsFromDatabase();
+      if (directNewsItem) {
+        setLatestNewsItem(directNewsItem);
         toast.success("News refreshed");
       } else {
-        setLoadingError("No news items found");
-        toast.info("No news items found");
+        // If direct fetch fails, try regular initialize
+        const items = await initializeNewsItems();
+        if (items && items.length > 0) {
+          setLatestNewsItem(items[0]);
+          toast.success("News refreshed");
+        } else {
+          setLoadingError("No news items found");
+          toast.info("No news items found");
+        }
       }
     } catch (error) {
       console.error("Error refreshing news:", error);
@@ -250,7 +294,7 @@ export const Header = ({
         )}
       </div>
       
-      {/* Admin-only Build Failure Alert */}
+      {/* Admin-only Build Failure Alert - Only for Warcrow sites */}
       {shouldShowBuildFailure && (
         <Alert variant="destructive" className="bg-red-900/80 border-red-600 backdrop-blur-sm">
           <AlertTriangle className="h-4 w-4 text-red-400" />

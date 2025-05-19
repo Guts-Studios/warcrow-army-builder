@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { newsItems, initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
+import { NewsItem, initializeNewsItems, defaultNewsItems } from "@/data/newsArchive";
 import { Loader2 } from "lucide-react";
 import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
            hostname.includes('netlify.app');
   };
   
-  // Directly fetch news items from the database
+  // Directly fetch news items from the database - no caching
   const fetchNewsItemsDirectly = async () => {
     try {
       console.log("NewsArchiveDialog: Fetching news items directly from database");
@@ -91,62 +91,31 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       try {
         console.log("NewsArchiveDialog: Loading news items...");
         
-        // First check if there are already news items available in memory
-        if (newsItems.length > 0) {
-          console.log("NewsArchiveDialog: Using existing items:", newsItems.length);
-          setItems(newsItems);
-          setIsLoading(false);
-        } else {
-          // If not, use default items temporarily
-          console.log("NewsArchiveDialog: No existing items, using defaults temporarily");
-          setItems(defaultNewsItems);
-        }
+        // Use default items temporarily while loading
+        setItems(defaultNewsItems);
         
-        // Try to refresh the items through the standard method
-        try {
-          const refreshedItems = await initializeNewsItems();
-          if (refreshedItems.length > 0) {
-            console.log("NewsArchiveDialog: Got refreshed items:", refreshedItems.length);
-            setItems(refreshedItems);
+        // Refresh the items through either method
+        const refreshedItems = await initializeNewsItems();
+        if (refreshedItems.length > 0) {
+          console.log("NewsArchiveDialog: Got news items:", refreshedItems.length);
+          setItems(refreshedItems);
+        } else {
+          // If that fails, try direct fetch
+          console.log("NewsArchiveDialog: No items from initialize, trying direct fetch");
+          const directItems = await fetchNewsItemsDirectly();
+          if (directItems && directItems.length > 0) {
+            console.log("NewsArchiveDialog: Got direct items:", directItems.length);
+            setItems(directItems);
           } else {
-            // If standard method fails, try direct fetch in production
-            if (!isPreviewEnvironment()) {
-              console.log("NewsArchiveDialog: In production, trying direct fetch");
-              const directItems = await fetchNewsItemsDirectly();
-              if (directItems && directItems.length > 0) {
-                console.log("NewsArchiveDialog: Got direct items:", directItems.length);
-                setItems(directItems);
-              } else if (items.length === 0) {
-                // If we still have nothing, use defaults as last resort
-                console.log("NewsArchiveDialog: No direct items, using defaults");
-                setItems(defaultNewsItems);
-              }
-            } else if (items.length === 0) {
-              // If we still have nothing, use defaults as last resort
-              console.log("NewsArchiveDialog: No refreshed items, using defaults");
-              setItems(defaultNewsItems);
-            }
-          }
-        } catch (refreshError) {
-          console.error("Error refreshing news items:", refreshError);
-          // Try direct fetch if we're in production
-          if (!isPreviewEnvironment()) {
-            const directItems = await fetchNewsItemsDirectly();
-            if (directItems && directItems.length > 0) {
-              setItems(directItems);
-            } else if (items.length === 0) {
-              setItems(defaultNewsItems);
-            }
-          } else if (items.length === 0) {
+            // If we still have nothing, use defaults
+            console.log("NewsArchiveDialog: No direct items, using defaults");
             setItems(defaultNewsItems);
           }
         }
       } catch (error) {
         console.error("Error loading news items:", error);
         // If we have nothing at this point, use defaults
-        if (items.length === 0) {
-          setItems(defaultNewsItems);
-        }
+        setItems(defaultNewsItems);
         toast.error("Failed to load news archive");
       } finally {
         setIsLoading(false);

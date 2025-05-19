@@ -80,56 +80,6 @@ export const fetchNotifications = async (userId: string, isPreviewId: boolean) =
       });
     }
     
-    // Check if a notification is for warcrow site
-    const isWarcrowSite = (notification: any) => {
-      if (notification.type !== 'build_failure') return false;
-      
-      try {
-        const content = typeof notification.content === 'string' 
-          ? JSON.parse(notification.content) 
-          : notification.content;
-          
-        return content?.site_name === WARCROW_SITE_NAME || 
-               content?.site_name === WARCROW_SITE_ALT_NAME;
-      } catch {
-        return false;
-      }
-    };
-    
-    // Only show the most recent warcrow build failure notification if it's unread and from the last 24 hours
-    let hasShownBuildFailureNotification = false;
-    const recentBuildFailures = data ? data.filter(n => {
-      const isRecent = n.type === 'build_failure' && 
-             !n.read && 
-             isWarcrowSite(n) &&
-             // Check if created within the last 24 hours
-             (new Date().getTime() - new Date(n.created_at).getTime() < 24 * 60 * 60 * 1000);
-      
-      if (isRecent && !hasShownBuildFailureNotification) {
-        hasShownBuildFailureNotification = true;
-        return true;
-      }
-      return false;
-    }) : [];
-    
-    // Only show a toast for the most recent build failure notification
-    if (recentBuildFailures.length > 0) {
-      const newestFailure = recentBuildFailures[0];
-      try {
-        const content = typeof newestFailure.content === 'string' 
-          ? JSON.parse(newestFailure.content) 
-          : newestFailure.content;
-        
-        toast.error(`Netlify build failed!`, {
-          description: `${content.site_name}: ${content.branch} - ${content.error_message || 'Unknown error'}`,
-          position: "top-right",
-          duration: 8000
-        });
-      } catch (err) {
-        console.error("Error parsing build failure notification:", err);
-      }
-    }
-    
     return { notifications: data || [], error: null };
     
   } catch (err) {
@@ -202,7 +152,7 @@ export const markAllNotificationsAsRead = async (userId: string, isPreviewId: bo
   }
 };
 
-// Check and return build failure notifications for admin display
+// Check and return build failure notifications for admin display - only return Warcrow site failures
 export const getBuildFailureNotifications = async () => {
   try {
     const { data, error } = await supabase
