@@ -140,58 +140,73 @@ export const Header = ({
       try {
         console.log("Header: Loading news items...");
         
-        // Use default news item temporarily while loading
-        const defaultNewsItem = defaultNewsItems[0];
+        // Always attempt to fetch from database, even in preview mode
+        console.log("Header: Directly fetching news from database");
+        const { data: newsData, error: newsError } = await supabase
+          .from('news_items')
+          .select('*')
+          .order('date', { ascending: false })
+          .limit(1);
         
-        if (isPreviewMode()) {
-          // In preview mode, use mock data
-          console.log("Header: Preview mode detected, using mock news data");
-          const previewNewsItem = {
-            id: "preview-news-1",
-            date: format(new Date(), 'yyyy-MM-dd'),
-            key: "previewNewsKey"
-          };
-          setLatestNewsItem(previewNewsItem);
-          setIsLoading(false);
-          return;
+        if (newsError) {
+          console.error("Error fetching news from database:", newsError);
+          throw newsError;
         }
         
-        // First try direct database fetch (no caching)
-        const directNewsItem = await fetchNewsFromDatabase();
-        if (directNewsItem) {
-          console.log("Header: Got direct news item:", directNewsItem);
-          setLatestNewsItem(directNewsItem);
-        } else {
-          // If direct fetch fails, try the regular initialize method
-          console.log("Header: Direct fetch failed, trying initialize");
-          const items = await initializeNewsItems().catch(err => {
-            console.error("Error initializing news:", err);
-            return null;
-          });
-          
-          if (items && items.length > 0) {
-            console.log("Header: News items loaded:", items.length);
-            setLatestNewsItem(items[0]); // Get the most recent news item
+        if (!newsData || newsData.length === 0) {
+          // If no news found in database, use preview data only as fallback
+          if (isPreviewMode()) {
+            console.log("Header: No news found in database, using preview data");
+            const previewNewsItem = {
+              id: "preview-news-1",
+              date: format(new Date(), 'yyyy-MM-dd'),
+              key: "previewNewsKey"
+            };
+            setLatestNewsItem(previewNewsItem);
           } else {
-            // Use default as last resort
-            console.log("Header: Using default news");
-            setLatestNewsItem(defaultNewsItem);
-            setLoadingError("Using default news");
+            console.log("Header: No news found, using default item");
+            setLatestNewsItem(defaultNewsItems[0]);
             
             // Add default translation if not already present
-            if (!translations[defaultNewsItem.key]) {
-              translations[defaultNewsItem.key] = {
+            if (!translations[defaultNewsItems[0].key]) {
+              translations[defaultNewsItems[0].key] = {
                 en: 'Latest news will appear here...',
                 es: 'Las últimas noticias aparecerán aquí...',
                 fr: 'Les dernières nouvelles apparaîtront ici...'
               };
             }
           }
+        } else {
+          // Process the news item from database
+          console.log("Header: News found in database:", newsData[0]);
+          const item = newsData[0];
+          
+          // Add translations for the news item
+          translations[item.translation_key] = {
+            en: item.content_en || "No content available",
+            es: item.content_es || "No content available",
+            fr: item.content_fr || "No content available"
+          };
+          
+          setLatestNewsItem({
+            id: item.news_id || item.id,
+            date: item.date,
+            key: item.translation_key
+          });
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
         setLoadingError("Failed to load news");
         setLatestNewsItem(defaultNewsItems[0]);
+        
+        // Add default translation if not already present
+        if (!translations[defaultNewsItems[0].key]) {
+          translations[defaultNewsItems[0].key] = {
+            en: 'Latest news will appear here...',
+            es: 'Las últimas noticias aparecerán aquí...',
+            fr: 'Les dernières nouvelles apparaîtront ici...'
+          };
+        }
       } finally {
         setIsLoading(false);
       }
@@ -214,38 +229,54 @@ export const Header = ({
     }
   };
   
+  // Fix the refresh function to always fetch from the database
   const handleRefreshNews = async () => {
     setIsLoading(true);
     setLoadingError(null);
     try {
-      if (isPreviewMode()) {
-        // In preview mode, just refresh the mock data
-        const previewNewsItem = {
-          id: "preview-news-1",
-          date: format(new Date(), 'yyyy-MM-dd'),
-          key: "previewNewsKey"
-        };
-        setLatestNewsItem(previewNewsItem);
-        toast.success("News refreshed (preview mode)");
-        setIsLoading(false);
-        return;
+      // Always try to fetch from the database
+      console.log("Header: Refreshing news from database");
+      const { data: newsData, error: newsError } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1);
+      
+      if (newsError) {
+        throw newsError;
       }
       
-      // Try direct database fetch first
-      const directNewsItem = await fetchNewsFromDatabase();
-      if (directNewsItem) {
-        setLatestNewsItem(directNewsItem);
-        toast.success("News refreshed");
-      } else {
-        // If direct fetch fails, try regular initialize
-        const items = await initializeNewsItems();
-        if (items && items.length > 0) {
-          setLatestNewsItem(items[0]);
-          toast.success("News refreshed");
+      if (!newsData || newsData.length === 0) {
+        // Only use preview data as fallback if no real data exists
+        if (isPreviewMode()) {
+          const previewNewsItem = {
+            id: "preview-news-1",
+            date: format(new Date(), 'yyyy-MM-dd'),
+            key: "previewNewsKey"
+          };
+          setLatestNewsItem(previewNewsItem);
+          toast.success("News refreshed (preview mode)");
         } else {
           setLoadingError("No news items found");
           toast.info("No news items found");
         }
+      } else {
+        // Process the news item
+        const item = newsData[0];
+        
+        // Add translations
+        translations[item.translation_key] = {
+          en: item.content_en || "No content available",
+          es: item.content_es || "No content available",
+          fr: item.content_fr || "No content available"
+        };
+        
+        setLatestNewsItem({
+          id: item.news_id || item.id,
+          date: item.date,
+          key: item.translation_key
+        });
+        toast.success("News refreshed");
       }
     } catch (error) {
       console.error("Error refreshing news:", error);

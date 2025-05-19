@@ -37,21 +37,8 @@ const fetchUserCount = async () => {
     console.log("Fetching user count...");
     
     const hostname = window.location.hostname;
-    const isPreview = hostname === 'localhost' || 
-                      hostname === '127.0.0.1' || 
-                      hostname.includes('lovableproject.com') || 
-                      hostname.endsWith('.lovableproject.com') ||
-                      hostname.includes('netlify.app') || 
-                      hostname.includes('lovable.app') ||
-                      hostname.includes('id-preview');
     
-    // Only use mock data in specific preview environments
-    if (isPreview && !hostname.includes('warcrowarmy.com')) {
-      console.log('Preview environment detected, returning mock user count');
-      return 572; // Return a consistent mock count for preview
-    }
-    
-    // Otherwise fetch from database
+    // Always fetch from database
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })

@@ -34,33 +34,8 @@ const SaveListSection = ({
   const { t } = useLanguage();
   const { isAuthenticated, userId } = useProfileSession();
   const [isSaving, setIsSaving] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
-  
-  // Detect environment
-  useEffect(() => {
-    const hostname = window.location.hostname;
-    const isPreviewEnv = hostname.includes('lovableproject.com') || 
-                        hostname.endsWith('.lovableproject.com') || 
-                        hostname.includes('localhost') || 
-                        hostname.includes('127.0.0.1') || 
-                        hostname.includes('netlify.app') || 
-                        hostname.includes('lovable.app');
-    
-    console.log("SaveListSection - Environment check:", { 
-      hostname,
-      isPreviewEnv, 
-      isAuthenticated
-    });
-    
-    setIsPreview(isPreviewEnv);
-  }, [isAuthenticated]);
   
   const handleCloudSave = async () => {
-    if (isPreview) {
-      toast.error("Cloud save is disabled in preview mode");
-      return;
-    }
-    
     if (!isAuthenticated) {
       toast.error("You must be logged in to use cloud save");
       return;
@@ -174,7 +149,7 @@ const SaveListSection = ({
             <Button
               onClick={handleCloudSave}
               className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
-              disabled={!isAuthenticated || isSaving || isPreview}
+              disabled={!isAuthenticated || isSaving}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
               {isSaving ? 'Saving...' : t('cloudSave')}
@@ -184,8 +159,7 @@ const SaveListSection = ({
             className="bg-warcrow-background border-warcrow-accent text-warcrow-text"
             side="bottom"
           >
-            {isPreview ? 'Cloud save is disabled in preview mode' : 
-              (isAuthenticated ? 'Save list to the cloud' : 'Login required to use cloud features')}
+            {isAuthenticated ? 'Save list to the cloud' : 'Login required to use cloud features'}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

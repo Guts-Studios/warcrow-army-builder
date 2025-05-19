@@ -11,12 +11,18 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
   const { language } = useLanguage();
   const { translateSpecialRuleDescription } = useTranslateKeyword();
   
+  // Extract the base rule name without parameters
+  const baseRuleName = ruleName.split('(')[0].trim();
+  
   // Get translated rule description
-  const ruleDescription = translateSpecialRuleDescription(ruleName);
+  const ruleDescription = translateSpecialRuleDescription(baseRuleName);
   
   // Fall back to static definitions if translations aren't available
-  const staticDescription = specialRuleDefinitions[ruleName] || "Description coming soon";
-  const paragraphs = (ruleDescription || staticDescription).split('\n').filter(p => p.trim());
+  const staticDescription = specialRuleDefinitions[baseRuleName] || "Description coming soon";
+  const description = ruleDescription || staticDescription;
+  
+  // Split by newlines to create paragraphs
+  const paragraphs = (description).split('\n').filter(p => p.trim());
 
   return (
     <div className="space-y-2">

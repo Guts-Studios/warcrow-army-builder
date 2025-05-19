@@ -5,13 +5,20 @@ interface EnvironmentInfo {
   isPreview: boolean;
   isProduction: boolean;
   hostname: string;
+  useMockData: boolean;
 }
 
-export const useEnvironment = (): EnvironmentInfo => {
+/**
+ * Hook to detect the current environment and determine if mock data should be used
+ * @param forceMockData - Optional parameter to force using mock data regardless of environment
+ * @returns Environment information including whether to use mock data
+ */
+export const useEnvironment = (forceMockData?: boolean): EnvironmentInfo => {
   const [environmentInfo, setEnvironmentInfo] = useState<EnvironmentInfo>({
     isPreview: false,
     isProduction: false,
-    hostname: ''
+    hostname: '',
+    useMockData: false
   });
   
   useEffect(() => {
@@ -30,18 +37,26 @@ export const useEnvironment = (): EnvironmentInfo => {
     const isProduction = hostname === 'warcrowarmy.com' || 
                         hostname.endsWith('.warcrowarmy.com');
     
+    // By default, we only use mock data in preview environments when specifically requested
+    // Force mock data takes precedence if provided
+    const useMockData = typeof forceMockData !== 'undefined' ? 
+      forceMockData : 
+      (isPreview && !isProduction && false); // Set to false to use real data in preview
+    
     setEnvironmentInfo({
       isPreview,
       isProduction,
-      hostname
+      hostname,
+      useMockData
     });
     
     console.log("[useEnvironment] Environment detected:", { 
       hostname, 
       isPreview, 
-      isProduction 
+      isProduction,
+      useMockData
     });
-  }, []);
+  }, [forceMockData]);
   
   return environmentInfo;
 };

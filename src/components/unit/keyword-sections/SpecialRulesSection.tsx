@@ -18,13 +18,18 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
 
   if (!specialRules || specialRules.length === 0) return null;
 
+  // Get section title based on language
+  const sectionTitle = language === 'en' ? 'Special Rules' : 
+                      (language === 'es' ? 'Reglas especiales' : 'Règles spéciales');
+
   return (
     <div className="space-y-2">
       <span className="text-xs font-semibold text-warcrow-text">
-        {language === 'en' ? 'Special Rules' : (language === 'es' ? 'Reglas especiales' : 'Règles spéciales')}:
+        {sectionTitle}:
       </span>
       <div className="flex flex-wrap gap-1.5">
         {specialRules.map((rule) => {
+          // Get translated rule name
           const displayName = language !== 'en' ? translateSpecialRule(rule) : rule;
           
           return isMobile ? (
