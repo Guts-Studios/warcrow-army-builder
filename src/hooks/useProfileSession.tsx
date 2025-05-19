@@ -7,7 +7,7 @@ export const useProfileSession = () => {
   // State to track if we've initialized the session check
   const [sessionChecked, setSessionChecked] = useState(false);
   
-  // More comprehensive check for preview environments
+  // More comprehensive and reliable check for preview environments
   const isPreview = 
     window.location.hostname === 'localhost' || 
     window.location.hostname === '127.0.0.1' ||
@@ -27,6 +27,7 @@ export const useProfileSession = () => {
       try {
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
+        console.log("Session fetch result:", data?.session ? "Session exists" : "No session");
         return data;
       } catch (err) {
         console.error("Session fetch error:", err);

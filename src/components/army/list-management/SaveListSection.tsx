@@ -46,6 +46,11 @@ const SaveListSection = ({
   }, [isAuthenticated, userId, isPreview]);
   
   const handleCloudSave = async () => {
+    if (isPreview) {
+      toast.error("Cloud save is disabled in preview mode");
+      return;
+    }
+    
     if (!isAuthenticated) {
       toast.error("You must be logged in to use cloud save");
       return;

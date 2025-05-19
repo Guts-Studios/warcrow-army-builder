@@ -58,6 +58,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         .replace(/á/g, 'a')           // Replace á with a
         .replace(/é/g, 'e');          // Replace é with e
       
+      console.log(`[AvatarPortrait] Generated portrait URL for ${name}: /art/portrait/${cleanName}_portrait.jpg`);
       return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
@@ -79,6 +80,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         .replace(/ó|ò|ô|ö/g, 'o')
         .replace(/ú|ù|û|ü/g, 'u');
       
+      console.log(`[AvatarPortrait] Using name-based URL instead of UUID URL for ${name}: /art/portrait/${cleanName}_portrait.jpg`);
       return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
@@ -103,17 +105,19 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         portraitImageUrl = portraitImageUrl.replace('.jpg', '_portrait.jpg');
       }
       
+      console.log(`[AvatarPortrait] Converted card URL to portrait URL for ${name}: ${portraitImageUrl}`);
       return portraitImageUrl;
     }
     
     // If it's already a portrait URL or doesn't match our patterns, return as is
+    console.log(`[AvatarPortrait] Using provided URL as is for ${name}: ${portraitUrl}`);
     return portraitUrl;
   };
 
   // For debugging
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
   
-  console.log(`Generating portrait for "${name}": ${portraitImageUrl} (isPreview: ${isPreview})`);
+  console.log(`[AvatarPortrait] Using portrait for "${name}": ${portraitImageUrl} (isPreview: ${isPreview})`);
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
@@ -133,7 +137,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
             const fallbackUrl = `/art/portrait/${simpleNameId}_portrait.jpg`;
             
             if (fallbackUrl !== portraitImageUrl) {
-              console.log(`Trying alternative portrait URL: ${fallbackUrl}`);
+              console.log(`[AvatarPortrait] Trying alternative portrait URL: ${fallbackUrl}`);
               (e.target as HTMLImageElement).src = fallbackUrl;
               return; // Don't set error state yet
             }
