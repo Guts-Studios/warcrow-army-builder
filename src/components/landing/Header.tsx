@@ -1,4 +1,3 @@
-
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
@@ -443,3 +442,4 @@ export const Header = ({
       </div>
     </div>
   );
+};
