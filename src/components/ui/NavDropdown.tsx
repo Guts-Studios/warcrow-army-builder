@@ -23,9 +23,16 @@ export const NavDropdown = () => {
   
   useEffect(() => {
     // Check for preview mode
-    const isPreviewMode = window.location.hostname === 'lovableproject.com' || 
-                    window.location.hostname.endsWith('.lovableproject.com');
+    const hostname = window.location.hostname;
+    const isPreviewMode = hostname === 'lovableproject.com' || 
+                          hostname.endsWith('.lovableproject.com') ||
+                          hostname.includes('localhost') ||
+                          hostname.includes('127.0.0.1') ||
+                          hostname.includes('netlify.app') ||
+                          hostname.includes('id-preview') ||
+                          hostname.includes('lovable.app');
     
+    console.log("NavDropdown: Hostname =", hostname, "isPreview =", isPreviewMode);
     setIsPreview(isPreviewMode);
   }, []);
   

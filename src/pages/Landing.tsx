@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +36,22 @@ const fetchUserCount = async () => {
   try {
     console.log("Fetching user count...");
     
-    // Always fetch from database
+    // Check if in preview mode first
+    const hostname = window.location.hostname;
+    const isPreview = hostname === 'lovableproject.com' || 
+                      hostname.includes('.lovableproject.com') ||
+                      hostname.includes('localhost') ||
+                      hostname.includes('127.0.0.1') ||
+                      hostname.includes('netlify.app') ||
+                      hostname.includes('id-preview') ||
+                      hostname.includes('lovable.app');
+    
+    if (isPreview) {
+      console.log('Preview environment detected, returning mock user count');
+      return 572; // Return a consistent mock count for preview
+    }
+    
+    // Otherwise fetch from database
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })

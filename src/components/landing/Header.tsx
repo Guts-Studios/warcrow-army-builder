@@ -44,6 +44,17 @@ export const Header = ({
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   
+  // Check if we're in preview mode
+  const isPreviewMode = () => {
+    const hostname = window.location.hostname;
+    return hostname === 'lovableproject.com' || 
+           hostname.endsWith('.lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1') ||
+           hostname.includes('netlify.app') ||
+           hostname.includes('lovable.app');
+  };
+  
   // Only show build failure alert if:
   // 1. User is an admin
   // 2. It's from the latest build
@@ -63,6 +74,17 @@ export const Header = ({
   const fetchNewsFromDatabase = async () => {
     try {
       console.log("Header: Directly fetching news from database");
+      
+      // Use mock data in preview mode
+      if (isPreviewMode()) {
+        console.log("Header: Preview environment detected, using mock news data");
+        return {
+          id: "preview-news-1",
+          date: format(new Date(), 'yyyy-MM-dd'),
+          key: "previewNewsKey"
+        };
+      }
+      
       const { data, error } = await supabase
         .from('news_items')
         .select('*')
@@ -100,6 +122,18 @@ export const Header = ({
     }
   };
   
+  // In preview mode, set up some default translations
+  useEffect(() => {
+    if (isPreviewMode()) {
+      // Add a default preview translation
+      translations["previewNewsKey"] = {
+        en: `News ${todaysDate}: Welcome to the preview environment! This is where you can test the latest features before they go live.`,
+        es: `Noticias ${todaysDate}: ¡Bienvenido al entorno de vista previa! Aquí puedes probar las últimas funciones antes de que se publiquen.`,
+        fr: `Nouvelles ${todaysDate}: Bienvenue dans l'environnement de prévisualisation! C'est ici que vous pouvez tester les dernières fonctionnalités avant leur mise en ligne.`
+      };
+    }
+  }, [todaysDate]);
+  
   useEffect(() => {
     const loadNews = async () => {
       setIsLoading(true);
@@ -109,6 +143,19 @@ export const Header = ({
         
         // Use default news item temporarily while loading
         const defaultNewsItem = defaultNewsItems[0];
+        
+        if (isPreviewMode()) {
+          // In preview mode, use mock data
+          console.log("Header: Preview mode detected, using mock news data");
+          const previewNewsItem = {
+            id: "preview-news-1",
+            date: format(new Date(), 'yyyy-MM-dd'),
+            key: "previewNewsKey"
+          };
+          setLatestNewsItem(previewNewsItem);
+          setIsLoading(false);
+          return;
+        }
         
         // First try direct database fetch (no caching)
         const directNewsItem = await fetchNewsFromDatabase();
@@ -172,6 +219,19 @@ export const Header = ({
     setIsLoading(true);
     setLoadingError(null);
     try {
+      if (isPreviewMode()) {
+        // In preview mode, just refresh the mock data
+        const previewNewsItem = {
+          id: "preview-news-1",
+          date: format(new Date(), 'yyyy-MM-dd'),
+          key: "previewNewsKey"
+        };
+        setLatestNewsItem(previewNewsItem);
+        toast.success("News refreshed (preview mode)");
+        setIsLoading(false);
+        return;
+      }
+      
       // Try direct database fetch first
       const directNewsItem = await fetchNewsFromDatabase();
       if (directNewsItem) {
@@ -280,7 +340,7 @@ export const Header = ({
             userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
           )}
         </p>
-        {isWabAdmin && (
+        {(isWabAdmin || isPreviewMode()) && (
           <Button 
             variant="ghost" 
             size="icon" 
@@ -383,4 +443,3 @@ export const Header = ({
       </div>
     </div>
   );
-};

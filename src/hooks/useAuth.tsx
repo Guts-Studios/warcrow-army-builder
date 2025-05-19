@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -144,7 +145,7 @@ export function useAuth() {
         // Set up the auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("Auth state changed:", event);
+            console.log("Auth state changed in AuthProvider:", event);
             
             if (mounted) {
               setIsAuthenticated(!!session);
