@@ -2,10 +2,10 @@
 import { Unit } from "@/types/army";
 
 export const vercana: Unit = {
-  id: "vercana-northern",
+  id: "vercana-hegemony",
   name: "Vercana",
   pointsCost: 30,
-  faction: "northern-tribes",
+  faction: "hegemony-of-embersig",
   keywords: [
     { name: "Human", description: "" },
     { name: "Mercenary", description: "" },

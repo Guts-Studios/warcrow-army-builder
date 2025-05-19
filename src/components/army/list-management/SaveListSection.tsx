@@ -32,18 +32,28 @@ const SaveListSection = ({
   refreshSavedLists
 }: SaveListSectionProps) => {
   const { t } = useLanguage();
-  const { isAuthenticated, userId, isPreview } = useProfileSession();
+  const { isAuthenticated, userId } = useProfileSession();
   const [isSaving, setIsSaving] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
   
-  // Log environment info for debugging
+  // Detect environment
   useEffect(() => {
-    console.log("SaveListSection - Environment:", {
-      hostname: window.location.hostname,
-      isPreview,
-      isAuthenticated,
-      userId: userId || 'none'
+    const hostname = window.location.hostname;
+    const isPreviewEnv = hostname.includes('lovableproject.com') || 
+                        hostname.endsWith('.lovableproject.com') || 
+                        hostname.includes('localhost') || 
+                        hostname.includes('127.0.0.1') || 
+                        hostname.includes('netlify.app') || 
+                        hostname.includes('lovable.app');
+    
+    console.log("SaveListSection - Environment check:", { 
+      hostname,
+      isPreviewEnv, 
+      isAuthenticated
     });
-  }, [isAuthenticated, userId, isPreview]);
+    
+    setIsPreview(isPreviewEnv);
+  }, [isAuthenticated]);
   
   const handleCloudSave = async () => {
     if (isPreview) {
