@@ -7,23 +7,31 @@ export const useProfileSession = () => {
   // State to track if we've initialized the session check
   const [sessionChecked, setSessionChecked] = useState(false);
   
-  // Check if we're running in preview mode - now correctly identifying all preview domains
-  const isPreview = window.location.hostname === 'lovableproject.com' || 
-                  window.location.hostname.endsWith('.lovableproject.com') ||
-                  window.location.hostname.includes('localhost') ||
-                  window.location.hostname.includes('127.0.0.1') ||
-                  window.location.hostname.includes('netlify.app') ||
-                  window.location.hostname.includes('lovable.app') ||
-                  window.location.hostname.includes('warcrow-army-builder.lovable.app');
+  // More comprehensive check for preview environments
+  const isPreview = 
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === 'lovableproject.com' || 
+    window.location.hostname.endsWith('.lovableproject.com') ||
+    window.location.hostname.includes('netlify.app') ||
+    window.location.hostname.includes('lovable.app') ||
+    window.location.hostname.includes('warcrow-army-builder.lovable.app');
+
+  console.log("Profile session check - hostname:", window.location.hostname, "isPreview:", isPreview);
 
   // Get the session to check if user is authenticated
   const { data: sessionData, error: sessionError, refetch } = useQuery({
     queryKey: ["auth-session"],
     queryFn: async () => {
       console.log("Fetching authentication session");
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.error("Session fetch error:", err);
+        return { session: null };
+      }
     },
     retry: 1,
     enabled: true, // Always enable the query to ensure we have the latest session data
@@ -65,7 +73,7 @@ export const useProfileSession = () => {
     usePreviewData, 
     sessionChecked,
     hostname: window.location.hostname,
-    userId: sessionData?.session?.user?.id 
+    userId: userId || 'none' 
   });
 
   return {

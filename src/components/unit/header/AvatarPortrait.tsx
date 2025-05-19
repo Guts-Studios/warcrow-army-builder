@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslateKeyword } from '@/utils/translationUtils';
+import { useProfileSession } from '@/hooks/useProfileSession';
 
 interface AvatarPortraitProps {
   portraitUrl: string | undefined;
@@ -19,6 +20,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const [fallbackAttempted, setFallbackAttempted] = useState(false);
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
+  const { isPreview } = useProfileSession();
   
   // Display properly translated name when available
   const displayName = language === 'en' ? name : translateUnitName(name, language);
@@ -87,16 +89,15 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       
       // Handle different filename extensions and patterns
       // Always use the English base name (without language suffix)
-      if (portraitUrl.endsWith('_card.jpg')) {
-        portraitImageUrl = portraitImageUrl.replace('_card.jpg', '_portrait.jpg');
+      if (portraitUrl.endsWith('_card.jpg') || portraitUrl.endsWith('_card_en.jpg')) {
+        portraitImageUrl = portraitImageUrl.replace('_card.jpg', '_portrait.jpg').replace('_card_en.jpg', '_portrait.jpg');
       } else if (portraitUrl.endsWith('_card.png')) {
         portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); 
-      } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg') || portraitUrl.endsWith('_card_en.jpg')) {
+      } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg')) {
         // Remove language suffixes for portrait URLs to always use English version
         portraitImageUrl = portraitImageUrl
           .replace('_card_sp.jpg', '_portrait.jpg')
-          .replace('_card_fr.jpg', '_portrait.jpg')
-          .replace('_card_en.jpg', '_portrait.jpg');
+          .replace('_card_fr.jpg', '_portrait.jpg');
       } else if (portraitUrl.endsWith('.jpg')) {
         // For files without _card suffix, just replace with _portrait
         portraitImageUrl = portraitImageUrl.replace('.jpg', '_portrait.jpg');
@@ -111,6 +112,8 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
 
   // For debugging
   const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
+  
+  console.log(`Generating portrait for "${name}": ${portraitImageUrl} (isPreview: ${isPreview})`);
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">

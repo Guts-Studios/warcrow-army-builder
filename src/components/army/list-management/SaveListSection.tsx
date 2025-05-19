@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
-import { useProfileSession } from "@/hooks/useProfileSession"; // Use the updated hook
+import { useProfileSession } from "@/hooks/useProfileSession";
 
 interface SaveListSectionProps {
   listName: string;
@@ -32,16 +32,16 @@ const SaveListSection = ({
   refreshSavedLists
 }: SaveListSectionProps) => {
   const { t } = useLanguage();
-  const { isAuthenticated, userId, isPreview } = useProfileSession(); // Use the updated session hook
+  const { isAuthenticated, userId, isPreview } = useProfileSession();
   const [isSaving, setIsSaving] = useState(false);
   
-  // Log our environment for debugging
+  // Log environment info for debugging
   useEffect(() => {
     console.log("SaveListSection - Environment:", {
       hostname: window.location.hostname,
       isPreview,
       isAuthenticated,
-      userId
+      userId: userId || 'none'
     });
   }, [isAuthenticated, userId, isPreview]);
   
@@ -159,7 +159,7 @@ const SaveListSection = ({
             <Button
               onClick={handleCloudSave}
               className="bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed order-3 md:order-2"
-              disabled={!isAuthenticated || isSaving}
+              disabled={!isAuthenticated || isSaving || isPreview}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
               {isSaving ? 'Saving...' : t('cloudSave')}
@@ -169,7 +169,8 @@ const SaveListSection = ({
             className="bg-warcrow-background border-warcrow-accent text-warcrow-text"
             side="bottom"
           >
-            {isAuthenticated ? 'Save list to the cloud' : 'Login required to use cloud features'}
+            {isPreview ? 'Cloud save is disabled in preview mode' : 
+              (isAuthenticated ? 'Save list to the cloud' : 'Login required to use cloud features')}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
