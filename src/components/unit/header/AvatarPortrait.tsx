@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslateKeyword } from '@/utils/translation';
+import { useTranslateKeyword } from '@/utils/translationUtils';
 
 interface AvatarPortraitProps {
   portraitUrl: string | undefined;
@@ -91,11 +91,12 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         portraitImageUrl = portraitImageUrl.replace('_card.jpg', '_portrait.jpg');
       } else if (portraitUrl.endsWith('_card.png')) {
         portraitImageUrl = portraitImageUrl.replace('_card.png', '_portrait.jpg'); 
-      } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg')) {
+      } else if (portraitUrl.endsWith('_card_sp.jpg') || portraitUrl.endsWith('_card_fr.jpg') || portraitUrl.endsWith('_card_en.jpg')) {
         // Remove language suffixes for portrait URLs to always use English version
         portraitImageUrl = portraitImageUrl
           .replace('_card_sp.jpg', '_portrait.jpg')
-          .replace('_card_fr.jpg', '_portrait.jpg');
+          .replace('_card_fr.jpg', '_portrait.jpg')
+          .replace('_card_en.jpg', '_portrait.jpg');
       } else if (portraitUrl.endsWith('.jpg')) {
         // For files without _card suffix, just replace with _portrait
         portraitImageUrl = portraitImageUrl.replace('.jpg', '_portrait.jpg');

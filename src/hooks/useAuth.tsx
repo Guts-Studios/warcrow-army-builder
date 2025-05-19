@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -56,10 +55,14 @@ export function useAuth() {
         const inPreview = isPreview();
         console.log("Auth hook: isPreview =", inPreview);
         
-        // For preview environment, provide dummy authenticated state
-        if (inPreview) {
-          console.log("Preview mode detected, using demo auth state");
-          if (mounted) {
+        // For preview environment, we'll use the normal authentication flow but
+        // with admin privileges if no session is found
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          // If we're in preview and there's no session, set preview privileges
+          if (inPreview && !session) {
+            console.log("Preview mode detected with no session, using demo auth state");
             setIsAuthenticated(true);
             setIsAdmin(true);
             setIsTester(true);
@@ -67,11 +70,78 @@ export function useAuth() {
             setUserId("preview-user-id");
             setIsGuest(false);
             setIsLoading(false);
+            return;
           }
-          return;
+          
+          // Set normal auth state based on session
+          console.log("Setting auth state based on session:", !!session);
+          setIsAuthenticated(!!session);
+          setUserId(session?.user?.id || null);
+          setIsGuest(!session);
+          
+          // If authenticated, check for admin/tester status
+          if (session?.user?.id) {
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('wab_admin, tester')
+                .eq('id', session.user.id)
+                .single();
+                
+              if (!error && data && mounted) {
+                const isAdminUser = !!data.wab_admin;
+                console.log("Admin status from database:", isAdminUser);
+                setIsAdmin(isAdminUser);
+                setIsTester(!!data.tester);
+                setIsWabAdmin(isAdminUser);
+              } else {
+                console.error("Error or no data when checking user roles:", error);
+                if (mounted) {
+                  // In preview mode, default to admin if role check fails
+                  if (inPreview) {
+                    setIsAdmin(true);
+                    setIsTester(true);
+                    setIsWabAdmin(true);
+                  } else {
+                    // Explicit fallbacks when profile fetch fails in production
+                    setIsAdmin(false);
+                    setIsTester(false);
+                    setIsWabAdmin(false);
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("Error checking user roles:", err);
+              if (mounted) {
+                // In preview mode, default to admin if role check fails
+                if (inPreview) {
+                  setIsAdmin(true);
+                  setIsTester(true);
+                  setIsWabAdmin(true);
+                } else {
+                  // Explicit fallbacks when profile fetch errors in production
+                  setIsAdmin(false);
+                  setIsTester(false);
+                  setIsWabAdmin(false);
+                }
+              }
+            }
+          } else if (inPreview) {
+            // Not authenticated but in preview mode
+            setIsAdmin(true);
+            setIsTester(true);
+            setIsWabAdmin(true);
+          } else {
+            // Not authenticated and not in preview
+            setIsAdmin(false);
+            setIsTester(false);
+            setIsWabAdmin(false);
+          }
+          
+          setIsLoading(false);
         }
         
-        // Set up the auth state listener for production environments
+        // Set up the auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log("Auth state changed:", event);
@@ -114,78 +184,44 @@ export function useAuth() {
                     setIsWabAdmin(false);
                   }
                 }
+              } else if (inPreview) {
+                // Not authenticated but in preview mode
+                setIsAdmin(true);
+                setIsTester(true);
+                setIsWabAdmin(true);
               } else {
-                // Not authenticated
-                if (mounted) {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
+                // Not authenticated and not in preview
+                setIsAdmin(false);
+                setIsTester(false);
+                setIsWabAdmin(false);
               }
             }
           }
         );
         
-        // Get the initial session state
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial auth session:", session ? "Found" : "Not found");
-        
-        if (mounted) {
-          setIsAuthenticated(!!session);
-          setUserId(session?.user?.id || null);
-          setIsGuest(!session);
-          
-          // If authenticated, check for admin/tester status
-          if (session?.user?.id) {
-            try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('wab_admin, tester')
-                .eq('id', session.user.id)
-                .single();
-                
-              if (!error && data) {
-                const isAdminUser = !!data.wab_admin;
-                console.log("Initial admin status from database:", isAdminUser);
-                setIsAdmin(isAdminUser);
-                setIsTester(!!data.tester);
-                setIsWabAdmin(isAdminUser);
-              } else {
-                console.error("Error or no data when checking initial user roles:", error);
-                // Explicit fallbacks
-                setIsAdmin(false);
-                setIsTester(false);
-                setIsWabAdmin(false);
-              }
-            } catch (err) {
-              console.error("Error checking user roles:", err);
-              // Explicit fallbacks
-              setIsAdmin(false);
-              setIsTester(false);
-              setIsWabAdmin(false);
-            }
-          } else {
-            // Not authenticated, set guest mode
-            setIsAdmin(false);
-            setIsTester(false);
-            setIsWabAdmin(false);
-          }
-          
-          setIsLoading(false);
-        }
-        
         return () => {
-          subscription.unsubscribe();
+          if (subscription) subscription.unsubscribe();
         };
       } catch (error) {
         console.error("Error in auth hook:", error);
         if (mounted) {
           setIsLoading(false);
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setIsTester(false);
-          setIsWabAdmin(false);
-          setIsGuest(true);
+          
+          // In preview, default to admin even on error
+          if (isPreview()) {
+            setIsAuthenticated(true);
+            setIsAdmin(true);
+            setIsTester(true);
+            setIsWabAdmin(true);
+            setIsGuest(false);
+          } else {
+            // In production, default to guest on error
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            setIsTester(false);
+            setIsWabAdmin(false);
+            setIsGuest(true);
+          }
         }
       }
     };

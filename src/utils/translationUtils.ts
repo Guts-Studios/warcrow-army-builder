@@ -14,24 +14,51 @@ export const useTranslateKeyword = () => {
 
   // Translate special rules
   const translateSpecialRule = useCallback((ruleName: string) => {
-    if (language === 'en') return ruleName;
+    if (!ruleName || language === 'en') return ruleName;
+    
     const translated = translateSpecialRuleDb(ruleName, language);
-    // Only return translated text if it's not empty and not the same as the input
-    return translated && translated !== ruleName ? translated : ruleName;
+    
+    // Check if translation exists and is valid (not a key)
+    if (translated && 
+        !translated.startsWith('specialRules.') && 
+        !translated.includes('undefined') &&
+        translated !== ruleName) {
+      return translated;
+    }
+    
+    // Hard-coded fallbacks for common special rules
+    const fallbacks: Record<string, Record<string, string>> = {
+      "Reach": {
+        "es": "Alcance",
+        "fr": "Portée"
+      },
+      "Shield": {
+        "es": "Escudo",
+        "fr": "Bouclier"
+      }
+      // Add more fallbacks as needed
+    };
+    
+    return fallbacks[ruleName]?.[language] || ruleName;
   }, [language, translateSpecialRuleDb]);
 
   // Translate special rule descriptions
   const translateSpecialRuleDescription = useCallback((ruleName: string) => {
-    if (language === 'en') return '';
+    if (!ruleName || language === 'en') return '';
     return translateSpecialRuleDescriptionDb(ruleName, language);
   }, [language, translateSpecialRuleDescriptionDb]);
 
   // Translate keywords
   const translateKeyword = useCallback((keyword: string) => {
-    if (language === 'en') return keyword;
+    if (!keyword || language === 'en') return keyword;
+    
     const translated = translateKeywordDb(keyword, language);
-    // Check if translation exists and is valid
-    if (translated && !translated.startsWith('keywords.') && translated !== keyword) {
+    
+    // Check if translation exists and is valid (not a key)
+    if (translated && 
+        !translated.startsWith('keywords.') && 
+        !translated.includes('undefined') &&
+        translated !== keyword) {
       return translated;
     }
     
@@ -72,6 +99,10 @@ export const useTranslateKeyword = () => {
       "Elf": {
         "es": "Elfo",
         "fr": "Elfe"
+      },
+      "Tattooist": {
+        "es": "Tatuador",
+        "fr": "Tatoueur"
       }
     };
     
@@ -81,17 +112,20 @@ export const useTranslateKeyword = () => {
 
   // Translate keyword descriptions
   const translateKeywordDescription = useCallback((keyword: string) => {
-    if (language === 'en') return '';
+    if (!keyword || language === 'en') return '';
     return translateKeywordDescriptionDb(keyword, language);
   }, [language, translateKeywordDescriptionDb]);
 
   // Translate characteristics
   const translateCharacteristic = useCallback((characteristic: string) => {
-    if (language === 'en') return characteristic;
+    if (!characteristic || language === 'en') return characteristic;
+    
     const translated = translateCharacteristicDb(characteristic, language);
     
-    // Only return translated text if it's not empty and doesn't start with "characteristics."
-    if (translated && !translated.startsWith('characteristics.')) {
+    // Check if translation exists and is valid (not a key)
+    if (translated && 
+        !translated.startsWith('characteristics.') && 
+        !translated.includes('undefined')) {
       return translated;
     }
     
@@ -101,16 +135,32 @@ export const useTranslateKeyword = () => {
 
   // Translate characteristic descriptions
   const translateCharacteristicDescription = useCallback((characteristic: string) => {
-    if (language === 'en') return '';
+    if (!characteristic || language === 'en') return '';
     return translateCharacteristicDescriptionDb(characteristic, language);
   }, [language, translateCharacteristicDescriptionDb]);
 
   // Translate unit names
   const translateUnitName = useCallback((name: string, targetLang: string = language) => {
-    if (targetLang === 'en') return name;
+    if (!name || targetLang === 'en') return name;
+    
     const translated = translateUnitNameDb(name, targetLang);
-    // Only return translated text if it's not empty and doesn't start with "unitNames."
-    return (translated && !translated.startsWith('unitNames.')) ? translated : name;
+    
+    // Check if translation exists and is valid (not a key)
+    if (translated && 
+        !translated.startsWith('unitNames.') && 
+        !translated.includes('undefined')) {
+      return translated;
+    }
+    
+    // Basic fallback for unit names that have patterns
+    if (name.includes("Elf")) {
+      return name.replace("Elf", targetLang === "es" ? "Elfo" : "Elfe");
+    }
+    if (name.includes("Orc")) {
+      return name.replace("Orc", targetLang === "es" ? "Orco" : "Orc");
+    }
+    
+    return name;
   }, [language, translateUnitNameDb]);
 
   return {

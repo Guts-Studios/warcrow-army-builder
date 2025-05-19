@@ -16,16 +16,7 @@ export const MainActions = () => {
   const isPreview = () => {
     const hostname = window.location.hostname;
     
-    // Check for specific production domain - adjust to match your actual production domain
-    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                         hostname === 'wab.warcrow.com';
-    
-    if (isProduction) {
-      console.log("Production environment detected in MainActions");
-      return false;
-    }
-    
-    // Otherwise, check if it's a preview/development environment
+    // More comprehensive list of preview hostnames
     const isPreviewEnv = hostname === 'lovableproject.com' || 
                         hostname.includes('.lovableproject.com') ||
                         hostname.includes('localhost') ||
@@ -110,10 +101,6 @@ export const MainActions = () => {
           <User className="mr-2 h-4 w-4" />
           {t('profile')}
         </Button>
-        {/* Debug output for values */}
-        <div className="hidden">
-          isTester: {String(isTester)}, isWabAdmin: {String(isWabAdmin)}, isPreview: {String(isPreview())}
-        </div>
         
         {/* Using more boolean coercion to ensure these render correctly */}
         {(!!isTester || !!isWabAdmin || isPreview()) && (
@@ -135,7 +122,7 @@ export const MainActions = () => {
             </Button>
           </>
         )}
-        {/* Ensure admin button always shows up in preview environment */}
+        {/* Show admin button in preview environment or for actual admin users */}
         {(isPreview() || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
           <Button
             onClick={() => navigate('/admin')}
