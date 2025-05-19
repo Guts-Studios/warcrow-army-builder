@@ -4,6 +4,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslateKeyword } from "@/utils/translationUtils";
 
 interface UnitCardImageProps {
   unit: Unit;
@@ -15,11 +16,15 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
   const [fallbackAttempted, setFallbackAttempted] = useState(false);
   const { language } = useLanguage();
   const isMobile = useIsMobile();
+  const { translateUnitName } = useTranslateKeyword();
 
   // If no image URL is provided, don't render the image section
   if (!unit.imageUrl) {
     return null;
   }
+  
+  // Get translated unit name for display
+  const displayName = translateUnitName(unit.name);
 
   // Special handling for Lady Télia
   if (unit.id === "lady-telia") {
@@ -31,7 +36,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
         >
           <img
             src="/art/card/lady_telia_card.jpg"
-            alt="Lady Télia"
+            alt={displayName}
             className="h-full w-full object-contain"
             onError={(e) => {
               console.error('Image load error for Lady Télia');
@@ -137,7 +142,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       >
         <img
           src={imageUrl}
-          alt={unit.name}
+          alt={displayName}
           className="h-full w-full object-contain"
           onError={(e) => {
             console.error('Image load error:', imageUrl);

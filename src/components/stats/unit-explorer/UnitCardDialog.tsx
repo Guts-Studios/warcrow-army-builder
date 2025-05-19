@@ -21,7 +21,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const [imageError, setImageError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isMobile = useIsMobile();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   
   // Reset state when dialog opens or URL changes
   useEffect(() => {
@@ -59,6 +59,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     console.log(`Converting UUID-based URL to name-based URL: ${actualCardUrl}`);
   }
   
+  // Use direct translation rather than looking up keys
   const getCardText = () => {
     if (language === 'en') return 'Unit Card';
     if (language === 'es') return 'Tarjeta de Unidad';

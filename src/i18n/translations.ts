@@ -1,4 +1,5 @@
 
+// Import statements remain as is
 import { TranslationsType } from './types';
 import { armyTranslations } from './army';
 import { authTranslations } from './auth';
@@ -12,6 +13,7 @@ import { aboutTranslations } from './about';
 import { profileTranslations } from './profile';
 import { faqTranslations } from './faq';
 import { activityTranslations } from './activity';
+import { unitsTranslations } from './units';
 
 export const translations: TranslationsType = {
   // Common translations
@@ -266,6 +268,9 @@ export const translations: TranslationsType = {
   
   // Include activity translations
   ...activityTranslations,
+  
+  // Include units translations
+  ...unitsTranslations,
   
   // Unit explorer translations
   unitExplorer: {

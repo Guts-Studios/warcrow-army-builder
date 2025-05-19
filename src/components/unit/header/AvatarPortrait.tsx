@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslateKeyword } from '@/utils/translation';
 
 interface AvatarPortraitProps {
   portraitUrl: string | undefined;
@@ -17,6 +18,10 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const [imageError, setImageError] = useState(false);
   const [fallbackAttempted, setFallbackAttempted] = useState(false);
   const { language } = useLanguage();
+  const { translateUnitName } = useTranslateKeyword();
+  
+  // Display properly translated name when available
+  const displayName = language === 'en' ? name : translateUnitName(name, language);
   
   // Special handling for Lady Télia
   if (name.includes("Lady Télia") || name.includes("Lady Telia")) {
@@ -24,7 +29,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
         <AvatarImage 
           src="/art/portrait/lady_telia_portrait.jpg" 
-          alt="Lady Télia" 
+          alt={displayName} 
           className="object-cover"
           onError={(e) => {
             console.error('Portrait image failed to load for Lady Télia');
@@ -110,7 +115,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
       <AvatarImage 
         src={portraitImageUrl} 
-        alt={name} 
+        alt={displayName} 
         className="object-cover"
         onError={(e) => {
           console.error(`Portrait image failed to load for ${name}:`, portraitImageUrl);
@@ -134,7 +139,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         }}
       />
       <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
-        {fallback || name.split(' ').map(word => word[0]).join('')}
+        {fallback || displayName.split(' ').map(word => word[0]).join('')}
       </AvatarFallback>
     </Avatar>
   );
