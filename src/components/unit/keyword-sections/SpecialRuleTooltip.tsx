@@ -33,12 +33,14 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
         }
         
         if (data) {
-          const translatedDescription = language !== 'en' 
-            ? data[`description_${language}`] || data.description 
-            : data.description;
+          // Safely access description fields
+          const mainDescription = data.description;
+          const localizedDescription = language !== 'en' && data[`description_${language}`] 
+            ? data[`description_${language}`] 
+            : null;
             
-          if (translatedDescription) {
-            setDbRuleDescription(translatedDescription);
+          if (localizedDescription || mainDescription) {
+            setDbRuleDescription(localizedDescription || mainDescription);
           }
         }
       } catch (err) {

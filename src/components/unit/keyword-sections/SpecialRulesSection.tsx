@@ -37,11 +37,18 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           return;
         }
         
-        if (data) {
+        if (data && Array.isArray(data)) {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, RuleTranslation> = {};
           data.forEach(rule => {
-            translationsRecord[rule.name] = rule;
+            // Ensure rule has necessary properties before adding
+            if (rule && rule.name) {
+              translationsRecord[rule.name] = {
+                name: rule.name,
+                name_es: rule.name_es,
+                name_fr: rule.name_fr
+              };
+            }
           });
           
           setDbTranslations(translationsRecord);
