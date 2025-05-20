@@ -11,7 +11,7 @@ interface SpecialRulesSectionProps {
   specialRules?: string[];
 }
 
-interface RuleTranslation {
+interface SpecialRuleTranslation {
   name: string;
   name_es?: string;
   name_fr?: string;
@@ -20,8 +20,8 @@ interface RuleTranslation {
 // Define a type for the database record to help with type safety
 interface SpecialRuleRecord {
   name: string;
-  name_es?: string;
-  name_fr?: string;
+  name_es?: string | null;
+  name_fr?: string | null;
   [key: string]: any; // Allow for additional properties
 }
 
@@ -30,7 +30,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
   const { language } = useLanguage();
   const { translateSpecialRule } = useTranslateKeyword();
-  const [dbTranslations, setDbTranslations] = useState<Record<string, RuleTranslation>>({});
+  const [dbTranslations, setDbTranslations] = useState<Record<string, SpecialRuleTranslation>>({});
 
   // Fetch all special rule translations from database
   useEffect(() => {
@@ -47,24 +47,17 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
         
         if (data && Array.isArray(data)) {
           // Convert array to record for easy lookup
-          const translationsRecord: Record<string, RuleTranslation> = {};
+          const translationsRecord: Record<string, SpecialRuleTranslation> = {};
           
           // Filter out any items that don't have a valid name property
-          const validRules = data.filter(
-            (item): item is SpecialRuleRecord => 
-              item !== null && 
-              typeof item === 'object' && 
-              'name' in item && 
-              typeof item.name === 'string' && 
-              item.name !== ''
-          );
-          
-          validRules.forEach((rule) => {
-            translationsRecord[rule.name] = {
-              name: rule.name,
-              name_es: rule.name_es,
-              name_fr: rule.name_fr
-            };
+          data.forEach((item) => {
+            if (item && typeof item === 'object' && 'name' in item && typeof item.name === 'string' && item.name !== '') {
+              translationsRecord[item.name] = {
+                name: item.name,
+                name_es: item.name_es || undefined,
+                name_fr: item.name_fr || undefined
+              };
+            }
           });
           
           setDbTranslations(translationsRecord);

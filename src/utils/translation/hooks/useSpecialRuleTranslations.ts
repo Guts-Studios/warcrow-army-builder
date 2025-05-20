@@ -3,6 +3,19 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
 
+// Define interface for database records
+interface SpecialRuleData {
+  id: string;
+  name: string;
+  description?: string;
+  description_es?: string;
+  description_fr?: string;
+  name_es?: string | null;
+  name_fr?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const useSpecialRuleTranslations = () => {
   const [specialRuleTranslations, setSpecialRuleTranslations] = useState<Record<string, Record<string, string>>>({});
   const [specialRuleDescriptions, setSpecialRuleDescriptions] = useState<Record<string, Record<string, string>>>({});
@@ -23,7 +36,7 @@ export const useSpecialRuleTranslations = () => {
           const translations: Record<string, Record<string, string>> = {};
           const descriptions: Record<string, Record<string, string>> = {};
           
-          rulesData.forEach(item => {
+          rulesData.forEach((item: SpecialRuleData) => {
             if (!item || typeof item !== 'object' || !('name' in item) || typeof item.name !== 'string') {
               return; // Skip invalid items
             }
@@ -33,6 +46,7 @@ export const useSpecialRuleTranslations = () => {
             }
             
             // Store translations for non-English languages if available
+            // Using optional chaining and nullish coalescing for type safety
             if (item.name_es) translations[item.name]['es'] = item.name_es;
             if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
             
