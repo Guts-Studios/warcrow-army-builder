@@ -2,8 +2,6 @@
 import { Unit } from "@/types/army";
 
 export const syenannHighCommand: Unit[] = [
-  // Grand Captain and Lioslaith are already in characters.ts with highCommand set to true,
-  // but we should move them here for consistency with other factions
   {
     id: "grand-captain",
     name: "Grand Captain",
