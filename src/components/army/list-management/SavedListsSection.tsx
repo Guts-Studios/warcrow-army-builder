@@ -27,7 +27,8 @@ const SavedListsSection = ({
   
   // Helper function to determine if a list is a cloud list
   const isCloudList = (list: SavedList): boolean => {
-    return !!list.user_id;
+    // A list is a cloud list if it has a non-null user_id property
+    return list.user_id !== undefined && list.user_id !== null;
   };
   
   // Filter and sort lists whenever savedLists or selectedFaction changes

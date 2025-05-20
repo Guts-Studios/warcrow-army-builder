@@ -1,3 +1,4 @@
+
 import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchListsByWabId } from "./profileUtils";
@@ -130,7 +131,15 @@ export const saveListToStorage = (
   try {
     // Update localStorage with the new list
     const existingListsJson = localStorage.getItem("armyLists");
-    const existingLists = existingListsJson ? JSON.parse(existingListsJson) : [];
+    let existingLists = existingListsJson ? JSON.parse(existingListsJson) : [];
+    
+    // Clean any existing lists to ensure they don't have user_id property
+    existingLists = existingLists.map((list: SavedList) => {
+      if (!list.user_id) return list;
+      // Remove user_id if it exists
+      const { user_id, ...listWithoutUserId } = list;
+      return listWithoutUserId;
+    });
     
     // Remove any existing list with the same name and faction
     const filteredLists = existingLists.filter((list: SavedList) => 
