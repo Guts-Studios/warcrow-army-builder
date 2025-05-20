@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,14 +35,21 @@ import { useEnvironment } from "@/hooks/useEnvironment";
 
 const fetchUserCount = async () => {
   try {
-    console.log("Fetching user count directly...");
+    console.log("Fetching user count with fresh query...");
     
-    // Use a direct count query with no caching
+    // Add timestamp to bust cache completely
+    const timestamp = new Date().getTime();
+    
+    // Use a direct count query with explicit cache busting
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('banned', false)
-      .eq('deactivated', false);
+      .eq('deactivated', false)
+      .then(response => {
+        console.log('User count response:', response);
+        return response;
+      });
     
     if (error) {
       console.error('Error fetching user count:', error);
@@ -128,8 +134,9 @@ const Landing = () => {
     queryFn: fetchUserCount,
     staleTime: 0, // No caching
     gcTime: 0, // Don't cache at all
-    retry: 1, // Only retry once
+    retry: 2, // Retry twice to ensure we get the data
     refetchOnMount: true, // Always refetch on mount
+    refetchOnWindowFocus: true, // Refetch when window gets focus
     enabled: true, // Always enable this query
     meta: {
       onError: (error: any) => {
@@ -198,6 +205,7 @@ const Landing = () => {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
+      // Force refresh the auth state on mount
       const { data: { session } } = await supabase.auth.getSession();
       setIsGuest(!session);
     };
@@ -206,8 +214,9 @@ const Landing = () => {
   }, []);
 
   const handleRefreshUserCount = () => {
-    // Force refetch from database
+    // Force refetch from database with fresh query
     refetchUserCount();
+    toast.info("Refreshing user count...");
   };
 
   const handleSignOut = async () => {

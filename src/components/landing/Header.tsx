@@ -49,19 +49,15 @@ export const Header = ({
   // Function to directly fetch news from the database
   const fetchNewsFromDatabase = async () => {
     try {
-      console.log("Header: Directly fetching news from database");
+      console.log("Header: Directly fetching news from database with timestamp:", new Date().toISOString());
       
-      // Use mock data in preview mode
+      // Use mock data in preview mode, BUT only as fallback
       if (isPreview) {
-        console.log("Header: Preview environment detected, using mock news data");
-        return {
-          id: "preview-news-1",
-          date: format(new Date(), 'yyyy-MM-dd'),
-          key: "previewNewsKey"
-        };
+        console.log("Header: Preview environment detected, trying to fetch real data first");
+        // Try to fetch real data first, use mock only as fallback
       }
       
-      // Add cache-busting query parameter
+      // Direct database fetch with cache busting
       const timestamp = new Date().getTime();
       
       const { data, error } = await supabase
@@ -73,11 +69,33 @@ export const Header = ({
       
       if (error) {
         console.error("Error fetching news from database:", error);
+        
+        // If in preview mode and fetch failed, use mock data
+        if (isPreview) {
+          console.log("Header: Using mock news data in preview mode after fetch failure");
+          return {
+            id: "preview-news-1",
+            date: format(new Date(), 'yyyy-MM-dd'),
+            key: "previewNewsKey"
+          };
+        }
+        
         return null;
       }
       
       if (!data || data.length === 0) {
         console.log("No news items found in database");
+        
+        // If in preview mode and no data, use mock data
+        if (isPreview) {
+          console.log("Header: Using mock news data in preview mode because no real data found");
+          return {
+            id: "preview-news-1",
+            date: format(new Date(), 'yyyy-MM-dd'),
+            key: "previewNewsKey"
+          };
+        }
+        
         return null;
       }
       
@@ -98,6 +116,17 @@ export const Header = ({
       };
     } catch (error) {
       console.error("Error in fetchNewsFromDatabase:", error);
+      
+      // If in preview mode and fetch failed, use mock data
+      if (isPreview) {
+        console.log("Header: Using mock news data in preview mode after exception");
+        return {
+          id: "preview-news-1",
+          date: format(new Date(), 'yyyy-MM-dd'),
+          key: "previewNewsKey"
+        };
+      }
+      
       return null;
     }
   };
@@ -119,9 +148,9 @@ export const Header = ({
       setIsLoading(true);
       setLoadingError(null);
       try {
-        console.log("Header: Loading news items...");
+        console.log("Header: Loading news items with timestamp:", new Date().toISOString());
         
-        // Attempt direct database fetch first (immediate result strategy)
+        // Force a fresh request each time to avoid caching issues
         const newsItem = await fetchNewsFromDatabase();
         
         if (!newsItem) {
@@ -149,6 +178,7 @@ export const Header = ({
           }
         } else {
           setLatestNewsItem(newsItem);
+          console.log("Header: Set latest news item:", newsItem);
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
@@ -200,6 +230,8 @@ export const Header = ({
     setIsLoading(true);
     setLoadingError(null);
     try {
+      console.log("Header: Refreshing news with timestamp:", new Date().toISOString());
+      
       // Always try to fetch from the database
       const newsItem = await fetchNewsFromDatabase();
       

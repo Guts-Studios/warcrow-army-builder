@@ -1,4 +1,3 @@
-
 import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchListsByWabId } from "./profileUtils";
@@ -13,7 +12,17 @@ export const fetchSavedLists = async (wabId?: string) => {
   try {
     const localListsJson = localStorage.getItem("armyLists");
     if (localListsJson) {
-      localLists = JSON.parse(localListsJson);
+      // Parse local lists and ensure they don't have user_id for proper display
+      const parsedLists = JSON.parse(localListsJson);
+      localLists = parsedLists.map((list: SavedList) => {
+        // If it doesn't have user_id, keep as is
+        if (!list.user_id) return list;
+        
+        // Otherwise, strip out the user_id to ensure it shows as local
+        const { user_id, ...listWithoutUserId } = list;
+        return listWithoutUserId as SavedList;
+      });
+      
       console.log(`Found ${localLists.length} local lists`);
     } else {
       console.log("No local lists found in localStorage");

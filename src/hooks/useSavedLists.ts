@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { fetchListsByWabId } from '@/utils/profileUtils';
 import { SavedList } from '@/types/army';
@@ -20,7 +19,7 @@ export const useSavedLists = (player?: Player) => {
       return;
     }
     
-    console.log(`Fetching lists for WAB ID: ${wabId}`);
+    console.log(`Fetching lists for WAB ID: ${wabId}`, {timestamp: new Date().toISOString()});
     setIsLoadingSavedLists(true);
     
     try {
@@ -32,7 +31,8 @@ export const useSavedLists = (player?: Player) => {
       let lists: SavedList[] = [];
       
       if (session?.user) {
-        console.log('User is authenticated, fetching their lists');
+        console.log('User is authenticated, fetching their lists', {userId: session.user.id});
+        
         const { data, error } = await supabase
           .from('army_lists')
           .select('*')
@@ -47,7 +47,7 @@ export const useSavedLists = (player?: Player) => {
             id: list.id,
             name: list.name,
             faction: list.faction,
-            units: list.units,
+            units: Array.isArray(list.units) ? list.units : [],
             user_id: list.user_id,
             created_at: list.created_at,
             wab_id: list.wab_id
@@ -75,20 +75,40 @@ export const useSavedLists = (player?: Player) => {
         }
       }
       
-      // Also get lists from localStorage
+      // Also get lists from localStorage - always try to load these
       try {
         const localData = localStorage.getItem('armyLists');
         if (localData) {
           const localLists = JSON.parse(localData) as SavedList[];
           
           if (Array.isArray(localLists) && localLists.length > 0) {
+            // Ensure local lists don't accidentally have user_id property
+            const processedLocalLists = localLists.map((list: SavedList) => {
+              // If this is a local list, make sure it doesn't have user_id
+              if (!list.user_id) {
+                return list;
+              }
+              
+              // If it matches the current user's ID, it's likely a cloud list
+              // that was also saved locally - keep as is
+              if (session?.user?.id && list.user_id === session.user.id) {
+                return list;
+              }
+              
+              // Otherwise it's a local list that somehow got a user_id - remove it
+              const { user_id, ...listWithoutUserId } = list;
+              return listWithoutUserId as SavedList;
+            });
+            
             // Only add local lists if they're not already in our lists
             const existingIds = new Set(lists.map(list => list.id));
-            const newLocalLists = localLists.filter(list => !existingIds.has(list.id));
+            const newLocalLists = processedLocalLists.filter(list => !existingIds.has(list.id));
             
             lists = [...lists, ...newLocalLists];
             console.log(`Found ${newLocalLists.length} additional lists from localStorage`);
           }
+        } else {
+          console.log("No local lists found in localStorage");
         }
       } catch (localErr) {
         console.error('Error loading local lists:', localErr);
@@ -139,22 +159,43 @@ export const useSavedLists = (player?: Player) => {
         const localData = localStorage.getItem('armyLists');
         if (localData) {
           const localLists = JSON.parse(localData);
-          setSavedLists(localLists);
-          console.log(`Loaded ${localLists.length} local lists`);
+          // Filter out any lists that accidentally have user_id property
+          const processedLocalLists = localLists.map((list: SavedList) => {
+            if (!list.user_id) return list;
+            const { user_id, ...listWithoutUserId } = list;
+            return listWithoutUserId;
+          });
+          setSavedLists(processedLocalLists);
+          console.log(`Loaded ${processedLocalLists.length} local lists`);
         }
       } catch (e) {
         console.error('Error loading local lists:', e);
       }
       
       // Then check if user is authenticated to fetch cloud lists
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        console.log("User is authenticated, fetching lists directly");
-        fetchLists(session.user.id);
-      } else if (isPreview) {
-        console.log("Preview environment detected, using local lists only");
-      } else {
-        console.log("User is not authenticated, using local lists only");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log("User is authenticated, fetching lists directly");
+          fetchLists(session.user.id);
+        } else if (isPreview) {
+          console.log("Preview environment detected, using local lists only");
+        } else {
+          console.log("User is not authenticated, using local lists only");
+        }
+      } catch (authError) {
+        console.error('Error checking authentication:', authError);
+        
+        // On auth error, still try to display local lists
+        try {
+          const localData = localStorage.getItem('armyLists');
+          if (localData) {
+            const localLists = JSON.parse(localData);
+            setSavedLists(localLists);
+          }
+        } catch (e) {
+          console.error('Error loading local lists after auth error:', e);
+        }
       }
     };
     
@@ -166,6 +207,7 @@ export const useSavedLists = (player?: Player) => {
     isLoadingSavedLists,
     fetchLists,
     refreshLists: () => {
+      console.log("Refreshing saved lists...");
       if (lastFetchedWabId) {
         fetchLists(lastFetchedWabId);
       } else {
