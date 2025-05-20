@@ -37,8 +37,7 @@ export const useEnvironment = (forceMockData?: boolean): EnvironmentInfo => {
     const isProduction = hostname === 'warcrowarmy.com' || 
                         hostname.endsWith('.warcrowarmy.com');
     
-    // IMPORTANT: Always use real data for both preview and production
-    // Never use mock data unless explicitly requested
+    // IMPORTANT: Always use local data for content, never use mock data
     const useMockData = false;
     
     setEnvironmentInfo({

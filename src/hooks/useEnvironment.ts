@@ -14,7 +14,7 @@ export const useEnvironment = () => {
   const isProduction = hostname === 'warcrowarmy.com' || 
                       hostname.endsWith('.warcrowarmy.com');
   
-  // Always use local data for content
+  // Always use local data for content regardless of environment
   const useLocalContentData = true;
   
   return {

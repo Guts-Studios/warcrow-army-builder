@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { specialRuleTranslations } from '@/data/specialRuleTranslations';
 
 export interface UnitCharacteristic {
   id: string;
@@ -23,22 +24,41 @@ export const useCharacteristics = () => {
   const [translationProgress, setTranslationProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
   
-  // Fetch all characteristics
-  const fetchCharacteristics = async () => {
+  // Convert special rule translations to characteristics format for local use
+  const fetchLocalCharacteristics = () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('unit_characteristics')
-        .select('*')
-        .order('name');
-        
-      if (error) throw error;
+      // Transform the special rule translations to the UnitCharacteristic format
+      const localCharacteristics: UnitCharacteristic[] = Object.entries(specialRuleTranslations).map(
+        ([name, translations]) => ({
+          id: name.replace(/\s+/g, '_').toLowerCase(),
+          name,
+          name_es: name, // Would need actual translations
+          name_fr: name, // Would need actual translations
+          description: translations.description_en || '',
+          description_es: translations.description_es || '',
+          description_fr: translations.description_fr || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+      );
       
-      setCharacteristics(data || []);
+      setCharacteristics(localCharacteristics);
     } catch (error) {
-      console.error('Error fetching characteristics:', error);
+      console.error('Error fetching local characteristics:', error);
       setError(error as Error);
     } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Fetch from local data primarily, fallback to database if needed
+  const fetchCharacteristics = async () => {
+    try {
+      fetchLocalCharacteristics();
+    } catch (error) {
+      console.error('Error loading characteristics:', error);
+      setError(error as Error);
       setIsLoading(false);
     }
   };
