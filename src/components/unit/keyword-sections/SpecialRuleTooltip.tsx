@@ -11,8 +11,10 @@ interface SpecialRuleTooltipProps {
 
 // Define a type for the special rule database record
 interface SpecialRuleData {
-  description: string;
-  [key: string]: any; // For dynamically accessed properties like description_es, description_fr
+  description?: string;
+  description_es?: string;
+  description_fr?: string;
+  [key: string]: any; // For dynamically accessed properties
 }
 
 const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
@@ -48,7 +50,7 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
             data[localizedDescriptionKey] : null;
             
           if (localizedDescription || mainDescription) {
-            setDbRuleDescription(localizedDescription || mainDescription);
+            setDbRuleDescription(localizedDescription || mainDescription as string);
           }
         }
       } catch (err) {
