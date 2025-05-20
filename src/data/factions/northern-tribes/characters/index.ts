@@ -4,10 +4,10 @@ import { northernTribesLeaders } from "./leaders";
 import { northernTribesSupports } from "./supports";
 import { northernTribesElites } from "./elites";
 import { northernTribesSpecialists } from "./specialists";
-// Remove direct import of vercana since she'll come via mercenaries
+// Import of vercana is removed as she'll be imported via mercenaries
 
 export const northernTribesCharacters: Unit[] = [
-  // Remove vercana from here as she'll be imported via the mercenaries logic
+  // Vercana is removed from here and will be imported via the mercenaries logic
   ...northernTribesLeaders,
   ...northernTribesSupports,
   ...northernTribesElites,

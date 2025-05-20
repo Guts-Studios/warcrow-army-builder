@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { specialRuleDefinitions } from "@/data/specialRuleDefinitions";
@@ -8,58 +9,69 @@ export const useSpecialRuleTranslations = () => {
 
   useEffect(() => {
     const fetchSpecialRules = async () => {
-      const { data: rulesData, error: rulesError } = await supabase
-        .from('special_rules')
-        .select('*');
-      
-      if (!rulesError && rulesData) {
-        const translations: Record<string, Record<string, string>> = {};
-        const descriptions: Record<string, Record<string, string>> = {};
+      try {
+        const { data: rulesData, error: rulesError } = await supabase
+          .from('special_rules')
+          .select('*');
         
-        rulesData.forEach(item => {
-          if (!translations[item.name]) {
-            translations[item.name] = { 'en': item.name };
-          }
+        if (rulesError) {
+          console.error('Error fetching special rules:', rulesError);
+          return;
+        }
+        
+        if (rulesData && Array.isArray(rulesData)) {
+          const translations: Record<string, Record<string, string>> = {};
+          const descriptions: Record<string, Record<string, string>> = {};
           
-          // Store translations for non-English languages if available
-          // Note: name_es and name_fr don't exist in the current schema,
-          // so we use the English name as default for all languages
-          translations[item.name]['es'] = item.name;
-          translations[item.name]['fr'] = item.name;
-          
-          // Store descriptions separately
-          if (!descriptions[item.name]) {
-            descriptions[item.name] = { 'en': item.description || '' };
-          }
-          
-          if (item.description_es) descriptions[item.name]['es'] = item.description_es;
-          if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
-        });
+          rulesData.forEach(item => {
+            if (!item || typeof item !== 'object' || !('name' in item) || typeof item.name !== 'string') {
+              return; // Skip invalid items
+            }
+            
+            if (!translations[item.name]) {
+              translations[item.name] = { 'en': item.name };
+            }
+            
+            // Store translations for non-English languages if available
+            if (item.name_es) translations[item.name]['es'] = item.name_es;
+            if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
+            
+            // Store descriptions separately
+            if (!descriptions[item.name]) {
+              descriptions[item.name] = { 'en': item.description || '' };
+            }
+            
+            if (item.description_es) descriptions[item.name]['es'] = item.description_es;
+            if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
+          });
 
-        // Add special rules from static definitions that might not be in the database
-        Object.keys(specialRuleDefinitions).forEach(ruleName => {
-          if (!translations[ruleName]) {
-            translations[ruleName] = { 
-              'en': ruleName,
-              'es': ruleName, // Default to English if no translation exists
-              'fr': ruleName  // Default to English if no translation exists
-            };
-          }
+          // Add special rules from static definitions that might not be in the database
+          Object.keys(specialRuleDefinitions).forEach(ruleName => {
+            if (!translations[ruleName]) {
+              translations[ruleName] = { 
+                'en': ruleName,
+                'es': ruleName, // Default to English if no translation exists
+                'fr': ruleName  // Default to English if no translation exists
+              };
+            }
+            
+            if (!descriptions[ruleName]) {
+              descriptions[ruleName] = { 'en': specialRuleDefinitions[ruleName] || '' };
+            }
+          });
           
-          if (!descriptions[ruleName]) {
-            descriptions[ruleName] = { 'en': specialRuleDefinitions[ruleName] || '' };
-          }
-        });
-        
-        setSpecialRuleTranslations(translations);
-        setSpecialRuleDescriptions(descriptions);
+          setSpecialRuleTranslations(translations);
+          setSpecialRuleDescriptions(descriptions);
+        }
+      } catch (err) {
+        console.error('Error in fetchSpecialRules:', err);
       }
     };
 
     fetchSpecialRules();
   }, []);
 
-  const translateSpecialRule = (rule: string, language: string): string => {
+  const translateSpecialRule = (rule: string, language: string = 'en'): string => {
     if (!rule || language === 'en') return rule;
     
     // For special rules, handle parameter sections separately
@@ -73,7 +85,7 @@ export const useSpecialRuleTranslations = () => {
     return translatedBase + (params ? ' ' + params : '');
   };
 
-  const translateSpecialRuleDescription = (rule: string, language: string): string => {
+  const translateSpecialRuleDescription = (rule: string, language: string = 'en'): string => {
     if (!rule) return '';
     
     // Extract base rule name without parameters

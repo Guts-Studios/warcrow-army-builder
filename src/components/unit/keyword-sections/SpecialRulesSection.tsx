@@ -25,13 +25,6 @@ interface SpecialRuleRecord {
   [key: string]: any; // Allow for additional properties
 }
 
-// Define the type that Supabase will actually return
-type SupabaseRuleResponse = {
-  name: string;
-  name_es?: string;
-  name_fr?: string;
-} | null; // Explicitly stating it can be null
-
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
@@ -52,13 +45,13 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           return;
         }
         
-        if (data) {
+        if (data && Array.isArray(data)) {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, RuleTranslation> = {};
           
-          // Use non-null assertion with filter to satisfy TypeScript
-          const safeData = (data as Array<SupabaseRuleResponse>).filter(
-            (item): item is NonNullable<SupabaseRuleResponse> => 
+          // Filter out any items that don't have a valid name property
+          const validRules = data.filter(
+            (item): item is SpecialRuleRecord => 
               item !== null && 
               typeof item === 'object' && 
               'name' in item && 
@@ -66,8 +59,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
               item.name !== ''
           );
           
-          safeData.forEach((rule) => {
-            // Now we're sure rule is not null
+          validRules.forEach((rule) => {
             translationsRecord[rule.name] = {
               name: rule.name,
               name_es: rule.name_es,

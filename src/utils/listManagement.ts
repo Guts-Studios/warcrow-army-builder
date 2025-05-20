@@ -21,9 +21,15 @@ export const fetchSavedLists = async (wabId?: string) => {
     let cloudLists: SavedList[] = [];
     
     // Get current user session
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData?.session;
     const isAuthenticated = !!session?.user;
-    console.log("Auth state:", { isAuthenticated, userId: session?.user?.id });
+    
+    console.log("Auth state:", { 
+      isAuthenticated, 
+      userId: session?.user?.id, 
+      wabIdProvided: !!wabId 
+    });
     
     // If user is authenticated, fetch their lists first
     if (isAuthenticated) {
@@ -36,7 +42,7 @@ export const fetchSavedLists = async (wabId?: string) => {
         
       if (error) {
         console.error("Error fetching cloud lists by user ID:", error);
-      } else if (data) {
+      } else if (data && Array.isArray(data)) {
         console.log("Found cloud lists by user ID:", data.length);
         cloudLists = data.map((list: any) => ({
           id: list.id,
@@ -51,16 +57,20 @@ export const fetchSavedLists = async (wabId?: string) => {
     }
     
     // If a WAB ID is provided and different from the user's ID, fetch additional lists
-    if (wabId && (!isAuthenticated || wabId !== session.user.id)) {
+    if (wabId && (!isAuthenticated || wabId !== session?.user?.id)) {
       console.log("Fetching additional cloud lists by WAB ID:", wabId);
       const wabLists = await fetchListsByWabId(wabId);
       
-      // Only add WAB lists that aren't already in the user's lists
-      const existingIds = new Set(cloudLists.map(list => list.id));
-      const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
-      
-      cloudLists = [...cloudLists, ...newWabLists];
-      console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
+      if (Array.isArray(wabLists)) {
+        // Only add WAB lists that aren't already in the user's lists
+        const existingIds = new Set(cloudLists.map(list => list.id));
+        const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
+        
+        cloudLists = [...cloudLists, ...newWabLists];
+        console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
+      } else {
+        console.error("fetchListsByWabId did not return an array:", wabLists);
+      }
     }
 
     const combinedLists = [...localLists, ...cloudLists];
