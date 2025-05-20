@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,6 +24,13 @@ interface SpecialRuleRecord {
   [key: string]: any; // Allow for additional properties
 }
 
+// Define the type that Supabase will actually return
+type SupabaseRuleResponse = {
+  name: string;
+  name_es?: string;
+  name_fr?: string;
+} | null; // Explicitly stating it can be null
+
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
@@ -45,25 +51,26 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           return;
         }
         
-        if (data && Array.isArray(data)) {
+        if (data) {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, RuleTranslation> = {};
           
-          data.forEach((rule) => {
-            // Additional checks to ensure rule is valid and has a name property
-            if (rule && 
-                typeof rule === 'object' && 
-                rule !== null && 
-                'name' in rule && 
-                typeof rule.name === 'string' && 
-                rule.name) {
-              
-              translationsRecord[rule.name] = {
-                name: rule.name,
-                name_es: rule.name_es,
-                name_fr: rule.name_fr
-              };
-            }
+          // Use non-null assertion with filter to satisfy TypeScript
+          const safeData = (data as Array<SupabaseRuleResponse>).filter(
+            (item): item is NonNullable<SupabaseRuleResponse> => 
+              item !== null && 
+              typeof item === 'object' && 
+              'name' in item && 
+              typeof item.name === 'string' && 
+              item.name !== ''
+          );
+          
+          safeData.forEach((rule) => {
+            translationsRecord[rule.name] = {
+              name: rule.name,
+              name_es: rule.name_es,
+              name_fr: rule.name_fr
+            };
           });
           
           setDbTranslations(translationsRecord);
