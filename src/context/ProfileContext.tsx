@@ -15,7 +15,7 @@ interface ProfileContextType {
   handleSubmit: (e: React.FormEvent) => void;
   handleAvatarUpdate: (url: string) => void;
   handleListSelect: (list: SavedList) => void;
-  // Add friend-related functions
+  // Friend-related functions
   sendFriendRequest: (recipientId: string) => Promise<void>;
   isFriendRequestSent: boolean;
 }

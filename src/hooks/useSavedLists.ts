@@ -5,12 +5,14 @@ import { SavedList } from '@/types/army';
 import { toast } from 'sonner';
 import { Player } from '@/types/game';
 import { supabase } from '@/integrations/supabase/client';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
 export const useSavedLists = (player?: Player) => {
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [isLoadingSavedLists, setIsLoadingSavedLists] = useState(false);
   const [lastFetchedWabId, setLastFetchedWabId] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<number>(Date.now());
+  const { isPreview } = useEnvironment();
 
   const fetchLists = async (wabId: string) => {
     if (!wabId) {
@@ -63,12 +65,16 @@ export const useSavedLists = (player?: Player) => {
         try {
           const wabLists = await fetchListsByWabId(wabId);
           
-          // Only add WAB lists that aren't already in the user's lists
-          const existingIds = new Set(lists.map(list => list.id));
-          const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
-          
-          lists = [...lists, ...newWabLists];
-          console.log(`Found ${newWabLists.length} additional lists by WAB ID`);
+          if (Array.isArray(wabLists) && wabLists.length > 0) {
+            // Only add WAB lists that aren't already in the user's lists
+            const existingIds = new Set(lists.map(list => list.id));
+            const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
+            
+            lists = [...lists, ...newWabLists];
+            console.log(`Found ${newWabLists.length} additional lists by WAB ID`);
+          } else {
+            console.log(`No additional lists found by WAB ID: ${wabId}`);
+          }
         } catch (wabErr) {
           console.error(`Error fetching lists by WAB ID: ${wabId}:`, wabErr);
         }
@@ -92,7 +98,7 @@ export const useSavedLists = (player?: Player) => {
       }
       
       if (lists.length > 0) {
-        console.log(`Total lists found: ${lists.length}`, lists);
+        console.log(`Total lists found: ${lists.length}`);
         setSavedLists(lists);
         
         if (player?.verified && session?.user?.id) {
@@ -103,7 +109,7 @@ export const useSavedLists = (player?: Player) => {
       } else {
         console.log(`No lists found for WAB ID: ${wabId}`);
         setSavedLists([]);
-        if (player?.verified && session?.user?.id) {
+        if (player?.verified && session?.user?.id && !isPreview) {
           toast.info("No saved lists found for this WAB ID", {
             id: `no-lists-${wabId}`
           });
@@ -171,3 +177,5 @@ export const useSavedLists = (player?: Player) => {
     }
   };
 };
+
+export default useSavedLists;

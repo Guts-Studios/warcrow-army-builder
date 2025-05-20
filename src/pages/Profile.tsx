@@ -1,3 +1,4 @@
+
 import { ProfileDataProvider, useProfileContext } from "@/components/profile/ProfileData";
 import { ProfileContent } from "@/components/profile/ProfileContent";
 import { LoadingScreen } from "@/components/profile/LoadingScreen";

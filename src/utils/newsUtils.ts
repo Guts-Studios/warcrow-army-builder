@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "@/data/newsArchive";
 import { translations } from "@/i18n/translations";
@@ -6,7 +5,7 @@ import { translations } from "@/i18n/translations";
 interface NewsTranslation {
   en: string;
   es: string;
-  fr: string; // French translation included
+  fr: string; 
 }
 
 interface NewsItemDB {
@@ -16,7 +15,7 @@ interface NewsItemDB {
   translation_key: string;
   content_en: string;
   content_es: string;
-  content_fr: string; // French content included
+  content_fr: string; 
   created_at: string;
   updated_at: string;
 }
@@ -198,13 +197,6 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       // Ensure we have news_id - crucial fix for ID handling
       const newsId = item.news_id || item.id;
       
-      // Ensure content_fr exists (using an empty string if it doesn't)
-      const processedItem = {
-        ...item,
-        content_fr: 'content_fr' in item ? item.content_fr : '',
-        news_id: newsId
-      } as NewsItemDB;
-
       // Update the in-memory translations
       translations[item.translation_key] = {
         en: item.content_en || '',
@@ -212,13 +204,15 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
         fr: item.content_fr || ''
       };
       
-      return processedItem;
+      return {
+        id: newsId,
+        date: item.date,
+        key: item.translation_key
+      };
     });
     
-    // Convert to app format
-    const newsItems = processedData.map(convertToNewsItem);
-    console.log(`Processed ${newsItems.length} news items successfully`);
-    return newsItems;
+    console.log(`Processed ${processedData.length} news items successfully`);
+    return processedData;
   } catch (error) {
     console.error('Error in fetchNewsItems:', error);
     return [];

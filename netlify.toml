@@ -6,3 +6,15 @@
 
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
+
+# Add cache headers for assets
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Add special cache headers for static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

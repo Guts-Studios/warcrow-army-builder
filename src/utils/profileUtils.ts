@@ -20,11 +20,7 @@ export const fetchListsByWabId = async (wabId: string): Promise<SavedList[]> => 
     
     if (directError) {
       console.error("Utility: Error fetching lists directly by WAB ID:", directError);
-    } else {
-      console.log("Utility: Direct query by WAB ID returned:", directLists?.length || 0, "lists");
-    }
-    
-    if (directLists && directLists.length > 0) {
+    } else if (directLists && directLists.length > 0) {
       console.log("Utility: Found lists directly with WAB ID:", directLists.length);
       return formatListsData(directLists);
     }
@@ -99,10 +95,21 @@ const formatListsData = (data: any[]): SavedList[] => {
   
   // Convert the database response to SavedList[] type
   const typedLists: SavedList[] = data.map(item => {
+    // Parse units if they're stored as a string
+    let unitsList = item.units;
+    if (typeof unitsList === 'string') {
+      try {
+        unitsList = JSON.parse(unitsList);
+      } catch (e) {
+        console.error("Error parsing units JSON:", e);
+        unitsList = [];
+      }
+    }
+
     // Ensure units is properly typed as SelectedUnit[]
     let typedUnits: SelectedUnit[] = [];
-    if (Array.isArray(item.units)) {
-      typedUnits = item.units.map((unit: any) => ({
+    if (Array.isArray(unitsList)) {
+      typedUnits = unitsList.map((unit: any) => ({
         id: unit.id || `unit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         name: unit.name || 'Unknown Unit',
         pointsCost: unit.pointsCost || 0,
