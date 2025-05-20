@@ -49,7 +49,6 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, SpecialRuleTranslation> = {};
           
-          // Filter out any items that don't have a valid name property
           data.forEach((item: any) => {
             // Make sure item is not null and has valid properties
             if (item && 

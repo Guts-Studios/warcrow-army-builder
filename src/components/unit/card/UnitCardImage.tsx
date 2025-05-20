@@ -65,17 +65,19 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       return baseUrl;
     }
     
+    // Extract the base URL without extension for consistent handling
+    const baseWithoutExt = baseUrl.replace(/\.jpg$|\.png$/, '');
+    
     // Special case for Lady Télia who has a different naming pattern
     if (baseUrl.includes('lady_telia')) {
       // Handle Lady Telia's special case
       if (language === 'es') {
-        return baseUrl.replace('.jpg', '_sp.jpg').replace('_card', '_card');
+        return "/art/card/lady_telia_card_sp.jpg";
       } else if (language === 'fr') {
-        return baseUrl.replace('.jpg', '_fr.jpg').replace('_card', '_card');
+        return "/art/card/lady_telia_card_fr.jpg";
       } else {
-        return baseUrl.replace('.jpg', '_en.jpg').replace('_card', '_card');
+        return "/art/card/lady_telia_card_en.jpg";
       }
-      return baseUrl;
     }
     
     // Check if the URL is a UUID-based URL and try to convert it to a name-based URL
@@ -104,19 +106,11 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
 
     // For standard URLs, add appropriate language suffix
     if (language === 'es') {
-      // For Spanish
-      return baseUrl.replace('_card.jpg', '_card_sp.jpg')
-                    .replace('_card.png', '_card_sp.jpg')
-                    .replace('_card_en.jpg', '_card_sp.jpg');
+      return `${baseWithoutExt}_sp.jpg`;
     } else if (language === 'fr') {
-      // For French
-      return baseUrl.replace('_card.jpg', '_card_fr.jpg')
-                    .replace('_card.png', '_card_fr.jpg')
-                    .replace('_card_en.jpg', '_card_fr.jpg');
+      return `${baseWithoutExt}_fr.jpg`;
     } else {
-      // For English
-      return baseUrl.replace('_card.jpg', '_card_en.jpg')
-                    .replace('_card.png', '_card_en.jpg');
+      return `${baseWithoutExt}_en.jpg`;
     }
   };
   
@@ -178,7 +172,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
                 } else if (language === 'fr') {
                   finalUrl = `${idUrl}_fr.jpg`;
                 } else {
-                  finalUrl = `${idUrl}_en.jpg`;
+                  finalUrl = `${idUrl}.jpg`;  // Fallback to base ID format
                 }
                 
                 console.log(`Trying ID-based URL with language: ${finalUrl}`);

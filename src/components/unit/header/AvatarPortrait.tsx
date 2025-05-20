@@ -44,6 +44,10 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     );
   }
   
+  // Check if this is a Northern Tribes unit
+  const isNorthernTribesUnit = name.toLowerCase().includes('northernv') || 
+                              (portraitUrl && portraitUrl.toLowerCase().includes('northern'));
+  
   // Generate portrait URL based on unit name - always using English names for consistency
   const generatePortraitUrl = () => {
     if (!portraitUrl) {
@@ -108,6 +112,13 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
       return portraitImageUrl;
     }
     
+    // For Northern Tribes units, make sure we're using consistent URL patterns
+    if (isNorthernTribesUnit) {
+      // Try to normalize the URL pattern
+      const simpleName = name.split(' ')[0].toLowerCase();
+      return `/art/portrait/${simpleName}_portrait.jpg`;
+    }
+    
     // If it's already a portrait URL or doesn't match our patterns, return as is
     console.log(`[AvatarPortrait] Using provided URL as is for ${name}: ${portraitUrl}`);
     return portraitUrl;
@@ -140,6 +151,15 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
               (e.target as HTMLImageElement).src = fallbackUrl;
               return; // Don't set error state yet
             }
+          }
+          
+          // For Northern Tribes units, try an extra special case pattern
+          if (fallbackAttempted && isNorthernTribesUnit) {
+            const tribesFallbackName = name.toLowerCase().replace(/[^\w]/g, '');
+            const tribesUrl = `/art/portrait/northern_tribes_${tribesFallbackName}_portrait.jpg`;
+            console.log(`[AvatarPortrait] Trying special Northern Tribes URL pattern: ${tribesUrl}`);
+            (e.target as HTMLImageElement).src = tribesUrl;
+            return;
           }
           
           setImageError(true);

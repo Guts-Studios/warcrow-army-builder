@@ -63,12 +63,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                !processedUrl.includes('_fr.jpg') && 
                !processedUrl.includes('_en.jpg')) {
         
+        // Extract the base URL without extension
+        const baseUrl = processedUrl.replace(/\.jpg$|\.png$/, '');
+        
         if (language === 'es') {
-          processedUrl = processedUrl.replace('.jpg', '_sp.jpg');
+          processedUrl = `${baseUrl}_sp.jpg`;
         } else if (language === 'fr') {
-          processedUrl = processedUrl.replace('.jpg', '_fr.jpg');
+          processedUrl = `${baseUrl}_fr.jpg`;
         } else {
-          processedUrl = processedUrl.replace('.jpg', '_en.jpg');
+          processedUrl = `${baseUrl}_en.jpg`;
         }
       }
       
