@@ -51,7 +51,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           
           data.forEach((rule) => {
             // Ensure rule is a proper object, not null, and has name property
-        if (rule && typeof rule === 'object' && 'name' in rule && rule.name) {
+            if (rule && typeof rule === 'object' && rule !== null && 'name' in rule && rule.name) {
               const specialRule = rule as SpecialRuleRecord;
               // Now TypeScript knows specialRule.name exists and is safe to use
               const ruleName = specialRule.name;

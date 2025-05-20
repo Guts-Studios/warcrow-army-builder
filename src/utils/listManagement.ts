@@ -77,12 +77,14 @@ export const saveListToStorage = (
   selectedFaction: string,
   validatedUnits: SelectedUnit[]
 ): SavedList => {
+  // Ensure local lists don't have any user_id to differentiate them from cloud lists
   const newList: SavedList = {
     id: Date.now().toString(),
     name: nameToUse,
     faction: selectedFaction,
     units: validatedUnits,
     created_at: new Date().toISOString(),
+    // No user_id for local lists to ensure proper icon display
   };
 
   return newList;

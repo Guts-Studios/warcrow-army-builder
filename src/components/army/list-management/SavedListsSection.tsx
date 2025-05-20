@@ -107,10 +107,11 @@ const SavedListsSection = ({
             className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
           >
             <div className="flex items-center gap-2">
+              {/* Fixed icon distinction - check for user_id to determine if it's a cloud save */}
               {list.user_id ? (
-                <Cloud className="h-4 w-4 text-blue-500" />
+                <Cloud className="h-4 w-4 text-blue-500" title="Cloud save" />
               ) : (
-                <CloudOff className="h-4 w-4 text-gray-500" />
+                <CloudOff className="h-4 w-4 text-gray-500" title="Local save" />
               )}
               <span className="text-warcrow-gold font-medium">{list.name}</span>
               {list.wab_id && (
