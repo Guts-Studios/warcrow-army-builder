@@ -39,18 +39,22 @@ export const useProfileSession = (): ProfileSession => {
         const hasSession = !!session?.user;
         setIsAuthenticated(hasSession);
         
+        // Initialize a variable to store admin status
+        let adminStatus = false;
+        
         // If authenticated, check if user is admin and set user ID
         if (hasSession) {
           setUserId(session?.user?.id);
           
           // Check if user is admin via profiles table
-          const { data } = await supabase
+          const { data: profileData } = await supabase
             .from('profiles')
             .select('wab_admin')
             .eq('id', session?.user?.id)
             .single();
             
-          setIsAdmin(!!data?.wab_admin);
+          adminStatus = !!profileData?.wab_admin;
+          setIsAdmin(adminStatus);
           setIsGuest(false);
         } else {
           setIsAdmin(false);
@@ -61,7 +65,7 @@ export const useProfileSession = (): ProfileSession => {
         
         console.log("[useProfileSession] Auth state determined:", { 
           isAuthenticated: hasSession,
-          isAdmin: !!data?.wab_admin,
+          isAdmin: adminStatus,
           userId: session?.user?.id,
           environment: { isPreview, isProduction },
           isGuest: !!localStorage.getItem('guestSession'),
