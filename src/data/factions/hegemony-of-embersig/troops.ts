@@ -48,6 +48,24 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
   },
   {
+    id: "pioneers",
+    name: "Pioneers",
+    faction: "hegemony-of-embersig",
+    pointsCost: 35,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Dwarf", description: "Human race" },
+      { name: "Ghent", description: "Infantry unit type" },
+      { name: "Infantry", description: "Provides cover" },
+      { name: "Dispel (BLU)", description: "Cannot be moved" },
+      { name: "Scout", description: "Cannot be moved" },
+    ],
+    specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
+    highCommand: false,
+    imageUrl: "/art/card/pioneers_card_en.jpg"
+  },
+  {
     id: "bulwarks",
     name: "Bulwarks",
     faction: "hegemony-of-embersig",
@@ -63,5 +81,4 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     specialRules: ["Shove (3)"],
     highCommand: false,
     imageUrl: "/art/card/bulwarks_card.jpg"
-  }
 ];
