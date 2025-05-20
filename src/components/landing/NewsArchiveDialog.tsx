@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
-import { NewsItem, initializeNewsItems, defaultNewsItems } from "@/data/newsArchive";
+import { NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { Loader2 } from "lucide-react";
 import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,28 +24,11 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const isPreviewEnvironment = () => {
-    const hostname = window.location.hostname;
-    // Check for specific production domain - adjust this to match your actual production domain
-    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                         hostname === 'wab.warcrow.com';
-    
-    if (isProduction) {
-      return false;
-    }
-    
-    // Otherwise, check if it's a preview/development environment
-    return hostname === 'lovableproject.com' || 
-           hostname.includes('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           hostname.includes('netlify.app');
-  };
-  
-  // Directly fetch news items from the database - no caching
+  // Direct fetch news items from the database with no caching
   const fetchNewsItemsDirectly = async () => {
     try {
       console.log("NewsArchiveDialog: Fetching news items directly from database");
+      
       const { data, error } = await supabase
         .from('news_items')
         .select('*')
@@ -91,30 +74,18 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       try {
         console.log("NewsArchiveDialog: Loading news items...");
         
-        // Use default items temporarily while loading
-        setItems(defaultNewsItems);
-        
-        // Refresh the items through either method
-        const refreshedItems = await initializeNewsItems();
-        if (refreshedItems.length > 0) {
-          console.log("NewsArchiveDialog: Got news items:", refreshedItems.length);
-          setItems(refreshedItems);
+        // Try direct fetch first (fastest path)
+        const directItems = await fetchNewsItemsDirectly();
+        if (directItems && directItems.length > 0) {
+          console.log("NewsArchiveDialog: Got direct items:", directItems.length);
+          setItems(directItems);
         } else {
-          // If that fails, try direct fetch
-          console.log("NewsArchiveDialog: No items from initialize, trying direct fetch");
-          const directItems = await fetchNewsItemsDirectly();
-          if (directItems && directItems.length > 0) {
-            console.log("NewsArchiveDialog: Got direct items:", directItems.length);
-            setItems(directItems);
-          } else {
-            // If we still have nothing, use defaults
-            console.log("NewsArchiveDialog: No direct items, using defaults");
-            setItems(defaultNewsItems);
-          }
+          // Use defaults if nothing else works
+          console.log("NewsArchiveDialog: No items found, using defaults");
+          setItems(defaultNewsItems);
         }
       } catch (error) {
         console.error("Error loading news items:", error);
-        // If we have nothing at this point, use defaults
         setItems(defaultNewsItems);
         toast.error("Failed to load news archive");
       } finally {
@@ -125,7 +96,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     loadNews();
   }, []);
   
-  // Safe translation retrieval function - ensure we always return something
+  // Safe translation retrieval function
   const getTranslatedContent = (key: string) => {
     if (!key) return "No content available";
     

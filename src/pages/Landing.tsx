@@ -36,9 +36,9 @@ import { useEnvironment } from "@/hooks/useEnvironment";
 
 const fetchUserCount = async () => {
   try {
-    console.log("Fetching user count...");
+    console.log("Fetching user count directly...");
     
-    // Always fetch from database with no caching
+    // Use a direct count query with no caching
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
@@ -127,9 +127,10 @@ const Landing = () => {
   } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
-    refetchOnWindowFocus: false,
     staleTime: 0, // No caching
-    retry: 3,
+    cacheTime: 0, // Don't cache at all
+    retry: 1, // Only retry once
+    refetchOnMount: true, // Always refetch on mount
     enabled: true, // Always enable this query
     meta: {
       onError: (error: any) => {

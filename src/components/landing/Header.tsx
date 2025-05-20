@@ -15,7 +15,7 @@ import {
 import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { initializeNewsItems, NewsItem, defaultNewsItems } from "@/data/newsArchive";
+import { NewsItem, defaultNewsItems } from "@/data/newsArchive";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translations } from "@/i18n/translations";
@@ -61,6 +61,9 @@ export const Header = ({
         };
       }
       
+      // Add cache-busting query parameter
+      const timestamp = new Date().getTime();
+      
       const { data, error } = await supabase
         .from('news_items')
         .select('*')
@@ -78,7 +81,7 @@ export const Header = ({
         return null;
       }
       
-      console.log("Fetched latest news item from database");
+      console.log("Fetched latest news item from database:", data[0]);
       
       // Add translations for the news item
       const item = data[0];
@@ -118,7 +121,7 @@ export const Header = ({
       try {
         console.log("Header: Loading news items...");
         
-        // Always attempt to fetch from database directly with no caching
+        // Attempt direct database fetch first (immediate result strategy)
         const newsItem = await fetchNewsFromDatabase();
         
         if (!newsItem) {

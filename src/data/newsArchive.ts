@@ -44,7 +44,7 @@ export const initializeNewsItems = async (): Promise<NewsItem[]> => {
   try {
     console.log("Initializing news items from database (no caching)...");
     
-    // Always try to fetch from database first, regardless of environment
+    // Direct database fetch with no caching
     try {
       console.log("Starting direct database fetch for news items");
       const { data, error } = await supabase
@@ -105,9 +105,9 @@ if (typeof window !== 'undefined') {
   // Add default translations
   defaultNewsItems.forEach(item => {
     translations[item.key] = {
-      en: 'Latest news will appear here...',
-      es: 'Las últimas noticias aparecerán aquí...',
-      fr: 'Les dernières nouvelles apparaîtront ici...'
+      en: 'Loading latest news...',
+      es: 'Cargando las últimas noticias...',
+      fr: 'Chargement des dernières nouvelles...'
     };
   });
   

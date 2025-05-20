@@ -7,11 +7,13 @@
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
 
-# Add cache headers for assets
+# Add cache headers for assets - no caching for HTML and API responses
 [[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, no-cache, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
 
 # Add special cache headers for static assets
 [[headers]]
