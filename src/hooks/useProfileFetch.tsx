@@ -59,7 +59,6 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessi
         console.warn("No WAB ID found in profile data. This may indicate a database issue.");
       }
       
-      // Cast the data to the Profile type, ensuring all fields are present or null
       return {
         id: data.id,
         username: data.username,

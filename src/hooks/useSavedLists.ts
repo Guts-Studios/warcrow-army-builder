@@ -140,6 +140,18 @@ export const useSavedLists = (player?: Player) => {
       if (session?.user) {
         console.log("User is authenticated, fetching lists directly");
         fetchLists(session.user.id);
+      } else if (isPreview) {
+        // In preview mode, load mock data or local lists
+        try {
+          const localData = localStorage.getItem('armyLists');
+          if (localData) {
+            const localLists = JSON.parse(localData);
+            setSavedLists(localLists);
+            console.log(`Loaded ${localLists.length} local lists for preview mode`);
+          }
+        } catch (e) {
+          console.error('Error loading local lists:', e);
+        }
       } else {
         console.log("User is not authenticated, loading local lists only");
         // If not logged in, load local lists from localStorage
@@ -157,7 +169,7 @@ export const useSavedLists = (player?: Player) => {
     };
     
     checkAuthAndFetchLists();
-  }, []);
+  }, [isPreview]);
 
   return {
     savedLists,

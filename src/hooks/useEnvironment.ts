@@ -6,6 +6,7 @@ interface EnvironmentInfo {
   isProduction: boolean;
   hostname: string;
   useLocalContentData: boolean;
+  useMockData: boolean;
 }
 
 /**
@@ -17,7 +18,8 @@ export const useEnvironment = (): EnvironmentInfo => {
     isPreview: false,
     isProduction: false,
     hostname: '',
-    useLocalContentData: true
+    useLocalContentData: true,
+    useMockData: false
   });
   
   useEffect(() => {
@@ -36,21 +38,26 @@ export const useEnvironment = (): EnvironmentInfo => {
     const isProduction = hostname === 'warcrowarmy.com' || 
                         hostname.endsWith('.warcrowarmy.com');
     
-    // Always use local data for content, but allow for different data source configurations based on environment
+    // Always use local data for content in all environments
     const useLocalContentData = true;
+    
+    // Never use mock data in any environment
+    const useMockData = false;
     
     setEnvironmentInfo({
       isPreview,
       isProduction,
       hostname,
-      useLocalContentData
+      useLocalContentData,
+      useMockData
     });
     
     console.log("[useEnvironment] Environment detected:", { 
       hostname, 
       isPreview, 
       isProduction,
-      useLocalContentData
+      useLocalContentData,
+      useMockData
     });
   }, []);
   
