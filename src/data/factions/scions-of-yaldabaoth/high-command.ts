@@ -8,16 +8,18 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
     pointsCost: 50,
     faction: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "Human race" },
       { name: "Character", description: "Character unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elite", description: "Elite unit" },
-      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" }
+      { name: "Dead Flesh", description: "Dead unit type" },
+      { name: "Darkminded", description: "Darkminded trait" },
+      { name: "Elf", description: "Elf race" },
+      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
+      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Join (Infantry, Dead Flesh)", description: "Can join Infantry Dead Flesh units" }
     ],
     highCommand: true,
     availability: 1,
-    specialRules: ["Command (2)", "Repeat a Die"],
-    command: 2,
+    command: 3,
+    specialRules: ["Place (5)"],
     imageUrl: "/art/card/master_nepharim_card.jpg"
   }
 ];

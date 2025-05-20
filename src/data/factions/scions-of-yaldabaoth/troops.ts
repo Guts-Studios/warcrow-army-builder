@@ -23,7 +23,8 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     faction: "scions-of-yaldabaoth",
     keywords: [
       { name: "Infantry", description: "Infantry unit type" },
-      { name: "Red Cap", description: "Red Cap race" }
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Projectile", description: "Has ranged attacks" }
     ],
     highCommand: false,
     availability: 1,
@@ -225,37 +226,5 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     availability: 1,
     specialRules: ["Slowed", "Frightened", "Place (5)", "Displace (5)", "Repeat a Die"],
     imageUrl: "/art/card/kipleacht_card.jpg"
-  },
-  {
-    id: "puppeteer",
-    name: "Puppeteer",
-    pointsCost: 40,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "Human race" },
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Entangle", "Displace (5)"],
-    imageUrl: "/art/card/puppeteer_card.jpg"
-  },
-  {
-    id: "overseer",
-    name: "Overseer",
-    pointsCost: 30,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "Human race" },
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elite", description: "Elite unit" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Command (1)", "Repeat a Die"],
-    command: 1,
-    imageUrl: "/art/card/overseer_card.jpg"
   }
 ];
