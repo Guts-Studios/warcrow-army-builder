@@ -90,3 +90,33 @@ export const canAddUnit = (
   
   return true;
 };
+
+/**
+ * Deduplicates an array of units based on ID and name
+ * Used to ensure no duplicate units appear in a list
+ */
+export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
+  const uniqueUnits: Unit[] = [];
+  const seenIds = new Set<string>();
+  const seenNames = new Set<string>();
+  
+  for (const unit of units) {
+    // Skip units without an ID
+    if (!unit.id) continue;
+    
+    // If we've seen this ID or name before, skip it
+    if (seenIds.has(unit.id) || seenNames.has(unit.name.toLowerCase())) {
+      console.warn(`Filtered out duplicate unit: ${unit.name} (${unit.id})`);
+      continue;
+    }
+    
+    // Add to our tracking sets
+    seenIds.add(unit.id);
+    seenNames.add(unit.name.toLowerCase());
+    
+    // Add to our filtered array
+    uniqueUnits.push(unit);
+  }
+  
+  return uniqueUnits;
+};

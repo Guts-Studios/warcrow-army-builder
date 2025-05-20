@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ApiUnit, Unit, Faction } from '@/types/army';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { factions as fallbackFactions, units as fallbackUnits } from '@/data/factions';
+import { removeDuplicateUnits } from "@/utils/unitManagement";
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -330,23 +331,29 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             return mappedUnit;
           });
         
+        // Deduplicate units by name and ID
+        const deduplicatedUnits = removeDuplicateUnits(visibleUnits);
+        if (deduplicatedUnits.length < visibleUnits.length) {
+          console.log(`[useArmyBuilderUnits] Removed ${visibleUnits.length - deduplicatedUnits.length} duplicate units`);
+        }
+        
         // Verify faction consistency and log any discrepancies
-        const factionMismatch = visibleUnits.filter(unit => unit.faction !== selectedFaction);
+        const factionMismatch = deduplicatedUnits.filter(unit => unit.faction !== selectedFaction);
         if (factionMismatch.length > 0 && selectedFaction !== 'all') {
           console.warn(`[useArmyBuilderUnits] Found ${factionMismatch.length} units with mismatched faction:`, 
             factionMismatch.map(u => `${u.name} (${u.faction} vs expected ${selectedFaction})`));
         }
         
-        console.log(`[useArmyBuilderUnits] Found ${visibleUnits.length} units for faction ${selectedFaction} in database`);
+        console.log(`[useArmyBuilderUnits] Found ${deduplicatedUnits.length} unique units for faction ${selectedFaction} in database`);
         
         // Cache the result in localStorage for faster access
         try {
-          localStorage.setItem(`units_${selectedFaction}`, JSON.stringify(visibleUnits));
+          localStorage.setItem(`units_${selectedFaction}`, JSON.stringify(deduplicatedUnits));
         } catch (e) {
           console.error('[useArmyBuilderUnits] Failed to cache units in localStorage:', e);
         }
         
-        return visibleUnits;
+        return deduplicatedUnits;
       } catch (error) {
         console.warn(`[useArmyBuilderUnits] Database fetch failed, trying localStorage and fallback...`, error);
         
@@ -374,31 +381,33 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           if (selectedFaction === 'northern-tribes') {
             console.log('[useArmyBuilderUnits] Loading northern-tribes units from static import');
             const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
-            return northernTribesUnits;
+            return removeDuplicateUnits(northernTribesUnits);
           } else if (selectedFaction === 'hegemony-of-embersig') {
             console.log('[useArmyBuilderUnits] Loading hegemony-of-embersig units from static import');
             const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
-            return hegemonyOfEmbersigUnits;
+            return removeDuplicateUnits(hegemonyOfEmbersigUnits);
           } else if (selectedFaction === 'scions-of-yaldabaoth') {
             console.log('[useArmyBuilderUnits] Loading scions-of-yaldabaoth units from static import');
             const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
-            return scionsOfYaldabaothUnits;
+            return removeDuplicateUnits(scionsOfYaldabaothUnits);
           } else if (selectedFaction === 'syenann') {
             console.log('[useArmyBuilderUnits] Loading syenann units from static import');
             const { syenannUnits } = await import('@/data/factions/syenann');
-            return syenannUnits;
+            return removeDuplicateUnits(syenannUnits);
           }
         
           // Fallback to full unit list and filter by faction
           console.log('[useArmyBuilderUnits] Loading units from global fallback');
           const { units } = await import('@/data/factions');
-          return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+          const filteredUnits = selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+          return removeDuplicateUnits(filteredUnits);
         } catch (importError) {
           console.error(`[useArmyBuilderUnits] Failed to import faction units:`, importError);
           // Final fallback to the global units array
           console.log('[useArmyBuilderUnits] Using last resort global units fallback');
           const { units } = await import('@/data/factions');
-          return selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+          const filteredUnits = selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
+          return removeDuplicateUnits(filteredUnits);
         }
       }
     },

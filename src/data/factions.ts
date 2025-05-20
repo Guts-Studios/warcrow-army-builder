@@ -42,6 +42,7 @@ const normalizeUnits = () => {
   const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
   const uniqueUnits = [];
   const seen = new Set();
+  const namesByFaction: Record<string, Set<string>> = {};
   
   // Debug info about units before normalization
   console.log(`Normalizing ${allUnits.length} total units:`);
@@ -58,6 +59,11 @@ const normalizeUnits = () => {
     'syenann': 0,
     'unknown': 0
   };
+  
+  // First pass: initialize namesByFaction sets
+  Object.keys(factionCounts).forEach(faction => {
+    namesByFaction[faction] = new Set();
+  });
   
   for (const unit of allUnits) {
     // Skip units without an ID (should never happen but just in case)
@@ -87,24 +93,34 @@ const normalizeUnits = () => {
     
     // Create a unique key including both ID and faction to guarantee uniqueness
     const key = `${normalizedUnit.id}`;
+    const nameKey = `${normalizedFaction}:${normalizedUnit.name.toLowerCase()}`;
     
-    // Log any potential duplicates for debugging
+    // Check for duplicates based on ID or name within same faction
     if (seen.has(key)) {
-      console.warn(`Found duplicate unit: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
+      console.warn(`Found duplicate unit ID: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
+      continue;
+    }
+    
+    // Check for duplicate names within the same faction
+    if (namesByFaction[normalizedFaction] && namesByFaction[normalizedFaction].has(normalizedUnit.name.toLowerCase())) {
+      console.warn(`Found duplicate unit name in ${normalizedFaction}: ${normalizedUnit.name}`);
+      continue;
     }
     
     // Only add if we haven't seen this key before
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueUnits.push(normalizedUnit);
-      
-      // Count by faction
-      if (factionCounts[normalizedFaction]) {
-        factionCounts[normalizedFaction]++;
-      } else {
-        factionCounts['unknown']++;
-        console.warn(`Unit ${normalizedUnit.name} has unknown faction: ${normalizedFaction}`);
-      }
+    seen.add(key);
+    if (namesByFaction[normalizedFaction]) {
+      namesByFaction[normalizedFaction].add(normalizedUnit.name.toLowerCase());
+    }
+    
+    uniqueUnits.push(normalizedUnit);
+    
+    // Count by faction
+    if (factionCounts[normalizedFaction]) {
+      factionCounts[normalizedFaction]++;
+    } else {
+      factionCounts['unknown']++;
+      console.warn(`Unit ${normalizedUnit.name} has unknown faction: ${normalizedFaction}`);
     }
   }
   
