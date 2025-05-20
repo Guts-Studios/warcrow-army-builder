@@ -15,7 +15,7 @@ export const hegemonyCharactersLeaders: Unit[] = [
       { name: "Human", description: "Human race" },
       { name: "Join (Infantry)", description: "Can join Infantry units" },
     ],
-    highCommand: false,
+    highCommand: true,
     imageUrl: "/art/card/hetman_card.jpg"
   },
   {

@@ -37,5 +37,21 @@ export const hegemonyOfEmbersigSupports: Unit[] = [
     specialRules: ["Slowed", "Impassable"],
     highCommand: false,
     imageUrl: "/art/card/frostfire_herald_card.jpg"
+  },
+  {
+    id: "gale-falchion",
+    name: "Gale Falchion",
+    faction: "hegemony-of-embersig",
+    pointsCost: 25,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Aestari", description: "Aestari race" },
+      { name: "Character", description: "Character unit type" },
+      { name: "Elf", description: "Elf race" },
+      { name: "Spellcaster", description: "Can cast spells" },
+    ],
+    highCommand: false,
+    imageUrl: "/art/card/gale_falchion_card.jpg"
   }
 ];

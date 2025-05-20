@@ -7,10 +7,10 @@ export const vercana: Unit = {
   pointsCost: 30,
   faction: "hegemony-of-embersig",
   keywords: [
-    { name: "Human", description: "" },
-    { name: "Mercenary", description: "" },
-    { name: "Character", description: "" },
-    { name: "Ambusher", description: "" }
+    { name: "Character", description: "Character unit type" },
+    { name: "Human", description: "Human race" },
+    { name: "Mercenary", description: "Mercenary unit" },
+    { name: "Ambusher", description: "Has ambush abilities" }
   ],
   highCommand: false,
   availability: 1,

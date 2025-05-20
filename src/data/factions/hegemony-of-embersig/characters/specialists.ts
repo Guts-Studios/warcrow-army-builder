@@ -32,5 +32,39 @@ export const hegemonyCharactersSpecialists: Unit[] = [
     specialRules: ["Repeat a Die"],
     highCommand: false,
     imageUrl: "/art/card/gunnery_corporal_card.jpg"
+  },
+  {
+    id: "engineer",
+    name: "Engineer",
+    faction: "hegemony-of-embersig",
+    pointsCost: 15,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Ghent", description: "Ghent faction" },
+      { name: "Dwarf", description: "Dwarf race" },
+      { name: "Dispel (BLU)", description: "Can dispel blue dice" },
+      { name: "Join (Infantry | War Machine)", description: "Can join Infantry or War Machine units" },
+    ],
+    highCommand: false,
+    imageUrl: "/art/card/engineer_card.jpg"
+  },
+  {
+    id: "ansera-noighman",
+    name: "Ansera Noighman",
+    faction: "hegemony-of-embersig",
+    pointsCost: 20,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Ghent", description: "Ghent faction" },
+      { name: "Dwarf", description: "Dwarf race" },
+      { name: "Dispel (BLU)", description: "Can dispel blue dice" },
+      { name: "Join (Infantry | War Machine)", description: "Can join Infantry or War Machine units" },
+    ],
+    highCommand: false,
+    imageUrl: "/art/card/ansera_noighman_card.jpg"
   }
 ];

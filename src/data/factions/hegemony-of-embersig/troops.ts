@@ -55,15 +55,15 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Dwarf", description: "Human race" },
-      { name: "Ghent", description: "Infantry unit type" },
-      { name: "Infantry", description: "Provides cover" },
-      { name: "Dispel (BLU)", description: "Cannot be moved" },
-      { name: "Scout", description: "Cannot be moved" },
+      { name: "Dwarf", description: "Dwarf race" },
+      { name: "Ghent", description: "Ghent faction" },
+      { name: "Infantry", description: "Infantry unit type" },
+      { name: "Dispel (BLU)", description: "Can dispel blue dice" },
+      { name: "Scout", description: "Has scouting ability" },
     ],
     specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
     highCommand: false,
-    imageUrl: "/art/card/pioneers_card_en.jpg"
+    imageUrl: "/art/card/pioneers_card.jpg"
   },
   {
     id: "bulwarks",
@@ -81,5 +81,21 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     specialRules: ["Shove (3)"],
     highCommand: false,
     imageUrl: "/art/card/bulwarks_card.jpg"
+  },
+  {
+    id: "black-angels",
+    name: "Black Angels",
+    faction: "hegemony-of-embersig",
+    pointsCost: 30,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Cavalry", description: "Cavalry unit type" },
+      { name: "Human", description: "Human race" },
+      { name: "Preferred Terrain (Rugged)", description: "Preferred terrain type" },
+    ],
+    specialRules: ["Intimidating (2)"],
+    highCommand: false,
+    imageUrl: "/art/card/black_angels_card.jpg"
   }
 ];
