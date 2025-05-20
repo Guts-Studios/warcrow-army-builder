@@ -1,5 +1,5 @@
 
-import { Unit } from "../../../../types/army";
+import { Unit } from "@/types/army";
 
 export const northernTribesSpecialists: Unit[] = [
   {
@@ -10,13 +10,13 @@ export const northernTribesSpecialists: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Colossal Company", description: "Part of Colossal Company" },
-      { name: "Nemorous", description: "Has the Nemorous keyword" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Ambusher", description: "Has the Ambusher ability" },
-      { name: "Dispel (BLK)", description: "Can dispel magic" },
-      { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Dispel (BLK)", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" },
     ],
     specialRules: ["Slowed", "Place (3)", "Immune to State", "Frightened"],
     highCommand: false,
@@ -30,10 +30,10 @@ export const northernTribesSpecialists: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
+      { name: "Raging", description: "" },
     ],
     specialRules: ["Disarmed", "Slowed", "Vulnerable", "Displace (X)", "Place (X)"],
     highCommand: false,
@@ -47,10 +47,10 @@ export const northernTribesSpecialists: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Ambusher", description: "Has the Ambusher ability" },
-      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
     ],
     specialRules: [],
     highCommand: false,

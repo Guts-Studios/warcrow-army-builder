@@ -1,4 +1,5 @@
-import { Unit } from "../../../types/army";
+
+import { Unit } from "@/types/army";
 
 export const northernTribesTroops: Unit[] = [
   {
@@ -9,9 +10,9 @@ export const northernTribesTroops: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Infantry", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Raging", description: "" },
     ],
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
     highCommand: false,
@@ -25,8 +26,8 @@ export const northernTribesTroops: Unit[] = [
     availability: 3,
     command: 0,
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Orc", description: "Orc race" },      
+      { name: "Infantry", description: "" },
+      { name: "Orc", description: "" },      
     ],
     specialRules: ["Vulnerable"],
     highCommand: false,
@@ -40,9 +41,9 @@ export const northernTribesTroops: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Fearless", description: "Has the Fearless ability" },
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Fearless", description: "" },
     ],
     specialRules: ["Scout"],
     highCommand: false,
@@ -56,8 +57,8 @@ export const northernTribesTroops: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Varank", description: "Varank race" },
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" },
     ],
     specialRules: ["Slowed"],
     highCommand: false,
@@ -71,10 +72,10 @@ export const northernTribesTroops: Unit[] = [
     availability: 2,
     command: 0,
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
-      { name: "Scout", description: "Has scouting abilities" },
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" },
+      { name: "Scout", description: "" },
     ],
     specialRules: ["Displace (3)", "Rugged", "Trap"],
     highCommand: false,
@@ -88,11 +89,11 @@ export const northernTribesTroops: Unit[] = [
     availability: 2,
     command: 0,
     keywords: [
-      { name: "Cavalry", description: "Cavalry unit type" },
-      { name: "Orc", description: "Northern Tribes Race" },  
-      { name: "Bloodlust", description: "Has Bloodlust" },
-      { name: "Preferred Terrain (Rugged)", description: "Gains advantages in rugged terrain" },
-      { name: "Raging", description: "Has Raging" }
+      { name: "Cavalry", description: "" },
+      { name: "Orc", description: "" },  
+      { name: "Bloodlust", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" },
+      { name: "Raging", description: "" }
     ],
     specialRules: ["Vulnerable", "Repeat a Die"],
     highCommand: false,

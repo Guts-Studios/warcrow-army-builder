@@ -1,5 +1,5 @@
 
-import { Unit } from "../../../../types/army";
+import { Unit } from "@/types/army";
 
 export const northernTribesLeaders: Unit[] = [
   {
@@ -10,10 +10,10 @@ export const northernTribesLeaders: Unit[] = [
     availability: 1,
     command: 2,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Berserker Rage", description: "Has Berserker Rage" },
-      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Berserker Rage", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
     ],
     specialRules: ["Frightened", "Raging", "Fearless"],
     highCommand: false,
@@ -27,11 +27,11 @@ export const northernTribesLeaders: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Berserker Rage", description: "Has Berserker Rage" },
-      { name: "Fearless", description: "Has the Fearless ability" },
-      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Berserker Rage", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
     ],
     specialRules: ["Disarmed"],
     highCommand: false,
@@ -45,10 +45,10 @@ export const northernTribesLeaders: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
+      { name: "Raging", description: "" },
     ],
     specialRules: ["Vulnerable", "Shove (5)", "Attract (5)"],
     highCommand: false,
@@ -62,9 +62,9 @@ export const northernTribesLeaders: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Spellcaster", description: "" },
     ],
     specialRules: ["Intimidating (X)", "Flee", "Slowed"],
     highCommand: false,
@@ -78,10 +78,10 @@ export const northernTribesLeaders: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Join (Infantry, Varank| Cavalry Warg)", description: "Can join Infantry Varank or Calvary Warg units" },
-      { name: "Elite", description: "Elite unit" },
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Join (Infantry, Varank| Cavalry Warg)", description: "" },
+      { name: "Elite", description: "" },
     ],
     specialRules: [],
     highCommand: false,

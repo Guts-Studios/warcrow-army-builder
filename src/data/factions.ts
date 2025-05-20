@@ -1,4 +1,3 @@
-
 import { Faction } from "../types/army";
 import { northernTribesUnits } from "./factions/northern-tribes";
 import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";

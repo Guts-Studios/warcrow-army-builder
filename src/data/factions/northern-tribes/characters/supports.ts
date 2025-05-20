@@ -1,8 +1,7 @@
+
 import { Unit } from "@/types/army";
-import { vercana } from "./vercana";
 
 export const northernTribesSupports: Unit[] = [
-  vercana,
   {
     id: "wisemane",
     name: "Wisemane",
@@ -11,10 +10,10 @@ export const northernTribesSupports: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Fearless", description: "Has the Fearless ability" },
-      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
     ],
     specialRules: ["Vulnerable", "Fix a Die"],
     highCommand: false,
@@ -28,11 +27,11 @@ export const northernTribesSupports: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Ambusher", description: "Has the Ambusher ability" },
-      { name: "Dispel (BLK, BLK)", description: "Can dispel magic" },
-      { name: "Join (Hunters)", description: "Can join Hunter units" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Dispel (BLK, BLK)", description: "" },
+      { name: "Join (Hunters)", description: "" },
     ],
     specialRules: ["Scout", "Disarmed"],
     highCommand: false,
@@ -46,10 +45,10 @@ export const northernTribesSupports: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Varank", description: "Varank race" },
-      { name: "Join (Infantry, Varank)", description: "Can join Infantry Varank units" },
-      { name: "Elite", description: "Elite unit" },
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
+      { name: "Elite", description: "" },
     ],
     specialRules: [],
     highCommand: false,
@@ -63,8 +62,8 @@ export const northernTribesSupports: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Companion", description: "Companion unit type" },
-      { name: "Join (Iriavik)", description: "Can join Iriavik" },
+      { name: "Companion", description: "" },
+      { name: "Join (Iriavik)", description: "" },
     ],
     specialRules: ["Slowed", "Fix a Die"],
     highCommand: false,

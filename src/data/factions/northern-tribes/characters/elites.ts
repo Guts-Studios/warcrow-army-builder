@@ -1,5 +1,5 @@
 
-import { Unit } from "../../../../types/army";
+import { Unit } from "@/types/army";
 
 export const northernTribesElites: Unit[] = [
   {
@@ -10,14 +10,14 @@ export const northernTribesElites: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Colossal Company", description: "Part of Colossal Company" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Bloodlust", description: "Has the Bloodlust ability" },
-      { name: "Dispel (BLK)", description: "Can dispel magic" },
-      { name: "Elite", description: "Elite unit" },
-      { name: "Fearless", description: "Has the Fearless ability" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Bloodlust", description: "" },
+      { name: "Dispel (BLK)", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Raging", description: "" },
     ],
     specialRules: [],
     highCommand: false,
@@ -31,10 +31,10 @@ export const northernTribesElites: Unit[] = [
     availability: 1,
     command: 1,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Join (Infantry, Orc)", description: "Can join Infantry Orc units" },
-      { name: "Raging", description: "Has the Raging ability" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
+      { name: "Raging", description: "" },
     ],
     specialRules: ["Frightened", "Vulnerable", "Slowed", "Disarmed"],
     highCommand: false,
@@ -48,12 +48,12 @@ export const northernTribesElites: Unit[] = [
     availability: 1,
     command: 0,
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Orc", description: "Orc race" },
-      { name: "Elite", description: "Elite unit" },
-      { name: "Fearless", description: "Has the Fearless ability" },
-      { name: "Immovable", description: "Has the Immovable ability" },
-      { name: "Intimidating (1)", description: "Intimidates nearby enemies" },
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Immovable", description: "" },
+      { name: "Intimidating (1)", description: "" },
     ],
     specialRules: ["Vulnerable"],
     highCommand: false,
