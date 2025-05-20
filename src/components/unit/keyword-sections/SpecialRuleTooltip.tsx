@@ -69,7 +69,7 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
   const description = dbRuleDescription || translateDescription || staticDescription;
   
   // Split by newlines to create paragraphs
-  const paragraphs = (description).split('\n').filter(p => p.trim());
+  const paragraphs = description.split('\n').filter(p => p.trim());
 
   return (
     <div className="space-y-2">

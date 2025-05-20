@@ -49,7 +49,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, RuleTranslation> = {};
           
-          data.forEach(rule => {
+          data.forEach((rule) => {
             // Ensure rule is a proper object, not null, and has name property
             if (rule && typeof rule === 'object' && 'name' in rule) {
               const specialRule = rule as SpecialRuleRecord;
