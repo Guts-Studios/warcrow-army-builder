@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { fetchListsByWabId } from '@/utils/profileUtils';
 import { SavedList } from '@/types/army';
@@ -19,16 +20,12 @@ export const useSavedLists = (player?: Player) => {
       return;
     }
     
-    if (lastFetchedWabId === wabId && savedLists.length > 0 && Date.now() - lastRefresh < 30000) {
-      console.log(`Already fetched lists for WAB ID: ${wabId} recently, using cached results`);
-      return;
-    }
-    
+    console.log(`Fetching lists for WAB ID: ${wabId}`);
     setIsLoadingSavedLists(true);
+    
     try {
       setLastFetchedWabId(wabId);
       setLastRefresh(Date.now());
-      console.log(`Fetching lists for WAB ID: ${wabId}`);
       
       // First try to get the user's own lists if they're logged in
       const { data: { session } } = await supabase.auth.getSession();
@@ -58,9 +55,8 @@ export const useSavedLists = (player?: Player) => {
         }
       }
       
-      // If we didn't find any lists, or we want to additionally fetch by WAB ID
-      // Only fetch by WAB ID if it's different from the user's ID
-      if ((lists.length === 0 || wabId !== session?.user?.id) && wabId !== 'preview-user-id') {
+      // Additionally fetch by WAB ID if it's different from the user's ID
+      if (wabId !== session?.user?.id && wabId !== 'preview-user-id') {
         try {
           const wabLists = await fetchListsByWabId(wabId);
           
@@ -79,18 +75,20 @@ export const useSavedLists = (player?: Player) => {
         }
       }
       
-      // Also get lists from localStorage as backup
+      // Also get lists from localStorage
       try {
         const localData = localStorage.getItem('armyLists');
         if (localData) {
           const localLists = JSON.parse(localData) as SavedList[];
           
-          // Only add local lists if they're not already in our lists
-          const existingIds = new Set(lists.map(list => list.id));
-          const newLocalLists = localLists.filter(list => !existingIds.has(list.id));
-          
-          lists = [...lists, ...newLocalLists];
-          console.log(`Found ${newLocalLists.length} additional lists from localStorage`);
+          if (Array.isArray(localLists) && localLists.length > 0) {
+            // Only add local lists if they're not already in our lists
+            const existingIds = new Set(lists.map(list => list.id));
+            const newLocalLists = localLists.filter(list => !existingIds.has(list.id));
+            
+            lists = [...lists, ...newLocalLists];
+            console.log(`Found ${newLocalLists.length} additional lists from localStorage`);
+          }
         }
       } catch (localErr) {
         console.error('Error loading local lists:', localErr);
@@ -99,24 +97,25 @@ export const useSavedLists = (player?: Player) => {
       if (lists.length > 0) {
         console.log(`Total lists found: ${lists.length}`);
         setSavedLists(lists);
-        
-        if (player?.verified && session?.user?.id) {
-          toast.success(`Found ${lists.length} saved lists`, {
-            id: `found-lists-${wabId}`
-          });
-        }
       } else {
         console.log(`No lists found for WAB ID: ${wabId}`);
         setSavedLists([]);
-        if (player?.verified && session?.user?.id && !isPreview) {
-          toast.info("No saved lists found for this WAB ID", {
-            id: `no-lists-${wabId}`
-          });
-        }
       }
     } catch (err) {
       console.error(`Error fetching lists for WAB ID: ${wabId}:`, err);
       toast.error("Error loading saved lists");
+      
+      // Try to load at least local lists as a fallback
+      try {
+        const localData = localStorage.getItem('armyLists');
+        if (localData) {
+          const localLists = JSON.parse(localData);
+          setSavedLists(localLists);
+          console.log(`Loaded ${localLists.length} fallback local lists`);
+        }
+      } catch (e) {
+        console.error('Error loading fallback local lists:', e);
+      }
     } finally {
       setIsLoadingSavedLists(false);
     }
@@ -124,51 +123,43 @@ export const useSavedLists = (player?: Player) => {
 
   // Auto-fetch lists when wab_id changes or player becomes verified
   useEffect(() => {
-    if (player?.verified && player?.wab_id && !isLoadingSavedLists && lastFetchedWabId !== player.wab_id) {
+    if (player?.verified && player?.wab_id && !isLoadingSavedLists) {
       console.log("Player is verified, automatically fetching lists");
       fetchLists(player.wab_id);
     }
-  }, [player?.verified, player?.wab_id, isLoadingSavedLists, lastFetchedWabId]);
+  }, [player?.verified, player?.wab_id, isLoadingSavedLists]);
 
   // Check auth status and user_id to fetch lists directly if logged in
   useEffect(() => {
     const checkAuthAndFetchLists = async () => {
       if (isLoadingSavedLists) return;
       
+      // Always try to load local lists first for immediate display
+      try {
+        const localData = localStorage.getItem('armyLists');
+        if (localData) {
+          const localLists = JSON.parse(localData);
+          setSavedLists(localLists);
+          console.log(`Loaded ${localLists.length} local lists`);
+        }
+      } catch (e) {
+        console.error('Error loading local lists:', e);
+      }
+      
+      // Then check if user is authenticated to fetch cloud lists
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         console.log("User is authenticated, fetching lists directly");
         fetchLists(session.user.id);
       } else if (isPreview) {
-        // In preview mode, load mock data or local lists
-        try {
-          const localData = localStorage.getItem('armyLists');
-          if (localData) {
-            const localLists = JSON.parse(localData);
-            setSavedLists(localLists);
-            console.log(`Loaded ${localLists.length} local lists for preview mode`);
-          }
-        } catch (e) {
-          console.error('Error loading local lists:', e);
-        }
+        console.log("Preview environment detected, using local lists only");
       } else {
-        console.log("User is not authenticated, loading local lists only");
-        // If not logged in, load local lists from localStorage
-        try {
-          const localData = localStorage.getItem('armyLists');
-          if (localData) {
-            const localLists = JSON.parse(localData);
-            setSavedLists(localLists);
-            console.log(`Loaded ${localLists.length} local lists`);
-          }
-        } catch (e) {
-          console.error('Error loading local lists:', e);
-        }
+        console.log("User is not authenticated, using local lists only");
       }
     };
     
     checkAuthAndFetchLists();
-  }, [isPreview]);
+  }, [isPreview, isLoadingSavedLists]);
 
   return {
     savedLists,
@@ -182,6 +173,18 @@ export const useSavedLists = (player?: Player) => {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session?.user?.id) {
             fetchLists(session.user.id);
+          } else {
+            // Try to load local lists at minimum
+            try {
+              const localData = localStorage.getItem('armyLists');
+              if (localData) {
+                const localLists = JSON.parse(localData);
+                setSavedLists(localLists);
+                console.log(`Refreshed to ${localLists.length} local lists`);
+              }
+            } catch (e) {
+              console.error('Error refreshing local lists:', e);
+            }
           }
         });
       }

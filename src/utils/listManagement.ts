@@ -8,15 +8,24 @@ export const fetchSavedLists = async (wabId?: string) => {
   const startTime = Date.now();
   console.log("Starting fetchSavedLists", { withWabId: !!wabId, timestamp: new Date().toISOString() });
   
-  // Get local lists
+  // Get local lists first for immediate display
   let localLists: SavedList[] = [];
   try {
     const localListsJson = localStorage.getItem("armyLists");
-    localLists = localListsJson ? JSON.parse(localListsJson) : [];
-    console.log(`Found ${localLists.length} local lists`);
+    if (localListsJson) {
+      localLists = JSON.parse(localListsJson);
+      console.log(`Found ${localLists.length} local lists`);
+    } else {
+      console.log("No local lists found in localStorage");
+      // Initialize empty array in localStorage if it doesn't exist
+      localStorage.setItem("armyLists", JSON.stringify([]));
+    }
   } catch (error) {
     console.error("Error parsing local lists:", error);
     toast.error("Error loading your local lists");
+    // Initialize empty array in localStorage if there was an error
+    localStorage.setItem("armyLists", JSON.stringify([]));
+    localLists = [];
   }
 
   try {

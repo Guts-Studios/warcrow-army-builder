@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,8 +43,7 @@ const fetchUserCount = async () => {
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('banned', false)
-      .eq('deactivated', false)
-      .throwOnError();
+      .eq('deactivated', false);
     
     if (error) {
       console.error('Error fetching user count:', error);
@@ -120,14 +120,14 @@ const Landing = () => {
   }, [isPreview]);
 
   const { 
-    data: userCount, 
+    data: userCount = 470, // Provide a default value here
     isLoading: isLoadingUserCount,
     refetch: refetchUserCount 
   } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     staleTime: 0, // No caching
-    gcTime: 0, // Don't cache at all (corrected from cacheTime)
+    gcTime: 0, // Don't cache at all
     retry: 1, // Only retry once
     refetchOnMount: true, // Always refetch on mount
     enabled: true, // Always enable this query

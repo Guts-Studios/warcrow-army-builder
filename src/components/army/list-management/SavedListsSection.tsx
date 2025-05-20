@@ -1,10 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Trash2, Cloud, Disc, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface SavedListsSectionProps {
@@ -27,17 +26,24 @@ const SavedListsSection = ({
   
   // Filter and sort lists whenever savedLists or selectedFaction changes
   useEffect(() => {
-    // Log authentication state for debugging
-    console.log("SavedListsSection - Auth status:", {
-      isAuthenticated,
-      isGuest,
-      listsCount: savedLists?.length || 0,
+    console.log("SavedListsSection - Received lists:", {
+      totalLists: savedLists?.length || 0,
       selectedFaction,
+      isAuthenticated,
       timestamp: new Date().toISOString()
     });
     
-    // Filter lists by faction first
-    const filteredLists = savedLists.filter((list) => list.faction === selectedFaction);
+    // Filter lists by faction first, if they're not an empty array
+    const filteredLists = Array.isArray(savedLists) ? 
+      savedLists.filter((list) => list.faction === selectedFaction) : [];
+    
+    if (filteredLists.length === 0) {
+      console.log("No lists found for faction:", selectedFaction);
+      setSortedLists([]);
+      return;
+    }
+    
+    console.log(`Found ${filteredLists.length} lists for faction "${selectedFaction}"`);
     
     // Create a map to store unique lists, keeping the most recent version of each name
     const uniqueListsMap = new Map();
@@ -70,9 +76,7 @@ const SavedListsSection = ({
       uniqueListsCount: uniqueLists.length,
       cloudLists: filteredLists.filter(list => !!list.user_id).length,
       selectedFaction,
-      isGuest,
-      isAuthenticated,
-      timestamp: new Date().toISOString()
+      isAuthenticated
     });
     
   }, [savedLists, selectedFaction, isAuthenticated, isGuest, refreshTrigger]);
@@ -82,7 +86,33 @@ const SavedListsSection = ({
     toast.info("Refreshing saved lists...");
   };
 
-  if (sortedLists.length === 0) return null;
+  if (sortedLists.length === 0) {
+    // Check if we have any lists at all and show message accordingly
+    if (savedLists && savedLists.length > 0) {
+      return (
+        <div className="bg-warcrow-accent rounded-lg p-4 w-full">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-warcrow-gold">
+              {t('savedLists')}
+            </h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-warcrow-accent/50"
+              onClick={handleRefresh}
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh
+            </Button>
+          </div>
+          <div className="text-center py-3 text-warcrow-text/80">
+            No lists found for "{selectedFaction}" faction.
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
