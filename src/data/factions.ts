@@ -39,14 +39,26 @@ export const factionNameMap: Record<string, string> = {
 
 // Improved normalize and deduplicate units function
 const normalizeUnits = () => {
-  const allUnits = [...northernTribesUnits, ...hegemonyOfEmbersigUnits, ...scionsOfYaldabaothUnits, ...syenannUnits];
+  // Explicitly pre-normalize the Northern Tribes units to ensure consistent faction property
+  const normalizedNorthernTribesUnits = northernTribesUnits.map(unit => ({
+    ...unit,
+    faction: 'northern-tribes'
+  }));
+  
+  const allUnits = [
+    ...normalizedNorthernTribesUnits,
+    ...hegemonyOfEmbersigUnits, 
+    ...scionsOfYaldabaothUnits, 
+    ...syenannUnits
+  ];
+  
   const uniqueUnits = [];
   const seen = new Set();
   const namesByFaction: Record<string, Set<string>> = {};
   
   // Debug info about units before normalization
   console.log(`Normalizing ${allUnits.length} total units:`);
-  console.log(`- Northern Tribes: ${northernTribesUnits.length}`);
+  console.log(`- Northern Tribes: ${normalizedNorthernTribesUnits.length}`);
   console.log(`- Hegemony: ${hegemonyOfEmbersigUnits.length}`);
   console.log(`- Scions: ${scionsOfYaldabaothUnits.length}`);
   console.log(`- Syenann: ${syenannUnits.length}`);
@@ -83,6 +95,13 @@ const normalizeUnits = () => {
     else if (unit.faction && unit.faction.includes(' ')) {
       const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
       normalizedFaction = factionNameMap[kebabName] || kebabName;
+    }
+    
+    // Special case for Northern Tribes - ensure faction consistency
+    if (unit.name.toLowerCase().includes('northern') || 
+        (unit.faction && unit.faction.toLowerCase().includes('northern')) ||
+        (unit.faction && unit.faction.toLowerCase().includes('tribe'))) {
+      normalizedFaction = 'northern-tribes';
     }
     
     // Create a normalized unit with consistent faction naming

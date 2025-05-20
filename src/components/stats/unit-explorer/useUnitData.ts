@@ -256,7 +256,12 @@ export function useArmyBuilderUnits(selectedFaction: string) {
             try {
               cachedUnits = JSON.parse(cachedData);
               console.log(`[useArmyBuilderUnits] Found ${cachedUnits.length} cached units in localStorage for ${selectedFaction}`);
-              // Continue with fetch but use cached data for instant display
+              
+              // Special case for Northern Tribes - don't use cache if empty
+              if (selectedFaction === 'northern-tribes' && cachedUnits.length === 0) {
+                console.log('[useArmyBuilderUnits] Northern Tribes cache is empty, will not use it');
+                cachedUnits = [];
+              }
             } catch (parseError) {
               console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
             }
@@ -272,12 +277,15 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           query = query.eq('faction', selectedFaction);
         }
         
-        // Set a shorter timeout for the fetch (800ms)
+        // Set a slightly longer timeout for Northern Tribes to ensure data loads (1000ms)
+        const timeoutDuration = selectedFaction === 'northern-tribes' ? 1000 : 800;
+        
+        // Set timeout for the fetch
         const timeoutPromise = new Promise((_resolve, reject) => {
           setTimeout(() => {
-            console.log("[useArmyBuilderUnits] Database fetch timeout after 800ms");
+            console.log(`[useArmyBuilderUnits] Database fetch timeout after ${timeoutDuration}ms`);
             reject(new Error('Database fetch timeout'));
-          }, 800); // 800ms timeout
+          }, timeoutDuration);
         });
         
         // Race between the fetch and timeout
@@ -328,6 +336,14 @@ export function useArmyBuilderUnits(selectedFaction: string) {
               characteristics: safeCharacteristics,
               faction_display: apiUnit.faction,
             });
+            
+            // For Northern Tribes units, explicitly ensure faction is set correctly
+            if (selectedFaction === 'northern-tribes' || 
+                mappedUnit.name.toLowerCase().includes('northern') || 
+                (mappedUnit.faction && mappedUnit.faction.toLowerCase().includes('tribe'))) {
+              mappedUnit.faction = 'northern-tribes';
+            }
+            
             return mappedUnit;
           });
         
@@ -342,6 +358,16 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         if (factionMismatch.length > 0 && selectedFaction !== 'all') {
           console.warn(`[useArmyBuilderUnits] Found ${factionMismatch.length} units with mismatched faction:`, 
             factionMismatch.map(u => `${u.name} (${u.faction} vs expected ${selectedFaction})`));
+            
+          // Force correction for Northern Tribes specifically
+          if (selectedFaction === 'northern-tribes') {
+            console.log('[useArmyBuilderUnits] Force correcting Northern Tribes faction assignments');
+            deduplicatedUnits.forEach(unit => {
+              if (unit.faction !== 'northern-tribes') {
+                unit.faction = 'northern-tribes';
+              }
+            });
+          }
         }
         
         console.log(`[useArmyBuilderUnits] Found ${deduplicatedUnits.length} unique units for faction ${selectedFaction} in database`);
@@ -363,8 +389,11 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           if (cachedUnits) {
             try {
               const units = JSON.parse(cachedUnits);
-              console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
-              return units;
+              // Ensure we're not using an empty cache for Northern Tribes
+              if (!(selectedFaction === 'northern-tribes' && units.length === 0)) {
+                console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
+                return units;
+              }
             } catch (parseError) {
               console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
               // Continue to fallback if parsing fails
@@ -381,7 +410,13 @@ export function useArmyBuilderUnits(selectedFaction: string) {
           if (selectedFaction === 'northern-tribes') {
             console.log('[useArmyBuilderUnits] Loading northern-tribes units from static import');
             const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
-            return removeDuplicateUnits(northernTribesUnits);
+            
+            // Pre-process to ensure faction property is set correctly
+            const processedUnits = northernTribesUnits.map(unit => ({
+              ...unit,
+              faction: 'northern-tribes'
+            }));
+            return removeDuplicateUnits(processedUnits);
           } else if (selectedFaction === 'hegemony-of-embersig') {
             console.log('[useArmyBuilderUnits] Loading hegemony-of-embersig units from static import');
             const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
@@ -411,7 +446,8 @@ export function useArmyBuilderUnits(selectedFaction: string) {
         }
       }
     },
-    retry: 0, // No retries to speed up fallback to static files
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1, // Single retry to allow for fallback to static files
+    staleTime: 3 * 60 * 1000, // Cache for only 3 minutes to refresh data periodically
+    refetchOnWindowFocus: true, // Refetch when coming back to the window
   });
 }

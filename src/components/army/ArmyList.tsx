@@ -8,8 +8,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import UnitListSection from "./UnitListSection";
 import SelectedUnitsSection from "./SelectedUnitsSection";
 import { SavedList } from "@/types/army";
-import { useEffect } from "react";
-import { Loader2, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -36,9 +36,11 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
     handleLoadList,
     factionUnits,
     unitsLoading,
-    unitsError
+    unitsError,
+    refetchUnits
   } = useArmyList(selectedFaction);
 
+  const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
   const isMobile = useIsMobile();
 
   // Load initial list if provided
@@ -57,6 +59,12 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
       toast.error(`Could not load units. Falling back to local data.`);
     } else if (factionUnits.length === 0) {
       console.warn(`[ArmyList] No units found for faction: ${selectedFaction}`);
+      
+      // If Northern Tribes specifically has no units, try to refetch
+      if (selectedFaction === 'northern-tribes') {
+        console.log("[ArmyList] Northern Tribes has no units, trying to refetch...");
+        refetchUnits();
+      }
     } else {
       console.log(`[ArmyList] Loaded ${factionUnits.length} units for faction: ${selectedFaction}`);
       
@@ -72,10 +80,22 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
         );
       }
     }
-  }, [factionUnits, unitsLoading, unitsError, selectedFaction]);
+  }, [factionUnits, unitsLoading, unitsError, selectedFaction, refetchUnits]);
 
   const handleRetry = () => {
-    window.location.reload();
+    refetchUnits();
+  };
+  
+  const handleManualRefresh = async () => {
+    setIsManuallyRefreshing(true);
+    try {
+      await refetchUnits();
+      toast.success(`Units refreshed for ${selectedFaction}`);
+    } catch (error) {
+      toast.error("Failed to refresh units");
+    } finally {
+      setIsManuallyRefreshing(false);
+    }
   };
 
   return (
@@ -107,7 +127,20 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
             ) : factionUnits.length === 0 ? (
               <div className="text-center p-8 text-warcrow-muted">
                 <p>No units found for this faction.</p>
-                <p className="text-xs mt-2">Try selecting a different faction or check your connection.</p>
+                <p className="text-xs mt-2 mb-4">Try selecting a different faction or check your connection.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={handleManualRefresh} 
+                  disabled={isManuallyRefreshing}
+                  className="flex items-center gap-2"
+                >
+                  {isManuallyRefreshing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  Refresh Units
+                </Button>
               </div>
             ) : (
               <UnitListSection

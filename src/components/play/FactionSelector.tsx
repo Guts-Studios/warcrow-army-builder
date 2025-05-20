@@ -26,7 +26,8 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
     data: nations = [], 
     isLoading, 
     isError, 
-    refetch 
+    refetch,
+    isRefetching
   } = useFactions(language);
 
   useEffect(() => {
@@ -45,9 +46,27 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
     } else if (onFactionSelect) {
       onFactionSelect(faction.id, faction.name);
     }
+    
+    // Force refresh local storage for the faction that was just selected
+    try {
+      localStorage.removeItem(`units_${faction.id}`);
+      console.log(`[FactionSelector] Cleared cache for ${faction.id}`);
+    } catch (e) {
+      console.error('[FactionSelector] Failed to clear faction cache:', e);
+    }
   };
 
   const handleRefetch = () => {
+    // Clear all faction caches first
+    try {
+      for (const faction of nations) {
+        localStorage.removeItem(`units_${faction.id}`);
+      }
+      console.log('[FactionSelector] Cleared all faction caches');
+    } catch (e) {
+      console.error('[FactionSelector] Failed to clear faction caches:', e);
+    }
+    
     toast.promise(refetch(), {
       loading: 'Refreshing factions...',
       success: 'Factions refreshed successfully',
@@ -118,9 +137,15 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
       <div className="flex justify-end">
         <button 
           onClick={handleRefetch}
-          className="flex items-center text-sm text-warcrow-gold/70 hover:text-warcrow-gold px-2 py-1"
+          disabled={isRefetching}
+          className="flex items-center text-sm text-warcrow-gold/70 hover:text-warcrow-gold px-2 py-1 disabled:opacity-50"
         >
-          <RefreshCw className="h-3 w-3 mr-1" /> Refresh factions
+          {isRefetching ? (
+            <div className="h-3 w-3 border border-warcrow-gold/70 border-t-transparent rounded-full animate-spin mr-1" />
+          ) : (
+            <RefreshCw className="h-3 w-3 mr-1" />
+          )}
+          Refresh data
         </button>
       </div>
     </motion.div>
