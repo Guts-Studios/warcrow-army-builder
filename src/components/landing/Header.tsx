@@ -1,3 +1,4 @@
+
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
@@ -19,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 interface HeaderProps {
   latestVersion: string;
@@ -37,37 +39,12 @@ export const Header = ({
 }: HeaderProps) => {
   const { t } = useLanguage();
   const { isWabAdmin } = useAuth();
+  const { isPreview } = useEnvironment();
   const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
   const [loadingError, setLoadingError] = useState<string | null>(null);
-  
-  // Check if we're in preview mode
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    return hostname === 'lovableproject.com' || 
-           hostname.endsWith('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           hostname.includes('netlify.app') ||
-           hostname.includes('lovable.app');
-  };
-  
-  // Only show build failure alert if:
-  // 1. User is an admin
-  // 2. It's from the latest build
-  // 3. We haven't already shown this specific failure
-  // 4. The build was in the last 24 hours
-  // 5. It's a warcrow site deployment (check site_name)
-  const shouldShowBuildFailure = 
-    isWabAdmin && 
-    latestFailedBuild && 
-    latestFailedBuild.id && 
-    latestFailedBuild.id !== shownBuildFailureId && 
-    latestFailedBuild.created_at && 
-    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000) &&
-    (latestFailedBuild.site_name === "warcrow-army-builder" || latestFailedBuild.site_name === "warcrowarmy.com");
   
   // Function to directly fetch news from the database
   const fetchNewsFromDatabase = async () => {
@@ -75,7 +52,7 @@ export const Header = ({
       console.log("Header: Directly fetching news from database");
       
       // Use mock data in preview mode
-      if (isPreviewMode()) {
+      if (isPreview) {
         console.log("Header: Preview environment detected, using mock news data");
         return {
           id: "preview-news-1",
@@ -88,7 +65,8 @@ export const Header = ({
         .from('news_items')
         .select('*')
         .order('date', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .throwOnError();
       
       if (error) {
         console.error("Error fetching news from database:", error);
@@ -123,7 +101,7 @@ export const Header = ({
   
   // In preview mode, set up some default translations
   useEffect(() => {
-    if (isPreviewMode()) {
+    if (isPreview) {
       // Add a default preview translation
       translations["previewNewsKey"] = {
         en: `News ${todaysDate}: Welcome to the preview environment! This is where you can test the latest features before they go live.`,
@@ -131,7 +109,7 @@ export const Header = ({
         fr: `Nouvelles ${todaysDate}: Bienvenue dans l'environnement de prévisualisation! C'est ici que vous pouvez tester les dernières fonctionnalités avant leur mise en ligne.`
       };
     }
-  }, [todaysDate]);
+  }, [todaysDate, isPreview]);
   
   useEffect(() => {
     const loadNews = async () => {
@@ -140,22 +118,12 @@ export const Header = ({
       try {
         console.log("Header: Loading news items...");
         
-        // Always attempt to fetch from database, even in preview mode
-        console.log("Header: Directly fetching news from database");
-        const { data: newsData, error: newsError } = await supabase
-          .from('news_items')
-          .select('*')
-          .order('date', { ascending: false })
-          .limit(1);
+        // Always attempt to fetch from database directly with no caching
+        const newsItem = await fetchNewsFromDatabase();
         
-        if (newsError) {
-          console.error("Error fetching news from database:", newsError);
-          throw newsError;
-        }
-        
-        if (!newsData || newsData.length === 0) {
+        if (!newsItem) {
           // If no news found in database, use preview data only as fallback
-          if (isPreviewMode()) {
+          if (isPreview) {
             console.log("Header: No news found in database, using preview data");
             const previewNewsItem = {
               id: "preview-news-1",
@@ -177,22 +145,7 @@ export const Header = ({
             }
           }
         } else {
-          // Process the news item from database
-          console.log("Header: News found in database:", newsData[0]);
-          const item = newsData[0];
-          
-          // Add translations for the news item
-          translations[item.translation_key] = {
-            en: item.content_en || "No content available",
-            es: item.content_es || "No content available",
-            fr: item.content_fr || "No content available"
-          };
-          
-          setLatestNewsItem({
-            id: item.news_id || item.id,
-            date: item.date,
-            key: item.translation_key
-          });
+          setLatestNewsItem(newsItem);
         }
       } catch (error) {
         console.error("Header: Error loading news items:", error);
@@ -213,14 +166,24 @@ export const Header = ({
     };
     
     loadNews();
-  }, []);
+  }, [isPreview]);
   
   // Update the shown build failure ID when a new one comes in
   useEffect(() => {
     if (shouldShowBuildFailure && latestFailedBuild?.id) {
       setShownBuildFailureId(latestFailedBuild.id);
     }
-  }, [latestFailedBuild, shouldShowBuildFailure]);
+  }, [latestFailedBuild]);
+  
+  // Only show build failure alert if certain conditions are met
+  const shouldShowBuildFailure = 
+    isWabAdmin && 
+    latestFailedBuild && 
+    latestFailedBuild.id && 
+    latestFailedBuild.id !== shownBuildFailureId && 
+    latestFailedBuild.created_at && 
+    (new Date().getTime() - new Date(latestFailedBuild.created_at).getTime() < 24 * 60 * 60 * 1000) &&
+    (latestFailedBuild.site_name === "warcrow-army-builder" || latestFailedBuild.site_name === "warcrowarmy.com");
 
   // Function to handle viewing a deployment
   const handleViewDeployment = (deployUrl: string) => {
@@ -235,20 +198,11 @@ export const Header = ({
     setLoadingError(null);
     try {
       // Always try to fetch from the database
-      console.log("Header: Refreshing news from database");
-      const { data: newsData, error: newsError } = await supabase
-        .from('news_items')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(1);
+      const newsItem = await fetchNewsFromDatabase();
       
-      if (newsError) {
-        throw newsError;
-      }
-      
-      if (!newsData || newsData.length === 0) {
+      if (!newsItem) {
         // Only use preview data as fallback if no real data exists
-        if (isPreviewMode()) {
+        if (isPreview) {
           const previewNewsItem = {
             id: "preview-news-1",
             date: format(new Date(), 'yyyy-MM-dd'),
@@ -261,21 +215,7 @@ export const Header = ({
           toast.info("No news items found");
         }
       } else {
-        // Process the news item
-        const item = newsData[0];
-        
-        // Add translations
-        translations[item.translation_key] = {
-          en: item.content_en || "No content available",
-          es: item.content_es || "No content available",
-          fr: item.content_fr || "No content available"
-        };
-        
-        setLatestNewsItem({
-          id: item.news_id || item.id,
-          date: item.date,
-          key: item.translation_key
-        });
+        setLatestNewsItem(newsItem);
         toast.success("News refreshed");
       }
     } catch (error) {
@@ -370,7 +310,7 @@ export const Header = ({
             userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
           )}
         </p>
-        {(isWabAdmin || isPreviewMode()) && (
+        {(isWabAdmin || isPreview) && (
           <Button 
             variant="ghost" 
             size="icon" 

@@ -11,7 +11,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "public, no-cache, must-revalidate"
 
 # Add special cache headers for static assets
 [[headers]]
@@ -24,3 +24,5 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "*"

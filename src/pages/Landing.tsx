@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,19 +32,19 @@ import { getBuildFailureNotifications } from "@/utils/notificationUtils";
 import { AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 const fetchUserCount = async () => {
   try {
     console.log("Fetching user count...");
     
-    const hostname = window.location.hostname;
-    
-    // Always fetch from database
+    // Always fetch from database with no caching
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('banned', false)
-      .eq('deactivated', false);
+      .eq('deactivated', false)
+      .throwOnError();
     
     if (error) {
       console.error('Error fetching user count:', error);
@@ -112,26 +113,12 @@ const Landing = () => {
   const latestVersion = getLatestVersion(changelogContent);
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated } = useAuth();
+  const { isPreview } = useEnvironment();
 
-  // Enhanced preview detection with more robust hostname checking
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    
-    // Comprehensive list of preview hostnames that should use mock data
-    return hostname === 'localhost' || 
-           hostname === '127.0.0.1' || 
-           hostname.includes('lovableproject.com') || 
-           hostname.endsWith('.lovableproject.com') ||
-           hostname.includes('netlify.app') || 
-           hostname.includes('lovable.app') ||
-           hostname.includes('id-preview');
-  };
-
-  // Detect if we're in preview mode for debugging
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreviewMode());
-  }, []);
+    console.log('Landing.tsx: Is preview environment:', isPreview);
+  }, [isPreview]);
 
   const { 
     data: userCount, 
@@ -178,7 +165,7 @@ const Landing = () => {
   // Only fetch build status if user is admin
   useEffect(() => {
     const fetchBuildStatus = async () => {
-      if (isWabAdmin || isPreviewMode()) {
+      if (isWabAdmin || isPreview) {
         try {
           // Get build failure notifications for the notification system
           const { notifications, error } = await getBuildFailureNotifications();
@@ -202,12 +189,12 @@ const Landing = () => {
     fetchBuildStatus();
     
     // Set up a refresh interval only if user is admin
-    const intervalId = (isWabAdmin || isPreviewMode()) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
+    const intervalId = (isWabAdmin || isPreview) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
     
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isWabAdmin]);
+  }, [isWabAdmin, isPreview]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -235,7 +222,7 @@ const Landing = () => {
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
-      {(!!isWabAdmin || isPreviewMode()) && latestFailedBuild && (
+      {(!!isWabAdmin || isPreview) && latestFailedBuild && (
         <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
           <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
             <AlertTriangle className="h-5 w-5 text-red-300" />
