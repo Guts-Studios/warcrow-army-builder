@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Trash2, Cloud, Disc, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
@@ -27,8 +26,8 @@ const SavedListsSection = ({
   
   // Helper function to determine if a list is a cloud list
   const isCloudList = (list: SavedList): boolean => {
-    // A list is a cloud list if it has a non-null user_id property
-    return list.user_id !== undefined && list.user_id !== null;
+    // A list is a cloud list if it has a non-null and non-undefined user_id property
+    return typeof list.user_id === 'string' && list.user_id.length > 0;
   };
   
   // Filter and sort lists whenever savedLists or selectedFaction changes

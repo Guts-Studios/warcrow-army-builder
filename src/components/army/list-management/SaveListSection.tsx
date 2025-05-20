@@ -148,8 +148,12 @@ const SaveListSection = ({
           <TooltipTrigger asChild>
             <Button
               onClick={handleCloudSave}
-              className={`bg-blue-500 hover:bg-blue-600 text-white whitespace-nowrap order-3 md:order-2 ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={!isAuthenticated || isSaving}
+              className={`whitespace-nowrap order-3 md:order-2 ${
+                !isAuthenticated || isSaving 
+                  ? "bg-gray-500 text-gray-300 hover:bg-gray-500 cursor-not-allowed opacity-60" 
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
             >
               <CloudUpload className="h-4 w-4 mr-2" />
               {isSaving ? 'Saving...' : t('cloudSave')}

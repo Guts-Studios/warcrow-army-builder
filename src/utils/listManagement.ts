@@ -118,14 +118,14 @@ export const saveListToStorage = (
   selectedFaction: string,
   validatedUnits: SelectedUnit[]
 ): SavedList => {
-  // Ensure local lists don't have any user_id to differentiate them from cloud lists
+  // Create a new list object with explicitly no user_id property
   const newList: SavedList = {
-    id: crypto.randomUUID(), // Use crypto.randomUUID() for more reliable IDs
+    id: crypto.randomUUID(),
     name: nameToUse,
     faction: selectedFaction,
     units: validatedUnits,
-    created_at: new Date().toISOString(),
-    // Explicitly omit user_id for local lists to ensure proper icon display
+    created_at: new Date().toISOString()
+    // Explicitly omit user_id to ensure it's not present
   };
 
   try {
@@ -136,7 +136,8 @@ export const saveListToStorage = (
     // Clean any existing lists to ensure they don't have user_id property
     existingLists = existingLists.map((list: SavedList) => {
       if (!list.user_id) return list;
-      // Remove user_id if it exists
+      
+      // Remove user_id if it exists for local list
       const { user_id, ...listWithoutUserId } = list;
       return listWithoutUserId;
     });
