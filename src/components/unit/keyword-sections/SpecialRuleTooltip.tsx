@@ -33,11 +33,13 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
         }
         
         if (data) {
-          // Safely access description fields
-          const mainDescription = data.description;
-          const localizedDescription = language !== 'en' && data[`description_${language}`] 
-            ? data[`description_${language}`] 
-            : null;
+          // Safely access description fields - ensure data has the description property
+          const mainDescription = 'description' in data ? data.description : null;
+          const localizedDescriptionKey = `description_${language}`;
+          const localizedDescription = language !== 'en' && 
+            localizedDescriptionKey in data && 
+            data[localizedDescriptionKey] ? 
+            data[localizedDescriptionKey] : null;
             
           if (localizedDescription || mainDescription) {
             setDbRuleDescription(localizedDescription || mainDescription);

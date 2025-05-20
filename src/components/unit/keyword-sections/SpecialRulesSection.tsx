@@ -40,13 +40,14 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
         if (data && Array.isArray(data)) {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, RuleTranslation> = {};
+          
           data.forEach(rule => {
             // Ensure rule has necessary properties before adding
-            if (rule && rule.name) {
+            if (rule && 'name' in rule) {
               translationsRecord[rule.name] = {
                 name: rule.name,
-                name_es: rule.name_es,
-                name_fr: rule.name_fr
+                name_es: 'name_es' in rule ? rule.name_es : undefined,
+                name_fr: 'name_fr' in rule ? rule.name_fr : undefined
               };
             }
           });
