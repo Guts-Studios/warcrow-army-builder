@@ -53,8 +53,11 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
             // Ensure rule is a proper object and has name property
             if (rule && typeof rule === 'object' && 'name' in rule) {
               const specialRule = rule as SpecialRuleRecord;
-              translationsRecord[specialRule.name] = {
-                name: specialRule.name,
+              // Now TypeScript knows specialRule.name exists and is safe to use
+              const ruleName = specialRule.name;
+              
+              translationsRecord[ruleName] = {
+                name: ruleName,
                 name_es: specialRule.name_es,
                 name_fr: specialRule.name_fr
               };
