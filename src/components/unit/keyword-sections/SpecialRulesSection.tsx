@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -96,7 +97,8 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           dbTranslations[baseRuleName].name_fr : 
           baseRuleName);
           
-      if (translation) {
+      // Add null check before accessing properties
+      if (translation !== undefined) {
         return hasParams ? `${translation} ${params}` : translation;
       }
     }
