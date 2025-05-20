@@ -34,6 +34,22 @@ const SaveListSection = ({
   const { t } = useLanguage();
   const { isAuthenticated, userId } = useProfileSession();
   const [isSaving, setIsSaving] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  
+  // Check authentication state when component mounts
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setAuthChecked(true);
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+        setAuthChecked(true);
+      }
+    };
+    
+    checkAuth();
+  }, []);
   
   const handleCloudSave = async () => {
     if (!isAuthenticated) {
