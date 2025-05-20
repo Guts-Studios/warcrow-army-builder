@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { Trash2, CloudOff, Cloud, RefreshCw } from "lucide-react";
+import { Trash2, Cloud, Disc, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
@@ -109,7 +110,7 @@ const SavedListsSection = ({
               {list.user_id ? (
                 <Cloud className="h-4 w-4 text-blue-500" aria-label="Cloud save" />
               ) : (
-                <CloudOff className="h-4 w-4 text-gray-500" aria-label="Local save" />
+                <Disc className="h-4 w-4 text-warcrow-gold/70" aria-label="Local save" />
               )}
               <span className="text-warcrow-gold font-medium">{list.name}</span>
               {list.wab_id && (

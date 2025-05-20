@@ -2,6 +2,7 @@
 import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchListsByWabId } from "./profileUtils";
+import { toast } from "sonner";
 
 export const fetchSavedLists = async (wabId?: string) => {
   const startTime = Date.now();
@@ -15,6 +16,7 @@ export const fetchSavedLists = async (wabId?: string) => {
     console.log(`Found ${localLists.length} local lists`);
   } catch (error) {
     console.error("Error parsing local lists:", error);
+    toast.error("Error loading your local lists");
   }
 
   try {
@@ -35,41 +37,50 @@ export const fetchSavedLists = async (wabId?: string) => {
     if (isAuthenticated) {
       console.log("Fetching cloud lists for authenticated user:", session.user.id);
       
-      const { data, error } = await supabase
-        .from("army_lists")
-        .select("*")
-        .eq("user_id", session.user.id);
-        
-      if (error) {
-        console.error("Error fetching cloud lists by user ID:", error);
-      } else if (data && Array.isArray(data)) {
-        console.log("Found cloud lists by user ID:", data.length);
-        cloudLists = data.map((list: any) => ({
-          id: list.id,
-          name: list.name,
-          faction: list.faction,
-          units: list.units,
-          user_id: list.user_id,
-          created_at: list.created_at,
-          wab_id: list.wab_id
-        }));
+      try {
+        const { data, error } = await supabase
+          .from("army_lists")
+          .select("*")
+          .eq("user_id", session.user.id);
+          
+        if (error) {
+          console.error("Error fetching cloud lists by user ID:", error);
+          toast.error("Error loading your cloud lists");
+        } else if (data && Array.isArray(data)) {
+          console.log("Found cloud lists by user ID:", data.length);
+          cloudLists = data.map((list: any) => ({
+            id: list.id,
+            name: list.name,
+            faction: list.faction,
+            units: list.units,
+            user_id: list.user_id,
+            created_at: list.created_at,
+            wab_id: list.wab_id
+          }));
+        }
+      } catch (fetchError) {
+        console.error("Error in authenticated lists fetch:", fetchError);
       }
     }
     
     // If a WAB ID is provided and different from the user's ID, fetch additional lists
     if (wabId && (!isAuthenticated || wabId !== session?.user?.id)) {
-      console.log("Fetching additional cloud lists by WAB ID:", wabId);
-      const wabLists = await fetchListsByWabId(wabId);
-      
-      if (Array.isArray(wabLists)) {
-        // Only add WAB lists that aren't already in the user's lists
-        const existingIds = new Set(cloudLists.map(list => list.id));
-        const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
+      try {
+        console.log("Fetching additional cloud lists by WAB ID:", wabId);
+        const wabLists = await fetchListsByWabId(wabId);
         
-        cloudLists = [...cloudLists, ...newWabLists];
-        console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
-      } else {
-        console.error("fetchListsByWabId did not return an array:", wabLists);
+        if (Array.isArray(wabLists)) {
+          // Only add WAB lists that aren't already in the user's lists
+          const existingIds = new Set(cloudLists.map(list => list.id));
+          const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
+          
+          cloudLists = [...cloudLists, ...newWabLists];
+          console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
+        } else {
+          console.error("fetchListsByWabId did not return an array:", wabLists);
+        }
+      } catch (wabError) {
+        console.error("Error fetching WAB ID lists:", wabError);
       }
     }
 
@@ -78,6 +89,7 @@ export const fetchSavedLists = async (wabId?: string) => {
     return combinedLists;
   } catch (error) {
     console.error("Error in fetchSavedLists:", error);
+    toast.error("Error loading saved lists");
     return localLists;
   }
 };
@@ -89,13 +101,34 @@ export const saveListToStorage = (
 ): SavedList => {
   // Ensure local lists don't have any user_id to differentiate them from cloud lists
   const newList: SavedList = {
-    id: Date.now().toString(),
+    id: crypto.randomUUID(), // Use crypto.randomUUID() for more reliable IDs
     name: nameToUse,
     faction: selectedFaction,
     units: validatedUnits,
     created_at: new Date().toISOString(),
     // Explicitly omit user_id for local lists to ensure proper icon display
   };
+
+  try {
+    // Update localStorage with the new list
+    const existingListsJson = localStorage.getItem("armyLists");
+    const existingLists = existingListsJson ? JSON.parse(existingListsJson) : [];
+    
+    // Remove any existing list with the same name and faction
+    const filteredLists = existingLists.filter((list: SavedList) => 
+      !(list.name === nameToUse && list.faction === selectedFaction)
+    );
+    
+    // Add the new list
+    const updatedLists = [...filteredLists, newList];
+    
+    // Save to localStorage
+    localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+    console.log(`List saved to local storage: ${nameToUse} (${selectedFaction})`);
+  } catch (error) {
+    console.error("Error saving list to storage:", error);
+    toast.error("Failed to save list locally");
+  }
 
   return newList;
 };

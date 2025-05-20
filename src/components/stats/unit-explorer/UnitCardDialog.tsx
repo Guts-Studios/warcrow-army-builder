@@ -22,6 +22,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const [imageError, setImageError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [finalUrl, setFinalUrl] = useState<string>("");
+  const [fallbackAttempts, setFallbackAttempts] = useState<number>(0);
   const isMobile = useIsMobile();
   const { language, t } = useLanguage();
   const { isPreview } = useProfileSession();
@@ -31,6 +32,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     if (isOpen) {
       setImageError(false);
       setIsLoading(true);
+      setFallbackAttempts(0);
       
       // Process the URL to determine the best version to use
       let processedUrl = cardUrl;
@@ -41,7 +43,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                       language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
                       "/art/card/lady_telia_card_en.jpg";
       } 
-      // If URL is a UUID format
+      // If URL is a UUID format or contains a dash
       else if (cardUrl.includes('-') && (cardUrl.length > 60 || cardUrl.includes('uuid'))) {
         // Clean the name for URL generation
         const cleanName = unitName
@@ -102,7 +104,16 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
     const currentSrc = target.src;
-    console.error(`Image load error: ${currentSrc}`);
+    console.error(`Image load error: ${currentSrc}, attempt: ${fallbackAttempts + 1}`);
+    
+    // Prevent infinite loop of fallbacks
+    if (fallbackAttempts >= 3) {
+      setImageError(true);
+      setIsLoading(false);
+      return;
+    }
+    
+    setFallbackAttempts(prev => prev + 1);
     
     // Series of fallbacks
     if (currentSrc.includes('_sp.jpg') || currentSrc.includes('_fr.jpg') || currentSrc.includes('_en.jpg')) {
@@ -122,6 +133,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       const pngUrl = currentSrc.replace('.jpg', '.png');
       console.log(`Trying PNG format: ${pngUrl}`);
       target.src = pngUrl;
+      return;
+    }
+    
+    // Special fallback for Northern Tribes
+    if (unitName.toLowerCase().includes('northern') || unitName.toLowerCase().includes('tribe')) {
+      const cleanName = unitName.toLowerCase().replace(/\s+/g, '_').replace(/[^\w-]/g, '');
+      const ntUrl = `/art/card/northern_tribes_${cleanName}_card.jpg`;
+      console.log(`Trying Northern Tribes specific URL: ${ntUrl}`);
+      target.src = ntUrl;
       return;
     }
     

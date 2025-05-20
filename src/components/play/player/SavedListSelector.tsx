@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Cloud, Disc } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SavedListSelectorProps {
@@ -66,8 +66,14 @@ const SavedListSelector: React.FC<SavedListSelectorProps> = ({
                 value={list.id}
                 className="text-warcrow-gold font-medium hover:bg-warcrow-gold/10"
               >
-                {list.name} ({list.faction})
-                {list.user_id && <span className="ml-2 text-xs text-blue-400">(Cloud)</span>}
+                <div className="flex items-center gap-2">
+                  {list.user_id ? (
+                    <Cloud className="h-3 w-3 text-blue-400 inline-block mr-1" />
+                  ) : (
+                    <Disc className="h-3 w-3 text-warcrow-gold/70 inline-block mr-1" />
+                  )}
+                  {list.name} ({list.faction})
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

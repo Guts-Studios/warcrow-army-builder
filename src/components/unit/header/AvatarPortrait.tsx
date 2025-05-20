@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslateKeyword } from '@/utils/translationUtils';
@@ -18,35 +18,31 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [fallbackAttempted, setFallbackAttempted] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState<string>("");
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
+  const { isPreview } = useProfileSession();
   
   // Display properly translated name when available
   const displayName = language === 'en' ? name : translateUnitName(name, language);
   
-  // Special handling for Lady Télia
-  if (name.includes("Lady Télia") || name.includes("Lady Telia")) {
-    return (
-      <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
-        <AvatarImage 
-          src="/art/portrait/lady_telia_portrait.jpg" 
-          alt={displayName} 
-          className="object-cover"
-          onError={(e) => {
-            console.error('Portrait image failed to load for Lady Télia');
-            setImageError(true);
-          }}
-        />
-        <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
-          LT
-        </AvatarFallback>
-      </Avatar>
-    );
-  }
-  
-  // Check if this is a Northern Tribes unit
-  const isNorthernTribesUnit = name.toLowerCase().includes('northernv') || 
-                              (portraitUrl && portraitUrl.toLowerCase().includes('northern'));
+  // Generate and set portrait URL when component mounts or dependencies change
+  useEffect(() => {
+    setImageError(false);
+    setFallbackAttempted(false);
+    
+    let imageUrl: string;
+    
+    // Special handling for Lady Télia
+    if (name.includes("Lady Télia") || name.includes("Lady Telia")) {
+      imageUrl = "/art/portrait/lady_telia_portrait.jpg";
+    } else {
+      imageUrl = generatePortraitUrl();
+    }
+    
+    console.log(`[AvatarPortrait] Initial portrait URL for ${name}: ${imageUrl}`);
+    setCurrentUrl(imageUrl);
+  }, [name, portraitUrl, language, isPreview]);
   
   // Generate portrait URL based on unit name - always using English names for consistency
   const generatePortraitUrl = () => {
@@ -61,7 +57,6 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         .replace(/á/g, 'a')           // Replace á with a
         .replace(/é/g, 'e');          // Replace é with e
       
-      console.log(`[AvatarPortrait] Generated portrait URL for ${name}: /art/portrait/${cleanName}_portrait.jpg`);
       return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
@@ -83,7 +78,6 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         .replace(/ó|ò|ô|ö/g, 'o')
         .replace(/ú|ù|û|ü/g, 'u');
       
-      console.log(`[AvatarPortrait] Using name-based URL instead of UUID URL for ${name}: /art/portrait/${cleanName}_portrait.jpg`);
       return `/art/portrait/${cleanName}_portrait.jpg`;
     }
     
@@ -108,63 +102,72 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
         portraitImageUrl = portraitImageUrl.replace('.jpg', '_portrait.jpg');
       }
       
-      console.log(`[AvatarPortrait] Converted card URL to portrait URL for ${name}: ${portraitImageUrl}`);
       return portraitImageUrl;
     }
     
-    // For Northern Tribes units, make sure we're using consistent URL patterns
+    // Special handling for Northern Tribes units
+    const isNorthernTribesUnit = name.toLowerCase().includes('northern') || 
+                               name.toLowerCase().includes('tribe') ||
+                               (portraitUrl && portraitUrl.toLowerCase().includes('northern'));
+                               
     if (isNorthernTribesUnit) {
       // Try to normalize the URL pattern
-      const simpleName = name.split(' ')[0].toLowerCase();
-      return `/art/portrait/${simpleName}_portrait.jpg`;
+      const cleanName = name
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^\w-]/g, '');
+        
+      return `/art/portrait/northern_tribes_${cleanName}_portrait.jpg`;
     }
     
     // If it's already a portrait URL or doesn't match our patterns, return as is
-    console.log(`[AvatarPortrait] Using provided URL as is for ${name}: ${portraitUrl}`);
     return portraitUrl;
   };
 
-  // For debugging
-  const portraitImageUrl = !imageError ? generatePortraitUrl() : undefined;
-  
-  console.log(`[AvatarPortrait] Using portrait for "${name}": ${portraitImageUrl}`);
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error(`Portrait image failed to load for ${name}:`, currentUrl);
+    
+    // If first attempt failed but we haven't tried a fallback yet, try a different naming pattern
+    if (!fallbackAttempted && currentUrl) {
+      setFallbackAttempted(true);
+      
+      // Try a simpler filename structure
+      const simpleNameId = name.split(' ')[0].toLowerCase();
+      const fallbackUrl = `/art/portrait/${simpleNameId}_portrait.jpg`;
+      
+      if (fallbackUrl !== currentUrl) {
+        console.log(`[AvatarPortrait] Trying alternative portrait URL: ${fallbackUrl}`);
+        setCurrentUrl(fallbackUrl);
+        return; // Don't set error state yet
+      }
+    }
+    
+    // For Northern Tribes units, try an extra special case pattern
+    const isNorthernTribesUnit = name.toLowerCase().includes('northern') || 
+                               name.toLowerCase().includes('tribe');
+                               
+    if (fallbackAttempted && isNorthernTribesUnit) {
+      const tribesFallbackName = name.toLowerCase().replace(/[^\w]/g, '');
+      const tribesUrl = `/art/portrait/northern_tribes_${tribesFallbackName}_portrait.jpg`;
+      console.log(`[AvatarPortrait] Trying special Northern Tribes URL pattern: ${tribesUrl}`);
+      setCurrentUrl(tribesUrl);
+      return;
+    }
+    
+    // If all fallbacks tried, show error state
+    setImageError(true);
+  };
 
   return (
     <Avatar className="h-8 w-8 md:h-8 md:w-8 flex-shrink-0">
-      <AvatarImage 
-        src={portraitImageUrl} 
-        alt={displayName} 
-        className="object-cover"
-        onError={(e) => {
-          console.error(`Portrait image failed to load for ${name}:`, portraitImageUrl);
-          
-          // If first attempt failed but we haven't tried a fallback yet, try a different naming pattern
-          if (!fallbackAttempted && portraitImageUrl) {
-            setFallbackAttempted(true);
-            
-            // Try a simpler filename structure
-            const simpleNameId = name.split(' ')[0].toLowerCase();
-            const fallbackUrl = `/art/portrait/${simpleNameId}_portrait.jpg`;
-            
-            if (fallbackUrl !== portraitImageUrl) {
-              console.log(`[AvatarPortrait] Trying alternative portrait URL: ${fallbackUrl}`);
-              (e.target as HTMLImageElement).src = fallbackUrl;
-              return; // Don't set error state yet
-            }
-          }
-          
-          // For Northern Tribes units, try an extra special case pattern
-          if (fallbackAttempted && isNorthernTribesUnit) {
-            const tribesFallbackName = name.toLowerCase().replace(/[^\w]/g, '');
-            const tribesUrl = `/art/portrait/northern_tribes_${tribesFallbackName}_portrait.jpg`;
-            console.log(`[AvatarPortrait] Trying special Northern Tribes URL pattern: ${tribesUrl}`);
-            (e.target as HTMLImageElement).src = tribesUrl;
-            return;
-          }
-          
-          setImageError(true);
-        }}
-      />
+      {!imageError && currentUrl && (
+        <AvatarImage 
+          src={currentUrl} 
+          alt={displayName} 
+          className="object-cover"
+          onError={handleImageError}
+        />
+      )}
       <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
         {fallback || displayName.split(' ').map(word => word[0]).join('')}
       </AvatarFallback>

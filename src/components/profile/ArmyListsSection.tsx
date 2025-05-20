@@ -4,7 +4,7 @@ import { SavedList, SelectedUnit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Cloud, CloudOff, Eye } from "lucide-react";
+import { Cloud, Disc, Eye } from "lucide-react";
 import ShareListButton from "@/components/army/ShareListButton";
 
 interface ArmyListsSectionProps {
@@ -67,7 +67,7 @@ export const ArmyListsSection = ({ onListSelect }: ArmyListsSectionProps) => {
         {isCloud ? (
           <Cloud className="h-4 w-4 text-blue-500" />
         ) : (
-          <CloudOff className="h-4 w-4 text-gray-500" />
+          <Disc className="h-4 w-4 text-warcrow-gold/70" />
         )}
         <span className="text-warcrow-text">{list.name}</span>
         <span className="text-warcrow-gold/60 text-sm">({list.faction})</span>
