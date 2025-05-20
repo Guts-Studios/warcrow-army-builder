@@ -14,6 +14,7 @@ import { profileTranslations } from './profile';
 import { faqTranslations } from './faq';
 import { activityTranslations } from './activity';
 import { unitsTranslations } from './units';
+import { factionTranslations } from './factions';
 
 export const translations: TranslationsType = {
   // Common translations
@@ -271,6 +272,9 @@ export const translations: TranslationsType = {
   
   // Include units translations
   ...unitsTranslations,
+  
+  // Include faction translations
+  ...factionTranslations,
   
   // Unit explorer translations
   unitExplorer: {

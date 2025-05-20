@@ -1,66 +1,56 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { characteristicDefinitions } from '@/data/characteristicDefinitions';
 
+// Interface for typed characteristic translations
 interface CharacteristicTranslation {
-  name: string;
-  [key: string]: any;
+  en: string;
+  es: string;
+  fr: string;
+  description_en: string;
+  description_es: string;
+  description_fr: string;
 }
 
+// Local characteristic translations (you can expand this)
+const characteristicTranslations: Record<string, CharacteristicTranslation> = {
+  "Human": {
+    en: "Human",
+    es: "Humano",
+    fr: "Humain",
+    description_en: characteristicDefinitions["Human"] || "",
+    description_es: "Miembros de la raza humana, la especie más numerosa y adaptable.",
+    description_fr: "Membres de la race humaine, l'espèce la plus nombreuse et adaptable."
+  },
+  "Infantry": {
+    en: "Infantry",
+    es: "Infantería",
+    fr: "Infanterie",
+    description_en: characteristicDefinitions["Infantry"] || "",
+    description_es: "Tropas terrestres que forman la columna vertebral de la mayoría de los ejércitos.",
+    description_fr: "Troupes terrestres qui forment l'épine dorsale de la plupart des armées."
+  },
+  // Add more characteristic translations as needed
+};
+
 export const useCharacteristicTranslations = () => {
-  const [characteristicTranslations, setCharacteristicTranslations] = useState<Record<string, Record<string, string>>>({});
-  const [characteristicDescriptions, setCharacteristicDescriptions] = useState<Record<string, Record<string, string>>>({});
-
-  useEffect(() => {
-    const fetchCharacteristics = async () => {
-      const { data: characteristicsData, error: characteristicsError } = await supabase
-        .from('unit_characteristics')
-        .select('*');
-      
-      if (!characteristicsError && characteristicsData) {
-        const translations: Record<string, Record<string, string>> = {};
-        const descriptions: Record<string, Record<string, string>> = {};
-        
-        characteristicsData.forEach(item => {
-          if (!translations[item.name]) {
-            translations[item.name] = { 'en': item.name };
-          }
-          
-          // Add name translations if available
-          if (item.name_es) translations[item.name]['es'] = item.name_es;
-          if (item.name_fr) translations[item.name]['fr'] = item.name_fr;
-          
-          // Store descriptions separately
-          if (!descriptions[item.name]) {
-            descriptions[item.name] = { 'en': item.description || '' };
-          }
-          
-          if (item.description_es) descriptions[item.name]['es'] = item.description_es;
-          if (item.description_fr) descriptions[item.name]['fr'] = item.description_fr;
-        });
-        
-        setCharacteristicTranslations(translations);
-        setCharacteristicDescriptions(descriptions);
-      }
-    };
-
-    fetchCharacteristics();
-  }, []);
-
   const translateCharacteristic = (characteristic: string, language: string): string => {
     if (!characteristic || language === 'en') return characteristic;
-    return characteristicTranslations[characteristic]?.[language] || characteristic;
+    
+    return characteristicTranslations[characteristic]?.[language as 'en' | 'es' | 'fr'] || characteristic;
   };
 
   const translateCharacteristicDescription = (characteristic: string, language: string): string => {
-    // First try to get the description in the requested language
-    const descriptionInRequestedLanguage = characteristicDescriptions[characteristic]?.[language];
+    // Get the description based on language
+    const descriptionKey = `description_${language}` as 'description_en' | 'description_es' | 'description_fr';
+    const fallbackKey = 'description_en';
     
-    // If not found, fall back to English
-    const descriptionInEnglish = characteristicDescriptions[characteristic]?.['en'];
+    // Try to get description in requested language, fall back to English
+    const description = characteristicTranslations[characteristic]?.[descriptionKey] || 
+                       characteristicTranslations[characteristic]?.[fallbackKey] ||
+                       characteristicDefinitions[characteristic] || '';
     
-    // Return whichever is available, or empty string if neither
-    return descriptionInRequestedLanguage || descriptionInEnglish || '';
+    return description;
   };
 
   return {

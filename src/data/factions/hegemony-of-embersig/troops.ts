@@ -81,4 +81,5 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     specialRules: ["Shove (3)"],
     highCommand: false,
     imageUrl: "/art/card/bulwarks_card.jpg"
+  }
 ];
