@@ -50,8 +50,14 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           const translationsRecord: Record<string, SpecialRuleTranslation> = {};
           
           // Filter out any items that don't have a valid name property
-          data.forEach((item) => {
-            if (item && typeof item === 'object' && 'name' in item && typeof item.name === 'string' && item.name !== '') {
+          data.forEach((item: any) => {
+            // Make sure item is not null and has valid properties
+            if (item && 
+                typeof item === 'object' && 
+                'name' in item && 
+                typeof item.name === 'string' && 
+                item.name !== '') {
+              
               translationsRecord[item.name] = {
                 name: item.name,
                 name_es: item.name_es || undefined,
