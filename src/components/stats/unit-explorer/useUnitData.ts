@@ -1,8 +1,27 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { units } from '@/data/factions';
-import { Unit, ApiUnit } from '@/types/army';
+import { Unit, ApiUnit, Faction } from '@/types/army';
 import { removeDuplicateUnits } from '@/utils/unitManagement';
+import { factions as fallbackFactions } from '@/data/factions';
+
+// Define fallback units for testing when API fails
+const fallbackUnits: ApiUnit[] = units.map(unit => ({
+  id: unit.id,
+  name: unit.name,
+  faction: unit.faction,
+  faction_display: unit.faction,
+  points: unit.pointsCost,
+  keywords: unit.keywords.map(k => typeof k === 'string' ? k : k.name),
+  special_rules: unit.specialRules || [],
+  characteristics: {
+    availability: unit.availability || 0,
+    command: unit.command || 0,
+    highCommand: unit.highCommand || false
+  },
+  type: 'unit'
+}));
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -62,7 +81,7 @@ export function useUnitData(selectedFaction: string) {
         return fallbackUnits.map(unit => ({
           ...unit,
           faction_display: unit.faction,
-          characteristics: { command: unit.command, availability: unit.availability }
+          characteristics: { command: unit.characteristics.command, availability: unit.characteristics.availability }
         })) as ApiUnit[];
       }
     },
