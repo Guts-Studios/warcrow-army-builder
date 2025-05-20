@@ -10,6 +10,8 @@ interface ProfileSession {
   isAuthenticated: boolean;
   userId?: string;
   isGuest: boolean;
+  sessionChecked: boolean;
+  usePreviewData: boolean;
 }
 
 /**
@@ -20,7 +22,11 @@ export const useProfileSession = (): ProfileSession => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [isGuest, setIsGuest] = useState<boolean>(false);
+  const [sessionChecked, setSessionChecked] = useState<boolean>(false);
   const { isPreview, isProduction } = useEnvironment();
+  
+  // Always set usePreviewData to false - we want to use real data
+  const usePreviewData = false;
 
   // Effect to check and set authentication state when the component mounts
   useEffect(() => {
@@ -38,31 +44,36 @@ export const useProfileSession = (): ProfileSession => {
           setUserId(session?.user?.id);
           
           // Check if user is admin via profiles table
-          const { data: profileData } = await supabase
+          const { data } = await supabase
             .from('profiles')
             .select('wab_admin')
             .eq('id', session?.user?.id)
             .single();
             
-          setIsAdmin(!!profileData?.wab_admin);
+          setIsAdmin(!!data?.wab_admin);
           setIsGuest(false);
         } else {
           setIsAdmin(false);
           setIsGuest(!!localStorage.getItem('guestSession'));
         }
         
+        setSessionChecked(true);
+        
         console.log("[useProfileSession] Auth state determined:", { 
           isAuthenticated: hasSession,
-          isAdmin: !!profileData?.wab_admin,
+          isAdmin: !!data?.wab_admin,
           userId: session?.user?.id,
           environment: { isPreview, isProduction },
-          isGuest: !!localStorage.getItem('guestSession')
+          isGuest: !!localStorage.getItem('guestSession'),
+          sessionChecked: true,
+          usePreviewData
         });
       } catch (error) {
         console.error("[useProfileSession] Error checking auth state:", error);
         setIsAuthenticated(false);
         setIsAdmin(false);
         setIsGuest(!!localStorage.getItem('guestSession'));
+        setSessionChecked(true);
       }
     };
     
@@ -74,7 +85,7 @@ export const useProfileSession = (): ProfileSession => {
       console.log("[useProfileSession] Auth state changed:", event, {
         hasUser: !!session?.user,
         environment: { isPreview, isProduction },
-        usePreviewData: false
+        usePreviewData
       });
       
       // Update authentication state based on event
@@ -100,6 +111,8 @@ export const useProfileSession = (): ProfileSession => {
         setIsAdmin(false);
         setIsGuest(!!localStorage.getItem('guestSession'));
       }
+      
+      setSessionChecked(true);
     });
     
     // Cleanup subscription on unmount
@@ -113,6 +126,8 @@ export const useProfileSession = (): ProfileSession => {
     isAdmin,
     isAuthenticated,
     userId,
-    isGuest
+    isGuest,
+    sessionChecked,
+    usePreviewData
   };
 };

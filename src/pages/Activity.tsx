@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FriendActivityFeed } from "@/components/profile/FriendActivityFeed";
 import { useProfileSession } from "@/hooks/useProfileSession";
@@ -11,7 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const Activity = () => {
-  const { userId, isAuthenticated, usePreviewData } = useProfileSession();
+  const { userId, isAuthenticated, usePreviewData = false } = useProfileSession();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const { t } = useLanguage();

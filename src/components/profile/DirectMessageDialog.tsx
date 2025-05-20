@@ -42,13 +42,13 @@ export const DirectMessageDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const { toast: uiToast } = useToast();
-  const { userId, sessionChecked } = useProfileSession();
+  const { userId } = useProfileSession();
 
   useEffect(() => {
-    if (isOpen && friendId && userId && sessionChecked) {
+    if (isOpen && friendId && userId) {
       loadMessages();
     }
-  }, [isOpen, friendId, userId, sessionChecked]);
+  }, [isOpen, friendId, userId]);
 
   const loadMessages = async () => {
     if (!friendId || !userId) return;
