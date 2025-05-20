@@ -17,7 +17,7 @@ import NewListButton from "./army/list-management/NewListButton";
 import SaveListSection from "./army/list-management/SaveListSection";
 import CurrentListDisplay from "./army/list-management/CurrentListDisplay";
 import SavedListsSection from "./army/list-management/SavedListsSection";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useProfileSession } from "@/hooks/useProfileSession";
 
 interface ListManagementProps {
   listName: string;
@@ -44,7 +44,7 @@ const ListManagement = ({
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
   const [localSavedLists, setLocalSavedLists] = useState<SavedList[]>(savedLists);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useProfileSession();
 
   // Refresh lists when authentication state changes or component mounts
   useEffect(() => {
@@ -135,6 +135,14 @@ const ListManagement = ({
     }
   };
 
+  // Helper function to wrap the onLoadList call to update the list name
+  const handleLoadList = (list: SavedList) => {
+    // Set the list name in the input field to match the loaded list
+    onListNameChange(list.name);
+    // Call the original onLoadList function
+    onLoadList(list);
+  };
+
   const handleDeleteList = async (listId: string) => {
     const listToRemove = savedLists.find((list) => list.id === listId);
     if (!listToRemove) return;
@@ -213,7 +221,7 @@ const ListManagement = ({
       <SavedListsSection
         savedLists={localSavedLists.length > 0 ? localSavedLists : savedLists}
         selectedFaction={selectedFaction}
-        onLoadList={onLoadList}
+        onLoadList={handleLoadList}
         onDeleteClick={(listId) => setListToDelete(listId)}
       />
 

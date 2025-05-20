@@ -3,7 +3,7 @@ import { Trash2, Cloud, Disc, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useProfileSession } from "@/hooks/useProfileSession";
 import { toast } from "sonner";
 
 interface SavedListsSectionProps {
@@ -21,12 +21,12 @@ const SavedListsSection = ({
 }: SavedListsSectionProps) => {
   const { t } = useLanguage();
   const [sortedLists, setSortedLists] = useState<SavedList[]>([]);
-  const { isAuthenticated, isGuest } = useAuth();
+  const { isAuthenticated } = useProfileSession();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Helper function to determine if a list is a cloud list
   const isCloudList = (list: SavedList): boolean => {
-    // A list is a cloud list if it has a non-null and non-undefined user_id property
+    // A list is a cloud list if it has a user_id property that's a non-empty string
     return typeof list.user_id === 'string' && list.user_id.length > 0;
   };
   
@@ -74,19 +74,14 @@ const SavedListsSection = ({
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
     
-    setSortedLists(sorted);
-    
-    console.log("Lists sorted:", {
-      totalLists: savedLists.length,
-      filteredListsCount: filteredLists.length,
-      uniqueListsCount: uniqueLists.length,
-      cloudLists: filteredLists.filter(list => isCloudList(list)).length,
-      localLists: filteredLists.filter(list => !isCloudList(list)).length,
-      selectedFaction,
-      isAuthenticated
+    // Debug log lists
+    sorted.forEach(list => {
+      console.log(`List: ${list.name}, isCloud: ${isCloudList(list)}, userId: ${list.user_id || 'none'}`);
     });
     
-  }, [savedLists, selectedFaction, isAuthenticated, isGuest, refreshTrigger]);
+    setSortedLists(sorted);
+    
+  }, [savedLists, selectedFaction, isAuthenticated, refreshTrigger]);
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
