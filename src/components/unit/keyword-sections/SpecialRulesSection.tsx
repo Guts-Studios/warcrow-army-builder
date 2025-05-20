@@ -17,6 +17,14 @@ interface RuleTranslation {
   name_fr?: string;
 }
 
+// Define a type for the database record to help with type safety
+interface SpecialRuleRecord {
+  name: string;
+  name_es?: string;
+  name_fr?: string;
+  [key: string]: any; // Allow for additional properties
+}
+
 const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogRule, setOpenDialogRule] = useState<string | null>(null);
@@ -42,12 +50,13 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           const translationsRecord: Record<string, RuleTranslation> = {};
           
           data.forEach(rule => {
-            // Ensure rule has necessary properties before adding
-            if (rule && 'name' in rule) {
-              translationsRecord[rule.name] = {
-                name: rule.name,
-                name_es: 'name_es' in rule ? rule.name_es : undefined,
-                name_fr: 'name_fr' in rule ? rule.name_fr : undefined
+            // Ensure rule is a proper object and has name property
+            if (rule && typeof rule === 'object' && 'name' in rule) {
+              const specialRule = rule as SpecialRuleRecord;
+              translationsRecord[specialRule.name] = {
+                name: specialRule.name,
+                name_es: specialRule.name_es,
+                name_fr: specialRule.name_fr
               };
             }
           });

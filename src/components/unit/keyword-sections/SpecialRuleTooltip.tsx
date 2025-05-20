@@ -9,6 +9,12 @@ interface SpecialRuleTooltipProps {
   ruleName: string;
 }
 
+// Define a type for the special rule database record
+interface SpecialRuleData {
+  description: string;
+  [key: string]: any; // For dynamically accessed properties like description_es, description_fr
+}
+
 const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
   const { language } = useLanguage();
   const { translateSpecialRuleDescription } = useTranslateKeyword();
@@ -32,8 +38,8 @@ const SpecialRuleTooltip = ({ ruleName }: SpecialRuleTooltipProps) => {
           return;
         }
         
-        if (data) {
-          // Safely access description fields - ensure data has the description property
+        if (data && typeof data === 'object') {
+          // Safely access description fields
           const mainDescription = 'description' in data ? data.description : null;
           const localizedDescriptionKey = `description_${language}`;
           const localizedDescription = language !== 'en' && 
