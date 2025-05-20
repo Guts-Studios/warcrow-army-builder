@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,7 +127,7 @@ const Landing = () => {
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
     staleTime: 0, // No caching
-    cacheTime: 0, // Don't cache at all
+    gcTime: 0, // Don't cache at all (corrected from cacheTime)
     retry: 1, // Only retry once
     refetchOnMount: true, // Always refetch on mount
     enabled: true, // Always enable this query
