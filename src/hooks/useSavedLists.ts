@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { fetchListsByWabId } from '@/utils/profileUtils';
 import { SavedList } from '@/types/army';

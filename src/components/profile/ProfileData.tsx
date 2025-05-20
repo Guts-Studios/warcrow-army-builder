@@ -3,7 +3,6 @@ import { ReactNode, useEffect } from "react";
 import ProfileContext from "@/context/ProfileContext";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useProfileRealtime } from "@/hooks/useProfileRealtime";
-import { toast } from "sonner";
 
 export { useProfileContext } from "@/context/ProfileContext";
 
