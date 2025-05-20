@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ApiUnit, Unit, Faction } from '@/types/army';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { factions as fallbackFactions, units as fallbackUnits } from '@/data/factions';
-import { removeDuplicateUnits } from "@/utils/unitManagement";
+import { units } from '@/data/factions';
+import { Unit, ApiUnit } from '@/types/army';
+import { removeDuplicateUnits } from '@/utils/unitManagement';
 
 // Remove the duplicate Unit interface since we're importing it from @/types/army
 export function useUnitData(selectedFaction: string) {
@@ -235,219 +234,43 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
   };
 }
 
-export function useArmyBuilderUnits(selectedFaction: string) {
-  const { isAuthenticated, isGuest } = useAuth();
-  
-  return useQuery({
-    queryKey: ['army-builder-units', selectedFaction],
-    queryFn: async () => {
-      // Log the authentication state for debugging
-      console.log("[useArmyBuilderUnits] Auth state:", { isAuthenticated, isGuest, selectedFaction, timestamp: new Date().toISOString() });
-      
-      try {
-        const startTime = performance.now();
-        console.log(`[useArmyBuilderUnits] Starting fetch for faction: ${selectedFaction}`);
-        
-        // First check localStorage for cached units - for immediate display
-        let cachedUnits: Unit[] = [];
-        try {
-          const cachedData = localStorage.getItem(`units_${selectedFaction}`);
-          if (cachedData) {
-            try {
-              cachedUnits = JSON.parse(cachedData);
-              console.log(`[useArmyBuilderUnits] Found ${cachedUnits.length} cached units in localStorage for ${selectedFaction}`);
-              
-              // Special case for Northern Tribes - don't use cache if empty
-              if (selectedFaction === 'northern-tribes' && cachedUnits.length === 0) {
-                console.log('[useArmyBuilderUnits] Northern Tribes cache is empty, will not use it');
-                cachedUnits = [];
-              }
-            } catch (parseError) {
-              console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
-            }
-          }
-        } catch (e) {
-          console.error('[useArmyBuilderUnits] Failed to access localStorage:', e);
-        }
-        
-        // Try getting data from Supabase with a very short timeout
-        let query = supabase.from('unit_data').select('*');
-        
-        if (selectedFaction !== 'all') {
-          query = query.eq('faction', selectedFaction);
-        }
-        
-        // Set a slightly longer timeout for Northern Tribes to ensure data loads (1000ms)
-        const timeoutDuration = selectedFaction === 'northern-tribes' ? 1000 : 800;
-        
-        // Set timeout for the fetch
-        const timeoutPromise = new Promise((_resolve, reject) => {
-          setTimeout(() => {
-            console.log(`[useArmyBuilderUnits] Database fetch timeout after ${timeoutDuration}ms`);
-            reject(new Error('Database fetch timeout'));
-          }, timeoutDuration);
-        });
-        
-        // Race between the fetch and timeout
-        const { data, error } = await Promise.race([
-          query,
-          timeoutPromise.then(() => {
-            throw new Error('Database fetch timeout');
-          })
-        ]) as any;
-        
-        if (error) {
-          console.error("[useArmyBuilderUnits] Error fetching units from Supabase:", error);
-          throw error; // Throw to trigger the fallback path
-        }
-        
-        // Check if we have data
-        if (!data || data.length === 0) {
-          console.info(`[useArmyBuilderUnits] No units found in database for faction: ${selectedFaction}`);
-          throw new Error("No units found in database"); // Trigger fallback to local data
-        }
-        
-        const fetchTime = performance.now() - startTime;
-        console.log(`[useArmyBuilderUnits] Database fetch completed in ${fetchTime.toFixed(2)}ms`);
-        
-        // Log sample of unit names for debugging
-        console.log(`[useArmyBuilderUnits] Database units for ${selectedFaction}:`, 
-          data.slice(0, 3).map((u: any) => `${u.name}${u.characteristics?.highCommand ? ' (HC)' : ''}`).join(', ') + 
-          (data.length > 3 ? ` and ${data.length - 3} more` : ''));
-        
-        // Filter out units that should not be shown in the builder
-        const visibleUnits = data
-          .filter((unit: any) => {
-            // Make sure characteristics is properly handled as it might be null
-            const characteristics = unit.characteristics && typeof unit.characteristics === 'object' ? 
-              unit.characteristics as Record<string, any> : {};
-            // If showInBuilder is explicitly false, exclude the unit
-            // Otherwise include it (undefined or true)
-            return characteristics.showInBuilder !== false;
-          })
-          .map((apiUnit: any) => {
-            // Make sure characteristics is properly handled
-            const safeCharacteristics = apiUnit.characteristics && 
-              typeof apiUnit.characteristics === 'object' ? 
-              apiUnit.characteristics as Record<string, any> : {};
-              
-            const mappedUnit = mapApiUnitToUnit({
-              ...apiUnit,
-              characteristics: safeCharacteristics,
-              faction_display: apiUnit.faction,
-            });
-            
-            // For Northern Tribes units, explicitly ensure faction is set correctly
-            if (selectedFaction === 'northern-tribes' || 
-                mappedUnit.name.toLowerCase().includes('northern') || 
-                (mappedUnit.faction && mappedUnit.faction.toLowerCase().includes('tribe'))) {
-              mappedUnit.faction = 'northern-tribes';
-            }
-            
-            return mappedUnit;
-          });
-        
-        // Deduplicate units by name and ID
-        const deduplicatedUnits = removeDuplicateUnits(visibleUnits);
-        if (deduplicatedUnits.length < visibleUnits.length) {
-          console.log(`[useArmyBuilderUnits] Removed ${visibleUnits.length - deduplicatedUnits.length} duplicate units`);
-        }
-        
-        // Verify faction consistency and log any discrepancies
-        const factionMismatch = deduplicatedUnits.filter(unit => unit.faction !== selectedFaction);
-        if (factionMismatch.length > 0 && selectedFaction !== 'all') {
-          console.warn(`[useArmyBuilderUnits] Found ${factionMismatch.length} units with mismatched faction:`, 
-            factionMismatch.map(u => `${u.name} (${u.faction} vs expected ${selectedFaction})`));
-            
-          // Force correction for Northern Tribes specifically
-          if (selectedFaction === 'northern-tribes') {
-            console.log('[useArmyBuilderUnits] Force correcting Northern Tribes faction assignments');
-            deduplicatedUnits.forEach(unit => {
-              if (unit.faction !== 'northern-tribes') {
-                unit.faction = 'northern-tribes';
-              }
-            });
-          }
-        }
-        
-        console.log(`[useArmyBuilderUnits] Found ${deduplicatedUnits.length} unique units for faction ${selectedFaction} in database`);
-        
-        // Cache the result in localStorage for faster access
-        try {
-          localStorage.setItem(`units_${selectedFaction}`, JSON.stringify(deduplicatedUnits));
-        } catch (e) {
-          console.error('[useArmyBuilderUnits] Failed to cache units in localStorage:', e);
-        }
-        
-        return deduplicatedUnits;
-      } catch (error) {
-        console.warn(`[useArmyBuilderUnits] Database fetch failed, trying localStorage and fallback...`, error);
-        
-        // Try to get units from localStorage cache first
-        try {
-          const cachedUnits = localStorage.getItem(`units_${selectedFaction}`);
-          if (cachedUnits) {
-            try {
-              const units = JSON.parse(cachedUnits);
-              // Ensure we're not using an empty cache for Northern Tribes
-              if (!(selectedFaction === 'northern-tribes' && units.length === 0)) {
-                console.log(`[useArmyBuilderUnits] Using ${units.length} cached units from localStorage for ${selectedFaction}`);
-                return units;
-              }
-            } catch (parseError) {
-              console.error('[useArmyBuilderUnits] Failed to parse cached units:', parseError);
-              // Continue to fallback if parsing fails
-            }
-          }
-        } catch (e) {
-          console.error('[useArmyBuilderUnits] Failed to retrieve cached units:', e);
-        }
-        
-        console.log(`[useArmyBuilderUnits] Using fallback unit data from local factions for: ${selectedFaction}`);
-        
-        // Import directly from the faction-specific file based on the selected faction
-        try {
-          if (selectedFaction === 'northern-tribes') {
-            console.log('[useArmyBuilderUnits] Loading northern-tribes units from static import');
-            const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
-            
-            // Pre-process to ensure faction property is set correctly
-            const processedUnits = northernTribesUnits.map(unit => ({
-              ...unit,
-              faction: 'northern-tribes'
-            }));
-            return removeDuplicateUnits(processedUnits);
-          } else if (selectedFaction === 'hegemony-of-embersig') {
-            console.log('[useArmyBuilderUnits] Loading hegemony-of-embersig units from static import');
-            const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
-            return removeDuplicateUnits(hegemonyOfEmbersigUnits);
-          } else if (selectedFaction === 'scions-of-yaldabaoth') {
-            console.log('[useArmyBuilderUnits] Loading scions-of-yaldabaoth units from static import');
-            const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
-            return removeDuplicateUnits(scionsOfYaldabaothUnits);
-          } else if (selectedFaction === 'syenann') {
-            console.log('[useArmyBuilderUnits] Loading syenann units from static import');
-            const { syenannUnits } = await import('@/data/factions/syenann');
-            return removeDuplicateUnits(syenannUnits);
-          }
-        
-          // Fallback to full unit list and filter by faction
-          console.log('[useArmyBuilderUnits] Loading units from global fallback');
-          const { units } = await import('@/data/factions');
-          const filteredUnits = selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
-          return removeDuplicateUnits(filteredUnits);
-        } catch (importError) {
-          console.error(`[useArmyBuilderUnits] Failed to import faction units:`, importError);
-          // Final fallback to the global units array
-          console.log('[useArmyBuilderUnits] Using last resort global units fallback');
-          const { units } = await import('@/data/factions');
-          const filteredUnits = selectedFaction === 'all' ? units : units.filter(unit => unit.faction === selectedFaction);
-          return removeDuplicateUnits(filteredUnits);
-        }
+export const useArmyBuilderUnits = (factionId: string) => {
+  const fetchUnits = async () => {
+    try {
+      console.log(`[useArmyBuilderUnits] Fetching units for faction: ${factionId}`);
+      // Attempt to fetch from API
+      const { data: apiUnits, error } = await supabase
+        .from('unit_data')
+        .select('*')
+        .eq('faction', factionId);
+
+      if (error) {
+        throw error;
       }
-    },
-    retry: 1, // Single retry to allow for fallback to static files
-    staleTime: 3 * 60 * 1000, // Cache for only 3 minutes to refresh data periodically
-    refetchOnWindowFocus: true, // Refetch when coming back to the window
+
+      if (apiUnits && apiUnits.length > 0) {
+        console.log(`[useArmyBuilderUnits] Found ${apiUnits.length} units in database`);
+        // Convert API units to proper Unit type
+        const mappedUnits = apiUnits.map(apiUnit => mapApiUnitToUnit(apiUnit as ApiUnit));
+        return removeDuplicateUnits(mappedUnits);
+      } else {
+        console.log(`[useArmyBuilderUnits] No units found in database, falling back to local data`);
+        // Fallback to local data
+        const localUnits = units.filter(unit => unit.faction === factionId);
+        return removeDuplicateUnits(localUnits);
+      }
+    } catch (error) {
+      console.error(`[useArmyBuilderUnits] Error fetching units:`, error);
+      // Fallback to local data on error
+      const localUnits = units.filter(unit => unit.faction === factionId);
+      return removeDuplicateUnits(localUnits);
+    }
+  };
+
+  return useQuery({
+    queryKey: ['units', factionId],
+    queryFn: fetchUnits,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
   });
-}
+};

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { SelectedUnit, SavedList, Unit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +15,12 @@ export const useArmyList = (selectedFaction: string) => {
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   
   // Use our new hook that filters out hidden units
-  const { data: factionUnits = [], isLoading: unitsLoading, error: unitsError } = useArmyBuilderUnits(selectedFaction);
+  const { 
+    data: factionUnits = [], 
+    isLoading: unitsLoading, 
+    error: unitsError,
+    refetch: refetchUnits 
+  } = useArmyBuilderUnits(selectedFaction);
 
   useEffect(() => {
     // Log information about the units being loaded
@@ -219,6 +223,7 @@ export const useArmyList = (selectedFaction: string) => {
     handleLoadList,
     factionUnits,
     unitsLoading,
-    unitsError
+    unitsError,
+    refetchUnits
   };
 };
