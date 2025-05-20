@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -66,6 +67,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           );
           
           safeData.forEach((rule) => {
+            // Now we're sure rule is not null
             translationsRecord[rule.name] = {
               name: rule.name,
               name_es: rule.name_es,
@@ -74,6 +76,7 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
           });
           
           setDbTranslations(translationsRecord);
+          console.log('Loaded special rule translations:', Object.keys(translationsRecord).length);
         }
       } catch (err) {
         console.error('Error in fetchSpecialRuleTranslations:', err);
@@ -91,6 +94,8 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
 
   // Function to get translated rule name, prioritizing database translations
   const getTranslatedRuleName = (ruleName: string) => {
+    if (!ruleName) return "";
+    
     // Extract base rule name without parameters
     const baseRuleName = ruleName.split('(')[0].trim();
     
@@ -99,16 +104,14 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
     const params = hasParams ? ruleName.substring(ruleName.indexOf('(')) : '';
     
     // Look for translation in database first
-    if (dbTranslations[baseRuleName]) {
-      const translation = language === 'es' ? 
-        dbTranslations[baseRuleName].name_es : 
-        (language === 'fr' ? 
-          dbTranslations[baseRuleName].name_fr : 
-          baseRuleName);
-          
-      // Add null check before accessing properties
-      if (translation !== undefined) {
-        return hasParams ? `${translation} ${params}` : translation;
+    if (baseRuleName && dbTranslations[baseRuleName]) {
+      const dbTranslation = dbTranslations[baseRuleName];
+      
+      // Safely access translations based on language
+      if (language === 'es' && dbTranslation.name_es) {
+        return hasParams ? `${dbTranslation.name_es} ${params}` : dbTranslation.name_es;
+      } else if (language === 'fr' && dbTranslation.name_fr) {
+        return hasParams ? `${dbTranslation.name_fr} ${params}` : dbTranslation.name_fr;
       }
     }
     

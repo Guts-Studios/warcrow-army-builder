@@ -84,7 +84,7 @@ export const saveListToStorage = (
     faction: selectedFaction,
     units: validatedUnits,
     created_at: new Date().toISOString(),
-    // No user_id for local lists to ensure proper icon display
+    // Explicitly omit user_id for local lists to ensure proper icon display
   };
 
   return newList;

@@ -1,3 +1,4 @@
+
 import { Faction } from "../types/army";
 import { northernTribesUnits } from "./factions/northern-tribes";
 import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";
@@ -59,15 +60,21 @@ const normalizeUnits = () => {
   };
   
   for (const unit of allUnits) {
+    // Skip units without an ID (should never happen but just in case)
+    if (!unit.id) {
+      console.warn("Found unit without ID:", unit.name);
+      continue;
+    }
+    
     // Normalize faction name
-    let normalizedFaction = unit.faction.toLowerCase();
+    let normalizedFaction = unit.faction?.toLowerCase() || "";
     
     // Check if faction name needs normalization from the map
     if (factionNameMap[unit.faction]) {
       normalizedFaction = factionNameMap[unit.faction];
     }
     // Check if it's a space-separated name that needs conversion
-    else if (unit.faction.includes(' ')) {
+    else if (unit.faction && unit.faction.includes(' ')) {
       const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
       normalizedFaction = factionNameMap[kebabName] || kebabName;
     }
@@ -78,7 +85,7 @@ const normalizeUnits = () => {
       faction: normalizedFaction
     };
     
-    // Create a unique key including both ID to guarantee uniqueness
+    // Create a unique key including both ID and faction to guarantee uniqueness
     const key = `${normalizedUnit.id}`;
     
     // Log any potential duplicates for debugging

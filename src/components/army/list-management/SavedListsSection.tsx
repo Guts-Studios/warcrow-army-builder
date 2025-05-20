@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Trash2, CloudOff, Cloud, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
@@ -107,7 +106,6 @@ const SavedListsSection = ({
             className="flex items-center justify-between bg-warcrow-background p-2 rounded w-full"
           >
             <div className="flex items-center gap-2">
-              {/* Using aria-label instead of title for better accessibility */}
               {list.user_id ? (
                 <Cloud className="h-4 w-4 text-blue-500" aria-label="Cloud save" />
               ) : (
