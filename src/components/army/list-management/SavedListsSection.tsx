@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Trash2, Cloud, Disc, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
@@ -75,6 +76,7 @@ const SavedListsSection = ({
       filteredListsCount: filteredLists.length,
       uniqueListsCount: uniqueLists.length,
       cloudLists: filteredLists.filter(list => !!list.user_id).length,
+      localLists: filteredLists.filter(list => !list.user_id).length,
       selectedFaction,
       isAuthenticated
     });
