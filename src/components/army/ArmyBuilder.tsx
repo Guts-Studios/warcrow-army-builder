@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { FactionSelector } from "./FactionSelector";
 import { FactionsGrid } from "./FactionsGrid";
-import { ArmyList } from "./ArmyList";
+import ArmyList from "@/components/army/ArmyList";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 import { Unit } from "@/types/army";
 import { removeDuplicateUnits } from "@/utils/unitManagement";
