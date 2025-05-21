@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -213,17 +214,6 @@ const Landing = () => {
     checkAuthStatus();
   }, []);
 
-  const handleRefreshUserCount = () => {
-    // Force refetch from database with fresh query
-    refetchUserCount();
-    toast.info("Refreshing user count...");
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
-  };
-
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
       <div className="absolute top-4 right-4 z-50">
@@ -258,7 +248,6 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
-          onRefreshUserCount={handleRefreshUserCount}
         />
         <MainActions />
         <SecondaryActions isGuest={isGuest} />
@@ -297,3 +286,4 @@ const Landing = () => {
 };
 
 export default Landing;
+

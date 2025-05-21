@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -262,13 +262,6 @@ export const Header = ({
     }
   };
 
-  const handleRefreshUserCount = () => {
-    if (onRefreshUserCount) {
-      onRefreshUserCount();
-      toast.success("Refreshing user count...");
-    }
-  };
-
   // Function to format news content with highlighted date
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return 'Latest news will appear here...';
@@ -337,7 +330,7 @@ export const Header = ({
       <p className="text-lg md:text-xl text-warcrow-text">
         {t('appDescription')}
       </p>
-      <div className="flex items-center justify-center gap-2">
+      <div>
         <p className="text-md md:text-lg text-warcrow-gold/80">
           {isLoadingUserCount ? (
             t('loadingUserCount')
@@ -345,18 +338,6 @@ export const Header = ({
             userCount !== null ? t('userCountMessage').replace('{count}', String(userCount)) : t('loadingUserCount')
           )}
         </p>
-        {(isWabAdmin || isPreview) && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6 rounded-full text-warcrow-gold/60 hover:text-warcrow-gold hover:bg-transparent"
-            onClick={handleRefreshUserCount}
-            disabled={isLoadingUserCount}
-            title="Refresh user count"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoadingUserCount ? 'animate-spin' : ''}`} />
-          </Button>
-        )}
       </div>
       
       {/* Admin-only Build Failure Alert - Only for Warcrow sites */}
@@ -384,16 +365,7 @@ export const Header = ({
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefreshNews}
-              disabled={isLoading}
-              className="text-xs text-warcrow-gold/70 hover:text-warcrow-gold"
-            >
-              {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh"}
-            </Button>
+          <div>
             <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
           </div>
         </div>
@@ -449,3 +421,4 @@ export const Header = ({
     </div>
   );
 };
+
