@@ -16,6 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Playmode
 - Game sync during play mode
 
+## [0.5.7] - 2025-05-21
+### Added
+- Added unit verification system to prevent accidental unit modifications
+- Added missing Master Keorl unit data
+- Fixed unit data for Scions of Yaldabaoth
+### Fixed
+- Various unit data integrity issues
+
 ## [0.5.6] - 2025-05-21 
 -will update needed version change to refresh app
 ### Added
@@ -23,8 +31,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 - Will fill out later, had 7 lines worth and it did not save
 
-
-  
 ## [0.5.3] - 2025-05-03
 - Spanish translation support being added in live so we might miss some spots but will make sure we have full coverage. Spanish language cards soon.
 - Replaced cards with High Res cards
