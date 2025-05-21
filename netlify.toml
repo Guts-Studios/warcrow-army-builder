@@ -34,3 +34,14 @@
   from = "/auth/*"
   to = "/auth/:splat"
   status = 200
+
+# Add explicit redirects for login and authentication flows
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/logout"
+  to = "/login"
+  status = 302

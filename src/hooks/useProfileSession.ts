@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEnvironment } from './useEnvironment';
@@ -34,7 +33,7 @@ export const useProfileSession = (): ProfileSession => {
     try {
       console.log("[useProfileSession] Signing out user");
       
-      // Clear local auth state first
+      // Clear local auth state first for UI responsiveness
       setIsAuthenticated(false);
       setUserId(undefined);
       setIsAdmin(false);
@@ -47,24 +46,19 @@ export const useProfileSession = (): ProfileSession => {
       
       if (error) {
         console.error("[useProfileSession] Error signing out:", error);
-        console.log("[useProfileSession] Will still redirect despite error");
+        throw error;
       } else {
         console.log("[useProfileSession] Successfully signed out");
       }
       
-      // Add a slight delay before redirecting to ensure state changes are applied
-      setTimeout(() => {
-        // Redirect to home page after sign out
-        window.location.href = '/';
-      }, 100);
+      // Hard redirect to login page after sign out
+      window.location.href = '/login';
       
     } catch (err) {
       console.error("[useProfileSession] Error in sign out process:", err);
       
       // Force redirect even if there was an error
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
+      window.location.href = '/login';
     }
   };
 
