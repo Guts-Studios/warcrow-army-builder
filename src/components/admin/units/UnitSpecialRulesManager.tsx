@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { batchTranslate } from "@/utils/translation";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface SpecialRuleItem {
   id?: string;
@@ -18,6 +19,8 @@ interface SpecialRuleItem {
   description: string;
   description_es?: string;
   description_fr?: string;
+  name_es?: string;
+  name_fr?: string;
 }
 
 const UnitSpecialRulesManager: React.FC = () => {
@@ -26,6 +29,7 @@ const UnitSpecialRulesManager: React.FC = () => {
   const [editingRule, setEditingRule] = useState<SpecialRuleItem | null>(null);
   const [translationInProgress, setTranslationInProgress] = useState(false);
   const [translationProgress, setTranslationProgress] = useState(0);
+  const [translationType, setTranslationType] = useState<'descriptions' | 'names'>('descriptions');
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -65,7 +69,9 @@ const UnitSpecialRulesManager: React.FC = () => {
           name: editingRule.name,
           description: editingRule.description,
           description_es: editingRule.description_es,
-          description_fr: editingRule.description_fr
+          description_fr: editingRule.description_fr,
+          name_es: editingRule.name_es,
+          name_fr: editingRule.name_fr
         }, { onConflict: 'id' });
 
       if (error) throw error;
@@ -89,16 +95,23 @@ const UnitSpecialRulesManager: React.FC = () => {
     setTranslationProgress(0);
     
     try {
+      // Choose which field to translate based on the selected tab
+      const sourceField = translationType === 'descriptions' ? 'description' : 'name';
+      const targetField = translationType === 'descriptions' 
+        ? (targetLanguage === 'es' ? 'description_es' : 'description_fr')
+        : (targetLanguage === 'es' ? 'name_es' : 'name_fr');
+      
+      // Filter rules that need translation
       const itemsToTranslate = specialRules
-        .filter(r => r.description && (!r.description_es || targetLanguage === 'fr' && !r.description_fr))
+        .filter(r => r[sourceField] && !r[targetField])
         .map(r => ({
           id: r.id || '',
-          key: 'description',
-          source: r.description
+          key: sourceField,
+          source: r[sourceField]
         }));
       
       if (itemsToTranslate.length === 0) {
-        toast.info("All special rules already have translations");
+        toast.info(`All special rules already have ${translationType} translations in ${targetLanguage === 'es' ? 'Spanish' : 'French'}`);
         setTranslationInProgress(false);
         return;
       }
@@ -115,7 +128,7 @@ const UnitSpecialRulesManager: React.FC = () => {
         // Extract just the text content for translation
         const textsToTranslate = batch.map(item => item.source);
         
-        // Perform batch translation - fixed to use correct parameters
+        // Perform batch translation
         const translatedTexts = await batchTranslate(textsToTranslate, targetLanguage);
         
         // Update each item with its translation
@@ -128,7 +141,7 @@ const UnitSpecialRulesManager: React.FC = () => {
             await supabase
               .from('special_rules')
               .update({
-                [targetLanguage === 'es' ? 'description_es' : 'description_fr']: translatedText
+                [targetField]: translatedText
               })
               .eq('id', item.id);
           }
@@ -144,7 +157,7 @@ const UnitSpecialRulesManager: React.FC = () => {
       }
 
       await fetchSpecialRules(); // Refresh rule list
-      toast.success(`Successfully translated ${itemsToTranslate.length} special rules`);
+      toast.success(`Successfully translated ${itemsToTranslate.length} special rule ${translationType}`);
     } catch (error: any) {
       console.error("Error translating special rules:", error);
       toast.error(`Translation error: ${error.message}`);
@@ -158,6 +171,18 @@ const UnitSpecialRulesManager: React.FC = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
           <h2 className="text-lg font-semibold text-warcrow-gold">Special Rules Management</h2>
+          
+          <Tabs
+            defaultValue="descriptions"
+            value={translationType}
+            onValueChange={(value) => setTranslationType(value as 'descriptions' | 'names')}
+            className="w-full sm:w-auto"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="descriptions">Descriptions</TabsTrigger>
+              <TabsTrigger value="names">Names</TabsTrigger>
+            </TabsList>
+          </Tabs>
           
           <div className="flex gap-2">
             <Button 
@@ -199,6 +224,24 @@ const UnitSpecialRulesManager: React.FC = () => {
                 <Input 
                   value={editingRule.name}
                   onChange={(e) => setEditingRule({...editingRule, name: e.target.value})}
+                  className="bg-black border-warcrow-gold/50"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-warcrow-text/90 mb-1 block">Name (Spanish)</label>
+                <Input 
+                  value={editingRule.name_es || ''}
+                  onChange={(e) => setEditingRule({...editingRule, name_es: e.target.value})}
+                  className="bg-black border-warcrow-gold/50"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-warcrow-text/90 mb-1 block">Name (French)</label>
+                <Input 
+                  value={editingRule.name_fr || ''}
+                  onChange={(e) => setEditingRule({...editingRule, name_fr: e.target.value})}
                   className="bg-black border-warcrow-gold/50"
                 />
               </div>
@@ -255,7 +298,9 @@ const UnitSpecialRulesManager: React.FC = () => {
             <TableHeader>
               <TableRow className="bg-warcrow-accent hover:bg-warcrow-accent/90">
                 <TableHead className="text-warcrow-gold">Rule Name</TableHead>
-                <TableHead className="text-warcrow-gold">Description</TableHead>
+                <TableHead className="text-warcrow-gold">
+                  {translationType === 'descriptions' ? 'Description' : 'Spanish Name'}
+                </TableHead>
                 <TableHead className="text-warcrow-gold">Spanish</TableHead>
                 <TableHead className="text-warcrow-gold">French</TableHead>
                 <TableHead className="text-warcrow-gold w-24">Actions</TableHead>
@@ -274,12 +319,20 @@ const UnitSpecialRulesManager: React.FC = () => {
                 specialRules.map((rule) => (
                   <TableRow key={rule.id} className="hover:bg-warcrow-accent/5">
                     <TableCell className="font-medium">{rule.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{rule.description}</TableCell>
-                    <TableCell>
-                      {rule.description_es ? '✓' : '—'}
+                    <TableCell className="max-w-xs truncate">
+                      {translationType === 'descriptions' 
+                        ? rule.description 
+                        : rule.name_es || '—'}
                     </TableCell>
                     <TableCell>
-                      {rule.description_fr ? '✓' : '—'}
+                      {translationType === 'descriptions' 
+                        ? (rule.description_es ? '✓' : '—')
+                        : (rule.name_es ? '✓' : '—')}
+                    </TableCell>
+                    <TableCell>
+                      {translationType === 'descriptions' 
+                        ? (rule.description_fr ? '✓' : '—')
+                        : (rule.name_fr ? '✓' : '—')}
                     </TableCell>
                     <TableCell>
                       <Button 

@@ -612,6 +612,8 @@ export type Database = {
           description_fr: string | null
           id: string
           name: string
+          name_es: string | null
+          name_fr: string | null
           updated_at: string | null
         }
         Insert: {
@@ -621,6 +623,8 @@ export type Database = {
           description_fr?: string | null
           id?: string
           name: string
+          name_es?: string | null
+          name_fr?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -630,6 +634,8 @@ export type Database = {
           description_fr?: string | null
           id?: string
           name?: string
+          name_es?: string | null
+          name_fr?: string | null
           updated_at?: string | null
         }
         Relationships: []
