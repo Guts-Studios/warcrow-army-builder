@@ -20,10 +20,19 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
     
     // If versions don't match or stored version doesn't exist, purge storage
     if (!storedVersion || storedVersion !== currentVersion) {
-      console.log(`[Storage] Version mismatch detected. Purging local storage.`);
+      console.log(`[Storage] Version mismatch detected. Selectively purging local storage.`);
+      
+      // Save army lists before clearing
+      const savedArmyLists = localStorage.getItem('armyLists');
       
       // Clear all local storage
       localStorage.clear();
+      
+      // Restore army lists
+      if (savedArmyLists) {
+        localStorage.setItem('armyLists', savedArmyLists);
+        console.log(`[Storage] Preserved user's army lists during storage purge`);
+      }
       
       // Save the new version
       localStorage.setItem('app_version', currentVersion);
@@ -31,7 +40,7 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
       // Show notification if enabled
       if (showNotification) {
         toast.info('App updated to version ' + currentVersion, {
-          description: 'Your local data has been refreshed for the new version.',
+          description: 'Your local data has been refreshed for the new version. Your army lists have been preserved.',
           duration: 5000
         });
       }
