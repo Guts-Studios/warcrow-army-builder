@@ -1,4 +1,3 @@
-
 const CURRENT_VERSION = "0.5.8";
 
 // Function to get the last purged version from localStorage
@@ -40,17 +39,36 @@ const purgeStorage = (): void => {
 // Function to purge storage except army lists
 export const purgeStorageExceptLists = (): void => {
   try {
+    // First, find and preserve all army list data
     const armyListKeys = Object.keys(localStorage).filter(key => key.startsWith('armyList_'));
     const armyLists = armyListKeys.reduce((obj: Record<string, string>, key: string) => {
       obj[key] = localStorage.getItem(key) || '';
       return obj;
     }, {});
 
-    localStorage.clear();
-    console.log('All localStorage purged except army lists');
+    // Also preserve auth tokens - we handle these separately with proper validation
+    const authKeys = Object.keys(localStorage).filter(key => 
+      key.startsWith('sb-') || 
+      key.includes('auth') || 
+      key.includes('supabase')
+    );
+    const authItems = authKeys.reduce((obj: Record<string, string>, key: string) => {
+      const value = localStorage.getItem(key);
+      if (value) obj[key] = value;
+      return obj;
+    }, {});
 
+    localStorage.clear();
+    console.log('All localStorage purged except army lists and auth tokens');
+
+    // Restore army lists
     Object.keys(armyLists).forEach(key => {
       localStorage.setItem(key, armyLists[key]);
+    });
+    
+    // Restore auth tokens
+    Object.keys(authItems).forEach(key => {
+      localStorage.setItem(key, authItems[key]);
     });
   } catch (error) {
     console.error('Error purging localStorage except army lists:', error);
@@ -72,7 +90,7 @@ export const checkVersionAndPurgeStorage = (changelog: string, forcePurge: boole
 
     if (forcePurge || lastPurgedVersion !== latestVersion) {
       console.warn('New version detected or force purge enabled. Purging storage.');
-      purgeStorageExceptLists();
+      purgeStorageExceptLists(); // This now preserves auth tokens
       setLastPurgedVersion(latestVersion);
       console.log('Storage purge completed.');
       return true;
@@ -86,7 +104,7 @@ export const checkVersionAndPurgeStorage = (changelog: string, forcePurge: boole
   }
 };
 
-// Enhanced function to clear invalid tokens - UPDATED to only clear tokens that are provably invalid
+// Enhanced function to clear invalid tokens - ONLY clears tokens that are confirmed invalid via API
 export const clearInvalidTokens = async (): Promise<boolean> => {
   try {
     // Check for Supabase auth tokens
@@ -103,14 +121,13 @@ export const clearInvalidTokens = async (): Promise<boolean> => {
 
     console.log(`[storageUtils] Found ${tokenKeys.length} potential auth tokens to check`);
     
-    // Instead of checking domain, let's verify if the tokens actually work
-    let tokenCleared = false;
-    
-    // Check for malformed tokens first - these are definitely invalid
+    // First check for obviously malformed tokens - these are definitely invalid
     const malformedTokens = tokenKeys.filter(key => {
       const value = localStorage.getItem(key);
       return !value || value === 'undefined' || value === 'null';
     });
+    
+    let tokenCleared = false;
     
     if (malformedTokens.length > 0) {
       console.warn(`[storageUtils] Found ${malformedTokens.length} malformed tokens`);
@@ -123,38 +140,55 @@ export const clearInvalidTokens = async (): Promise<boolean> => {
       tokenCleared = true;
     }
     
-    // Now let's try to validate the session with Supabase
-    // This is imported dynamically to avoid circular dependencies
+    // Import Supabase dynamically to avoid circular dependencies
     const { supabase } = await import('../integrations/supabase/client');
     
     try {
-      // Test if the current session is valid by checking the user
-      const { error } = await supabase.auth.getUser();
+      // IMPORTANT: Validate the token with Supabase by making an actual API call
+      // We use getUser() to check if the current session token is valid
+      console.log(`[storageUtils] Validating token with Supabase API call...`);
+      const { data, error } = await supabase.auth.getUser();
       
       if (error) {
-        // We have a confirmed invalid session, clear all auth tokens
-        console.warn(`[storageUtils] Invalid session detected: ${error.message}`);
+        // Only clear tokens if there's an explicit authentication error from Supabase
+        // Common error codes: 401 (Unauthorized), 403 (Forbidden), JWT expired, etc.
+        console.warn(`[storageUtils] Token validation failed: ${error.message}`);
         
-        tokenKeys.forEach(key => {
-          localStorage.removeItem(key);
-          console.log(`[storageUtils] Removed invalid auth token: ${key}`);
-        });
-        
-        console.log(`[storageUtils] Auth storage cleanup complete due to invalid session`);
-        return true;
+        if (error.message.includes('JWT') || 
+            error.message.includes('token') || 
+            error.message.includes('expired') || 
+            error.message.includes('invalid') || 
+            error.message.includes('unauthorized') ||
+            error.status === 401) {
+          
+          console.warn(`[storageUtils] Confirmed invalid token. Clearing auth data.`);
+          
+          // Clear all auth tokens since we confirmed they're invalid
+          tokenKeys.forEach(key => {
+            localStorage.removeItem(key);
+            console.log(`[storageUtils] Removed invalid auth token: ${key}`);
+          });
+          
+          return true;
+        } else {
+          // Other types of errors (network, etc.) - don't clear tokens
+          console.log(`[storageUtils] Error appears to be non-auth related: ${error.message}. Keeping tokens.`);
+          return tokenCleared;
+        }
       } else {
-        // Session is valid, don't clear anything
-        console.log(`[storageUtils] Session validated successfully, keeping auth tokens`);
+        // Token is valid! User data was successfully retrieved
+        console.log(`[storageUtils] Session validated successfully for user: ${data.user?.id || 'unknown'}`);
+        return tokenCleared;
       }
     } catch (validationError) {
-      console.error(`[storageUtils] Error validating session: ${validationError}`);
-      // Don't clear tokens on validation errors - they might still be valid
-      // Only clear tokens when we have a confirmed invalid session
+      // Handle unexpected errors during validation
+      console.error(`[storageUtils] Unexpected error validating session: ${validationError}`);
+      // Don't clear tokens on unexpected errors - they might still be valid
+      // Only clear when we have confidence the token is invalid
+      return tokenCleared;
     }
-    
-    return tokenCleared;
   } catch (error) {
-    console.error('[storageUtils] Error clearing invalid tokens:', error);
+    console.error('[storageUtils] Error processing tokens:', error);
     return false;
   }
 };

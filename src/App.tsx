@@ -1,5 +1,4 @@
 
-
 import * as React from 'react';
 import { ProvidersWrapper } from "@/components/providers/ProvidersWrapper";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -41,6 +40,7 @@ function App() {
   }, []);
   
   // Recovery function for users experiencing issues
+  // This one preserves auth tokens unless they're invalid
   const handleRecoverSession = React.useCallback(async () => {
     console.log("[App] Running session recovery process");
     
@@ -53,7 +53,7 @@ function App() {
       console.log("[App] No invalid tokens detected");
     }
     
-    // Force a complete storage purge except auth tokens
+    // Force a complete storage purge except auth tokens and army lists
     const fakeChangelog = `# Changelog\n\n## [999.999.999]`;
     checkVersionAndPurgeStorage(fakeChangelog, true);
     
@@ -64,21 +64,36 @@ function App() {
   }, []);
 
   // Authentication-specific recovery for auth issues
+  // This one specifically targets auth data
   const handleAuthRecovery = React.useCallback(async () => {
     console.log("[Auth Recovery] Starting auth-specific recovery");
     
-    // Only remove auth-related items
-    for (const key in localStorage) {
-      if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
-        console.log("[Auth Recovery] Removing auth storage item:", key);
-        localStorage.removeItem(key);
+    try {
+      // Import supabase client dynamically
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      // First try to sign out properly via the API
+      await supabase.auth.signOut().catch(err => {
+        console.log("[Auth Recovery] Sign out API call failed:", err);
+      });
+      
+      // Then remove auth-related items from storage
+      for (const key in localStorage) {
+        if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
+          console.log("[Auth Recovery] Removing auth storage item:", key);
+          localStorage.removeItem(key);
+        }
       }
-    }
-    
-    // Redirect to login page after clearing auth data
-    setTimeout(() => {
+      
+      // Redirect to login page after clearing auth data
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 500);
+    } catch (error) {
+      console.error("[Auth Recovery] Error during recovery:", error);
+      // Force navigation as fallback
       window.location.href = '/login';
-    }, 500);
+    }
   }, []);
 
   return (

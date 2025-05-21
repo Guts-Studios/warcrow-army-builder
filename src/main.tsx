@@ -1,25 +1,30 @@
-
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { checkVersionAndPurgeStorage, purgeStorageExceptLists, clearInvalidTokens } from './utils/storageUtils'
+import { checkVersionAndPurgeStorage, clearInvalidTokens } from './utils/storageUtils'
 import { Toaster } from './components/ui/toaster'
 import { toast } from 'sonner'
 
-// Only clear tokens that are provably invalid - now async
-console.log("[App] Checking for invalid auth tokens...");
-clearInvalidTokens().then(cleared => {
-  if (cleared) {
-    console.log("[App] Invalid tokens were found and cleared");
-  } else {
-    console.log("[App] No invalid tokens found or cleared");
+// On app load, ONLY check for CLEARLY invalid tokens (empty or malformed)
+// but don't clear tokens just because we're on a different domain
+console.log("[App] Checking for obviously invalid auth tokens...");
+setTimeout(async () => {
+  try {
+    // Delayed token validation to ensure app has loaded and avoid blocking UI
+    const cleared = await clearInvalidTokens();
+    if (cleared) {
+      console.log("[App] Invalid tokens were found and cleared");
+    } else {
+      console.log("[App] No invalid tokens found or cleared");
+    }
+  } catch (err) {
+    console.error("[App] Error checking tokens:", err);
   }
-});
+}, 500);
 
-// Immediately purge all storage except army lists on every app load
-// This ensures any corrupted or outdated data is cleared
-// This preserves authentication tokens since they're filtered out in the function
+// Immediately purge all storage except army lists and auth tokens on every app load
+// Auth tokens are now preserved in purgeStorageExceptLists()
 purgeStorageExceptLists();
 
 // Add user agent logging to help diagnose mobile issues
@@ -30,7 +35,8 @@ console.log(`[App] Running on ${isMobile ? 'mobile' : 'desktop'} device`);
 // This helps with recovering from broken states
 const detectBrokenAuthState = async () => {
   try {
-    // Check for partial or corrupted auth tokens that are definitely broken
+    // Check only for partial or corrupted auth tokens that are definitely broken
+    // Don't clear valid tokens just because we're on a different domain
     const hasPartialAuth = Object.keys(localStorage)
       .some(key => (key.startsWith('sb-') || key.includes('auth')) && 
             (!localStorage.getItem(key) || localStorage.getItem(key) === "undefined"));

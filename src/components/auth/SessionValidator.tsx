@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +17,7 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
         setIsValidating(true);
         
         // Check if we have a session
+        console.log("[SessionValidator] Checking for existing session...");
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -33,45 +33,75 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           return;
         }
 
-        // If we have a session, validate it by trying to use it
+        console.log("[SessionValidator] Session found, validating token...");
+
+        // If we have a session, validate it by trying to use it to get the user
         const { data: userData, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
-          console.error("[SessionValidator] Session token validation failed:", userError);
+          console.error("[SessionValidator] Token validation failed:", userError);
           await handleInvalidSession("Session token is invalid");
           return;
         }
 
-        // Additional validation: Perform a test query to verify the session token works
+        console.log("[SessionValidator] Token validation successful. User ID:", userData.user?.id);
+
+        // Additional validation: Perform a test query to verify the session works for DB access
         try {
+          console.log("[SessionValidator] Testing database access with token...");
           const { error: testQueryError } = await supabase
             .from('profiles')
             .select('id')
             .limit(1);
             
           if (testQueryError) {
-            console.error("[SessionValidator] Session token database validation failed:", testQueryError);
-            await handleInvalidSession("Session token is invalid for database access");
-            return;
+            console.error("[SessionValidator] Database access validation failed:", testQueryError);
+            
+            // Only clear sessions for actual auth errors, not for other types of errors
+            if (testQueryError.code === 'PGRST301' || 
+                testQueryError.code === '42501' || 
+                testQueryError.message.includes('JWT') || 
+                testQueryError.message.includes('auth') ||
+                testQueryError.status === 401 ||
+                testQueryError.status === 403) {
+              await handleInvalidSession("Session token is invalid for database access");
+              return;
+            } else {
+              // Other database errors shouldn't invalidate the session
+              console.log("[SessionValidator] Database error not related to authentication, continuing");
+            }
+          } else {
+            console.log("[SessionValidator] Database access test successful");
           }
         } catch (testError) {
           console.error("[SessionValidator] Error testing session validity:", testError);
-          await handleInvalidSession("Failed to validate session token");
-          return;
+          // Don't invalidate session on unexpected errors
+          console.log("[SessionValidator] Unexpected error, but not clearing session");
         }
         
-        // If we get here, the session is valid - verify user profile exists
+        // If we get here, the session is valid - verify user profile exists if needed
         if (session.user?.id) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', session.user.id)
-            .maybeSingle();
-            
-          if (profileError) {
-            console.error("[SessionValidator] Error fetching user profile:", profileError);
-            await handleInvalidSession("User profile validation failed");
-            return;
+          try {
+            console.log("[SessionValidator] Checking user profile...");
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('id', session.user.id)
+              .maybeSingle();
+              
+            if (profileError) {
+              console.error("[SessionValidator] Error fetching user profile:", profileError);
+              // Profile errors shouldn't invalidate the session unless they're auth-related
+              if (profileError.code?.includes('auth') || profileError.status === 401) {
+                await handleInvalidSession("User profile validation failed");
+                return;
+              }
+            } else {
+              console.log("[SessionValidator] User profile validation successful");
+            }
+          } catch (profileError) {
+            console.error("[SessionValidator] Unexpected error checking profile:", profileError);
+            // Don't invalidate session for unexpected errors
           }
         }
         
@@ -80,7 +110,8 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
         setIsValidating(false);
       } catch (error) {
         console.error("[SessionValidator] Unexpected error during session validation:", error);
-        await handleInvalidSession("Unexpected authentication error");
+        // Don't invalidate session for unexpected errors
+        setIsValidating(false);
       }
     };
     
@@ -88,16 +119,16 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
       console.warn(`[SessionValidator] Invalid session detected: ${reason}`);
       
       try {
-        // Force sign out
-        await supabase.auth.signOut();
-        
-        // Clean up any problematic auth state
+        // Only remove auth-related items, not everything
         for (const key in localStorage) {
           if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
-            console.log("[SessionValidator] Removing auth storage item:", key);
+            console.log("[SessionValidator] Removing invalid auth item:", key);
             localStorage.removeItem(key);
           }
         }
+        
+        // Force sign out with Supabase (this is separate from clearing localStorage)
+        await supabase.auth.signOut();
         
         // Notify user
         toast.error("Your session has expired", {
