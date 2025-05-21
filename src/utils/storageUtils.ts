@@ -6,8 +6,9 @@ import { toast } from "sonner";
  * Checks the current app version against the stored version and purges local storage if they don't match
  * @param changelog The content of the CHANGELOG.md file
  * @param showNotification Whether to show a toast notification when storage is purged
+ * @returns Boolean indicating whether storage was purged (true) or not (false)
  */
-export const checkVersionAndPurgeStorage = (changelog: string, showNotification: boolean = true): void => {
+export const checkVersionAndPurgeStorage = (changelog: string, showNotification: boolean = true): boolean => {
   try {
     // Extract current version from the changelog
     const currentVersion = getLatestVersion(changelog);
