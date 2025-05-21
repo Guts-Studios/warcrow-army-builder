@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useEnvironment } from './useEnvironment';
@@ -28,7 +29,7 @@ export const useProfileSession = (): ProfileSession => {
   // Always set usePreviewData to false - we want to use real data
   const usePreviewData = false;
 
-  // Add signOut function
+  // Add signOut function with enhanced cleanup
   const signOut = async () => {
     try {
       console.log("[useProfileSession] Signing out user");
@@ -38,8 +39,13 @@ export const useProfileSession = (): ProfileSession => {
       setUserId(undefined);
       setIsAdmin(false);
       
-      // Force clear localStorage to ensure all session data is removed
-      localStorage.removeItem('supabase.auth.token');
+      // Force clear all Supabase-related localStorage items
+      for (const key in localStorage) {
+        if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
+          console.log("[useProfileSession] Removing auth storage item:", key);
+          localStorage.removeItem(key);
+        }
+      }
       
       // Call Supabase signOut
       const { error } = await supabase.auth.signOut();
@@ -82,7 +88,39 @@ export const useProfileSession = (): ProfileSession => {
         }
         
         // For production, check real auth state
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("[useProfileSession] Session error:", sessionError);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          setIsGuest(true);
+          setSessionChecked(true);
+          return;
+        }
+        
+        // Before setting auth state, validate the token works on this domain
+        if (session) {
+          try {
+            // Test query to verify session works with current domain
+            const { error: testError } = await supabase
+              .from('profiles')
+              .select('count')
+              .limit(1)
+              .single();
+              
+            if (testError) {
+              console.error("[useProfileSession] Session token invalid for this domain:", testError);
+              // Force sign out since token doesn't work on this domain
+              await signOut();
+              return;
+            }
+          } catch (validationError) {
+            console.error("[useProfileSession] Error validating session token:", validationError);
+            await signOut();
+            return;
+          }
+        }
         
         // Set authentication state based on session
         const hasSession = !!session;
@@ -168,6 +206,29 @@ export const useProfileSession = (): ProfileSession => {
         usePreviewData,
         timestamp: new Date().toISOString()
       });
+
+      // Immediately validate the session if we have one
+      if (session && !isPreview) {
+        try {
+          // Test query to verify session works with current domain
+          const { error: testError } = await supabase
+            .from('profiles')
+            .select('count')
+            .limit(1)
+            .single();
+            
+          if (testError) {
+            console.error("[useProfileSession] New session token invalid for this domain:", testError);
+            // Force sign out since token doesn't work on this domain
+            await signOut();
+            return;
+          }
+        } catch (validationError) {
+          console.error("[useProfileSession] Error validating new session token:", validationError);
+          await signOut();
+          return;
+        }
+      }
       
       // Update authentication state based on event
       setIsAuthenticated(!!session);
@@ -218,7 +279,7 @@ export const useProfileSession = (): ProfileSession => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [isPreview, isProduction, hostname]);
+  }, [isPreview, isProduction, hostname, signOut]);
   
   return {
     isPreview,

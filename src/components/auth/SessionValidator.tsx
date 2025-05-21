@@ -31,6 +31,24 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           setIsValidating(false);
           return;
         }
+
+        // Perform a test query to verify the session token works with this domain
+        try {
+          const { error: testQueryError } = await supabase
+            .from('profiles')
+            .select('id')
+            .limit(1);
+            
+          if (testQueryError) {
+            console.error("[SessionValidator] Session token validation failed:", testQueryError);
+            await handleInvalidSession("Session token is invalid for this domain");
+            return;
+          }
+        } catch (testError) {
+          console.error("[SessionValidator] Error testing session validity:", testError);
+          await handleInvalidSession("Failed to validate session token");
+          return;
+        }
         
         // Verify user exists by attempting to get profile data
         if (session.user?.id) {
@@ -62,9 +80,9 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
         await supabase.auth.signOut();
         
         // Clean up any problematic auth state
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.startsWith('sb-') || key.includes('auth'))) {
+        for (const key in localStorage) {
+          if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
+            console.log("[SessionValidator] Removing auth storage item:", key);
             localStorage.removeItem(key);
           }
         }
@@ -100,7 +118,14 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
 
   // Simple loading state while validating
   if (isValidating) {
-    return null; // Or return a minimal loading indicator if preferred
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warcrow-background text-warcrow-gold">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warcrow-gold mx-auto mb-4"></div>
+          <p>Validating session...</p>
+        </div>
+      </div>
+    );
   }
 
   // Render children once validation is complete
