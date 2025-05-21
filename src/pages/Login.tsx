@@ -45,6 +45,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const { resendConfirmationEmail, setIsGuest } = useAuth();
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
     const {
@@ -60,7 +61,18 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         userMetadata: session?.user?.user_metadata,
         appMetadata: session?.user?.app_metadata,
         hostname: window.location.hostname,
-        origin: window.location.origin
+        origin: window.location.origin,
+        timestamp: new Date().toISOString()
+      });
+      
+      // For debugging
+      setDebugInfo({
+        event,
+        sessionExists: !!session,
+        userId: session?.user?.id?.slice(0, 8),
+        emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No',
+        hostname: window.location.hostname,
+        timestamp: new Date().toISOString()
       });
       
       setIsLoading(true);
@@ -71,15 +83,17 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         } else if (event === 'SIGNED_IN') {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
-            .select('wab_id')
+            .select('wab_id, wab_admin')
             .eq('id', session?.user?.id)
             .maybeSingle();
           
           console.log('Profile check on sign in:', { 
             profileData, 
-            hasWabId: !!profileData?.wab_id, 
+            hasWabId: !!profileData?.wab_id,
+            isAdmin: !!profileData?.wab_admin,
             profileError: profileError?.message,
-            hostname: window.location.hostname
+            hostname: window.location.hostname,
+            timestamp: new Date().toISOString()
           });
           
           toast.success('Successfully signed in!');
@@ -97,7 +111,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
             console.log('Profile after signup:', { 
               profile, 
               hasWabId: !!profile?.wab_id, 
-              error: profileError?.message 
+              error: profileError?.message,
+              timestamp: new Date().toISOString()
             });
             
             if (!profile?.wab_id) {
@@ -126,7 +141,8 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         if (authError?.error) {
           console.error('Authentication error:', {
             message: authError.error.message,
-            status: authError.error.status
+            status: authError.error.status,
+            timestamp: new Date().toISOString()
           });
 
           if (authError.error instanceof AuthApiError) {
@@ -166,6 +182,24 @@ const Login = ({ onGuestAccess }: LoginProps) => {
     if (message === 'password_reset') {
       toast.success('Password has been reset successfully. Please sign in with your new password.');
     }
+
+    // Check initial session on mount
+    const checkInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Initial session check:', {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No',
+        hostname: window.location.hostname,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (session?.user) {
+        navigate('/');
+      }
+    };
+    
+    checkInitialSession();
 
     return () => subscription.unsubscribe();
   }, [navigate, resendConfirmationEmail]);
@@ -310,6 +344,18 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         {isLoading && (
           <Alert className="mb-4 border-warcrow-gold bg-warcrow-gold/10">
             <AlertDescription>Signing you in...</AlertDescription>
+          </Alert>
+        )}
+        {debugInfo && window.location.hostname.includes('localhost') && (
+          <Alert className="mb-4 border-warcrow-gold/30 bg-warcrow-accent/50">
+            <AlertDescription className="text-xs font-mono">
+              <div>Host: {debugInfo.hostname}</div>
+              <div>Event: {debugInfo.event}</div>
+              <div>Session: {debugInfo.sessionExists ? 'Yes' : 'No'}</div>
+              <div>User: {debugInfo.userId || 'None'}</div>
+              <div>Email confirmed: {debugInfo.emailConfirmed}</div>
+              <div>Time: {debugInfo.timestamp}</div>
+            </AlertDescription>
           </Alert>
         )}
         <Auth

@@ -32,7 +32,7 @@ export const useEnvironment = (): EnvironmentInfo => {
                      hostname.includes('netlify.app') || 
                      hostname.includes('lovable.app');
     
-    // Production includes warcrowarmy.com or any domain that's not a preview domain
+    // Production includes warcrowarmy.com or any custom domain that's not a preview domain
     const isProduction = hostname === 'warcrowarmy.com' || 
                         hostname.endsWith('.warcrowarmy.com') ||
                         (!isPreview && hostname !== 'localhost' && hostname !== '127.0.0.1');
@@ -52,7 +52,8 @@ export const useEnvironment = (): EnvironmentInfo => {
       origin,
       isPreview, 
       isProduction,
-      useLocalContentData
+      useLocalContentData,
+      timestamp: new Date().toISOString()
     });
   }, []);
   

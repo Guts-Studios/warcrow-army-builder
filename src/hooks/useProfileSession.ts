@@ -46,7 +46,8 @@ export const useProfileSession = (): ProfileSession => {
           console.log("[useProfileSession] Session check result:", { 
             hasSession, 
             userId: session?.user?.id,
-            hostname
+            hostname,
+            timestamp: new Date().toISOString()
           });
           
           setIsAuthenticated(hasSession);
@@ -68,9 +69,21 @@ export const useProfileSession = (): ProfileSession => {
             adminStatus = !!profileData?.wab_admin;
             setIsAdmin(adminStatus);
             setIsGuest(false);
+
+            console.log("[useProfileSession] Profile data fetched:", {
+              profileExists: !!profileData,
+              isAdmin: adminStatus,
+              userId: session?.user?.id,
+              profileData
+            });
           } else {
             setIsAdmin(false);
             setIsGuest(!!localStorage.getItem('guestSession'));
+            
+            // Provide special admin privileges in preview environments if needed
+            if (isPreview) {
+              console.log("[useProfileSession] Preview environment detected without session");
+            }
           }
           
           setSessionChecked(true);
@@ -82,7 +95,8 @@ export const useProfileSession = (): ProfileSession => {
             environment: { isPreview, isProduction, hostname },
             isGuest: !!localStorage.getItem('guestSession'),
             sessionChecked: true,
-            usePreviewData
+            usePreviewData,
+            timestamp: new Date().toISOString()
           });
         }
       } catch (error) {
@@ -129,6 +143,13 @@ export const useProfileSession = (): ProfileSession => {
           if (error) {
             console.error("[useProfileSession] Error checking admin status:", error);
           }
+          
+          console.log("[useProfileSession] Admin status check:", {
+            profileExists: !!data,
+            isAdmin: !!data?.wab_admin,
+            userId: session.user.id,
+            profileData: data
+          });
             
           if (mounted) {
             setIsAdmin(!!data?.wab_admin);

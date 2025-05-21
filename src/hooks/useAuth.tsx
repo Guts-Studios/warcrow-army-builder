@@ -60,6 +60,15 @@ export function useAuth() {
         // with admin privileges if no session is found
         const { data: { session } } = await supabase.auth.getSession();
         
+        console.log("Auth hook: Session check result:", {
+          hasSession: !!session,
+          userId: session?.user?.id,
+          email: session?.user?.email,
+          userMetadata: session?.user?.user_metadata,
+          appMetadata: session?.user?.app_metadata,
+          timestamp: new Date().toISOString()
+        });
+        
         if (mounted) {
           // If we're in preview and there's no session, set preview privileges
           if (inPreview && !session) {
@@ -88,6 +97,14 @@ export function useAuth() {
                 .select('wab_admin, tester')
                 .eq('id', session.user.id)
                 .single();
+                
+              console.log("Auth hook: Profile data fetched:", {
+                profileExists: !!data,
+                wabAdmin: data?.wab_admin,
+                tester: data?.tester,
+                error: error?.message,
+                timestamp: new Date().toISOString()
+              });
                 
               if (!error && data && mounted) {
                 const isAdminUser = !!data.wab_admin;
@@ -145,7 +162,12 @@ export function useAuth() {
         // Set up the auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("Auth state changed in AuthProvider:", event);
+            console.log("Auth state changed in AuthProvider:", event, {
+              hasUser: !!session?.user,
+              userId: session?.user?.id,
+              email: session?.user?.email,
+              timestamp: new Date().toISOString()
+            });
             
             if (mounted) {
               setIsAuthenticated(!!session);
@@ -160,6 +182,14 @@ export function useAuth() {
                     .select('wab_admin, tester')
                     .eq('id', session.user.id)
                     .single();
+                    
+                  console.log("Auth state change: Profile data fetched:", {
+                    profileExists: !!data,
+                    wabAdmin: data?.wab_admin,
+                    tester: data?.tester,
+                    error: error?.message,
+                    timestamp: new Date().toISOString()
+                  });
                     
                   if (!error && data && mounted) {
                     const isAdminUser = !!data.wab_admin;
