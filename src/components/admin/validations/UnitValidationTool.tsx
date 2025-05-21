@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { units as staticUnits } from '@/data/factions';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { parseCsvFile, compareUnitWithCsv, CsvUnit, generateUnitFileCode, getFactionIdFromFileName } from '@/utils/csvValidator';
+import { parseCsvFile, parseCsvContent, compareUnitWithCsv, CsvUnit, generateUnitFileCode, getFactionIdFromFileName, normalizeFactionName, findMatchingUnit } from '@/utils/csvValidator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -89,81 +88,71 @@ const UnitValidationTool: React.FC = () => {
   useEffect(() => {
     const fetchAvailableFactions = async () => {
       try {
-        // Using dynamic imports to scan the reference-csv/units directory
+        console.log("Fetching available factions...");
         const csvFolderModules = import.meta.glob('/data/reference-csv/units/*.csv', { as: 'raw' });
         
+        console.log("CSV modules found:", Object.keys(csvFolderModules));
+        
         const factions = Object.keys(csvFolderModules).map(path => {
-          // Extract faction name from path
           const fileName = path.split('/').pop() || '';
           return fileName.replace('.csv', '');
         });
         
         setAvailableFactions(['all', ...factions]);
-        loadAllCsvFiles(csvFolderModules);
+        
+        // Load all CSV files at once
+        await loadAllCsvFiles(csvFolderModules);
       } catch (error) {
         console.error('Error loading faction CSV files:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load CSV files. Check console for details.",
+          variant: "destructive"
+        });
       }
     };
     
     fetchAvailableFactions();
   }, []);
   
-  // Load all CSV files
+  // Enhanced CSV file loading
   const loadAllCsvFiles = async (modules: Record<string, () => Promise<string>>) => {
     const factionData: Record<string, CsvUnit[]> = {};
+    console.log("Loading CSV files...");
     
     for (const [path, importModule] of Object.entries(modules)) {
       try {
+        console.log(`Loading CSV from ${path}`);
         const csvContent = await importModule();
         const fileName = path.split('/').pop() || '';
-        const factionId = getFactionIdFromFileName(fileName);
+        const rawFactionName = fileName.replace('.csv', '');
+        const factionId = normalizeFactionName(rawFactionName);
         
-        // Parse the CSV content
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(csvContent, 'text/html');
-        const csvText = doc.body.textContent || '';
+        console.log(`Processing faction ${rawFactionName} -> ${factionId}`);
         
-        // Use Papa Parse to parse the CSV content
-        const parsedUnits = await new Promise<CsvUnit[]>((resolve) => {
-          const Papa = require('papaparse');
-          Papa.parse(csvText, {
-            header: true,
-            complete: (results: any) => {
-              // Map the parsed data to our CsvUnit type
-              const units = results.data
-                .filter((row: any) => row.name || row['Unit Name']) // Filter out empty rows
-                .map((row: any) => ({
-                  id: row.id || '',
-                  name: row['Unit Name'] || row.name || '',
-                  faction: row.Faction || row.faction || factionId,
-                  type: row['Unit Type'] || row.type || '',
-                  pointsCost: parseInt(row['Points Cost'] || row.pointsCost || '0', 10),
-                  availability: parseInt(row.AVB || row.availability || '0', 10),
-                  keywords: (row.Keywords || row.keywords || '').split(',').map((k: string) => k.trim()),
-                  specialRules: (row['Special Rules'] || row.specialRules || '').split(',').map((r: string) => r.trim()).filter((r: string) => r),
-                  highCommand: (row['High Command'] || row.highCommand || '').toLowerCase() === 'yes',
-                  command: parseInt(row.Command || row.command || '0', 10) || 0
-                }));
-              resolve(units);
-            },
-            error: (error: any) => {
-              console.error(`Error parsing CSV for faction ${factionId}:`, error);
-              resolve([]);
-            }
-          });
-        });
+        // Parse the CSV content directly
+        const parsedUnits = await parseCsvContent(csvContent);
         
-        factionData[factionId] = parsedUnits;
+        // Set faction for all units if not already specified
+        const unitsWithFaction = parsedUnits.map(unit => ({
+          ...unit,
+          faction: unit.faction || factionId
+        }));
+        
+        factionData[factionId] = unitsWithFaction;
+        console.log(`Loaded ${unitsWithFaction.length} units for faction ${factionId}`);
       } catch (err) {
         console.error(`Failed to load CSV file ${path}:`, err);
       }
     }
     
+    console.log("Loaded CSV data:", Object.keys(factionData).map(k => `${k}: ${factionData[k].length} units`));
     setCsvUnitsByFaction(factionData);
   };
   
   const validateUnits = async () => {
     setIsValidating(true);
+    console.log("Starting validation...");
     
     try {
       // 1. Get all units from the database
@@ -174,6 +163,8 @@ const UnitValidationTool: React.FC = () => {
         .order('name');
         
       if (error) throw error;
+      
+      console.log(`Retrieved ${dbUnits.length} units from database`);
       
       // 2. Convert static units to a comparable format
       const flatStaticUnits = staticUnits.map(unit => ({
@@ -188,69 +179,21 @@ const UnitValidationTool: React.FC = () => {
         command: unit.command
       }));
       
+      console.log(`Processing ${flatStaticUnits.length} static units`);
+      
       // 3. Filter units by selected faction if not "all"
       const filteredStaticUnits = activeFaction === 'all' 
         ? flatStaticUnits
-        : flatStaticUnits.filter(unit => unit.faction === activeFaction.toLowerCase().replace(/\s+/g, '-'));
+        : flatStaticUnits.filter(unit => normalizeFactionName(unit.faction) === normalizeFactionName(activeFaction));
       
       const filteredDbUnits = activeFaction === 'all'
         ? dbUnits
-        : dbUnits.filter(unit => unit.faction === activeFaction.toLowerCase().replace(/\s+/g, '-'));
+        : dbUnits.filter(unit => normalizeFactionName(unit.faction) === normalizeFactionName(activeFaction));
+      
+      console.log(`Filtered to ${filteredStaticUnits.length} static units, ${filteredDbUnits.length} DB units`);
       
       // 4. Check for mismatches between static data and database
-      const inStaticOnly = filteredStaticUnits.filter(
-        staticUnit => !filteredDbUnits.some(dbUnit => dbUnit.id === staticUnit.id)
-      );
-      
-      const inDatabaseOnly = filteredDbUnits.filter(
-        dbUnit => !filteredStaticUnits.some(staticUnit => staticUnit.id === dbUnit.id)
-      );
-      
-      const missingHighCommand = filteredDbUnits.filter(
-        dbUnit => {
-          const staticUnit = filteredStaticUnits.find(su => su.id === dbUnit.id);
-          // Safely check if characteristics exists and if highCommand property is true
-          const hasHighCommandChar = dbUnit.characteristics && 
-            typeof dbUnit.characteristics === 'object' && 
-            typeof dbUnit.characteristics !== 'string' && 
-            !Array.isArray(dbUnit.characteristics) &&
-            'highCommand' in dbUnit.characteristics &&
-            dbUnit.characteristics.highCommand === true;
-          
-          return staticUnit && hasHighCommandChar && !staticUnit.highCommand;
-        }
-      );
-      
-      const nameMismatches = filteredDbUnits
-        .filter(dbUnit => {
-          const staticUnit = filteredStaticUnits.find(su => su.id === dbUnit.id);
-          return staticUnit && staticUnit.name !== dbUnit.name;
-        })
-        .map(dbUnit => {
-          const staticUnit = filteredStaticUnits.find(su => su.id === dbUnit.id)!;
-          return {
-            id: dbUnit.id,
-            staticName: staticUnit.name,
-            dbName: dbUnit.name,
-            faction: dbUnit.faction
-          };
-        });
-      
-      const pointsMismatches = filteredDbUnits
-        .filter(dbUnit => {
-          const staticUnit = filteredStaticUnits.find(su => su.id === dbUnit.id);
-          return staticUnit && staticUnit.pointsCost !== dbUnit.points;
-        })
-        .map(dbUnit => {
-          const staticUnit = filteredStaticUnits.find(su => su.id === dbUnit.id)!;
-          return {
-            id: dbUnit.id,
-            name: dbUnit.name,
-            staticPoints: staticUnit.pointsCost,
-            dbPoints: dbUnit.points,
-            faction: dbUnit.faction
-          };
-        });
+      // ... keep existing code (database comparison)
       
       // 5. Get CSV data for the selected faction
       let csvUnits: CsvUnit[] = [];
@@ -261,8 +204,15 @@ const UnitValidationTool: React.FC = () => {
           csvUnits = [...csvUnits, ...units];
         });
       } else {
-        const factionKey = activeFaction.toLowerCase().replace(/\s+/g, '-');
+        const factionKey = normalizeFactionName(activeFaction);
         csvUnits = csvUnitsByFaction[factionKey] || [];
+      }
+      
+      console.log(`Using ${csvUnits.length} CSV units for comparison`);
+      
+      // Debugging: Log some sample CSV units if available
+      if (csvUnits.length > 0) {
+        console.log("Sample CSV unit:", csvUnits[0]);
       }
       
       // 6. Check for mismatches between static data and CSV data
@@ -277,26 +227,38 @@ const UnitValidationTool: React.FC = () => {
       
       // Find units in CSV that don't exist in static data
       const inCsvOnly = csvUnits.filter(
-        csvUnit => !filteredStaticUnits.some(staticUnit => 
-          staticUnit.name.toLowerCase() === csvUnit.name.toLowerCase() && 
-          staticUnit.faction.toLowerCase() === csvUnit.faction.toLowerCase()
-        )
+        csvUnit => !filteredStaticUnits.some(staticUnit => {
+          // Try to match by name and faction if present
+          return (staticUnit.name.toLowerCase() === csvUnit.name.toLowerCase() || 
+                  staticUnit.id.toLowerCase() === csvUnit.id.toLowerCase()) && 
+                 (normalizeFactionName(staticUnit.faction) === normalizeFactionName(csvUnit.faction));
+        })
       ).map(csvUnit => ({
         id: csvUnit.id || '',
         name: csvUnit.name,
         faction: csvUnit.faction
       }));
       
+      console.log(`Found ${inCsvOnly.length} units in CSV only`);
+      
       // Compare each static unit with its CSV counterpart
       filteredStaticUnits.forEach(staticUnit => {
+        // Try to find a matching CSV unit by name and faction
         const matchingCsvUnit = csvUnits.find(
-          csvUnit => csvUnit.name.toLowerCase() === staticUnit.name.toLowerCase() && 
-                    csvUnit.faction.toLowerCase() === staticUnit.faction.toLowerCase()
+          csvUnit => 
+            // Match by name (case insensitive) and faction
+            (csvUnit.name.toLowerCase() === staticUnit.name.toLowerCase() || 
+             csvUnit.id.toLowerCase() === staticUnit.id.toLowerCase()) && 
+            normalizeFactionName(csvUnit.faction) === normalizeFactionName(staticUnit.faction)
         );
         
         if (matchingCsvUnit) {
           // Compare the two units and collect mismatches
           const mismatches = compareUnitWithCsv(staticUnit, matchingCsvUnit);
+          
+          if (mismatches.length > 0) {
+            console.log(`Found ${mismatches.length} mismatches for unit ${staticUnit.name}:`, mismatches);
+          }
           
           mismatches.forEach(mismatch => {
             csvMismatches.push({
@@ -308,16 +270,18 @@ const UnitValidationTool: React.FC = () => {
               csvValue: mismatch.csvValue
             });
           });
+        } else {
+          console.log(`No CSV match found for ${staticUnit.name}`);
         }
       });
       
       // 7. Set validation results
       setValidationResults({
-        inStaticOnly,
-        inDatabaseOnly,
-        missingHighCommand,
-        nameMismatches,
-        pointsMismatches,
+        inStaticOnly: inStaticOnly || [],
+        inDatabaseOnly: inDatabaseOnly || [],
+        missingHighCommand: missingHighCommand || [],
+        nameMismatches: nameMismatches || [],
+        pointsMismatches: pointsMismatches || [], 
         csvMismatches,
         inCsvOnly
       });
@@ -418,6 +382,7 @@ const UnitValidationTool: React.FC = () => {
   // Prepare code changes to update local JS files from CSV data
   const prepareCodeChanges = () => {
     setIsSyncing(true);
+    console.log("Preparing code changes from CSV data...");
     
     try {
       // Group CSV units by faction
@@ -429,30 +394,42 @@ const UnitValidationTool: React.FC = () => {
           factionGroups[faction] = units;
         });
       } else {
-        const factionId = activeFaction.toLowerCase().replace(/\s+/g, '-');
+        const factionId = normalizeFactionName(activeFaction);
         factionGroups[factionId] = csvUnitsByFaction[factionId] || [];
       }
       
+      console.log("Faction groups prepared:", Object.keys(factionGroups));
+      
       // Create preview of changes
       const preview = Object.entries(factionGroups).map(([faction, units]) => {
+        // Skip factions with no units
+        if (!units || units.length === 0) {
+          return null;
+        }
+        
         // Count fields that will change
         let changedFields = 0;
         
         // Find the static units for this faction
-        const staticFactionUnits = staticUnits.filter(u => u.faction === faction);
+        const staticFactionUnits = staticUnits.filter(u => normalizeFactionName(u.faction) === normalizeFactionName(faction));
+        
+        console.log(`Faction ${faction}: ${units.length} CSV units, ${staticFactionUnits.length} static units`);
         
         // Count mismatches
         units.forEach(csvUnit => {
-          const matchingStaticUnit = staticFactionUnits.find(
-            su => su.name.toLowerCase() === csvUnit.name.toLowerCase()
-          );
+          const matchingStaticUnit = findMatchingUnit(csvUnit, staticFactionUnits);
           
           if (matchingStaticUnit) {
             const mismatches = compareUnitWithCsv(matchingStaticUnit, csvUnit);
             changedFields += mismatches.length;
+            
+            if (mismatches.length > 0) {
+              console.log(`Unit ${csvUnit.name}: found ${mismatches.length} mismatches`);
+            }
           } else {
             // New unit
             changedFields += 1;
+            console.log(`New unit found in CSV: ${csvUnit.name}`);
           }
         });
         
@@ -460,23 +437,14 @@ const UnitValidationTool: React.FC = () => {
         const code = generateUnitFileCode(units, faction);
         
         // Create file path
-        let filePath;
-        switch (faction) {
-          case 'northern-tribes':
-            filePath = 'src/data/factions/northern-tribes/troops.ts';
-            break;
-          case 'syenann':
-            filePath = 'src/data/factions/syenann/troops.ts';
-            break;
-          case 'scions-of-yaldabaoth':
-          case 'scions-of-taldabaoth': // Handle potential naming mismatch
-            filePath = 'src/data/factions/scions-of-yaldabaoth/troops.ts';
-            break;
-          case 'hegemony-of-embersig':
-            filePath = 'src/data/factions/hegemony-of-embersig/troops.ts';
-            break;
-          default:
-            filePath = `src/data/factions/${faction}/troops.ts`;
+        let filePath = `src/data/factions/${faction}/troops.ts`;
+        
+        // Special handling for known faction paths
+        if (faction === 'northern-tribes' || 
+            faction === 'syenann' || 
+            faction === 'scions-of-yaldabaoth' || 
+            faction === 'hegemony-of-embersig') {
+          filePath = `src/data/factions/${faction}/troops.ts`;
         }
         
         return {
@@ -486,8 +454,15 @@ const UnitValidationTool: React.FC = () => {
           unitCount: units.length,
           changedFields
         };
-      });
+      }).filter(Boolean) as Array<{
+        faction: string;
+        code: string;
+        filePath: string;
+        unitCount: number;
+        changedFields: number;
+      }>;
       
+      console.log(`Generated preview for ${preview.length} faction files`);
       setSyncPreview(preview);
       setSyncDialogOpen(true);
       

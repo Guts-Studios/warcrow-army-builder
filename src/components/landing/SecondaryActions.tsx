@@ -5,7 +5,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Coffee } from "lucide-react";
 import { useProfileSession } from "@/hooks/useProfileSession";
 import { toast } from "sonner";
-import { useProfileAccess } from "@/utils/profileAccess";
 
 interface SecondaryActionsProps {
   isGuest: boolean;

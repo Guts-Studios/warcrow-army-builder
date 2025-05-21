@@ -1,60 +1,58 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import UnitValidationTool from './UnitValidationTool';
 
 const ValidationsPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("units");
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-warcrow-gold">Data Validations</h1>
-      </div>
-
-      <Card className="bg-black/50 border-warcrow-gold/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-warcrow-gold">Validation Tools</CardTitle>
-          <CardDescription>
-            Compare and validate data across different sources to ensure consistency
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs 
-            defaultValue="units" 
-            value={activeTab} 
-            onValueChange={setActiveTab}
-            className="w-full"
+      <Tabs defaultValue="units" className="w-full">
+        <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-warcrow-gold/10">
+          <TabsTrigger 
+            value="units" 
+            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
           >
-            <TabsList className="grid grid-cols-2 mb-4 bg-black/80 border border-warcrow-gold/30">
-              <TabsTrigger 
-                value="units" 
-                className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
-              >
-                Unit Validation
-              </TabsTrigger>
-              <TabsTrigger 
-                value="keywords" 
-                className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
-                disabled
-              >
-                Keywords Validation
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="units">
-              <UnitValidationTool />
-            </TabsContent>
-            
-            <TabsContent value="keywords">
-              <div className="p-4 text-center text-warcrow-text/60">
-                Keywords validation tool will be implemented soon
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+            Unit Data
+          </TabsTrigger>
+          <TabsTrigger 
+            value="rules" 
+            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
+            disabled
+          >
+            Rules Data
+          </TabsTrigger>
+          <TabsTrigger 
+            value="faq" 
+            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
+            disabled
+          >
+            FAQ Data
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="units">
+          <Card className="p-4 bg-black/50 border-warcrow-gold/30">
+            <UnitValidationTool />
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="rules">
+          <Card className="p-4 bg-black/50 border-warcrow-gold/30">
+            <p className="text-warcrow-gold/70 p-4 text-center">
+              Rules validation coming soon
+            </p>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="faq">
+          <Card className="p-4 bg-black/50 border-warcrow-gold/30">
+            <p className="text-warcrow-gold/70 p-4 text-center">
+              FAQ validation coming soon
+            </p>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

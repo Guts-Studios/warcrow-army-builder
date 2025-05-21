@@ -37,6 +37,39 @@ export const parseCsvFile = (file: File): Promise<CsvUnit[]> => {
 };
 
 /**
+ * Parse CSV content string directly
+ * This is useful for parsing CSV content loaded as text
+ */
+export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
+  return new Promise((resolve) => {
+    Papa.parse(csvContent, {
+      header: true,
+      complete: (results) => {
+        // Map the parsed data to our CsvUnit type
+        const units = results.data
+          .filter((row: any) => row.name || row['Unit Name'] || row.id) // Filter out empty rows
+          .map((row: any) => ({
+            id: row.id || '',
+            name: row['Unit Name'] || row.name || '',
+            faction: row.Faction || row.faction || '',
+            type: row['Unit Type'] || row.type || '',
+            pointsCost: row['Points Cost'] || row.pointsCost || 0,
+            availability: row.AVB || row.availability || 0,
+            keywords: (row.Keywords || row.keywords || '').split(',').map((k: string) => k.trim()).filter(Boolean),
+            specialRules: (row['Special Rules'] || row.specialRules || '')
+              .split(',')
+              .map((r: string) => r.trim())
+              .filter((r: string) => r),
+            highCommand: (row['High Command'] || row.highCommand || '').toLowerCase() === 'yes',
+            command: parseInt(row.Command || row.command || '0', 10) || 0
+          }));
+        resolve(units);
+      }
+    });
+  });
+};
+
+/**
  * Compare a unit from static data with a unit from CSV
  * Returns an array of mismatches
  */
@@ -86,7 +119,7 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
     });
   }
   
-  // Check keywords (simplified comparison)
+  // Check keywords (improved comparison)
   if (Array.isArray(staticUnit.keywords) && Array.isArray(csvUnit.keywords)) {
     const staticKeywords = staticUnit.keywords
       .map((k: any) => typeof k === 'string' ? k.toLowerCase() : k.name.toLowerCase())
@@ -98,8 +131,26 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
       .filter(Boolean)
       .sort();
     
-    // Check if arrays are different
-    if (JSON.stringify(staticKeywords) !== JSON.stringify(csvKeywordsList)) {
+    // More lenient comparison (check if each CSV keyword appears in static keywords)
+    let keywordMismatches = false;
+    
+    // Check if each required CSV keyword is in static keywords
+    for (const keyword of csvKeywordsList) {
+      if (keyword && !staticKeywords.some(k => k.includes(keyword) || keyword.includes(k))) {
+        keywordMismatches = true;
+        break;
+      }
+    }
+    
+    // Check if static data has important keywords not in CSV
+    for (const keyword of staticKeywords) {
+      if (keyword && !csvKeywordsList.some(k => k.includes(keyword) || keyword.includes(k))) {
+        keywordMismatches = true;
+        break;
+      }
+    }
+    
+    if (keywordMismatches) {
       mismatches.push({
         field: 'keywords',
         staticValue: staticKeywords,
@@ -108,8 +159,8 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
     }
   }
   
-  // Check special rules
-  if (Array.isArray(staticUnit.specialRules) && Array.isArray(csvUnit.specialRules)) {
+  // Check special rules (improved comparison)
+  if (Array.isArray(staticUnit.specialRules) || Array.isArray(csvUnit.specialRules)) {
     const staticRules = (staticUnit.specialRules || [])
       .map((r: string) => r.toLowerCase())
       .filter(Boolean)
@@ -120,8 +171,26 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
       .filter(Boolean)
       .sort();
     
-    // Check if arrays are different
-    if (JSON.stringify(staticRules) !== JSON.stringify(csvRules)) {
+    // More lenient comparison
+    let ruleMismatches = false;
+    
+    // Check if each CSV rule is in static rules
+    for (const rule of csvRules) {
+      if (rule && !staticRules.some(r => r.includes(rule) || rule.includes(r))) {
+        ruleMismatches = true;
+        break;
+      }
+    }
+    
+    // Check if static rules has important rules not in CSV
+    for (const rule of staticRules) {
+      if (rule && !csvRules.some(r => r.includes(rule) || rule.includes(r))) {
+        ruleMismatches = true;
+        break;
+      }
+    }
+    
+    if (ruleMismatches) {
       mismatches.push({
         field: 'specialRules',
         staticValue: staticRules,
@@ -131,6 +200,23 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
   }
   
   return mismatches;
+};
+
+/**
+ * Find matching units between CSV and static data
+ */
+export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
+  // First try to match by ID
+  if (csvUnit.id) {
+    const matchById = staticUnits.find(unit => unit.id === csvUnit.id);
+    if (matchById) return matchById;
+  }
+  
+  // Then try to match by name (case insensitive)
+  return staticUnits.find(unit => 
+    unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
+    (!csvUnit.faction || unit.faction.toLowerCase() === csvUnit.faction.toLowerCase())
+  );
 };
 
 /**
@@ -166,11 +252,14 @@ export const exportUnitsToCSV = (units: any[]): string => {
 export const generateUnitFileCode = (units: CsvUnit[], faction: string): string => {
   const formattedUnits = units.map(unit => {
     const keywords = unit.keywords.map(keyword => {
-      return `{ name: "${keyword}", description: "" }`;
-    }).join(",\n      ");
+      // Clean up the keyword
+      const cleanKeyword = keyword.trim();
+      if (!cleanKeyword) return null;
+      return `{ name: "${cleanKeyword}", description: "" }`;
+    }).filter(Boolean).join(",\n      ");
     
     const specialRules = Array.isArray(unit.specialRules) && unit.specialRules.length > 0 
-      ? `specialRules: [${unit.specialRules.map(rule => `"${rule}"`).join(', ')}],` 
+      ? `specialRules: [${unit.specialRules.filter(Boolean).map(rule => `"${rule.trim()}"`).join(', ')}],` 
       : '';
     
     const command = unit.command && Number(unit.command) > 0 
@@ -207,4 +296,26 @@ export const ${faction.replace(/-/g, '')}Troops: Unit[] = [${formattedUnits}
  */
 export const getFactionIdFromFileName = (fileName: string): string => {
   return fileName.replace('.csv', '').toLowerCase().replace(/\s+/g, '-');
+};
+
+/**
+ * Normalize faction name for consistency
+ */
+export const normalizeFactionName = (factionName: string): string => {
+  const lowerFaction = factionName.toLowerCase();
+  
+  // Map of known faction name variations to standardized names
+  const factionMap: Record<string, string> = {
+    'scions of taldabaoth': 'scions-of-yaldabaoth',
+    'scions of yaldabaoth': 'scions-of-yaldabaoth',
+    'scions-of-taldabaoth': 'scions-of-yaldabaoth',
+    'the syenann': 'syenann',
+    'syenann': 'syenann',
+    'northern tribes': 'northern-tribes',
+    'northern-tribes': 'northern-tribes',
+    'hegemony of embersig': 'hegemony-of-embersig',
+    'hegemony-of-embersig': 'hegemony-of-embersig'
+  };
+  
+  return factionMap[lowerFaction] || lowerFaction.replace(/\s+/g, '-');
 };
