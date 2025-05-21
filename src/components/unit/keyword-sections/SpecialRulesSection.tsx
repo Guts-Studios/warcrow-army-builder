@@ -36,20 +36,52 @@ const SpecialRulesSection = ({ specialRules }: SpecialRulesSectionProps) => {
   useEffect(() => {
     const fetchSpecialRuleTranslations = async () => {
       try {
-        const { data, error } = await supabase
+        // First try with the new columns (name_es, name_fr)
+        const { data: translationData, error: translationError } = await supabase
           .from('special_rules')
           .select('name, name_es, name_fr');
+        
+        if (translationError) {
+          console.error('Error fetching special rule translations:', translationError);
           
-        if (error) {
-          console.error('Error fetching special rule translations:', error);
+          // If the error is about missing columns, fall back to just getting the names
+          if (translationError.code === '42703') { // PostgreSQL code for undefined_column
+            console.log('Translation columns missing, falling back to name-only query');
+            
+            const { data: namesOnly, error: namesError } = await supabase
+              .from('special_rules')
+              .select('name');
+              
+            if (namesError) {
+              console.error('Error fetching special rule names:', namesError);
+              return;
+            }
+            
+            // Convert to expected format but without translations
+            if (namesOnly && Array.isArray(namesOnly)) {
+              const translationsRecord: Record<string, SpecialRuleTranslation> = {};
+              
+              namesOnly.forEach((item: any) => {
+                if (item && typeof item === 'object' && 'name' in item) {
+                  translationsRecord[item.name] = {
+                    name: item.name
+                  };
+                }
+              });
+              
+              setDbTranslations(translationsRecord);
+              console.log('Loaded special rule names (without translations):', Object.keys(translationsRecord).length);
+            }
+          }
+          
           return;
         }
         
-        if (data && Array.isArray(data)) {
+        if (translationData && Array.isArray(translationData)) {
           // Convert array to record for easy lookup
           const translationsRecord: Record<string, SpecialRuleTranslation> = {};
           
-          data.forEach((item: any) => {
+          translationData.forEach((item: any) => {
             // Make sure item is not null and has valid properties
             if (item && 
                 typeof item === 'object' && 
