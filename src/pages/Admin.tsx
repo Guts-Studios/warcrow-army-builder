@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +5,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
-import UnitDataManager from '@/components/admin/units/UnitDataManager';
 import ApiStatus from '@/components/admin/ApiStatus';
 import FAQTranslationManager from '@/components/admin/FAQTranslationManager';
 import UserManagement from '@/components/admin/UserManagement';
@@ -14,8 +12,8 @@ import NewsManager from '@/components/admin/NewsManager';
 import RulesVerifier from '@/components/admin/RulesVerifier';
 import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
 import TranslationManagerPanel from '@/components/admin/TranslationManagerPanel';
-import UnitValidationTool from '@/components/admin/units/UnitValidationTool';
 import UnitImagesManager from '@/components/admin/units/UnitImagesManager';
+import ValidationsPanel from '@/components/admin/validations/ValidationsPanel';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -161,15 +159,9 @@ const Admin = () => {
             </AdminTabContent>
           </TabsContent>
           
-          <TabsContent value="units">
-            <AdminTabContent title="Unit Data Management">
-              <UnitDataManager />
-            </AdminTabContent>
-          </TabsContent>
-          
-          <TabsContent value="unit-validation">
-            <AdminTabContent title="Unit Validation">
-              <UnitValidationTool />
+          <TabsContent value="validations">
+            <AdminTabContent title="Data Validations">
+              <ValidationsPanel />
             </AdminTabContent>
           </TabsContent>
           
