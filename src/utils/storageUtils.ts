@@ -1,4 +1,5 @@
-import { getLatestVersion } from './version';
+
+import { getLatestVersion, isNewerVersion } from './version';
 import { toast } from "sonner";
 
 /**
@@ -17,8 +18,8 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
     
     console.log(`[Storage] Checking versions - Current: ${currentVersion}, Stored: ${storedVersion || 'none'}`);
     
-    // If versions don't match or stored version doesn't exist, purge storage
-    if (!storedVersion || storedVersion !== currentVersion) {
+    // If versions don't match or stored version doesn't exist or current version is newer
+    if (!storedVersion || isNewerVersion(currentVersion, storedVersion)) {
       console.log(`[Storage] Version mismatch detected. Selectively purging local storage.`);
       
       // Save army lists before clearing
@@ -56,7 +57,7 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
         console.log(`[Storage] Set new version in storage: ${currentVersion}`);
         
         // Show notification if enabled
-        if (showNotification) {
+        if (showNotification && currentVersion !== '0.0.0') {
           toast.info('App updated to version ' + currentVersion, {
             description: 'Your local data has been refreshed for the new version. Your army lists have been preserved.',
             duration: 5000

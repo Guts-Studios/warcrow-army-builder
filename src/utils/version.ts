@@ -1,11 +1,18 @@
 
 export const getLatestVersion = (content: string): string => {
   try {
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      console.error('[Version] Empty or invalid changelog content');
+      return '0.0.0';
+    }
+
+    // Improved regex to better match version patterns in different formats
     const versionRegex = /\[(\d+\.\d+\.\d+)\]/;
     const matches = content.match(new RegExp(versionRegex, 'g'));
     
     if (!matches || matches.length === 0) {
       console.error('[Version] No version found in changelog content');
+      console.log('[Version] Changelog content sample:', content.substring(0, 100) + '...');
       return '0.0.0';
     }
     
@@ -24,3 +31,29 @@ export const getLatestVersion = (content: string): string => {
     return '0.0.0';
   }
 };
+
+// Helper function to determine if one version is newer than another
+export const isNewerVersion = (current: string, stored: string | null): boolean => {
+  if (!stored) return true;
+  
+  try {
+    const currentParts = current.split('.').map(Number);
+    const storedParts = stored.split('.').map(Number);
+    
+    // Compare major version
+    if (currentParts[0] > storedParts[0]) return true;
+    if (currentParts[0] < storedParts[0]) return false;
+    
+    // Compare minor version
+    if (currentParts[1] > storedParts[1]) return true;
+    if (currentParts[1] < storedParts[1]) return false;
+    
+    // Compare patch version
+    if (currentParts[2] > storedParts[2]) return true;
+    
+    return false;
+  } catch (error) {
+    console.error('[Version] Error comparing versions:', error);
+    return true; // Default to true on error to ensure update happens
+  }
+}
