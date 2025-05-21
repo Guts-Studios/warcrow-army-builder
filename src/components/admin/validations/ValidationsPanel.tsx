@@ -8,23 +8,23 @@ const ValidationsPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="units" className="w-full">
-        <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-warcrow-accent/20 h-auto p-0">
+        <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-black border border-warcrow-gold/30 p-1 rounded-md">
           <TabsTrigger 
             value="units" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
+            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
           >
             Unit Data
           </TabsTrigger>
           <TabsTrigger 
             value="rules" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
+            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
             disabled
           >
             Rules Data
           </TabsTrigger>
           <TabsTrigger 
             value="faq" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
+            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
             disabled
           >
             FAQ Data

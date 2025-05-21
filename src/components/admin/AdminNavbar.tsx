@@ -41,10 +41,10 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
           <Button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            variant={activeTab === item.id ? "default" : "outline"}
+            variant={activeTab === item.id ? "outline" : "outline"}
             className={
               activeTab === item.id
-                ? "bg-warcrow-gold hover:bg-warcrow-gold/90 text-black font-medium"
+                ? "border-warcrow-gold bg-warcrow-gold/20 text-warcrow-gold font-medium"
                 : "border-warcrow-gold/50 bg-black hover:bg-warcrow-gold/20 text-warcrow-gold font-medium"
             }
             size="sm"
