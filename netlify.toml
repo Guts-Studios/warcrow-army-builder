@@ -29,10 +29,15 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "*"
 
-# Replace the problematic redirect with a proper proxy rule for Supabase auth
+# Configure direct Netlify function paths (this is the correct format)
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Ensure Supabase auth paths work properly
 [[redirects]]
   from = "/.netlify/*"
   to = "/.netlify/:splat"
   status = 200
   force = true
-

@@ -24,11 +24,18 @@ export const useEnvironment = (): EnvironmentInfo => {
     const hostname = window.location.hostname;
     const origin = window.location.origin;
     
-    // Explicit production domain check - UPDATED to include both the primary domain and netlify subdomain
-    const isExplicitProductionDomain = hostname === 'warcrowarmy.com' || 
-                                      hostname.endsWith('.warcrowarmy.com') ||
-                                      hostname === 'warcrowarmybuilder.netlify.app' ||
-                                      hostname === 'warcrow-army-builder.netlify.app';
+    // Comprehensive production domain list
+    const productionDomains = [
+      'warcrowarmy.com',
+      'www.warcrowarmy.com',
+      'warcrow-army-builder.netlify.app',
+      'warcrowarmybuilder.netlify.app'
+    ];
+    
+    // Check if the current hostname is a production domain or subdomain
+    const isExplicitProductionDomain = productionDomains.some(domain => 
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
     
     // More comprehensive preview detection - any domain that is not explicitly production
     const isPreview = hostname === 'localhost' || 
@@ -58,6 +65,7 @@ export const useEnvironment = (): EnvironmentInfo => {
       isPreview, 
       isProduction,
       useLocalContentData,
+      productionDomains,
       timestamp: new Date().toISOString()
     });
   }, []);

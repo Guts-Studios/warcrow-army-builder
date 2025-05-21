@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import useEnvironment from './useEnvironment';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
 interface ProfileSession {
   isAuthenticated: boolean;
@@ -22,64 +22,85 @@ export const useProfileSession = (): ProfileSession => {
   const usePreviewData = false;
 
   useEffect(() => {
-    const checkAuth = async () => {
+    let mounted = true;
+    
+    const checkAuthState = async () => {
       try {
+        console.log("[useProfileSession] Checking authentication state on:", hostname);
+        
+        // Get current session
         const { data: { session } } = await supabase.auth.getSession();
         
-        console.log("[useProfileSession] Auth check:", {
-          hasSession: !!session,
-          environment: { isPreview, isProduction, hostname },
-          usePreviewData
-        });
+        // Set authentication state based on session
+        const hasSession = !!session;
         
-        if (session && session.user) {
-          setIsAuthenticated(true);
-          setUserId(session.user.id);
-        } else {
+        if (mounted) {
+          console.log("[useProfileSession] Session check result:", { 
+            hasSession, 
+            userId: session?.user?.id,
+            hostname,
+            timestamp: new Date().toISOString()
+          });
+          
+          setIsAuthenticated(hasSession);
+          
+          // If authenticated, set user ID
+          if (hasSession) {
+            setUserId(session?.user?.id || null);
+          } else {
+            setUserId(null);
+          }
+          
+          setSessionChecked(true);
+        }
+      } catch (error) {
+        console.error("[useProfileSession] Error checking auth state:", error);
+        if (mounted) {
           setIsAuthenticated(false);
           setUserId(null);
+          setSessionChecked(true);
         }
-        setSessionChecked(true);
-      } catch (error) {
-        console.error('[useProfileSession] Error checking authentication:', error);
-        setIsAuthenticated(false);
-        setUserId(null);
-        setSessionChecked(true);
       }
     };
-
-    checkAuth();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("[useProfileSession] Auth state changed:", event, {
-          hasUser: !!session?.user,
-          environment: { isPreview, isProduction, hostname },
-          usePreviewData
-        });
-        
-        if (event === 'SIGNED_IN' && session) {
-          setIsAuthenticated(true);
-          setUserId(session.user.id);
-        } else if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-          setUserId(null);
-        }
-        setSessionChecked(true);
+    
+    // Call the function to check auth state
+    checkAuthState();
+    
+    // Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      console.log("[useProfileSession] Auth state changed:", event, {
+        hasUser: !!session?.user,
+        environment: { isPreview, isProduction, hostname },
+        usePreviewData,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Update authentication state based on event
+      setIsAuthenticated(!!session);
+      
+      // If signed in, update user ID
+      if (session?.user?.id) {
+        setUserId(session.user.id);
+      } else if (event === 'SIGNED_OUT') {
+        setUserId(null);
       }
-    );
-
+      
+      setSessionChecked(true);
+    });
+    
+    // Cleanup subscription on unmount
     return () => {
-      if (authListener && authListener.subscription) {
-        authListener.subscription.unsubscribe();
-      }
+      mounted = false;
+      subscription.unsubscribe();
     };
   }, [isPreview, isProduction, hostname, usePreviewData]);
-
-  return { 
-    isAuthenticated, 
-    userId, 
-    isPreview, 
+  
+  return {
+    isPreview,
+    isAuthenticated,
+    userId,
     isProduction,
     sessionChecked,
     usePreviewData
