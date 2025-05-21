@@ -34,6 +34,8 @@ export async function findMissingUnits(factionId: string): Promise<{
   onlyInDatabase: ApiUnit[];
   onlyInLocalData: Unit[];
   inBoth: Array<{db: ApiUnit, local: Unit}>;
+  nameMismatches?: Array<{id: string; staticName: string; dbName: string; faction: string}>;
+  pointsMismatches?: Array<{id: string; name: string; staticPoints: number; dbPoints: number; faction: string}>;
 }> {
   try {
     // Get units from database
@@ -96,10 +98,33 @@ export async function findMissingUnits(factionId: string): Promise<{
         local: localUnits.find(localUnit => localUnit.id === dbUnit.id)!
       }));
 
+    // Check for name mismatches
+    const nameMismatches = inBoth
+      .filter(({ db, local }) => db.name !== local.name)
+      .map(({ db, local }) => ({
+        id: db.id,
+        staticName: local.name,
+        dbName: db.name,
+        faction: db.faction
+      }));
+
+    // Check for points mismatches
+    const pointsMismatches = inBoth
+      .filter(({ db, local }) => db.points !== local.pointsCost)
+      .map(({ db, local }) => ({
+        id: db.id,
+        name: db.name,
+        staticPoints: local.pointsCost,
+        dbPoints: db.points,
+        faction: db.faction
+      }));
+
     return {
       onlyInDatabase,
       onlyInLocalData,
-      inBoth
+      inBoth,
+      nameMismatches,
+      pointsMismatches
     };
   } catch (error) {
     console.error('Error comparing units:', error);

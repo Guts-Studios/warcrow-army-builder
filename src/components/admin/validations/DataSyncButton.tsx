@@ -62,8 +62,8 @@ const DataSyncButton: React.FC<DataSyncButtonProps> = ({
       
       if (comparisonResult.onlyInDatabase.length === 0 && 
           comparisonResult.onlyInLocalData.length === 0 && 
-          comparisonResult.nameMismatches?.length === 0 && 
-          comparisonResult.pointsMismatches?.length === 0) {
+          (comparisonResult.nameMismatches?.length === 0 || comparisonResult.nameMismatches === undefined) && 
+          (comparisonResult.pointsMismatches?.length === 0 || comparisonResult.pointsMismatches === undefined)) {
         
         setSyncStatus(prev => prev ? { 
           ...prev, 
