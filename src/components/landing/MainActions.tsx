@@ -7,6 +7,7 @@ import { Play, User, Shield, Bug } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { useProfileAccess } from "@/utils/profileAccess";
 
 export const MainActions = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const MainActions = () => {
   const { isWabAdmin } = useAuth();
   const { t } = useLanguage();
   const { isPreview, isProduction, hostname } = useEnvironment();
+  const handleProfileAccess = useProfileAccess();
   
   useEffect(() => {
     // Debug logging
@@ -84,7 +86,7 @@ export const MainActions = () => {
           {t('missions')}
         </Button>
         <Button
-          onClick={() => navigate('/profile')}
+          onClick={handleProfileAccess}
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >

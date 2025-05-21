@@ -7,6 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfileSession } from "@/hooks/useProfileSession";
+import { ProfileGuard } from "@/components/profile/ProfileGuard";
 
 const ProfileWithData = () => {
   const { isLoading, profile, error } = useProfileContext();
@@ -93,9 +94,11 @@ const ProfileWithData = () => {
 
 const Profile = () => {
   return (
-    <ProfileDataProvider>
-      <ProfileWithData />
-    </ProfileDataProvider>
+    <ProfileGuard>
+      <ProfileDataProvider>
+        <ProfileWithData />
+      </ProfileDataProvider>
+    </ProfileGuard>
   );
 };
 
