@@ -13,7 +13,7 @@ export function useAuth() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
-
+  
   // Resend confirmation email method
   const resendConfirmationEmail = async (email: string) => {
     try {
@@ -36,18 +36,77 @@ export function useAuth() {
     }
   };
 
+  // Handle session recovery issues with manual sign out
+  const forceSignOut = async () => {
+    console.log("[Auth] Forcing sign out due to potential session issues");
+    
+    try {
+      // Clear all auth-related localStorage items first
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.includes('auth'))) {
+          localStorage.removeItem(key);
+          console.log(`[Auth] Removed problematic auth item: ${key}`);
+        }
+      }
+      
+      // Then call the official sign out method
+      await supabase.auth.signOut();
+      
+      // Reset all auth state
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      setIsTester(false);
+      setIsWabAdmin(false);
+      setUserId(null);
+      setIsGuest(true);
+      
+      // Purge storage to ensure clean slate
+      if (typeof window !== 'undefined') {
+        const { checkVersionAndPurgeStorage } = await import('../utils/storageUtils');
+        const fakeChangelog = `# Changelog\n\n## [999.999.999]`;
+        checkVersionAndPurgeStorage(fakeChangelog, true);
+      }
+      
+      // Force reload the page to ensure clean state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
+      
+    } catch (error) {
+      console.error('[Auth] Error during force sign out:', error);
+      // Still try to reload as last resort
+      window.location.href = '/';
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
+    let sessionCheckTimeout: number | null = null;
 
     const checkAuthStatus = async () => {
       try {
         setIsLoading(true);
-        console.log("Auth hook: Checking auth status for hostname:", hostname);
+        console.log("[Auth] Checking auth status for hostname:", hostname);
         
         // Get the current session
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        console.log("Auth hook: Session check result:", {
+        // If there's an error getting the session, treat as authentication failure
+        if (sessionError) {
+          console.error("[Auth] Session error:", sessionError);
+          
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsGuest(true);
+            
+            // If there was a session error, try to clean up auth state
+            forceSignOut();
+          }
+          return;
+        }
+        
+        console.log("[Auth] Session check result:", {
           hasSession: !!session,
           userId: session?.user?.id,
           email: session?.user?.email,
@@ -74,7 +133,7 @@ export function useAuth() {
                 .eq('id', session.user.id)
                 .maybeSingle(); // Use maybeSingle to avoid errors if no row is found
                 
-              console.log("Auth hook: Profile data fetched:", {
+              console.log("[Auth] Profile data fetched:", {
                 profileExists: !!data,
                 wabAdmin: data?.wab_admin,
                 tester: data?.tester,
@@ -102,7 +161,7 @@ export function useAuth() {
                 }
               }
             } catch (err) {
-              console.error("Error checking user roles:", err);
+              console.error("[Auth] Error checking user roles:", err);
               if (mounted) {
                 // In preview mode, default to admin
                 if (isPreview) {
@@ -132,7 +191,7 @@ export function useAuth() {
           setIsLoading(false);
         }
       } catch (error) {
-        console.error("Error in auth hook:", error);
+        console.error("[Auth] Error in auth hook:", error);
         if (mounted) {
           setIsLoading(false);
           
@@ -159,7 +218,7 @@ export function useAuth() {
       // Set up the auth state listener
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log("Auth state changed:", event, {
+          console.log("[Auth] Auth state changed:", event, {
             hasUser: !!session?.user,
             userId: session?.user?.id,
             email: session?.user?.email,
@@ -175,38 +234,43 @@ export function useAuth() {
             // If authenticated, check for admin/tester status
             if (session?.user?.id) {
               try {
-                const { data, error } = await supabase
-                  .from('profiles')
-                  .select('wab_admin, tester')
-                  .eq('id', session.user.id)
-                  .maybeSingle();
+                // Use setTimeout to prevent deadlocks in Auth state changes
+                setTimeout(async () => {
+                  if (!mounted) return;
                   
-                console.log("Auth state change: Profile data fetched:", {
-                  profileExists: !!data,
-                  wabAdmin: data?.wab_admin,
-                  tester: data?.tester,
-                  error: error?.message,
-                  userId: session.user.id,
-                  timestamp: new Date().toISOString()
-                });
-                  
-                if (!error && data && mounted) {
-                  const isAdminUser = !!data.wab_admin;
-                  console.log("Admin status update on auth change:", isAdminUser);
-                  setIsAdmin(isAdminUser);
-                  setIsTester(!!data.tester);
-                  setIsWabAdmin(isAdminUser);
-                } else if (mounted && isPreview) {
-                  setIsAdmin(true);
-                  setIsTester(true);
-                  setIsWabAdmin(true);
-                } else if (mounted) {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
+                  const { data, error } = await supabase
+                    .from('profiles')
+                    .select('wab_admin, tester')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+                    
+                  console.log("[Auth] Auth state change: Profile data fetched:", {
+                    profileExists: !!data,
+                    wabAdmin: data?.wab_admin,
+                    tester: data?.tester,
+                    error: error?.message,
+                    userId: session.user.id,
+                    timestamp: new Date().toISOString()
+                  });
+                    
+                  if (!error && data && mounted) {
+                    const isAdminUser = !!data.wab_admin;
+                    console.log("Admin status update on auth change:", isAdminUser);
+                    setIsAdmin(isAdminUser);
+                    setIsTester(!!data.tester);
+                    setIsWabAdmin(isAdminUser);
+                  } else if (mounted && isPreview) {
+                    setIsAdmin(true);
+                    setIsTester(true);
+                    setIsWabAdmin(true);
+                  } else if (mounted) {
+                    setIsAdmin(false);
+                    setIsTester(false);
+                    setIsWabAdmin(false);
+                  }
+                }, 0);
               } catch (err) {
-                console.error("Error checking user roles on auth change:", err);
+                console.error("[Auth] Error checking user roles on auth change:", err);
                 if (mounted && isPreview) {
                   setIsAdmin(true);
                   setIsTester(true);
@@ -243,9 +307,16 @@ export function useAuth() {
     // Then check auth status
     checkAuthStatus();
     
+    // Set up a session validation check every 5 minutes to catch broken sessions
+    sessionCheckTimeout = window.setInterval(() => {
+      console.log("[Auth] Running scheduled session validation check");
+      checkAuthStatus();
+    }, 5 * 60 * 1000); // 5 minutes
+    
     return () => {
       mounted = false;
       if (unsubscribeAuth) unsubscribeAuth();
+      if (sessionCheckTimeout) window.clearInterval(sessionCheckTimeout);
     };
   }, [isPreview, isProduction, hostname]);
 
@@ -258,6 +329,7 @@ export function useAuth() {
     isLoading,
     isGuest,
     setIsGuest,
+    forceSignOut,
     resendConfirmationEmail
   };
 }

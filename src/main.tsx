@@ -19,6 +19,27 @@ purgeStorageExceptLists();
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 console.log(`[App] Running on ${isMobile ? 'mobile' : 'desktop'} device`);
 
+// Detect if the user might be having issues with auth state
+// This helps with recovering from broken states
+const detectBrokenAuthState = () => {
+  try {
+    // Check for partial or corrupted auth tokens
+    const hasPartialAuth = Object.keys(localStorage)
+      .some(key => (key.startsWith('sb-') || key.includes('auth')) && 
+            (!localStorage.getItem(key) || localStorage.getItem(key) === "undefined"));
+    
+    if (hasPartialAuth) {
+      console.warn('[App] Detected potentially broken auth state, cleaning up');
+      clearInvalidTokens();
+    }
+  } catch (error) {
+    console.error('[App] Error checking for broken auth state:', error);
+  }
+};
+
+// Run the auth state check
+detectBrokenAuthState();
+
 // Get the changelog content from the public folder with super aggressive cache-busting
 const fetchChangelog = () => {
   // Generate a unique UUID for this fetch operation
@@ -99,6 +120,40 @@ if (isMobile) {
     fetchChangelog();
   }, 3000);
 }
+
+// Add a mechanism to detect if the page is stuck and offer recovery
+setTimeout(() => {
+  // If the page has been loading for a long time, offer a recovery button
+  const appRoot = document.getElementById('root');
+  if (appRoot && !appRoot.hasChildNodes()) {
+    console.error('[App] Page appears to be stuck loading. Adding recovery option.');
+    
+    // Create a recovery button
+    const recoveryDiv = document.createElement('div');
+    recoveryDiv.style.position = 'fixed';
+    recoveryDiv.style.bottom = '20px';
+    recoveryDiv.style.right = '20px';
+    recoveryDiv.style.zIndex = '9999';
+    
+    const recoveryButton = document.createElement('button');
+    recoveryButton.innerText = 'Recover App';
+    recoveryButton.style.backgroundColor = '#1E40AF';
+    recoveryButton.style.color = 'white';
+    recoveryButton.style.padding = '8px 12px';
+    recoveryButton.style.borderRadius = '4px';
+    recoveryButton.style.border = 'none';
+    recoveryButton.style.cursor = 'pointer';
+    
+    recoveryButton.onclick = () => {
+      // Clear storage and reload
+      localStorage.clear();
+      window.location.reload();
+    };
+    
+    recoveryDiv.appendChild(recoveryButton);
+    document.body.appendChild(recoveryDiv);
+  }
+}, 15000); // Wait 15s before showing recovery option
 
 // Preconnect to critical domains
 const preconnect = (url: string) => {

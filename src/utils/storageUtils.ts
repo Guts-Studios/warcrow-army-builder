@@ -1,3 +1,4 @@
+
 import { getLatestVersion, isNewerVersion } from './version';
 import { toast } from "sonner";
 
@@ -127,8 +128,18 @@ export const clearInvalidTokens = (): boolean => {
     
     if (tokenCleared) {
       console.log('[Storage] Some invalid tokens were cleared');
-      // Force reload to ensure clean state
-      window.location.reload();
+      
+      // Show a user-friendly notification when tokens are cleared
+      toast.info("Your session was reset", {
+        description: "We detected an issue with your login session and fixed it. Please sign in again.",
+        duration: 8000
+      });
+      
+      // Force reload after a short delay to ensure the notification is seen
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
       return true;
     } else {
       console.log('[Storage] All tokens appear valid, no clearing needed');
@@ -293,6 +304,12 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
         // If token is invalid, do a selective clear
         selectiveClear();
         console.log('[Storage] Selective clear performed due to invalid token');
+        
+        // If we found an invalid token, show a notification to the user
+        toast.info("Your session needed to be reset", {
+          description: "We detected an issue with your session data and fixed it.",
+          duration: 5000
+        });
       } else {
         // Otherwise do a selective clear
         const keysToKeep = new Set([...Object.keys(authData)]);
