@@ -36,9 +36,10 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessi
         } as Profile;
       }
       
-      if (!userId) {
-        console.log("No user ID available");
-        throw new Error("User ID is required");
+      // For an actual fetch, we need a real UUID
+      if (!userId || userId === "preview-user-id") {
+        console.log("No valid user ID available for database query");
+        throw new Error("Valid user ID is required for database query");
       }
       
       const { data, error } = await supabase
@@ -78,8 +79,8 @@ export const useProfileFetch = ({ isAuthenticated, usePreviewData, userId, sessi
     },
     retry: 2,
     retryDelay: 1000,
-    // Enable the query only when we've checked the session and either we're in preview mode or authenticated with a userId
-    enabled: sessionChecked && (usePreviewData || (isAuthenticated && !!userId)),
+    // Enable the query only when we've checked the session and either we're in preview mode or authenticated with a valid userId
+    enabled: sessionChecked && (usePreviewData || (isAuthenticated && !!userId && userId !== "preview-user-id")),
     staleTime: 60000, // Cache profile data for 1 minute to reduce flickering
   });
 

@@ -9,12 +9,15 @@ export { useProfileContext } from "@/context/ProfileContext";
 export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   const profileData = useProfileData();
   
-  // Configure real-time subscriptions only if we have a profile ID that's not the preview ID
+  // Configure real-time subscriptions only if we have a valid profile ID that's not the preview ID
   const profileId = profileData.profile?.id || null;
   const isPreviewMode = profileId === "preview-user-id";
     
   // Pass both the profile ID and whether this is preview mode
-  const { isInitialized } = useProfileRealtime(profileId, isPreviewMode);
+  const { isInitialized } = useProfileRealtime(
+    isPreviewMode ? null : profileId, 
+    isPreviewMode
+  );
 
   // Check for WAB ID
   useEffect(() => {
@@ -27,6 +30,7 @@ export const ProfileDataProvider = ({ children }: { children: ReactNode }) => {
   // Log the initialization state for debugging
   console.log("ProfileDataProvider - realtime subscriptions initialized:", isInitialized, 
               "Profile ID:", profileId,
+              "Is Preview Mode:", isPreviewMode,
               "WAB ID present:", !!profileData.profile?.wab_id,
               "Notifications enabled:", !isPreviewMode && isInitialized);
 

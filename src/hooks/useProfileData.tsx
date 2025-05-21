@@ -50,7 +50,7 @@ export const useProfileData = () => {
   // Check and generate WAB ID if needed
   useEffect(() => {
     const checkWabId = async () => {
-      if (profile && !profile.wab_id && userId && !usePreviewData) {
+      if (profile && !profile.wab_id && userId && !usePreviewData && userId !== "preview-user-id") {
         console.log("Profile missing WAB ID, generating one...");
         const newWabId = await ensureWabId(userId);
         
