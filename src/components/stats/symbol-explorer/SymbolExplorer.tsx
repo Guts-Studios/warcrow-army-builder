@@ -6,18 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { units as allUnits } from '@/data/factions';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslateKeyword } from "@/utils/translationUtils";
-
-// Map to normalize older faction naming to canonical kebab-case versions
-const factionNameMap: Record<string, string> = {
-  'Hegemony of Embersig': 'hegemony-of-embersig',
-  'Northern Tribes': 'northern-tribes',
-  'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
-  'Sÿenann': 'syenann',
-  'Syenann': 'syenann',
-  'hegemony': 'hegemony-of-embersig',
-  'tribes': 'northern-tribes',
-  'scions': 'scions-of-yaldabaoth'
-};
+import { normalizeUnits, normalizeFactionId } from '@/utils/unitManagement';
 
 const SymbolExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,15 +17,7 @@ const SymbolExplorer = () => {
 
   // Normalize all units to ensure consistent faction values
   const normalizedUnits = useMemo(() => {
-    return allUnits.map(unit => {
-      // Normalize faction name if needed
-      const normalizedFaction = factionNameMap[unit.faction] || unit.faction;
-      
-      return {
-        ...unit,
-        faction: normalizedFaction,
-      };
-    });
+    return normalizeUnits(allUnits);
   }, []);
   
   // Deduplicate units based on name and faction
@@ -86,7 +67,8 @@ const SymbolExplorer = () => {
       const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
       
       // Faction filter
-      const factionMatch = factionFilter === 'all' || unit.faction === factionFilter;
+      const factionMatch = factionFilter === 'all' || 
+        normalizeFactionId(unit.faction) === normalizeFactionId(factionFilter);
       
       // Type filter
       let typeMatch = true;

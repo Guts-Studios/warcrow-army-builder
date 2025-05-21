@@ -2,12 +2,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
-import { removeDuplicateUnits } from '@/utils/unitManagement';
+import { removeDuplicateUnits, normalizeUnits, normalizeFactionId } from '@/utils/unitManagement';
 import { factions as fallbackFactions } from '@/data/factions';
 import { translations } from '@/i18n/translations';
 
+// First normalize all units before using them as fallback data
+const normalizedLocalUnits = normalizeUnits(units);
+
 // Define fallback units for testing when API fails - now our primary data source
-const localUnits: ApiUnit[] = units.map(unit => ({
+const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   id: unit.id,
   name: unit.name,
   faction: unit.faction,
@@ -33,7 +36,9 @@ export function useUnitData(selectedFaction: string) {
       // Filter units by faction if needed
       let filteredUnits = localUnits;
       if (selectedFaction !== 'all') {
-        filteredUnits = localUnits.filter(unit => unit.faction === selectedFaction);
+        // Normalize the selected faction to ensure consistent matching
+        const normalizedFaction = normalizeFactionId(selectedFaction);
+        filteredUnits = localUnits.filter(unit => normalizeFactionId(unit.faction) === normalizedFaction);
       }
       
       console.log(`[useUnitData] Found ${filteredUnits.length} units for faction: ${selectedFaction}`);
@@ -88,22 +93,8 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
     apiUnit.characteristics as Record<string, any> : {};
     
   // Normalize the faction ID to ensure it matches our expected format
-  let normalizedFaction = apiUnit.faction;
+  let normalizedFaction = normalizeFactionId(apiUnit.faction);
   
-  // Some known normalization mappings
-  const factionMappings: Record<string, string> = {
-    "hegemony": "hegemony-of-embersig",
-    "northern": "northern-tribes",
-    "scions": "scions-of-yaldabaoth",
-    "syenann": "syenann"
-  };
-  
-  // Apply faction normalization if needed
-  if (factionMappings[normalizedFaction]) {
-    normalizedFaction = factionMappings[normalizedFaction];
-    console.log(`[mapApiUnitToUnit] Normalized faction from ${apiUnit.faction} to ${normalizedFaction} for unit ${apiUnit.name}`);
-  }
-    
   return {
     id: apiUnit.id,
     name: apiUnit.name,
@@ -125,8 +116,14 @@ export const useArmyBuilderUnits = (factionId: string) => {
     queryFn: async () => {
       console.log(`[useArmyBuilderUnits] Fetching units for faction: ${factionId}`);
       
-      // Get units from local data
-      const factionUnits = units.filter(unit => unit.faction === factionId);
+      // Normalize the faction ID first
+      const normalizedFactionId = normalizeFactionId(factionId);
+      
+      // Get normalized units from local data with matching faction
+      const factionUnits = normalizedLocalUnits.filter(unit => 
+        normalizeFactionId(unit.faction) === normalizedFactionId
+      );
+      
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
       
       return removeDuplicateUnits(factionUnits);
