@@ -1,4 +1,3 @@
-
 import { getLatestVersion, isNewerVersion } from './version';
 import { toast } from "sonner";
 
@@ -22,17 +21,39 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
     if (!storedVersion || isNewerVersion(currentVersion, storedVersion)) {
       console.log(`[Storage] Version change detected: ${storedVersion || 'none'} -> ${currentVersion}. Purging storage...`);
       
-      // Save important data before clearing
+      // Preserve important data before clearing
       const savedArmyLists = localStorage.getItem('armyLists');
       const authData = preserveAuthData();
+      const isTokenInvalid = checkTokenValidity();
       
       console.log(`[Storage] Saved army lists before purge: ${savedArmyLists ? 'Found' : 'None found'}`);
       console.log(`[Storage] Auth data preserved: ${Object.keys(authData).length} items`);
+      console.log(`[Storage] Auth token validity check: ${isTokenInvalid ? 'Invalid/Expired' : 'Valid'}`);
       
       try {
-        // Force clear all localStorage first
-        localStorage.clear();
-        console.log('[Storage] All localStorage cleared');
+        if (isTokenInvalid) {
+          // If token is invalid or expired, do a complete clear
+          console.log('[Storage] Invalid token detected, performing complete clear');
+          localStorage.clear();
+          console.log('[Storage] All localStorage cleared due to invalid token');
+        } else {
+          // Otherwise, preserve auth data during the clearing process
+          const keysToKeep = new Set([...Object.keys(authData)]);
+          if (savedArmyLists) keysToKeep.add('armyLists');
+          
+          // Get all current keys
+          const allKeys = getAllLocalStorageKeys();
+          
+          // Remove keys not in the keysToKeep set
+          for (const key of allKeys) {
+            if (!keysToKeep.has(key)) {
+              localStorage.removeItem(key);
+              console.log(`[Storage] Removed item: ${key}`);
+            }
+          }
+          
+          console.log('[Storage] Selective localStorage purge completed');
+        }
         
         // Restore important data
         if (savedArmyLists) {
@@ -40,8 +61,10 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
           console.log('[Storage] Restored army lists');
         }
         
-        // Restore auth data
-        restoreAuthData(authData);
+        // Only restore auth data if the token wasn't invalid
+        if (!isTokenInvalid) {
+          restoreAuthData(authData);
+        }
         
         // Save the new version
         localStorage.setItem('app_version', currentVersion);
@@ -70,7 +93,9 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
               localStorage.setItem('armyLists', savedArmyLists);
             }
             
-            restoreAuthData(authData);
+            if (!isTokenInvalid) {
+              restoreAuthData(authData);
+            }
             return true;
           }
         } catch (fallbackError) {
@@ -101,9 +126,12 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
     // Check if we're in preview mode
     const isPreviewEnv = isPreviewEnvironment();
     
+    // Check if there's an invalid token that needs to be cleared
+    const isTokenInvalid = checkTokenValidity();
+    
     // In preview mode, we don't actually need to purge as often since data is more ephemeral
     // and auth is often simulated. But we'll still log the appropriate messages.
-    if (isPreviewEnv) {
+    if (isPreviewEnv && !isTokenInvalid) {
       console.log('[Storage] Preview environment detected, performing minimal purge');
       // For preview, just clean up any non-critical storage items
       cleanNonEssentialStorage();
@@ -112,18 +140,39 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
     
     // Save important data before clearing
     const savedArmyLists = localStorage.getItem('armyLists');
-    const authData = preserveAuthData();
+    const authData = isTokenInvalid ? {} : preserveAuthData();
     
     console.log(`[Storage] Saved army lists before purge: ${savedArmyLists ? 'Found' : 'None found'}`);
     console.log(`[Storage] Auth data preserved: ${Object.keys(authData).length} items`);
+    console.log(`[Storage] Auth token validity check: ${isTokenInvalid ? 'Invalid/Expired' : 'Valid'}`);
     
     // Get current app version to preserve
     const currentVersion = localStorage.getItem('app_version');
     
     try {
-      // Clear all localStorage
-      localStorage.clear();
-      console.log('[Storage] All localStorage cleared');
+      if (isTokenInvalid) {
+        // If token is invalid, do a complete clear
+        localStorage.clear();
+        console.log('[Storage] All localStorage cleared due to invalid token');
+      } else {
+        // Otherwise do a selective clear
+        const keysToKeep = new Set([...Object.keys(authData)]);
+        if (savedArmyLists) keysToKeep.add('armyLists');
+        if (currentVersion) keysToKeep.add('app_version');
+        
+        // Get all current keys
+        const allKeys = getAllLocalStorageKeys();
+        
+        // Remove keys not in the keysToKeep set
+        for (const key of allKeys) {
+          if (!keysToKeep.has(key)) {
+            localStorage.removeItem(key);
+            console.log(`[Storage] Removed item: ${key}`);
+          }
+        }
+        
+        console.log('[Storage] Selective localStorage purge completed');
+      }
       
       // Restore important data
       if (savedArmyLists) {
@@ -131,8 +180,10 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
         console.log('[Storage] Restored army lists');
       }
       
-      // Restore auth data
-      restoreAuthData(authData);
+      // Restore auth data if it wasn't invalid
+      if (!isTokenInvalid) {
+        restoreAuthData(authData);
+      }
       
       // Restore app version if it existed
       if (currentVersion) {
@@ -161,6 +212,75 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
 };
 
 /**
+ * Helper function to get all keys in localStorage
+ * @returns Array of localStorage keys
+ */
+const getAllLocalStorageKeys = (): string[] => {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key) {
+      keys.push(key);
+    }
+  }
+  return keys;
+};
+
+/**
+ * Check if an auth token is invalid, expired, or malformed
+ * @returns boolean True if the token is invalid, false otherwise
+ */
+const checkTokenValidity = (): boolean => {
+  try {
+    // First try to find any supabase auth tokens
+    const allKeys = getAllLocalStorageKeys();
+    const authTokenKey = allKeys.find(key => 
+      key.startsWith('sb-') && key.endsWith('-auth-token')
+    );
+    
+    if (!authTokenKey) {
+      return false; // No token found, so nothing to validate
+    }
+    
+    // Get the token data
+    const tokenData = localStorage.getItem(authTokenKey);
+    if (!tokenData) {
+      return true; // Token key exists but has no data, consider invalid
+    }
+    
+    try {
+      // Try to parse the JSON data
+      const parsedToken = JSON.parse(tokenData);
+      
+      // Check if token is expired
+      if (parsedToken.expires_at) {
+        const expiresAt = parsedToken.expires_at * 1000; // Convert to milliseconds if needed
+        const now = Date.now();
+        
+        if (expiresAt < now) {
+          console.log('[Storage] Auth token has expired');
+          return true;
+        }
+      }
+      
+      // Check for missing critical parts
+      if (!parsedToken.access_token || !parsedToken.refresh_token) {
+        console.log('[Storage] Auth token is missing critical fields');
+        return true;
+      }
+      
+      return false; // Token appears valid
+    } catch (error) {
+      console.error('[Storage] Error parsing auth token:', error);
+      return true; // JSON parse error, consider token invalid
+    }
+  } catch (error) {
+    console.error('[Storage] Error checking token validity:', error);
+    return false; // Default to assuming valid in case of error
+  }
+};
+
+/**
  * Check if we're in a preview environment
  */
 const isPreviewEnvironment = (): boolean => {
@@ -178,13 +298,7 @@ const isPreviewEnvironment = (): boolean => {
 const cleanNonEssentialStorage = (): void => {
   try {
     // Get a list of all keys in localStorage
-    const allKeys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key) {
-        allKeys.push(key);
-      }
-    }
+    const allKeys = getAllLocalStorageKeys();
     
     // Remove only non-essential items that are not related to auth or user data
     for (const key of allKeys) {
@@ -192,6 +306,7 @@ const cleanNonEssentialStorage = (): void => {
       if (key === 'armyLists' || 
           key === 'app_version' || 
           key.startsWith('supabase.auth.') || 
+          key.startsWith('sb-') ||
           key.includes('auth') || 
           key === 'guestSession') {
         continue;
@@ -216,15 +331,16 @@ const preserveAuthData = (): Record<string, string> => {
   const authData: Record<string, string> = {};
   
   try {
+    // Get all keys to efficiently search through them once
+    const allKeys = getAllLocalStorageKeys();
+    
     // Find and preserve all Supabase auth related items
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key) continue;
-      
+    for (const key of allKeys) {
       // Enhanced check for auth-related keys
       if (key.startsWith('supabase.auth.') || 
+          key.startsWith('sb-') ||
           key.includes('auth') || 
-          key === 'sb-') {
+          key === 'guestSession') {
         try {
           const value = localStorage.getItem(key);
           if (value) {
@@ -237,35 +353,17 @@ const preserveAuthData = (): Record<string, string> => {
       }
     }
     
-    // Specifically check for Supabase tokens with the sb- prefix
-    // This is necessary because Supabase often stores tokens with this prefix
-    const sbKeys = Object.keys(localStorage).filter(key => 
-      key.startsWith('sb-') || 
-      key.includes('access-token') || 
-      key.includes('refresh-token')
-    );
-    
-    sbKeys.forEach(key => {
-      try {
-        const value = localStorage.getItem(key);
-        if (value && !authData[key]) {
-          authData[key] = value;
-          console.log(`[Storage] Preserved Supabase token: ${key}`);
-        }
-      } catch (err) {
-        console.error(`[Storage] Error preserving Supabase token for key ${key}:`, err);
-      }
-    });
-    
     // For preview mode, ensure we're also preserving any mock auth data
     if (isPreviewEnvironment()) {
       const mockAuthKeys = ['isAuthenticated', 'userRole', 'preview_auth_data'];
       mockAuthKeys.forEach(key => {
         try {
-          const value = localStorage.getItem(key);
-          if (value) {
-            authData[key] = value;
-            console.log(`[Storage] Preserved preview auth data: ${key}`);
+          if (allKeys.includes(key)) {
+            const value = localStorage.getItem(key);
+            if (value) {
+              authData[key] = value;
+              console.log(`[Storage] Preserved preview auth data: ${key}`);
+            }
           }
         } catch (err) {
           console.error(`[Storage] Error preserving preview auth data for key ${key}:`, err);

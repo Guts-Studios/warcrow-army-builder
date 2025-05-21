@@ -7,19 +7,28 @@ import { checkVersionAndPurgeStorage, purgeStorageExceptLists } from './utils/st
 import { Toaster } from './components/ui/toaster'
 
 // Immediately purge all storage except army lists on every app load
+// This ensures any corrupted or outdated data is cleared
 purgeStorageExceptLists();
 
 // Add user agent logging to help diagnose mobile issues
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 console.log(`[App] Running on ${isMobile ? 'mobile' : 'desktop'} device`);
 
-// Get the changelog content from the public folder with strong cache-busting
+// Get the changelog content from the public folder with super aggressive cache-busting
 const fetchChangelog = () => {
-  // Add timestamp and random value for aggressive cache busting
-  const cacheBuster = `t=${new Date().getTime()}&r=${Math.random()}`;
+  // Add timestamp, random value and unique identifier for aggressive cache busting
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 15);
+  const cacheBuster = `t=${timestamp}&r=${random}&u=${crypto.randomUUID?.() || Math.random()}`;
   console.log(`[App] Fetching CHANGELOG.md with cache buster: ${cacheBuster}`);
   
-  fetch(`/CHANGELOG.md?${cacheBuster}`)
+  fetch(`/CHANGELOG.md?${cacheBuster}`, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+  })
     .then(response => {
       console.log(`[App] CHANGELOG.md fetch status: ${response.status}`);
       if (!response.ok) {
