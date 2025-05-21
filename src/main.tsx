@@ -7,14 +7,16 @@ import { checkVersionAndPurgeStorage } from './utils/storageUtils'
 import { Toaster } from './components/ui/toaster'
 
 // Get the changelog content from the public folder
-fetch('/CHANGELOG.md')
+fetch('/CHANGELOG.md?t=' + new Date().getTime()) // Add cache-busting parameter
   .then(response => response.text())
   .then(changelog => {
     // Check for version changes and purge storage if needed
-    checkVersionAndPurgeStorage(changelog);
+    console.log('[App] Fetched CHANGELOG.md, checking version now...');
+    const purged = checkVersionAndPurgeStorage(changelog);
+    console.log(`[App] Storage purge check completed, storage was ${purged ? 'purged' : 'not purged'}`);
   })
   .catch(error => {
-    console.error('Failed to load CHANGELOG.md:', error);
+    console.error('[App] Failed to load CHANGELOG.md:', error);
   });
 
 // Preconnect to critical domains

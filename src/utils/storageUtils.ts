@@ -24,18 +24,21 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
       
       // Save army lists before clearing
       const savedArmyLists = localStorage.getItem('armyLists');
+      console.log(`[Storage] Saved army lists before purge: ${savedArmyLists ? 'Found' : 'None found'}`);
       
       // Clear all local storage
       localStorage.clear();
+      console.log(`[Storage] Local storage cleared`);
       
       // Restore army lists
       if (savedArmyLists) {
         localStorage.setItem('armyLists', savedArmyLists);
-        console.log(`[Storage] Preserved user's army lists during storage purge`);
+        console.log(`[Storage] Preserved user's army lists during storage purge: ${savedArmyLists.substring(0, 50)}...`);
       }
       
       // Save the new version
       localStorage.setItem('app_version', currentVersion);
+      console.log(`[Storage] Set new version in storage: ${currentVersion}`);
       
       // Show notification if enabled
       if (showNotification) {
