@@ -7,6 +7,7 @@ import { Toaster as SonnerToaster } from "sonner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useEnvironment } from '@/hooks/useEnvironment';
 import { checkVersionAndPurgeStorage, clearInvalidTokens } from '@/utils/storageUtils';
+import { SessionValidator } from '@/components/auth/SessionValidator';
 
 function App() {
   const { isPreview } = useEnvironment();
@@ -49,7 +50,9 @@ function App() {
       <ProvidersWrapper>
         <LanguageProvider>
           <AuthProvider>
-            <AppRoutes />
+            <SessionValidator>
+              <AppRoutes />
+            </SessionValidator>
           </AuthProvider>
         </LanguageProvider>
       </ProvidersWrapper>
