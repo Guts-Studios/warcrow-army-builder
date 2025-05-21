@@ -15,6 +15,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Playmode
 - Game sync during play mode
+
+## [0.5.5] - 2025-05-21 
+-will update needed version change to refresh app
+### Added
+- Check for current version of the app and clear local storage if it has changed to refresh the site
+### Fixed
+- Will fill out later, had 7 lines worth and it did not save
+
+
   
 ## [0.5.3] - 2025-05-03
 - Spanish translation support being added in live so we might miss some spots but will make sure we have full coverage. Spanish language cards soon.
