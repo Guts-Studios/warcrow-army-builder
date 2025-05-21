@@ -16,13 +16,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Playmode
 - Game sync during play mode
 
+## [0.5.7] - 2025-05-21
+
+### Fixed
+- Master Keorl not matching data
+### Updated
+- Unit Validator to quickly check if units are not correct
+
 ## [0.5.6] - 2025-05-21 
 -will update needed version change to refresh app
 ### Added
 - Check for current version of the app and clear local storage if it has changed to refresh the site
 ### Fixed
 - Will fill out later, had 7 lines worth and it did not save
-
 
   
 ## [0.5.3] - 2025-05-03
