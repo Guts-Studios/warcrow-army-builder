@@ -16,6 +16,16 @@ export function useAuth() {
     const hostname = window.location.hostname;
     console.log("Auth hook: Current hostname for preview check:", hostname);
     
+    // Explicit production domain check first
+    const isProductionDomain = hostname === 'warcrowarmy.com' || 
+                              hostname.endsWith('.warcrowarmy.com') ||
+                              hostname === 'warcrow-army-builder.netlify.app';
+    
+    if (isProductionDomain) {
+      console.log("Auth hook: Production environment detected:", hostname);
+      return false;
+    }
+    
     // More comprehensive list of preview hostnames
     const isPreviewEnv = hostname === 'lovableproject.com' || 
                          hostname.includes('.lovableproject.com') ||
@@ -66,6 +76,7 @@ export function useAuth() {
           email: session?.user?.email,
           userMetadata: session?.user?.user_metadata,
           appMetadata: session?.user?.app_metadata,
+          hostname: window.location.hostname,
           timestamp: new Date().toISOString()
         });
         
@@ -166,6 +177,7 @@ export function useAuth() {
               hasUser: !!session?.user,
               userId: session?.user?.id,
               email: session?.user?.email,
+              hostname: window.location.hostname,
               timestamp: new Date().toISOString()
             });
             

@@ -5,39 +5,25 @@ import { useEffect, useState } from "react";
 import { Play, User, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 export const MainActions = () => {
   const navigate = useNavigate();
   const [isTester, setIsTester] = useState(false);
   const { isWabAdmin } = useAuth();
   const { t } = useLanguage();
+  const { isPreview, isProduction, hostname } = useEnvironment();
   
-  // Enhanced preview detection with more robust hostname checking
-  const isPreview = () => {
-    const hostname = window.location.hostname;
-    
-    // More comprehensive list of preview hostnames
-    const isPreviewEnv = hostname === 'lovableproject.com' || 
-                        hostname.includes('.lovableproject.com') ||
-                        hostname.includes('localhost') ||
-                        hostname.includes('127.0.0.1') ||
-                        hostname.includes('netlify.app') ||
-                        hostname.includes('id-preview') ||
-                        hostname.includes('lovable.app');
-                        
-    console.log("MainActions: Current hostname =", hostname);
-    console.log("MainActions: isPreview =", isPreviewEnv);
-    return isPreviewEnv;
-  };
-
   useEffect(() => {
     // Debug logging
     console.log('MainActions: isWabAdmin =', isWabAdmin);
-    console.log('MainActions: isPreview =', isPreview());
+    console.log('MainActions: Current hostname =', hostname);
+    console.log('MainActions: isPreview =', isPreview);
+    console.log('MainActions: isProduction =', isProduction);
     
     const checkUserRole = async () => {
       // If in preview mode, set as tester
-      if (isPreview()) {
+      if (isPreview) {
         console.log('Setting tester mode due to preview environment');
         setIsTester(true);
         return;
@@ -65,7 +51,7 @@ export const MainActions = () => {
     };
 
     checkUserRole();
-  }, [isWabAdmin]);
+  }, [isWabAdmin, isPreview, isProduction, hostname]);
 
   return (
     <>
@@ -102,8 +88,8 @@ export const MainActions = () => {
           {t('profile')}
         </Button>
         
-        {/* In preview mode, always show tester/admin features */}
-        {(!!isTester || !!isWabAdmin || isPreview()) && (
+        {/* Show these features in preview mode or for testers/admins */}
+        {(!!isTester || !!isWabAdmin || isPreview) && (
           <>
             <Button
               onClick={() => navigate('/unit-stats')}
@@ -124,7 +110,7 @@ export const MainActions = () => {
         )}
         
         {/* Show admin button in preview environment or for actual admin users */}
-        {(isPreview() || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
+        {(isPreview || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
           <Button
             onClick={() => navigate('/admin')}
             variant="outline"

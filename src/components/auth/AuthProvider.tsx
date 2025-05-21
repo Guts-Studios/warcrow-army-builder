@@ -1,3 +1,4 @@
+
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -46,23 +47,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const hostname = window.location.hostname;
     console.log("AuthProvider: Current hostname for preview check:", hostname);
     
-    // Check for specific production domain - adjust this to match your actual production domain
-    const isProduction = hostname === 'warcrow-army-builder.netlify.app' || 
-                         hostname === 'wab.warcrow.com';
+    // Check for specific production domains first
+    const isProduction = hostname === 'warcrowarmy.com' || 
+                        hostname.endsWith('.warcrowarmy.com') ||
+                        hostname === 'warcrow-army-builder.netlify.app';
     
     if (isProduction) {
-      console.log("Production environment detected in AuthProvider");
+      console.log("Production environment detected in AuthProvider:", hostname);
       return false;
     }
     
     // Otherwise, check if it's a preview/development environment
     const isPreviewEnv = hostname === 'lovableproject.com' || 
-                         hostname.includes('.lovableproject.com') ||
-                         hostname.includes('localhost') ||
-                         hostname.includes('127.0.0.1') ||
-                         hostname.includes('netlify.app');
+                        hostname.includes('.lovableproject.com') ||
+                        hostname.includes('localhost') ||
+                        hostname.includes('127.0.0.1') ||
+                        hostname.includes('netlify.app');
     
-    console.log("Is preview environment in AuthProvider:", isPreviewEnv);
+    console.log("Is preview environment in AuthProvider:", isPreviewEnv, "for hostname:", hostname);
     return isPreviewEnv;
   };
 
@@ -94,8 +96,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
+        const hostname = window.location.hostname;
         const inPreview = isPreview();
-        console.log("AuthProvider: isPreview =", inPreview);
+        console.log("AuthProvider: isPreview =", inPreview, "for hostname:", hostname);
         
         // For preview environment, provide dummy authenticated state
         if (inPreview) {
@@ -112,10 +115,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
+        console.log("Production environment detected in AuthProvider, using real auth state for:", hostname);
+
         // Set up auth state listener for production environments
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("Auth state changed in AuthProvider:", event);
+            console.log("Auth state changed in AuthProvider:", event, {
+              hasUser: !!session?.user,
+              userId: session?.user?.id,
+              email: session?.user?.email,
+              hostname,
+              timestamp: new Date().toISOString()
+            });
+            
             const authState = !!session;
             
             if (mounted) {
@@ -131,6 +143,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     .select('wab_admin, tester')
                     .eq('id', session.user.id)
                     .single();
+                    
+                  console.log("Profile data check on auth change:", {
+                    profileExists: !!data,
+                    wabAdmin: data?.wab_admin,
+                    tester: data?.tester,
+                    error: error?.message,
+                    userId: session.user.id,
+                    hostname,
+                    timestamp: new Date().toISOString()
+                  });
                     
                   if (!error && data && mounted) {
                     const isAdminUser = !!data.wab_admin;
@@ -166,8 +188,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         );
         
         // Get initial session
+        console.log("AuthProvider: Checking initial session for:", hostname);
         const { data } = await supabase.auth.getSession();
         const session = data?.session;
+        
+        console.log("AuthProvider: Initial session check result:", {
+          hasSession: !!session,
+          userId: session?.user?.id,
+          userEmail: session?.user?.email,
+          hostname,
+          timestamp: new Date().toISOString()
+        });
         
         if (mounted) {
           setIsAuthenticated(!!session);
@@ -177,11 +208,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (session?.user?.id) {
             // Get user role information
             try {
+              console.log("AuthProvider: Fetching profile data for user:", session.user.id);
               const { data, error } = await supabase
                 .from('profiles')
                 .select('wab_admin, tester')
                 .eq('id', session.user.id)
                 .single();
+                
+              console.log("AuthProvider: Profile data fetched:", {
+                profileExists: !!data,
+                wabAdmin: data?.wab_admin,
+                tester: data?.tester,
+                error: error?.message,
+                userId: session.user.id,
+                hostname,
+                timestamp: new Date().toISOString()
+              });
                 
               if (!error && data && mounted) {
                 const isAdminUser = !!data.wab_admin;

@@ -48,6 +48,15 @@ const Login = ({ onGuestAccess }: LoginProps) => {
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
+    const hostname = window.location.hostname;
+    console.log("Login page: Current hostname:", hostname);
+    
+    const isProductionDomain = hostname === 'warcrowarmy.com' || 
+                              hostname.endsWith('.warcrowarmy.com') ||
+                              hostname === 'warcrow-army-builder.netlify.app';
+                              
+    console.log("Login page: Is production domain:", isProductionDomain);
+    
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
