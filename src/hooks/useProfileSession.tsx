@@ -63,10 +63,7 @@ export const useProfileSession = (): ProfileSession => {
       }
     };
     
-    // Call the function to check auth state
-    checkAuthState();
-    
-    // Subscribe to auth state changes
+    // Set up auth subscription first, then check auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
@@ -89,6 +86,9 @@ export const useProfileSession = (): ProfileSession => {
       
       setSessionChecked(true);
     });
+    
+    // Call the function to check auth state
+    checkAuthState();
     
     // Cleanup subscription on unmount
     return () => {

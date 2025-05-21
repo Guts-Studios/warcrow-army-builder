@@ -134,89 +134,6 @@ export function useAuth() {
           
           setIsLoading(false);
         }
-        
-        // Set up the auth state listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            console.log("Auth state changed:", event, {
-              hasUser: !!session?.user,
-              userId: session?.user?.id,
-              email: session?.user?.email,
-              hostname: hostname,
-              timestamp: new Date().toISOString()
-            });
-            
-            if (mounted) {
-              setIsAuthenticated(!!session);
-              setUserId(session?.user?.id || null);
-              setIsGuest(!session);
-              
-              // If authenticated, check for admin/tester status
-              if (session?.user?.id) {
-                try {
-                  const { data, error } = await supabase
-                    .from('profiles')
-                    .select('wab_admin, tester')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-                    
-                  console.log("Auth state change: Profile data fetched:", {
-                    profileExists: !!data,
-                    wabAdmin: data?.wab_admin,
-                    tester: data?.tester,
-                    error: error?.message,
-                    userId: session.user.id,
-                    timestamp: new Date().toISOString()
-                  });
-                    
-                  if (!error && data && mounted) {
-                    const isAdminUser = !!data.wab_admin;
-                    console.log("Admin status update on auth change:", isAdminUser);
-                    setIsAdmin(isAdminUser);
-                    setIsTester(!!data.tester);
-                    setIsWabAdmin(isAdminUser);
-                  } else {
-                    console.error("Error or no data when checking user roles on auth change:", error);
-                    if (mounted && isPreview) {
-                      setIsAdmin(true);
-                      setIsTester(true);
-                      setIsWabAdmin(true);
-                    } else if (mounted) {
-                      setIsAdmin(false);
-                      setIsTester(false);
-                      setIsWabAdmin(false);
-                    }
-                  }
-                } catch (err) {
-                  console.error("Error checking user roles on auth change:", err);
-                  if (mounted && isPreview) {
-                    setIsAdmin(true);
-                    setIsTester(true);
-                    setIsWabAdmin(true);
-                  } else if (mounted) {
-                    setIsAdmin(false);
-                    setIsTester(false);
-                    setIsWabAdmin(false);
-                  }
-                }
-              } else if (isPreview && mounted) {
-                // Not authenticated but in preview mode
-                setIsAdmin(true);
-                setIsTester(true);
-                setIsWabAdmin(true);
-              } else if (mounted) {
-                // Not authenticated and not in preview
-                setIsAdmin(false);
-                setIsTester(false);
-                setIsWabAdmin(false);
-              }
-            }
-          }
-        );
-        
-        return () => {
-          if (subscription) subscription.unsubscribe();
-        };
       } catch (error) {
         console.error("Error in auth hook:", error);
         if (mounted) {
@@ -241,10 +158,100 @@ export function useAuth() {
       }
     };
     
+    const setupAuthListener = () => {
+      // Set up the auth state listener
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log("Auth state changed:", event, {
+            hasUser: !!session?.user,
+            userId: session?.user?.id,
+            email: session?.user?.email,
+            hostname: hostname,
+            timestamp: new Date().toISOString()
+          });
+          
+          if (mounted) {
+            setIsAuthenticated(!!session);
+            setUserId(session?.user?.id || null);
+            setIsGuest(!session);
+            
+            // If authenticated, check for admin/tester status
+            if (session?.user?.id) {
+              try {
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select('wab_admin, tester')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
+                  
+                console.log("Auth state change: Profile data fetched:", {
+                  profileExists: !!data,
+                  wabAdmin: data?.wab_admin,
+                  tester: data?.tester,
+                  error: error?.message,
+                  userId: session.user.id,
+                  timestamp: new Date().toISOString()
+                });
+                  
+                if (!error && data && mounted) {
+                  const isAdminUser = !!data.wab_admin;
+                  console.log("Admin status update on auth change:", isAdminUser);
+                  setIsAdmin(isAdminUser);
+                  setIsTester(!!data.tester);
+                  setIsWabAdmin(isAdminUser);
+                } else {
+                  console.error("Error or no data when checking user roles on auth change:", error);
+                  if (mounted && isPreview) {
+                    setIsAdmin(true);
+                    setIsTester(true);
+                    setIsWabAdmin(true);
+                  } else if (mounted) {
+                    setIsAdmin(false);
+                    setIsTester(false);
+                    setIsWabAdmin(false);
+                  }
+                }
+              } catch (err) {
+                console.error("Error checking user roles on auth change:", err);
+                if (mounted && isPreview) {
+                  setIsAdmin(true);
+                  setIsTester(true);
+                  setIsWabAdmin(true);
+                } else if (mounted) {
+                  setIsAdmin(false);
+                  setIsTester(false);
+                  setIsWabAdmin(false);
+                }
+              }
+            } else if (isPreview && mounted) {
+              // Not authenticated but in preview mode
+              setIsAdmin(true);
+              setIsTester(true);
+              setIsWabAdmin(true);
+            } else if (mounted) {
+              // Not authenticated and not in preview
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+            }
+          }
+        }
+      );
+      
+      return () => {
+        if (subscription) subscription.unsubscribe();
+      };
+    };
+
+    // Setup auth listener first
+    const unsubscribeAuth = setupAuthListener();
+    
+    // Then check auth status
     checkAuthStatus();
     
     return () => {
       mounted = false;
+      if (unsubscribeAuth) unsubscribeAuth();
     };
   }, [isPreview, isProduction, hostname]);
 

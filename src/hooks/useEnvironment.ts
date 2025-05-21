@@ -37,12 +37,12 @@ export const useEnvironment = (): EnvironmentInfo => {
       hostname === domain || hostname.endsWith(`.${domain}`)
     );
     
-    // More comprehensive preview detection - any domain that is not explicitly production
+    // Any non-production domain is considered preview
     const isPreview = hostname === 'localhost' || 
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
-                     (hostname.includes('netlify.app') && !isExplicitProductionDomain) || 
+                     (hostname.includes('netlify.app') && !productionDomains.includes(hostname)) || 
                      hostname.includes('lovable.app');
     
     // Production is either explicitly defined or not a preview
