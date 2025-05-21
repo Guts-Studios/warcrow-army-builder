@@ -68,7 +68,7 @@ const Index = () => {
 
       <div className="container mx-auto py-8 px-4 md:px-8">
         <div className="animate-fade-in">
-          <ArmyBuilder />
+          <ArmyBuilder session={session} />
         </div>
       </div>
     </div>

@@ -1,50 +1,68 @@
 
-import { useState, useEffect } from "react";
-import ArmyList from "@/components/army/ArmyList";
-import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
-import { Unit } from "@/types/army";
-import { removeDuplicateUnits } from "@/utils/unitManagement";
-import { verifyUnitIntegrity } from "@/utils/unitVerification";
-import UnitVerification from "@/components/app/UnitVerification";
+import { useState, useCallback, useEffect } from "react";
+import { Session } from "@supabase/supabase-js";
+import { SavedList } from "@/types/army";
+import FactionSelector from "@/components/FactionSelector";
+import ArmyList from "@/components/ArmyList";
+import { useLocation } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
 
-const ArmyBuilder = () => {
-  const [selectedFaction, setSelectedFaction] = useState<string | null>(null);
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [loading, setLoading] = useState(false);
+interface ArmyBuilderProps {
+  session: Session | null;
+}
 
-  const { data: factionUnits, isLoading, error } = useArmyBuilderUnits(selectedFaction || "");
+const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
+  const location = useLocation();
+  const { isGuest } = useAuth();
+  const [selectedFaction, setSelectedFaction] = useState(() => {
+    // Try to get the faction from localStorage first
+    const savedFaction = localStorage.getItem("warcrow_last_faction");
+    const state = location.state as { selectedFaction?: string; loadList?: SavedList };
+    
+    // Priority: 1. Navigation state, 2. localStorage, 3. Default
+    return state?.selectedFaction || savedFaction || "northern-tribes";
+  });
+  
+  const state = location.state as { selectedFaction?: string; loadList?: SavedList };
 
   useEffect(() => {
-    if (isLoading) {
-      setLoading(true);
+    // If we have a faction from the navigation state, use it
+    if (state?.selectedFaction) {
+      setSelectedFaction(state.selectedFaction);
     }
+  }, [state]);
 
-    if (factionUnits && !isLoading) {
-      // Add integrity verification for all units being loaded
-      const verifiedUnits = factionUnits.map(unit => {
-        // Verify unit integrity
-        verifyUnitIntegrity(unit);
-        return unit;
-      });
-      
-      setUnits(removeDuplicateUnits(verifiedUnits));
-      setLoading(false);
-    }
-  }, [factionUnits, isLoading]);
+  // Log the guest status and authentication for debugging
+  useEffect(() => {
+    console.log("ArmyBuilder render - Auth status:", { 
+      isGuest,
+      hasSession: !!session, 
+      selectedFaction,
+      timestamp: new Date().toISOString()
+    });
+  }, [isGuest, session, selectedFaction]);
+
+  const handleFactionChange = useCallback((factionId: string) => {
+    setSelectedFaction(factionId);
+    // Save the selected faction to localStorage
+    localStorage.setItem("warcrow_last_faction", factionId);
+  }, []);
 
   return (
-    <>
-      {/* Silent component that verifies unit integrity */}
-      <UnitVerification />
-      
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <ArmyList
+    <div className="space-y-4 md:space-y-8 px-2 md:px-4">
+      <div className="hidden md:block">
+        <FactionSelector
           selectedFaction={selectedFaction}
-          onFactionChange={(faction) => setSelectedFaction(faction)}
-          initialList={undefined}
+          onFactionChange={handleFactionChange}
         />
       </div>
-    </>
+
+      <ArmyList
+        selectedFaction={selectedFaction}
+        onFactionChange={handleFactionChange}
+        initialList={state?.loadList}
+      />
+    </div>
   );
 };
 
