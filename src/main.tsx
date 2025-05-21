@@ -38,7 +38,7 @@ const fetchChangelog = () => {
       if (isMobile) {
         console.log('[App] Mobile device detected, applying fallback version handling');
         // Hardcoded version as last resort
-        const hardcodedVersion = "0.5.5"; 
+        const hardcodedVersion = "0.5.7"; 
         console.log(`[App] Using hardcoded version: ${hardcodedVersion}`);
         
         // Create minimal changelog content with the hardcoded version

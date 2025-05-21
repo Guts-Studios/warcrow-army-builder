@@ -1,3 +1,4 @@
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -20,8 +21,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 - Master Keorl not matching data
+- Automatic storage purge not working correctly when version changes
 ### Updated
 - Unit Validator to quickly check if units are not correct
+- Version detection and storage purge mechanism for more reliable updates
 
 ## [0.5.6] - 2025-05-21 
 -will update needed version change to refresh app
