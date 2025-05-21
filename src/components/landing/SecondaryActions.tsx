@@ -3,15 +3,27 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Coffee } from "lucide-react";
+import { useProfileSession } from "@/hooks/useProfileSession";
+import { toast } from "sonner";
 
 interface SecondaryActionsProps {
   isGuest: boolean;
-  onSignOut: () => void;
 }
 
-export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) => {
+export const SecondaryActions = ({ isGuest }: SecondaryActionsProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { signOut } = useProfileSession();
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Error signing out. Please try again.");
+    }
+  };
   
   const handleBuyCoffeeClick = () => {
     navigate('/about');
@@ -20,7 +32,7 @@ export const SecondaryActions = ({ isGuest, onSignOut }: SecondaryActionsProps) 
   return (
     <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-center md:mt-2">
       <Button
-        onClick={onSignOut}
+        onClick={handleSignOut}
         variant="outline"
         className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
       >

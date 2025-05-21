@@ -11,6 +11,7 @@ interface ProfileSession {
   sessionChecked: boolean;
   usePreviewData: boolean;
   isAdmin: boolean;
+  signOut: () => Promise<void>;
 }
 
 export const useProfileSession = (): ProfileSession => {
@@ -22,6 +23,37 @@ export const useProfileSession = (): ProfileSession => {
   
   // Important: Set usePreviewData to false for both preview and production
   const usePreviewData = false;
+
+  // Handle sign out function
+  const signOut = async () => {
+    try {
+      console.log("[useProfileSession] Signing out user");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("[useProfileSession] Error signing out:", error);
+        throw error;
+      }
+      
+      console.log("[useProfileSession] Successfully signed out");
+      
+      // Force clear local state regardless of Supabase response
+      setIsAuthenticated(false);
+      setUserId(null);
+      setIsAdmin(false);
+      
+      // Force clear localStorage to ensure all session data is removed
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Redirect to home page after sign out
+      window.location.href = '/';
+      
+    } catch (err) {
+      console.error("[useProfileSession] Error in sign out process:", err);
+      // Force redirect even if there was an error
+      window.location.href = '/';
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -145,7 +177,7 @@ export const useProfileSession = (): ProfileSession => {
     });
     
     // Call the function to check auth state
-    checkAuthStatus();
+    checkAuthState();
     
     // Cleanup subscription on unmount
     return () => {
@@ -161,7 +193,8 @@ export const useProfileSession = (): ProfileSession => {
     isProduction,
     sessionChecked,
     usePreviewData,
-    isAdmin
+    isAdmin,
+    signOut
   };
 };
 
