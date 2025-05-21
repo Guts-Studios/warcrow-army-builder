@@ -47,11 +47,9 @@ const ArmyBuilder = () => {
           </>
         ) : (
           <ArmyList
-            factionId={selectedFaction}
-            factionUnits={units}
-            loading={loading}
-            error={error}
-            onBack={() => setSelectedFaction(null)}
+            selectedFaction={selectedFaction}
+            onFactionChange={(faction) => setSelectedFaction(faction)}
+            initialList={undefined}
           />
         )}
       </div>
