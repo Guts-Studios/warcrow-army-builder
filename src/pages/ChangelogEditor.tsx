@@ -63,8 +63,7 @@ const ChangelogEditor = () => {
       // Call Supabase Edge function to update the changelog in GitHub
       const { data, error: saveError } = await supabase.functions.invoke('update-github-changelog', {
         body: {
-          content: changelog,
-          message: `Update CHANGELOG.md via admin interface [skip ci]`
+          content: changelog
         }
       });
       

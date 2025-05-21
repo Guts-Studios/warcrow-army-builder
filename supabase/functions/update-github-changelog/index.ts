@@ -47,7 +47,7 @@ serve(async (req: Request) => {
     }
 
     // Parse the request body
-    const { content, message } = await req.json();
+    const { content } = await req.json();
     
     if (!content) {
       return new Response(JSON.stringify({ error: 'Content is required' }), {
@@ -98,7 +98,7 @@ serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: message || 'Update CHANGELOG.md',
+        message: 'Update CHANGELOG.md via admin interface [skip ci]',
         content: base64Content,
         sha: sha,
         committer: {
