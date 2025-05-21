@@ -8,23 +8,23 @@ const ValidationsPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="units" className="w-full">
-        <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-warcrow-gold/10">
+        <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-warcrow-accent/20 h-auto p-0">
           <TabsTrigger 
             value="units" 
-            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
+            className="data-[state=active]:text-warcrow-gold py-2"
           >
             Unit Data
           </TabsTrigger>
           <TabsTrigger 
             value="rules" 
-            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
+            className="data-[state=active]:text-warcrow-gold py-2"
             disabled
           >
             Rules Data
           </TabsTrigger>
           <TabsTrigger 
             value="faq" 
-            className="data-[state=active]:bg-warcrow-gold/80 data-[state=active]:text-black"
+            className="data-[state=active]:text-warcrow-gold py-2"
             disabled
           >
             FAQ Data
