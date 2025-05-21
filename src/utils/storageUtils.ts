@@ -1,3 +1,4 @@
+
 const CURRENT_VERSION = "0.5.8";
 
 // Function to get the last purged version from localStorage
@@ -85,56 +86,27 @@ export const checkVersionAndPurgeStorage = (changelog: string, forcePurge: boole
   }
 };
 
-// Enhanced function to clear invalid tokens
-export const clearInvalidTokens = () => {
+// Enhanced function to clear invalid tokens - UPDATED to only clear tokens that are provably invalid
+export const clearInvalidTokens = async (): Promise<boolean> => {
   try {
-    // Check for Supabase auth tokens that might be invalid
+    // Check for Supabase auth tokens
     const tokenKeys = Object.keys(localStorage).filter(key => 
       key.startsWith('sb-') || 
       key.includes('auth') || 
       key.includes('supabase')
     );
 
-    console.log(`[storageUtils] Found ${tokenKeys.length} potential auth tokens to check`);
-    
-    // Check the current domain
-    const currentDomain = window.location.hostname;
-    console.log(`[storageUtils] Current domain: ${currentDomain}`);
-    
-    // If we're on warcrowarmy.com but have tokens from netlify domain or vice versa
-    // Clear all auth tokens as they won't be valid across domains
-    const isCustomDomain = !currentDomain.includes('netlify.app') && !currentDomain.includes('lovableproject.com');
-    const hasTokens = tokenKeys.length > 0;
-    
-    if (isCustomDomain && hasTokens) {
-      console.log(`[storageUtils] Custom domain detected (${currentDomain}). Checking auth tokens for cross-domain issues.`);
-      
-      // Look for tokens that might be from another domain
-      const potentialCrossDomainTokens = tokenKeys.filter(key => {
-        const value = localStorage.getItem(key);
-        // Look for netlify URLs in the token data
-        return value && (
-          value.includes('netlify.app') || 
-          (isCustomDomain && !value.includes(currentDomain))
-        );
-      });
-      
-      if (potentialCrossDomainTokens.length > 0) {
-        console.warn(`[storageUtils] Detected ${potentialCrossDomainTokens.length} potential cross-domain auth tokens.`);
-        console.log(`[storageUtils] Removing all auth tokens to prevent authentication issues`);
-        
-        // Remove all auth-related tokens
-        tokenKeys.forEach(key => {
-          localStorage.removeItem(key);
-          console.log(`[storageUtils] Removed token: ${key}`);
-        });
-        
-        console.log(`[storageUtils] Auth storage cleanup complete`);
-        return true;
-      }
+    if (tokenKeys.length === 0) {
+      console.log(`[storageUtils] No auth tokens found to check.`);
+      return false;
     }
 
-    // Check for malformed tokens
+    console.log(`[storageUtils] Found ${tokenKeys.length} potential auth tokens to check`);
+    
+    // Instead of checking domain, let's verify if the tokens actually work
+    let tokenCleared = false;
+    
+    // Check for malformed tokens first - these are definitely invalid
     const malformedTokens = tokenKeys.filter(key => {
       const value = localStorage.getItem(key);
       return !value || value === 'undefined' || value === 'null';
@@ -148,10 +120,39 @@ export const clearInvalidTokens = () => {
         console.log(`[storageUtils] Removed malformed token: ${key}`);
       });
       
-      return true;
+      tokenCleared = true;
     }
     
-    return false;
+    // Now let's try to validate the session with Supabase
+    // This is imported dynamically to avoid circular dependencies
+    const { supabase } = await import('../integrations/supabase/client');
+    
+    try {
+      // Test if the current session is valid by checking the user
+      const { error } = await supabase.auth.getUser();
+      
+      if (error) {
+        // We have a confirmed invalid session, clear all auth tokens
+        console.warn(`[storageUtils] Invalid session detected: ${error.message}`);
+        
+        tokenKeys.forEach(key => {
+          localStorage.removeItem(key);
+          console.log(`[storageUtils] Removed invalid auth token: ${key}`);
+        });
+        
+        console.log(`[storageUtils] Auth storage cleanup complete due to invalid session`);
+        return true;
+      } else {
+        // Session is valid, don't clear anything
+        console.log(`[storageUtils] Session validated successfully, keeping auth tokens`);
+      }
+    } catch (validationError) {
+      console.error(`[storageUtils] Error validating session: ${validationError}`);
+      // Don't clear tokens on validation errors - they might still be valid
+      // Only clear tokens when we have a confirmed invalid session
+    }
+    
+    return tokenCleared;
   } catch (error) {
     console.error('[storageUtils] Error clearing invalid tokens:', error);
     return false;

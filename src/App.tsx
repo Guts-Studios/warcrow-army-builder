@@ -1,4 +1,5 @@
 
+
 import * as React from 'react';
 import { ProvidersWrapper } from "@/components/providers/ProvidersWrapper";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -40,11 +41,19 @@ function App() {
   }, []);
   
   // Recovery function for users experiencing issues
-  const handleRecoverSession = React.useCallback(() => {
-    // Clear any invalid tokens
-    clearInvalidTokens();
+  const handleRecoverSession = React.useCallback(async () => {
+    console.log("[App] Running session recovery process");
     
-    // Force a complete storage purge
+    // Check if tokens are invalid and only clear them if they are
+    const tokensCleared = await clearInvalidTokens();
+    
+    if (tokensCleared) {
+      console.log("[App] Invalid tokens detected and cleared");
+    } else {
+      console.log("[App] No invalid tokens detected");
+    }
+    
+    // Force a complete storage purge except auth tokens
     const fakeChangelog = `# Changelog\n\n## [999.999.999]`;
     checkVersionAndPurgeStorage(fakeChangelog, true);
     
@@ -54,9 +63,11 @@ function App() {
     }, 1000);
   }, []);
 
-  // Domain-specific recovery specifically for auth issues
-  const handleDomainAuthRecovery = React.useCallback(() => {
-    // Clear all Supabase auth related items
+  // Authentication-specific recovery for auth issues
+  const handleAuthRecovery = React.useCallback(async () => {
+    console.log("[Auth Recovery] Starting auth-specific recovery");
+    
+    // Only remove auth-related items
     for (const key in localStorage) {
       if (key.startsWith('sb-') || key.includes('auth') || key.includes('supabase')) {
         console.log("[Auth Recovery] Removing auth storage item:", key);
@@ -96,7 +107,7 @@ function App() {
             
             {showAdvancedRecovery && (
               <button
-                onClick={handleDomainAuthRecovery}
+                onClick={handleAuthRecovery}
                 className="bg-amber-600/90 hover:bg-amber-700 text-white text-xs rounded px-2 py-1 shadow"
               >
                 Auth issue? Clear & login

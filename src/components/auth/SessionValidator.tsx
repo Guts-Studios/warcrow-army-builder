@@ -26,13 +26,23 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           return;
         }
         
-        // If no session, nothing to validate
+        // If no session, nothing to validate - just continue as unauthenticated user
         if (!session) {
+          console.log("[SessionValidator] No session found, continuing as unauthenticated user");
           setIsValidating(false);
           return;
         }
 
-        // Perform a test query to verify the session token works with this domain
+        // If we have a session, validate it by trying to use it
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          console.error("[SessionValidator] Session token validation failed:", userError);
+          await handleInvalidSession("Session token is invalid");
+          return;
+        }
+
+        // Additional validation: Perform a test query to verify the session token works
         try {
           const { error: testQueryError } = await supabase
             .from('profiles')
@@ -40,8 +50,8 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
             .limit(1);
             
           if (testQueryError) {
-            console.error("[SessionValidator] Session token validation failed:", testQueryError);
-            await handleInvalidSession("Session token is invalid for this domain");
+            console.error("[SessionValidator] Session token database validation failed:", testQueryError);
+            await handleInvalidSession("Session token is invalid for database access");
             return;
           }
         } catch (testError) {
@@ -50,7 +60,7 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           return;
         }
         
-        // Verify user exists by attempting to get profile data
+        // If we get here, the session is valid - verify user profile exists
         if (session.user?.id) {
           const { error: profileError } = await supabase
             .from('profiles')
@@ -65,6 +75,8 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           }
         }
         
+        // All validation passed
+        console.log("[SessionValidator] Session validated successfully");
         setIsValidating(false);
       } catch (error) {
         console.error("[SessionValidator] Unexpected error during session validation:", error);
@@ -110,8 +122,8 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
     // Run validation on mount
     validateSession();
     
-    // Set up a periodic validation check
-    const intervalId = setInterval(validateSession, 5 * 60 * 1000); // Check every 5 minutes
+    // Set up a periodic validation check every 10 minutes
+    const intervalId = setInterval(validateSession, 10 * 60 * 1000);
     
     return () => clearInterval(intervalId);
   }, [navigate]);

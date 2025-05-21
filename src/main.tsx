@@ -7,12 +7,19 @@ import { checkVersionAndPurgeStorage, purgeStorageExceptLists, clearInvalidToken
 import { Toaster } from './components/ui/toaster'
 import { toast } from 'sonner'
 
-// Check for invalid tokens first and clear them if needed
-// This needs to happen before any API calls are made
-clearInvalidTokens();
+// Only clear tokens that are provably invalid - now async
+console.log("[App] Checking for invalid auth tokens...");
+clearInvalidTokens().then(cleared => {
+  if (cleared) {
+    console.log("[App] Invalid tokens were found and cleared");
+  } else {
+    console.log("[App] No invalid tokens found or cleared");
+  }
+});
 
 // Immediately purge all storage except army lists on every app load
 // This ensures any corrupted or outdated data is cleared
+// This preserves authentication tokens since they're filtered out in the function
 purgeStorageExceptLists();
 
 // Add user agent logging to help diagnose mobile issues
@@ -21,16 +28,16 @@ console.log(`[App] Running on ${isMobile ? 'mobile' : 'desktop'} device`);
 
 // Detect if the user might be having issues with auth state
 // This helps with recovering from broken states
-const detectBrokenAuthState = () => {
+const detectBrokenAuthState = async () => {
   try {
-    // Check for partial or corrupted auth tokens
+    // Check for partial or corrupted auth tokens that are definitely broken
     const hasPartialAuth = Object.keys(localStorage)
       .some(key => (key.startsWith('sb-') || key.includes('auth')) && 
             (!localStorage.getItem(key) || localStorage.getItem(key) === "undefined"));
     
     if (hasPartialAuth) {
-      console.warn('[App] Detected potentially broken auth state, cleaning up');
-      clearInvalidTokens();
+      console.warn('[App] Detected potentially broken auth state with empty values, cleaning up');
+      await clearInvalidTokens();
     }
   } catch (error) {
     console.error('[App] Error checking for broken auth state:', error);
