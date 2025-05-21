@@ -6,7 +6,7 @@ import UnitCardKeywords from "./unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
 
 interface UnitCardProps {
@@ -16,7 +16,8 @@ interface UnitCardProps {
   onRemove: () => void;
 }
 
-const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
+// Memoize the component to prevent unnecessary re-renders
+const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
@@ -197,6 +198,9 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       />
     </div>
   );
-};
+});
+
+// Display name for debugging
+UnitCard.displayName = "UnitCard";
 
 export default UnitCard;

@@ -183,6 +183,10 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 setIsLoading(false);
               }}
               onError={handleImageError}
+              width="600"
+              height="400"
+              loading="lazy"
+              decoding="async"
             />
           )}
           

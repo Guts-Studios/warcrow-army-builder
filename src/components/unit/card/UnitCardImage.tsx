@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
@@ -218,6 +217,10 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
             alt={displayName}
             className="h-full w-full object-contain"
             onError={handleImageError}
+            width="800" 
+            height="450" 
+            loading="lazy" 
+            decoding="async"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-warcrow-text/70 text-sm p-4 text-center">

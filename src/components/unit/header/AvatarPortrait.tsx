@@ -121,7 +121,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     }
     
     // If it's already a portrait URL or doesn't match our patterns, return as is
-    return portraitUrl;
+    return portraitUrl || "";
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -166,6 +166,9 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
           alt={displayName} 
           className="object-cover"
           onError={handleImageError}
+          width="32" 
+          height="32" 
+          loading="lazy" 
         />
       )}
       <AvatarFallback className="bg-warcrow-background text-warcrow-muted text-xs">
