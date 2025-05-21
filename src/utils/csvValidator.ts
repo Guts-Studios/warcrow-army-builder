@@ -159,3 +159,52 @@ export const exportUnitsToCSV = (units: any[]): string => {
   const rows = units.map(createCsvRowFromUnit);
   return [header, ...rows].join('\n');
 };
+
+/**
+ * Generate JavaScript code for a unit file from CSV data
+ */
+export const generateUnitFileCode = (units: CsvUnit[], faction: string): string => {
+  const formattedUnits = units.map(unit => {
+    const keywords = unit.keywords.map(keyword => {
+      return `{ name: "${keyword}", description: "" }`;
+    }).join(",\n      ");
+    
+    const specialRules = Array.isArray(unit.specialRules) && unit.specialRules.length > 0 
+      ? `specialRules: [${unit.specialRules.map(rule => `"${rule}"`).join(', ')}],` 
+      : '';
+    
+    const command = unit.command && Number(unit.command) > 0 
+      ? `command: ${Number(unit.command)},` 
+      : '';
+    
+    return `
+  {
+    id: "${unit.id}",
+    name: "${unit.name}",
+    pointsCost: ${Number(unit.pointsCost)},
+    faction: "${faction}",
+    keywords: [
+      ${keywords}
+    ],
+    highCommand: ${typeof unit.highCommand === 'boolean' ? unit.highCommand : unit.highCommand.toString().toLowerCase() === 'yes'},
+    availability: ${Number(unit.availability)},
+    ${specialRules}
+    ${command}
+    imageUrl: "/art/card/${unit.id}_card.jpg"
+  }`;
+  }).join(',');
+
+  return `
+import { Unit } from "@/types/army";
+
+export const ${faction.replace(/-/g, '')}Troops: Unit[] = [${formattedUnits}
+];
+`;
+};
+
+/**
+ * Get faction ID from file name
+ */
+export const getFactionIdFromFileName = (fileName: string): string => {
+  return fileName.replace('.csv', '').toLowerCase().replace(/\s+/g, '-');
+};

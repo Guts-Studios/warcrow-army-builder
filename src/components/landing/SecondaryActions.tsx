@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { HelpCircle, Coffee, User } from "lucide-react";
+import { HelpCircle, Coffee } from "lucide-react";
 import { useProfileSession } from "@/hooks/useProfileSession";
 import { toast } from "sonner";
 import { useProfileAccess } from "@/utils/profileAccess";
@@ -15,7 +15,6 @@ export const SecondaryActions = ({ isGuest }: SecondaryActionsProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { signOut } = useProfileSession();
-  const handleProfileAccess = useProfileAccess();
   
   const handleSignOut = async () => {
     try {
