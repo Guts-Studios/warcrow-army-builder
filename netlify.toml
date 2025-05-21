@@ -29,9 +29,9 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "*"
 
-# Configure Netlify function paths (fixed format)
+# Configure Netlify function paths (fixed format) - FIXED RULE
 [[redirects]]
-  from = "/.netlify/functions/*"
+  from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
   force = true
@@ -41,4 +41,3 @@
   from = "/auth/*"
   to = "/auth/:splat"
   status = 200
-
