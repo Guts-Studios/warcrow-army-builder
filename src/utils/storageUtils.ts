@@ -1,4 +1,3 @@
-
 import { getLatestVersion } from './version';
 import { toast } from "sonner";
 
@@ -26,30 +25,62 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
       const savedArmyLists = localStorage.getItem('armyLists');
       console.log(`[Storage] Saved army lists before purge: ${savedArmyLists ? 'Found' : 'None found'}`);
       
-      // Clear all local storage
-      localStorage.clear();
-      console.log(`[Storage] Local storage cleared`);
-      
-      // Restore army lists
-      if (savedArmyLists) {
-        localStorage.setItem('armyLists', savedArmyLists);
-        console.log(`[Storage] Preserved user's army lists during storage purge: ${savedArmyLists.substring(0, 50)}...`);
-      }
-      
-      // Save the new version
-      localStorage.setItem('app_version', currentVersion);
-      console.log(`[Storage] Set new version in storage: ${currentVersion}`);
-      
-      // Show notification if enabled
-      if (showNotification) {
-        toast.info('App updated to version ' + currentVersion, {
-          description: 'Your local data has been refreshed for the new version. Your army lists have been preserved.',
-          duration: 5000
+      try {
+        // Clear all local storage except for army lists
+        const armyLists = localStorage.getItem('armyLists');
+        const keys = Object.keys(localStorage);
+        
+        // Log which keys will be removed
+        console.log(`[Storage] Found ${keys.length} items in localStorage to process`);
+        
+        // Remove all keys except armyLists (we'll restore it)
+        keys.forEach(key => {
+          if (key !== 'armyLists') {
+            console.log(`[Storage] Removing item: ${key}`);
+            localStorage.removeItem(key);
+          } else {
+            console.log(`[Storage] Keeping armyLists`);
+          }
         });
+        
+        console.log(`[Storage] Selective localStorage cleanup complete`);
+        
+        // Restore army lists if needed (redundant now with selective approach but keeping as safety)
+        if (!armyLists && savedArmyLists) {
+          localStorage.setItem('armyLists', savedArmyLists);
+          console.log(`[Storage] Restored army lists (fallback method)`);
+        }
+        
+        // Save the new version
+        localStorage.setItem('app_version', currentVersion);
+        console.log(`[Storage] Set new version in storage: ${currentVersion}`);
+        
+        // Show notification if enabled
+        if (showNotification) {
+          toast.info('App updated to version ' + currentVersion, {
+            description: 'Your local data has been refreshed for the new version. Your army lists have been preserved.',
+            duration: 5000
+          });
+        }
+        
+        console.log(`[Storage] Local storage purged. New version stored: ${currentVersion}`);
+        return true;
+      } catch (storageError) {
+        console.error('[Storage] Error during storage operations:', storageError);
+        
+        // Fallback with direct approach
+        try {
+          if (savedArmyLists) {
+            localStorage.clear();
+            localStorage.setItem('armyLists', savedArmyLists);
+            localStorage.setItem('app_version', currentVersion);
+            console.log(`[Storage] Used fallback method for storage purge`);
+            return true;
+          }
+        } catch (fallbackError) {
+          console.error('[Storage] Fallback storage operation failed:', fallbackError);
+        }
       }
-      
-      console.log(`[Storage] Local storage purged. New version stored: ${currentVersion}`);
-      return true;
     }
     
     return false;
