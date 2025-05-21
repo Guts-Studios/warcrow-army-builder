@@ -261,7 +261,7 @@ const Landing = () => {
           onRefreshUserCount={handleRefreshUserCount}
         />
         <MainActions />
-        <SecondaryActions isGuest={isGuest} onSignOut={handleSignOut} />
+        <SecondaryActions isGuest={isGuest} />
 
         <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
           <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
