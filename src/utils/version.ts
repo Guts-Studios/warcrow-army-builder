@@ -3,12 +3,15 @@ export const getLatestVersion = (content: string): string => {
   try {
     if (!content || typeof content !== 'string' || content.trim() === '') {
       console.error('[Version] Empty or invalid changelog content');
-      return '0.0.0';
+      return '0.5.8'; // Return current version
     }
 
-    // First check if we're getting an HTML document rather than the changelog
-    if (content.trim().startsWith('<!DOCTYPE html>') || content.includes('<html')) {
-      console.error('[Version] Received HTML instead of markdown content');
+    // Enhanced HTML detection - more comprehensive check
+    if (content.trim().startsWith('<!DOCTYPE html>') || 
+        content.includes('<html') || 
+        content.includes('<head>') || 
+        content.includes('<body>')) {
+      console.warn('[Version] Received HTML instead of markdown content');
       // Use fallback hardcoded version
       return '0.5.8'; // Return current version
     }
