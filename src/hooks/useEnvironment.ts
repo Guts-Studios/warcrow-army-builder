@@ -22,6 +22,7 @@ export const useEnvironment = (): EnvironmentInfo => {
   
   useEffect(() => {
     const hostname = window.location.hostname;
+    const origin = window.location.origin;
     
     // More comprehensive preview detection
     const isPreview = hostname === 'localhost' || 
@@ -29,12 +30,12 @@ export const useEnvironment = (): EnvironmentInfo => {
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
                      hostname.includes('netlify.app') || 
-                     hostname.includes('lovable.app') ||
-                     hostname.includes('id-preview');
+                     hostname.includes('lovable.app');
     
-    // Production is explicitly warcrowarmy.com or any subdomain
+    // Production includes warcrowarmy.com or any domain that's not a preview domain
     const isProduction = hostname === 'warcrowarmy.com' || 
-                        hostname.endsWith('.warcrowarmy.com');
+                        hostname.endsWith('.warcrowarmy.com') ||
+                        (!isPreview && hostname !== 'localhost' && hostname !== '127.0.0.1');
     
     // Always use local data for content in all environments
     const useLocalContentData = true;
@@ -48,6 +49,7 @@ export const useEnvironment = (): EnvironmentInfo => {
     
     console.log("[useEnvironment] Environment detected:", { 
       hostname, 
+      origin,
       isPreview, 
       isProduction,
       useLocalContentData

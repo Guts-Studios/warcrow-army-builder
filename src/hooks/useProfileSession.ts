@@ -23,7 +23,7 @@ export const useProfileSession = (): ProfileSession => {
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [sessionChecked, setSessionChecked] = useState<boolean>(false);
-  const { isPreview, isProduction } = useEnvironment();
+  const { isPreview, isProduction, hostname } = useEnvironment();
   
   // Always set usePreviewData to false - we want to use real data
   const usePreviewData = false;
@@ -34,7 +34,7 @@ export const useProfileSession = (): ProfileSession => {
     
     const checkAuthState = async () => {
       try {
-        console.log("[useProfileSession] Checking authentication state...");
+        console.log("[useProfileSession] Checking authentication state on:", hostname);
         
         // Get current session
         const { data: { session } } = await supabase.auth.getSession();
@@ -45,7 +45,8 @@ export const useProfileSession = (): ProfileSession => {
         if (mounted) {
           console.log("[useProfileSession] Session check result:", { 
             hasSession, 
-            userId: session?.user?.id 
+            userId: session?.user?.id,
+            hostname
           });
           
           setIsAuthenticated(hasSession);
@@ -78,7 +79,7 @@ export const useProfileSession = (): ProfileSession => {
             isAuthenticated: hasSession,
             isAdmin: adminStatus,
             userId: session?.user?.id,
-            environment: { isPreview, isProduction },
+            environment: { isPreview, isProduction, hostname },
             isGuest: !!localStorage.getItem('guestSession'),
             sessionChecked: true,
             usePreviewData
@@ -99,17 +100,17 @@ export const useProfileSession = (): ProfileSession => {
     checkAuthState();
     
     // Subscribe to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
       console.log("[useProfileSession] Auth state changed:", event, {
         hasUser: !!session?.user,
-        environment: { isPreview, isProduction },
-        usePreviewData
+        environment: { isPreview, isProduction, hostname },
+        usePreviewData,
+        timestamp: new Date().toISOString()
       });
       
       // Update authentication state based on event
-      const isSignedIn = event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED';
       setIsAuthenticated(!!session);
       
       // If signed in, update user ID and check admin status
@@ -118,16 +119,23 @@ export const useProfileSession = (): ProfileSession => {
         setIsGuest(false);
         
         // Check if user is admin
-        supabase
-          .from('profiles')
-          .select('wab_admin')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data }) => {
-            if (mounted) {
-              setIsAdmin(!!data?.wab_admin);
-            }
-          });
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('wab_admin')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (error) {
+            console.error("[useProfileSession] Error checking admin status:", error);
+          }
+            
+          if (mounted) {
+            setIsAdmin(!!data?.wab_admin);
+          }
+        } catch (err) {
+          console.error("[useProfileSession] Error fetching profile:", err);
+        }
       } else if (event === 'SIGNED_OUT') {
         setUserId(undefined);
         setIsAdmin(false);
@@ -142,7 +150,7 @@ export const useProfileSession = (): ProfileSession => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [isPreview, isProduction]);
+  }, [isPreview, isProduction, hostname]);
   
   return {
     isPreview,

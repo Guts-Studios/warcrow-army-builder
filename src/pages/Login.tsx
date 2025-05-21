@@ -1,4 +1,3 @@
-
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +58,9 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         eventType: event,
         emailConfirmed: session?.user?.email_confirmed_at ? 'Yes' : 'No',
         userMetadata: session?.user?.user_metadata,
-        appMetadata: session?.user?.app_metadata
+        appMetadata: session?.user?.app_metadata,
+        hostname: window.location.hostname,
+        origin: window.location.origin
       });
       
       setIsLoading(true);
@@ -77,12 +78,13 @@ const Login = ({ onGuestAccess }: LoginProps) => {
           console.log('Profile check on sign in:', { 
             profileData, 
             hasWabId: !!profileData?.wab_id, 
-            profileError: profileError?.message
+            profileError: profileError?.message,
+            hostname: window.location.hostname
           });
           
           toast.success('Successfully signed in!');
           navigate('/');
-        } else if (event === 'SIGNED_UP' as AuthEventType) { // Cast to our custom type to fix type error
+        } else if (event === 'SIGNED_UP' as AuthEventType) {
           console.log('User signed up, checking profile creation...');
           
           if (session?.user?.id) {
