@@ -24,9 +24,10 @@ export const useEnvironment = (): EnvironmentInfo => {
     const hostname = window.location.hostname;
     const origin = window.location.origin;
     
-    // Explicit production domain check
+    // Explicit production domain check - UPDATED to include both the primary domain and netlify subdomain
     const isExplicitProductionDomain = hostname === 'warcrowarmy.com' || 
                                       hostname.endsWith('.warcrowarmy.com') ||
+                                      hostname === 'warcrowarmybuilder.netlify.app' ||
                                       hostname === 'warcrow-army-builder.netlify.app';
     
     // More comprehensive preview detection - any domain that is not explicitly production
@@ -34,7 +35,7 @@ export const useEnvironment = (): EnvironmentInfo => {
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
-                     hostname.includes('netlify.app') && !isExplicitProductionDomain || 
+                     (hostname.includes('netlify.app') && !isExplicitProductionDomain) || 
                      hostname.includes('lovable.app');
     
     // Production is either explicitly defined or not a preview

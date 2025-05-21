@@ -1,8 +1,9 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Play, User, Shield } from "lucide-react";
+import { Play, User, Shield, Bug } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnvironment } from "@/hooks/useEnvironment";
@@ -32,6 +33,8 @@ export const MainActions = () => {
       // Otherwise check if user has tester role
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        console.log('MainActions: Active session found, user ID =', session.user.id);
+        
         // Fetch user's roles from profiles table
         const { data, error } = await supabase
           .from('profiles')
@@ -44,6 +47,7 @@ export const MainActions = () => {
           setIsTester(true);
         } else {
           console.log('User does not have tester role:', error || 'No data or tester role');
+          console.log('Profile data:', data);
         }
       } else {
         console.log('No session found for role check');
@@ -111,14 +115,45 @@ export const MainActions = () => {
         
         {/* Show admin button in preview environment or for actual admin users */}
         {(isPreview || (typeof isWabAdmin === 'boolean' && isWabAdmin === true)) && (
-          <Button
-            onClick={() => navigate('/admin')}
-            variant="outline"
-            className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
-          >
-            <Shield className="mr-2 h-4 w-4" />
-            {t('admin')}
-          </Button>
+          <>
+            <Button
+              onClick={() => navigate('/admin')}
+              variant="outline"
+              className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
+            >
+              <Shield className="mr-2 h-4 w-4" />
+              {t('admin')}
+            </Button>
+            {/* Debug button to show environment info - only visible for admins */}
+            <Button
+              onClick={() => {
+                alert(`Environment Info:
+                  Hostname: ${hostname}
+                  isPreview: ${isPreview}
+                  isProduction: ${isProduction}
+                  isWabAdmin: ${isWabAdmin}
+                  isTester: ${isTester}
+                `);
+                
+                // Check current session
+                supabase.auth.getSession().then(({ data }) => {
+                  console.log('Current session:', data.session);
+                  if (data.session) {
+                    alert(`User ID: ${data.session.user.id?.slice(0,8)}...
+                    Email: ${data.session.user.email}
+                    `);
+                  } else {
+                    alert('No active session found');
+                  }
+                });
+              }}
+              variant="outline"
+              className="w-full md:w-auto border-red-500 text-red-500 hover:bg-black hover:border-black hover:text-red-500 transition-colors bg-black"
+            >
+              <Bug className="mr-2 h-4 w-4" />
+              Debug
+            </Button>
+          </>
         )}
       </div>
     </>
