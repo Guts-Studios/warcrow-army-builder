@@ -213,7 +213,7 @@ const UnitValidationTool: React.FC = () => {
           command: item.command || 0,
           avbLevel: item.avbLevel || 1,
           characteristics: Array.isArray(item.characteristics) ? item.characteristics : [],
-          keywords: Array.isArray(item.keywords) ? item.keywords : [],
+          keywords: Array.isArray(item.keywords) ? item.keywords.map(k => typeof k === 'string' ? k : k.toString()) : [],
           specialRules: Array.isArray(item.specialRules) ? item.specialRules : [],
           highCommand: !!item.highCommand,
           pointsCost: item.pointsCost || 0,
@@ -232,7 +232,7 @@ const UnitValidationTool: React.FC = () => {
           command: item.command || 0,
           avbLevel: item.avbLevel || 1,
           characteristics: Array.isArray(item.characteristics) ? item.characteristics : [],
-          keywords: Array.isArray(item.keywords) ? item.keywords : [],
+          keywords: Array.isArray(item.keywords) ? item.keywords.map(k => typeof k === 'string' ? k : k.toString()) : [],
           specialRules: Array.isArray(item.specialRules) ? item.specialRules : [],
           highCommand: !!item.highCommand,
           pointsCost: item.pointsCost || 0,
@@ -251,7 +251,7 @@ const UnitValidationTool: React.FC = () => {
           command: item.command || 0,
           avbLevel: item.avbLevel || 1,
           characteristics: Array.isArray(item.characteristics) ? item.characteristics : [],
-          keywords: Array.isArray(item.keywords) ? item.keywords : [],
+          keywords: Array.isArray(item.keywords) ? item.keywords.map(k => typeof k === 'string' ? k : k.toString()) : [],
           specialRules: Array.isArray(item.specialRules) ? item.specialRules : [],
           highCommand: !!item.highCommand,
           pointsCost: item.pointsCost || 0,
@@ -270,14 +270,14 @@ const UnitValidationTool: React.FC = () => {
           command: item.command || 0,
           avbLevel: item.avbLevel || 1,
           characteristics: Array.isArray(item.characteristics) ? item.characteristics : [],
-          keywords: Array.isArray(item.keywords) ? item.keywords : [],
+          keywords: Array.isArray(item.keywords) ? item.keywords.map(k => typeof k === 'string' ? k : k.toString()) : [],
           specialRules: Array.isArray(item.specialRules) ? item.specialRules : [],
           highCommand: !!item.highCommand,
           pointsCost: item.pointsCost || 0,
           companion: item.companion
         }));
 
-      const allStaticData = {
+      const allStaticData: Record<string, StaticUnit[]> = {
         'northern-tribes': northernTribesUnits,
         'syenann': syenannUnits,
         'hegemony-of-embersig': hegemonyUnits,
@@ -496,14 +496,14 @@ const UnitValidationTool: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <Select 
-              value={selectedFaction || ''} 
+              value={selectedFaction || undefined} 
               onValueChange={(value) => setSelectedFaction(value || null)}
             >
               <SelectTrigger className="bg-black/70 border-warcrow-gold/30 text-warcrow-gold">
                 <SelectValue placeholder="All Factions" />
               </SelectTrigger>
               <SelectContent className="bg-black border-warcrow-gold/30">
-                <SelectItem value="">All Factions</SelectItem>
+                <SelectItem value="all-factions">All Factions</SelectItem>
                 {availableFactions.map(faction => (
                   <SelectItem key={faction} value={normalizeFactionName(faction)}>
                     {faction}
@@ -563,31 +563,31 @@ const UnitValidationTool: React.FC = () => {
               <TabsList className="bg-warcrow-accent/20 mb-6 grid grid-cols-5 h-auto p-0">
                 <TabsTrigger 
                   value="discrepancies" 
-                  className="data-[state=active]:text-warcrow-gold py-2"
+                  className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
                 >
                   Discrepancies
                 </TabsTrigger>
                 <TabsTrigger 
                   value="missing" 
-                  className="data-[state=active]:text-warcrow-gold py-2"
+                  className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
                 >
                   Missing Units
                 </TabsTrigger>
                 <TabsTrigger 
                   value="names" 
-                  className="data-[state=active]:text-warcrow-gold py-2"
+                  className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
                 >
                   Name Mismatches
                 </TabsTrigger>
                 <TabsTrigger 
                   value="points" 
-                  className="data-[state=active]:text-warcrow-gold py-2"
+                  className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
                 >
                   Points Mismatches
                 </TabsTrigger>
                 <TabsTrigger 
                   value="keywords" 
-                  className="data-[state=active]:text-warcrow-gold py-2"
+                  className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold py-2"
                 >
                   Keyword Mismatches
                 </TabsTrigger>
@@ -717,15 +717,15 @@ const MissingUnitsTable: React.FC<{
   selectedFaction: string | null;
 }> = ({ inStaticOnly, inDatabaseOnly, missingHighCommand, selectedFaction }) => {
   // Filter by selected faction if any
-  const filteredStaticOnly = selectedFaction 
+  const filteredStaticOnly = selectedFaction && selectedFaction !== "all-factions"
     ? inStaticOnly.filter(unit => unit.faction === selectedFaction)
     : inStaticOnly;
     
-  const filteredDatabaseOnly = selectedFaction
+  const filteredDatabaseOnly = selectedFaction && selectedFaction !== "all-factions"
     ? inDatabaseOnly.filter(unit => unit.faction === selectedFaction)
     : inDatabaseOnly;
     
-  const filteredMissingHighCommand = selectedFaction
+  const filteredMissingHighCommand = selectedFaction && selectedFaction !== "all-factions"
     ? missingHighCommand.filter(unit => unit.faction === selectedFaction)
     : missingHighCommand;
   
@@ -821,7 +821,7 @@ const NameMismatchesTable: React.FC<{
   selectedFaction: string | null;
 }> = ({ nameMismatches, selectedFaction }) => {
   // Filter by selected faction if any
-  const filteredMismatches = selectedFaction 
+  const filteredMismatches = selectedFaction && selectedFaction !== "all-factions" 
     ? nameMismatches.filter(unit => unit.faction === selectedFaction)
     : nameMismatches;
   
@@ -855,7 +855,7 @@ const PointsMismatchesTable: React.FC<{
   selectedFaction: string | null;
 }> = ({ pointsMismatches, selectedFaction }) => {
   // Filter by selected faction if any
-  const filteredMismatches = selectedFaction 
+  const filteredMismatches = selectedFaction && selectedFaction !== "all-factions" 
     ? pointsMismatches.filter(unit => unit.faction === selectedFaction)
     : pointsMismatches;
   
@@ -892,11 +892,11 @@ const KeywordMismatchesTable: React.FC<{
   selectedFaction: string | null;
 }> = ({ keywordMismatches, specialRuleMismatches, selectedFaction }) => {
   // Filter by selected faction if any
-  const filteredKeywordMismatches = selectedFaction 
+  const filteredKeywordMismatches = selectedFaction && selectedFaction !== "all-factions" 
     ? keywordMismatches.filter(unit => unit.faction === selectedFaction)
     : keywordMismatches;
     
-  const filteredSpecialRuleMismatches = selectedFaction
+  const filteredSpecialRuleMismatches = selectedFaction && selectedFaction !== "all-factions"
     ? specialRuleMismatches.filter(unit => unit.faction === selectedFaction)
     : specialRuleMismatches;
   

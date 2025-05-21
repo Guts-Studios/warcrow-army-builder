@@ -82,7 +82,7 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
                 </SelectItem>
               ))
             ) : (
-              <SelectItem value="none" disabled className="text-warcrow-text/50">
+              <SelectItem value="no-factions" disabled className="text-warcrow-text/50">
                 No factions available
               </SelectItem>
             )}
