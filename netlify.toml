@@ -34,4 +34,3 @@
   from = "/auth/*"
   to = "/auth/:splat"
   status = 200
-

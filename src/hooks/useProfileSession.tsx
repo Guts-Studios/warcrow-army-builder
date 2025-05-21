@@ -10,12 +10,14 @@ interface ProfileSession {
   isProduction: boolean;
   sessionChecked: boolean;
   usePreviewData: boolean;
+  isAdmin: boolean;
 }
 
 export const useProfileSession = (): ProfileSession => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const { isPreview, isProduction, hostname } = useEnvironment();
   
   // Important: Set usePreviewData to false for both preview and production
@@ -44,11 +46,37 @@ export const useProfileSession = (): ProfileSession => {
           
           setIsAuthenticated(hasSession);
           
-          // If authenticated, set user ID
+          // If authenticated, set user ID and check admin status
           if (hasSession) {
             setUserId(session?.user?.id || null);
+            
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('wab_admin')
+                .eq('id', session.user.id)
+                .maybeSingle();
+                
+              if (!error && data) {
+                setIsAdmin(!!data.wab_admin);
+                console.log("[useProfileSession] Admin status:", !!data.wab_admin);
+              } else {
+                console.error("[useProfileSession] Error checking admin status:", error);
+                setIsAdmin(false);
+              }
+            } catch (err) {
+              console.error("[useProfileSession] Error fetching profile:", err);
+              setIsAdmin(false);
+            }
           } else {
             setUserId(null);
+            
+            // In preview mode, default to admin
+            if (isPreview) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
           }
           
           setSessionChecked(true);
@@ -58,6 +86,14 @@ export const useProfileSession = (): ProfileSession => {
         if (mounted) {
           setIsAuthenticated(false);
           setUserId(null);
+          
+          // In preview mode, default to admin
+          if (isPreview) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+          
           setSessionChecked(true);
         }
       }
@@ -80,15 +116,36 @@ export const useProfileSession = (): ProfileSession => {
       // If signed in, update user ID
       if (session?.user?.id) {
         setUserId(session.user.id);
+        
+        // Check for admin status
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('wab_admin')
+            .eq('id', session.user.id)
+            .maybeSingle();
+            
+          if (!error && data) {
+            setIsAdmin(!!data.wab_admin);
+            console.log("[useProfileSession] Admin status updated:", !!data.wab_admin);
+          } else {
+            console.error("[useProfileSession] Error checking admin status:", error);
+            setIsAdmin(false);
+          }
+        } catch (err) {
+          console.error("[useProfileSession] Error fetching profile:", err);
+          setIsAdmin(false);
+        }
       } else if (event === 'SIGNED_OUT') {
         setUserId(null);
+        setIsAdmin(isPreview); // Set admin to true in preview mode, false otherwise
       }
       
       setSessionChecked(true);
     });
     
     // Call the function to check auth state
-    checkAuthState();
+    checkAuthStatus();
     
     // Cleanup subscription on unmount
     return () => {
@@ -103,7 +160,8 @@ export const useProfileSession = (): ProfileSession => {
     userId,
     isProduction,
     sessionChecked,
-    usePreviewData
+    usePreviewData,
+    isAdmin
   };
 };
 

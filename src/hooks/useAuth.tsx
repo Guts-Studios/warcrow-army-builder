@@ -89,19 +89,16 @@ export function useAuth() {
                 setIsAdmin(isAdminUser);
                 setIsTester(!!data.tester);
                 setIsWabAdmin(isAdminUser);
-              } else {
-                console.error("Error or no data when checking user roles:", error);
-                if (mounted) {
-                  // In preview mode, default to admin
-                  if (isPreview) {
-                    setIsAdmin(true);
-                    setIsTester(true);
-                    setIsWabAdmin(true);
-                  } else {
-                    setIsAdmin(false);
-                    setIsTester(false);
-                    setIsWabAdmin(false);
-                  }
+              } else if (mounted) {
+                // In preview mode, default to admin
+                if (isPreview) {
+                  setIsAdmin(true);
+                  setIsTester(true);
+                  setIsWabAdmin(true);
+                } else {
+                  setIsAdmin(false);
+                  setIsTester(false);
+                  setIsWabAdmin(false);
                 }
               }
             } catch (err) {
@@ -119,7 +116,7 @@ export function useAuth() {
                 }
               }
             }
-          } else if (isPreview) {
+          } else if (isPreview && mounted) {
             // Not authenticated but in preview mode
             setIsAdmin(true);
             setIsTester(true);
@@ -199,17 +196,14 @@ export function useAuth() {
                   setIsAdmin(isAdminUser);
                   setIsTester(!!data.tester);
                   setIsWabAdmin(isAdminUser);
-                } else {
-                  console.error("Error or no data when checking user roles on auth change:", error);
-                  if (mounted && isPreview) {
-                    setIsAdmin(true);
-                    setIsTester(true);
-                    setIsWabAdmin(true);
-                  } else if (mounted) {
-                    setIsAdmin(false);
-                    setIsTester(false);
-                    setIsWabAdmin(false);
-                  }
+                } else if (mounted && isPreview) {
+                  setIsAdmin(true);
+                  setIsTester(true);
+                  setIsWabAdmin(true);
+                } else if (mounted) {
+                  setIsAdmin(false);
+                  setIsTester(false);
+                  setIsWabAdmin(false);
                 }
               } catch (err) {
                 console.error("Error checking user roles on auth change:", err);

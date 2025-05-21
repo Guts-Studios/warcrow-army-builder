@@ -32,21 +32,21 @@ export const useEnvironment = (): EnvironmentInfo => {
       'warcrowarmybuilder.netlify.app'
     ];
     
-    // Check if the current hostname is a production domain or subdomain
+    // Check if the current hostname is a production domain
     const isExplicitProductionDomain = productionDomains.some(domain => 
       hostname === domain || hostname.endsWith(`.${domain}`)
     );
     
-    // Any non-production domain is considered preview
+    // Any development or test domain is considered preview
     const isPreview = hostname === 'localhost' || 
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
-                     (hostname.includes('netlify.app') && !productionDomains.includes(hostname)) || 
+                     (hostname.includes('netlify.app') && !isExplicitProductionDomain) || 
                      hostname.includes('lovable.app');
     
     // Production is either explicitly defined or not a preview
-    const isProduction = isExplicitProductionDomain || (!isPreview);
+    const isProduction = isExplicitProductionDomain;
     
     // Always use local data for content in all environments
     const useLocalContentData = true;
