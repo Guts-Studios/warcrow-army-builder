@@ -1,7 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { FactionSelector } from "./FactionSelector";
-import { FactionsGrid } from "./FactionsGrid";
 import ArmyList from "@/components/army/ArmyList";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 import { Unit } from "@/types/army";
@@ -40,18 +38,11 @@ const ArmyBuilder = () => {
       <UnitVerification />
       
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {!selectedFaction ? (
-          <>
-            <FactionSelector onSelect={setSelectedFaction} />
-            <FactionsGrid onSelect={setSelectedFaction} />
-          </>
-        ) : (
-          <ArmyList
-            selectedFaction={selectedFaction}
-            onFactionChange={(faction) => setSelectedFaction(faction)}
-            initialList={undefined}
-          />
-        )}
+        <ArmyList
+          selectedFaction={selectedFaction}
+          onFactionChange={(faction) => setSelectedFaction(faction)}
+          initialList={undefined}
+        />
       </div>
     </>
   );
