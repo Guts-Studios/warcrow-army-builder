@@ -44,7 +44,7 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
             variant={activeTab === item.id ? "outline" : "outline"}
             className={
               activeTab === item.id
-                ? "border-warcrow-gold bg-warcrow-gold/20 text-warcrow-gold font-medium"
+                ? "border-warcrow-gold bg-warcrow-gold/20 text-warcrow-gold font-medium hover:bg-warcrow-gold/20"
                 : "border-warcrow-gold/50 bg-black hover:bg-warcrow-gold/20 text-warcrow-gold font-medium"
             }
             size="sm"

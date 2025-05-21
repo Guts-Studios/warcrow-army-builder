@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import UnitValidationTool from './UnitValidationTool';
+import { Database, Server, FileQuestion } from 'lucide-react';
 
 const ValidationsPanel: React.FC = () => {
   return (
@@ -11,22 +12,25 @@ const ValidationsPanel: React.FC = () => {
         <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-4 bg-black border border-warcrow-gold/30 p-1 rounded-md">
           <TabsTrigger 
             value="units" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
+            className="text-warcrow-gold/80 hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
           >
+            <Database className="w-4 h-4 mr-2" />
             Unit Data
           </TabsTrigger>
           <TabsTrigger 
             value="rules" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
+            className="text-warcrow-gold/80 hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
             disabled
           >
+            <FileQuestion className="w-4 h-4 mr-2" />
             Rules Data
           </TabsTrigger>
           <TabsTrigger 
             value="faq" 
-            className="text-warcrow-gold/80 data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
+            className="text-warcrow-gold/80 hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold py-2"
             disabled
           >
+            <Server className="w-4 h-4 mr-2" />
             FAQ Data
           </TabsTrigger>
         </TabsList>

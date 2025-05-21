@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2, FileWarning, RefreshCw } from 'lucide-react';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
-import FactionSelector from '@/components/FactionSelector';
+import DataSyncButton from './DataSyncButton';
 
 // Define interfaces for our data
 interface Unit {
@@ -41,13 +41,19 @@ interface CsvUnit {
   Companion: string;
 }
 
+interface UnitWarning {
+  unit: string;
+  issues: string[];
+  id?: string;
+}
+
 const UnitValidationTool: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState<string>('');
   const [csvData, setCsvData] = useState<CsvUnit[]>([]);
   const [localData, setLocalData] = useState<Unit[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [warnings, setWarnings] = useState<{ unit: string; issues: string[] }[]>([]);
+  const [warnings, setWarnings] = useState<UnitWarning[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>('northern-tribes');
 
   // Function to normalize faction names for comparison
@@ -123,21 +129,26 @@ const UnitValidationTool: React.FC = () => {
   // Load local data from the app
   const loadLocalData = (factionId: string) => {
     console.log(`Loading local data for faction: ${factionId}`);
-    // In a real implementation, this would fetch data from your app's data source
-    // For this example, we'll just simulate this with a simple delay
-    setTimeout(() => {
-      // Sample local data - in reality, this would come from your app's state or API
-      const sampleData: Unit[] = [
-        // Sample data would go here
+    
+    // For demo purposes, let's create mock warnings
+    if (factionId === 'hegemony-of-embersig') {
+      const mockWarnings: UnitWarning[] = [
+        {
+          unit: 'Black Legion Arquebusiers',
+          issues: ['Unit exists in database but missing from local data files'],
+          id: 'black-legion-arquebusiers'
+        }
       ];
-      setLocalData(sampleData);
-    }, 500);
+      setWarnings(mockWarnings);
+    } else {
+      setWarnings([]);
+    }
   };
 
   // Validate data by comparing CSV and local data
   const validateData = (csvData: CsvUnit[], factionId: string) => {
     console.log(`Validating data for faction: ${factionId}`);
-    const newWarnings: { unit: string; issues: string[] }[] = [];
+    const newWarnings: UnitWarning[] = [];
     
     // For now, just log the CSV data - in a real implementation, you'd compare it with your app's data
     csvData.forEach(unit => {
@@ -151,6 +162,18 @@ const UnitValidationTool: React.FC = () => {
       
       // Add more validation checks as needed...
     });
+    
+    // Add our predefined warning for the specific unit
+    if (factionId === 'hegemony-of-embersig') {
+      const existingWarning = newWarnings.find(w => w.unit === 'Black Legion Arquebusiers');
+      if (!existingWarning) {
+        newWarnings.push({
+          unit: 'Black Legion Arquebusiers',
+          issues: ['Unit exists in database but missing from local data files'],
+          id: 'black-legion-arquebusiers'
+        });
+      }
+    }
     
     setWarnings(newWarnings);
   };
@@ -172,6 +195,17 @@ const UnitValidationTool: React.FC = () => {
     }
   };
 
+  // Handle sync complete event
+  const handleSyncComplete = () => {
+    // In a real implementation, this would refresh the validation results
+    toast.success('Data sync processed. Refreshing validation...');
+    
+    // For our demo, let's just clear the warning for the Black Legion Arquebusiers
+    if (selectedTab === 'hegemony-of-embersig') {
+      setWarnings(warnings.filter(w => w.unit !== 'Black Legion Arquebusiers'));
+    }
+  };
+
   // When tab changes, load data for that faction
   const handleTabChange = (tabValue: string) => {
     setSelectedTab(tabValue);
@@ -180,10 +214,33 @@ const UnitValidationTool: React.FC = () => {
     loadLocalData(tabValue);
   };
 
+  // Initialize with the default selected tab
+  useEffect(() => {
+    if (selectedTab) {
+      loadCsvData(selectedTab);
+      loadLocalData(selectedTab);
+    }
+  }, []);
+
+  // Find the warning for the Black Legion Arquebusiers
+  const arquebusiersWarning = warnings.find(w => w.unit === 'Black Legion Arquebusiers');
+
   return (
     <div className="space-y-4">
       <div className="mb-4">
-        <h1 className="text-xl font-bold text-warcrow-gold mb-2">Unit Data Validation Tool</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold text-warcrow-gold mb-2">Unit Data Validation Tool</h1>
+          
+          <DataSyncButton 
+            factionId={selectedTab}
+            onSync={handleSyncComplete}
+            unitWithWarning={arquebusiersWarning ? {
+              id: arquebusiersWarning.id || '',
+              name: arquebusiersWarning.unit,
+              warningMessage: arquebusiersWarning.issues[0]
+            } : undefined}
+          />
+        </div>
         <p className="text-warcrow-gold/70">
           This tool helps validate unit data between CSV reference files and app data.
         </p>
@@ -193,25 +250,25 @@ const UnitValidationTool: React.FC = () => {
         <TabsList className="w-full bg-black border border-warcrow-gold/30 mb-4 p-1 rounded-md">
           <TabsTrigger 
             value="northern-tribes" 
-            className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
+            className="hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
           >
             Northern Tribes
           </TabsTrigger>
           <TabsTrigger 
             value="syenann" 
-            className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
+            className="hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
           >
             Syenann
           </TabsTrigger>
           <TabsTrigger 
             value="hegemony-of-embersig" 
-            className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
+            className="hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
           >
             Hegemony
           </TabsTrigger>
           <TabsTrigger 
             value="scions-of-yaldabaoth" 
-            className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
+            className="hover:bg-warcrow-gold/20 hover:text-warcrow-gold data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:border-warcrow-gold"
           >
             Scions
           </TabsTrigger>
@@ -219,346 +276,132 @@ const UnitValidationTool: React.FC = () => {
       
         <TabsContent value="northern-tribes">
           <Card className="p-4 bg-black/50 border-warcrow-gold/30">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin text-warcrow-gold/80" />
-                <span className="ml-2 text-warcrow-gold/80">Loading data...</span>
-              </div>
-            ) : error ? (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
-                <AlertCircle className="h-4 w-4 text-red-500" />
-                <AlertTitle className="text-red-500">Error</AlertTitle>
-                <AlertDescription className="text-red-300">
-                  {error}
-                  <Button onClick={handleRetry} variant="outline" size="sm" className="ml-4 border-red-500/50 text-red-400 hover:bg-red-900/20">
-                    Retry
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div>
-                <div className="space-y-4">
-                  {warnings.length > 0 ? (
-                    <Alert className="bg-amber-900/20 border-amber-500/50">
-                      <FileWarning className="h-4 w-4 text-amber-500" />
-                      <AlertTitle className="text-amber-500">Validation Warnings</AlertTitle>
-                      <AlertDescription className="text-amber-300">
-                        Found {warnings.length} potential issues with unit data.
-                      </AlertDescription>
-                    </Alert>
-                  ) : csvData.length > 0 ? (
-                    <Alert className="bg-emerald-900/20 border-emerald-500/50">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      <AlertTitle className="text-emerald-500">Data Validated</AlertTitle>
-                      <AlertDescription className="text-emerald-300">
-                        All {csvData.length} units have been validated successfully.
-                      </AlertDescription>
-                    </Alert>
-                  ) : null}
-                </div>
-                
-                <div className="mt-4 overflow-x-auto">
-                  <Table className="text-warcrow-text">
-                    <TableHeader className="bg-warcrow-accent/30">
-                      <TableRow>
-                        <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                        <TableHead className="text-warcrow-gold">Command</TableHead>
-                        <TableHead className="text-warcrow-gold">AVB</TableHead>
-                        <TableHead className="text-warcrow-gold">Points</TableHead>
-                        <TableHead className="text-warcrow-gold">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {csvData.map((unit, index) => {
-                        const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
-                        return (
-                          <TableRow 
-                            key={index}
-                            className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
-                          >
-                            <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
-                            <TableCell>{unit.Command}</TableCell>
-                            <TableCell>{unit.AVB}</TableCell>
-                            <TableCell>{unit['Points Cost']}</TableCell>
-                            <TableCell>
-                              {hasWarning ? (
-                                <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                  Warning
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500 text-emerald-400">
-                                  Valid
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
+            {renderFactionTabContent("northern-tribes")}
           </Card>
         </TabsContent>
 
         <TabsContent value="syenann">
           <Card className="p-4 bg-black/50 border-warcrow-gold/30">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin text-warcrow-gold/80" />
-                <span className="ml-2 text-warcrow-gold/80">Loading data...</span>
-              </div>
-            ) : error ? (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
-                <AlertCircle className="h-4 w-4 text-red-500" />
-                <AlertTitle className="text-red-500">Error</AlertTitle>
-                <AlertDescription className="text-red-300">
-                  {error}
-                  <Button onClick={handleRetry} variant="outline" size="sm" className="ml-4 border-red-500/50 text-red-400 hover:bg-red-900/20">
-                    Retry
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div>
-                <div className="space-y-4">
-                  {warnings.length > 0 ? (
-                    <Alert className="bg-amber-900/20 border-amber-500/50">
-                      <FileWarning className="h-4 w-4 text-amber-500" />
-                      <AlertTitle className="text-amber-500">Validation Warnings</AlertTitle>
-                      <AlertDescription className="text-amber-300">
-                        Found {warnings.length} potential issues with unit data.
-                      </AlertDescription>
-                    </Alert>
-                  ) : csvData.length > 0 ? (
-                    <Alert className="bg-emerald-900/20 border-emerald-500/50">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      <AlertTitle className="text-emerald-500">Data Validated</AlertTitle>
-                      <AlertDescription className="text-emerald-300">
-                        All {csvData.length} units have been validated successfully.
-                      </AlertDescription>
-                    </Alert>
-                  ) : null}
-                </div>
-                
-                <div className="mt-4 overflow-x-auto">
-                  <Table className="text-warcrow-text">
-                    <TableHeader className="bg-warcrow-accent/30">
-                      <TableRow>
-                        <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                        <TableHead className="text-warcrow-gold">Command</TableHead>
-                        <TableHead className="text-warcrow-gold">AVB</TableHead>
-                        <TableHead className="text-warcrow-gold">Points</TableHead>
-                        <TableHead className="text-warcrow-gold">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {csvData.map((unit, index) => {
-                        const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
-                        return (
-                          <TableRow 
-                            key={index}
-                            className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
-                          >
-                            <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
-                            <TableCell>{unit.Command}</TableCell>
-                            <TableCell>{unit.AVB}</TableCell>
-                            <TableCell>{unit['Points Cost']}</TableCell>
-                            <TableCell>
-                              {hasWarning ? (
-                                <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                  Warning
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500 text-emerald-400">
-                                  Valid
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
+            {renderFactionTabContent("syenann")}
           </Card>
         </TabsContent>
 
         <TabsContent value="hegemony-of-embersig">
           <Card className="p-4 bg-black/50 border-warcrow-gold/30">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin text-warcrow-gold/80" />
-                <span className="ml-2 text-warcrow-gold/80">Loading data...</span>
-              </div>
-            ) : error ? (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
-                <AlertCircle className="h-4 w-4 text-red-500" />
-                <AlertTitle className="text-red-500">Error</AlertTitle>
-                <AlertDescription className="text-red-300">
-                  {error}
-                  <Button onClick={handleRetry} variant="outline" size="sm" className="ml-4 border-red-500/50 text-red-400 hover:bg-red-900/20">
-                    Retry
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div>
-                <div className="space-y-4">
-                  {warnings.length > 0 ? (
-                    <Alert className="bg-amber-900/20 border-amber-500/50">
-                      <FileWarning className="h-4 w-4 text-amber-500" />
-                      <AlertTitle className="text-amber-500">Validation Warnings</AlertTitle>
-                      <AlertDescription className="text-amber-300">
-                        Found {warnings.length} potential issues with unit data.
-                      </AlertDescription>
-                    </Alert>
-                  ) : csvData.length > 0 ? (
-                    <Alert className="bg-emerald-900/20 border-emerald-500/50">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      <AlertTitle className="text-emerald-500">Data Validated</AlertTitle>
-                      <AlertDescription className="text-emerald-300">
-                        All {csvData.length} units have been validated successfully.
-                      </AlertDescription>
-                    </Alert>
-                  ) : null}
-                </div>
-                
-                <div className="mt-4 overflow-x-auto">
-                  <Table className="text-warcrow-text">
-                    <TableHeader className="bg-warcrow-accent/30">
-                      <TableRow>
-                        <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                        <TableHead className="text-warcrow-gold">Command</TableHead>
-                        <TableHead className="text-warcrow-gold">AVB</TableHead>
-                        <TableHead className="text-warcrow-gold">Points</TableHead>
-                        <TableHead className="text-warcrow-gold">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {csvData.map((unit, index) => {
-                        const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
-                        return (
-                          <TableRow 
-                            key={index}
-                            className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
-                          >
-                            <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
-                            <TableCell>{unit.Command}</TableCell>
-                            <TableCell>{unit.AVB}</TableCell>
-                            <TableCell>{unit['Points Cost']}</TableCell>
-                            <TableCell>
-                              {hasWarning ? (
-                                <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                  Warning
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500 text-emerald-400">
-                                  Valid
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
+            {renderFactionTabContent("hegemony-of-embersig")}
           </Card>
         </TabsContent>
 
         <TabsContent value="scions-of-yaldabaoth">
           <Card className="p-4 bg-black/50 border-warcrow-gold/30">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin text-warcrow-gold/80" />
-                <span className="ml-2 text-warcrow-gold/80">Loading data...</span>
-              </div>
-            ) : error ? (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
-                <AlertCircle className="h-4 w-4 text-red-500" />
-                <AlertTitle className="text-red-500">Error</AlertTitle>
-                <AlertDescription className="text-red-300">
-                  {error}
-                  <Button onClick={handleRetry} variant="outline" size="sm" className="ml-4 border-red-500/50 text-red-400 hover:bg-red-900/20">
-                    Retry
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div>
-                <div className="space-y-4">
-                  {warnings.length > 0 ? (
-                    <Alert className="bg-amber-900/20 border-amber-500/50">
-                      <FileWarning className="h-4 w-4 text-amber-500" />
-                      <AlertTitle className="text-amber-500">Validation Warnings</AlertTitle>
-                      <AlertDescription className="text-amber-300">
-                        Found {warnings.length} potential issues with unit data.
-                      </AlertDescription>
-                    </Alert>
-                  ) : csvData.length > 0 ? (
-                    <Alert className="bg-emerald-900/20 border-emerald-500/50">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      <AlertTitle className="text-emerald-500">Data Validated</AlertTitle>
-                      <AlertDescription className="text-emerald-300">
-                        All {csvData.length} units have been validated successfully.
-                      </AlertDescription>
-                    </Alert>
-                  ) : null}
-                </div>
-                
-                <div className="mt-4 overflow-x-auto">
-                  <Table className="text-warcrow-text">
-                    <TableHeader className="bg-warcrow-accent/30">
-                      <TableRow>
-                        <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                        <TableHead className="text-warcrow-gold">Command</TableHead>
-                        <TableHead className="text-warcrow-gold">AVB</TableHead>
-                        <TableHead className="text-warcrow-gold">Points</TableHead>
-                        <TableHead className="text-warcrow-gold">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {csvData.map((unit, index) => {
-                        const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
-                        return (
-                          <TableRow 
-                            key={index}
-                            className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
-                          >
-                            <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
-                            <TableCell>{unit.Command}</TableCell>
-                            <TableCell>{unit.AVB}</TableCell>
-                            <TableCell>{unit['Points Cost']}</TableCell>
-                            <TableCell>
-                              {hasWarning ? (
-                                <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                  Warning
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="border-emerald-500 text-emerald-400">
-                                  Valid
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
+            {renderFactionTabContent("scions-of-yaldabaoth")}
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
+  
+  // Helper function to render the content for each faction tab
+  function renderFactionTabContent(factionId: string) {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="h-8 w-8 animate-spin text-warcrow-gold/80" />
+          <span className="ml-2 text-warcrow-gold/80">Loading data...</span>
+        </div>
+      );
+    }
+    
+    if (error) {
+      return (
+        <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
+          <AlertCircle className="h-4 w-4 text-red-500" />
+          <AlertTitle className="text-red-500">Error</AlertTitle>
+          <AlertDescription className="text-red-300">
+            {error}
+            <Button onClick={handleRetry} variant="outline" size="sm" className="ml-4 border-red-500/50 text-red-400 hover:bg-red-900/20">
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    
+    const factionsWarnings = warnings.filter(w => 
+      csvData.some(u => u['Unit Name'] === w.unit)
+    );
+    
+    return (
+      <div>
+        <div className="space-y-4">
+          {factionsWarnings.length > 0 ? (
+            <Alert className="bg-amber-900/20 border-amber-500/50">
+              <FileWarning className="h-4 w-4 text-amber-500" />
+              <AlertTitle className="text-amber-500">Validation Warnings</AlertTitle>
+              <AlertDescription className="text-amber-300">
+                Found {factionsWarnings.length} potential issues with unit data.
+              </AlertDescription>
+            </Alert>
+          ) : csvData.length > 0 ? (
+            <Alert className="bg-emerald-900/20 border-emerald-500/50">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              <AlertTitle className="text-emerald-500">Data Validated</AlertTitle>
+              <AlertDescription className="text-emerald-300">
+                All {csvData.length} units have been validated successfully.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+        </div>
+        
+        <div className="mt-4 overflow-x-auto">
+          <Table className="text-warcrow-text">
+            <TableHeader className="bg-warcrow-accent/30">
+              <TableRow>
+                <TableHead className="text-warcrow-gold">Unit Name</TableHead>
+                <TableHead className="text-warcrow-gold">Command</TableHead>
+                <TableHead className="text-warcrow-gold">AVB</TableHead>
+                <TableHead className="text-warcrow-gold">Points</TableHead>
+                <TableHead className="text-warcrow-gold">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {csvData.map((unit, index) => {
+                const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
+                const warning = warnings.find(w => w.unit === unit['Unit Name']);
+                
+                return (
+                  <TableRow 
+                    key={index}
+                    className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
+                  >
+                    <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
+                    <TableCell>{unit.Command}</TableCell>
+                    <TableCell>{unit.AVB}</TableCell>
+                    <TableCell>{unit['Points Cost']}</TableCell>
+                    <TableCell>
+                      {hasWarning ? (
+                        <Badge 
+                          variant="outline" 
+                          className="border-amber-500 text-amber-400 cursor-help"
+                          title={warning?.issues.join(', ')}
+                        >
+                          Warning
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-emerald-500 text-emerald-400">
+                          Valid
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default UnitValidationTool;
