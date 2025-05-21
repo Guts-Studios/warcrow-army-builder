@@ -1,6 +1,53 @@
-
 import { getLatestVersion, isNewerVersion } from './version';
 import { toast } from "sonner";
+
+/**
+ * Selectively clears only application keys from localStorage while preserving authentication data
+ * This is used as a replacement for localStorage.clear() to prevent auth token loss
+ */
+const selectiveClear = (): void => {
+  console.log('[Storage] Performing selective clear instead of localStorage.clear()');
+  
+  // Preserve important data before clearing
+  const authData = preserveAuthData();
+  const savedArmyLists = localStorage.getItem('armyLists');
+  const currentVersion = localStorage.getItem('app_version');
+  
+  console.log(`[Storage] Preserved ${Object.keys(authData).length} auth items before selective clear`);
+  console.log(`[Storage] Army lists preserved: ${!!savedArmyLists}`);
+  
+  // Get all current keys
+  const allKeys = getAllLocalStorageKeys();
+  
+  // Create set of keys to preserve
+  const keysToKeep = new Set([...Object.keys(authData)]);
+  if (savedArmyLists) keysToKeep.add('armyLists');
+  if (currentVersion) keysToKeep.add('app_version');
+  
+  // Remove only app-specific keys
+  for (const key of allKeys) {
+    if (!keysToKeep.has(key)) {
+      localStorage.removeItem(key);
+      console.log(`[Storage] Removed item: ${key}`);
+    }
+  }
+  
+  // Restore auth data
+  restoreAuthData(authData);
+  
+  // Restore other preserved data
+  if (savedArmyLists) {
+    localStorage.setItem('armyLists', savedArmyLists);
+    console.log('[Storage] Restored army lists');
+  }
+  
+  if (currentVersion) {
+    localStorage.setItem('app_version', currentVersion);
+    console.log(`[Storage] Restored app version: ${currentVersion}`);
+  }
+  
+  console.log('[Storage] Selective clear completed successfully');
+};
 
 /**
  * Checks for and clears invalid auth tokens to prevent loading issues
@@ -124,10 +171,10 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
       
       try {
         if (isTokenInvalid) {
-          // If token is invalid or expired, do a complete clear
-          console.log('[Storage] Invalid token detected, performing complete clear');
-          localStorage.clear();
-          console.log('[Storage] All localStorage cleared due to invalid token');
+          // If token is invalid or expired, do a selective clear
+          console.log('[Storage] Invalid token detected, performing selective clear');
+          selectiveClear();
+          console.log('[Storage] Selective clear completed due to invalid token');
         } else {
           // Otherwise, preserve auth data during the clearing process
           const keysToKeep = new Set([...Object.keys(authData)]);
@@ -178,7 +225,7 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
         // Fall back to a simpler approach if needed
         try {
           if (savedArmyLists || Object.keys(authData).length > 0) {
-            localStorage.clear();
+            selectiveClear();
             localStorage.setItem('app_version', currentVersion);
             
             if (savedArmyLists) {
@@ -243,9 +290,9 @@ export const purgeStorageExceptLists = (showNotification: boolean = false): bool
     
     try {
       if (isTokenInvalid) {
-        // If token is invalid, do a complete clear
-        localStorage.clear();
-        console.log('[Storage] All localStorage cleared due to invalid token');
+        // If token is invalid, do a selective clear
+        selectiveClear();
+        console.log('[Storage] Selective clear performed due to invalid token');
       } else {
         // Otherwise do a selective clear
         const keysToKeep = new Set([...Object.keys(authData)]);
@@ -327,7 +374,10 @@ const checkTokenValidity = (): boolean => {
     // First try to find any supabase auth tokens
     const allKeys = getAllLocalStorageKeys();
     const authTokenKey = allKeys.find(key => 
-      key.startsWith('sb-') && key.endsWith('-auth-token')
+      key.startsWith('supabase.auth.') || 
+      key.startsWith('sb-') ||
+      key.includes('auth') || 
+      key === 'guestSession'
     );
     
     if (!authTokenKey) {
