@@ -76,3 +76,57 @@ export const checkVersionAndPurgeStorage = (changelog: string, showNotification:
     return false;
   }
 };
+
+/**
+ * Purges all localStorage data except for armyLists
+ * This function is called on every app load
+ * @param showNotification Whether to show a toast notification when storage is purged
+ * @returns Boolean indicating whether storage was purged (true) or not (false)
+ */
+export const purgeStorageExceptLists = (showNotification: boolean = false): boolean => {
+  try {
+    console.log('[Storage] Performing automatic data purge except army lists');
+    
+    // Save army lists before clearing
+    const savedArmyLists = localStorage.getItem('armyLists');
+    console.log(`[Storage] Saved army lists before purge: ${savedArmyLists ? 'Found' : 'None found'}`);
+    
+    // Get current app version to preserve
+    const currentVersion = localStorage.getItem('app_version');
+    
+    try {
+      // Clear all localStorage
+      localStorage.clear();
+      console.log('[Storage] All localStorage cleared');
+      
+      // Restore army lists if needed
+      if (savedArmyLists) {
+        localStorage.setItem('armyLists', savedArmyLists);
+        console.log('[Storage] Restored army lists');
+      }
+      
+      // Restore app version if it existed
+      if (currentVersion) {
+        localStorage.setItem('app_version', currentVersion);
+        console.log(`[Storage] Restored app version: ${currentVersion}`);
+      }
+      
+      // Show notification if enabled
+      if (showNotification) {
+        toast.success('App data refreshed', {
+          description: 'Your local data has been refreshed. Your army lists have been preserved.',
+          duration: 3000
+        });
+      }
+      
+      console.log('[Storage] Storage purged successfully (except army lists)');
+      return true;
+    } catch (error) {
+      console.error('[Storage] Error during storage purge:', error);
+      return false;
+    }
+  } catch (error) {
+    console.error('[Storage] Error during automatic purge:', error);
+    return false;
+  }
+};

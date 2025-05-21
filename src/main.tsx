@@ -3,8 +3,11 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { checkVersionAndPurgeStorage } from './utils/storageUtils'
+import { checkVersionAndPurgeStorage, purgeStorageExceptLists } from './utils/storageUtils'
 import { Toaster } from './components/ui/toaster'
+
+// Immediately purge all storage except army lists on every app load
+purgeStorageExceptLists();
 
 // Add user agent logging to help diagnose mobile issues
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
