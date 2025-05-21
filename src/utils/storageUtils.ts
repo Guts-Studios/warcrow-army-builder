@@ -1,5 +1,97 @@
+
 import { getLatestVersion, isNewerVersion } from './version';
 import { toast } from "sonner";
+
+/**
+ * Checks for and clears invalid auth tokens to prevent loading issues
+ * This should be called before any API requests are made
+ * @returns Boolean indicating whether any tokens were cleared
+ */
+export const clearInvalidTokens = (): boolean => {
+  try {
+    console.log('[Storage] Checking for invalid auth tokens');
+    
+    // Get all keys to search for auth tokens
+    const allKeys = getAllLocalStorageKeys();
+    let tokenCleared = false;
+    
+    // Find any supabase auth tokens
+    const authTokenKeys = allKeys.filter(key => 
+      key.startsWith('sb-') && key.endsWith('-auth-token')
+    );
+    
+    if (authTokenKeys.length === 0) {
+      console.log('[Storage] No auth tokens found to validate');
+      return false;
+    }
+    
+    // Check each token for validity
+    for (const tokenKey of authTokenKeys) {
+      const tokenData = localStorage.getItem(tokenKey);
+      if (!tokenData) {
+        console.log(`[Storage] Found empty token key: ${tokenKey}, removing it`);
+        localStorage.removeItem(tokenKey);
+        tokenCleared = true;
+        continue;
+      }
+      
+      try {
+        // Try to parse and validate the token
+        const parsedToken = JSON.parse(tokenData);
+        
+        // Check if token is expired
+        if (parsedToken.expires_at) {
+          const expiresAt = parsedToken.expires_at * 1000; // Convert to milliseconds
+          const now = Date.now();
+          
+          // If token is expired or expires in less than 5 minutes, consider it invalid
+          if (expiresAt < now + 300000) { // 300000ms = 5 minutes
+            console.log(`[Storage] Auth token has expired or expires soon: ${tokenKey}`);
+            localStorage.removeItem(tokenKey);
+            tokenCleared = true;
+            continue;
+          }
+        }
+        
+        // Check for missing critical parts
+        if (!parsedToken.access_token || !parsedToken.refresh_token) {
+          console.log(`[Storage] Auth token is missing critical fields: ${tokenKey}`);
+          localStorage.removeItem(tokenKey);
+          tokenCleared = true;
+          continue;
+        }
+        
+        // Check if the token is malformed in structure
+        if (!parsedToken.user || !parsedToken.user.id) {
+          console.log(`[Storage] Auth token has invalid structure: ${tokenKey}`);
+          localStorage.removeItem(tokenKey);
+          tokenCleared = true;
+          continue;
+        }
+        
+        console.log(`[Storage] Auth token appears valid: ${tokenKey}`);
+      } catch (error) {
+        // JSON parse error, consider token invalid
+        console.error(`[Storage] Error parsing auth token ${tokenKey}, removing it:`, error);
+        localStorage.removeItem(tokenKey);
+        tokenCleared = true;
+      }
+    }
+    
+    if (tokenCleared) {
+      console.log('[Storage] Some invalid tokens were cleared');
+      // Force reload to ensure clean state
+      window.location.reload();
+      return true;
+    } else {
+      console.log('[Storage] All tokens appear valid, no clearing needed');
+      return false;
+    }
+  } catch (error) {
+    console.error('[Storage] Error checking token validity:', error);
+    return false;
+  }
+};
 
 /**
  * Checks the current app version against the stored version and purges local storage if they don't match
@@ -269,6 +361,12 @@ const checkTokenValidity = (): boolean => {
         return true;
       }
       
+      // Check for malformed user object
+      if (!parsedToken.user || !parsedToken.user.id) {
+        console.log('[Storage] Auth token has invalid user object');
+        return true;
+      }
+      
       return false; // Token appears valid
     } catch (error) {
       console.error('[Storage] Error parsing auth token:', error);
@@ -344,8 +442,28 @@ const preserveAuthData = (): Record<string, string> => {
         try {
           const value = localStorage.getItem(key);
           if (value) {
-            authData[key] = value;
-            console.log(`[Storage] Preserved auth data: ${key}`);
+            // Check if the token is still valid before preserving
+            if (key.endsWith('-auth-token')) {
+              try {
+                const tokenData = JSON.parse(value);
+                const expiresAt = tokenData.expires_at * 1000;
+                const now = Date.now();
+                
+                // Only preserve tokens that aren't expired or expire in more than 5 minutes
+                if (expiresAt > now + 300000) {
+                  authData[key] = value;
+                  console.log(`[Storage] Preserved valid auth token: ${key}`);
+                } else {
+                  console.log(`[Storage] Skipping expired auth token: ${key}`);
+                }
+              } catch {
+                // If we can't parse it, don't preserve it
+                console.log(`[Storage] Skipping unparseable auth token: ${key}`);
+              }
+            } else {
+              authData[key] = value;
+              console.log(`[Storage] Preserved auth data: ${key}`);
+            }
           }
         } catch (err) {
           console.error(`[Storage] Error preserving auth data for key ${key}:`, err);

@@ -3,8 +3,13 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { checkVersionAndPurgeStorage, purgeStorageExceptLists } from './utils/storageUtils'
+import { checkVersionAndPurgeStorage, purgeStorageExceptLists, clearInvalidTokens } from './utils/storageUtils'
 import { Toaster } from './components/ui/toaster'
+import { toast } from 'sonner'
+
+// Check for invalid tokens first and clear them if needed
+// This needs to happen before any API calls are made
+clearInvalidTokens();
 
 // Immediately purge all storage except army lists on every app load
 // This ensures any corrupted or outdated data is cleared
@@ -16,10 +21,13 @@ console.log(`[App] Running on ${isMobile ? 'mobile' : 'desktop'} device`);
 
 // Get the changelog content from the public folder with super aggressive cache-busting
 const fetchChangelog = () => {
+  // Generate a unique UUID for this fetch operation
+  const uniqueId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+  
   // Add timestamp, random value and unique identifier for aggressive cache busting
   const timestamp = new Date().getTime();
   const random = Math.random().toString(36).substring(2, 15);
-  const cacheBuster = `t=${timestamp}&r=${random}&u=${crypto.randomUUID?.() || Math.random()}`;
+  const cacheBuster = `t=${timestamp}&r=${random}&u=${uniqueId}`;
   console.log(`[App] Fetching CHANGELOG.md with cache buster: ${cacheBuster}`);
   
   fetch(`/CHANGELOG.md?${cacheBuster}`, {
@@ -27,11 +35,14 @@ const fetchChangelog = () => {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
-    }
+    },
+    // Add cache: 'no-store' to force bypass cache completely
+    cache: 'no-store'
   })
     .then(response => {
       console.log(`[App] CHANGELOG.md fetch status: ${response.status}`);
       if (!response.ok) {
+        toast.error("Failed to load version information");
         throw new Error(`Failed to fetch CHANGELOG.md: ${response.status}`);
       }
       return response.text();
@@ -60,8 +71,10 @@ const fetchChangelog = () => {
     });
 };
 
-// Execute the fetch immediately 
-fetchChangelog();
+// Execute the fetch immediately with a slight delay to ensure DOM is ready
+setTimeout(() => {
+  fetchChangelog();
+}, 100);
 
 // On mobile, try to fetch changelog again after a short delay
 // as mobile connections might be slower
@@ -83,6 +96,7 @@ const preconnect = (url: string) => {
 // Preconnect to key domains
 preconnect('https://fonts.googleapis.com');
 preconnect('https://fonts.gstatic.com');
+preconnect('https://odqyoncwqawdzhquxcmh.supabase.co');
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Failed to find the root element')
