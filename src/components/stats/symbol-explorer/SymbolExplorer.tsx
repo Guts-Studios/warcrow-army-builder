@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,9 +67,10 @@ const SymbolExplorer = () => {
       // Name filter
       const nameMatch = unit.name.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // Faction filter
-      const factionMatch = factionFilter === 'all' || 
-        normalizeFactionId(unit.faction) === normalizeFactionId(factionFilter);
+      // Faction filter - ensure both are normalized for comparison
+      const normalizedFactionFilter = factionFilter === 'all' ? 'all' : normalizeFactionId(factionFilter);
+      const normalizedUnitFaction = normalizeFactionId(unit.faction);
+      const factionMatch = normalizedFactionFilter === 'all' || normalizedUnitFaction === normalizedFactionFilter;
       
       // Type filter
       let typeMatch = true;

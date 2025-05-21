@@ -7,6 +7,12 @@ import { Unit } from '@/types/army';
  * @returns A normalized faction ID
  */
 export const normalizeFactionId = (faction: string): string => {
+  // Handle undefined or null input
+  if (!faction) {
+    console.warn('Received undefined or null faction');
+    return 'unknown';
+  }
+  
   // Convert to lowercase and trim
   const lowercased = faction.toLowerCase().trim();
   
@@ -14,27 +20,40 @@ export const normalizeFactionId = (faction: string): string => {
   const factionMappings: Record<string, string> = {
     // Syenann variants
     'syenann': 'syenann',
-    'the syenann': 'syenann',
     'sÿenann': 'syenann',
+    'the syenann': 'syenann',
+    'the sÿenann': 'syenann',
     
     // Northern Tribes variants
     'northern': 'northern-tribes',
     'northern tribes': 'northern-tribes',
     'tribes': 'northern-tribes',
+    'northern-tribes': 'northern-tribes',
     
     // Hegemony variants
-    'hegemony': 'hegemony-of-embersig', 
+    'hegemony': 'hegemony-of-embersig',
     'hegemony of embersig': 'hegemony-of-embersig',
     'embersig': 'hegemony-of-embersig',
+    'hegemony-of-embersig': 'hegemony-of-embersig',
     
     // Scions variants
     'scions': 'scions-of-yaldabaoth',
     'scions of yaldabaoth': 'scions-of-yaldabaoth',
     'scions of taldabaoth': 'scions-of-yaldabaoth',
     'yaldabaoth': 'scions-of-yaldabaoth',
+    'taldabaoth': 'scions-of-yaldabaoth',
+    'scions-of-yaldabaoth': 'scions-of-yaldabaoth',
   };
   
-  return factionMappings[lowercased] || faction;
+  // Use the mapping if available, otherwise return the original
+  const normalized = factionMappings[lowercased] || lowercased;
+  
+  // Add debugging to help track down problematic faction names
+  if (!factionMappings[lowercased] && !lowercased.includes('-')) {
+    console.debug(`Unmapped faction name: "${faction}" (normalized to "${normalized}")`);
+  }
+  
+  return normalized;
 };
 
 /**
@@ -70,6 +89,11 @@ export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
  * @returns Array of normalized units
  */
 export const normalizeUnits = (units: Unit[]): Unit[] => {
+  if (!Array.isArray(units)) {
+    console.error('normalizeUnits received non-array input:', units);
+    return [];
+  }
+  
   const normalizedUnits = units.map(unit => {
     // Don't modify the original unit
     const copy = { ...unit };
@@ -77,6 +101,9 @@ export const normalizeUnits = (units: Unit[]): Unit[] => {
     // Normalize faction ID if present
     if (copy.faction) {
       copy.faction = normalizeFactionId(copy.faction);
+    } else {
+      console.warn(`Unit ${copy.name || 'unnamed'} has no faction assigned`);
+      copy.faction = 'unknown';
     }
     
     return copy;

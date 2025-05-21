@@ -28,24 +28,28 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
 
 // Updated to use local data instead of database queries
 export function useUnitData(selectedFaction: string) {
+  const normalizedSelectedFaction = selectedFaction ? normalizeFactionId(selectedFaction) : 'all';
+  
   return useQuery({
-    queryKey: ['units', selectedFaction],
+    queryKey: ['units', normalizedSelectedFaction],
     queryFn: async () => {
-      console.log(`[useUnitData] Fetching units for faction: ${selectedFaction}`);
+      console.log(`[useUnitData] Fetching units for faction: ${normalizedSelectedFaction}`);
       
       // Filter units by faction if needed
       let filteredUnits = localUnits;
-      if (selectedFaction !== 'all') {
-        // Normalize the selected faction to ensure consistent matching
-        const normalizedFaction = normalizeFactionId(selectedFaction);
-        filteredUnits = localUnits.filter(unit => normalizeFactionId(unit.faction) === normalizedFaction);
+      if (normalizedSelectedFaction !== 'all') {
+        filteredUnits = localUnits.filter(unit => {
+          // Make sure we normalize both factions for comparison
+          const unitFaction = normalizeFactionId(unit.faction);
+          return unitFaction === normalizedSelectedFaction;
+        });
       }
       
-      console.log(`[useUnitData] Found ${filteredUnits.length} units for faction: ${selectedFaction}`);
+      console.log(`[useUnitData] Found ${filteredUnits.length} units for faction: ${normalizedSelectedFaction}`);
       
       // Log unit names for debugging
       if (filteredUnits.length > 0) {
-        console.log(`[useUnitData] Units for ${selectedFaction}:`, 
+        console.log(`[useUnitData] Units for ${normalizedSelectedFaction}:`, 
           filteredUnits.map((u: any) => u.name).slice(0, 5), 
           `... (${filteredUnits.length} total)`
         );
@@ -111,18 +115,19 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
 
 // Updated to use local data for army builder
 export const useArmyBuilderUnits = (factionId: string) => {
+  // Normalize the faction ID before making the query
+  const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
+  
   return useQuery({
-    queryKey: ['units', factionId],
+    queryKey: ['units', normalizedFactionId],
     queryFn: async () => {
-      console.log(`[useArmyBuilderUnits] Fetching units for faction: ${factionId}`);
-      
-      // Normalize the faction ID first
-      const normalizedFactionId = normalizeFactionId(factionId);
+      console.log(`[useArmyBuilderUnits] Fetching units for faction: ${normalizedFactionId}`);
       
       // Get normalized units from local data with matching faction
-      const factionUnits = normalizedLocalUnits.filter(unit => 
-        normalizeFactionId(unit.faction) === normalizedFactionId
-      );
+      const factionUnits = normalizedLocalUnits.filter(unit => {
+        // We normalize both the unit's faction and the selected faction for comparison
+        return normalizeFactionId(unit.faction) === normalizedFactionId;
+      });
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
       
