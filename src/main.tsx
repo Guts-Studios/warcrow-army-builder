@@ -1,8 +1,9 @@
+
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { checkVersionAndPurgeStorage, clearInvalidTokens } from './utils/storageUtils'
+import { checkVersionAndPurgeStorage, clearInvalidTokens, purgeStorageExceptLists } from './utils/storageUtils'
 import { Toaster } from './components/ui/toaster'
 import { toast } from 'sonner'
 

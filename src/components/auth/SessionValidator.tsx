@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -57,13 +58,14 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
           if (testQueryError) {
             console.error("[SessionValidator] Database access validation failed:", testQueryError);
             
+            // Fixed: Check error code and message properties instead of status
             // Only clear sessions for actual auth errors, not for other types of errors
             if (testQueryError.code === 'PGRST301' || 
                 testQueryError.code === '42501' || 
                 testQueryError.message.includes('JWT') || 
                 testQueryError.message.includes('auth') ||
-                testQueryError.status === 401 ||
-                testQueryError.status === 403) {
+                testQueryError.message.toLowerCase().includes('unauthorized') ||
+                testQueryError.message.toLowerCase().includes('forbidden')) {
               await handleInvalidSession("Session token is invalid for database access");
               return;
             } else {
@@ -92,7 +94,9 @@ export const SessionValidator = ({ children }: SessionValidatorProps) => {
             if (profileError) {
               console.error("[SessionValidator] Error fetching user profile:", profileError);
               // Profile errors shouldn't invalidate the session unless they're auth-related
-              if (profileError.code?.includes('auth') || profileError.status === 401) {
+              if (profileError.message && 
+                 (profileError.message.includes('auth') || 
+                  profileError.message.toLowerCase().includes('unauthorized'))) {
                 await handleInvalidSession("User profile validation failed");
                 return;
               }
