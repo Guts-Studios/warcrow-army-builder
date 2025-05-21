@@ -2,20 +2,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AdminOnly } from "@/utils/adminUtils";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, RefreshCw, FileText } from "lucide-react";
+import { ArrowLeft, Save, RefreshCw, FileText, AlertCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { getLatestVersion } from "@/utils/version";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 const ChangelogEditor = () => {
   const navigate = useNavigate();
   const { isWabAdmin } = useAuth();
+  const { isPreview } = useEnvironment();
   const [changelog, setChangelog] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [latestVersion, setLatestVersion] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch the changelog content
@@ -25,8 +30,16 @@ const ChangelogEditor = () => {
   const fetchChangelog = async () => {
     try {
       setLoading(true);
-      // Fetch the changelog content from the repo
-      const response = await fetch('/CHANGELOG.md');
+      setError(null);
+      
+      // Add cache-busting parameter to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/CHANGELOG.md?t=${timestamp}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch changelog: ${response.status} ${response.statusText}`);
+      }
+      
       const text = await response.text();
       setChangelog(text);
       
@@ -35,6 +48,7 @@ const ChangelogEditor = () => {
       setLatestVersion(version);
     } catch (error) {
       console.error('Failed to fetch changelog:', error);
+      setError('Failed to load changelog content');
       toast.error('Failed to load changelog content');
     } finally {
       setLoading(false);
@@ -44,18 +58,44 @@ const ChangelogEditor = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
+      setError(null);
       
-      // This would typically connect to a backend service that can commit to GitHub
-      // In a real implementation, this would use GitHub API or a similar service
+      // Call Supabase Edge function to update the changelog in GitHub
+      const { data, error: saveError } = await supabase.functions.invoke('update-github-changelog', {
+        body: {
+          content: changelog,
+          message: `Update CHANGELOG.md via admin interface [skip ci]`
+        }
+      });
       
-      // For now, we'll just show a success message
-      toast.success('Changelog saved successfully');
+      if (saveError) {
+        console.error('Error saving changelog:', saveError);
+        setError('Failed to save changelog to GitHub');
+        toast.error('Failed to save changelog to GitHub');
+        return;
+      }
+      
+      if (data?.error) {
+        console.error('API returned error:', data.error);
+        setError(`GitHub API error: ${data.error}`);
+        toast.error(`GitHub API error: ${data.error}`);
+        return;
+      }
+      
+      // Show a success message
+      toast.success('Changelog saved successfully to GitHub');
       
       // Extract the latest version from the updated changelog
       const version = getLatestVersion(changelog);
       setLatestVersion(version);
+      
+      // Also update the local copy of the changelog
+      // This is important because the GitHub update might take time to propagate
+      localStorage.setItem('cached_changelog', changelog);
+      localStorage.setItem('changelog_updated_at', new Date().toISOString());
     } catch (error) {
       console.error('Failed to save changelog:', error);
+      setError('Failed to save changelog');
       toast.error('Failed to save changelog');
     } finally {
       setSaving(false);
@@ -102,6 +142,22 @@ const ChangelogEditor = () => {
               </Button>
             </div>
           </div>
+          
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          {isPreview && (
+            <Alert className="mb-6 bg-amber-950/50 border-amber-600">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-amber-200">
+                You are in a preview environment. Changes made here will be saved to the staging branch.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="space-y-6">
             <div className="bg-black/50 border border-warcrow-gold/30 rounded-lg p-6">
