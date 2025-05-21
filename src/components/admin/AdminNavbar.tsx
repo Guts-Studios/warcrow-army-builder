@@ -8,7 +8,6 @@ import {
   Users,
   Bell,
   FileText,
-  Swords,
   Globe,
   Server,
   Database,

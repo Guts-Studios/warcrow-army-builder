@@ -11,10 +11,10 @@ export type CsvUnit = {
   type: string;
   pointsCost: number | string;
   availability: number | string;
-  keywords: string;
-  specialRules?: string;
-  highCommand: string;
-  command?: string;
+  keywords: string[];
+  specialRules?: string[];
+  highCommand: string | boolean;
+  command?: number | string;
 };
 
 /**
@@ -43,15 +43,6 @@ export const parseCsvFile = (file: File): Promise<CsvUnit[]> => {
 export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{field: string, staticValue: any, csvValue: any}> => {
   const mismatches: Array<{field: string, staticValue: any, csvValue: any}> = [];
   
-  // Check name
-  if (staticUnit.name !== csvUnit.name) {
-    mismatches.push({
-      field: 'name',
-      staticValue: staticUnit.name,
-      csvValue: csvUnit.name
-    });
-  }
-  
   // Check points cost
   const csvPoints = Number(csvUnit.pointsCost);
   if (!isNaN(csvPoints) && staticUnit.pointsCost !== csvPoints) {
@@ -73,7 +64,10 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
   }
   
   // Check high command
-  const csvHighCommand = csvUnit.highCommand.toLowerCase() === 'yes';
+  const csvHighCommand = typeof csvUnit.highCommand === 'boolean' 
+    ? csvUnit.highCommand 
+    : csvUnit.highCommand.toString().toLowerCase() === 'yes';
+  
   if (Boolean(staticUnit.highCommand) !== csvHighCommand) {
     mismatches.push({
       field: 'highCommand',
@@ -82,28 +76,58 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
     });
   }
   
-  // Check keywords (simplified comparison)
-  const staticKeywords = staticUnit.keywords.map((k: any) => typeof k === 'string' ? k : k.name).sort().join(',');
-  const csvKeywordsList = csvUnit.keywords.split(',').map(k => k.trim()).sort().join(',');
-  
-  if (staticKeywords !== csvKeywordsList) {
+  // Check command
+  const csvCommand = Number(csvUnit.command);
+  if (!isNaN(csvCommand) && staticUnit.command !== csvCommand && (csvCommand > 0 || staticUnit.command > 0)) {
     mismatches.push({
-      field: 'keywords',
-      staticValue: staticKeywords,
-      csvValue: csvKeywordsList
+      field: 'command',
+      staticValue: staticUnit.command || 0,
+      csvValue: csvCommand
     });
   }
   
-  // Check special rules
-  const staticRules = (staticUnit.specialRules || []).sort().join(',');
-  const csvRules = csvUnit.specialRules ? csvUnit.specialRules.split(',').map(r => r.trim()).sort().join(',') : '';
+  // Check keywords (simplified comparison)
+  if (Array.isArray(staticUnit.keywords) && Array.isArray(csvUnit.keywords)) {
+    const staticKeywords = staticUnit.keywords
+      .map((k: any) => typeof k === 'string' ? k.toLowerCase() : k.name.toLowerCase())
+      .filter(Boolean)
+      .sort();
+    
+    const csvKeywordsList = csvUnit.keywords
+      .map(k => k.toLowerCase())
+      .filter(Boolean)
+      .sort();
+    
+    // Check if arrays are different
+    if (JSON.stringify(staticKeywords) !== JSON.stringify(csvKeywordsList)) {
+      mismatches.push({
+        field: 'keywords',
+        staticValue: staticKeywords,
+        csvValue: csvKeywordsList
+      });
+    }
+  }
   
-  if (staticRules !== csvRules) {
-    mismatches.push({
-      field: 'specialRules',
-      staticValue: staticRules,
-      csvValue: csvRules
-    });
+  // Check special rules
+  if (Array.isArray(staticUnit.specialRules) && Array.isArray(csvUnit.specialRules)) {
+    const staticRules = (staticUnit.specialRules || [])
+      .map((r: string) => r.toLowerCase())
+      .filter(Boolean)
+      .sort();
+    
+    const csvRules = (csvUnit.specialRules || [])
+      .map(r => r.toLowerCase())
+      .filter(Boolean)
+      .sort();
+    
+    // Check if arrays are different
+    if (JSON.stringify(staticRules) !== JSON.stringify(csvRules)) {
+      mismatches.push({
+        field: 'specialRules',
+        staticValue: staticRules,
+        csvValue: csvRules
+      });
+    }
   }
   
   return mismatches;

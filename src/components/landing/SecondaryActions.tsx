@@ -42,14 +42,6 @@ export const SecondaryActions = ({ isGuest }: SecondaryActionsProps) => {
         {isGuest ? t('signedAsGuest') : t('signOut')}
       </Button>
       <Button
-        onClick={handleProfileAccess}
-        variant="outline"
-        className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-2"
-      >
-        <User className="h-4 w-4" />
-        {t('profile')}
-      </Button>
-      <Button
         onClick={handleBuyCoffeeClick}
         variant="outline"
         className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-2"
