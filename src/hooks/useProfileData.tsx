@@ -8,6 +8,7 @@ import { useProfileUpdate } from "./useProfileUpdate";
 import { useProfileNavigation } from "./useProfileNavigation";
 import { ensureWabId } from "@/utils/wabIdUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 export const useProfileData = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -25,21 +26,25 @@ export const useProfileData = () => {
     wab_id: "",
   });
   const [isFriendRequestSent, setIsFriendRequestSent] = useState(false);
+  const { isPreview } = useEnvironment();
 
   // Get session information with session checked status
   const { isAuthenticated, usePreviewData, userId, sessionChecked } = useProfileSession();
 
+  // Use preview data in preview environments
+  const actualUsePreviewData = usePreviewData || isPreview;
+
   // Fetch profile data, only when session is checked
   const { profile, isLoading, isError, error, refetch } = useProfileFetch({
     isAuthenticated,
-    usePreviewData,
+    usePreviewData: actualUsePreviewData,
     userId,
     sessionChecked
   });
 
   // Profile update hooks
   const { updateProfile } = useProfileUpdate({
-    usePreviewData,
+    usePreviewData: actualUsePreviewData,
     profile,
     onSuccess: () => setIsEditing(false)
   });
@@ -50,7 +55,8 @@ export const useProfileData = () => {
   // Check and generate WAB ID if needed
   useEffect(() => {
     const checkWabId = async () => {
-      if (profile && !profile.wab_id && userId && !usePreviewData && userId !== "preview-user-id") {
+      // Skip WAB ID generation for preview users
+      if (profile && !profile.wab_id && userId && !usePreviewData && userId !== "preview-user-id" && !isPreview) {
         console.log("Profile missing WAB ID, generating one...");
         const newWabId = await ensureWabId(userId);
         
@@ -63,7 +69,7 @@ export const useProfileData = () => {
     };
     
     checkWabId();
-  }, [profile, userId, usePreviewData, refetch]);
+  }, [profile, userId, usePreviewData, refetch, isPreview]);
 
   useEffect(() => {
     if (profile) {
@@ -170,7 +176,7 @@ export const useProfileData = () => {
     profile,
     formData,
     isEditing,
-    isLoading: (isLoading && !usePreviewData) || (!sessionChecked && !usePreviewData),
+    isLoading: (isLoading && !actualUsePreviewData) || (!sessionChecked && !actualUsePreviewData),
     error: isError ? error as Error : null,
     updateProfile,
     setIsEditing,
@@ -178,7 +184,6 @@ export const useProfileData = () => {
     handleSubmit,
     handleAvatarUpdate,
     handleListSelect,
-    // Add the missing properties to the return object
     sendFriendRequest,
     isFriendRequestSent
   };

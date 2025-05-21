@@ -21,8 +21,8 @@ export const useProfileSession = (): ProfileSession => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const { isPreview, isProduction, hostname } = useEnvironment();
   
-  // Important: Set usePreviewData to false for both preview and production
-  const usePreviewData = false;
+  // For preview environments, always set usePreviewData to true
+  const usePreviewData = isPreview;
 
   // Handle sign out function
   const signOut = async () => {
@@ -61,6 +61,16 @@ export const useProfileSession = (): ProfileSession => {
     const checkAuthState = async () => {
       try {
         console.log("[useProfileSession] Checking authentication state on:", hostname);
+        
+        // Special handling for preview environment - automatically authenticate with demo user
+        if (isPreview && mounted) {
+          console.log("[useProfileSession] Preview environment detected, using demo auth state");
+          setIsAuthenticated(true);
+          setUserId("preview-user-id");
+          setIsAdmin(true); // Admins in preview mode
+          setSessionChecked(true);
+          return;
+        }
         
         // Get current session
         const { data: { session } } = await supabase.auth.getSession();
@@ -102,13 +112,7 @@ export const useProfileSession = (): ProfileSession => {
             }
           } else {
             setUserId(null);
-            
-            // In preview mode, default to admin
-            if (isPreview) {
-              setIsAdmin(true);
-            } else {
-              setIsAdmin(false);
-            }
+            setIsAdmin(false);
           }
           
           setSessionChecked(true);
@@ -118,14 +122,7 @@ export const useProfileSession = (): ProfileSession => {
         if (mounted) {
           setIsAuthenticated(false);
           setUserId(null);
-          
-          // In preview mode, default to admin
-          if (isPreview) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-          }
-          
+          setIsAdmin(false);
           setSessionChecked(true);
         }
       }
@@ -141,6 +138,15 @@ export const useProfileSession = (): ProfileSession => {
         usePreviewData,
         timestamp: new Date().toISOString()
       });
+      
+      // Special handling for preview environment
+      if (isPreview) {
+        setIsAuthenticated(true);
+        setUserId("preview-user-id");
+        setIsAdmin(true);
+        setSessionChecked(true);
+        return;
+      }
       
       // Update authentication state based on event
       setIsAuthenticated(!!session);
@@ -170,7 +176,7 @@ export const useProfileSession = (): ProfileSession => {
         }
       } else if (event === 'SIGNED_OUT') {
         setUserId(null);
-        setIsAdmin(isPreview); // Set admin to true in preview mode, false otherwise
+        setIsAdmin(false);
       }
       
       setSessionChecked(true);

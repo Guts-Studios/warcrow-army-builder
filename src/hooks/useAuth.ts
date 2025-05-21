@@ -1,5 +1,5 @@
 
-// Import the useAuth hook from our fully implementation
+// Import the useAuth hook from our fully implemented file
 import { useAuth } from './useAuth.tsx';
 
 // Re-export the hook
