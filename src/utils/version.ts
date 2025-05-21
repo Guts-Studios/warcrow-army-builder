@@ -6,6 +6,13 @@ export const getLatestVersion = (content: string): string => {
       return '0.0.0';
     }
 
+    // First check if we're getting an HTML document rather than the changelog
+    if (content.trim().startsWith('<!DOCTYPE html>') || content.includes('<html')) {
+      console.error('[Version] Received HTML instead of markdown content');
+      // Use fallback hardcoded version
+      return '0.5.8'; // Return current version
+    }
+
     // Improved regex to better match version patterns in different formats
     const versionRegex = /\[(\d+\.\d+\.\d+)\]/;
     const matches = content.match(new RegExp(versionRegex, 'g'));
@@ -13,14 +20,14 @@ export const getLatestVersion = (content: string): string => {
     if (!matches || matches.length === 0) {
       console.error('[Version] No version found in changelog content');
       console.log('[Version] Changelog content sample:', content.substring(0, 100) + '...');
-      return '0.0.0';
+      return '0.5.8'; // Return current version as fallback
     }
     
     // The versions appear in descending order in the changelog, so the first one is the most recent
     const latestVersionMatch = matches[0].match(versionRegex);
     if (!latestVersionMatch || latestVersionMatch.length < 2) {
       console.error('[Version] Failed to extract version number from match:', matches[0]);
-      return '0.0.0';
+      return '0.5.8';
     }
     
     const version = latestVersionMatch[1];
@@ -28,7 +35,7 @@ export const getLatestVersion = (content: string): string => {
     return version;
   } catch (error) {
     console.error('[Version] Error extracting version from changelog:', error);
-    return '0.0.0';
+    return '0.5.8';  // Return current version as fallback
   }
 };
 

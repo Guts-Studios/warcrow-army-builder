@@ -34,7 +34,8 @@ const fetchChangelog = () => {
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
-      'Expires': '0'
+      'Expires': '0',
+      'Accept': 'text/plain, text/markdown'
     },
     // Add cache: 'no-store' to force bypass cache completely
     cache: 'no-store'
@@ -51,6 +52,16 @@ const fetchChangelog = () => {
       // Check for version changes and purge storage if needed
       console.log('[App] Fetched CHANGELOG.md, checking version now...');
       console.log('[App] Changelog content sample:', changelog.substring(0, 200) + '...');
+      
+      // Check if we got an HTML document instead of markdown
+      if (changelog.trim().startsWith('<!DOCTYPE html>') || changelog.includes('<html')) {
+        console.warn('[App] Received HTML instead of markdown content. Using fallback changelog');
+        const fallbackChangelog = `# Changelog\n\n## [0.5.8]\nFallback changelog content`;
+        const purged = checkVersionAndPurgeStorage(fallbackChangelog);
+        console.log(`[App] Storage purge check completed using fallback, storage was ${purged ? 'purged' : 'not purged'}`);
+        return;
+      }
+      
       const purged = checkVersionAndPurgeStorage(changelog);
       console.log(`[App] Storage purge check completed, storage was ${purged ? 'purged' : 'not purged'}`);
     })
