@@ -45,7 +45,7 @@ export const useEnvironment = (): EnvironmentInfo => {
                      (hostname.includes('netlify.app') && !isExplicitProductionDomain) || 
                      hostname.includes('lovable.app');
     
-    // Production is either explicitly defined or not a preview
+    // Production is only the explicitly defined domains
     const isProduction = isExplicitProductionDomain;
     
     // Always use local data for content in all environments

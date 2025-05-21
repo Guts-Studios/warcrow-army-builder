@@ -12,7 +12,7 @@ interface ProfileSession {
   isGuest: boolean;
   sessionChecked: boolean;
   usePreviewData: boolean;
-  signOut: () => Promise<void>; // Add signOut function to the interface
+  signOut: () => Promise<void>;
 }
 
 /**
@@ -33,16 +33,8 @@ export const useProfileSession = (): ProfileSession => {
   const signOut = async () => {
     try {
       console.log("[useProfileSession] Signing out user");
-      const { error } = await supabase.auth.signOut();
       
-      if (error) {
-        console.error("[useProfileSession] Error signing out:", error);
-        throw error;
-      }
-      
-      console.log("[useProfileSession] Successfully signed out");
-      
-      // Force clear local state regardless of Supabase response
+      // Clear local auth state first
       setIsAuthenticated(false);
       setUserId(undefined);
       setIsAdmin(false);
@@ -50,13 +42,29 @@ export const useProfileSession = (): ProfileSession => {
       // Force clear localStorage to ensure all session data is removed
       localStorage.removeItem('supabase.auth.token');
       
-      // Redirect to home page after sign out
-      window.location.href = '/';
+      // Call Supabase signOut
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("[useProfileSession] Error signing out:", error);
+        console.log("[useProfileSession] Will still redirect despite error");
+      } else {
+        console.log("[useProfileSession] Successfully signed out");
+      }
+      
+      // Add a slight delay before redirecting to ensure state changes are applied
+      setTimeout(() => {
+        // Redirect to home page after sign out
+        window.location.href = '/';
+      }, 100);
       
     } catch (err) {
       console.error("[useProfileSession] Error in sign out process:", err);
+      
       // Force redirect even if there was an error
-      window.location.href = '/';
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     }
   };
 
@@ -68,11 +76,22 @@ export const useProfileSession = (): ProfileSession => {
       try {
         console.log("[useProfileSession] Checking authentication state on:", hostname);
         
-        // Get current session
+        // Handle preview environment directly
+        if (isPreview && mounted) {
+          console.log("[useProfileSession] Preview environment detected, using demo auth state");
+          setIsAuthenticated(true);
+          setIsAdmin(true);
+          setIsGuest(false);
+          setUserId("preview-user-id");
+          setSessionChecked(true);
+          return;
+        }
+        
+        // For production, check real auth state
         const { data: { session } } = await supabase.auth.getSession();
         
         // Set authentication state based on session
-        const hasSession = !!session?.user;
+        const hasSession = !!session;
         
         if (mounted) {
           console.log("[useProfileSession] Session check result:", { 
@@ -110,7 +129,7 @@ export const useProfileSession = (): ProfileSession => {
             });
           } else {
             setIsAdmin(false);
-            setIsGuest(!!localStorage.getItem('guestSession'));
+            setIsGuest(true);
             
             // Provide special admin privileges in preview environments if needed
             if (isPreview) {
@@ -135,8 +154,8 @@ export const useProfileSession = (): ProfileSession => {
         console.error("[useProfileSession] Error checking auth state:", error);
         if (mounted) {
           setIsAuthenticated(false);
-          setIsAdmin(false);
-          setIsGuest(!!localStorage.getItem('guestSession'));
+          setIsAdmin(isPreview); // Set admin to true in preview mode
+          setIsGuest(!isPreview);
           setSessionChecked(true);
         }
       }
@@ -188,11 +207,13 @@ export const useProfileSession = (): ProfileSession => {
           }
         } catch (err) {
           console.error("[useProfileSession] Error fetching profile:", err);
+          setIsAdmin(isPreview); // Fallback to preview setting
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log("[useProfileSession] User signed out");
         setUserId(undefined);
-        setIsAdmin(false);
-        setIsGuest(!!localStorage.getItem('guestSession'));
+        setIsAdmin(isPreview); // Set admin to true in preview mode
+        setIsGuest(true);
       }
       
       setSessionChecked(true);
@@ -213,7 +234,7 @@ export const useProfileSession = (): ProfileSession => {
     isGuest,
     sessionChecked,
     usePreviewData,
-    signOut // Include signOut in the return object
+    signOut
   };
 };
 

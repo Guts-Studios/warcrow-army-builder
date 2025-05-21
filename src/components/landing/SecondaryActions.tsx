@@ -17,8 +17,8 @@ export const SecondaryActions = ({ isGuest }: SecondaryActionsProps) => {
   
   const handleSignOut = async () => {
     try {
+      toast.loading("Signing out...");
       await signOut();
-      toast.success("Successfully signed out");
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Error signing out. Please try again.");
