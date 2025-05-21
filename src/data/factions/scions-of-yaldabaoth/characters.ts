@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 import { vercana } from "./characters/vercana";
 
@@ -6,35 +5,40 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
   {
     id: "master-keorl",
     name: "Master Keorl",
-    pointsCost: 40,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Human", description: "Human race" },
-      { name: "Character", description: "Character unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elite", description: "Elite unit" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Command (1)", "Repeat a Die"],
-    imageUrl: "/art/card/master_keorl_card.jpg"
-  },
-  {
-    id: "progenitor-sculptor",
-    name: "Progenitor Sculptor",
-    pointsCost: 45,
+    pointsCost: 50,
     faction: "scions-of-yaldabaoth",
     keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Elf", description: "Elf race" },
       { name: "Darkminded", description: "Darkminded trait" },
+      { name: "High Command", description: "High command unit" },
+      { name: "Living Flesh", description: "Living unit type" },
+      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
+      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 3,
+    specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
+    imageUrl: "/art/card/master_keorl_card.jpg"
+  },
+  {
+    id: "progenitor-sculptor",
+    name: "Progenitor Sculptor",
+    pointsCost: 30,
+    faction: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Elf", description: "Elf race" },
+      { name: "Darkminded", description: "Darkminded trait" },
+      { name: "High Command", description: "High command unit" }, 
       { name: "Living Flesh", description: "Living unit type" },
       { name: "Intimidating (2)", description: "Causes fear in nearby enemies" },
       { name: "Spellcaster", description: "Can cast spells" },
       { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
     ],
-    highCommand: false,
+    highCommand: true,
     availability: 1,
     command: 2,
     specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
@@ -225,6 +229,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Alven", description: "Alven race" },
       { name: "Character", description: "Character unit type" },
       { name: "Elf", description: "Elf race" },
+      { name: "High Commander", description: "High command unit" },
       { name: "Elite", description: "Elite unit" }
     ],
     highCommand: true,
