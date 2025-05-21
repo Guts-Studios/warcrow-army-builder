@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,14 +35,9 @@ const NetlifyDeployments: React.FC = () => {
       setRefreshing(true);
       setError(null);
       
-      // Call our Supabase Edge Function to fetch deployments with no-cache headers
-      const { data, error } = await supabase.functions.invoke('get-netlify-deployments', {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
+      // Call our Supabase Edge Function to fetch deployments
+      // Removing cache-control headers from the request options
+      const { data, error } = await supabase.functions.invoke('get-netlify-deployments');
       
       if (error) {
         console.error('Error fetching deployments:', error);
