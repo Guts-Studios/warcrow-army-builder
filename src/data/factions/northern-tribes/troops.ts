@@ -16,7 +16,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
     highCommand: false,
-    imageUrl: "/art/card/battle-scarred_card.jpg"
+    imageUrl: "/art/card/battle-scarred_card_en.jpg"
   },
   {
     id: "orc-hunters",
@@ -31,7 +31,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Vulnerable"],
     highCommand: false,
-    imageUrl: "/art/card/orc_hunters_card.jpg"
+    imageUrl: "/art/card/orc_hunters_card_en.jpg"
   },
   {
     id: "skin-changers",
@@ -47,7 +47,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Scout"],
     highCommand: false,
-    imageUrl: "/art/card/skin_changers_card.jpg"
+    imageUrl: "/art/card/skin_changers_card_en.jpg"
   },
   {
     id: "ice-archers",
@@ -62,7 +62,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Slowed"],
     highCommand: false,
-    imageUrl: "/art/card/ice_archers_card.jpg"
+    imageUrl: "/art/card/ice_archers_card_en.jpg"
   },
   {
     id: "tundra-marauders",
@@ -79,7 +79,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Displace (3)", "Rugged", "Trap"],
     highCommand: false,
-    imageUrl: "/art/card/tundra_marauders_card.jpg"
+    imageUrl: "/art/card/tundra_marauders_card_en.jpg"
   },
   {
     id: "warg-riders",
@@ -97,6 +97,6 @@ export const northernTribesTroops: Unit[] = [
     ],
     specialRules: ["Vulnerable", "Repeat a Die"],
     highCommand: false,
-    imageUrl: "/art/card/warg_riders_card.jpg"
+    imageUrl: "/art/card/warg_riders_card_en.jpg"
   }
 ];
