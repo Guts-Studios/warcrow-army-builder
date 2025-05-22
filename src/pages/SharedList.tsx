@@ -5,13 +5,19 @@ import { SavedList } from "@/types/army";
 import { factions } from "@/data/factions";
 import ExportDialog from "@/components/army/ExportDialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Eye } from "lucide-react";
 import { toast } from "sonner";
+import UnitCardDialog from "@/components/stats/unit-explorer/UnitCardDialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SharedList = () => {
   const { listCode } = useParams<{ listCode: string }>();
   const [listData, setListData] = useState<SavedList | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
+  const [currentUnitName, setCurrentUnitName] = useState<string>("");
+  const [currentCardUrl, setCurrentCardUrl] = useState<string>("");
+  const { language } = useLanguage();
   
   useEffect(() => {
     if (!listCode) {
@@ -40,6 +46,32 @@ const SharedList = () => {
     return faction?.name || "Unknown Faction";
   };
 
+  // Helper function to get card URL for a unit
+  const getCardUrl = (unit: any) => {
+    if (!unit) return "";
+    
+    // If unit has imageUrl property, use that
+    if (unit.imageUrl) return unit.imageUrl;
+    
+    // Otherwise, construct URL based on unit id
+    const baseUrl = `/art/card/${unit.id}_card`;
+    
+    // Add language suffix
+    if (language === 'es') {
+      return `${baseUrl}_sp.jpg`;
+    } else if (language === 'fr') {
+      return `${baseUrl}_fr.jpg`;
+    } else {
+      return `${baseUrl}_en.jpg`; 
+    }
+  };
+
+  const handleViewCard = (unit: any) => {
+    setCurrentUnitName(unit.name);
+    setCurrentCardUrl(getCardUrl(unit));
+    setIsCardDialogOpen(true);
+  };
+
   const renderUnit = (unit: any, index: number) => {
     const pointsCost = unit.pointsCost * (unit.quantity || 1);
     const commandPoints = unit.command ? ` (${unit.command} CP)` : "";
@@ -55,7 +87,17 @@ const SharedList = () => {
           <span className="text-warcrow-text/70">{highCommand}{commandPoints}</span>
           <span className="ml-2 text-warcrow-text/70">×{unit.quantity || 1}</span>
         </div>
-        <div className="text-warcrow-gold">{pointsCost} pts</div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleViewCard(unit)}
+            className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <div className="text-warcrow-gold">{pointsCost} pts</div>
+        </div>
       </div>
     );
   };
@@ -275,6 +317,13 @@ const SharedList = () => {
           </div>
         </div>
       </div>
+
+      <UnitCardDialog
+        isOpen={isCardDialogOpen}
+        onClose={() => setIsCardDialogOpen(false)}
+        unitName={currentUnitName}
+        cardUrl={currentCardUrl}
+      />
     </div>
   );
 };

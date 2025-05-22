@@ -16,6 +16,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
+import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
+import { useState } from "react";
 
 interface SelectedUnitsProps {
   selectedUnits: SelectedUnit[];
@@ -25,6 +27,8 @@ interface SelectedUnitsProps {
 const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
   const { t, language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
+  const [currentUnit, setCurrentUnit] = useState<SelectedUnit | null>(null);
   
   // Sort units to put High Command first
   const sortedUnits = [...selectedUnits].sort((a, b) => {
@@ -49,6 +53,31 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     const displayName = language !== 'en' ? translateUnitName(name) : name;
     const displayQuantity = Math.min(quantity, 9);
     return `${displayName} x${displayQuantity}`;
+  };
+
+  const handleViewCard = (unit: SelectedUnit) => {
+    setCurrentUnit(unit);
+    setIsCardDialogOpen(true);
+  };
+
+  // Helper function to get the correct card URL
+  const getCardUrl = (unit: SelectedUnit) => {
+    if (!unit) return "";
+    
+    // If unit has imageUrl property, use that
+    if (unit.imageUrl) return unit.imageUrl;
+    
+    // Otherwise, construct URL based on unit id
+    const baseUrl = `/art/card/${unit.id}_card`;
+    
+    // Add language suffix
+    if (language === 'es') {
+      return `${baseUrl}_sp.jpg`;
+    } else if (language === 'fr') {
+      return `${baseUrl}_fr.jpg`;
+    } else {
+      return `${baseUrl}_en.jpg`; 
+    }
   };
 
   return (
@@ -97,34 +126,14 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-warcrow-background border-warcrow-accent max-w-4xl w-[95vw] p-0">
-                      <DialogTitle className="sr-only">
-                        {language !== 'en' ? translateUnitName(unit.name) : unit.name} {t('cardImage')}
-                      </DialogTitle>
-                      {unit.imageUrl ? (
-                        <img 
-                          src={unit.imageUrl} 
-                          alt={language !== 'en' ? translateUnitName(unit.name) : unit.name}
-                          className="w-full h-auto rounded-lg object-contain max-h-[90vh]"
-                          loading="eager"
-                        />
-                      ) : (
-                        <div className="w-full aspect-[2/3] bg-warcrow-background/50 rounded-lg flex items-center justify-center text-warcrow-muted">
-                          {t('cardImage')} coming soon
-                        </div>
-                      )}
-                    </DialogContent>
-                  </Dialog>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+                    onClick={() => handleViewCard(unit)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -152,6 +161,15 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
             {t('totalPoints')}: {totalPoints}
           </span>
         </div>
+      )}
+
+      {currentUnit && (
+        <UnitCardDialog
+          isOpen={isCardDialogOpen}
+          onClose={() => setIsCardDialogOpen(false)}
+          unitName={currentUnit.name}
+          cardUrl={getCardUrl(currentUnit)}
+        />
       )}
     </div>
   );

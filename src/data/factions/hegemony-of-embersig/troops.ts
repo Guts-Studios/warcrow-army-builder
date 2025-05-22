@@ -25,6 +25,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Infantry", description: "" }
     ],
     availability: 3,
+    specialRules: [],
     imageUrl: "/art/card/black_legion_bucklermen_card_en.jpg"
   },
   {
@@ -83,7 +84,8 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Preferred Terrain (Rugged)", description: "" }
     ],
     availability: 1,
-  imageUrl: "/art/card/black_angels_card_en.jpg"
+    specialRules: [],
+    imageUrl: "/art/card/black_angels_card_en.jpg"
   },
    {
     id: "strategos",
@@ -97,6 +99,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Join (Infantry)", description: "" }
     ],
     availability: 1,
+    specialRules: [],
     imageUrl: "/art/card/strategos_card_en.jpg"
   }
-  ];
+];
