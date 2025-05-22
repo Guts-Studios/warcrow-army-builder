@@ -87,7 +87,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     specialRules: [],
     imageUrl: "/art/card/black_angels_card_en.jpg"
   },
-   {
+  {
     id: "strategos",
     name: "Strategos",
     pointsCost: 20,
@@ -101,5 +101,20 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     availability: 1,
     specialRules: [],
     imageUrl: "/art/card/strategos_card_en.jpg"
+  },
+  {
+    id: "lady-telia",
+    name: "Lady Telia",
+    pointsCost: 35,
+    command: 1,
+    faction: "hegemony-of-embersig",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Join (Infantry)", description: "" }
+    ],
+    availability: 1,
+    specialRules: [],
+    imageUrl: "/art/card/lady_telia_card_en.jpg"
   }
 ];

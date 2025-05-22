@@ -2,18 +2,18 @@
 import { Unit } from "@/types/army";
 
 export const vercana: Unit = {
-  id: "vercana-hegemony",
+  id: "vercana",
   name: "Vercana",
   pointsCost: 30,
   faction: "hegemony-of-embersig",
   keywords: [
-    { name: "Human", description: "Human race" },
-    { name: "Character", description: "Character unit type" },
-    { name: "Mercenary", description: "Can be hired by different factions" },
-    { name: "Ambusher", description: "Has ambush abilities" }
+    { name: "Character", description: "" },
+    { name: "Human", description: "" },
+    { name: "Mercenary", description: "" },
+    { name: "Ambusher", description: "" }
   ],
-  highCommand: false,
   availability: 1,
+  command: 0,
   specialRules: ["Place (5)"],
-  imageUrl: "/art/card/vercana_card.jpg"
+  imageUrl: "/art/card/vercana_card_en.jpg"
 };
