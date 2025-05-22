@@ -9,12 +9,22 @@ import { toast } from 'sonner';
 
 const DebugPanel = () => {
   const [showDebugButtons, setShowDebugButtons] = useState(false);
+  const [showRecoveryButtons, setShowRecoveryButtons] = useState(false);
 
-  // Load preference from localStorage on mount
+  // Load preferences from localStorage on mount
   useEffect(() => {
-    const savedPreference = localStorage.getItem('warcrow_show_debug_buttons');
-    if (savedPreference !== null) {
-      setShowDebugButtons(savedPreference === 'true');
+    const savedDebugPreference = localStorage.getItem('warcrow_show_debug_buttons');
+    if (savedDebugPreference !== null) {
+      setShowDebugButtons(savedDebugPreference === 'true');
+    }
+    
+    const savedRecoveryPreference = localStorage.getItem('warcrow_show_recovery_buttons');
+    if (savedRecoveryPreference !== null) {
+      setShowRecoveryButtons(savedRecoveryPreference === 'true');
+    } else {
+      // Default to true if not set yet
+      localStorage.setItem('warcrow_show_recovery_buttons', 'true');
+      setShowRecoveryButtons(true);
     }
   }, []);
 
@@ -23,6 +33,13 @@ const DebugPanel = () => {
     setShowDebugButtons(enabled);
     localStorage.setItem('warcrow_show_debug_buttons', enabled.toString());
     toast.success(enabled ? "Debug buttons are now visible" : "Debug buttons are now hidden");
+  };
+  
+  // Save recovery buttons preference
+  const handleToggleRecoveryButtons = (enabled: boolean) => {
+    setShowRecoveryButtons(enabled);
+    localStorage.setItem('warcrow_show_recovery_buttons', enabled.toString());
+    toast.success(enabled ? "Recovery buttons are now visible" : "Recovery buttons are now hidden");
   };
 
   // Handle storage purge
@@ -69,6 +86,20 @@ const DebugPanel = () => {
                 id="debug-buttons" 
                 checked={showDebugButtons} 
                 onCheckedChange={handleToggleDebugButtons}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="recovery-buttons">Show Recovery Buttons</Label>
+                <p className="text-sm text-muted-foreground">
+                  When enabled, recovery/troubleshooting buttons will be visible when app issues are detected
+                </p>
+              </div>
+              <Switch 
+                id="recovery-buttons" 
+                checked={showRecoveryButtons} 
+                onCheckedChange={handleToggleRecoveryButtons}
               />
             </div>
             

@@ -13,8 +13,25 @@ function App() {
   const { isPreview } = useEnvironment();
   const [isRecoveryMode, setIsRecoveryMode] = React.useState<boolean>(false);
   const [showAdvancedRecovery, setShowAdvancedRecovery] = React.useState<boolean>(false);
+  const [showDebugButtons, setShowDebugButtons] = React.useState<boolean>(false);
+  const [showRecoveryButtons, setShowRecoveryButtons] = React.useState<boolean>(true);
 
-  // If the app has been loading for more than 5 seconds, show a recovery button
+  // Load user preferences from localStorage on mount
+  React.useEffect(() => {
+    // Check for debug buttons preference
+    const debugButtonsPreference = localStorage.getItem('warcrow_show_debug_buttons');
+    if (debugButtonsPreference !== null) {
+      setShowDebugButtons(debugButtonsPreference === 'true');
+    }
+    
+    // Check for recovery buttons preference
+    const recoveryButtonsPreference = localStorage.getItem('warcrow_show_recovery_buttons');
+    if (recoveryButtonsPreference !== null) {
+      setShowRecoveryButtons(recoveryButtonsPreference === 'true');
+    }
+  }, []);
+
+  // If the app has been loading for more than 5 seconds, show a recovery button (if enabled)
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsRecoveryMode(true);
@@ -110,8 +127,8 @@ function App() {
       
       {/* Debug and recovery controls */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-        {/* Show recovery button for all users */}
-        {isRecoveryMode && (
+        {/* Show recovery button for all users if enabled */}
+        {isRecoveryMode && showRecoveryButtons && (
           <>
             <button
               onClick={handleRecoverSession}
@@ -131,8 +148,8 @@ function App() {
           </>
         )}
         
-        {/* Debug controls for development only */}
-        {isPreview && (
+        {/* Debug controls for development only, if enabled */}
+        {isPreview && showDebugButtons && (
           <button
             onClick={handleDebugPurge}
             className="bg-red-600/90 hover:bg-red-700 text-white text-xs rounded px-2 py-1 shadow"

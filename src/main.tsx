@@ -136,12 +136,23 @@ if (isMobile) {
   }, 3000);
 }
 
-// Check if debug buttons should be shown
+// Check if debug buttons should be shown - updated to use consistent naming
 const shouldShowDebugButtons = () => {
   try {
     return localStorage.getItem('warcrow_show_debug_buttons') === 'true';
   } catch (e) {
     return false;
+  }
+};
+
+// Check if recovery buttons should be shown
+const shouldShowRecoveryButtons = () => {
+  try {
+    const preference = localStorage.getItem('warcrow_show_recovery_buttons');
+    // Default to true if not set
+    return preference === null ? true : preference === 'true';
+  } catch (e) {
+    return true; // Default to true for safety
   }
 };
 
@@ -152,8 +163,8 @@ setTimeout(() => {
   if (appRoot && !appRoot.hasChildNodes()) {
     console.error('[App] Page appears to be stuck loading. Adding recovery option.');
     
-    // Only show recovery button if debug buttons are enabled
-    if (shouldShowDebugButtons()) {
+    // Only show recovery button if enabled
+    if (shouldShowRecoveryButtons()) {
       // Create a recovery button
       const recoveryDiv = document.createElement('div');
       recoveryDiv.style.position = 'fixed';
