@@ -11,6 +11,9 @@ export const MainActions = () => {
   const { isWabAdmin, isGuest } = useAuth();
   const { isPreview } = useEnvironment();
   
+  // Calculate if the user should see admin content
+  const showAdminContent = (isWabAdmin || isPreview) && !isGuest;
+  
   return (
     <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
       <Button 
@@ -35,7 +38,7 @@ export const MainActions = () => {
         </Link>
       </Button>
       
-      {((isWabAdmin || isPreview) && !isGuest) && (
+      {showAdminContent && (
         <Button 
           variant="outline"
           size="lg" 

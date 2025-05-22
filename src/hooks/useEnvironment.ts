@@ -22,31 +22,26 @@ export const useEnvironment = (): EnvironmentInfo => {
   
   useEffect(() => {
     const hostname = window.location.hostname;
-    const origin = window.location.origin;
     
-    // Comprehensive production domain list
-    const productionDomains = [
-      'warcrowarmy.com',
-      'www.warcrowarmy.com',
-      'warcrow-army-builder.netlify.app',
-      'warcrowarmybuilder.netlify.app'
-    ];
-    
-    // Check if the current hostname is a production domain
-    const isExplicitProductionDomain = productionDomains.some(domain => 
-      hostname === domain || hostname.endsWith(`.${domain}`)
-    );
-    
-    // Any development or test domain is considered preview
+    // Comprehensive check for preview environments
     const isPreview = hostname === 'localhost' || 
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
-                     (hostname.includes('netlify.app') && !isExplicitProductionDomain) || 
-                     hostname.includes('lovable.app');
+                     hostname.includes('lovable.app') ||
+                     hostname.includes('id-preview') ||
+                     hostname.includes('netlify.app');
     
-    // Production is only the explicitly defined domains
-    const isProduction = isExplicitProductionDomain;
+    // Explicit production domains only
+    const productionDomains = [
+      'warcrowarmy.com',
+      'www.warcrowarmy.com',
+      'warcrow-army-builder.netlify.app'
+    ];
+    
+    const isProduction = productionDomains.some(domain => 
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
     
     // Always use local data for content in all environments
     const useLocalContentData = true;
@@ -60,12 +55,9 @@ export const useEnvironment = (): EnvironmentInfo => {
     
     console.log("[useEnvironment] Environment detected:", { 
       hostname, 
-      origin,
-      isExplicitProductionDomain,
       isPreview, 
       isProduction,
       useLocalContentData,
-      productionDomains,
       timestamp: new Date().toISOString()
     });
   }, []);

@@ -1,9 +1,7 @@
-
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
 import ApiStatus from '@/components/admin/ApiStatus';
@@ -20,64 +18,39 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useEnvironment } from '@/hooks/useEnvironment';
 import { useEnsureDefaultFactions } from '@/hooks/useEnsureDefaultFactions';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { isAuthenticated, isAdmin: isAdminFromAuth } = useAuth();
+  const { isAuthenticated, isWabAdmin, isGuest } = useAuth();
+  const { isPreview } = useEnvironment();
   
-  // Use our new hook to ensure default factions exist
+  // Use our hook to ensure default factions exist
   useEnsureDefaultFactions();
-  
-  // Check if we're in preview mode
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    return hostname === 'lovableproject.com' || 
-           hostname.endsWith('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           hostname.includes('netlify.app') ||
-           hostname.includes('lovable.app');
-  };
   
   useEffect(() => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
-        // For preview environments, bypass regular checks
-        if (isPreviewMode()) {
+        // For preview environments, allow admin access but respect guest status
+        if (isPreview && !isGuest) {
           console.log("Admin page: Preview environment detected, granting admin access");
-          setIsAdmin(true);
           setIsCheckingAdmin(false);
           return;
         }
         
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          console.log("Admin page: No session found, redirecting to login");
-          navigate('/login');
-          return;
-        }
-        
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('wab_admin')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (error || !data || !data.wab_admin) {
-          console.log("Admin page: User is not admin, redirecting to home", error);
+        // For non-preview environments or guests, check for actual admin status
+        if (isGuest || (!isWabAdmin && !isPreview)) {
+          console.log("Admin page: User is not admin or is guest, redirecting to home");
           navigate('/');
           return;
         }
         
         console.log("Admin page: User confirmed as admin");
-        setIsAdmin(true);
       } catch (error) {
         console.error('Error checking admin status:', error);
         navigate('/');
@@ -87,7 +60,7 @@ const Admin = () => {
     };
     
     checkAdminStatus();
-  }, [navigate]);
+  }, [navigate, isWabAdmin, isPreview, isGuest, isAuthenticated]);
   
   if (isCheckingAdmin) {
     return (
@@ -97,10 +70,7 @@ const Admin = () => {
     );
   }
   
-  if (!isAdmin) {
-    return null; // Redirect is handled in useEffect
-  }
-  
+  // Show admin content
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       {/* Main navigation bar */}
