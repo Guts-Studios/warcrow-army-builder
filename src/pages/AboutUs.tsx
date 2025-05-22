@@ -96,9 +96,7 @@ const AboutUs = () => {
                   <div>
                     <h3 className="text-xl font-semibold text-warcrow-gold">James Caldwell</h3>
                     <p className="text-sm text-warcrow-text/80">
-                      {language === 'en' ? 'Co-creator & Engineer' : 
-                      language === 'es' ? 'Co-creador e Ingeniero' : 
-                      'Co-créateur et Ingénieur'}
+                      {aboutTranslations.coCreatorEngineer[language]}
                     </p>
                   </div>
                 </div>
@@ -135,9 +133,7 @@ const AboutUs = () => {
                   <div>
                     <h3 className="text-xl font-semibold text-warcrow-gold">Jayrol San Jose</h3>
                     <p className="text-sm text-warcrow-text/80">
-                      {language === 'en' ? 'Co-creator' : 
-                      language === 'es' ? 'Co-creador' : 
-                      'Co-créateur'}
+                      {aboutTranslations.coCreatorUxEngineer[language]}
                     </p>
                   </div>
                 </div>
