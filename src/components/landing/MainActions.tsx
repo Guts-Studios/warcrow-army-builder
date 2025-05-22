@@ -11,8 +11,7 @@ export const MainActions = () => {
       <Button 
         variant="gold" 
         size="lg" 
-        asChild 
-        className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+        asChild
       >
         <Link to="/builder">
           {t('startBuilding')}
@@ -21,8 +20,7 @@ export const MainActions = () => {
       <Button 
         variant="gold" 
         size="lg" 
-        asChild 
-        className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90"
+        asChild
       >
         <Link to="/login">
           {t('signIn')}
