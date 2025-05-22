@@ -1,8 +1,10 @@
 
 export const getLatestVersion = (content: string): string => {
   try {
+    // If we're in a preview environment or the content is empty/invalid,
+    // return a default version instead of trying to parse
     if (!content || typeof content !== 'string' || content.trim() === '') {
-      console.error('[Version] Empty or invalid changelog content');
+      console.log('[Version] Empty or invalid changelog content, using default version');
       return '0.5.8'; // Return current version
     }
 
@@ -11,7 +13,7 @@ export const getLatestVersion = (content: string): string => {
         content.includes('<html') || 
         content.includes('<head>') || 
         content.includes('<body>')) {
-      console.warn('[Version] Received HTML instead of markdown content');
+      console.log('[Version] Received HTML instead of markdown content, using default version');
       // Use fallback hardcoded version
       return '0.5.8'; // Return current version
     }
@@ -21,15 +23,14 @@ export const getLatestVersion = (content: string): string => {
     const matches = content.match(new RegExp(versionRegex, 'g'));
     
     if (!matches || matches.length === 0) {
-      console.error('[Version] No version found in changelog content');
-      console.log('[Version] Changelog content sample:', content.substring(0, 100) + '...');
+      console.log('[Version] No version found in changelog content, using default version');
       return '0.5.8'; // Return current version as fallback
     }
     
     // The versions appear in descending order in the changelog, so the first one is the most recent
     const latestVersionMatch = matches[0].match(versionRegex);
     if (!latestVersionMatch || latestVersionMatch.length < 2) {
-      console.error('[Version] Failed to extract version number from match:', matches[0]);
+      console.log('[Version] Failed to extract version number from match, using default version');
       return '0.5.8';
     }
     

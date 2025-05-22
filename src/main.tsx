@@ -78,7 +78,8 @@ const fetchChangelog = () => {
     .then(response => {
       console.log(`[App] CHANGELOG.md fetch status: ${response.status}`);
       if (!response.ok) {
-        toast.error("Failed to load version information");
+        // Silently log the error instead of showing a toast
+        console.warn("Failed to load version information, using default version");
         throw new Error(`Failed to fetch CHANGELOG.md: ${response.status}`);
       }
       return response.text();
