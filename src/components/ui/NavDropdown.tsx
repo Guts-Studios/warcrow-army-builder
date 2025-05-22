@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, Bell, ActivityIcon, ShieldAlert, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -15,11 +14,13 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isWabAdmin, userId, isLoading } = useAuth();
   const [isPreview, setIsPreview] = useState(false);
+  const { t } = useLanguage();
   
   useEffect(() => {
     // Check for preview mode
@@ -106,10 +107,9 @@ export const NavDropdown = () => {
             className="cursor-pointer hover:bg-warcrow-gold/10 text-warcrow-text"
             onClick={() => navigate('/about')}
           >
-            About Us
+            {t('supportUs')}
           </DropdownMenuItem>
           
-          {/* Admin section - Important to ensure this is displayed when isWabAdmin is true */}
           {(isWabAdmin || isPreview) && (
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />

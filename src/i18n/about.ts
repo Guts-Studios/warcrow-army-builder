@@ -1,4 +1,3 @@
-
 export const aboutTranslations = {
   aboutTitle: {
     en: 'About Us',
@@ -29,6 +28,11 @@ export const aboutTranslations = {
     en: 'Buy us a coffee',
     es: 'Invítanos a un café',
     fr: 'Offrez-nous un café'
+  },
+  supportUs: {
+    en: 'Support Us',
+    es: 'Apóyanos',
+    fr: 'Nous Soutenir'
   },
   becomePatron: {
     en: 'Become a Patron',
@@ -104,7 +108,7 @@ export const aboutTranslations = {
   noPostsAvailable: {
     en: 'No posts available at this time.',
     es: 'No hay publicaciones disponibles en este momento.',
-    fr: 'Aucune publication disponible pour le moment.'
+    fr: 'Aucune publication disponible para el momento.'
   },
   communityTitle: {
     en: 'Our Community',
