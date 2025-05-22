@@ -16,6 +16,7 @@ import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { Container } from "@/components/ui/custom";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();

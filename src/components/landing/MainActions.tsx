@@ -5,21 +5,24 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { BookOpen, ShieldAlert } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const MainActions = () => {
   const { t } = useLanguage();
   const { isWabAdmin, isGuest } = useAuth();
   const { isPreview } = useEnvironment();
+  const isMobile = useIsMobile();
   
   // Calculate if the user should see admin content
   const showAdminContent = (isWabAdmin || isPreview) && !isGuest;
   
   return (
-    <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
+    <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap max-w-xs sm:max-w-none mx-auto px-4 sm:px-0">
       <Button 
         variant="gold" 
         size="lg" 
         asChild
+        className="w-full sm:w-auto"
       >
         <Link to="/builder">
           {t('startBuilding')}
@@ -29,7 +32,7 @@ export const MainActions = () => {
       <Button 
         variant="outline"
         size="lg" 
-        className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+        className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 w-full sm:w-auto"
         asChild
       >
         <Link to="/rules">
@@ -42,7 +45,7 @@ export const MainActions = () => {
         <Button 
           variant="outline"
           size="lg" 
-          className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+          className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 w-full sm:w-auto"
           asChild
         >
           <Link to="/admin">
