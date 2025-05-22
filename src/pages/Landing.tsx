@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -121,8 +122,8 @@ const Landing = () => {
   const { isWabAdmin, isAuthenticated, isTester } = useAuth();
   const { isPreview } = useEnvironment();
   
-  // Check if user has permission to see the Play Mode
-  const canAccessPlayMode = isTester || isWabAdmin || isPreview;
+  // Check if user has permission to see the Play Mode - Ensure guest users can't see it
+  const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
 
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
@@ -256,7 +257,7 @@ const Landing = () => {
         />
         <MainActions />
         
-        {/* Play Mode Button - Only shown to testers or admins */}
+        {/* Play Mode Button - Only shown to testers or admins who are not guests */}
         {canAccessPlayMode && (
           <div className="flex justify-center">
             <Button 
