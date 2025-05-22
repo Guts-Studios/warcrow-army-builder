@@ -317,7 +317,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
         />
         <Alert className="mb-6 border-yellow-600 bg-yellow-900/20">
           <AlertDescription className="text-yellow-200 text-sm">
-            - 4/29/2025 Hey everyone! We took a quick break but working on Play Mode, fixing bugs, general optimization. Updates soon! 
+            Make sure not to use a university or similar account due to emails potentially getting blocked for confirmation (my old university email blocks them)
           </AlertDescription>
         </Alert>
         <div className="mb-6 flex justify-center gap-4">
@@ -387,7 +387,7 @@ const Login = ({ onGuestAccess }: LoginProps) => {
               }
             },
             className: {
-              button: 'bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold border border-warcrow-gold text-warcrow-background transition-all duration-300',
+              button: 'bg-warcrow-gold hover:bg-warcrow-accent hover:text-warcrow-gold border border-warcrow-gold text-black transition-all duration-300',
               input: 'bg-warcrow-background border-warcrow-gold text-warcrow-text',
               label: 'text-warcrow-text',
               anchor: 'text-warcrow-gold hover:text-warcrow-gold/80',
