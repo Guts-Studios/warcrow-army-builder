@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { NavDropdown } from "@/components/ui/NavDropdown";
 import { SupportButton } from "@/components/landing/SupportButton";
 
 interface PageHeaderProps {
@@ -31,7 +30,6 @@ export const PageHeader = ({
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-2 md:mt-0">
             {children}
-            <NavDropdown />
           </div>
         </div>
       </div>
