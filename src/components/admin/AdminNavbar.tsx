@@ -1,6 +1,6 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bug, Users, CheckCircle, Database, BookOpen, QuestionMarkCircle, Newspaper, Globe, Activity, Image } from "lucide-react";
+import { Bug, Users, CheckCircle, Database, BookOpen, HelpCircle, Newspaper, Globe, Activity, Image } from "lucide-react";
 
 interface AdminNavbarProps {
   activeTab: string;
@@ -37,7 +37,7 @@ const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
         </TabsTrigger>
         
         <TabsTrigger value="faq" className="flex flex-col items-center py-2">
-          <QuestionMarkCircle className="h-4 w-4 mb-1" />
+          <HelpCircle className="h-4 w-4 mb-1" />
           <span className="text-xs">FAQ</span>
         </TabsTrigger>
         
