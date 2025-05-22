@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { NavDropdown } from "@/components/ui/NavDropdown";
+import { SupportButton } from "@/components/landing/SupportButton";
 
 interface PageHeaderProps {
   title: string;
@@ -18,11 +19,14 @@ export const PageHeader = ({
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 mx-auto md:mx-0">
-            <img 
-              src={logoUrl}
-              alt="Warcrow Logo" 
-              className="h-12 md:h-16"
-            />
+            <div className="flex items-center gap-2 md:gap-4">
+              <SupportButton className="md:static absolute top-2 left-2 z-10" />
+              <img 
+                src={logoUrl}
+                alt="Warcrow Logo" 
+                className="h-12 md:h-16"
+              />
+            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-2 md:mt-0">
