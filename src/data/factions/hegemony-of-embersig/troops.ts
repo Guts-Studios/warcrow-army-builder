@@ -84,7 +84,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Preferred Terrain (Rugged)", description: "" }
     ],
     availability: 1,
-    specialRules: [],
+    specialRules: ["Intimidating (2)"],
     imageUrl: "/art/card/black_angels_card_en.jpg"
   },
   {
@@ -104,17 +104,19 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
   },
   {
     id: "lady-telia",
-    name: "Lady Telia",
-    pointsCost: 35,
+    name: "Lady Télia",
+    pointsCost: 25,
     command: 1,
     faction: "hegemony-of-embersig",
     keywords: [
       { name: "Character", description: "" },
       { name: "Human", description: "" },
-      { name: "Join (Infantry)", description: "" }
+      { name: "Elite", description: "" },
+      { name: "Scout", description: "" },
+      { name: "Join (Arquebusiers | Pioneers)", description: "" }
     ],
     availability: 1,
-    specialRules: [],
+    specialRules: ["Frightened", "Aim", "Repeat a Die"],
     imageUrl: "/art/card/lady_telia_card_en.jpg"
   }
 ];
