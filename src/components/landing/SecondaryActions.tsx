@@ -14,13 +14,13 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { clearAuthState } = useAuth();
+  const { forceSignOut } = useAuth();
   
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
       await supabase.auth.signOut();
-      clearAuthState();
+      forceSignOut(); // Use forceSignOut instead of clearAuthState
       navigate('/');
       toast.success("Signed out successfully");
     } catch (error) {
