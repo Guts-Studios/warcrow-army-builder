@@ -21,10 +21,6 @@ const DebugPanel = () => {
     const savedRecoveryPreference = localStorage.getItem('warcrow_show_recovery_buttons');
     if (savedRecoveryPreference !== null) {
       setShowRecoveryButtons(savedRecoveryPreference === 'true');
-    } else {
-      // Default to true if not set yet
-      localStorage.setItem('warcrow_show_recovery_buttons', 'true');
-      setShowRecoveryButtons(true);
     }
   }, []);
 
@@ -32,6 +28,10 @@ const DebugPanel = () => {
   const handleToggleDebugButtons = (enabled: boolean) => {
     setShowDebugButtons(enabled);
     localStorage.setItem('warcrow_show_debug_buttons', enabled.toString());
+    
+    // Trigger a storage event for other components to detect this change
+    window.dispatchEvent(new Event('storage'));
+    
     toast.success(enabled ? "Debug buttons are now visible" : "Debug buttons are now hidden");
   };
   
@@ -39,6 +39,10 @@ const DebugPanel = () => {
   const handleToggleRecoveryButtons = (enabled: boolean) => {
     setShowRecoveryButtons(enabled);
     localStorage.setItem('warcrow_show_recovery_buttons', enabled.toString());
+    
+    // Trigger a storage event for other components to detect this change
+    window.dispatchEvent(new Event('storage'));
+    
     toast.success(enabled ? "Recovery buttons are now visible" : "Recovery buttons are now hidden");
   };
 

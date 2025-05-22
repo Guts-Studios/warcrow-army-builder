@@ -149,10 +149,10 @@ const shouldShowDebugButtons = () => {
 const shouldShowRecoveryButtons = () => {
   try {
     const preference = localStorage.getItem('warcrow_show_recovery_buttons');
-    // Default to true if not set
-    return preference === null ? true : preference === 'true';
+    // Default to false explicitly - this was the issue!
+    return preference === 'true';
   } catch (e) {
-    return true; // Default to true for safety
+    return false; // Default to false for safety
   }
 };
 

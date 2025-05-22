@@ -14,25 +14,36 @@ function App() {
   const [isRecoveryMode, setIsRecoveryMode] = React.useState<boolean>(false);
   const [showAdvancedRecovery, setShowAdvancedRecovery] = React.useState<boolean>(false);
   const [showDebugButtons, setShowDebugButtons] = React.useState<boolean>(false);
-  const [showRecoveryButtons, setShowRecoveryButtons] = React.useState<boolean>(true);
+  const [showRecoveryButtons, setShowRecoveryButtons] = React.useState<boolean>(false);
 
   // Load user preferences from localStorage on mount
   React.useEffect(() => {
-    // Check for debug buttons preference
-    const debugButtonsPreference = localStorage.getItem('warcrow_show_debug_buttons');
-    if (debugButtonsPreference !== null) {
+    const loadPreferences = () => {
+      // Check for debug buttons preference
+      const debugButtonsPreference = localStorage.getItem('warcrow_show_debug_buttons');
       setShowDebugButtons(debugButtonsPreference === 'true');
-    }
-    
-    // Check for recovery buttons preference
-    const recoveryButtonsPreference = localStorage.getItem('warcrow_show_recovery_buttons');
-    if (recoveryButtonsPreference !== null) {
+      
+      // Check for recovery buttons preference - default to false if not set
+      const recoveryButtonsPreference = localStorage.getItem('warcrow_show_recovery_buttons');
       setShowRecoveryButtons(recoveryButtonsPreference === 'true');
-    }
+    };
+    
+    // Initial load
+    loadPreferences();
+    
+    // Also add event listener to detect changes from other components
+    window.addEventListener('storage', loadPreferences);
+    
+    return () => {
+      window.removeEventListener('storage', loadPreferences);
+    };
   }, []);
 
   // If the app has been loading for more than 5 seconds, show a recovery button (if enabled)
   React.useEffect(() => {
+    // Only set up timers if recovery buttons are enabled
+    if (!showRecoveryButtons) return;
+    
     const timer = setTimeout(() => {
       setIsRecoveryMode(true);
     }, 5000);
@@ -46,7 +57,7 @@ function App() {
       clearTimeout(timer);
       clearTimeout(advancedTimer);
     };
-  }, []);
+  }, [showRecoveryButtons]); // Depend on showRecoveryButtons
 
   // Debug function to manually purge storage in development
   const handleDebugPurge = React.useCallback(() => {
@@ -125,39 +136,41 @@ function App() {
         </LanguageProvider>
       </ProvidersWrapper>
       
-      {/* Debug and recovery controls */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-        {/* Show recovery button for all users if enabled */}
-        {isRecoveryMode && showRecoveryButtons && (
-          <>
-            <button
-              onClick={handleRecoverSession}
-              className="bg-blue-600/90 hover:bg-blue-700 text-white text-xs rounded px-2 py-1 shadow"
-            >
-              Having trouble? Click to fix
-            </button>
-            
-            {showAdvancedRecovery && (
+      {/* Debug and recovery controls - only show if explicitly enabled */}
+      {(isPreview && showDebugButtons || isRecoveryMode && showRecoveryButtons) && (
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+          {/* Show recovery button for all users if enabled */}
+          {isRecoveryMode && showRecoveryButtons && (
+            <>
               <button
-                onClick={handleAuthRecovery}
-                className="bg-amber-600/90 hover:bg-amber-700 text-white text-xs rounded px-2 py-1 shadow"
+                onClick={handleRecoverSession}
+                className="bg-blue-600/90 hover:bg-blue-700 text-white text-xs rounded px-2 py-1 shadow"
               >
-                Auth issue? Clear & login
+                Having trouble? Click to fix
               </button>
-            )}
-          </>
-        )}
-        
-        {/* Debug controls for development only, if enabled */}
-        {isPreview && showDebugButtons && (
-          <button
-            onClick={handleDebugPurge}
-            className="bg-red-600/90 hover:bg-red-700 text-white text-xs rounded px-2 py-1 shadow"
-          >
-            Debug: Purge Storage
-          </button>
-        )}
-      </div>
+              
+              {showAdvancedRecovery && showRecoveryButtons && (
+                <button
+                  onClick={handleAuthRecovery}
+                  className="bg-amber-600/90 hover:bg-amber-700 text-white text-xs rounded px-2 py-1 shadow"
+                >
+                  Auth issue? Clear & login
+                </button>
+              )}
+            </>
+          )}
+          
+          {/* Debug controls for development only, if enabled */}
+          {isPreview && showDebugButtons && (
+            <button
+              onClick={handleDebugPurge}
+              className="bg-red-600/90 hover:bg-red-700 text-white text-xs rounded px-2 py-1 shadow"
+            >
+              Debug: Purge Storage
+            </button>
+          )}
+        </div>
+      )}
       
       <SonnerToaster 
         theme="dark" 
