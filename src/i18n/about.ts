@@ -1,3 +1,4 @@
+
 export const aboutTranslations = {
   aboutTitle: {
     en: 'About Us',
@@ -114,5 +115,16 @@ export const aboutTranslations = {
     en: 'Our Community',
     es: 'Nuestra Comunidad',
     fr: 'Notre Communauté'
+  },
+  // Add translations for team member roles
+  coCreatorEngineer: {
+    en: 'Co-creator & Engineer',
+    es: 'Co-creador e Ingeniero',
+    fr: 'Co-créateur et Ingénieur'
+  },
+  coCreator: {
+    en: 'Co-creator',
+    es: 'Co-creador',
+    fr: 'Co-créateur'
   }
 };

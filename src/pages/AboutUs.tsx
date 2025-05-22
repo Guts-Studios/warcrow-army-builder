@@ -96,18 +96,18 @@ const AboutUs = () => {
                   <div>
                     <h3 className="text-xl font-semibold text-warcrow-gold">James Caldwell</h3>
                     <p className="text-sm text-warcrow-text/80">
-                      {language === 'en' ? 'Lead Developer & Designer' : 
-                      language === 'es' ? 'Desarrollador Principal y Diseñador' : 
-                      'Développeur Principal et Designer'}
+                      {language === 'en' ? 'Co-creator & Engineer' : 
+                      language === 'es' ? 'Co-creador e Ingeniero' : 
+                      'Co-créateur et Ingénieur'}
                     </p>
                   </div>
                 </div>
                 <p className="text-warcrow-text/90">
                   {language === 'en' 
-                    ? 'Creator and maintainer of the Warcrow Army Builder application. Passionate about game design and web development.' 
+                    ? 'Creator and engineer of the Warcrow Army Builder application. Passionate about game design and web development.' 
                     : language === 'es' 
-                    ? 'Creador y mantenedor de la aplicación Constructor de Ejércitos de Warcrow. Apasionado por el diseño de juegos y el desarrollo web.'
-                    : 'Créateur et mainteneur de l\'application Constructeur d\'Armée Warcrow. Passionné par le design de jeux et le développement web.'}
+                    ? 'Creador e ingeniero de la aplicación Constructor de Ejércitos de Warcrow. Apasionado por el diseño de juegos y el desarrollo web.'
+                    : 'Créateur et ingénieur de l\'application Constructeur d\'Armée Warcrow. Passionné par le design de jeux et le développement web.'}
                 </p>
                 <div className="flex mt-4 space-x-3">
                   <a href="#" className="text-warcrow-text/60 hover:text-warcrow-gold">
@@ -135,9 +135,9 @@ const AboutUs = () => {
                   <div>
                     <h3 className="text-xl font-semibold text-warcrow-gold">Jayrol San Jose</h3>
                     <p className="text-sm text-warcrow-text/80">
-                      {language === 'en' ? 'Content Expert, UI Expert & Project Manager' : 
-                      language === 'es' ? 'Experto en Contenido, UI y Gestor de Proyectos' : 
-                      'Expert en Contenu, UI et Chef de Projet'}
+                      {language === 'en' ? 'Co-creator' : 
+                      language === 'es' ? 'Co-creador' : 
+                      'Co-créateur'}
                     </p>
                   </div>
                 </div>
