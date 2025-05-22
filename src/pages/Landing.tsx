@@ -28,7 +28,7 @@ import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { getBuildFailureNotifications } from "@/utils/notificationUtils";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
@@ -118,8 +118,11 @@ const Landing = () => {
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
   const latestVersion = getLatestVersion(changelogContent);
   const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated } = useAuth();
+  const { isWabAdmin, isAuthenticated, isTester } = useAuth();
   const { isPreview } = useEnvironment();
+  
+  // Check if user has permission to see the Play Mode
+  const canAccessPlayMode = isTester || isWabAdmin || isPreview;
 
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
@@ -252,6 +255,21 @@ const Landing = () => {
           latestFailedBuild={latestFailedBuild}
         />
         <MainActions />
+        
+        {/* Play Mode Button - Only shown to testers or admins */}
+        {canAccessPlayMode && (
+          <div className="flex justify-center">
+            <Button 
+              variant="outline"
+              className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
+              onClick={() => navigate('/play')}
+            >
+              <PlayCircle className="h-5 w-5" />
+              <span>{t('playMode')}</span>
+            </Button>
+          </div>
+        )}
+        
         <SecondaryActions isGuest={isGuest} />
 
         <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
