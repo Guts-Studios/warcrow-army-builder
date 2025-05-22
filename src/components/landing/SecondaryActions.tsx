@@ -52,18 +52,18 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
           <Button
             onClick={handleSignOut}
             disabled={isLoading}
-            variant="link"
+            variant="outline"
             size="sm"
-            className="text-warcrow-text/60 hover:text-warcrow-text/80"
+            className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
           >
             <LogOut className="h-4 w-4 mr-1" />
             {t('signOut')}
           </Button>
         ) : (
           <Button
-            variant="link"
+            variant="outline"
             size="sm"
-            className="text-warcrow-text/60 hover:text-warcrow-text/80"
+            className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
             asChild
           >
             <Link to="/login">
@@ -75,9 +75,9 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
 
       <div className="flex justify-center">
         <Button
-          variant="link"
+          variant="outline"
           size="sm"
-          className="text-warcrow-gold/70 hover:text-warcrow-gold/90"
+          className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
           asChild
         >
           <a href="https://www.buymeacoffee.com/warcrowarmy" target="_blank" rel="noopener noreferrer">

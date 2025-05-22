@@ -1,4 +1,3 @@
-
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "./NewsArchiveDialog";
@@ -365,7 +364,7 @@ export const Header = ({
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
-          <div>
+          <div className="hidden">
             <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
           </div>
         </div>
@@ -394,8 +393,8 @@ export const Header = ({
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>
         )}
         
-        {/* Changelog button and dialog - moved from Landing.tsx */}
-        <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
+        {/* Changelog button and dialog - kept in Header.tsx but hidden on the page */}
+        <div className="mt-3 pt-3 border-t border-warcrow-gold/20 hidden">
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -421,4 +420,3 @@ export const Header = ({
     </div>
   );
 };
-
