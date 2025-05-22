@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Play, User, Shield, Bug } from "lucide-react";
+import { Play, User, Shield, Bug, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnvironment } from "@/hooks/useEnvironment";
@@ -76,7 +76,8 @@ export const MainActions = () => {
           variant="outline"
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
-          {t('rulesReference')}
+          <BookOpen className="mr-2 h-4 w-4" />
+          {t('rulesReference')}{' / '}{t('faq')}
         </Button>
         <Button
           onClick={() => navigate('/missions')}

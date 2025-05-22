@@ -38,13 +38,17 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       let processedUrl = cardUrl;
       
       // Special case for Lady Télia
-      if (unitName.includes("Lady Télia") || unitName.includes("Lady Telia")) {
+      if (unitName.includes("Lady Télia") || unitName.includes("Lady Telia") || cardUrl.includes("lady_telia")) {
         processedUrl = language === 'es' ? "/art/card/lady_telia_card_sp.jpg" :
                       language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
                       "/art/card/lady_telia_card_en.jpg";
+                      
+        console.log(`Using special Lady Télia URL: ${processedUrl}`);
       } 
       // If URL is a UUID format or contains a dash
-      else if (cardUrl.includes('-') && (cardUrl.length > 60 || cardUrl.includes('uuid'))) {
+      else if ((cardUrl.includes('-') && (cardUrl.length > 60 || cardUrl.includes('uuid'))) || 
+               cardUrl.includes("undefined") || // Handle broken URLs
+               cardUrl === "") {
         // Clean the name for URL generation
         const cleanName = unitName
           .toLowerCase()
@@ -59,6 +63,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
         // Try a standard naming pattern with language suffix
         const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
         processedUrl = `/art/card/${cleanName}_card${langSuffix}.jpg`;
+        console.log(`Generated clean URL from name: ${processedUrl}`);
       }
       // Add language suffix if not present
       else if (!processedUrl.includes('_sp.jpg') && 
@@ -75,6 +80,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
         } else {
           processedUrl = `${baseUrl}_en.jpg`;
         }
+        console.log(`Added language suffix to URL: ${processedUrl}`);
       }
       
       console.log(`Dialog processing card URL - Original: ${cardUrl}, Processed: ${processedUrl}, Language: ${language}, isPreview: ${isPreview}`);
@@ -136,14 +142,15 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       return;
     }
     
-    // Special fallback for Northern Tribes
-    if (unitName.toLowerCase().includes('northern') || unitName.toLowerCase().includes('tribe')) {
-      const cleanName = unitName.toLowerCase().replace(/\s+/g, '_').replace(/[^\w-]/g, '');
-      const ntUrl = `/art/card/northern_tribes_${cleanName}_card.jpg`;
-      console.log(`Trying Northern Tribes specific URL: ${ntUrl}`);
-      target.src = ntUrl;
-      return;
-    }
+    // If URL contains invalid characters, try a simpler filename approach
+    const cleanNameSimple = unitName
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_-]/g, '');
+      
+    const simpleUrl = `/art/card/${cleanNameSimple}_card.jpg`;
+    console.log(`Trying simplified name URL: ${simpleUrl}`);
+    target.src = simpleUrl;
     
     // If all fallbacks failed
     console.log("All fallbacks failed, showing error state");
