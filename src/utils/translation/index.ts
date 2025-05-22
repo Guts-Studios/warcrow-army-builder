@@ -1,5 +1,5 @@
 
-export { batchTranslate, translateText, translateToFrench } from './batchTranslate';
+export { batchTranslate, translateText, translateToFrench, translateToSpanish } from './batchTranslate';
 export { useTranslateKeyword } from './useTranslateKeyword';
 export { toast } from '@/components/ui/toast-core';
 export { useUnitNameTranslations } from './hooks/useUnitNameTranslations';

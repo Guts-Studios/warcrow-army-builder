@@ -38,3 +38,41 @@ export async function batchTranslate(texts: string[], targetLang: 'es' | 'fr'): 
     return { error: error.message || 'Translation failed' };
   }
 }
+
+/**
+ * Translate a single string to a target language
+ * @param text String to translate
+ * @param targetLang Target language code (e.g., 'es', 'fr')
+ * @returns Promise resolving to the translated string or error message
+ */
+export async function translateText(text: string, targetLang: 'es' | 'fr'): Promise<string | { error: string }> {
+  if (!text || text.trim() === '') {
+    return '';
+  }
+  
+  const result = await batchTranslate([text], targetLang);
+  
+  if (Array.isArray(result)) {
+    return result[0] || '';
+  }
+  
+  return result; // Return the error object
+}
+
+/**
+ * Convenience function to translate a string to French
+ * @param text String to translate
+ * @returns Promise resolving to the translated string or error message
+ */
+export async function translateToFrench(text: string): Promise<string | { error: string }> {
+  return translateText(text, 'fr');
+}
+
+/**
+ * Convenience function to translate a string to Spanish
+ * @param text String to translate
+ * @returns Promise resolving to the translated string or error message
+ */
+export function translateToSpanish(text: string): Promise<string | { error: string }> {
+  return translateText(text, 'es');
+}
