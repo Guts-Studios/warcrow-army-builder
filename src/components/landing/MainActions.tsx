@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -77,7 +76,7 @@ export const MainActions = () => {
           className="w-full md:w-auto border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black"
         >
           <BookOpen className="mr-2 h-4 w-4" />
-          {t('rulesReference')}{' / '}{t('faq')}
+          {t('rulesReference')} {t('and')} {t('faq')}
         </Button>
         <Button
           onClick={() => navigate('/missions')}

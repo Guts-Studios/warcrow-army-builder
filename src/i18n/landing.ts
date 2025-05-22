@@ -21,9 +21,19 @@ export const landingTranslations = {
     fr: 'Commencer à Construire'
   },
   rulesReference: {
-    en: 'Rules Reference',
-    es: 'Referencia de Reglas',
-    fr: 'Référence des Règles'
+    en: 'Rules',
+    es: 'Reglas',
+    fr: 'Règles'
+  },
+  and: {
+    en: 'and',
+    es: 'y',
+    fr: 'et'
+  },
+  faq: {
+    en: 'FAQ',
+    es: 'FAQ',
+    fr: 'FAQ'
   },
   userCountMessage: {
     en: 'Join {count} players building armies',
