@@ -17,15 +17,6 @@ export const MainActions = () => {
           {t('startBuilding')}
         </Link>
       </Button>
-      <Button 
-        variant="gold" 
-        size="lg" 
-        asChild
-      >
-        <Link to="/login">
-          {t('signIn')}
-        </Link>
-      </Button>
     </div>
   );
 };
