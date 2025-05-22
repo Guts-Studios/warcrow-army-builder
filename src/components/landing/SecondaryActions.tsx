@@ -65,9 +65,9 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
           className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
           asChild
         >
-          <a href="https://www.buymeacoffee.com/warcrowarmy" target="_blank" rel="noopener noreferrer">
-            {t('buyCoffee')}
-          </a>
+          <Link to="/about">
+            {t('supportUs')}
+          </Link>
         </Button>
       </div>
     </>

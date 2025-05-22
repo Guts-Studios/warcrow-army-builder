@@ -102,6 +102,13 @@ export const NavDropdown = () => {
             Profile
           </DropdownMenuItem>
           
+          <DropdownMenuItem 
+            className="cursor-pointer hover:bg-warcrow-gold/10 text-warcrow-text"
+            onClick={() => navigate('/about')}
+          >
+            About Us
+          </DropdownMenuItem>
+          
           {/* Admin section - Important to ensure this is displayed when isWabAdmin is true */}
           {(isWabAdmin || isPreview) && (
             <>
