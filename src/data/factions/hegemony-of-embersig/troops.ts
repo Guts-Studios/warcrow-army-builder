@@ -83,7 +83,20 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Preferred Terrain (Rugged)", description: "" }
     ],
     availability: 1,
-    specialRules: ["Intimidating (2)"],
-    imageUrl: "/art/card/black_angels_card_en.jpg"
+  imageUrl: "/art/card/black_angels_card_en.jpg"
+  },
+   {
+    id: "strategos",
+    name: "Strategos",
+    pointsCost: 20,
+    command: 1,
+    faction: "hegemony-of-embersig",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Join (Infantry)", description: "" }
+    ],
+    availability: 1,
+    imageUrl: "/art/card/strategos_card_en.jpg"
   }
-];
+  ];
