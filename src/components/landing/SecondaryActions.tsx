@@ -34,17 +34,13 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
   return (
     <>
       <div className="flex flex-row items-center justify-center gap-4">
-        <Button
-          variant="outline"
-          className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
-          size="sm"
-          asChild
+        <Link 
+          to="/changelog" 
+          className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm"
         >
-          <Link to="/changelog">
-            {t('viewChangelog')}
-          </Link>
-        </Button>
-        <NewsArchiveDialog triggerClassName="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold" />
+          {t('viewChangelog')}
+        </Link>
+        <NewsArchiveDialog triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" />
       </div>
 
       <div className="flex justify-center">

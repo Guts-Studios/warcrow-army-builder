@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -127,10 +126,8 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className={triggerClassName}>
-          {t('viewNewsArchive')}
-        </Button>
+      <DialogTrigger className={triggerClassName}>
+        {t('viewNewsArchive')}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
