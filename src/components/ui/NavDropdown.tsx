@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Menu, Bell, ActivityIcon, ShieldAlert, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +19,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isWabAdmin, userId, isLoading } = useAuth();
+  const { isAuthenticated, isWabAdmin, userId, isLoading, isGuest } = useAuth();
   const [isPreview, setIsPreview] = useState(false);
   const { t } = useLanguage();
   
@@ -110,7 +111,7 @@ export const NavDropdown = () => {
             {t('supportUs')}
           </DropdownMenuItem>
           
-          {(isWabAdmin || isPreview) && (
+          {((isWabAdmin || isPreview) && !isGuest) && (
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />
               <DropdownMenuGroup>
