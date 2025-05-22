@@ -216,12 +216,10 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
-      <div className="absolute top-4 right-4 z-50">
+      {/* Update the positioning of the language switcher and support button */}
+      <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
+        <SupportButton className="z-50" />
         <LanguageSwitcher />
-      </div>
-      
-      <div className="absolute top-4 left-4 z-50">
-        <SupportButton />
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
