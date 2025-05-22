@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,10 +21,10 @@ const PlayerUnitsList: React.FC<PlayerUnitsListProps> = ({ units }) => {
   const getCardUrl = (unit: Unit) => {
     if (!unit) return "";
     
-    // If unit has imageUrl property, use that
-    if (unit.imageUrl) return unit.imageUrl;
+    // Instead of checking imageUrl property directly (which doesn't exist on Unit type from game.ts)
+    // we need to construct the URL based on the unit id
     
-    // Otherwise, construct URL based on unit id
+    // Construct URL based on unit id
     const baseUrl = `/art/card/${unit.id}_card`;
     
     // Add language suffix
