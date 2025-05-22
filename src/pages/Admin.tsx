@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +20,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useEnvironment } from '@/hooks/useEnvironment';
 import { useEnsureDefaultFactions } from '@/hooks/useEnsureDefaultFactions';
+import FactionManager from '@/components/admin/units/FactionManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -172,6 +172,12 @@ const Admin = () => {
           <TabsContent value="translation">
             <AdminTabContent title="Translation Management">
               <TranslationManagerPanel />
+            </AdminTabContent>
+          </TabsContent>
+          
+          <TabsContent value="factions">
+            <AdminTabContent title="Faction Management">
+              <FactionManager />
             </AdminTabContent>
           </TabsContent>
           

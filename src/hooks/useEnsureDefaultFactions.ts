@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
 const DEFAULT_FACTIONS = [
   { id: "northern-tribes", name: "Northern Tribes", name_es: "Tribus del Norte", name_fr: "Tribus du Nord" },
@@ -19,10 +20,12 @@ export function useEnsureDefaultFactions() {
   const [isChecking, setIsChecking] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const { isAuthenticated, isAdmin } = useAuth();
+  const { isPreview } = useEnvironment();
 
   useEffect(() => {
     // Only run this check if the user is authenticated and has admin privileges
-    if (!isAuthenticated || !isAdmin || isInitialized) {
+    // or if we're in a preview environment (RLS policies allow this now)
+    if ((!isAuthenticated && !isPreview) || (!isAdmin && !isPreview) || isInitialized) {
       return;
     }
 
@@ -51,7 +54,13 @@ export function useEnsureDefaultFactions() {
             
           if (insertError) {
             console.error("[useEnsureDefaultFactions] Error inserting default factions:", insertError);
-            toast.error("Failed to initialize default factions");
+            
+            if (isPreview) {
+              // In preview, we'll show a more helpful message
+              toast.error("Failed to initialize default factions. This is likely due to Row Level Security restrictions.");
+            } else {
+              toast.error("Failed to initialize default factions");
+            }
           } else {
             console.log("[useEnsureDefaultFactions] Default factions initialized successfully");
             toast.success("Default factions initialized successfully", {
@@ -71,7 +80,8 @@ export function useEnsureDefaultFactions() {
     };
 
     checkAndInsertDefaultFactions();
-  }, [isAuthenticated, isAdmin, isInitialized]);
+  }, [isAuthenticated, isAdmin, isInitialized, isPreview]);
 
   return { isChecking };
 }
+
