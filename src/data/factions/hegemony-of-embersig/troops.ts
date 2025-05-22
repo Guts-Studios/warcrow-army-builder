@@ -97,7 +97,6 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
       { name: "Join (Infantry)", description: "" }
     ],
     availability: 1,
-    specialRules: ["Intimidating (2)"],
     imageUrl: "/art/card/strategos_card_en.jpg"
   }
   ];
