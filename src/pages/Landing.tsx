@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +32,7 @@ import { AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { SupportButton } from "@/components/landing/SupportButton";
 
 const fetchUserCount = async () => {
   try {
@@ -215,9 +215,13 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
       <div className="absolute top-4 right-4 z-50">
         <LanguageSwitcher />
+      </div>
+      
+      <div className="absolute top-4 left-4 z-50">
+        <SupportButton />
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
@@ -242,7 +246,7 @@ const Landing = () => {
         </div>
       )}
       
-      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
+      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto mt-16 mb-16">
         <Header 
           latestVersion={latestVersion} 
           userCount={userCount} 
@@ -280,10 +284,11 @@ const Landing = () => {
           </a>
         </div>
       </div>
-      <Footer />
+      <div className="mt-auto w-full">
+        <Footer />
+      </div>
     </div>
   );
 };
 
 export default Landing;
-
