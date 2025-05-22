@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,7 @@ import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
 import TranslationManagerPanel from '@/components/admin/TranslationManagerPanel';
 import UnitImagesManager from '@/components/admin/units/UnitImagesManager';
 import ValidationsPanel from '@/components/admin/validations/ValidationsPanel';
+import DebugPanel from '@/components/admin/DebugPanel';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -192,6 +194,12 @@ const Admin = () => {
           <TabsContent value="translation">
             <AdminTabContent title="Translation Management">
               <TranslationManagerPanel />
+            </AdminTabContent>
+          </TabsContent>
+          
+          <TabsContent value="debug">
+            <AdminTabContent title="Debug Tools">
+              <DebugPanel />
             </AdminTabContent>
           </TabsContent>
           

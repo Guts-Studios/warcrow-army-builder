@@ -3,10 +3,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpenCheck, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NewsArchiveDialog from "./NewsArchiveDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -33,16 +32,6 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
   
   return (
     <>
-      <div className="flex flex-row items-center justify-center gap-4">
-        <Link 
-          to="/changelog" 
-          className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm"
-        >
-          {t('viewChangelog')}
-        </Link>
-        <NewsArchiveDialog triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" />
-      </div>
-
       <div className="flex justify-center">
         {!isGuest ? (
           <Button

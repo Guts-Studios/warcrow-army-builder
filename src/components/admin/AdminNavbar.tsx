@@ -1,60 +1,67 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  LayoutDashboard,
-  BookOpen,
-  HelpCircle,
-  Users,
-  Bell,
-  FileText,
-  Globe,
-  Server,
-  Database,
-  Check,
-  Image,
-  ShieldCheck
-} from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bug, Users, CheckCircle, Database, BookOpen, QuestionMarkCircle, Newspaper, Globe, Activity, Image } from "lucide-react";
 
 interface AdminNavbarProps {
   activeTab: string;
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (value: string) => void;
 }
 
 const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
-    { id: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
-    { id: "validations", label: "Validations", icon: <ShieldCheck className="h-4 w-4" /> },
-    { id: "unit-images", label: "Unit Images", icon: <Image className="h-4 w-4" /> },
-    { id: "rules", label: "Rules", icon: <BookOpen className="h-4 w-4" /> },
-    { id: "faq", label: "FAQ", icon: <HelpCircle className="h-4 w-4" /> },
-    { id: "news", label: "News", icon: <FileText className="h-4 w-4" /> },
-    { id: "translation", label: "Translation", icon: <Globe className="h-4 w-4" /> },
-    { id: "api", label: "API Status", icon: <Server className="h-4 w-4" /> },
-  ];
-
   return (
-    <div className="mb-8 admin-nav bg-black/95 p-4 rounded-lg border border-warcrow-gold/50 shadow-md">
-      <div className="flex flex-wrap gap-2 justify-start">
-        {navItems.map((item) => (
-          <Button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            variant={activeTab === item.id ? "outline" : "outline"}
-            className={
-              activeTab === item.id
-                ? "border-warcrow-gold bg-warcrow-gold/20 text-warcrow-gold font-medium hover:bg-warcrow-gold/20"
-                : "border-warcrow-gold/50 bg-black hover:bg-warcrow-gold/20 text-warcrow-gold font-medium"
-            }
-            size="sm"
-          >
-            {item.icon}
-            <span className="ml-1">{item.label}</span>
-          </Button>
-        ))}
-      </div>
-    </div>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
+      <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto">
+        <TabsTrigger value="dashboard" className="flex flex-col items-center py-2">
+          <Activity className="h-4 w-4 mb-1" />
+          <span className="text-xs">Dashboard</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="users" className="flex flex-col items-center py-2">
+          <Users className="h-4 w-4 mb-1" />
+          <span className="text-xs">Users</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="validations" className="flex flex-col items-center py-2">
+          <CheckCircle className="h-4 w-4 mb-1" />
+          <span className="text-xs">Validations</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="unit-images" className="flex flex-col items-center py-2">
+          <Image className="h-4 w-4 mb-1" />
+          <span className="text-xs">Images</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="rules" className="flex flex-col items-center py-2">
+          <BookOpen className="h-4 w-4 mb-1" />
+          <span className="text-xs">Rules</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="faq" className="flex flex-col items-center py-2">
+          <QuestionMarkCircle className="h-4 w-4 mb-1" />
+          <span className="text-xs">FAQ</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="news" className="flex flex-col items-center py-2">
+          <Newspaper className="h-4 w-4 mb-1" />
+          <span className="text-xs">News</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="translation" className="flex flex-col items-center py-2">
+          <Globe className="h-4 w-4 mb-1" />
+          <span className="text-xs">Translation</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="debug" className="flex flex-col items-center py-2">
+          <Bug className="h-4 w-4 mb-1" />
+          <span className="text-xs">Debug</span>
+        </TabsTrigger>
+        
+        <TabsTrigger value="api" className="flex flex-col items-center py-2">
+          <Database className="h-4 w-4 mb-1" />
+          <span className="text-xs">API</span>
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 };
 

@@ -136,6 +136,15 @@ if (isMobile) {
   }, 3000);
 }
 
+// Check if debug buttons should be shown
+const shouldShowDebugButtons = () => {
+  try {
+    return localStorage.getItem('warcrow_show_debug_buttons') === 'true';
+  } catch (e) {
+    return false;
+  }
+};
+
 // Add a mechanism to detect if the page is stuck and offer recovery
 setTimeout(() => {
   // If the page has been loading for a long time, offer a recovery button
@@ -143,30 +152,33 @@ setTimeout(() => {
   if (appRoot && !appRoot.hasChildNodes()) {
     console.error('[App] Page appears to be stuck loading. Adding recovery option.');
     
-    // Create a recovery button
-    const recoveryDiv = document.createElement('div');
-    recoveryDiv.style.position = 'fixed';
-    recoveryDiv.style.bottom = '20px';
-    recoveryDiv.style.right = '20px';
-    recoveryDiv.style.zIndex = '9999';
-    
-    const recoveryButton = document.createElement('button');
-    recoveryButton.innerText = 'Recover App';
-    recoveryButton.style.backgroundColor = '#1E40AF';
-    recoveryButton.style.color = 'white';
-    recoveryButton.style.padding = '8px 12px';
-    recoveryButton.style.borderRadius = '4px';
-    recoveryButton.style.border = 'none';
-    recoveryButton.style.cursor = 'pointer';
-    
-    recoveryButton.onclick = () => {
-      // Clear storage and reload
-      localStorage.clear();
-      window.location.reload();
-    };
-    
-    recoveryDiv.appendChild(recoveryButton);
-    document.body.appendChild(recoveryDiv);
+    // Only show recovery button if debug buttons are enabled
+    if (shouldShowDebugButtons()) {
+      // Create a recovery button
+      const recoveryDiv = document.createElement('div');
+      recoveryDiv.style.position = 'fixed';
+      recoveryDiv.style.bottom = '20px';
+      recoveryDiv.style.right = '20px';
+      recoveryDiv.style.zIndex = '9999';
+      
+      const recoveryButton = document.createElement('button');
+      recoveryButton.innerText = 'Recover App';
+      recoveryButton.style.backgroundColor = '#1E40AF';
+      recoveryButton.style.color = 'white';
+      recoveryButton.style.padding = '8px 12px';
+      recoveryButton.style.borderRadius = '4px';
+      recoveryButton.style.border = 'none';
+      recoveryButton.style.cursor = 'pointer';
+      
+      recoveryButton.onclick = () => {
+        // Clear storage and reload
+        localStorage.clear();
+        window.location.reload();
+      };
+      
+      recoveryDiv.appendChild(recoveryButton);
+      document.body.appendChild(recoveryDiv);
+    }
   }
 }, 15000); // Wait 15s before showing recovery option
 

@@ -364,9 +364,7 @@ export const Header = ({
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
-          <div className="hidden">
-            <NewsArchiveDialog triggerClassName="text-xs text-warcrow-gold/70 hover:text-warcrow-gold" />
-          </div>
+          <NewsArchiveDialog triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" />
         </div>
         {isLoading ? (
           <div className="flex justify-center items-center py-3">
@@ -393,13 +391,13 @@ export const Header = ({
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>
         )}
         
-        {/* Changelog button and dialog - kept in Header.tsx but hidden on the page */}
-        <div className="mt-3 pt-3 border-t border-warcrow-gold/20 hidden">
+        {/* Changelog link - now visible and placed under news content */}
+        <div className="mt-3 pt-3 border-t border-warcrow-gold/20">
           <Dialog>
             <DialogTrigger asChild>
               <Button
                 variant="link"
-                className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm"
+                className="text-warcrow-gold hover:text-warcrow-gold/80 text-sm p-0 h-auto"
               >
                 {t('viewChangelog')}
               </Button>
