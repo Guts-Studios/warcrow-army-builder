@@ -8,7 +8,7 @@ import { BookOpen, ShieldAlert } from "lucide-react";
 
 export const MainActions = () => {
   const { t } = useLanguage();
-  const { isWabAdmin } = useAuth();
+  const { isWabAdmin, isGuest } = useAuth();
   const { isPreview } = useEnvironment();
   
   return (
@@ -35,7 +35,7 @@ export const MainActions = () => {
         </Link>
       </Button>
       
-      {(isWabAdmin || isPreview) && (
+      {((isWabAdmin || isPreview) && !isGuest) && (
         <Button 
           variant="outline"
           size="lg" 
