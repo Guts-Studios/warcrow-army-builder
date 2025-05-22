@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,13 @@ const Admin = () => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
+        console.log("Admin page: Checking access with:", {
+          isPreview,
+          isWabAdmin,
+          isGuest,
+          isAuthenticated
+        });
+        
         // For preview environments, allow admin access but respect guest status
         if (isPreview && !isGuest) {
           console.log("Admin page: Preview environment detected, granting admin access");

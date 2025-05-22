@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEnvironment } from "@/hooks/useEnvironment";
@@ -89,7 +88,28 @@ export function useAuth() {
         setIsLoading(true);
         console.log("[Auth] Checking auth status for hostname:", hostname);
         
-        // Get the current session
+        // Handle preview environment explicitly
+        if (isPreview) {
+          console.log("[Auth] Preview environment detected, checking guest status");
+          
+          // If in a preview environment but not a guest, grant admin privileges
+          const isGuestUser = localStorage.getItem('guestSession') === 'true';
+          console.log("[Auth] Preview guest status:", isGuestUser);
+          
+          if (mounted) {
+            // In preview, users are authenticated unless explicitly marked as guests
+            setIsAuthenticated(!isGuestUser);
+            setIsAdmin(!isGuestUser);
+            setIsTester(!isGuestUser);
+            setIsWabAdmin(!isGuestUser);
+            setUserId(isGuestUser ? null : "preview-user-id");
+            setIsGuest(isGuestUser);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // For production environments, check real auth state
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         // If there's an error getting the session, treat as authentication failure
@@ -177,10 +197,23 @@ export function useAuth() {
             }
           } else if (isPreview && mounted) {
             // Not authenticated but in preview mode
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-            console.log("Preview mode without session, using demo auth state");
+            const isGuestUser = localStorage.getItem('guestSession') === 'true';
+            if (!isGuestUser) {
+              setIsAdmin(true);
+              setIsTester(true);
+              setIsWabAdmin(true);
+              setIsAuthenticated(true);
+              setUserId("preview-user-id");
+              setIsGuest(false);
+              console.log("Preview mode without session, using demo auth state");
+            } else {
+              setIsAuthenticated(false);
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+              setIsGuest(true);
+              console.log("Preview mode with guest session, denying admin access");
+            }
           } else {
             // Not authenticated and not in preview
             setIsAdmin(false);
@@ -197,11 +230,20 @@ export function useAuth() {
           
           // In preview, default to admin even on error
           if (isPreview) {
-            setIsAuthenticated(true);
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-            setIsGuest(false);
+            const isGuestUser = localStorage.getItem('guestSession') === 'true';
+            if (!isGuestUser) {
+              setIsAuthenticated(true);
+              setIsAdmin(true);
+              setIsTester(true);
+              setIsWabAdmin(true);
+              setIsGuest(false);
+            } else {
+              setIsAuthenticated(false);
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+              setIsGuest(true);
+            }
           } else {
             // In production, default to guest on error
             setIsAuthenticated(false);
