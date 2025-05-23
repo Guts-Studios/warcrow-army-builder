@@ -76,22 +76,6 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
     ],
     specialRules: ["Intimidating (2)", "Spellcaster", "Join (Infantry, Living Flesh)"],
     imageUrl: "/art/card/progenitor_sculptor_card.jpg"
-  },
-  // Marhael The Refused (ensuring it's in the high-command list)
-  {
-    id: "marhael_the_refused",
-    name: "Marhael The Refused",
-    faction: "scions-of-yaldabaoth",
-    pointsCost: 275,
-    availability: 1,
-    highCommand: true,
-    command: 2,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Undead", description: "" }
-    ],
-    specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
-    imageUrl: "/art/card/marhael_the_refused_card.jpg"
   }
+  // Marhael The Refused has been removed as he belongs to Hegemony faction
 ];

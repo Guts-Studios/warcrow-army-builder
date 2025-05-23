@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -11,11 +10,11 @@ const normalizedLocalUnits = normalizeUnits(units);
 
 // Define missing key units to ensure they're included
 const missingKeyUnits: Unit[] = [
-  // Add Marhael The Refused if missing
+  // Add Marhael The Refused if missing - CORRECTED FACTION to hegemony-of-embersig
   {
     id: "marhael_the_refused",
     name: "Marhael The Refused",
-    faction: "scions-of-yaldabaoth",
+    faction: "hegemony-of-embersig", // Changed from scions-of-yaldabaoth to hegemony-of-embersig
     pointsCost: 275,
     availability: 1,
     highCommand: true,
@@ -33,7 +32,7 @@ const missingKeyUnits: Unit[] = [
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
-    pointsCost: 30, // Updated from 275 to 30 to match the reference CSV data
+    pointsCost: 30, // Updated to 30 to match the reference CSV data
     availability: 1,
     highCommand: true,
     command: 2,
@@ -62,7 +61,7 @@ if (!marhaelExists) {
       ...normalizedLocalUnits[marhaelIndex],
       ...missingKeyUnits[0]
     };
-    console.log("[useUnitData] Updated existing unit: Marhael The Refused");
+    console.log("[useUnitData] Updated existing unit: Marhael The Refused to Hegemony faction");
   }
 }
 
@@ -204,18 +203,16 @@ export const useArmyBuilderUnits = (factionId: string) => {
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
       
       // Force add key units if missing to ensure critical units are always available
-      if (normalizedFactionId === 'scions-of-yaldabaoth') {
+      if (normalizedFactionId === 'hegemony-of-embersig') {
         const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
         if (!hasMarhael) {
-          console.warn("[useArmyBuilderUnits] Marhael is missing from Scions faction!");
+          console.warn("[useArmyBuilderUnits] Marhael is missing from Hegemony faction!");
           // Force add Marhael if missing
           const marhael = missingKeyUnits[0];
           factionUnits.push(marhael);
-          console.log("[useArmyBuilderUnits] Force added missing unit: Marhael The Refused");
+          console.log("[useArmyBuilderUnits] Force added missing unit: Marhael The Refused to Hegemony");
         }
-      }
-      
-      if (normalizedFactionId === 'hegemony-of-embersig') {
+        
         const hasLazard = factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig');
         if (!hasLazard) {
           console.warn("[useArmyBuilderUnits] Lazard is missing from Hegemony faction!");

@@ -54,7 +54,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     specialRules: ["Elite", "Join (Infantry)"],
     imageUrl: "/art/card/amelia_hellbroth_card.jpg"
   },
-  // Nadezhda Lazard, Champion of Embersig - Update the points cost to match CSV data
+  // Nadezhda Lazard, Champion of Embersig
   {
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
@@ -69,5 +69,22 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     ],
     specialRules: ["Join (Infantry)"],
     imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
+  },
+  // Add Marhael The Refused to Hegemony High Command
+  {
+    id: "marhael_the_refused",
+    name: "Marhael The Refused",
+    faction: "hegemony-of-embersig", 
+    pointsCost: 35, // Updated to match CSV data (35 points)
+    availability: 1,
+    highCommand: false,
+    command: 1,
+    keywords: [
+      { name: "Aestari", description: "" },
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" }
+    ],
+    specialRules: ["Fearless", "Spellcaster"],
+    imageUrl: "/art/card/marhael_the_refused_card.jpg"
   }
 ];

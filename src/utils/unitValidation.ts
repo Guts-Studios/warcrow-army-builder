@@ -26,7 +26,8 @@ export function validateFactionUnits(factionUnits: Unit[], factionId: string): {
       'ahlwardt_ice_bear'
     ],
     'hegemony-of-embersig': [
-      'nadezhda_lazard_champion_of_embersig', // Lazard should be here
+      'nadezhda_lazard_champion_of_embersig',
+      'marhael_the_refused', // Added Marhael to Hegemony expected units
       'intact',
       'battle-scarred',
       'bulwarks',
@@ -34,7 +35,7 @@ export function validateFactionUnits(factionUnits: Unit[], factionId: string): {
       'grand_captain'
     ],
     'scions-of-yaldabaoth': [
-      'marhael_the_refused', // Marhael should be here
+      // Removed Marhael from Scions expected units
       'echoes',
       'marked',
       'darkmaster',
