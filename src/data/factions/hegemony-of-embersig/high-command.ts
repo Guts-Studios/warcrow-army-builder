@@ -54,12 +54,12 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     specialRules: ["Elite", "Join (Infantry)"],
     imageUrl: "/art/card/amelia_hellbroth_card.jpg"
   },
-  // Nadezhda Lazard, Champion of Embersig - Fix the points cost
+  // Nadezhda Lazard, Champion of Embersig - Update the points cost to match CSV data
   {
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
-    pointsCost: 275, // Corrected from 285 to 275
+    pointsCost: 30, // Updated from 275 to 30 to match the reference CSV data
     availability: 1,
     highCommand: true,
     command: 2,

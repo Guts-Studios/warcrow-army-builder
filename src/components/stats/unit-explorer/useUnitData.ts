@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -28,21 +27,20 @@ const missingKeyUnits: Unit[] = [
     specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
     imageUrl: "/art/card/marhael_the_refused_card.jpg"
   },
-  // Fix Nadezhda Lazard's point cost to 275 (from 285)
+  // Update Nadezhda Lazard's point cost to 30 (from 275/285)
   {
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
-    pointsCost: 275,
+    pointsCost: 30, // Updated from 275 to 30 to match the reference CSV data
     availability: 1,
     highCommand: true,
     command: 2,
     keywords: [
       { name: "Character", description: "" },
-      { name: "Infantry", description: "" },
       { name: "Human", description: "" }
     ],
-    specialRules: ["Duelist", "War Master", "Unstoppable"],
+    specialRules: ["Join (Infantry)"],
     imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   }
 ];
@@ -76,9 +74,9 @@ if (!lazardExists) {
   if (lazardIndex >= 0) {
     normalizedLocalUnits[lazardIndex] = {
       ...normalizedLocalUnits[lazardIndex],
-      pointsCost: 275 // Fix points cost to 275
+      pointsCost: 30 // Fix points cost to 30
     };
-    console.log("[useUnitData] Updated Nadezhda Lazard points cost to 275");
+    console.log("[useUnitData] Updated Nadezhda Lazard points cost to 30");
   }
 }
 
@@ -227,9 +225,9 @@ export const useArmyBuilderUnits = (factionId: string) => {
         } else {
           // Make sure Lazard has the correct points cost
           const lazardUnit = factionUnits.find(u => u.id === 'nadezhda_lazard_champion_of_embersig');
-          if (lazardUnit && lazardUnit.pointsCost !== 275) {
-            console.log(`[useArmyBuilderUnits] Correcting Lazard's points from ${lazardUnit.pointsCost} to 275`);
-            lazardUnit.pointsCost = 275;
+          if (lazardUnit && lazardUnit.pointsCost !== 30) {
+            console.log(`[useArmyBuilderUnits] Correcting Lazard's points from ${lazardUnit.pointsCost} to 30`);
+            lazardUnit.pointsCost = 30;
           }
         }
       }
