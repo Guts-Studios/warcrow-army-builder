@@ -1,13 +1,13 @@
-Faction	Unit Type	Unit Name	Command	AVB	Characteristics	Keywords	High Command	Points Cost	Special Rules	Companion
-Sÿenann	Character	Alula	1	1	Character, Elf		0	20	Disarmed	
-Sÿenann	Support Character	Aoidos	0	1	Chracter, Elf, Nemorous, Syenann	Join (Infantry, Synann), Spellcaster	0	20	Vulnerable, Slowed, Disarmed, Frightened	
-Sÿenann	Named Character	Darach Wilding	0	1	Character, Elf, Colossal Company, Nemorous, Syenann	Aim, Ambusher	0	35		
-Sÿenann	Character	Druid	0	1	Character, Elf	Spellcaster, Syenann	0	25	Slowed	
-Sÿenann	Character	Grand Captain	2	1	Character, Elf, High Command, Nemorous, Syenann	Join (Infantry, Syenann), Preferred Terrain (Rugged | Forest)	1	30	Preferred Terrain	
-Sÿenann	Troop	Grove Curtailers	0	2	Infantry, Elf	Syenann, Scout	0	35	Disarmed	
-Sÿenann	Named Character	Lioslaith Coic Caledhee	1	1	Character, Elf, High Command, Nemorous, Syenann	Ambusher, Elite, Join (Infantry, Syenann)	1	30	Place (3), Vulnerable	
-Sÿenann	Named Character	Oona	0	1	Ashen, Character, Colossal Company, Elf, Nemourous, Syenann	Itimidating (1), Spellcaster, Tinge	0	25	Slowed	
-Sÿenann	Troop	Protectors of the Forest	0	3	Elf, Infantry, Syenann		0	25	Displace (4)	
-Sÿenann	Troop	Shadows of the Yew	0	1	Elf, Infantry, Shadow, Syenann	Ambusher, Preferred Terrain (Rugged | Forest)	0	35	Place (5)	
-Sÿenann	Character	Vercana	0	1	Character, Human, Mercenary	Ambusher	no	30	Place (5)	
-Sÿenann	Named Character	Ynyr Dara Lainn	0	1	Character,Elf	Syenann,  Scout	0	35	Place (10), Shove (4)	
+faction_id	Faction	Unit Type	Unit Name	Command	AVB	Characteristics	Keywords	High Command	Points Cost	Special Rules
+syenann	Sÿenann	Character	Alula	1	1	Character, Elf		0	20	Disarmed
+syenann	Sÿenann	Support Character	Aoidos	0	1	Chracter, Elf, Nemorous, Syenann	Join (Infantry, Synann), Spellcaster	0	20	Vulnerable, Slowed, Disarmed, Frightened
+syenann	Sÿenann	Named Character	Darach Wilding	0	1	Character, Elf, Colossal Company, Nemorous, Syenann	Aim, Ambusher	0	35	
+syenann	Sÿenann	Character	Druid	0	1	Character, Elf	Spellcaster, Syenann	0	25	Slowed
+syenann	Sÿenann	Character	Grand Captain	2	1	Character, Elf, High Command, Nemorous, Syenann	Join (Infantry, Syenann), Preferred Terrain (Rugged | Forest)	1	30	Preferred Terrain
+syenann	Sÿenann	Troop	Grove Curtailers	0	2	Infantry, Elf	Syenann, Scout	0	35	Disarmed
+syenann	Sÿenann	Named Character	Lioslaith Coic Caledhee	1	1	Character, Elf, High Command, Nemorous, Syenann	Ambusher, Elite, Join (Infantry, Syenann)	1	30	Place (3), Vulnerable
+syenann	Sÿenann	Named Character	Oona	0	1	Ashen, Character, Colossal Company, Elf, Nemourous, Syenann	Itimidating (1), Spellcaster, Tinge	0	25	Slowed
+syenann	Sÿenann	Troop	Protectors of the Forest	0	3	Elf, Infantry, Syenann		0	25	Displace (4)
+syenann	Sÿenann	Troop	Shadows of the Yew	0	1	Elf, Infantry, Shadow, Syenann	Ambusher, Preferred Terrain (Rugged | Forest)	0	35	Place (5)
+syenann	Sÿenann	Character	Vercana	0	1	Character, Human, Mercenary	Ambusher	no	30	Place (5)
+syenann	Sÿenann	Named Character	Ynyr Dara Lainn	0	1	Character,Elf	Syenann,  Scout	0	35	Place (10), Shove (4)

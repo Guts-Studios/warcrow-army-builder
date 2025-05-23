@@ -1,26 +1,26 @@
-Faction	Unit Type	Unit Name	Command	AVB	Characteristics	Keywords	High Command	Points Cost	Special Rules	Companion
-Northern Tribes	Troop	Battle-Scarred	0	1	Infantry, Orc	Raging	No	40	Slowed, Vulnerable, Frightened, Disarmed	
-Northern Tribes	Troop	Orc Hunters	0	3	Infantry, Orc		No	20	Vulnerable	
-Northern Tribes	Troop	Skin Changers	0	1	Infantry, Varank	Fearless	No	35	Scout	
-Northern Tribes	Troop	Ice Archers	0	1	Infantry, Varank		No	25	Slowed	
-Northern Tribes	Troop	Tundra Marauders	0	2	Infantry, Varank	Preferred Terrain (Rugged), Scout	No	30	Displace (3), Rugged, Trap	
-Northern Tribes	Character	Contender	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	25	Vulnerable, Shove (5), Attract (5)	
-Northern Tribes	Character	Darkmaster	0	1	Character, Orc	Ambusher, Dispel (BLK, BLK), Join (Hunters)	No	30	Scout, Disarmed 	
-Northern Tribes	Character	Evoker	1	1	Character, Orc	Spellcaster	No	25	Intimidating (X), Flee, Slowed	
-Northern Tribes	Character	Hersir	1	1	Character, Varank	Beserker Rage, Fearless, Join (Infantry, Varank)	No	25	Disarmed	
-Northern Tribes	Character	Prime Warrior	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	30	Frightened, Vulnerable, Slowed, Disarmed	
-Northern Tribes	Character	Wisemane	0	1	Character, Orc	Fearless, Join (Infantry, Orc)	No	15	Vulnerable, Fix a Die	
-Northern Tribes	Character	Wrathmane	2	1	Character, High Command, Orc	Join (Infantry, Orc), Elite, Raging	Yes	30	Vulnerable, Frightened, Disarmed, Displace (3)	
-Northern Tribes	Named Character	Ahlwardt, Ice Bear	2	1	Character, High Command, Varank	Beserker Rage, Dispel, Elite, Join  (Skin Changers)	Yes	60	Vulnerable	
-Northern Tribes	Named Character	Alborc	3	1	Character, High Command, Orc	Join (Infantry, Orc | Infantry, Varank), Elite	Yes	50	Vulnerable, Dispel (D)	
-Northern Tribes	Named Character	Lotta	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	25	Disarmed, Slowed, Vulnerable, Displaced (X), Placed (X)	
-Northern Tribes	Named Character	Njord, The Merciless	2	1	Character, Varank	Beserker Rage, Join (Infantry, Varank)	No	40	Frightened, Raging, Fearless	
-Northern Tribes	Named Character	Ormuk	1	1	Character, Colossal Company, Orc	Bloodlust, Dispel (BLK), Elite, Fearless, Raging	No	35		
-Northern Tribes	Named Character	Iriavik Restless Pup	1	1	Character, Colossal Company, Nemorous, Varank	Ambusher, Dispel (BLK), Preferred Terrain (Rugged)	No	30	Slowed, Place (3), Immune to State, Frightened	
-Northern Tribes	Companion	Coal	0	1	Companion	Join (Iriavik)	No	20	Slowed, Fix a Die	iriavik restless pup
-Northern Tribes	Named Character	Eskold the Executioner	1	1	Character, Varank	Join (Infantry, Varank| Calvary Warg) Elite	no	30		
-Northern Tribes	Named Character	Selika	0	1	Character, Varank	Ambusher, Join (Infantry, Varank)	no	30		
-Northern Tribes	Character	Tattoist	0	1	Character, Varank	Join (Infantry, Varank), Elite	no	15		
-Northern Tribes	Character	Revenant	0	1	Character, Orc	Elite, Fearless, Immovable, Intimidating (1)	no	40	Vulnerable	
-Northern Tribes	Character	Vercana	0	1	Character, Human, Mercenary	Ambusher	no	30	Place (5)	
-Northern Tribes	Troop	Warg Riders	0	2	Cavalry, Orc	Bloodlust, Preferred Terrain (Rugged), Raging	no	35	Vulnerable, Repeat a Die	
+faction_id	Faction	Unit Type	Unit Name	Command	AVB	Characteristics	Keywords	High Command	Points Cost	Special Rules	Companion
+northern-tribes	Northern Tribes	Troop	Battle-Scarred	0	1	Infantry, Orc	Raging	No	40	Slowed, Vulnerable, Frightened, Disarmed	
+northern-tribes	Northern Tribes	Troop	Orc Hunters	0	3	Infantry, Orc		No	20	Vulnerable	
+northern-tribes	Northern Tribes	Troop	Skin Changers	0	1	Infantry, Varank	Fearless	No	35	Scout	
+northern-tribes	Northern Tribes	Troop	Ice Archers	0	1	Infantry, Varank		No	25	Slowed	
+northern-tribes	Northern Tribes	Troop	Tundra Marauders	0	2	Infantry, Varank	Preferred Terrain (Rugged), Scout	No	30	Displace (3), Rugged, Trap	
+northern-tribes	Northern Tribes	Character	Contender	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	25	Vulnerable, Shove (5), Attract (5)	
+northern-tribes	Northern Tribes	Character	Darkmaster	0	1	Character, Orc	Ambusher, Dispel (BLK, BLK), Join (Hunters)	No	30	Scout, Disarmed 	
+northern-tribes	Northern Tribes	Character	Evoker	1	1	Character, Orc	Spellcaster	No	25	Intimidating (X), Flee, Slowed	
+northern-tribes	Northern Tribes	Character	Hersir	1	1	Character, Varank	Beserker Rage, Fearless, Join (Infantry, Varank)	No	25	Disarmed	
+northern-tribes	Northern Tribes	Character	Prime Warrior	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	30	Frightened, Vulnerable, Slowed, Disarmed	
+northern-tribes	Northern Tribes	Character	Wisemane	0	1	Character, Orc	Fearless, Join (Infantry, Orc)	No	15	Vulnerable, Fix a Die	
+northern-tribes	Northern Tribes	Character	Wrathmane	2	1	Character, High Command, Orc	Join (Infantry, Orc), Elite, Raging	Yes	30	Vulnerable, Frightened, Disarmed, Displace (3)	
+northern-tribes	Northern Tribes	Named Character	Ahlwardt, Ice Bear	2	1	Character, High Command, Varank	Beserker Rage, Dispel, Elite, Join  (Skin Changers)	Yes	60	Vulnerable	
+northern-tribes	Northern Tribes	Named Character	Alborc	3	1	Character, High Command, Orc	Join (Infantry, Orc | Infantry, Varank), Elite	Yes	50	Vulnerable, Dispel (D)	
+northern-tribes	Northern Tribes	Named Character	Lotta	1	1	Character, Orc	Join (Infantry, Orc), Raging	No	25	Disarmed, Slowed, Vulnerable, Displaced (X), Placed (X)	
+northern-tribes	Northern Tribes	Named Character	Njord, The Merciless	2	1	Character, Varank	Beserker Rage, Join (Infantry, Varank)	No	40	Frightened, Raging, Fearless	
+northern-tribes	Northern Tribes	Named Character	Ormuk	1	1	Character, Colossal Company, Orc	Bloodlust, Dispel (BLK), Elite, Fearless, Raging	No	35		
+northern-tribes	Northern Tribes	Named Character	Iriavik Restless Pup	1	1	Character, Colossal Company, Nemorous, Varank	Ambusher, Dispel (BLK), Preferred Terrain (Rugged)	No	30	Slowed, Place (3), Immune to State, Frightened	
+northern-tribes	Northern Tribes	Companion	Coal	0	1	Companion	Join (Iriavik)	No	20	Slowed, Fix a Die	iriavik restless pup
+northern-tribes	Northern Tribes	Named Character	Eskold the Executioner	1	1	Character, Varank	Join (Infantry, Varank| Calvary Warg) Elite	no	30		
+northern-tribes	Northern Tribes	Named Character	Selika	0	1	Character, Varank	Ambusher, Join (Infantry, Varank)	no	30		
+northern-tribes	Northern Tribes	Character	Tattoist	0	1	Character, Varank	Join (Infantry, Varank), Elite	no	15		
+northern-tribes	Northern Tribes	Character	Revenant	0	1	Character, Orc	Elite, Fearless, Immovable, Intimidating (1)	no	40	Vulnerable	
+northern-tribes	Northern Tribes	Character	Vercana	0	1	Character, Human, Mercenary	Ambusher	no	30	Place (5)	
+northern-tribes	Northern Tribes	Troop	Warg Riders	0	2	Cavalry, Orc	Bloodlust, Preferred Terrain (Rugged), Raging	no	35	Vulnerable, Repeat a Die	
