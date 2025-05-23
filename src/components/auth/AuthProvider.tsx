@@ -2,6 +2,7 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 interface AuthContextType {
   isAuthenticated: boolean | null;
@@ -41,32 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
-
-  // Enhanced preview detection with more robust hostname checking
-  const isPreview = () => {
-    const hostname = window.location.hostname;
-    console.log("AuthProvider: Current hostname for preview check:", hostname);
-    
-    // Check for specific production domains first
-    const isProduction = hostname === 'warcrowarmy.com' || 
-                        hostname.endsWith('.warcrowarmy.com') ||
-                        hostname === 'warcrow-army-builder.netlify.app';
-    
-    if (isProduction) {
-      console.log("Production environment detected in AuthProvider:", hostname);
-      return false;
-    }
-    
-    // Otherwise, check if it's a preview/development environment
-    const isPreviewEnv = hostname === 'lovableproject.com' || 
-                        hostname.includes('.lovableproject.com') ||
-                        hostname.includes('localhost') ||
-                        hostname.includes('127.0.0.1') ||
-                        hostname.includes('netlify.app');
-    
-    console.log("Is preview environment in AuthProvider:", isPreviewEnv, "for hostname:", hostname);
-    return isPreviewEnv;
-  };
+  const { isPreview } = useEnvironment();
 
   // Function to resend confirmation email
   const resendConfirmationEmail = async (email: string) => {
@@ -96,12 +72,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
-        const hostname = window.location.hostname;
-        const inPreview = isPreview();
-        console.log("AuthProvider: isPreview =", inPreview, "for hostname:", hostname);
+        console.log("AuthProvider: isPreview =", isPreview);
         
         // For preview environment, provide dummy authenticated state
-        if (inPreview) {
+        if (isPreview) {
           console.log("Preview mode detected in AuthProvider, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);
@@ -115,16 +89,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        console.log("Production environment detected in AuthProvider, using real auth state for:", hostname);
+        console.log("Production environment detected in AuthProvider, using real auth state");
 
-        // Set up auth state listener for production environments
+        // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log("Auth state changed in AuthProvider:", event, {
               hasUser: !!session?.user,
               userId: session?.user?.id,
               email: session?.user?.email,
-              hostname,
               timestamp: new Date().toISOString()
             });
             
@@ -150,7 +123,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     tester: data?.tester,
                     error: error?.message,
                     userId: session.user.id,
-                    hostname,
                     timestamp: new Date().toISOString()
                   });
                     
@@ -188,7 +160,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         );
         
         // Get initial session
-        console.log("AuthProvider: Checking initial session for:", hostname);
         const { data } = await supabase.auth.getSession();
         const session = data?.session;
         
@@ -196,7 +167,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           hasSession: !!session,
           userId: session?.user?.id,
           userEmail: session?.user?.email,
-          hostname,
           timestamp: new Date().toISOString()
         });
         
@@ -221,7 +191,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 tester: data?.tester,
                 error: error?.message,
                 userId: session.user.id,
-                hostname,
                 timestamp: new Date().toISOString()
               });
                 
@@ -280,7 +249,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isPreview]);
 
   const value = {
     isAuthenticated,

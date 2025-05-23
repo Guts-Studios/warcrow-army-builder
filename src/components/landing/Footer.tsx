@@ -6,7 +6,7 @@ export const Footer = () => {
   const { t } = useLanguage();
   
   return (
-    <footer className="w-full bg-black py-3 border-t border-warcrow-gold/10 mt-auto">
+    <footer className="w-full bg-black py-3 border-t border-warcrow-gold/10">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center text-xs text-warcrow-text/60">
           <div className="mb-2 md:mb-0 text-center md:text-left">
@@ -22,4 +22,3 @@ export const Footer = () => {
     </footer>
   );
 };
-

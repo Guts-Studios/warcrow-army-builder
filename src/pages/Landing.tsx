@@ -29,10 +29,11 @@ import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { getBuildFailureNotifications } from "@/utils/notificationUtils";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { SupportButton } from "@/components/landing/SupportButton";
 
 const fetchUserCount = async () => {
   try {
@@ -118,8 +119,11 @@ const Landing = () => {
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
   const latestVersion = getLatestVersion(changelogContent);
   const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated } = useAuth();
+  const { isWabAdmin, isAuthenticated, isTester } = useAuth();
   const { isPreview } = useEnvironment();
+  
+  // Check if user has permission to see the Play Mode - Ensure guest users can't see it
+  const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
 
   useEffect(() => {
     console.log('Landing.tsx: Current hostname:', window.location.hostname);
@@ -215,8 +219,10 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center justify-center relative overflow-x-hidden px-4 pb-32">
-      <div className="absolute top-4 right-4 z-50">
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
+      {/* Update the positioning of the language switcher and support button */}
+      <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
+        <SupportButton className="z-50" />
         <LanguageSwitcher />
       </div>
       
@@ -242,7 +248,7 @@ const Landing = () => {
         </div>
       )}
       
-      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto">
+      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto mt-16 mb-16">
         <Header 
           latestVersion={latestVersion} 
           userCount={userCount} 
@@ -250,6 +256,21 @@ const Landing = () => {
           latestFailedBuild={latestFailedBuild}
         />
         <MainActions />
+        
+        {/* Play Mode Button - Only shown to testers or admins who are not guests */}
+        {canAccessPlayMode && (
+          <div className="flex justify-center">
+            <Button 
+              variant="outline"
+              className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
+              onClick={() => navigate('/play')}
+            >
+              <PlayCircle className="h-5 w-5" />
+              <span>{t('playMode')}</span>
+            </Button>
+          </div>
+        )}
+        
         <SecondaryActions isGuest={isGuest} />
 
         <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
@@ -280,10 +301,11 @@ const Landing = () => {
           </a>
         </div>
       </div>
-      <Footer />
+      <div className="mt-auto w-full">
+        <Footer />
+      </div>
     </div>
   );
 };
 
 export default Landing;
-

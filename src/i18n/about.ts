@@ -77,7 +77,7 @@ export const aboutTranslations = {
   errorLoadingSupporters: {
     en: 'Unable to load supporters list',
     es: 'No se pudo cargar la lista de colaboradores',
-    fr: 'Impossible de charger la liste des soutiens'
+    fr: 'Impossible de cargar la liste des soutiens'
   },
   beFirstSupporter: {
     en: 'Be the first to support Warcrow Army Builder and see your name here!',
@@ -114,5 +114,21 @@ export const aboutTranslations = {
     en: 'Our Community',
     es: 'Nuestra Comunidad',
     fr: 'Notre Communauté'
+  },
+  // Add translations for team member roles
+  coCreatorEngineer: {
+    en: 'Co-creator & Engineer',
+    es: 'Co-creador e Ingeniero',
+    fr: 'Co-créateur et Ingénieur'
+  },
+  coCreatorUxEngineer: {
+    en: 'Co-creator & UX Engineer',
+    es: 'Co-creador e Ingeniero UX',
+    fr: 'Co-créateur et Ingénieur UX'
+  },
+  coCreator: {
+    en: 'Co-creator',
+    es: 'Co-creador',
+    fr: 'Co-créateur'
   }
 };

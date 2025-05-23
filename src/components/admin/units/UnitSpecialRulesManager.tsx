@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -129,22 +128,27 @@ const UnitSpecialRulesManager: React.FC = () => {
         const textsToTranslate = batch.map(item => item.source);
         
         // Perform batch translation
-        const translatedTexts = await batchTranslate(textsToTranslate, targetLanguage);
+        const translatedTexts = await batchTranslate(textsToTranslate, targetLanguage as 'es' | 'fr');
         
-        // Update each item with its translation
-        for (let j = 0; j < batch.length; j++) {
-          const item = batch[j];
-          const translatedText = translatedTexts[j];
-          
-          if (translatedText) {
-            // Update in Supabase
-            await supabase
-              .from('special_rules')
-              .update({
-                [targetField]: translatedText
-              })
-              .eq('id', item.id);
+        if (Array.isArray(translatedTexts)) {
+          // Update each item with its translation
+          for (let j = 0; j < batch.length; j++) {
+            const item = batch[j];
+            const translatedText = translatedTexts[j];
+            
+            if (translatedText) {
+              // Update in Supabase
+              await supabase
+                .from('special_rules')
+                .update({
+                  [targetField]: translatedText
+                })
+                .eq('id', item.id);
+            }
           }
+        } else {
+          // Handle error case
+          throw new Error(translatedTexts.error);
         }
         
         completed += batch.length;

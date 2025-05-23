@@ -14,7 +14,7 @@ const NewListButton = ({ onNewList }: NewListButtonProps) => {
     <Button
       onClick={onNewList}
       variant="outline"
-      className="w-full bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
+      className="w-full max-w-xs mx-auto bg-warcrow-background border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold hover:text-warcrow-background transition-colors"
     >
       <FilePlus className="h-4 w-4 mr-2" />
       {t('newList')}

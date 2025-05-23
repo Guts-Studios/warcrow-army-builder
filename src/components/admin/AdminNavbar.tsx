@@ -1,67 +1,73 @@
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bug, Users, CheckCircle, Database, BookOpen, HelpCircle, Newspaper, Globe, Activity, Image } from "lucide-react";
+import React from 'react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Users, 
+  Book, 
+  Image, 
+  HelpCircle, 
+  Newspaper, 
+  Globe, 
+  LayoutDashboard,
+  Bug, 
+  ActivitySquare,
+  Flag,
+  FileCheck
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface AdminNavbarProps {
   activeTab: string;
-  setActiveTab: (value: string) => void;
+  setActiveTab: (tab: string) => void;
 }
 
-const AdminNavbar = ({ activeTab, setActiveTab }: AdminNavbarProps) => {
+const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) => {
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4 mr-2" /> },
+    { id: 'users', label: 'Users', icon: <Users className="h-4 w-4 mr-2" /> },
+    { id: 'validations', label: 'Validations', icon: <ActivitySquare className="h-4 w-4 mr-2" /> },
+    { id: 'unit-images', label: 'Unit Images', icon: <Image className="h-4 w-4 mr-2" /> },
+    { id: 'factions', label: 'Factions', icon: <Flag className="h-4 w-4 mr-2" /> },
+    { id: 'rules', label: 'Rules', icon: <Book className="h-4 w-4 mr-2" /> },
+    { id: 'faq', label: 'FAQ', icon: <HelpCircle className="h-4 w-4 mr-2" /> },
+    { id: 'news', label: 'News', icon: <Newspaper className="h-4 w-4 mr-2" /> },
+    { id: 'translation', label: 'Translation', icon: <Globe className="h-4 w-4 mr-2" /> },
+    { id: 'debug', label: 'Debug', icon: <Bug className="h-4 w-4 mr-2" /> },
+    { id: 'api', label: 'API Status', icon: <ActivitySquare className="h-4 w-4 mr-2" /> },
+  ];
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-      <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto">
-        <TabsTrigger value="dashboard" className="flex flex-col items-center py-2">
-          <Activity className="h-4 w-4 mb-1" />
-          <span className="text-xs">Dashboard</span>
-        </TabsTrigger>
+    <div className="mb-6 border-b border-warcrow-gold/30">
+      <div className="flex justify-between items-center mb-4">
+        {/* Wrap TabsList in a Tabs component with the correct value and onValueChange props */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+          <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className={`flex items-center gap-1 px-4 py-2 ${
+                  activeTab === tab.id
+                    ? 'bg-warcrow-gold text-black'
+                    : 'bg-black/20 text-warcrow-gold hover:bg-black/40'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         
-        <TabsTrigger value="users" className="flex flex-col items-center py-2">
-          <Users className="h-4 w-4 mb-1" />
-          <span className="text-xs">Users</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="validations" className="flex flex-col items-center py-2">
-          <CheckCircle className="h-4 w-4 mb-1" />
-          <span className="text-xs">Validations</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="unit-images" className="flex flex-col items-center py-2">
-          <Image className="h-4 w-4 mb-1" />
-          <span className="text-xs">Images</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="rules" className="flex flex-col items-center py-2">
-          <BookOpen className="h-4 w-4 mb-1" />
-          <span className="text-xs">Rules</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="faq" className="flex flex-col items-center py-2">
-          <HelpCircle className="h-4 w-4 mb-1" />
-          <span className="text-xs">FAQ</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="news" className="flex flex-col items-center py-2">
-          <Newspaper className="h-4 w-4 mb-1" />
-          <span className="text-xs">News</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="translation" className="flex flex-col items-center py-2">
-          <Globe className="h-4 w-4 mb-1" />
-          <span className="text-xs">Translation</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="debug" className="flex flex-col items-center py-2">
-          <Bug className="h-4 w-4 mb-1" />
-          <span className="text-xs">Debug</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="api" className="flex flex-col items-center py-2">
-          <Database className="h-4 w-4 mb-1" />
-          <span className="text-xs">API</span>
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+        <Link 
+          to="/admin/validate-csv"
+          className="flex items-center gap-1 px-4 py-2 bg-black/20 text-warcrow-gold hover:bg-black/40 rounded"
+        >
+          <FileCheck className="h-4 w-4 mr-2" />
+          CSV Validator
+        </Link>
+      </div>
+    </div>
   );
 };
 

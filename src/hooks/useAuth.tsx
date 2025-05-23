@@ -46,7 +46,6 @@ export function useAuth() {
         const key = localStorage.key(i);
         if (key && (key.startsWith('sb-') || key.includes('auth'))) {
           localStorage.removeItem(key);
-          console.log(`[Auth] Removed problematic auth item: ${key}`);
         }
       }
       
@@ -87,9 +86,25 @@ export function useAuth() {
     const checkAuthStatus = async () => {
       try {
         setIsLoading(true);
-        console.log("[Auth] Checking auth status for hostname:", hostname);
         
-        // Get the current session
+        // Handle preview environment explicitly
+        if (isPreview) {
+          // In preview, users are authenticated unless explicitly marked as guests
+          const isGuestUser = localStorage.getItem('guestSession') === 'true';
+          
+          if (mounted) {
+            setIsAuthenticated(!isGuestUser);
+            setIsAdmin(!isGuestUser);
+            setIsTester(!isGuestUser);
+            setIsWabAdmin(!isGuestUser);
+            setUserId(isGuestUser ? null : "preview-user-id");
+            setIsGuest(isGuestUser);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // For production environments, check real auth state
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         // If there's an error getting the session, treat as authentication failure
@@ -106,18 +121,6 @@ export function useAuth() {
           return;
         }
         
-        console.log("[Auth] Session check result:", {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          email: session?.user?.email,
-          userMetadata: session?.user?.user_metadata,
-          appMetadata: session?.user?.app_metadata,
-          hostname: hostname,
-          isPreview: isPreview,
-          isProduction: isProduction,
-          timestamp: new Date().toISOString()
-        });
-        
         if (mounted) {
           // Set auth state based on session
           setIsAuthenticated(!!session);
@@ -133,18 +136,8 @@ export function useAuth() {
                 .eq('id', session.user.id)
                 .maybeSingle(); // Use maybeSingle to avoid errors if no row is found
                 
-              console.log("[Auth] Profile data fetched:", {
-                profileExists: !!data,
-                wabAdmin: data?.wab_admin,
-                tester: data?.tester,
-                error: error?.message,
-                userId: session.user.id,
-                timestamp: new Date().toISOString()
-              });
-                
               if (!error && data && mounted) {
                 const isAdminUser = !!data.wab_admin;
-                console.log("Admin status from database:", isAdminUser);
                 setIsAdmin(isAdminUser);
                 setIsTester(!!data.tester);
                 setIsWabAdmin(isAdminUser);
@@ -177,10 +170,21 @@ export function useAuth() {
             }
           } else if (isPreview && mounted) {
             // Not authenticated but in preview mode
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-            console.log("Preview mode without session, using demo auth state");
+            const isGuestUser = localStorage.getItem('guestSession') === 'true';
+            if (!isGuestUser) {
+              setIsAdmin(true);
+              setIsTester(true);
+              setIsWabAdmin(true);
+              setIsAuthenticated(true);
+              setUserId("preview-user-id");
+              setIsGuest(false);
+            } else {
+              setIsAuthenticated(false);
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+              setIsGuest(true);
+            }
           } else {
             // Not authenticated and not in preview
             setIsAdmin(false);
@@ -197,11 +201,20 @@ export function useAuth() {
           
           // In preview, default to admin even on error
           if (isPreview) {
-            setIsAuthenticated(true);
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-            setIsGuest(false);
+            const isGuestUser = localStorage.getItem('guestSession') === 'true';
+            if (!isGuestUser) {
+              setIsAuthenticated(true);
+              setIsAdmin(true);
+              setIsTester(true);
+              setIsWabAdmin(true);
+              setIsGuest(false);
+            } else {
+              setIsAuthenticated(false);
+              setIsAdmin(false);
+              setIsTester(false);
+              setIsWabAdmin(false);
+              setIsGuest(true);
+            }
           } else {
             // In production, default to guest on error
             setIsAuthenticated(false);
@@ -218,60 +231,31 @@ export function useAuth() {
       // Set up the auth state listener
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log("[Auth] Auth state changed:", event, {
-            hasUser: !!session?.user,
-            userId: session?.user?.id,
-            email: session?.user?.email,
-            hostname: hostname,
-            timestamp: new Date().toISOString()
-          });
+          if (!mounted) return;
           
-          if (mounted) {
-            setIsAuthenticated(!!session);
-            setUserId(session?.user?.id || null);
-            setIsGuest(!session);
-            
-            // If authenticated, check for admin/tester status
-            if (session?.user?.id) {
-              try {
-                // Use setTimeout to prevent deadlocks in Auth state changes
-                setTimeout(async () => {
-                  if (!mounted) return;
-                  
-                  const { data, error } = await supabase
-                    .from('profiles')
-                    .select('wab_admin, tester')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
+          setIsAuthenticated(!!session);
+          setUserId(session?.user?.id || null);
+          setIsGuest(!session);
+          
+          // If authenticated, check for admin/tester status
+          if (session?.user?.id) {
+            try {
+              // Use setTimeout to prevent deadlocks in Auth state changes
+              setTimeout(async () => {
+                if (!mounted) return;
+                
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select('wab_admin, tester')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
                     
-                  console.log("[Auth] Auth state change: Profile data fetched:", {
-                    profileExists: !!data,
-                    wabAdmin: data?.wab_admin,
-                    tester: data?.tester,
-                    error: error?.message,
-                    userId: session.user.id,
-                    timestamp: new Date().toISOString()
-                  });
-                    
-                  if (!error && data && mounted) {
-                    const isAdminUser = !!data.wab_admin;
-                    console.log("Admin status update on auth change:", isAdminUser);
-                    setIsAdmin(isAdminUser);
-                    setIsTester(!!data.tester);
-                    setIsWabAdmin(isAdminUser);
-                  } else if (mounted && isPreview) {
-                    setIsAdmin(true);
-                    setIsTester(true);
-                    setIsWabAdmin(true);
-                  } else if (mounted) {
-                    setIsAdmin(false);
-                    setIsTester(false);
-                    setIsWabAdmin(false);
-                  }
-                }, 0);
-              } catch (err) {
-                console.error("[Auth] Error checking user roles on auth change:", err);
-                if (mounted && isPreview) {
+                if (!error && data && mounted) {
+                  const isAdminUser = !!data.wab_admin;
+                  setIsAdmin(isAdminUser);
+                  setIsTester(!!data.tester);
+                  setIsWabAdmin(isAdminUser);
+                } else if (mounted && isPreview) {
                   setIsAdmin(true);
                   setIsTester(true);
                   setIsWabAdmin(true);
@@ -280,18 +264,29 @@ export function useAuth() {
                   setIsTester(false);
                   setIsWabAdmin(false);
                 }
+              }, 0);
+            } catch (err) {
+              console.error("[Auth] Error checking user roles on auth change:", err);
+              if (mounted && isPreview) {
+                setIsAdmin(true);
+                setIsTester(true);
+                setIsWabAdmin(true);
+              } else if (mounted) {
+                setIsAdmin(false);
+                setIsTester(false);
+                setIsWabAdmin(false);
               }
-            } else if (isPreview && mounted) {
-              // Not authenticated but in preview mode
-              setIsAdmin(true);
-              setIsTester(true);
-              setIsWabAdmin(true);
-            } else if (mounted) {
-              // Not authenticated and not in preview
-              setIsAdmin(false);
-              setIsTester(false);
-              setIsWabAdmin(false);
             }
+          } else if (isPreview && mounted) {
+            // Not authenticated but in preview mode
+            setIsAdmin(true);
+            setIsTester(true);
+            setIsWabAdmin(true);
+          } else if (mounted) {
+            // Not authenticated and not in preview
+            setIsAdmin(false);
+            setIsTester(false);
+            setIsWabAdmin(false);
           }
         }
       );
@@ -306,12 +301,6 @@ export function useAuth() {
     
     // Then check auth status
     checkAuthStatus();
-    
-    // Set up a session validation check every 5 minutes to catch broken sessions
-    sessionCheckTimeout = window.setInterval(() => {
-      console.log("[Auth] Running scheduled session validation check");
-      checkAuthStatus();
-    }, 5 * 60 * 1000); // 5 minutes
     
     return () => {
       mounted = false;

@@ -1,14 +1,14 @@
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
-import { validateHighCommandAddition, validateUnitAddition } from "@/utils/armyValidation";
+import { validateUnitAddition, validateHighCommandAddition } from "@/utils/armyValidation";
 import { units } from "@/data/factions";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 import { toast } from "sonner";
+import { validateFactionUnits, validateKeyUnits } from "@/utils/unitValidation";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -26,8 +26,74 @@ export const useArmyList = (selectedFaction: string) => {
     data: factionUnits = [], 
     isLoading: unitsLoading, 
     error: unitsError,
-    isError: isUnitsError
+    isError: isUnitsError,
+    refetch: refetchUnits
   } = useArmyBuilderUnits(selectedFaction);
+
+  // Validate faction units and log any issues
+  useEffect(() => {
+    if (!unitsLoading && !isUnitsError && factionUnits.length > 0) {
+      const validation = validateFactionUnits(factionUnits, selectedFaction);
+      
+      if (validation.missingUnits.length > 0) {
+        console.warn(`[useArmyList] Missing key units for ${selectedFaction}:`, validation.missingUnits);
+        
+        // Log the first 10 units to help debugging
+        console.log(`[useArmyList] First ${Math.min(10, factionUnits.length)} units loaded:`, 
+          factionUnits.slice(0, 10).map(u => ({ id: u.id, name: u.name, pointsCost: u.pointsCost }))
+        );
+      } else {
+        console.log(`[useArmyList] All key units present for ${selectedFaction}`);
+      }
+      
+      // Use new validation function for key units
+      const keyUnitValidation = validateKeyUnits(factionUnits);
+      if (keyUnitValidation.issues.length > 0) {
+        console.warn(`[useArmyList] Issues with key units:`, keyUnitValidation.issues);
+      } else {
+        console.log(`[useArmyList] Key units (Marhael, Lazard) validated successfully`);
+      }
+      
+      // Check specifically for our problem units
+      const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
+      const hasLazard = factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+      
+      console.log(`[useArmyList] Key unit check - Marhael present: ${hasMarhael}, Lazard present: ${hasLazard}`);
+      
+      if (selectedFaction === 'hegemony-of-embersig' && !hasMarhael) {
+        console.error("[useArmyList] Marhael is STILL missing from Hegemony faction after fixes!");
+        // Force refetch to try to get the missing unit
+        refetchUnits();
+      }
+      
+      if (selectedFaction === 'hegemony-of-embersig' && !hasLazard) {
+        console.error("[useArmyList] Lazard is STILL missing from Hegemony faction after fixes!");
+        // Force refetch to try to get the missing unit
+        refetchUnits();
+      }
+      
+      // Check Lazard's points cost
+      const lazardUnit = factionUnits.find(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+      if (lazardUnit) {
+        console.log(`[useArmyList] Lazard's current points cost: ${lazardUnit.pointsCost}`);
+        if (lazardUnit.pointsCost !== 30) {
+          console.warn(`[useArmyList] Lazard's points cost is wrong! Expected: 30, Got: ${lazardUnit.pointsCost}`);
+        }
+      }
+      
+      // Check Marhael's points cost and faction
+      const marhaelUnit = factionUnits.find(u => u.id === 'marhael_the_refused');
+      if (marhaelUnit) {
+        console.log(`[useArmyList] Marhael's current points cost: ${marhaelUnit.pointsCost}, faction: ${marhaelUnit.faction}`);
+        if (marhaelUnit.pointsCost !== 35) {
+          console.warn(`[useArmyList] Marhael's points cost is wrong! Expected: 35, Got: ${marhaelUnit.pointsCost}`);
+        }
+        if (marhaelUnit.faction !== 'hegemony-of-embersig') {
+          console.warn(`[useArmyList] Marhael's faction is wrong! Expected: hegemony-of-embersig, Got: ${marhaelUnit.faction}`);
+        }
+      }
+    }
+  }, [factionUnits, unitsLoading, isUnitsError, selectedFaction, refetchUnits]);
 
   // Show toast if units fail to load
   useEffect(() => {
@@ -62,7 +128,10 @@ export const useArmyList = (selectedFaction: string) => {
   const handleAdd = useCallback(
     (unitId: string) => {
       const unit = factionUnits.find((u) => u.id === unitId);
-      if (!unit) return;
+      if (!unit) {
+        console.warn(`[useArmyList] Tried to add unit with ID ${unitId} but it was not found in factionUnits`);
+        return;
+      }
 
       const currentQuantity = quantities[unitId] || 0;
 
@@ -190,6 +259,7 @@ export const useArmyList = (selectedFaction: string) => {
     factionUnits,
     unitsLoading,
     unitsError,
-    isLoadingLists
+    isLoadingLists,
+    refetchUnits
   };
 };

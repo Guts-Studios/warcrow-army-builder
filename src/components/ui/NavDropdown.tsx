@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
 import { Menu, Bell, ActivityIcon, ShieldAlert, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,31 +12,20 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEnvironment } from "@/hooks/useEnvironment";
+import { Container } from "@/components/ui/custom";
 
 export const NavDropdown = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isWabAdmin, userId, isLoading } = useAuth();
-  const [isPreview, setIsPreview] = useState(false);
+  const { isAuthenticated, isWabAdmin, userId, isLoading, isGuest } = useAuth();
+  const { isPreview } = useEnvironment();
   const { t } = useLanguage();
   
-  useEffect(() => {
-    // Check for preview mode
-    const hostname = window.location.hostname;
-    const isPreviewMode = hostname === 'lovableproject.com' || 
-                          hostname.endsWith('.lovableproject.com') ||
-                          hostname.includes('localhost') ||
-                          hostname.includes('127.0.0.1') ||
-                          hostname.includes('netlify.app') ||
-                          hostname.includes('id-preview') ||
-                          hostname.includes('lovable.app');
-    
-    console.log("NavDropdown: Hostname =", hostname, "isPreview =", isPreviewMode);
-    setIsPreview(isPreviewMode);
-  }, []);
+  // Calculate if the user should see admin content
+  const showAdminContent = (isWabAdmin || isPreview) && !isGuest;
   
   return (
     <div className="flex items-center gap-2">
@@ -110,7 +100,7 @@ export const NavDropdown = () => {
             {t('supportUs')}
           </DropdownMenuItem>
           
-          {(isWabAdmin || isPreview) && (
+          {showAdminContent && (
             <>
               <DropdownMenuSeparator className="bg-warcrow-gold/20" />
               <DropdownMenuGroup>

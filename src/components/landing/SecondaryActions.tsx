@@ -31,7 +31,7 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
   };
   
   return (
-    <>
+    <div className="max-w-xs mx-auto px-4 sm:px-0 w-full">
       <div className="flex justify-center">
         {!isGuest ? (
           <Button
@@ -58,18 +58,7 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
         )}
       </div>
 
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-warcrow-gold/30 text-warcrow-gold/70 hover:bg-transparent hover:text-warcrow-gold hover:border-warcrow-gold"
-          asChild
-        >
-          <Link to="/about">
-            {t('supportUs')}
-          </Link>
-        </Button>
-      </div>
-    </>
+      {/* We've kept the About Us button as it was already moved to the top as a SupportButton */}
+    </div>
   );
 };

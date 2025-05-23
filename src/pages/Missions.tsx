@@ -1,17 +1,19 @@
 
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { MissionHeader } from "@/components/missions/MissionHeader";
 import { MissionList } from "@/components/missions/MissionList";
 import { MissionDetails } from "@/components/missions/MissionDetails";
 import type { Mission } from "@/components/missions/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PageHeader } from "@/components/common/PageHeader";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 
 const Missions = () => {
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
   const [missions, setMissions] = React.useState<Mission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   React.useEffect(() => {
     const fetchMissions = async () => {
@@ -108,7 +110,11 @@ const Missions = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background">
-      <MissionHeader />
+      <PageHeader title={t('missions')}>
+        <LanguageSwitcher />
+        <NavDropdown />
+      </PageHeader>
+      
       <div className="container mx-auto py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <MissionList

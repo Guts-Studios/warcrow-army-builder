@@ -1,9 +1,7 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
 import ApiStatus from '@/components/admin/ApiStatus';
@@ -20,64 +18,44 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useEnvironment } from '@/hooks/useEnvironment';
 import { useEnsureDefaultFactions } from '@/hooks/useEnsureDefaultFactions';
+import FactionManager from '@/components/admin/units/FactionManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { isAuthenticated, isAdmin: isAdminFromAuth } = useAuth();
+  const { isAuthenticated, isWabAdmin } = useAuth();
+  const { isPreview } = useEnvironment();
   
-  // Use our new hook to ensure default factions exist
+  // Use our hook to ensure default factions exist
   useEnsureDefaultFactions();
-  
-  // Check if we're in preview mode
-  const isPreviewMode = () => {
-    const hostname = window.location.hostname;
-    return hostname === 'lovableproject.com' || 
-           hostname.endsWith('.lovableproject.com') ||
-           hostname.includes('localhost') ||
-           hostname.includes('127.0.0.1') ||
-           hostname.includes('netlify.app') ||
-           hostname.includes('lovable.app');
-  };
   
   useEffect(() => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
-        // For preview environments, bypass regular checks
-        if (isPreviewMode()) {
-          console.log("Admin page: Preview environment detected, granting admin access");
-          setIsAdmin(true);
-          setIsCheckingAdmin(false);
-          return;
+        // ACCESS CONTROL LOGIC:
+        // 1. In preview environments: Always allow access regardless of authentication or admin status
+        // 2. In production: Only allow access if user is both authenticated AND has admin privileges
+        
+        // If the auth check is still loading, wait before making any decisions
+        if (isAuthenticated === null) {
+          return; // Don't redirect yet, still loading auth state
         }
         
-        const { data: { session } } = await supabase.auth.getSession();
+        // Apply the access control logic
+        const hasAccess = isPreview || (isAuthenticated === true && isWabAdmin === true);
         
-        if (!session) {
-          console.log("Admin page: No session found, redirecting to login");
-          navigate('/login');
-          return;
-        }
-        
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('wab_admin')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (error || !data || !data.wab_admin) {
-          console.log("Admin page: User is not admin, redirecting to home", error);
+        if (!hasAccess) {
+          console.log("Admin page: Access denied, redirecting to home");
           navigate('/');
           return;
         }
         
-        console.log("Admin page: User confirmed as admin");
-        setIsAdmin(true);
+        console.log("Admin page: Access granted");
       } catch (error) {
         console.error('Error checking admin status:', error);
         navigate('/');
@@ -87,9 +65,10 @@ const Admin = () => {
     };
     
     checkAdminStatus();
-  }, [navigate]);
+  }, [navigate, isWabAdmin, isPreview, isAuthenticated]);
   
-  if (isCheckingAdmin) {
+  // Show loading spinner if we're still checking admin status or auth state is still loading
+  if (isCheckingAdmin || isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-warcrow-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold"></div>
@@ -97,10 +76,7 @@ const Admin = () => {
     );
   }
   
-  if (!isAdmin) {
-    return null; // Redirect is handled in useEffect
-  }
-  
+  // Show admin content
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       {/* Main navigation bar */}
@@ -194,6 +170,12 @@ const Admin = () => {
           <TabsContent value="translation">
             <AdminTabContent title="Translation Management">
               <TranslationManagerPanel />
+            </AdminTabContent>
+          </TabsContent>
+          
+          <TabsContent value="factions">
+            <AdminTabContent title="Faction Management">
+              <FactionManager />
             </AdminTabContent>
           </TabsContent>
           

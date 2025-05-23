@@ -155,7 +155,7 @@ const UnitKeywordSpecialRulesManager: React.FC = () => {
       const targetLanguage = activeTranslationTab;
       
       if (targetLanguage === 'es' || targetLanguage === 'fr') {
-        const translatedText = await translateText(currentItem.description, targetLanguage);
+        const translatedText = await translateText(currentItem.description, targetLanguage as 'es' | 'fr');
         
         if (targetLanguage === 'es') {
           setCurrentItem({
@@ -297,7 +297,7 @@ const UnitKeywordSpecialRulesManager: React.FC = () => {
         
         for (const item of batch) {
           // Translate the description
-          const translatedText = await translateText(item.description, targetLanguage);
+          const translatedText = await translateText(item.description, targetLanguage as 'es' | 'fr');
           
           // Update the item in the database
           if (itemType === 'keyword') {
