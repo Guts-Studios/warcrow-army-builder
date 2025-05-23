@@ -10,29 +10,30 @@ const normalizedLocalUnits = normalizeUnits(units);
 
 // Define missing key units to ensure they're included
 const missingKeyUnits: Unit[] = [
-  // Add Marhael The Refused if missing - CORRECTED FACTION to hegemony-of-embersig
+  // Marhael The Refused with correct data
   {
     id: "marhael_the_refused",
     name: "Marhael The Refused",
-    faction: "hegemony-of-embersig", // Changed from scions-of-yaldabaoth to hegemony-of-embersig
-    pointsCost: 275,
+    faction: "hegemony-of-embersig",
+    pointsCost: 35, // Correct points cost per CSV
     availability: 1,
-    highCommand: true,
+    highCommand: true, // Should be highCommand: true
     command: 2,
     keywords: [
+      { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Undead", description: "" }
+      { name: "Elf", description: "" },
+      { name: "High Command", description: "" }
     ],
-    specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
+    specialRules: ["Fearless", "Spellcaster"],
     imageUrl: "/art/card/marhael_the_refused_card.jpg"
   },
-  // Update Nadezhda Lazard's point cost to 30 (from 275/285)
+  // Nadezhda Lazard with correct point cost
   {
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
-    pointsCost: 30, // Updated to 30 to match the reference CSV data
+    pointsCost: 30, // Confirmed at 30 points
     availability: 1,
     highCommand: true,
     command: 2,
@@ -61,7 +62,7 @@ if (!marhaelExists) {
       ...normalizedLocalUnits[marhaelIndex],
       ...missingKeyUnits[0]
     };
-    console.log("[useUnitData] Updated existing unit: Marhael The Refused to Hegemony faction");
+    console.log("[useUnitData] Updated existing unit: Marhael The Refused to Hegemony faction with highCommand: true");
   }
 }
 

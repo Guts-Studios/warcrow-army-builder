@@ -26,8 +26,8 @@ export function validateFactionUnits(factionUnits: Unit[], factionId: string): {
       'ahlwardt_ice_bear'
     ],
     'hegemony-of-embersig': [
-      'nadezhda_lazard_champion_of_embersig',
-      'marhael_the_refused', // Added Marhael to Hegemony expected units
+      'nadezhda_lazard_champion_of_embersig', 
+      'marhael_the_refused', // Marhael confirmed in Hegemony
       'intact',
       'battle-scarred',
       'bulwarks',
@@ -35,7 +35,7 @@ export function validateFactionUnits(factionUnits: Unit[], factionId: string): {
       'grand_captain'
     ],
     'scions-of-yaldabaoth': [
-      // Removed Marhael from Scions expected units
+      // Marhael removed from Scions expected units
       'echoes',
       'marked',
       'darkmaster',
@@ -67,5 +67,51 @@ export function validateFactionUnits(factionUnits: Unit[], factionId: string): {
     allUnitsPresent: missingUnits.length === 0,
     totalExpectedUnits,
     actualUnitsCount
+  };
+}
+
+// Add a new function to validate specific key units
+export function validateKeyUnits(factionUnits: Unit[]): {
+  marhaelCorrect: boolean;
+  lazardCorrect: boolean;
+  issues: string[];
+} {
+  const issues: string[] = [];
+  
+  // Check for Marhael
+  const marhael = factionUnits.find(unit => unit.id === "marhael_the_refused");
+  const marhaelCorrect = marhael && 
+                        marhael.faction === "hegemony-of-embersig" && 
+                        marhael.pointsCost === 35 &&
+                        marhael.highCommand === true;
+                        
+  if (!marhael) {
+    issues.push("Marhael The Refused is missing");
+  } else if (marhael.faction !== "hegemony-of-embersig") {
+    issues.push(`Marhael The Refused has wrong faction: ${marhael.faction}, should be hegemony-of-embersig`);
+  } else if (marhael.pointsCost !== 35) {
+    issues.push(`Marhael The Refused has wrong points cost: ${marhael.pointsCost}, should be 35`);
+  } else if (marhael.highCommand !== true) {
+    issues.push(`Marhael The Refused should be highCommand: true`);
+  }
+  
+  // Check for Lazard
+  const lazard = factionUnits.find(unit => unit.id === "nadezhda_lazard_champion_of_embersig");
+  const lazardCorrect = lazard && 
+                       lazard.faction === "hegemony-of-embersig" && 
+                       lazard.pointsCost === 30;
+                       
+  if (!lazard) {
+    issues.push("Nadezhda Lazard is missing");
+  } else if (lazard.faction !== "hegemony-of-embersig") {
+    issues.push(`Nadezhda Lazard has wrong faction: ${lazard.faction}, should be hegemony-of-embersig`);
+  } else if (lazard.pointsCost !== 30) {
+    issues.push(`Nadezhda Lazard has wrong points cost: ${lazard.pointsCost}, should be 30`);
+  }
+  
+  return {
+    marhaelCorrect,
+    lazardCorrect,
+    issues
   };
 }

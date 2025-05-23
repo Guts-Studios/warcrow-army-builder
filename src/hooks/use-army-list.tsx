@@ -8,7 +8,7 @@ import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/u
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 import { toast } from "sonner";
-import { validateFactionUnits } from "@/utils/unitValidation";
+import { validateFactionUnits, validateKeyUnits } from "@/utils/unitValidation";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -46,14 +46,22 @@ export const useArmyList = (selectedFaction: string) => {
         console.log(`[useArmyList] All key units present for ${selectedFaction}`);
       }
       
+      // Use new validation function for key units
+      const keyUnitValidation = validateKeyUnits(factionUnits);
+      if (keyUnitValidation.issues.length > 0) {
+        console.warn(`[useArmyList] Issues with key units:`, keyUnitValidation.issues);
+      } else {
+        console.log(`[useArmyList] Key units (Marhael, Lazard) validated successfully`);
+      }
+      
       // Check specifically for our problem units
       const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
       const hasLazard = factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig');
       
       console.log(`[useArmyList] Key unit check - Marhael present: ${hasMarhael}, Lazard present: ${hasLazard}`);
       
-      if (selectedFaction === 'scions-of-yaldabaoth' && !hasMarhael) {
-        console.error("[useArmyList] Marhael is STILL missing from Scions faction after fixes!");
+      if (selectedFaction === 'hegemony-of-embersig' && !hasMarhael) {
+        console.error("[useArmyList] Marhael is STILL missing from Hegemony faction after fixes!");
         // Force refetch to try to get the missing unit
         refetchUnits();
       }
@@ -70,6 +78,18 @@ export const useArmyList = (selectedFaction: string) => {
         console.log(`[useArmyList] Lazard's current points cost: ${lazardUnit.pointsCost}`);
         if (lazardUnit.pointsCost !== 30) {
           console.warn(`[useArmyList] Lazard's points cost is wrong! Expected: 30, Got: ${lazardUnit.pointsCost}`);
+        }
+      }
+      
+      // Check Marhael's points cost and faction
+      const marhaelUnit = factionUnits.find(u => u.id === 'marhael_the_refused');
+      if (marhaelUnit) {
+        console.log(`[useArmyList] Marhael's current points cost: ${marhaelUnit.pointsCost}, faction: ${marhaelUnit.faction}`);
+        if (marhaelUnit.pointsCost !== 35) {
+          console.warn(`[useArmyList] Marhael's points cost is wrong! Expected: 35, Got: ${marhaelUnit.pointsCost}`);
+        }
+        if (marhaelUnit.faction !== 'hegemony-of-embersig') {
+          console.warn(`[useArmyList] Marhael's faction is wrong! Expected: hegemony-of-embersig, Got: ${marhaelUnit.faction}`);
         }
       }
     }
