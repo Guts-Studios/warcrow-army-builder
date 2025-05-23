@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for CSV validation
  */
@@ -8,6 +7,7 @@ export type CsvUnit = {
   id: string;
   name: string;
   faction: string;
+  faction_id?: string; // Add faction_id field
   type: string;
   pointsCost: number | string;
   availability: number | string;
@@ -52,6 +52,7 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
             id: row.id || '',
             name: row['Unit Name'] || row.name || '',
             faction: row.Faction || row.faction || '',
+            faction_id: row['Faction ID'] || row.faction_id || '', // Add faction_id mapping
             type: row['Unit Type'] || row.type || '',
             pointsCost: row['Points Cost'] || row.pointsCost || 0,
             availability: row.AVB || row.availability || 0,
@@ -212,6 +213,15 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
     if (matchById) return matchById;
   }
   
+  // Then try to match by name and faction_id if available
+  if (csvUnit.faction_id) {
+    const matchByNameAndFactionId = staticUnits.find(unit => 
+      unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
+      unit.faction_id === csvUnit.faction_id
+    );
+    if (matchByNameAndFactionId) return matchByNameAndFactionId;
+  }
+  
   // Then try to match by name (case insensitive)
   return staticUnits.find(unit => 
     unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
@@ -223,7 +233,7 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
  * Create a sample CSV file header
  */
 export const getSampleCsvHeader = (): string => {
-  return 'id,name,faction,type,pointsCost,availability,keywords,specialRules,highCommand,command';
+  return 'id,name,faction,faction_id,type,pointsCost,availability,keywords,specialRules,highCommand,command';
 };
 
 /**
@@ -233,15 +243,16 @@ export const createCsvRowFromUnit = (unit: any): string => {
   const keywords = unit.keywords.map((k: any) => typeof k === 'string' ? k : k.name).join(',');
   const specialRules = (unit.specialRules || []).join(',');
   const highCommand = unit.highCommand ? 'Yes' : 'No';
+  const faction_id = unit.faction_id || unit.faction;
   
-  return `${unit.id},${unit.name},${unit.faction},${unit.type || ''},${unit.pointsCost},${unit.availability},${keywords},${specialRules},${highCommand},${unit.command || ''}`;
+  return `${unit.id},${unit.name},${unit.faction},${faction_id},${unit.type || ''},${unit.pointsCost},${unit.availability},${keywords},${specialRules},${highCommand},${unit.command || ''}`;
 };
 
 /**
  * Export units to CSV format
  */
 export const exportUnitsToCSV = (units: any[]): string => {
-  const header = getSampleCsvHeader();
+  const header = "id,name,faction,faction_id,type,pointsCost,availability,keywords,specialRules,highCommand,command";
   const rows = units.map(createCsvRowFromUnit);
   return [header, ...rows].join('\n');
 };
@@ -266,12 +277,18 @@ export const generateUnitFileCode = (units: CsvUnit[], faction: string): string 
       ? `command: ${Number(unit.command)},` 
       : '';
     
+    // Add faction_id to generated code  
+    const faction_id = unit.faction_id 
+      ? `faction_id: "${unit.faction_id}",` 
+      : '';
+    
     return `
   {
     id: "${unit.id}",
     name: "${unit.name}",
     pointsCost: ${Number(unit.pointsCost)},
     faction: "${faction}",
+    ${faction_id}
     keywords: [
       ${keywords}
     ],

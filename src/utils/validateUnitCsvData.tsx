@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,7 +45,14 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
   // Get all static units for this faction
   const getStaticUnitsForFaction = (factionId: string) => {
     const normalized = normalizeFactionId(factionId);
-    return staticUnits.filter(unit => normalizeFactionId(unit.faction) === normalized);
+    return staticUnits.filter(unit => {
+      // First check for faction_id match if available
+      if (unit.faction_id) {
+        return normalizeFactionId(unit.faction_id) === normalized;
+      }
+      // Fall back to faction field
+      return normalizeFactionId(unit.faction) === normalized;
+    });
   };
 
   useEffect(() => {
@@ -84,7 +90,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         let matched = 0;
 
         for (const csvUnit of csvUnits) {
-          // Try to match this CSV unit with a static unit
+          // Try to match this CSV unit with a static unit - now with faction_id support
           const staticUnit = findMatchingUnit(csvUnit, staticFactionUnits);
           
           if (staticUnit) {
@@ -111,7 +117,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           }
         }
 
-        // 5. Check for static units that don't have a CSV entry
+        // 5. Check for static units that don't have a CSV entry - now with faction_id support
         const csvUnitNames = csvUnits.map(u => u.name.toLowerCase());
         const staticOnlyUnits = staticFactionUnits
           .filter(unit => !csvUnitNames.includes(unit.name.toLowerCase()))

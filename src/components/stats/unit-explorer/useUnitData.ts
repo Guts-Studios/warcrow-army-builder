@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -15,6 +16,7 @@ const missingKeyUnits: Unit[] = [
     id: "marhael_the_refused",
     name: "Marhael The Refused",
     faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig", // Add faction_id
     pointsCost: 35, // Correct points cost per CSV
     availability: 1,
     highCommand: true, // Should be highCommand: true
@@ -33,6 +35,7 @@ const missingKeyUnits: Unit[] = [
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig", // Add faction_id
     pointsCost: 30, // Confirmed at 30 points
     availability: 1,
     highCommand: true,
@@ -86,6 +89,7 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   id: unit.id,
   name: unit.name,
   faction: unit.faction,
+  faction_id: unit.faction_id || unit.faction, // Use faction_id if available, otherwise use faction
   faction_display: unit.faction,
   points: unit.pointsCost,
   keywords: unit.keywords.map(k => typeof k === 'string' ? k : k.name),
@@ -111,7 +115,12 @@ export function useUnitData(selectedFaction: string) {
       let filteredUnits = localUnits;
       if (normalizedSelectedFaction !== 'all') {
         filteredUnits = localUnits.filter(unit => {
-          // Make sure we normalize both factions for comparison
+          // First check for faction_id match if available
+          if (unit.faction_id) {
+            const unitFactionId = normalizeFactionId(unit.faction_id);
+            if (unitFactionId === normalizedSelectedFaction) return true;
+          }
+          // Fall back to faction field
           const unitFaction = normalizeFactionId(unit.faction);
           return unitFaction === normalizedSelectedFaction;
         });
@@ -175,6 +184,7 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
     id: apiUnit.id,
     name: apiUnit.name,
     faction: normalizedFaction,
+    faction_id: apiUnit.faction_id, // Add faction_id
     pointsCost: apiUnit.points,
     availability: characteristics?.availability || 0,
     command: characteristics?.command || 0,
@@ -197,7 +207,11 @@ export const useArmyBuilderUnits = (factionId: string) => {
       
       // Get normalized units from local data with matching faction
       const factionUnits = normalizedLocalUnits.filter(unit => {
-        // We normalize both the unit's faction and the selected faction for comparison
+        // First check for faction_id match if available
+        if (unit.faction_id) {
+          return normalizeFactionId(unit.faction_id) === normalizedFactionId;
+        }
+        // Fall back to faction field
         return normalizeFactionId(unit.faction) === normalizedFactionId;
       });
       

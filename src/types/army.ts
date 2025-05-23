@@ -5,6 +5,7 @@ export interface SelectedUnit {
   pointsCost: number;
   quantity: number;
   faction: string; 
+  faction_id?: string; // Add faction_id field
   keywords: string[]; // SelectedUnit uses string[] for keywords
   highCommand?: boolean;
   availability: number;
@@ -27,6 +28,7 @@ export interface Unit {
   id: string;
   name: string;
   faction: string;
+  faction_id?: string; // Add faction_id field
   pointsCost: number;
   availability: number;
   command?: number;
@@ -46,6 +48,7 @@ export interface ApiUnit {
   description_es?: string | null;
   description_fr?: string | null;
   faction: string;
+  faction_id?: string; // Add faction_id field
   faction_display?: string;
   type: string;
   points: number;
