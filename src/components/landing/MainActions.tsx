@@ -13,15 +13,10 @@ export const MainActions = () => {
   const { isPreview } = useEnvironment();
   const isMobile = useIsMobile();
   
-  // Simplified check - show admin content if user is admin OR in preview mode AND authenticated
-  const showAdminContent = isWabAdmin || (isPreview && isAuthenticated === true);
-  
-  console.log("MainActions: Admin visibility check:", { 
-    isWabAdmin, 
-    isAuthenticated, 
-    isPreview, 
-    showAdminContent 
-  });
+  // ACCESS CONTROL LOGIC:
+  // 1. In preview environments: Always show admin link regardless of authentication or admin status
+  // 2. In production: Only show admin link if user is both authenticated AND has admin privileges
+  const showAdminContent = isPreview || (isAuthenticated === true && isWabAdmin === true);
   
   return (
     <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap max-w-xs sm:max-w-none mx-auto px-4 sm:px-0">

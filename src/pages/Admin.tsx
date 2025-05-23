@@ -37,14 +37,17 @@ const Admin = () => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
-        // In preview mode or as a WAB admin, grant access
-        const hasAccess = isPreview || isWabAdmin;
+        // ACCESS CONTROL LOGIC:
+        // 1. In preview environments: Always allow access regardless of authentication or admin status
+        // 2. In production: Only allow access if user is both authenticated AND has admin privileges
         
-        // If the auth check is still loading, wait before redirecting
+        // If the auth check is still loading, wait before making any decisions
         if (isAuthenticated === null) {
-          // Auth is still loading, don't redirect yet
-          return;
+          return; // Don't redirect yet, still loading auth state
         }
+        
+        // Apply the access control logic
+        const hasAccess = isPreview || (isAuthenticated === true && isWabAdmin === true);
         
         if (!hasAccess) {
           console.log("Admin page: Access denied, redirecting to home");
@@ -64,7 +67,7 @@ const Admin = () => {
     checkAdminStatus();
   }, [navigate, isWabAdmin, isPreview, isAuthenticated]);
   
-  // If we're still checking admin status or auth is still loading, show loading indicator
+  // Show loading spinner if we're still checking admin status or auth state is still loading
   if (isCheckingAdmin || isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-warcrow-background">
