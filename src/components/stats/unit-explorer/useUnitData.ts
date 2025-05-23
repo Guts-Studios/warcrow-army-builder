@@ -124,6 +124,27 @@ export function useUnitData(selectedFaction: string) {
           const unitFaction = normalizeFactionId(unit.faction);
           return unitFaction === normalizedSelectedFaction;
         });
+        
+        // Double check for units that should be in this faction but aren't being found
+        if (filteredUnits.length === 0) {
+          console.warn(`[useUnitData] No units found for faction: ${normalizedSelectedFaction}. This might indicate a data issue.`);
+          
+          // Debug: log units that might be close matches
+          const possibleMatches = localUnits.filter(unit => {
+            const unitFaction = String(unit.faction || '').toLowerCase();
+            const unitFactionId = String(unit.faction_id || '').toLowerCase();
+            const targetFaction = normalizedSelectedFaction.toLowerCase();
+            
+            return unitFaction.includes(targetFaction) || unitFactionId.includes(targetFaction) || 
+                   targetFaction.includes(unitFaction) || targetFaction.includes(unitFactionId);
+          });
+          
+          if (possibleMatches.length > 0) {
+            console.log(`[useUnitData] Possible matches found with similar faction names:`, 
+              possibleMatches.slice(0, 3).map(u => ({name: u.name, faction: u.faction, faction_id: u.faction_id}))
+            );
+          }
+        }
       }
       
       console.log(`[useUnitData] Found ${filteredUnits.length} units for faction: ${normalizedSelectedFaction}`);
@@ -178,8 +199,12 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
     apiUnit.characteristics as Record<string, any> : {};
     
   // Normalize the faction ID to ensure it matches our expected format
-  let normalizedFaction = normalizeFactionId(apiUnit.faction);
+  let normalizedFaction = apiUnit.faction ? normalizeFactionId(apiUnit.faction) : 'unknown';
   let normalizedFactionId = apiUnit.faction_id ? normalizeFactionId(apiUnit.faction_id) : normalizedFaction;
+  
+  // Handle null/undefined values in CSV
+  if (normalizedFaction === 'null' || normalizedFaction === 'undefined') normalizedFaction = 'unknown';
+  if (normalizedFactionId === 'null' || normalizedFactionId === 'undefined') normalizedFactionId = normalizedFaction;
   
   return {
     id: apiUnit.id,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -104,6 +103,12 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         let matched = 0;
 
         for (const csvUnit of csvUnits) {
+          // Skip units with null or empty names
+          if (!csvUnit.name || csvUnit.name === 'null' || csvUnit.name === 'undefined') {
+            console.warn('Found CSV unit with null or empty name, skipping');
+            continue;
+          }
+          
           // Try to match this CSV unit with a static unit - now with faction_id support
           const staticUnit = findMatchingUnit(csvUnit, staticFactionUnits);
           
@@ -132,7 +137,10 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         }
 
         // 5. Check for static units that don't have a CSV entry - now with faction_id support
-        const csvUnitNames = csvUnits.map(u => u.name.toLowerCase());
+        const csvUnitNames = csvUnits
+          .filter(u => u.name && u.name !== 'null' && u.name !== 'undefined')
+          .map(u => u.name.toLowerCase());
+        
         const staticOnlyUnits = staticFactionUnits
           .filter(unit => !csvUnitNames.includes(unit.name.toLowerCase()))
           .map(unit => unit.name);

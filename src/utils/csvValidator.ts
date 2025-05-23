@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for CSV validation
  */
@@ -9,7 +8,7 @@ export type CsvUnit = {
   id: string;
   name: string;
   faction: string;
-  faction_id?: string; // Add faction_id field
+  faction_id?: string;
   type: string;
   pointsCost: number | string;
   availability: number | string;
@@ -58,29 +57,49 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
               console.log('Processing CSV row:', row);
             }
             
-            // Explicitly check for faction_id first
-            const factionId = row['faction_id'] || row['Faction ID'] || '';
-            const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
-            console.log('Found faction_id:', factionId, 'normalized to:', normalizedFactionId, 'for unit:', row['Unit Name'] || row.name);
+            // Helper function to safely parse field values
+            const parseField = (value: any) => {
+              if (!value || value === 'null' || value === 'undefined') return '';
+              return value;
+            };
             
-            const faction = row.Faction || row.faction || '';
+            // Explicitly check for faction_id first
+            const factionId = parseField(row['faction_id'] || row['Faction ID']);
+            const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
+            
+            const faction = parseField(row.Faction || row.faction);
             const normalizedFaction = faction ? normalizeFactionId(faction) : '';
             
+            // Parse keywords, handling nulls and empty strings
+            const parseKeywords = (keywordsStr: string) => {
+              if (!keywordsStr || keywordsStr === 'null' || keywordsStr === 'undefined') return [];
+              return keywordsStr.split(',').map(k => k.trim()).filter(Boolean);
+            };
+            
+            // Parse special rules, handling nulls and empty strings
+            const parseSpecialRules = (rulesStr: string) => {
+              if (!rulesStr || rulesStr === 'null' || rulesStr === 'undefined') return [];
+              return rulesStr.split(',').map(r => r.trim()).filter(Boolean);
+            };
+            
+            // Parse high command value
+            const parseHighCommand = (hcValue: string) => {
+              if (!hcValue) return false;
+              return hcValue.toLowerCase() === 'yes' || hcValue.toLowerCase() === 'true';
+            };
+            
             return {
-              id: row.id || '',
-              name: row['Unit Name'] || row.name || '',
+              id: parseField(row.id),
+              name: parseField(row['Unit Name'] || row.name),
               faction: normalizedFaction,
               faction_id: normalizedFactionId || normalizedFaction, // Make sure faction_id is set
-              type: row['Unit Type'] || row.type || '',
-              pointsCost: row['Points Cost'] || row.pointsCost || 0,
-              availability: row.AVB || row.availability || 0,
-              keywords: (row.Keywords || row.keywords || '').split(',').map((k: string) => k.trim()).filter(Boolean),
-              specialRules: (row['Special Rules'] || row.specialRules || '')
-                .split(',')
-                .map((r: string) => r.trim())
-                .filter((r: string) => r),
-              highCommand: (row['High Command'] || row.highCommand || '').toLowerCase() === 'yes',
-              command: parseInt(row.Command || row.command || '0', 10) || 0
+              type: parseField(row['Unit Type'] || row.type),
+              pointsCost: parseInt(parseField(row['Points Cost'] || row.pointsCost) || '0', 10) || 0,
+              availability: parseInt(parseField(row.AVB || row.availability) || '0', 10) || 0,
+              keywords: parseKeywords(parseField(row.Keywords || row.keywords)),
+              specialRules: parseSpecialRules(parseField(row['Special Rules'] || row.specialRules)),
+              highCommand: parseHighCommand(parseField(row['High Command'] || row.highCommand)),
+              command: parseInt(parseField(row.Command || row.command) || '0', 10) || 0
             };
           });
         console.log(`Parsed ${units.length} units from CSV`);
@@ -145,11 +164,16 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
   
   // Check faction_id if available
   if (csvUnit.faction_id && staticUnit.faction_id !== csvUnit.faction_id) {
-    mismatches.push({
-      field: 'faction_id',
-      staticValue: staticUnit.faction_id || staticUnit.faction,
-      csvValue: csvUnit.faction_id
-    });
+    const normalizedStaticFactionId = normalizeFactionId(staticUnit.faction_id || staticUnit.faction);
+    const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
+    
+    if (normalizedStaticFactionId !== normalizedCsvFactionId) {
+      mismatches.push({
+        field: 'faction_id',
+        staticValue: normalizedStaticFactionId,
+        csvValue: normalizedCsvFactionId
+      });
+    }
   }
   
   // Check keywords (improved comparison)

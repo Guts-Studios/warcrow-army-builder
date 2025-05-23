@@ -7,6 +7,7 @@ export const syenannTroops: Unit[] = [
     name: "Protectors of the Forest",
     pointsCost: 25,
     faction: "syenann",
+    faction_id: "syenann",
     keywords: [
       { name: "Elf", description: "" },
       { name: "Infantry", description: "" },
@@ -22,6 +23,7 @@ export const syenannTroops: Unit[] = [
     name: "Shadows of the Yew",
     pointsCost: 35,
     faction: "syenann",
+    faction_id: "syenann",
     keywords: [
       { name: "Elf", description: "" },
       { name: "Infantry", description: "" },
@@ -40,6 +42,7 @@ export const syenannTroops: Unit[] = [
     name: "Grove Curtailers",
     pointsCost: 35,
     faction: "syenann",
+    faction_id: "syenann",
     keywords: [
       { name: "Infantry", description: "" },
       { name: "Elf", description: "" },
