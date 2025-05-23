@@ -15,7 +15,6 @@ import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/hooks/useAuth";
 
 const Rules = () => {
@@ -27,7 +26,6 @@ const Rules = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = React.useState<string>("rules");
   const [isManualRefreshing, setIsManualRefreshing] = React.useState(false);
-  const { isAuthenticated } = useAuth();
 
   // Force refetch when language changes
   React.useEffect(() => {
@@ -84,9 +82,11 @@ const Rules = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')}>
+      <PageHeader 
+        title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')} 
+        showNavigation={true}
+      >
         <div className="flex items-center gap-3">
-          {isAuthenticated && <NavDropdown />}
           <Button
             variant="outline"
             size="sm"
