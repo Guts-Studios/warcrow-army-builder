@@ -139,7 +139,8 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader 
         title={t('faqTitle')} 
-        showNavigation={true}>
+        showNavigation={true}
+      >
         <div className="flex items-center space-x-2">
           <Button 
             variant="outline" 

@@ -3,6 +3,7 @@ import React from 'react';
 import { SupportButton } from "@/components/landing/SupportButton";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/hooks/useAuth";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 interface PageHeaderProps {
   title: string;
@@ -17,7 +18,11 @@ export const PageHeader = ({
   children,
   showNavigation = false
 }: PageHeaderProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  const { isPreview } = useEnvironment();
+  
+  // Always show navigation in preview mode or if authenticated
+  const shouldShowNavigation = showNavigation && (isAuthenticated || isPreview);
 
   return (
     <div className="bg-black/95 border-b border-warcrow-gold/50 shadow-md p-2 md:p-4">
@@ -35,7 +40,7 @@ export const PageHeader = ({
             <h1 className="text-2xl md:text-3xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-2 md:mt-0">
-            {showNavigation && isAuthenticated && <NavDropdown />}
+            {shouldShowNavigation && <NavDropdown />}
             {children}
           </div>
         </div>

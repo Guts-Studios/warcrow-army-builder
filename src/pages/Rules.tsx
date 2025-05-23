@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { ChapterNavigation } from "@/components/rules/ChapterNavigation";
 import { RulesSearch } from "@/components/rules/RulesSearch";
@@ -15,7 +16,6 @@ import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
 
 const Rules = () => {
   const [selectedSection, setSelectedSection] = React.useState<Section | null>(null);
