@@ -1,16 +1,44 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import UnitCsvValidator from '@/utils/validateUnitCsvData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const CsvUnitValidationPage: React.FC = () => {
-  // Default to northern-tribes instead of northern-tribes (already correct, but making it explicit)
+  // Default to northern-tribes
   const [selectedFaction, setSelectedFaction] = useState<string>('northern-tribes');
+  const [showDebug, setShowDebug] = useState<boolean>(false);
 
   return (
     <div className="container py-8">
       <h1 className="text-2xl font-bold text-warcrow-gold mb-6">CSV Unit Data Validation</h1>
+      
+      {showDebug && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Debug Information</AlertTitle>
+          <AlertDescription>
+            <p>The validator is looking for CSV files in the /public/data/reference-csv/units/ directory.</p>
+            <p>Files expected: The Syenann.csv, Northern Tribes.csv, Hegemony of Embersig.csv, Scions of Taldabaoth.csv</p>
+            <button 
+              className="underline text-sm mt-2"
+              onClick={() => setShowDebug(false)}
+            >
+              Hide Debug Info
+            </button>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {!showDebug && (
+        <button 
+          className="text-warcrow-gold/70 underline text-sm mb-4 block"
+          onClick={() => setShowDebug(true)}
+        >
+          Show File Path Debug Info
+        </button>
+      )}
       
       <Tabs 
         defaultValue="northern-tribes"

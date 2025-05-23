@@ -45,25 +45,39 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
     Papa.parse(csvContent, {
       header: true,
       complete: (results) => {
+        console.log('CSV parsing raw results:', results.data.slice(0, 2));
+        
         // Map the parsed data to our CsvUnit type
         const units = results.data
           .filter((row: any) => row.name || row['Unit Name'] || row.id) // Filter out empty rows
-          .map((row: any) => ({
-            id: row.id || '',
-            name: row['Unit Name'] || row.name || '',
-            faction: row.Faction || row.faction || '',
-            faction_id: row['Faction ID'] || row.faction_id || '', // Add faction_id mapping
-            type: row['Unit Type'] || row.type || '',
-            pointsCost: row['Points Cost'] || row.pointsCost || 0,
-            availability: row.AVB || row.availability || 0,
-            keywords: (row.Keywords || row.keywords || '').split(',').map((k: string) => k.trim()).filter(Boolean),
-            specialRules: (row['Special Rules'] || row.specialRules || '')
-              .split(',')
-              .map((r: string) => r.trim())
-              .filter((r: string) => r),
-            highCommand: (row['High Command'] || row.highCommand || '').toLowerCase() === 'yes',
-            command: parseInt(row.Command || row.command || '0', 10) || 0
-          }));
+          .map((row: any) => {
+            // Log first couple of rows to help debug
+            if (results.data.indexOf(row) < 2) {
+              console.log('Processing CSV row:', row);
+            }
+            
+            // Explicitly check for faction_id first
+            const factionId = row['faction_id'] || row['Faction ID'] || '';
+            console.log('Found faction_id:', factionId, 'for unit:', row['Unit Name'] || row.name);
+            
+            return {
+              id: row.id || '',
+              name: row['Unit Name'] || row.name || '',
+              faction: row.Faction || row.faction || '',
+              faction_id: factionId, // Prioritize faction_id
+              type: row['Unit Type'] || row.type || '',
+              pointsCost: row['Points Cost'] || row.pointsCost || 0,
+              availability: row.AVB || row.availability || 0,
+              keywords: (row.Keywords || row.keywords || '').split(',').map((k: string) => k.trim()).filter(Boolean),
+              specialRules: (row['Special Rules'] || row.specialRules || '')
+                .split(',')
+                .map((r: string) => r.trim())
+                .filter((r: string) => r),
+              highCommand: (row['High Command'] || row.highCommand || '').toLowerCase() === 'yes',
+              command: parseInt(row.Command || row.command || '0', 10) || 0
+            };
+          });
+        console.log(`Parsed ${units.length} units from CSV`);
         resolve(units);
       }
     });
@@ -76,6 +90,9 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
  */
 export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{field: string, staticValue: any, csvValue: any}> => {
   const mismatches: Array<{field: string, staticValue: any, csvValue: any}> = [];
+  
+  // Debug log
+  console.log(`Comparing unit: ${staticUnit.name} with CSV unit: ${csvUnit.name}`);
   
   // Check points cost
   const csvPoints = Number(csvUnit.pointsCost);
@@ -117,6 +134,15 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
       field: 'command',
       staticValue: staticUnit.command || 0,
       csvValue: csvCommand
+    });
+  }
+  
+  // Check faction_id if available
+  if (csvUnit.faction_id && staticUnit.faction_id !== csvUnit.faction_id) {
+    mismatches.push({
+      field: 'faction_id',
+      staticValue: staticUnit.faction_id || staticUnit.faction,
+      csvValue: csvUnit.faction_id
     });
   }
   
@@ -207,26 +233,46 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
  * Find matching units between CSV and static data
  */
 export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
+  // Debug
+  console.log(`Finding match for CSV unit: ${csvUnit.name} with faction_id: ${csvUnit.faction_id}`);
+  
   // First try to match by ID
   if (csvUnit.id) {
     const matchById = staticUnits.find(unit => unit.id === csvUnit.id);
-    if (matchById) return matchById;
+    if (matchById) {
+      console.log(`Matched ${csvUnit.name} by ID`);
+      return matchById;
+    }
   }
   
   // Then try to match by name and faction_id if available
   if (csvUnit.faction_id) {
+    console.log(`Trying to match ${csvUnit.name} by name and faction_id: ${csvUnit.faction_id}`);
+    
     const matchByNameAndFactionId = staticUnits.find(unit => 
       unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
       unit.faction_id === csvUnit.faction_id
     );
-    if (matchByNameAndFactionId) return matchByNameAndFactionId;
+    
+    if (matchByNameAndFactionId) {
+      console.log(`Matched ${csvUnit.name} by name and faction_id`);
+      return matchByNameAndFactionId;
+    }
   }
   
   // Then try to match by name (case insensitive)
-  return staticUnits.find(unit => 
+  const matchByName = staticUnits.find(unit => 
     unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
     (!csvUnit.faction || unit.faction.toLowerCase() === csvUnit.faction.toLowerCase())
   );
+  
+  if (matchByName) {
+    console.log(`Matched ${csvUnit.name} by name only`);
+  } else {
+    console.log(`No match found for ${csvUnit.name}`);
+  }
+  
+  return matchByName;
 };
 
 /**
@@ -299,7 +345,7 @@ export const generateUnitFileCode = (units: CsvUnit[], faction: string): string 
     imageUrl: "/art/card/${unit.id}_card.jpg"
   }`;
   }).join(',');
-
+  
   return `
 import { Unit } from "@/types/army";
 

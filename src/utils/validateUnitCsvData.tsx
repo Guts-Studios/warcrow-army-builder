@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,14 +31,14 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
   const [totalStaticUnits, setTotalStaticUnits] = useState<number>(0);
   const [missingUnits, setMissingUnits] = useState<string[]>([]);
 
-  // Map faction IDs to CSV file names
+  // Map faction IDs to CSV file names - updated with correct paths
   const getFactionFileName = (factionId: string): string => {
     const normalized = normalizeFactionId(factionId);
     const factionFileMap: Record<string, string> = {
       'syenann': 'The Syenann.csv',
       'northern-tribes': 'Northern Tribes.csv',
       'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Note: File name has Taldabaoth not Yaldabaoth
     };
     return factionFileMap[normalized] || '';
   };
@@ -68,8 +69,11 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           throw new Error(`No CSV file found for faction: ${faction}`);
         }
 
-        // 1. Fetch CSV file content
+        // Debug the file path
         const filePath = `/data/reference-csv/units/${fileName}`;
+        console.log(`Attempting to load CSV from path: ${filePath}`);
+        
+        // 1. Fetch CSV file content
         const response = await fetch(filePath);
         if (!response.ok) {
           throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
@@ -79,10 +83,20 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         const csvContent = await response.text();
         const csvUnits = await parseCsvContent(csvContent);
         setTotalCsvUnits(csvUnits.length);
+        console.log(`Loaded ${csvUnits.length} units from CSV for faction ${faction}`);
 
         // 3. Get static units for this faction
         const staticFactionUnits = getStaticUnitsForFaction(faction);
         setTotalStaticUnits(staticFactionUnits.length);
+        console.log(`Found ${staticFactionUnits.length} static units for faction ${faction}`);
+        
+        // Debug: Log some units from each source
+        if (csvUnits.length > 0) {
+          console.log('First CSV unit:', csvUnits[0]);
+        }
+        if (staticFactionUnits.length > 0) {
+          console.log('First static unit:', staticFactionUnits[0]);
+        }
 
         // 4. Compare CSV data with static data
         const newMismatches: MismatchDetail[] = [];
