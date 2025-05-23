@@ -41,10 +41,33 @@ export const useArmyList = (selectedFaction: string) => {
         
         // Log the first 10 units to help debugging
         console.log(`[useArmyList] First ${Math.min(10, factionUnits.length)} units loaded:`, 
-          factionUnits.slice(0, 10).map(u => ({ id: u.id, name: u.name }))
+          factionUnits.slice(0, 10).map(u => ({ id: u.id, name: u.name, pointsCost: u.pointsCost }))
         );
       } else {
         console.log(`[useArmyList] All key units present for ${selectedFaction}`);
+      }
+      
+      // Check specifically for our problem units
+      const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
+      const hasLazard = factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+      
+      console.log(`[useArmyList] Key unit check - Marhael present: ${hasMarhael}, Lazard present: ${hasLazard}`);
+      
+      if (selectedFaction === 'scions-of-yaldabaoth' && !hasMarhael) {
+        console.error("[useArmyList] Marhael is STILL missing from Scions faction after fixes!");
+      }
+      
+      if (selectedFaction === 'hegemony-of-embersig' && !hasLazard) {
+        console.error("[useArmyList] Lazard is STILL missing from Hegemony faction after fixes!");
+      }
+      
+      // Check Lazard's points cost
+      const lazardUnit = factionUnits.find(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+      if (lazardUnit) {
+        console.log(`[useArmyList] Lazard's current points cost: ${lazardUnit.pointsCost}`);
+        if (lazardUnit.pointsCost !== 275) {
+          console.warn(`[useArmyList] Lazard's points cost is wrong! Expected: 275, Got: ${lazardUnit.pointsCost}`);
+        }
       }
     }
   }, [factionUnits, unitsLoading, isUnitsError, selectedFaction]);

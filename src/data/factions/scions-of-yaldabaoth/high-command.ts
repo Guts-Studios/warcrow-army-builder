@@ -2,85 +2,96 @@
 import { Unit } from "@/types/army";
 
 export const scionsOfYaldabaothHighCommand: Unit[] = [
+  // Master Keorl
   {
-    id: "master-nepharim",
-    name: "Master Nepharim",
-    pointsCost: 50,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elf", description: "Elf race" },
-      { name: "High Command", description: "High command unit" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Dead Flesh)", description: "Can join Infantry Dead Flesh units" }
-    ],
-    highCommand: true,
-    availability: 1,
-    command: 3,
-    specialRules: ["Place (5)"],
-    imageUrl: "/art/card/master_nepharim_card.jpg"
-  },
-  {
-    id: "master-keorl",
+    id: "master_keorl",
     name: "Master Keorl",
-    pointsCost: 50,
     faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "High Command", description: "High command unit" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
-    ],
-    highCommand: true,
+    pointsCost: 50,
     availability: 1,
+    highCommand: true,
     command: 3,
-    specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Living Flesh", description: "" }
+    ],
+    specialRules: ["Intimidating (2)", "Spellcaster", "Join (Infantry, Living Flesh)"],
     imageUrl: "/art/card/master_keorl_card.jpg"
   },
+  // Master Nepharim
+  {
+    id: "master_nepharim",
+    name: "Master Nepharim",
+    faction: "scions-of-yaldabaoth",
+    pointsCost: 50,
+    availability: 1,
+    highCommand: true,
+    command: 3,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elf", description: "" },
+      { name: "High Command", description: "" }
+    ],
+    specialRules: ["Intimidating (2)", "Spellcaster", "Join (Infantry, Dead Flesh)"],
+    imageUrl: "/art/card/master_nepharim_card.jpg"
+  },
+  // Nuada
   {
     id: "nuada",
     name: "Nuada",
-    pointsCost: 55,
     faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Alven", description: "Alven race" },
-      { name: "Character", description: "Character unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "High Commander", description: "High command unit" },
-      { name: "Elite", description: "Elite unit" }
-    ],
-    highCommand: true,
+    pointsCost: 55,
     availability: 1,
+    highCommand: true,
     command: 3,
-    specialRules: ["Heal", "Bloodlust", "Fearless", "Slowed"],
+    keywords: [
+      { name: "Alven", description: "" },
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "High Commander", description: "" }
+    ],
+    specialRules: ["Elite"],
     imageUrl: "/art/card/nuada_card.jpg"
   },
+  // Progenitor Sculptor
   {
-    id: "progenitor-sculptor",
+    id: "progenitor_sculptor",
     name: "Progenitor Sculptor",
-    pointsCost: 30,
     faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "High Command", description: "High command unit" }, 
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Intimidating (2)", description: "Causes fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
-    ],
-    highCommand: true,
+    pointsCost: 30,
     availability: 1,
+    highCommand: true,
     command: 2,
-    specialRules: ["Frightened", "Vulnerable", "Dispel (GRN)"],
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Living Flesh", description: "" }
+    ],
+    specialRules: ["Intimidating (2)", "Spellcaster", "Join (Infantry, Living Flesh)"],
     imageUrl: "/art/card/progenitor_sculptor_card.jpg"
+  },
+  // Marhael The Refused (ensuring it's in the high-command list)
+  {
+    id: "marhael_the_refused",
+    name: "Marhael The Refused",
+    faction: "scions-of-yaldabaoth",
+    pointsCost: 275,
+    availability: 1,
+    highCommand: true,
+    command: 2,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Undead", description: "" }
+    ],
+    specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
+    imageUrl: "/art/card/marhael_the_refused_card.jpg"
   }
 ];

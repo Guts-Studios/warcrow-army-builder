@@ -28,12 +28,12 @@ const missingKeyUnits: Unit[] = [
     specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
     imageUrl: "/art/card/marhael_the_refused_card.jpg"
   },
-  // Add Nadezhda Lazard if missing
+  // Fix Nadezhda Lazard's point cost to 275 (from 285)
   {
     id: "nadezhda_lazard_champion_of_embersig",
     name: "Nadezhda Lazard, Champion of Embersig",
     faction: "hegemony-of-embersig",
-    pointsCost: 285,
+    pointsCost: 275,
     availability: 1,
     highCommand: true,
     command: 2,
@@ -51,15 +51,35 @@ const missingKeyUnits: Unit[] = [
 const marhaelExists = normalizedLocalUnits.some(unit => unit.id === "marhael_the_refused");
 const lazardExists = normalizedLocalUnits.some(unit => unit.id === "nadezhda_lazard_champion_of_embersig");
 
-// Add the missing units to our local data if they don't exist
+// Add the missing units to our local data if they don't exist, or update them if they need correction
 if (!marhaelExists) {
   normalizedLocalUnits.push(missingKeyUnits[0]);
   console.log("[useUnitData] Added missing unit: Marhael The Refused");
+} else {
+  // If Marhael exists but might be in wrong faction, update it
+  const marhaelIndex = normalizedLocalUnits.findIndex(unit => unit.id === "marhael_the_refused");
+  if (marhaelIndex >= 0) {
+    normalizedLocalUnits[marhaelIndex] = {
+      ...normalizedLocalUnits[marhaelIndex],
+      ...missingKeyUnits[0]
+    };
+    console.log("[useUnitData] Updated existing unit: Marhael The Refused");
+  }
 }
 
 if (!lazardExists) {
   normalizedLocalUnits.push(missingKeyUnits[1]);
   console.log("[useUnitData] Added missing unit: Nadezhda Lazard");
+} else {
+  // If Lazard exists but has wrong points cost, update it
+  const lazardIndex = normalizedLocalUnits.findIndex(unit => unit.id === "nadezhda_lazard_champion_of_embersig");
+  if (lazardIndex >= 0) {
+    normalizedLocalUnits[lazardIndex] = {
+      ...normalizedLocalUnits[lazardIndex],
+      pointsCost: 275 // Fix points cost to 275
+    };
+    console.log("[useUnitData] Updated Nadezhda Lazard points cost to 275");
+  }
 }
 
 // Now convert to ApiUnit format for consistency
@@ -166,7 +186,7 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
   };
 }
 
-// Updated to use local data for army builder
+// Updated to use local data for army builder with improved error handling for key units
 export const useArmyBuilderUnits = (factionId: string) => {
   // Normalize the faction ID before making the query
   const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
@@ -185,18 +205,33 @@ export const useArmyBuilderUnits = (factionId: string) => {
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
       
       // Check if key units are present
-      const hasMarhael = normalizedFactionId === 'scions-of-yaldabaoth' ? 
-        factionUnits.some(u => u.id === 'marhael_the_refused') : true;
-      
-      const hasLazard = normalizedFactionId === 'hegemony-of-embersig' ? 
-        factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig') : true;
-      
-      if (!hasMarhael) {
-        console.warn("[useArmyBuilderUnits] Marhael is missing from Scions faction!");
+      if (normalizedFactionId === 'scions-of-yaldabaoth') {
+        const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
+        if (!hasMarhael) {
+          console.warn("[useArmyBuilderUnits] Marhael is missing from Scions faction!");
+          // Force add Marhael if missing
+          const marhael = missingKeyUnits[0];
+          factionUnits.push(marhael);
+          console.log("[useArmyBuilderUnits] Force added missing unit: Marhael The Refused");
+        }
       }
       
-      if (!hasLazard) {
-        console.warn("[useArmyBuilderUnits] Lazard is missing from Hegemony faction!");
+      if (normalizedFactionId === 'hegemony-of-embersig') {
+        const hasLazard = factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+        if (!hasLazard) {
+          console.warn("[useArmyBuilderUnits] Lazard is missing from Hegemony faction!");
+          // Force add Lazard if missing
+          const lazard = missingKeyUnits[1];
+          factionUnits.push(lazard);
+          console.log("[useArmyBuilderUnits] Force added missing unit: Nadezhda Lazard");
+        } else {
+          // Make sure Lazard has the correct points cost
+          const lazardUnit = factionUnits.find(u => u.id === 'nadezhda_lazard_champion_of_embersig');
+          if (lazardUnit && lazardUnit.pointsCost !== 275) {
+            console.log(`[useArmyBuilderUnits] Correcting Lazard's points from ${lazardUnit.pointsCost} to 275`);
+            lazardUnit.pointsCost = 275;
+          }
+        }
       }
       
       return removeDuplicateUnits(factionUnits);
