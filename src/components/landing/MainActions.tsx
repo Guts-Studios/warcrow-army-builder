@@ -13,10 +13,15 @@ export const MainActions = () => {
   const { isPreview } = useEnvironment();
   const isMobile = useIsMobile();
   
-  // Calculate if the user should see admin content - simplified logic
-  const showAdminContent = (isWabAdmin || isPreview) && isAuthenticated;
+  // Simplified check - show admin content if user is admin OR in preview mode AND authenticated
+  const showAdminContent = isWabAdmin || (isPreview && isAuthenticated === true);
   
-  console.log("MainActions: Admin visibility check:", { isWabAdmin, isAuthenticated, isPreview, showAdminContent });
+  console.log("MainActions: Admin visibility check:", { 
+    isWabAdmin, 
+    isAuthenticated, 
+    isPreview, 
+    showAdminContent 
+  });
   
   return (
     <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap max-w-xs sm:max-w-none mx-auto px-4 sm:px-0">

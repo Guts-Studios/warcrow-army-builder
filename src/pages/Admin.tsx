@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 import AdminTabContent from '@/components/admin/AdminTabContent';
@@ -37,15 +37,14 @@ const Admin = () => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
-        // One-time log for debugging - removed excessive logging
-        console.log("Admin page: Access check:", {
-          isPreview,
-          isWabAdmin,
-          isAuthenticated
-        });
+        // In preview mode or as a WAB admin, grant access
+        const hasAccess = isPreview || isWabAdmin;
         
-        // Simplified access check - either in preview environment or a wab admin
-        const hasAccess = (isPreview || isWabAdmin);
+        // If the auth check is still loading, wait before redirecting
+        if (isAuthenticated === null) {
+          // Auth is still loading, don't redirect yet
+          return;
+        }
         
         if (!hasAccess) {
           console.log("Admin page: Access denied, redirecting to home");
@@ -65,7 +64,8 @@ const Admin = () => {
     checkAdminStatus();
   }, [navigate, isWabAdmin, isPreview, isAuthenticated]);
   
-  if (isCheckingAdmin) {
+  // If we're still checking admin status or auth is still loading, show loading indicator
+  if (isCheckingAdmin || isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-warcrow-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold"></div>
