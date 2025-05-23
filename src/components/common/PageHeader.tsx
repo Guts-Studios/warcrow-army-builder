@@ -1,18 +1,24 @@
 
 import React from 'react';
 import { SupportButton } from "@/components/landing/SupportButton";
+import { NavDropdown } from "@/components/ui/NavDropdown";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PageHeaderProps {
   title: string;
   logoUrl?: string;
   children?: React.ReactNode;
+  showNavigation?: boolean;
 }
 
 export const PageHeader = ({ 
   title, 
   logoUrl = "https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z", 
-  children 
+  children,
+  showNavigation = false
 }: PageHeaderProps) => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="bg-black/95 border-b border-warcrow-gold/50 shadow-md p-2 md:p-4">
       <div className="container mx-auto">
@@ -29,6 +35,7 @@ export const PageHeader = ({
             <h1 className="text-2xl md:text-3xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-2 md:mt-0">
+            {showNavigation && isAuthenticated && <NavDropdown />}
             {children}
           </div>
         </div>
