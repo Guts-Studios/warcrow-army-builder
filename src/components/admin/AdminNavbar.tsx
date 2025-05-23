@@ -11,8 +11,10 @@ import {
   LayoutDashboard,
   Bug, 
   ActivitySquare,
-  Flag
+  Flag,
+  FileCheck
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface AdminNavbarProps {
   activeTab: string;
@@ -36,23 +38,33 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) =>
 
   return (
     <div className="mb-6 border-b border-warcrow-gold/30">
-      <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent mb-4">
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            className={`flex items-center gap-1 px-4 py-2 ${
-              activeTab === tab.id
-                ? 'bg-warcrow-gold text-black'
-                : 'bg-black/20 text-warcrow-gold hover:bg-black/40'
-            }`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.icon}
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <div className="flex justify-between items-center mb-4">
+        <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className={`flex items-center gap-1 px-4 py-2 ${
+                activeTab === tab.id
+                  ? 'bg-warcrow-gold text-black'
+                  : 'bg-black/20 text-warcrow-gold hover:bg-black/40'
+              }`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.icon}
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        
+        <Link 
+          to="/admin/validate-csv"
+          className="flex items-center gap-1 px-4 py-2 bg-black/20 text-warcrow-gold hover:bg-black/40 rounded"
+        >
+          <FileCheck className="h-4 w-4 mr-2" />
+          CSV Validator
+        </Link>
+      </div>
     </div>
   );
 };

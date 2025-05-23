@@ -9,12 +9,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export const MainActions = () => {
   const { t } = useLanguage();
-  const { isWabAdmin, isGuest } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
   const { isPreview } = useEnvironment();
   const isMobile = useIsMobile();
   
-  // Calculate if the user should see admin content
-  const showAdminContent = (isWabAdmin || isPreview) && !isGuest;
+  // Calculate if the user should see admin content - simplified logic
+  const showAdminContent = (isWabAdmin || isPreview) && isAuthenticated;
+  
+  console.log("MainActions: Admin visibility check:", { isWabAdmin, isAuthenticated, isPreview, showAdminContent });
   
   return (
     <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap max-w-xs sm:max-w-none mx-auto px-4 sm:px-0">

@@ -30,6 +30,7 @@ import DeveloperOptions from '@/pages/DeveloperOptions';
 import Landing from '@/pages/Landing';
 import DeploymentManagement from '@/pages/DeploymentManagement';
 import ChangelogEditor from '@/pages/ChangelogEditor';
+import ValidateCsvPage from '@/app/admin/validate-csv/page';
 
 export function AppRoutes() {
   return (
@@ -65,6 +66,7 @@ export function AppRoutes() {
       <Route path="/admin/deployment" element={<DeploymentManagement />} />
       <Route path="/admin/changelog" element={<ChangelogEditor />} />
       <Route path="/admin/dev-options" element={<DeveloperOptions />} />
+      <Route path="/admin/validate-csv" element={<ValidateCsvPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

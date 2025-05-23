@@ -27,7 +27,7 @@ const Admin = () => {
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { isAuthenticated, isWabAdmin, isGuest } = useAuth();
+  const { isAuthenticated, isWabAdmin } = useAuth();
   const { isPreview } = useEnvironment();
   
   // Use our hook to ensure default factions exist
@@ -37,28 +37,23 @@ const Admin = () => {
     const checkAdminStatus = async () => {
       setIsCheckingAdmin(true);
       try {
-        console.log("Admin page: Checking access with:", {
+        // One-time log for debugging - removed excessive logging
+        console.log("Admin page: Access check:", {
           isPreview,
           isWabAdmin,
-          isGuest,
           isAuthenticated
         });
         
-        // For preview environments, allow admin access but respect guest status
-        if (isPreview && !isGuest) {
-          console.log("Admin page: Preview environment detected, granting admin access");
-          setIsCheckingAdmin(false);
-          return;
-        }
+        // Simplified access check - either in preview environment or a wab admin
+        const hasAccess = (isPreview || isWabAdmin);
         
-        // For non-preview environments or guests, check for actual admin status
-        if (isGuest || (!isWabAdmin && !isPreview)) {
-          console.log("Admin page: User is not admin or is guest, redirecting to home");
+        if (!hasAccess) {
+          console.log("Admin page: Access denied, redirecting to home");
           navigate('/');
           return;
         }
         
-        console.log("Admin page: User confirmed as admin");
+        console.log("Admin page: Access granted");
       } catch (error) {
         console.error('Error checking admin status:', error);
         navigate('/');
@@ -68,7 +63,7 @@ const Admin = () => {
     };
     
     checkAdminStatus();
-  }, [navigate, isWabAdmin, isPreview, isGuest, isAuthenticated]);
+  }, [navigate, isWabAdmin, isPreview, isAuthenticated]);
   
   if (isCheckingAdmin) {
     return (
