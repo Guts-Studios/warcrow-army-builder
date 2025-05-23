@@ -98,9 +98,17 @@ export const normalizeUnits = (units: Unit[]): Unit[] => {
     // Don't modify the original unit
     const copy = { ...unit };
     
-    // Normalize faction ID if present
-    if (copy.faction) {
+    // Normalize faction_id first if it exists
+    if (copy.faction_id) {
+      copy.faction_id = normalizeFactionId(copy.faction_id);
+      // Also use faction_id for faction if we have it
+      copy.faction = copy.faction_id;
+    } 
+    // Then normalize faction if faction_id doesn't exist
+    else if (copy.faction) {
       copy.faction = normalizeFactionId(copy.faction);
+      // Set faction_id to match normalized faction
+      copy.faction_id = copy.faction;
     } else {
       console.warn(`Unit ${copy.name || 'unnamed'} has no faction assigned`);
       copy.faction = 'unknown';

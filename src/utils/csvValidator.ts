@@ -1,7 +1,9 @@
+
 /**
  * Utility functions for CSV validation
  */
 import Papa from 'papaparse';
+import { normalizeFactionId } from './unitManagement';
 
 export type CsvUnit = {
   id: string;
@@ -58,13 +60,17 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
             
             // Explicitly check for faction_id first
             const factionId = row['faction_id'] || row['Faction ID'] || '';
-            console.log('Found faction_id:', factionId, 'for unit:', row['Unit Name'] || row.name);
+            const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
+            console.log('Found faction_id:', factionId, 'normalized to:', normalizedFactionId, 'for unit:', row['Unit Name'] || row.name);
+            
+            const faction = row.Faction || row.faction || '';
+            const normalizedFaction = faction ? normalizeFactionId(faction) : '';
             
             return {
               id: row.id || '',
               name: row['Unit Name'] || row.name || '',
-              faction: row.Faction || row.faction || '',
-              faction_id: factionId, // Prioritize faction_id
+              faction: normalizedFaction,
+              faction_id: normalizedFactionId || normalizedFaction, // Make sure faction_id is set
               type: row['Unit Type'] || row.type || '',
               pointsCost: row['Points Cost'] || row.pointsCost || 0,
               availability: row.AVB || row.availability || 0,
@@ -249,10 +255,15 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
   if (csvUnit.faction_id) {
     console.log(`Trying to match ${csvUnit.name} by name and faction_id: ${csvUnit.faction_id}`);
     
-    const matchByNameAndFactionId = staticUnits.find(unit => 
-      unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
-      unit.faction_id === csvUnit.faction_id
-    );
+    const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
+    
+    const matchByNameAndFactionId = staticUnits.find(unit => {
+      const unitFactionId = unit.faction_id ? normalizeFactionId(unit.faction_id) : '';
+      const unitFaction = unit.faction ? normalizeFactionId(unit.faction) : '';
+      
+      return unit.name.toLowerCase() === csvUnit.name.toLowerCase() && 
+             (unitFactionId === normalizedCsvFactionId || unitFaction === normalizedCsvFactionId);
+    });
     
     if (matchByNameAndFactionId) {
       console.log(`Matched ${csvUnit.name} by name and faction_id`);
@@ -263,7 +274,7 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
   // Then try to match by name (case insensitive)
   const matchByName = staticUnits.find(unit => 
     unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
-    (!csvUnit.faction || unit.faction.toLowerCase() === csvUnit.faction.toLowerCase())
+    (!csvUnit.faction || normalizeFactionId(unit.faction) === normalizeFactionId(csvUnit.faction))
   );
   
   if (matchByName) {

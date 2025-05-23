@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -102,7 +101,7 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   type: 'unit'
 }));
 
-// Updated to use local data instead of database queries
+// Updated to use local data instead of database queries and to properly handle faction_id
 export function useUnitData(selectedFaction: string) {
   const normalizedSelectedFaction = selectedFaction ? normalizeFactionId(selectedFaction) : 'all';
   
@@ -120,6 +119,7 @@ export function useUnitData(selectedFaction: string) {
             const unitFactionId = normalizeFactionId(unit.faction_id);
             if (unitFactionId === normalizedSelectedFaction) return true;
           }
+          
           // Fall back to faction field
           const unitFaction = normalizeFactionId(unit.faction);
           return unitFaction === normalizedSelectedFaction;
@@ -179,12 +179,13 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
     
   // Normalize the faction ID to ensure it matches our expected format
   let normalizedFaction = normalizeFactionId(apiUnit.faction);
+  let normalizedFactionId = apiUnit.faction_id ? normalizeFactionId(apiUnit.faction_id) : normalizedFaction;
   
   return {
     id: apiUnit.id,
     name: apiUnit.name,
     faction: normalizedFaction,
-    faction_id: apiUnit.faction_id, // Add faction_id
+    faction_id: normalizedFactionId, // Ensure faction_id is set
     pointsCost: apiUnit.points,
     availability: characteristics?.availability || 0,
     command: characteristics?.command || 0,

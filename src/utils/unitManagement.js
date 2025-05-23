@@ -38,11 +38,23 @@ export const removeDuplicateUnits = (units) => {
 
 export const normalizeUnits = (units) => {
   return units.map(unit => {
-    // Make sure faction_id exists
-    if (!unit.faction_id) {
-      unit.faction_id = unit.faction;
+    // Create a new unit object to avoid modifying the original
+    const normalizedUnit = { ...unit };
+    
+    // Make sure faction_id exists and is normalized
+    if (normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizeFactionId(normalizedUnit.faction_id);
     }
-    return unit;
+    
+    // Also normalize the faction field for backwards compatibility
+    if (normalizedUnit.faction) {
+      normalizedUnit.faction = normalizeFactionId(normalizedUnit.faction);
+    } else if (normalizedUnit.faction_id) {
+      // If faction is missing but faction_id exists, use that
+      normalizedUnit.faction = normalizedUnit.faction_id;
+    }
+    
+    return normalizedUnit;
   });
 };
 
@@ -112,5 +124,3 @@ export const updateSelectedUnits = (
   
   return selectedUnits;
 };
-
-// Any other existing functions...
