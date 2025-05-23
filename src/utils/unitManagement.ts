@@ -1,4 +1,3 @@
-
 import { Unit } from '@/types/army';
 
 /**
@@ -15,6 +14,12 @@ export const normalizeFactionId = (faction: string): string => {
   
   // Convert to lowercase and trim
   const lowercased = faction.toLowerCase().trim();
+  
+  // Handle "null" strings that might be in CSV
+  if (lowercased === 'null' || lowercased === 'undefined') {
+    console.warn('Received "null" or "undefined" string as faction');
+    return 'unknown';
+  }
   
   // Map common variations to canonical faction IDs
   const factionMappings: Record<string, string> = {
@@ -43,6 +48,7 @@ export const normalizeFactionId = (faction: string): string => {
     'yaldabaoth': 'scions-of-yaldabaoth',
     'taldabaoth': 'scions-of-yaldabaoth',
     'scions-of-yaldabaoth': 'scions-of-yaldabaoth',
+    'scions-of-taldabaoth': 'scions-of-yaldabaoth',
   };
   
   // Use the mapping if available, otherwise return the original
@@ -100,18 +106,33 @@ export const normalizeUnits = (units: Unit[]): Unit[] => {
     
     // Normalize faction_id first if it exists
     if (copy.faction_id) {
-      copy.faction_id = normalizeFactionId(copy.faction_id);
+      // Handle "null" strings that might be in CSV data
+      if (typeof copy.faction_id === 'string' && 
+          (copy.faction_id.toLowerCase() === 'null' || copy.faction_id.toLowerCase() === 'undefined')) {
+        copy.faction_id = copy.faction || 'unknown';
+      } else {
+        copy.faction_id = normalizeFactionId(copy.faction_id);
+      }
+      
       // Also use faction_id for faction if we have it
       copy.faction = copy.faction_id;
     } 
     // Then normalize faction if faction_id doesn't exist
     else if (copy.faction) {
-      copy.faction = normalizeFactionId(copy.faction);
+      // Handle "null" strings that might be in CSV data
+      if (typeof copy.faction === 'string' && 
+          (copy.faction.toLowerCase() === 'null' || copy.faction.toLowerCase() === 'undefined')) {
+        copy.faction = 'unknown';
+      } else {
+        copy.faction = normalizeFactionId(copy.faction);
+      }
+      
       // Set faction_id to match normalized faction
       copy.faction_id = copy.faction;
     } else {
       console.warn(`Unit ${copy.name || 'unnamed'} has no faction assigned`);
       copy.faction = 'unknown';
+      copy.faction_id = 'unknown';
     }
     
     return copy;

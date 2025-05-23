@@ -3,6 +3,11 @@
 export const normalizeFactionId = (factionId) => {
   if (!factionId) return '';
   
+  // Handle "null" strings that might be in CSV
+  if (factionId === 'null' || factionId === 'undefined') {
+    return '';
+  }
+  
   // Convert the faction ID to lowercase and trim spaces
   const normalized = factionId.toLowerCase().trim();
   
@@ -11,10 +16,19 @@ export const normalizeFactionId = (factionId) => {
     'syenann': 'syenann',
     'sÿenann': 'syenann',
     'the syenann': 'syenann',
+    'the sÿenann': 'syenann',
     'northern tribes': 'northern-tribes',
+    'northern': 'northern-tribes',
+    'tribes': 'northern-tribes',
     'hegemony of embersig': 'hegemony-of-embersig',
+    'hegemony': 'hegemony-of-embersig',
+    'embersig': 'hegemony-of-embersig',
     'scions of yaldabaoth': 'scions-of-yaldabaoth',
     'scions of taldabaoth': 'scions-of-yaldabaoth',  // Handle Taldabaoth vs Yaldabaoth variations
+    'scions-of-taldabaoth': 'scions-of-yaldabaoth',
+    'scions': 'scions-of-yaldabaoth',
+    'yaldabaoth': 'scions-of-yaldabaoth',
+    'taldabaoth': 'scions-of-yaldabaoth',
   };
   
   // Return the mapped value if exists, otherwise standardize the format
@@ -37,9 +51,23 @@ export const removeDuplicateUnits = (units) => {
 };
 
 export const normalizeUnits = (units) => {
+  if (!Array.isArray(units)) {
+    console.error('normalizeUnits received non-array input:', units);
+    return [];
+  }
+  
   return units.map(unit => {
     // Create a new unit object to avoid modifying the original
     const normalizedUnit = { ...unit };
+    
+    // Handle null values that might come from CSV
+    if (normalizedUnit.faction === 'null' || normalizedUnit.faction === 'undefined') {
+      normalizedUnit.faction = '';
+    }
+    
+    if (normalizedUnit.faction_id === 'null' || normalizedUnit.faction_id === 'undefined') {
+      normalizedUnit.faction_id = '';
+    }
     
     // Make sure faction_id exists and is normalized
     if (normalizedUnit.faction_id) {
@@ -51,6 +79,13 @@ export const normalizeUnits = (units) => {
       normalizedUnit.faction = normalizeFactionId(normalizedUnit.faction);
     } else if (normalizedUnit.faction_id) {
       // If faction is missing but faction_id exists, use that
+      normalizedUnit.faction = normalizedUnit.faction_id;
+    }
+    
+    // Ensure both faction and faction_id are set if either one is available
+    if (normalizedUnit.faction && !normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizedUnit.faction;
+    } else if (normalizedUnit.faction_id && !normalizedUnit.faction) {
       normalizedUnit.faction = normalizedUnit.faction_id;
     }
     
@@ -123,4 +158,19 @@ export const updateSelectedUnits = (
   }
   
   return selectedUnits;
+};
+
+// Add canAddUnit function for completeness
+export const canAddUnit = (selectedUnits, unitToAdd) => {
+  if (!unitToAdd) return false;
+  
+  const existingUnit = selectedUnits.find(u => u.id === unitToAdd.id);
+  const currentQuantity = existingUnit ? existingUnit.quantity : 0;
+  
+  // Check if adding one more would exceed availability
+  if (unitToAdd.availability && currentQuantity >= unitToAdd.availability) {
+    return false;
+  }
+  
+  return true;
 };
