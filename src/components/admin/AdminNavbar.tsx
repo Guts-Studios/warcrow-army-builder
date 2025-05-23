@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, 
   Book, 
@@ -39,23 +39,25 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) =>
   return (
     <div className="mb-6 border-b border-warcrow-gold/30">
       <div className="flex justify-between items-center mb-4">
-        <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent">
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className={`flex items-center gap-1 px-4 py-2 ${
-                activeTab === tab.id
-                  ? 'bg-warcrow-gold text-black'
-                  : 'bg-black/20 text-warcrow-gold hover:bg-black/40'
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.icon}
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        {/* Wrap TabsList in a Tabs component with the correct value and onValueChange props */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+          <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className={`flex items-center gap-1 px-4 py-2 ${
+                  activeTab === tab.id
+                    ? 'bg-warcrow-gold text-black'
+                    : 'bg-black/20 text-warcrow-gold hover:bg-black/40'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         
         <Link 
           to="/admin/validate-csv"
