@@ -55,4 +55,41 @@ export const generateUnitCode = (unit) => {
   return code;
 };
 
+// Mock implementation of findMissingUnits for DataSyncButton.tsx
+export const findMissingUnits = async (factionId) => {
+  // This is a mock implementation that returns simulated data
+  // In a real implementation, this would compare local data with database data
+  console.log('Mock findMissingUnits called for faction:', factionId);
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Return mock comparison result
+  return {
+    onlyInDatabase: [
+      { 
+        id: `${factionId}_unit_1`, 
+        name: "Example Unit 1", 
+        faction: factionId,
+        faction_id: factionId,
+        pointsCost: 30,
+        availability: 1,
+        keywords: ["Keyword1", "Keyword2"],
+        specialRules: ["Rule1", "Rule2"],
+      }
+    ],
+    onlyInLocalData: [
+      { 
+        id: `${factionId}_unit_local`, 
+        name: "Local Unit", 
+        faction: factionId 
+      }
+    ],
+    inBoth: [],
+    nameMismatches: [],
+    pointsMismatches: []
+  };
+};
+
 // Rest of your existing utility functions...
+
