@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UnitCsvValidator from '@/utils/validateUnitCsvData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const CsvUnitValidationPage: React.FC = () => {
+  // Default to northern-tribes instead of northern-tribes (already correct, but making it explicit)
   const [selectedFaction, setSelectedFaction] = useState<string>('northern-tribes');
 
   return (
