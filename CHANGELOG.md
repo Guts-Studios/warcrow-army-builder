@@ -16,7 +16,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Playmode
 - Game sync during play mode
+  
+## [0.5.9] - 2025-05-23
 
+### Fixed
+- Missing units again
+  
 ## [0.5.8] - 2025-05-21
 
 ### Fixed
