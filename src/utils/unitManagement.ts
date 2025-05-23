@@ -51,13 +51,8 @@ export const normalizeFactionId = (faction: string): string => {
     'scions-of-taldabaoth': 'scions-of-yaldabaoth',
   };
   
-  // Use the mapping if available, otherwise return the original
-  const normalized = factionMappings[lowercased] || lowercased;
-  
-  // Add debugging to help track down problematic faction names
-  if (!factionMappings[lowercased] && !lowercased.includes('-')) {
-    console.debug(`Unmapped faction name: "${faction}" (normalized to "${normalized}")`);
-  }
+  // Use the mapping if available, otherwise normalize the string by replacing spaces with hyphens
+  const normalized = factionMappings[lowercased] || lowercased.replace(/\s+/g, '-');
   
   return normalized;
 };
@@ -90,7 +85,7 @@ export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
 };
 
 /**
- * Normalizes unit data by ensuring consistent faction values
+ * Normalizes unit data by ensuring consistent faction values and handling empty values
  * @param units Array of units to normalize
  * @returns Array of normalized units
  */
@@ -100,60 +95,43 @@ export const normalizeUnits = (units: Unit[]): Unit[] => {
     return [];
   }
   
-  const normalizedUnits = units.map(unit => {
-    // Don't modify the original unit
-    const copy = { ...unit };
+  // Create a new array to avoid modifying the original units
+  return units.map(unit => {
+    // Create a copy of the unit to avoid mutation
+    const normalizedUnit = { ...unit };
     
-    // Normalize faction_id first if it exists
-    if (copy.faction_id) {
-      // Handle "null" strings that might be in CSV data
-      if (typeof copy.faction_id === 'string' && 
-          (copy.faction_id.toLowerCase() === 'null' || copy.faction_id.toLowerCase() === 'undefined')) {
-        copy.faction_id = copy.faction || 'unknown';
-      } else {
-        copy.faction_id = normalizeFactionId(copy.faction_id);
-      }
-      
-      // Also use faction_id for faction if we have it
-      copy.faction = copy.faction_id;
-    } 
-    // Then normalize faction if faction_id doesn't exist
-    else if (copy.faction) {
-      // Handle "null" strings that might be in CSV data
-      if (typeof copy.faction === 'string' && 
-          (copy.faction.toLowerCase() === 'null' || copy.faction.toLowerCase() === 'undefined')) {
-        copy.faction = 'unknown';
-      } else {
-        copy.faction = normalizeFactionId(copy.faction);
-      }
-      
-      // Set faction_id to match normalized faction
-      copy.faction_id = copy.faction;
-    } else {
-      console.warn(`Unit ${copy.name || 'unnamed'} has no faction assigned`);
-      copy.faction = 'unknown';
-      copy.faction_id = 'unknown';
+    // Handle empty/null faction values
+    if (!normalizedUnit.faction || 
+        normalizedUnit.faction === 'null' || 
+        normalizedUnit.faction === 'undefined') {
+      normalizedUnit.faction = normalizedUnit.faction_id || 'unknown';
     }
     
-    return copy;
+    // Handle empty/null faction_id values
+    if (!normalizedUnit.faction_id || 
+        normalizedUnit.faction_id === 'null' || 
+        normalizedUnit.faction_id === 'undefined') {
+      normalizedUnit.faction_id = normalizedUnit.faction || 'unknown';
+    }
+    
+    // Normalize both faction and faction_id
+    if (normalizedUnit.faction) {
+      normalizedUnit.faction = normalizeFactionId(normalizedUnit.faction);
+    }
+    
+    if (normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizeFactionId(normalizedUnit.faction_id);
+    }
+    
+    // Make sure both faction fields are consistent
+    if (normalizedUnit.faction && !normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizedUnit.faction;
+    } else if (normalizedUnit.faction_id && !normalizedUnit.faction) {
+      normalizedUnit.faction = normalizedUnit.faction_id;
+    }
+    
+    return normalizedUnit;
   });
-  
-  console.log(`Normalized ${normalizedUnits.length} units`);
-  
-  // Log faction distribution
-  const factionCounts: Record<string, number> = {};
-  normalizedUnits.forEach(unit => {
-    const faction = unit.faction || 'unknown';
-    factionCounts[faction] = (factionCounts[faction] || 0) + 1;
-  });
-  
-  // Log the counts
-  console.log('Normalized faction distribution:');
-  Object.entries(factionCounts).forEach(([faction, count]) => {
-    console.log(`- ${faction}: ${count}`);
-  });
-  
-  return normalizedUnits;
 };
 
 /**

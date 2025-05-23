@@ -59,7 +59,7 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
             
             // Helper function to safely parse field values
             const parseField = (value: any) => {
-              if (!value || value === 'null' || value === 'undefined') return '';
+              if (!value || value === '' || value === 'null' || value === 'undefined') return '';
               return value;
             };
             
@@ -72,19 +72,19 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
             
             // Parse keywords, handling nulls and empty strings
             const parseKeywords = (keywordsStr: string) => {
-              if (!keywordsStr || keywordsStr === 'null' || keywordsStr === 'undefined') return [];
+              if (!keywordsStr || keywordsStr === 'null' || keywordsStr === 'undefined' || keywordsStr === '') return [];
               return keywordsStr.split(',').map(k => k.trim()).filter(Boolean);
             };
             
             // Parse special rules, handling nulls and empty strings
             const parseSpecialRules = (rulesStr: string) => {
-              if (!rulesStr || rulesStr === 'null' || rulesStr === 'undefined') return [];
+              if (!rulesStr || rulesStr === 'null' || rulesStr === 'undefined' || rulesStr === '') return [];
               return rulesStr.split(',').map(r => r.trim()).filter(Boolean);
             };
             
             // Parse high command value
             const parseHighCommand = (hcValue: string) => {
-              if (!hcValue) return false;
+              if (!hcValue || hcValue === '' || hcValue === 'null' || hcValue === 'undefined') return false;
               return hcValue.toLowerCase() === 'yes' || hcValue.toLowerCase() === 'true';
             };
             
@@ -116,9 +116,6 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
 export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{field: string, staticValue: any, csvValue: any}> => {
   const mismatches: Array<{field: string, staticValue: any, csvValue: any}> = [];
   
-  // Debug log
-  console.log(`Comparing unit: ${staticUnit.name} with CSV unit: ${csvUnit.name}`);
-  
   // Check points cost
   const csvPoints = Number(csvUnit.pointsCost);
   if (!isNaN(csvPoints) && staticUnit.pointsCost !== csvPoints) {
@@ -139,10 +136,11 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
     });
   }
   
-  // Check high command
+  // Check high command (handle both boolean and string representations)
   const csvHighCommand = typeof csvUnit.highCommand === 'boolean' 
     ? csvUnit.highCommand 
-    : csvUnit.highCommand.toString().toLowerCase() === 'yes';
+    : String(csvUnit.highCommand).toLowerCase() === 'yes' || 
+      String(csvUnit.highCommand).toLowerCase() === 'true';
   
   if (Boolean(staticUnit.highCommand) !== csvHighCommand) {
     mismatches.push({
@@ -163,8 +161,8 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
   }
   
   // Check faction_id if available
-  if (csvUnit.faction_id && staticUnit.faction_id !== csvUnit.faction_id) {
-    const normalizedStaticFactionId = normalizeFactionId(staticUnit.faction_id || staticUnit.faction);
+  if (csvUnit.faction_id && staticUnit.faction_id && staticUnit.faction_id !== csvUnit.faction_id) {
+    const normalizedStaticFactionId = normalizeFactionId(staticUnit.faction_id);
     const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
     
     if (normalizedStaticFactionId !== normalizedCsvFactionId) {
@@ -263,22 +261,16 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
  * Find matching units between CSV and static data
  */
 export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
-  // Debug
-  console.log(`Finding match for CSV unit: ${csvUnit.name} with faction_id: ${csvUnit.faction_id}`);
-  
-  // First try to match by ID
+  // First try to match by ID if available
   if (csvUnit.id) {
     const matchById = staticUnits.find(unit => unit.id === csvUnit.id);
     if (matchById) {
-      console.log(`Matched ${csvUnit.name} by ID`);
       return matchById;
     }
   }
   
   // Then try to match by name and faction_id if available
   if (csvUnit.faction_id) {
-    console.log(`Trying to match ${csvUnit.name} by name and faction_id: ${csvUnit.faction_id}`);
-    
     const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
     
     const matchByNameAndFactionId = staticUnits.find(unit => {
@@ -290,22 +282,14 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
     });
     
     if (matchByNameAndFactionId) {
-      console.log(`Matched ${csvUnit.name} by name and faction_id`);
       return matchByNameAndFactionId;
     }
   }
   
-  // Then try to match by name (case insensitive)
+  // Then try to match by name only (case insensitive)
   const matchByName = staticUnits.find(unit => 
-    unit.name.toLowerCase() === csvUnit.name.toLowerCase() &&
-    (!csvUnit.faction || normalizeFactionId(unit.faction) === normalizeFactionId(csvUnit.faction))
+    unit.name.toLowerCase() === csvUnit.name.toLowerCase()
   );
-  
-  if (matchByName) {
-    console.log(`Matched ${csvUnit.name} by name only`);
-  } else {
-    console.log(`No match found for ${csvUnit.name}`);
-  }
   
   return matchByName;
 };

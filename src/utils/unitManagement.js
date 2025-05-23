@@ -1,11 +1,11 @@
 
 // Add this function if it doesn't exist yet
 export const normalizeFactionId = (factionId) => {
-  if (!factionId) return '';
+  if (!factionId) return 'unknown';
   
-  // Handle "null" strings that might be in CSV
-  if (factionId === 'null' || factionId === 'undefined') {
-    return '';
+  // Handle empty values and "null" strings that might be in CSV
+  if (factionId === 'null' || factionId === 'undefined' || factionId === '') {
+    return 'unknown';
   }
   
   // Convert the faction ID to lowercase and trim spaces
@@ -60,13 +60,19 @@ export const normalizeUnits = (units) => {
     // Create a new unit object to avoid modifying the original
     const normalizedUnit = { ...unit };
     
-    // Handle null values that might come from CSV
-    if (normalizedUnit.faction === 'null' || normalizedUnit.faction === 'undefined') {
-      normalizedUnit.faction = '';
+    // Handle empty values, null, and special string values
+    if (!normalizedUnit.faction || 
+        normalizedUnit.faction === 'null' || 
+        normalizedUnit.faction === 'undefined' || 
+        normalizedUnit.faction === '') {
+      normalizedUnit.faction = normalizedUnit.faction_id || 'unknown';
     }
     
-    if (normalizedUnit.faction_id === 'null' || normalizedUnit.faction_id === 'undefined') {
-      normalizedUnit.faction_id = '';
+    if (!normalizedUnit.faction_id || 
+        normalizedUnit.faction_id === 'null' || 
+        normalizedUnit.faction_id === 'undefined' || 
+        normalizedUnit.faction_id === '') {
+      normalizedUnit.faction_id = normalizedUnit.faction || 'unknown';
     }
     
     // Make sure faction_id exists and is normalized
@@ -82,7 +88,7 @@ export const normalizeUnits = (units) => {
       normalizedUnit.faction = normalizedUnit.faction_id;
     }
     
-    // Ensure both faction and faction_id are set if either one is available
+    // Ensure both faction and faction_id are set to the same value
     if (normalizedUnit.faction && !normalizedUnit.faction_id) {
       normalizedUnit.faction_id = normalizedUnit.faction;
     } else if (normalizedUnit.faction_id && !normalizedUnit.faction) {

@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { AlertCircle, CheckCircle2, FileWarning } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { units as staticUnits } from '@/data/factions';
 import { parseCsvContent, compareUnitWithCsv, CsvUnit, findMatchingUnit } from '@/utils/csvValidator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { normalizeFactionId } from '@/utils/unitManagement';
 
 interface ValidationProps {
@@ -30,7 +30,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
   const [totalStaticUnits, setTotalStaticUnits] = useState<number>(0);
   const [missingUnits, setMissingUnits] = useState<string[]>([]);
 
-  // Map faction IDs to CSV file names - updated with correct paths
+  // Function to normalize faction names for comparison
   const getFactionFileName = (factionId: string): string => {
     const normalized = normalizeFactionId(factionId);
     const factionFileMap: Record<string, string> = {
@@ -65,7 +65,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
       try {
         const fileName = getFactionFileName(faction);
         if (!fileName) {
-          throw new Error(`No CSV file found for faction: ${faction}`);
+          throw new Error(`No CSV file mapping for faction: ${faction}`);
         }
 
         // Debug the file path
@@ -78,7 +78,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
         }
 
-        // 2. Parse CSV content
+        // 2. Parse CSV content with improved handling for empty and null values
         const csvContent = await response.text();
         const csvUnits = await parseCsvContent(csvContent);
         setTotalCsvUnits(csvUnits.length);
@@ -89,14 +89,6 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         setTotalStaticUnits(staticFactionUnits.length);
         console.log(`Found ${staticFactionUnits.length} static units for faction ${faction}`);
         
-        // Debug: Log some units from each source
-        if (csvUnits.length > 0) {
-          console.log('First CSV unit:', csvUnits[0]);
-        }
-        if (staticFactionUnits.length > 0) {
-          console.log('First static unit:', staticFactionUnits[0]);
-        }
-
         // 4. Compare CSV data with static data
         const newMismatches: MismatchDetail[] = [];
         const notFoundUnits: string[] = [];
@@ -109,7 +101,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
             continue;
           }
           
-          // Try to match this CSV unit with a static unit - now with faction_id support
+          // Try to match this CSV unit with a static unit
           const staticUnit = findMatchingUnit(csvUnit, staticFactionUnits);
           
           if (staticUnit) {
@@ -136,7 +128,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           }
         }
 
-        // 5. Check for static units that don't have a CSV entry - now with faction_id support
+        // 5. Check for static units that don't have a CSV entry
         const csvUnitNames = csvUnits
           .filter(u => u.name && u.name !== 'null' && u.name !== 'undefined')
           .map(u => u.name.toLowerCase());
@@ -169,7 +161,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           <p className="text-warcrow-gold/70">Loading and validating unit data...</p>
         ) : error ? (
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -195,7 +187,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
             <Alert className={mismatches.length === 0 && missingUnits.length === 0 ? "bg-green-900/20" : "bg-amber-900/20"}>
               {mismatches.length === 0 && missingUnits.length === 0 ? (
                 <>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
                   <AlertTitle className="text-green-500">All data valid!</AlertTitle>
                   <AlertDescription className="text-green-300">
                     All {matchedUnits} units match perfectly between CSV and code.
@@ -203,7 +195,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <FileWarning className="h-4 w-4 text-amber-500" />
                   <AlertTitle className="text-amber-500">Data mismatches found</AlertTitle>
                   <AlertDescription className="text-amber-300">
                     Found {mismatches.length} field mismatches and {missingUnits.length} missing units.
