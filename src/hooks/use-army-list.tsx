@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
@@ -55,22 +54,26 @@ export const useArmyList = (selectedFaction: string) => {
       
       if (selectedFaction === 'scions-of-yaldabaoth' && !hasMarhael) {
         console.error("[useArmyList] Marhael is STILL missing from Scions faction after fixes!");
+        // Force refetch to try to get the missing unit
+        refetchUnits();
       }
       
       if (selectedFaction === 'hegemony-of-embersig' && !hasLazard) {
         console.error("[useArmyList] Lazard is STILL missing from Hegemony faction after fixes!");
+        // Force refetch to try to get the missing unit
+        refetchUnits();
       }
       
       // Check Lazard's points cost
       const lazardUnit = factionUnits.find(u => u.id === 'nadezhda_lazard_champion_of_embersig');
       if (lazardUnit) {
         console.log(`[useArmyList] Lazard's current points cost: ${lazardUnit.pointsCost}`);
-        if (lazardUnit.pointsCost !== 275) {
-          console.warn(`[useArmyList] Lazard's points cost is wrong! Expected: 275, Got: ${lazardUnit.pointsCost}`);
+        if (lazardUnit.pointsCost !== 30) {
+          console.warn(`[useArmyList] Lazard's points cost is wrong! Expected: 30, Got: ${lazardUnit.pointsCost}`);
         }
       }
     }
-  }, [factionUnits, unitsLoading, isUnitsError, selectedFaction]);
+  }, [factionUnits, unitsLoading, isUnitsError, selectedFaction, refetchUnits]);
 
   // Show toast if units fail to load
   useEffect(() => {

@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -202,7 +203,7 @@ export const useArmyBuilderUnits = (factionId: string) => {
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
       
-      // Check if key units are present
+      // Force add key units if missing to ensure critical units are always available
       if (normalizedFactionId === 'scions-of-yaldabaoth') {
         const hasMarhael = factionUnits.some(u => u.id === 'marhael_the_refused');
         if (!hasMarhael) {
