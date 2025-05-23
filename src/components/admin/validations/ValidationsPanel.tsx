@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileCheck, Database } from 'lucide-react';
@@ -8,6 +7,9 @@ import UnitValidationTool from './UnitValidationTool';
 import DataSyncButton from './DataSyncButton';
 
 const ValidationsPanel: React.FC = () => {
+  // Add state to keep track of selected faction
+  const [selectedFaction, setSelectedFaction] = useState<string>("syenann"); // Default to a faction
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -51,7 +53,8 @@ const ValidationsPanel: React.FC = () => {
             </p>
           </CardContent>
           <CardFooter>
-            <DataSyncButton />
+            {/* Pass the selectedFaction to DataSyncButton */}
+            <DataSyncButton factionId={selectedFaction} />
           </CardFooter>
         </Card>
       </div>
