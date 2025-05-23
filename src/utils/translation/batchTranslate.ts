@@ -45,7 +45,7 @@ export async function batchTranslate(texts: string[], targetLang: 'es' | 'fr'): 
  * @param targetLang Target language code (e.g., 'es', 'fr')
  * @returns Promise resolving to the translated string or error message
  */
-export async function translateText(text: string, targetLang: 'es' | 'fr'): Promise<string | { error: string }> {
+export async function translateText(text: string, targetLang: 'es' | 'fr'): Promise<string> {
   if (!text || text.trim() === '') {
     return '';
   }
@@ -56,23 +56,25 @@ export async function translateText(text: string, targetLang: 'es' | 'fr'): Prom
     return result[0] || '';
   }
   
-  return result; // Return the error object
+  // Handle error case but return a string to conform to the return type
+  console.error('Translation error:', result.error);
+  return ''; // Return empty string on error instead of an error object
 }
 
 /**
  * Convenience function to translate a string to French
  * @param text String to translate
- * @returns Promise resolving to the translated string or error message
+ * @returns Promise resolving to the translated string
  */
-export async function translateToFrench(text: string): Promise<string | { error: string }> {
+export async function translateToFrench(text: string): Promise<string> {
   return translateText(text, 'fr');
 }
 
 /**
  * Convenience function to translate a string to Spanish
  * @param text String to translate
- * @returns Promise resolving to the translated string or error message
+ * @returns Promise resolving to the translated string
  */
-export function translateToSpanish(text: string): Promise<string | { error: string }> {
+export async function translateToSpanish(text: string): Promise<string> {
   return translateText(text, 'es');
 }
