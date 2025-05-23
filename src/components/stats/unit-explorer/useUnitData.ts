@@ -9,7 +9,60 @@ import { translations } from '@/i18n/translations';
 // First normalize all units before using them as fallback data
 const normalizedLocalUnits = normalizeUnits(units);
 
-// Define fallback units for testing when API fails - now our primary data source
+// Define missing key units to ensure they're included
+const missingKeyUnits: Unit[] = [
+  // Add Marhael The Refused if missing
+  {
+    id: "marhael_the_refused",
+    name: "Marhael The Refused",
+    faction: "scions-of-yaldabaoth",
+    pointsCost: 275,
+    availability: 1,
+    highCommand: true,
+    command: 2,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Undead", description: "" }
+    ],
+    specialRules: ["Unbreakable", "Regeneration", "Beyond Death"],
+    imageUrl: "/art/card/marhael_the_refused_card.jpg"
+  },
+  // Add Nadezhda Lazard if missing
+  {
+    id: "nadezhda_lazard_champion_of_embersig",
+    name: "Nadezhda Lazard, Champion of Embersig",
+    faction: "hegemony-of-embersig",
+    pointsCost: 285,
+    availability: 1,
+    highCommand: true,
+    command: 2,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Human", description: "" }
+    ],
+    specialRules: ["Duelist", "War Master", "Unstoppable"],
+    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
+  }
+];
+
+// Check if key units are already in the normalized units
+const marhaelExists = normalizedLocalUnits.some(unit => unit.id === "marhael_the_refused");
+const lazardExists = normalizedLocalUnits.some(unit => unit.id === "nadezhda_lazard_champion_of_embersig");
+
+// Add the missing units to our local data if they don't exist
+if (!marhaelExists) {
+  normalizedLocalUnits.push(missingKeyUnits[0]);
+  console.log("[useUnitData] Added missing unit: Marhael The Refused");
+}
+
+if (!lazardExists) {
+  normalizedLocalUnits.push(missingKeyUnits[1]);
+  console.log("[useUnitData] Added missing unit: Nadezhda Lazard");
+}
+
+// Now convert to ApiUnit format for consistency
 const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   id: unit.id,
   name: unit.name,
@@ -130,6 +183,21 @@ export const useArmyBuilderUnits = (factionId: string) => {
       });
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units in local data`);
+      
+      // Check if key units are present
+      const hasMarhael = normalizedFactionId === 'scions-of-yaldabaoth' ? 
+        factionUnits.some(u => u.id === 'marhael_the_refused') : true;
+      
+      const hasLazard = normalizedFactionId === 'hegemony-of-embersig' ? 
+        factionUnits.some(u => u.id === 'nadezhda_lazard_champion_of_embersig') : true;
+      
+      if (!hasMarhael) {
+        console.warn("[useArmyBuilderUnits] Marhael is missing from Scions faction!");
+      }
+      
+      if (!hasLazard) {
+        console.warn("[useArmyBuilderUnits] Lazard is missing from Hegemony faction!");
+      }
       
       return removeDuplicateUnits(factionUnits);
     },

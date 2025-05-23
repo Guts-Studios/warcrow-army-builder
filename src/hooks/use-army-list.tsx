@@ -2,13 +2,14 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
-import { validateHighCommandAddition, validateUnitAddition } from "@/utils/armyValidation";
+import { validateUnitAddition, validateHighCommandAddition } from "@/utils/armyValidation";
 import { units } from "@/data/factions";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits, canAddUnit } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
 import { toast } from "sonner";
+import { validateFactionUnits } from "@/utils/unitValidation";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -26,8 +27,27 @@ export const useArmyList = (selectedFaction: string) => {
     data: factionUnits = [], 
     isLoading: unitsLoading, 
     error: unitsError,
-    isError: isUnitsError
+    isError: isUnitsError,
+    refetch: refetchUnits
   } = useArmyBuilderUnits(selectedFaction);
+
+  // Validate faction units and log any issues
+  useEffect(() => {
+    if (!unitsLoading && !isUnitsError && factionUnits.length > 0) {
+      const validation = validateFactionUnits(factionUnits, selectedFaction);
+      
+      if (validation.missingUnits.length > 0) {
+        console.warn(`[useArmyList] Missing key units for ${selectedFaction}:`, validation.missingUnits);
+        
+        // Log the first 10 units to help debugging
+        console.log(`[useArmyList] First ${Math.min(10, factionUnits.length)} units loaded:`, 
+          factionUnits.slice(0, 10).map(u => ({ id: u.id, name: u.name }))
+        );
+      } else {
+        console.log(`[useArmyList] All key units present for ${selectedFaction}`);
+      }
+    }
+  }, [factionUnits, unitsLoading, isUnitsError, selectedFaction]);
 
   // Show toast if units fail to load
   useEffect(() => {
@@ -62,7 +82,10 @@ export const useArmyList = (selectedFaction: string) => {
   const handleAdd = useCallback(
     (unitId: string) => {
       const unit = factionUnits.find((u) => u.id === unitId);
-      if (!unit) return;
+      if (!unit) {
+        console.warn(`[useArmyList] Tried to add unit with ID ${unitId} but it was not found in factionUnits`);
+        return;
+      }
 
       const currentQuantity = quantities[unitId] || 0;
 
@@ -190,6 +213,7 @@ export const useArmyList = (selectedFaction: string) => {
     factionUnits,
     unitsLoading,
     unitsError,
-    isLoadingLists
+    isLoadingLists,
+    refetchUnits
   };
 };
