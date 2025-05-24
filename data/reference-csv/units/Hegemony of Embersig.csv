@@ -1,27 +1,27 @@
-faction_id	Faction	Unit Type	Unit Name	Command	AVB	Characteristics	Keywords	High Command	Points Cost	Special Rules	Companion
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Troop"	"Aggressors"	"0"	"1"	"Human, Infantry"	""	"no"	"40"	"Cancel a symbol, Disarmed, Shove (2), Displace (4)"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Troop"	"Black Legion Bucklermen"	"0"	"3"	"Human, Infantry"	""	"no"	"20"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Troop"	"Bulwarks"	"0"	"2"	"Human, Infantry"	"Cover (BLK), Immovable"	"no"	"35"	"Shove (3)"	""
-"hegemony-of-embersig"	"hegemony of Embersig"	"Troop"	"Black Legion Arquebusiers"	"0"	"2"	"Human, Infantry"	"Cover (BLK)"	"no"	"30"	"Frightened"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Troop"	"Pioneers"	"0"	"1"	"Dwarf, Ghent, Infantry"	"Dispel (BLU), Scout"	"no"	"35"	"Shove (3), Disarmed, Trap, Slowed, "	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Aide"	"1"	"1"	"Aestari, Character, Elf"	"Fearless, Spellcaster"	"no"	"25"	"Place (10)"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Corporal"	"2"	"1"	"Character, Human"	"Join (Human, Infantry)"	"no"	"15"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Frostfire Herald"	"0"	"1"	"Aestari, Character, Elf"	"Aestari, Character, Elf, Fearless, Spellcaster"	"no"	"25"	"Slowed, Impassable"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Gunnery Corporal"	"1"	"1"	"Character, Human"	"Join (Arquebusiers | Pioneers)"	"no"	"20"	"Repeat a die"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Hetman"	"3"	"1"	"Chracter, High Command, Human"	"Join (Infantry)"	"Yes"	"25"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"War Surgeon"	"0"	"1"	"Character, Human"	"Join (Infantry)"	"no"	"15"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Dragoslav Bjelogríc, Drago the Anvil"	"3"	"1"	"Character, High Command, Human"	"Bloodlust (Varank), Elite, Join (Bucklermen | Bulwark)"	"Yes"	"40"	"Vulnerable, Elite, Bloodlust (Varank), Repeat a Die"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Lady Télia"	"2"	"1"	"Chracter, Human"	"Elite, Scout, Join (Arquebusiers | Pioneers)"	"no"	"25"	"Frightened, Aim, Repeat a Die"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Marhael the Refused"	"1"	"1"	"Aestari, Character, Elf"	"Fearless, Spellcaster"	"no"	"35"	"Place (11)"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Nadezhda Lazard, Champion of Embersig"	"2"	"1"	"Character, Human"	"Join (Infantry)"	"no"	"30"	"Disarmed, Vulnerable"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Amelia Hellbroth"	"3"	"1"	"Character, Colossal Company, High Command, Human"	"Elite, Join (Infantry)"	"yes"	"40"	"Vulnerable, Disarmed"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Nayra Caladren"	"0"	"1"	"Aestari, Character, Colossal Company, Elf"	"Elite, Fearless, Spellcaster"	"no"	"35"	"Disarmed, Slowed, Vulnerable, "	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Naegon Caladren"	"1"	"1"	"Aestari, Character, Colossal Company, Elf"	"Spellcaster"	"no"	"15"	"Place (5), Disarmed, Displace (5), Frightened"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Trabor Slepmund"	"1"	"1"	"Character, Colossal Company, Dwarf, Ghent"	"Dispel (BLU), Join (War Rig)"	"no"	"30"	"Disarmed"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Companion"	"MK-OS Automata"	"0"	"3"	""	""	"no"	"0"	""	"trabor slepmund"
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Gale Falchion"	"0"	"1"	"Aestari, Character, Elf"	"Spellcaster"	"no"	"25"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Engineer"	"0"	"1"	"Character, Ghent, Dwarf"	"Dispel (BLU), Join (Infantry | War Machine)"	"no"	"15"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Ansera Noighman"	"0"	"1"	"Character, Ghent, Dwarf"	"Dispel (BLU), Join (Infantry | War Machine)"	"no"	"20"	""	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Named Character"	"Vercana"	"0"	"1"	"Character, Human, Mercenary"	"Ambusher"	"no"	"30"	"Place (5)"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Troop"	"Black Angels"	"0"	"1"	"Cavalry, Human"	"Preferred Terrain (Rugged)"	"no"	"30"	"Intimidating (2)"	""
-"hegemony-of-embersig"	"Hegemony of Embersig"	"Character"	"Strategos"	"1"	"1"	"Character, Human"	"Join (Infantry)"	"no"	"20"	""	""
+faction_id,Faction,Unit Type,Unit Name,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion
+hegemony-of-embersig,Hegemony of Embersig,Troop,Aggressors,0,1,"Human, Infantry",,no,40,"Cancel a symbol, Disarmed, Shove (2), Displace (4)",
+hegemony-of-embersig,Hegemony of Embersig,Troop,Black Legion Bucklermen,0,3,"Human, Infantry",,no,20,,
+hegemony-of-embersig,Hegemony of Embersig,Troop,Bulwarks,0,2,"Human, Infantry","Cover (BLK), Immovable",no,35,Shove (3),
+hegemony-of-embersig,hegemony of Embersig,Troop,Black Legion Arquebusiers,0,2,"Human, Infantry",Cover (BLK),no,30,Frightened,
+hegemony-of-embersig,Hegemony of Embersig,Troop,Pioneers,0,1,"Dwarf, Ghent, Infantry","Dispel (BLU), Scout",no,35,"Shove (3), Disarmed, Trap, Slowed",
+hegemony-of-embersig,Hegemony of Embersig,Character,Aide,1,1,"Aestari, Character, Elf","Fearless, Spellcaster",no,25,Place (10),
+hegemony-of-embersig,Hegemony of Embersig,Character,Corporal,2,1,"Character, Human","Join (Human, Infantry)",no,15,,
+hegemony-of-embersig,Hegemony of Embersig,Character,Frostfire Herald,0,1,"Aestari, Character, Elf","Aestari, Character, Elf, Fearless, Spellcaster",no,25,"Slowed, Impassable",
+hegemony-of-embersig,Hegemony of Embersig,Character,Gunnery Corporal,1,1,"Character, Human",Join (Arquebusiers | Pioneers),no,20,Repeat a die,
+hegemony-of-embersig,Hegemony of Embersig,Character,Hetman,3,1,"Chracter, High Command, Human",Join (Infantry),Yes,25,,
+hegemony-of-embersig,Hegemony of Embersig,Character,War Surgeon,0,1,"Character, Human",Join (Infantry),no,15,,
+hegemony-of-embersig,Hegemony of Embersig,Named Character,"Dragoslav Bjelogríc, Drago the Anvil",3,1,"Character, High Command, Human","Bloodlust (Varank), Elite, Join (Bucklermen | Bulwark)",Yes,40,"Vulnerable, Elite, Bloodlust (Varank), Repeat a Die",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Lady Télia,2,1,"Chracter, Human","Elite, Scout, Join (Arquebusiers | Pioneers)",no,25,"Frightened, Aim, Repeat a Die",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Marhael the Refused,1,1,"Aestari, Character, Elf","Fearless, Spellcaster",no,35,Place (11),
+hegemony-of-embersig,Hegemony of Embersig,Named Character,"Nadezhda Lazard, Champion of Embersig",2,1,"Character, Human",Join (Infantry),no,30,"Disarmed, Vulnerable",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Amelia Hellbroth,3,1,"Character, Colossal Company, High Command, Human","Elite, Join (Infantry)",yes,40,"Vulnerable, Disarmed",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Nayra Caladren,0,1,"Aestari, Character, Colossal Company, Elf","Elite, Fearless, Spellcaster",no,35,"Disarmed, Slowed, Vulnerable",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Naegon Caladren,1,1,"Aestari, Character, Colossal Company, Elf",Spellcaster,no,15,"Place (5), Disarmed, Displace (5), Frightened",
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Trabor Slepmund,1,1,"Character, Colossal Company, Dwarf, Ghent","Dispel (BLU), Join (War Rig)",no,30,Disarmed,
+hegemony-of-embersig,Hegemony of Embersig,Companion,MK-OS Automata,0,3,,,no,0,,trabor slepmund
+hegemony-of-embersig,Hegemony of Embersig,Character,Gale Falchion,0,1,"Aestari, Character, Elf",Spellcaster,no,25,,
+hegemony-of-embersig,Hegemony of Embersig,Character,Engineer,0,1,"Character, Ghent, Dwarf","Dispel (BLU), Join (Infantry | War Machine)",no,15,,
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Ansera Noighman,0,1,"Character, Ghent, Dwarf","Dispel (BLU), Join (Infantry | War Machine)",no,20,,
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Vercana,0,1,"Character, Human, Mercenary",Ambusher,no,30,Place (5),
+hegemony-of-embersig,Hegemony of Embersig,Troop,Black Angels,0,1,"Cavalry, Human",Preferred Terrain (Rugged),no,30,Intimidating (2),
+hegemony-of-embersig,Hegemony of Embersig,Character,Strategos,1,1,"Character, Human",Join (Infantry),no,20,,
