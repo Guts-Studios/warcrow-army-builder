@@ -1,235 +1,164 @@
-import { Unit } from '@/types/army';
+
+import { Unit, SelectedUnit, ApiUnit, Faction } from '@/types/army';
+import { factions, factionNameMap } from '@/data/factions';
 
 /**
- * Utility function to normalize faction IDs consistently
- * @param faction The faction name or ID to normalize
- * @returns A normalized faction ID
+ * Normalize faction ID for consistency
  */
-export const normalizeFactionId = (faction: string): string => {
-  // Handle undefined or null input
-  if (!faction) {
-    console.warn('Received undefined or null faction');
-    return 'unknown';
+export const normalizeFactionId = (factionId: string): string => {
+  if (!factionId) return 'northern-tribes'; // Default faction
+  
+  // Handle direct match in map
+  if (factionNameMap[factionId]) {
+    return factionNameMap[factionId];
   }
   
-  // Convert to lowercase and trim
-  const lowercased = faction.toLowerCase().trim();
-  
-  // Handle "null" strings that might be in CSV
-  if (lowercased === 'null' || lowercased === 'undefined') {
-    console.warn('Received "null" or "undefined" string as faction');
-    return 'unknown';
+  // Handle case insensitive match
+  const lowercaseFactionId = factionId.toLowerCase();
+  for (const [key, value] of Object.entries(factionNameMap)) {
+    if (key.toLowerCase() === lowercaseFactionId) {
+      return value;
+    }
   }
   
-  // Map common variations to canonical faction IDs
-  const factionMappings: Record<string, string> = {
-    // Syenann variants
-    'syenann': 'syenann',
-    'sÿenann': 'syenann',
-    'the syenann': 'syenann',
-    'the sÿenann': 'syenann',
-    
-    // Northern Tribes variants
-    'northern': 'northern-tribes',
-    'northern tribes': 'northern-tribes',
-    'tribes': 'northern-tribes',
-    'northern-tribes': 'northern-tribes',
-    
-    // Hegemony variants
-    'hegemony': 'hegemony-of-embersig',
-    'hegemony of embersig': 'hegemony-of-embersig',
-    'embersig': 'hegemony-of-embersig',
-    'hegemony-of-embersig': 'hegemony-of-embersig',
-    
-    // Scions variants
-    'scions': 'scions-of-yaldabaoth',
-    'scions of yaldabaoth': 'scions-of-yaldabaoth',
-    'scions of taldabaoth': 'scions-of-yaldabaoth',
-    'yaldabaoth': 'scions-of-yaldabaoth',
-    'taldabaoth': 'scions-of-yaldabaoth',
-    'scions-of-yaldabaoth': 'scions-of-yaldabaoth',
-    'scions-of-taldabaoth': 'scions-of-yaldabaoth',
-  };
+  // If no match found, attempt to normalize kebab-case
+  if (factionId.includes(' ')) {
+    const kebabFactionId = factionId.toLowerCase().replace(/\s+/g, '-');
+    if (factionNameMap[kebabFactionId]) {
+      return factionNameMap[kebabFactionId];
+    }
+  }
   
-  // Use the mapping if available, otherwise normalize the string by replacing spaces with hyphens
-  const normalized = factionMappings[lowercased] || lowercased.replace(/\s+/g, '-');
-  
-  return normalized;
+  // If all else fails, return the original (but ensure it's lowercase and kebab-case)
+  return factionId.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
 };
 
 /**
- * Removes duplicate units from an array of units based on their ID
- * @param units Array of units that might contain duplicates
- * @returns Array of units with duplicates removed
+ * Normalize all units data for consistent formats
+ */
+export const normalizeUnits = (unitsData: Unit[]): Unit[] => {
+  return unitsData.map(unit => {
+    // Ensure consistent factions
+    const faction = normalizeFactionId(unit.faction);
+    
+    // Ensure keywords is an array of objects
+    const keywords = Array.isArray(unit.keywords) 
+      ? unit.keywords.map(k => {
+          if (typeof k === 'string') {
+            return { name: k, description: '' };
+          }
+          return k;
+        }) 
+      : [];
+    
+    // Ensure specialRules is an array of strings
+    const specialRules = Array.isArray(unit.specialRules) 
+      ? unit.specialRules 
+      : [];
+    
+    // Normalize the unit object
+    return {
+      ...unit,
+      faction,
+      // Only set faction_id if it exists and is different from faction
+      ...(unit.faction_id && unit.faction_id !== unit.faction ? { faction_id: normalizeFactionId(unit.faction_id) } : {}),
+      keywords,
+      specialRules,
+      availability: unit.availability || 0,
+      highCommand: Boolean(unit.highCommand),
+      // Only include command if it has a value
+      ...(unit.command ? { command: unit.command } : {})
+    };
+  });
+};
+
+/**
+ * Remove duplicate units from an array, based on ID
  */
 export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
-  const seen = new Set<string>();
-  
+  const seen = new Set();
   return units.filter(unit => {
-    // Ensure unit has a valid ID
-    if (!unit.id) {
-      console.warn('Found unit without ID:', unit.name);
-      return false;
-    }
-    
-    // Check if we've already seen this unit ID
-    if (seen.has(unit.id)) {
-      console.warn(`Duplicate unit ID found: ${unit.name} with ID ${unit.id}`);
-      return false;
-    }
-    
-    // Mark this ID as seen and keep the unit
-    seen.add(unit.id);
+    const key = unit.id;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 };
 
 /**
- * Normalizes unit data by ensuring consistent faction values and handling empty values
- * @param units Array of units to normalize
- * @returns Array of normalized units
+ * Convert ApiUnit to Unit format
  */
-export const normalizeUnits = (units: Unit[]): Unit[] => {
-  if (!Array.isArray(units)) {
-    console.error('normalizeUnits received non-array input:', units);
-    return [];
-  }
-  
-  // Create a new array to avoid modifying the original units
-  return units.map(unit => {
-    // Create a copy of the unit to avoid mutation
-    const normalizedUnit = { ...unit };
-    
-    // Handle empty/null faction values
-    if (!normalizedUnit.faction || 
-        normalizedUnit.faction === 'null' || 
-        normalizedUnit.faction === 'undefined') {
-      normalizedUnit.faction = normalizedUnit.faction_id || 'unknown';
-    }
-    
-    // Handle empty/null faction_id values
-    if (!normalizedUnit.faction_id || 
-        normalizedUnit.faction_id === 'null' || 
-        normalizedUnit.faction_id === 'undefined') {
-      normalizedUnit.faction_id = normalizedUnit.faction || 'unknown';
-    }
-    
-    // Normalize both faction and faction_id
-    if (normalizedUnit.faction) {
-      normalizedUnit.faction = normalizeFactionId(normalizedUnit.faction);
-    }
-    
-    if (normalizedUnit.faction_id) {
-      normalizedUnit.faction_id = normalizeFactionId(normalizedUnit.faction_id);
-    }
-    
-    // Make sure both faction fields are consistent
-    if (normalizedUnit.faction && !normalizedUnit.faction_id) {
-      normalizedUnit.faction_id = normalizedUnit.faction;
-    } else if (normalizedUnit.faction_id && !normalizedUnit.faction) {
-      normalizedUnit.faction = normalizedUnit.faction_id;
-    }
-    
-    return normalizedUnit;
+export const convertApiUnitToUnit = (apiUnit: ApiUnit): Unit => {
+  return {
+    id: apiUnit.id,
+    name: apiUnit.name,
+    faction: normalizeFactionId(apiUnit.faction),
+    faction_id: apiUnit.faction_id ? normalizeFactionId(apiUnit.faction_id) : undefined,
+    pointsCost: apiUnit.points,
+    availability: apiUnit.characteristics?.availability || 0,
+    command: apiUnit.characteristics?.command || undefined,
+    keywords: (apiUnit.keywords || []).map(k => ({ name: k, description: '' })),
+    specialRules: apiUnit.special_rules || [],
+    highCommand: Boolean(apiUnit.characteristics?.highCommand),
+    imageUrl: apiUnit.characteristics?.imageUrl || `/art/card/${apiUnit.id}_card.jpg`
+  };
+};
+
+/**
+ * Convert Unit to ApiUnit format
+ */
+export const convertUnitToApiUnit = (unit: Unit): ApiUnit => {
+  return {
+    id: unit.id,
+    name: unit.name,
+    faction: unit.faction,
+    faction_id: unit.faction_id,
+    points: unit.pointsCost,
+    keywords: unit.keywords.map(k => typeof k === 'string' ? k : k.name),
+    special_rules: unit.specialRules || [],
+    characteristics: {
+      availability: unit.availability || 0,
+      command: unit.command || 0,
+      highCommand: unit.highCommand || false,
+      imageUrl: unit.imageUrl
+    },
+    type: 'unit'
+  };
+};
+
+/**
+ * Get all factions with localized names
+ */
+export const getLocalizedFactions = (language: string = 'en'): Faction[] => {
+  return factions.map(faction => {
+    // Add localization here if needed
+    return {
+      ...faction,
+      // Add localized names in future
+    };
   });
 };
 
 /**
- * Updates quantities when adding or removing units
- * @param unitId The ID of the unit to update
- * @param currentQuantities The current quantities object
- * @param isAdding Whether the unit is being added (true) or removed (false)
- * @returns Updated quantities object
+ * Check if unit belongs to a faction
  */
-export const getUpdatedQuantities = (
-  unitId: string,
-  currentQuantities: Record<string, number>,
-  isAdding: boolean
-): Record<string, number> => {
-  const newQuantities = { ...currentQuantities };
-  const currentQty = currentQuantities[unitId] || 0;
+export const isUnitInFaction = (unit: Unit | SelectedUnit, factionId: string): boolean => {
+  const normalizedFactionId = normalizeFactionId(factionId);
   
-  if (isAdding) {
-    newQuantities[unitId] = currentQty + 1;
-  } else if (currentQty > 0) {
-    newQuantities[unitId] = currentQty - 1;
-    // Remove the entry if quantity becomes zero
-    if (newQuantities[unitId] === 0) {
-      delete newQuantities[unitId];
-    }
+  // First check unit.faction_id if available
+  if (unit.faction_id) {
+    return normalizeFactionId(unit.faction_id) === normalizedFactionId;
   }
   
-  return newQuantities;
+  // Fall back to unit.faction
+  return normalizeFactionId(unit.faction) === normalizedFactionId;
 };
 
 /**
- * Updates the selected units array when adding or removing units
- * @param selectedUnits The current array of selected units
- * @param unit The unit to add or remove
- * @param isAdding Whether the unit is being added (true) or removed (false)
- * @returns Updated array of selected units
+ * Get faction name from ID
  */
-export const updateSelectedUnits = (
-  selectedUnits: any[],
-  unit: any,
-  isAdding: boolean
-): any[] => {
-  if (!unit) return selectedUnits;
-  
-  const existingUnitIndex = selectedUnits.findIndex(u => u.id === unit.id);
-  
-  if (isAdding) {
-    if (existingUnitIndex >= 0) {
-      // Unit already exists, increment quantity
-      const updatedUnits = [...selectedUnits];
-      updatedUnits[existingUnitIndex] = {
-        ...updatedUnits[existingUnitIndex],
-        quantity: updatedUnits[existingUnitIndex].quantity + 1
-      };
-      return updatedUnits;
-    } else {
-      // Add new unit with quantity 1
-      return [...selectedUnits, { ...unit, quantity: 1 }];
-    }
-  } else {
-    // Removing a unit
-    if (existingUnitIndex >= 0) {
-      const updatedUnits = [...selectedUnits];
-      const currentQty = updatedUnits[existingUnitIndex].quantity;
-      
-      if (currentQty > 1) {
-        // Decrease quantity if more than 1
-        updatedUnits[existingUnitIndex] = {
-          ...updatedUnits[existingUnitIndex],
-          quantity: currentQty - 1
-        };
-        return updatedUnits;
-      } else {
-        // Remove unit completely if quantity is 1
-        return updatedUnits.filter(u => u.id !== unit.id);
-      }
-    }
-  }
-  
-  return selectedUnits;
-};
-
-/**
- * Checks if a unit can be added based on availability rules
- * @param selectedUnits Currently selected units
- * @param unitToAdd The unit to add
- * @returns Boolean indicating if the unit can be added
- */
-export const canAddUnit = (selectedUnits: any[], unitToAdd: any): boolean => {
-  if (!unitToAdd) return false;
-  
-  const existingUnit = selectedUnits.find(u => u.id === unitToAdd.id);
-  const currentQuantity = existingUnit ? existingUnit.quantity : 0;
-  
-  // Check if adding one more would exceed availability
-  if (unitToAdd.availability && currentQuantity >= unitToAdd.availability) {
-    return false;
-  }
-  
-  return true;
+export const getFactionNameById = (factionId: string): string => {
+  const normalizedFactionId = normalizeFactionId(factionId);
+  const faction = factions.find(f => normalizeFactionId(f.id) === normalizedFactionId);
+  return faction?.name || factionId;
 };

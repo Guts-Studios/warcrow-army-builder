@@ -1,229 +1,139 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { ApiUnit, Unit } from '@/types/army';
-import { Json } from '@/integrations/supabase/types';
-import { mapApiUnitToUnit } from '@/components/stats/unit-explorer/useUnitData';
+import { supabase } from "@/integrations/supabase/client";
+import { units as localUnits } from "@/data/factions";
+import { Unit, ApiUnit } from "@/types/army";
+import { normalizeFactionId } from "./unitManagement";
 
 /**
- * Type helper to convert Supabase Json type to expected Record format
+ * Find missing units between database and local data
  */
-type DbUnitData = Omit<ApiUnit, 'characteristics'> & {
-  characteristics: Json;
+export const findMissingUnits = async (factionId: string) => {
+  try {
+    const normalizedFactionId = normalizeFactionId(factionId);
+    
+    // Get units from database
+    const { data: dbUnits, error } = await supabase
+      .from('unit_data')
+      .select('*')
+      .eq('faction', normalizedFactionId);
+    
+    if (error) throw error;
+    
+    // Filter local units by faction
+    const factionLocalUnits = localUnits.filter(unit => {
+      if (unit.faction_id) {
+        return normalizeFactionId(unit.faction_id) === normalizedFactionId;
+      }
+      return normalizeFactionId(unit.faction) === normalizedFactionId;
+    });
+    
+    // Find units in database but not in local data
+    const onlyInDatabase = dbUnits.filter(dbUnit => 
+      !factionLocalUnits.some(localUnit => localUnit.id === dbUnit.id)
+    );
+    
+    // Find units in local data but not in database
+    const onlyInLocalData = factionLocalUnits.filter(localUnit => 
+      !dbUnits.some(dbUnit => dbUnit.id === localUnit.id)
+    );
+    
+    return {
+      onlyInDatabase,
+      onlyInLocalData
+    };
+  } catch (error) {
+    console.error('Error finding missing units:', error);
+    throw error;
+  }
 };
 
 /**
- * Convert a database unit to API unit format
+ * Generate TypeScript file content for a faction
  */
-function convertDbUnitToApiUnit(dbUnit: any): ApiUnit {
-  return {
-    ...dbUnit,
-    characteristics: dbUnit.characteristics as Record<string, any>,
-    special_rules: dbUnit.special_rules || [],
-    keywords: dbUnit.keywords || [],
-    points: dbUnit.points || 0,
-    faction_display: dbUnit.faction,
-    type: dbUnit.type || 'unit' // Ensure type property always exists
-  };
-}
-
-/**
- * Utility for comparing local unit data with Supabase data
- * This is useful for developers/admins to ensure local data is in sync with the database
- */
-export async function findMissingUnits(factionId: string): Promise<{
-  onlyInDatabase: ApiUnit[];
-  onlyInLocalData: Unit[];
-  inBoth: Array<{db: ApiUnit, local: Unit}>;
-  nameMismatches?: Array<{id: string; staticName: string; dbName: string; faction: string}>;
-  pointsMismatches?: Array<{id: string; name: string; staticPoints: number; dbPoints: number; faction: string}>;
-}> {
+export const generateFactionFileContent = async (factionId: string) => {
   try {
+    const normalizedFactionId = normalizeFactionId(factionId);
+    
     // Get units from database
-    const { data: dbUnitsRaw, error } = await supabase
+    const { data: dbUnits, error } = await supabase
       .from('unit_data')
       .select('*')
-      .eq('faction', factionId);
+      .eq('faction', normalizedFactionId);
     
     if (error) throw error;
     
-    // Convert database units to API format
-    const dbUnits: ApiUnit[] = (dbUnitsRaw || []).map(convertDbUnitToApiUnit);
-
-    // Get local units
-    let localUnits: Unit[] = [];
+    // Organize units by type
+    const troops = dbUnits.filter(unit => unit.type === 'troop' || unit.type === 'troops');
+    const characters = dbUnits.filter(unit => unit.type === 'character' || unit.type === 'characters');
+    const highCommand = dbUnits.filter(unit => {
+      const isHighCommand = unit.characteristics?.highCommand === true || 
+                            unit.keywords?.includes('High Command');
+      return isHighCommand;
+    });
     
-    try {
-      switch(factionId) {
-        case 'northern-tribes':
-          const { northernTribesUnits } = await import('@/data/factions/northern-tribes');
-          localUnits = northernTribesUnits;
-          break;
-        case 'hegemony-of-embersig':
-          const { hegemonyOfEmbersigUnits } = await import('@/data/factions/hegemony-of-embersig');
-          localUnits = hegemonyOfEmbersigUnits;
-          break;
-        case 'scions-of-yaldabaoth':
-          const { scionsOfYaldabaothUnits } = await import('@/data/factions/scions-of-yaldabaoth');
-          localUnits = scionsOfYaldabaothUnits;
-          break;
-        case 'syenann':
-          const { syenannUnits } = await import('@/data/factions/syenann');
-          localUnits = syenannUnits;
-          break;
-        default:
-          const { units } = await import('@/data/factions');
-          localUnits = units.filter(u => u.faction === factionId);
-      }
-    } catch (error) {
-      console.error(`Error loading local units for ${factionId}:`, error);
-      const { units } = await import('@/data/factions');
-      localUnits = units.filter(u => u.faction === factionId);
-    }
+    // Generate TypeScript content for each file
+    const filePrefix = factionId.replace(/-/g, '');
+    
+    // Main file content
+    const mainFile = `import { Unit } from "@/types/army";
+import { ${filePrefix}Troops } from "./${filePrefix}Troops";
+import { ${filePrefix}Characters } from "./${filePrefix}Characters";
+import { ${filePrefix}HighCommand } from "./${filePrefix}HighCommand";
 
-    // Find units that are only in the database
-    const onlyInDatabase = dbUnits.filter(dbUnit => 
-      !localUnits.some(localUnit => localUnit.id === dbUnit.id)
-    );
+export const ${filePrefix}Units: Unit[] = [
+  ...${filePrefix}Troops,
+  ...${filePrefix}Characters,
+  ...${filePrefix}HighCommand
+];
+`;
 
-    // Find units that are only in local data
-    const onlyInLocalData = localUnits.filter(localUnit => 
-      !dbUnits.some(dbUnit => dbUnit.id === localUnit.id)
-    );
-
-    // Find units that are in both
-    const inBoth = dbUnits
-      .filter(dbUnit => localUnits.some(localUnit => localUnit.id === dbUnit.id))
-      .map(dbUnit => ({
-        db: dbUnit,
-        local: localUnits.find(localUnit => localUnit.id === dbUnit.id)!
-      }));
-
-    // Check for name mismatches
-    const nameMismatches = inBoth
-      .filter(({ db, local }) => db.name !== local.name)
-      .map(({ db, local }) => ({
-        id: db.id,
-        staticName: local.name,
-        dbName: db.name,
-        faction: db.faction
-      }));
-
-    // Check for points mismatches
-    const pointsMismatches = inBoth
-      .filter(({ db, local }) => db.points !== local.pointsCost)
-      .map(({ db, local }) => ({
-        id: db.id,
-        name: db.name,
-        staticPoints: local.pointsCost,
-        dbPoints: db.points,
-        faction: db.faction
-      }));
-
-    return {
-      onlyInDatabase,
-      onlyInLocalData,
-      inBoth,
-      nameMismatches,
-      pointsMismatches
-    };
-  } catch (error) {
-    console.error('Error comparing units:', error);
-    throw error;
-  }
-}
-
-/**
- * Generate code for missing units that can be added to the local data files
- */
-export function generateUnitCode(unit: ApiUnit): string {
-  // Convert the API unit to a local unit format
-  const localUnit = mapApiUnitToUnit(unit);
-  
-  // Generate the code representation
-  const code = `  {
-    id: "${localUnit.id}",
-    name: "${localUnit.name}",
-    pointsCost: ${localUnit.pointsCost},
-    faction: "${localUnit.faction}",
+    // Generate type-specific files
+    const generateUnitFileContent = (units: any[], typeName: string) => {
+      const unitDefinitions = units.map(unit => {
+        // Convert database unit to TypeScript code
+        const keywords = (unit.keywords || []).map(k => `{ name: "${k}", description: "" }`).join(',\n    ');
+        const specialRules = unit.special_rules ? 
+          `specialRules: [${unit.special_rules.map(rule => `"${rule}"`).join(', ')}],` : '';
+        const command = unit.characteristics?.command ? 
+          `command: ${unit.characteristics.command},` : '';
+        
+        return `  {
+    id: "${unit.id}",
+    name: "${unit.name}",
+    faction: "${normalizedFactionId}",
+    faction_id: "${normalizedFactionId}",
+    pointsCost: ${unit.points || 0},
+    availability: ${unit.characteristics?.availability || 0},
+    ${command}
     keywords: [
-${localUnit.keywords.map(k => `      { name: "${k.name}", description: "" }`).join(',\n')}
+      ${keywords}
     ],
-    highCommand: ${localUnit.highCommand || false},
-    availability: ${localUnit.availability || 1},
-${localUnit.command ? `    command: ${localUnit.command},\n` : ''}${localUnit.specialRules && localUnit.specialRules.length > 0 ? `    specialRules: [${localUnit.specialRules.map(r => `"${r}"`).join(', ')}],\n` : ''}    imageUrl: "/art/card/${localUnit.id}_card.jpg"
+    ${specialRules}
+    highCommand: ${Boolean(unit.characteristics?.highCommand)},
+    imageUrl: "/art/card/${unit.id}_card.jpg"
   }`;
-  
-  return code;
-}
-
-/**
- * Creates full TypeScript file content for a faction's units based on database data
- */
-export async function generateFactionFileContent(factionId: string): Promise<{
-  troopsFile: string;
-  charactersFile: string;
-  highCommandFile: string;
-  mainFile: string;
-}> {
-  try {
-    const { data: dbUnitsRaw, error } = await supabase
-      .from('unit_data')
-      .select('*')
-      .eq('faction', factionId);
+      }).join(',\n');
       
-    if (error) throw error;
-    
-    // Convert database units to API format
-    const dbUnits: ApiUnit[] = (dbUnitsRaw || []).map(convertDbUnitToApiUnit);
-    
-    // Convert API units to local format
-    const localUnits = dbUnits.map(mapApiUnitToUnit);
-    
-    // Group units by type
-    const troops = localUnits.filter(u => !u.highCommand && (!u.command || u.command < 2));
-    const characters = localUnits.filter(u => !u.highCommand && u.command === 1);
-    const highCommand = localUnits.filter(u => u.highCommand || u.command === 2);
-    
-    // Helper function to create ApiUnit with required fields
-    const createApiUnitForGeneration = (unit: Unit): ApiUnit => {
-      return {
-        id: unit.id,
-        name: unit.name,
-        faction: unit.faction,
-        type: 'unit', // Add the required 'type' field
-        points: unit.pointsCost,
-        keywords: unit.keywords.map(k => k.name),
-        special_rules: unit.specialRules || [],
-        characteristics: {
-          availability: unit.availability, 
-          command: unit.command, 
-          highCommand: unit.highCommand
-        } as Record<string, any>,
-        faction_display: unit.faction
-      };
+      return `import { Unit } from "@/types/army";
+
+export const ${filePrefix}${typeName}: Unit[] = [
+${unitDefinitions}
+];
+`;
     };
     
-    // Generate code for each group
-    const troopsCode = troops.map(unit => 
-      generateUnitCode(createApiUnitForGeneration(unit))
-    ).join(',\n\n');
-    
-    const charactersCode = characters.map(unit => 
-      generateUnitCode(createApiUnitForGeneration(unit))
-    ).join(',\n\n');
-    
-    const highCommandCode = highCommand.map(unit => 
-      generateUnitCode(createApiUnitForGeneration(unit))
-    ).join(',\n\n');
+    const troopsFile = generateUnitFileContent(troops, 'Troops');
+    const charactersFile = generateUnitFileContent(characters, 'Characters');
+    const highCommandFile = generateUnitFileContent(highCommand, 'HighCommand');
     
     return {
-      troopsFile: `import { Unit } from "@/types/army";\n\nexport const ${factionId.replace(/-/g, '')}Troops: Unit[] = [\n${troopsCode}\n];\n`,
-      charactersFile: `import { Unit } from "@/types/army";\n\nexport const ${factionId.replace(/-/g, '')}Characters: Unit[] = [\n${charactersCode}\n];\n`,
-      highCommandFile: `import { Unit } from "@/types/army";\n\nexport const ${factionId.replace(/-/g, '')}HighCommand: Unit[] = [\n${highCommandCode}\n];\n`,
-      mainFile: `import { Unit } from "../../types/army";\nimport { ${factionId.replace(/-/g, '')}Troops } from "./${factionId}/troops";\nimport { ${factionId.replace(/-/g, '')}Characters } from "./${factionId}/characters";\nimport { ${factionId.replace(/-/g, '')}HighCommand } from "./${factionId}/high-command";\n\nexport const ${factionId.replace(/-/g, '')}Units: Unit[] = [\n  ...${factionId.replace(/-/g, '')}Troops,\n  ...${factionId.replace(/-/g, '')}Characters,\n  ...${factionId.replace(/-/g, '')}HighCommand\n];\n`
+      mainFile,
+      troopsFile,
+      charactersFile,
+      highCommandFile
     };
   } catch (error) {
-    console.error(`Error generating file content for ${factionId}:`, error);
+    console.error('Error generating faction file content:', error);
     throw error;
   }
-}
+};

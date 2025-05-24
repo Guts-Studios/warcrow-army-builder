@@ -1,3 +1,4 @@
+
 /**
  * Utility functions for CSV validation
  */
@@ -45,6 +46,7 @@ export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
   return new Promise((resolve) => {
     Papa.parse(csvContent, {
       header: true,
+      skipEmptyLines: true,
       complete: (results) => {
         console.log('CSV parsing raw results:', results.data.slice(0, 2));
         
