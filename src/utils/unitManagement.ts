@@ -162,3 +162,95 @@ export const getFactionNameById = (factionId: string): string => {
   const faction = factions.find(f => normalizeFactionId(f.id) === normalizedFactionId);
   return faction?.name || factionId;
 };
+
+/**
+ * Get updated quantities for a unit
+ */
+export const getUpdatedQuantities = (
+  unitId: string,
+  currentQuantities: Record<string, number>,
+  isAdding: boolean
+): Record<string, number> => {
+  const newQuantities = { ...currentQuantities };
+  const currentQty = currentQuantities[unitId] || 0;
+  
+  if (isAdding) {
+    newQuantities[unitId] = currentQty + 1;
+  } else if (currentQty > 0) {
+    newQuantities[unitId] = currentQty - 1;
+    // Remove the entry if quantity becomes zero
+    if (newQuantities[unitId] === 0) {
+      delete newQuantities[unitId];
+    }
+  }
+  
+  return newQuantities;
+};
+
+/**
+ * Update selected units
+ */
+export const updateSelectedUnits = (
+  selectedUnits: SelectedUnit[],
+  unit: Unit | undefined,
+  isAdding: boolean
+): SelectedUnit[] => {
+  if (!unit) return selectedUnits;
+  
+  const existingUnitIndex = selectedUnits.findIndex(u => u.id === unit.id);
+  
+  if (isAdding) {
+    if (existingUnitIndex >= 0) {
+      // Unit already exists, increment quantity
+      const updatedUnits = [...selectedUnits];
+      updatedUnits[existingUnitIndex] = {
+        ...updatedUnits[existingUnitIndex],
+        quantity: updatedUnits[existingUnitIndex].quantity + 1
+      };
+      return updatedUnits;
+    } else {
+      // Add new unit with quantity 1
+      return [...selectedUnits, { ...unit, quantity: 1 }];
+    }
+  } else {
+    // Removing a unit
+    if (existingUnitIndex >= 0) {
+      const updatedUnits = [...selectedUnits];
+      const currentQty = updatedUnits[existingUnitIndex].quantity;
+      
+      if (currentQty > 1) {
+        // Decrease quantity if more than 1
+        updatedUnits[existingUnitIndex] = {
+          ...updatedUnits[existingUnitIndex],
+          quantity: currentQty - 1
+        };
+        return updatedUnits;
+      } else {
+        // Remove unit completely if quantity is 1
+        return updatedUnits.filter(u => u.id !== unit.id);
+      }
+    }
+  }
+  
+  return selectedUnits;
+};
+
+/**
+ * Check if a unit can be added
+ */
+export const canAddUnit = (
+  selectedUnits: SelectedUnit[], 
+  unitToAdd: Unit | undefined
+): boolean => {
+  if (!unitToAdd) return false;
+  
+  const existingUnit = selectedUnits.find(u => u.id === unitToAdd.id);
+  const currentQuantity = existingUnit ? existingUnit.quantity : 0;
+  
+  // Check if adding one more would exceed availability
+  if (unitToAdd.availability && currentQuantity >= unitToAdd.availability) {
+    return false;
+  }
+  
+  return true;
+};

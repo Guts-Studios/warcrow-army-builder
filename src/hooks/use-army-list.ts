@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { SelectedUnit, SavedList, Unit } from "@/types/army";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement.js"; // Ensure .js extension
+import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement"; // Remove .js extension
 import { validateUnitAddition } from "@/utils/armyValidation";
 import { useArmyBuilderUnits, mapApiUnitToUnit } from '@/components/stats/unit-explorer/useUnitData';
 

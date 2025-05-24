@@ -60,10 +60,9 @@ const DataSyncButton: React.FC<DataSyncButtonProps> = ({
       
       const comparisonResult = await findMissingUnits(factionId);
       
+      // Check if everything is in sync - no missing units in either direction
       if (comparisonResult.onlyInDatabase.length === 0 && 
-          comparisonResult.onlyInLocalData.length === 0 && 
-          (comparisonResult.nameMismatches?.length === 0 || comparisonResult.nameMismatches === undefined) && 
-          (comparisonResult.pointsMismatches?.length === 0 || comparisonResult.pointsMismatches === undefined)) {
+          comparisonResult.onlyInLocalData.length === 0) {
         
         setSyncStatus(prev => prev ? { 
           ...prev, 

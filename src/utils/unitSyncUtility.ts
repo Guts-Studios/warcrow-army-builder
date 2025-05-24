@@ -48,6 +48,62 @@ export const findMissingUnits = async (factionId: string) => {
 };
 
 /**
+ * Generate unit code from database unit data
+ */
+export const generateUnitCode = (unit: any) => {
+  // Function to clean and format string arrays
+  const formatStringArray = (arr: string[]) => {
+    if (!Array.isArray(arr) || arr.length === 0) return '[]';
+    return `[${arr.map(item => `"${item.trim()}"`).join(', ')}]`;
+  };
+
+  // Start building the unit object code
+  let code = `  {\n`;
+  code += `    id: "${unit.id}",\n`;
+  code += `    name: "${unit.name}",\n`;
+  code += `    faction: "${unit.faction}",\n`;
+  
+  // Include faction_id if available
+  if (unit.faction_id && unit.faction_id !== unit.faction) {
+    code += `    faction_id: "${unit.faction_id}",\n`;
+  }
+  
+  code += `    pointsCost: ${unit.pointsCost || unit.points || 0},\n`;
+  code += `    availability: ${unit.availability || 0},\n`;
+  
+  // Add command if available
+  if (unit.command) {
+    code += `    command: ${unit.command},\n`;
+  }
+  
+  // Format keywords as array of objects
+  const keywordsArr = Array.isArray(unit.keywords) ? unit.keywords : [];
+  code += `    keywords: [\n`;
+  code += keywordsArr.map(keyword => {
+    return `      { name: "${keyword}", description: "" }`;
+  }).join(',\n');
+  code += `\n    ],\n`;
+  
+  // Add highCommand if true
+  if (unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand) {
+    code += `    highCommand: true,\n`;
+  }
+  
+  // Add special rules if available
+  if (unit.specialRules && unit.specialRules.length > 0) {
+    code += `    specialRules: ${formatStringArray(unit.specialRules)},\n`;
+  } else if (unit.special_rules && unit.special_rules.length > 0) {
+    code += `    specialRules: ${formatStringArray(unit.special_rules)},\n`;
+  }
+  
+  // Add imageUrl
+  code += `    imageUrl: "/art/card/${unit.id}_card.jpg"\n`;
+  code += `  }`;
+  
+  return code;
+};
+
+/**
  * Generate TypeScript file content for a faction
  */
 export const generateFactionFileContent = async (factionId: string) => {
@@ -66,8 +122,9 @@ export const generateFactionFileContent = async (factionId: string) => {
     const troops = dbUnits.filter(unit => unit.type === 'troop' || unit.type === 'troops');
     const characters = dbUnits.filter(unit => unit.type === 'character' || unit.type === 'characters');
     const highCommand = dbUnits.filter(unit => {
-      const isHighCommand = unit.characteristics?.highCommand === true || 
-                            unit.keywords?.includes('High Command');
+      const isHighCommand = 
+        (unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand === true) || 
+        (unit.keywords && Array.isArray(unit.keywords) && unit.keywords.includes('High Command'));
       return isHighCommand;
     });
     
@@ -94,7 +151,7 @@ export const ${filePrefix}Units: Unit[] = [
         const keywords = (unit.keywords || []).map(k => `{ name: "${k}", description: "" }`).join(',\n    ');
         const specialRules = unit.special_rules ? 
           `specialRules: [${unit.special_rules.map(rule => `"${rule}"`).join(', ')}],` : '';
-        const command = unit.characteristics?.command ? 
+        const command = unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.command ? 
           `command: ${unit.characteristics.command},` : '';
         
         return `  {
@@ -103,13 +160,13 @@ export const ${filePrefix}Units: Unit[] = [
     faction: "${normalizedFactionId}",
     faction_id: "${normalizedFactionId}",
     pointsCost: ${unit.points || 0},
-    availability: ${unit.characteristics?.availability || 0},
+    availability: ${unit.characteristics && typeof unit.characteristics === 'object' ? unit.characteristics.availability || 0 : 0},
     ${command}
     keywords: [
       ${keywords}
     ],
     ${specialRules}
-    highCommand: ${Boolean(unit.characteristics?.highCommand)},
+    highCommand: ${Boolean(unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand)},
     imageUrl: "/art/card/${unit.id}_card.jpg"
   }`;
       }).join(',\n');
