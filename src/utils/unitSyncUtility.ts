@@ -132,7 +132,8 @@ export const generateFactionFileContent = async (factionId: string) => {
       const isHighCommand = (
         (characteristics && 
          typeof characteristics === 'object' && 
-         characteristics.highCommand === true) || 
+         // Use type assertion to tell TypeScript this is a valid structure
+         (characteristics as { highCommand?: boolean }).highCommand === true) || 
         (unit.keywords && 
          Array.isArray(unit.keywords) && 
          unit.keywords.includes('High Command'))
@@ -166,8 +167,9 @@ export const ${filePrefix}Units: Unit[] = [
         
         // Safely check for command in characteristics
         const characteristics = unit.characteristics;
-        const command = characteristics && typeof characteristics === 'object' && characteristics.command ? 
-          `command: ${characteristics.command},` : '';
+        const command = characteristics && typeof characteristics === 'object' && 
+          (characteristics as { command?: number }).command ? 
+          `command: ${(characteristics as { command: number }).command},` : '';
         
         return `  {
     id: "${unit.id}",
@@ -175,13 +177,15 @@ export const ${filePrefix}Units: Unit[] = [
     faction: "${normalizedFactionId}",
     faction_id: "${normalizedFactionId}",
     pointsCost: ${unit.points || 0},
-    availability: ${characteristics && typeof characteristics === 'object' ? characteristics.availability || 0 : 0},
+    availability: ${characteristics && typeof characteristics === 'object' ? 
+      (characteristics as { availability?: number }).availability || 0 : 0},
     ${command}
     keywords: [
       ${keywords}
     ],
     ${specialRules}
-    highCommand: ${Boolean(characteristics && typeof characteristics === 'object' && characteristics.highCommand)},
+    highCommand: ${Boolean(characteristics && typeof characteristics === 'object' && 
+      (characteristics as { highCommand?: boolean }).highCommand)},
     imageUrl: "/art/card/${unit.id}_card.jpg"
   }`;
       }).join(',\n');
