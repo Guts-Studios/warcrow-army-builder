@@ -189,6 +189,7 @@ export const getUpdatedQuantities = (
 
 /**
  * Update selected units
+ * Fix: Convert Keyword[] to string[] when adding a unit to selectedUnits
  */
 export const updateSelectedUnits = (
   selectedUnits: SelectedUnit[],
@@ -210,7 +211,16 @@ export const updateSelectedUnits = (
       return updatedUnits;
     } else {
       // Add new unit with quantity 1
-      return [...selectedUnits, { ...unit, quantity: 1 }];
+      // Convert Keyword[] to string[] for compatibility with SelectedUnit type
+      const keywordsAsStrings = unit.keywords.map(k => 
+        typeof k === 'string' ? k : k.name
+      );
+      
+      return [...selectedUnits, {
+        ...unit,
+        quantity: 1,
+        keywords: keywordsAsStrings
+      } as SelectedUnit];
     }
   } else {
     // Removing a unit

@@ -84,8 +84,13 @@ export const generateUnitCode = (unit: any) => {
   }).join(',\n');
   code += `\n    ],\n`;
   
-  // Add highCommand if true
-  if (unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand) {
+  // Add highCommand if true - properly check characteristics object
+  if (unit.characteristics && 
+      typeof unit.characteristics === 'object' && 
+      unit.characteristics.highCommand === true) {
+    code += `    highCommand: true,\n`;
+  } else if (unit.highCommand === true) {
+    // Also check direct property as fallback
     code += `    highCommand: true,\n`;
   }
   
@@ -122,9 +127,16 @@ export const generateFactionFileContent = async (factionId: string) => {
     const troops = dbUnits.filter(unit => unit.type === 'troop' || unit.type === 'troops');
     const characters = dbUnits.filter(unit => unit.type === 'character' || unit.type === 'characters');
     const highCommand = dbUnits.filter(unit => {
-      const isHighCommand = 
-        (unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand === true) || 
-        (unit.keywords && Array.isArray(unit.keywords) && unit.keywords.includes('High Command'));
+      // Safely check for highCommand property in characteristics
+      const characteristics = unit.characteristics;
+      const isHighCommand = (
+        (characteristics && 
+         typeof characteristics === 'object' && 
+         characteristics.highCommand === true) || 
+        (unit.keywords && 
+         Array.isArray(unit.keywords) && 
+         unit.keywords.includes('High Command'))
+      );
       return isHighCommand;
     });
     
@@ -151,8 +163,11 @@ export const ${filePrefix}Units: Unit[] = [
         const keywords = (unit.keywords || []).map(k => `{ name: "${k}", description: "" }`).join(',\n    ');
         const specialRules = unit.special_rules ? 
           `specialRules: [${unit.special_rules.map(rule => `"${rule}"`).join(', ')}],` : '';
-        const command = unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.command ? 
-          `command: ${unit.characteristics.command},` : '';
+        
+        // Safely check for command in characteristics
+        const characteristics = unit.characteristics;
+        const command = characteristics && typeof characteristics === 'object' && characteristics.command ? 
+          `command: ${characteristics.command},` : '';
         
         return `  {
     id: "${unit.id}",
@@ -160,13 +175,13 @@ export const ${filePrefix}Units: Unit[] = [
     faction: "${normalizedFactionId}",
     faction_id: "${normalizedFactionId}",
     pointsCost: ${unit.points || 0},
-    availability: ${unit.characteristics && typeof unit.characteristics === 'object' ? unit.characteristics.availability || 0 : 0},
+    availability: ${characteristics && typeof characteristics === 'object' ? characteristics.availability || 0 : 0},
     ${command}
     keywords: [
       ${keywords}
     ],
     ${specialRules}
-    highCommand: ${Boolean(unit.characteristics && typeof unit.characteristics === 'object' && unit.characteristics.highCommand)},
+    highCommand: ${Boolean(characteristics && typeof characteristics === 'object' && characteristics.highCommand)},
     imageUrl: "/art/card/${unit.id}_card.jpg"
   }`;
       }).join(',\n');
