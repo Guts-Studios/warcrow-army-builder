@@ -61,7 +61,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     faction: "hegemony-of-embersig",
     pointsCost: 30, // Confirmed correct at 30 points
     availability: 1,
-    highCommand: true,
+    highCommand: false,
     command: 2,
     keywords: [
       { name: "Character", description: "" },
