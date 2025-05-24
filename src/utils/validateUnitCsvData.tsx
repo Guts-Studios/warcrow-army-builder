@@ -68,48 +68,43 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           throw new Error(`No CSV file mapping for faction: ${faction}`);
         }
 
-        // Debug the file path
         const filePath = `/data/reference-csv/units/${fileName}`;
         console.log(`Attempting to load CSV from path: ${filePath}`);
         
-        // 1. Fetch CSV file content
         const response = await fetch(filePath);
         if (!response.ok) {
           throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
         }
 
-        // 2. Parse CSV content with improved handling for empty and null values
         const csvContent = await response.text();
         const csvUnits = await parseCsvContent(csvContent);
         setTotalCsvUnits(csvUnits.length);
         console.log(`Loaded ${csvUnits.length} units from CSV for faction ${faction}`);
 
-        // 3. Get static units for this faction
         const staticFactionUnits = getStaticUnitsForFaction(faction);
         setTotalStaticUnits(staticFactionUnits.length);
         console.log(`Found ${staticFactionUnits.length} static units for faction ${faction}`);
         
-        // 4. Compare CSV data with static data
+        // Log detailed unit information for debugging
+        console.log('CSV Units:', csvUnits.map(u => ({ name: u.name, highCommand: u.highCommand, points: u.pointsCost })));
+        console.log('Static Units:', staticFactionUnits.map(u => ({ name: u.name, highCommand: u.highCommand, points: u.pointsCost })));
+        
         const newMismatches: MismatchDetail[] = [];
         const notFoundUnits: string[] = [];
         let matched = 0;
 
         for (const csvUnit of csvUnits) {
-          // Skip units with null or empty names
           if (!csvUnit.name || csvUnit.name === 'null' || csvUnit.name === 'undefined') {
             console.warn('Found CSV unit with null or empty name, skipping');
             continue;
           }
           
-          // Try to match this CSV unit with a static unit
           const staticUnit = findMatchingUnit(csvUnit, staticFactionUnits);
           
           if (staticUnit) {
-            // We found a match, check for differences
             const unitMismatches = compareUnitWithCsv(staticUnit, csvUnit);
             
             if (unitMismatches.length > 0) {
-              // There are mismatches between CSV and static data
               unitMismatches.forEach(mismatch => {
                 newMismatches.push({
                   unitId: staticUnit.id,
@@ -123,19 +118,18 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
               matched++;
             }
           } else {
-            // CSV unit not found in static data
-            notFoundUnits.push(csvUnit.name);
+            notFoundUnits.push(`${csvUnit.name} (in CSV but not in code)`);
           }
         }
 
-        // 5. Check for static units that don't have a CSV entry
+        // Check for static units that don't have a CSV entry
         const csvUnitNames = csvUnits
           .filter(u => u.name && u.name !== 'null' && u.name !== 'undefined')
           .map(u => u.name.toLowerCase());
         
         const staticOnlyUnits = staticFactionUnits
           .filter(unit => !csvUnitNames.includes(unit.name.toLowerCase()))
-          .map(unit => unit.name);
+          .map(unit => `${unit.name} (in code but not in CSV)`);
 
         setMismatches(newMismatches);
         setMissingUnits([...notFoundUnits, ...staticOnlyUnits]);
