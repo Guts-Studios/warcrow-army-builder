@@ -53,39 +53,6 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     ],
     specialRules: ["Elite", "Join (Infantry)"],
     imageUrl: "/art/card/amelia_hellbroth_card.jpg"
-  },
-  // Nadezhda Lazard, Champion of Embersig
-  {
-    id: "nadezhda_lazard_champion_of_embersig",
-    name: "Nadezhda Lazard, Champion of Embersig",
-    faction: "hegemony-of-embersig",
-    pointsCost: 30, // Confirmed correct at 30 points
-    availability: 1,
-    highCommand: false,
-    command: 2,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" }
-    ],
-    specialRules: ["Join (Infantry)"],
-    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
-  },
-  // Marhael The Refused - Updated to be consistent with CSV data
-  {
-    id: "marhael_the_refused",
-    name: "Marhael The Refused",
-    faction: "hegemony-of-embersig", 
-    pointsCost: 35, // Confirmed at 35 points per CSV data
-    availability: 1,
-    highCommand: true, // Updated to true since he's in high command list
-    command: 2, // Added proper command value
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "High Command", description: "" } // Added High Command keyword
-    ],
-    specialRules: ["Fearless", "Spellcaster"],
-    imageUrl: "/art/card/marhael_the_refused_card.jpg"
   }
+  // Nadezhda Lazard and Marhael removed from high command since they are not high command units
 ];
