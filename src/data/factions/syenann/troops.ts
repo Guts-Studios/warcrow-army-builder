@@ -53,39 +53,5 @@ export const syenannTroops: Unit[] = [
     availability: 2,
     imageUrl: "/art/card/grove_curtailers_card.jpg",
     specialRules: ["Disarmed"]
-  },
-  {
-    id: "oakenguard",
-    name: "Oakenguard",
-    pointsCost: 40,
-    faction: "syenann",
-    faction_id: "syenann",
-    keywords: [
-      { name: "Elf", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Heavy", description: "" },
-      { name: "Syenann", description: "" }
-    ],
-    highCommand: false,
-    availability: 2,
-    imageUrl: "/art/card/oakenguard_card.jpg",
-    specialRules: []
-  },
-  {
-    id: "dryad-wardens",
-    name: "Dryad Wardens",
-    pointsCost: 45,
-    faction: "syenann",
-    faction_id: "syenann",
-    keywords: [
-      { name: "Dryad", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Syenann", description: "" },
-      { name: "Preferred Terrain (Forest)", description: "" }
-    ],
-    highCommand: false,
-    availability: 2,
-    imageUrl: "/art/card/dryad_wardens_card.jpg",
-    specialRules: ["Regenerate (5+)"]
   }
-]
+];
