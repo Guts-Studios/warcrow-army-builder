@@ -1,5 +1,5 @@
 
-import { Unit } from "@/types/army";
+import { Unit, Keyword } from "@/types/army";
 import AvatarPortrait from "./header/AvatarPortrait";
 import UnitTitle from "./header/UnitTitle";
 import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
@@ -12,6 +12,14 @@ interface UnitHeaderProps {
 }
 
 const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) => {
+  // Normalize keywords to ensure they're all Keyword objects
+  const normalizedKeywords: Keyword[] = unit.keywords.map(keyword => {
+    if (typeof keyword === 'string') {
+      return { name: keyword, description: "" };
+    }
+    return keyword;
+  });
+
   return (
     <div className="flex items-start gap-2">
       <AvatarPortrait portraitUrl={portraitUrl} name={mainName} />
@@ -23,7 +31,7 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
         />
         <div className="mt-0.5">
           <CharacteristicsSection 
-            keywords={unit.keywords}
+            keywords={normalizedKeywords}
             highCommand={unit.highCommand}
           />
         </div>

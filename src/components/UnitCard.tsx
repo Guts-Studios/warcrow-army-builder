@@ -1,4 +1,4 @@
-import { Unit } from "@/types/army";
+import { Unit, Keyword } from "@/types/army";
 import UnitHeader from "./unit/UnitHeader";
 import UnitControls from "./unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,6 +26,17 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   
   // Translate unit name based on the selected language for display only
   const displayName = translateUnitName(unit.name);
+
+  // Normalize keywords to ensure they're all Keyword objects
+  const normalizedUnit: Unit = {
+    ...unit,
+    keywords: unit.keywords.map(keyword => {
+      if (typeof keyword === 'string') {
+        return { name: keyword, description: "" };
+      }
+      return keyword;
+    })
+  };
 
   // Improved function to generate the correct GitHub card URL based on the unit name 
   // Always using English names for file paths regardless of selected language
@@ -155,7 +166,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex-1">
           <UnitHeader 
-            unit={unit} 
+            unit={normalizedUnit} 
             mainName={displayName}
             portraitUrl={unit.imageUrl}
           />
@@ -175,7 +186,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       </div>
 
       <UnitCardKeywords 
-        unit={unit}
+        unit={normalizedUnit}
         isMobile={isMobile}
       />
       

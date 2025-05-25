@@ -3,6 +3,7 @@ import { ExtendedUnit } from '@/types/extendedUnit';
 import { GameSymbol } from './GameSymbol';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslateKeyword } from '@/utils/translationUtils';
+import { Keyword } from '@/types/army';
 
 interface UnitStatCardProps {
   unit: ExtendedUnit;
@@ -29,8 +30,16 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
     </div>
   );
 
-  // Remove duplicate keywords if any
-  const uniqueKeywords = unit.keywords ? [...new Set(unit.keywords)] : [];
+  // Normalize keywords to ensure they're all strings for display
+  const normalizedKeywords: string[] = unit.keywords ? unit.keywords.map(keyword => {
+    if (typeof keyword === 'string') {
+      return keyword;
+    }
+    return keyword.name;
+  }) : [];
+
+  // Remove duplicate keywords
+  const uniqueKeywords = [...new Set(normalizedKeywords)];
 
   // Choose either the extended unit format or use the stats object
   const commandValue = unit.command !== undefined ? unit.command : (unit.stats?.MOR !== undefined ? unit.stats.MOR : '-');
