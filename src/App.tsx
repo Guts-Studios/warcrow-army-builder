@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { SupabaseProvider } from "@/integrations/supabase/components/SupabaseProvider";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -36,59 +35,57 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionContextProvider supabaseClient={supabase}>
-        <SupabaseProvider>
-          <LanguageProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/army-builder" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ArmyBuilderPage />
-                    </Suspense>
-                  } />
-                  <Route path="/army-builder/:factionId" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ArmyBuilderPage />
-                    </Suspense>
-                  } />
-                  <Route path="/profile" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ProfilePage />
-                    </Suspense>
-                  } />
-                  <Route path="/profile/:wabId" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ProfilePage />
-                    </Suspense>
-                  } />
-                  <Route path="/units" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <UnitExplorer />
-                    </Suspense>
-                  } />
-                  <Route path="/rules" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <RulesPage />
-                    </Suspense>
-                  } />
-                  <Route path="/admin" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <AdminPage />
-                    </Suspense>
-                  } />
-                  <Route path="/admin/unit-validation" element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <UnitValidationPage />
-                    </Suspense>
-                  } />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </LanguageProvider>
-        </SupabaseProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/army-builder" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ArmyBuilderPage />
+                  </Suspense>
+                } />
+                <Route path="/army-builder/:factionId" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ArmyBuilderPage />
+                  </Suspense>
+                } />
+                <Route path="/profile" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ProfilePage />
+                  </Suspense>
+                } />
+                <Route path="/profile/:wabId" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <ProfilePage />
+                  </Suspense>
+                } />
+                <Route path="/units" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <UnitExplorer />
+                  </Suspense>
+                } />
+                <Route path="/rules" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <RulesPage />
+                  </Suspense>
+                } />
+                <Route path="/admin" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <AdminPage />
+                  </Suspense>
+                } />
+                <Route path="/admin/unit-validation" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <UnitValidationPage />
+                  </Suspense>
+                } />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </LanguageProvider>
       </SessionContextProvider>
     </QueryClientProvider>
   );
