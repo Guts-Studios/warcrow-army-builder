@@ -107,7 +107,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Join (Arquebusiers | Pioneers)", "Repeat a die"],
     imageUrl: "/art/card/gunnery_corporal_card.jpg"
   },
-  // War Surgeon - from CSV
+  // War Surgeon - FIXED: Ensure it's properly included
   {
     id: "war_surgeon",
     name: "War Surgeon",
