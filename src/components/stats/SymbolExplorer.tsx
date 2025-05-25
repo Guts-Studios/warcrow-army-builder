@@ -1,9 +1,9 @@
 
 import React from 'react';
-import UnitExplorer from './unit-explorer';
+import SymbolExplorer from './symbol-explorer/SymbolExplorer';
 
-const SymbolExplorer: React.FC = () => {
-  return <UnitExplorer />;
+const SymbolExplorerPage: React.FC = () => {
+  return <SymbolExplorer />;
 };
 
-export default SymbolExplorer;
+export default SymbolExplorerPage;

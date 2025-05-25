@@ -117,3 +117,29 @@ export const canAddUnit = (
   
   return true;
 };
+
+// Add missing utility functions that were imported but not defined
+export const normalizeFactionId = (factionId: string): string => {
+  if (!factionId) return '';
+  return factionId.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+};
+
+export const normalizeUnits = (units: Unit[]): Unit[] => {
+  return units.map(unit => ({
+    ...unit,
+    faction: normalizeFactionId(unit.faction),
+    faction_id: unit.faction_id ? normalizeFactionId(unit.faction_id) : normalizeFactionId(unit.faction)
+  }));
+};
+
+export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
+  const seen = new Map();
+  return units.filter(unit => {
+    const key = `${unit.id}_${unit.faction}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.set(key, true);
+    return true;
+  });
+};

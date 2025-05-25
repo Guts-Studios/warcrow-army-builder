@@ -195,7 +195,7 @@ const SymbolExplorer = () => {
                 </TableRow>
               ) : (
                 filteredUnits.map((unit, index) => (
-                  <TableRow key={`${unit.id}-${index}`} className="hover:bg-warcrow-accent/5">
+                  <TableRow key={`${unit.id}-${unit.faction}-${index}`} className="hover:bg-warcrow-accent/5">
                     <TableCell className="text-warcrow-text">{formatFactionName(unit.faction)}</TableCell>
                     <TableCell className="text-warcrow-text">{getUnitType(unit)}</TableCell>
                     <TableCell className="text-warcrow-text font-medium">{unit.name}</TableCell>
