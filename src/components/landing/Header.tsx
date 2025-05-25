@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import changelogContent from '../../../CHANGELOG.md?raw';
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { NewsItem, defaultNewsItems } from "@/data/newsArchive";
@@ -44,6 +43,38 @@ export const Header = ({
   const [isLoading, setIsLoading] = useState(true);
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
   const [loadingError, setLoadingError] = useState<string | null>(null);
+  const [changelogContent, setChangelogContent] = useState<string>("");
+  
+  // Function to fetch changelog content from the public path
+  const fetchChangelogContent = async () => {
+    try {
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/CHANGELOG.md?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Accept': 'text/plain, text/markdown'
+        },
+        cache: 'no-store'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch changelog: ${response.status}`);
+      }
+      
+      const content = await response.text();
+      setChangelogContent(content);
+    } catch (error) {
+      console.error('Failed to fetch changelog content:', error);
+      setChangelogContent("# Changelog\n\nFailed to load changelog content.");
+    }
+  };
+  
+  // Load changelog content on mount
+  useEffect(() => {
+    fetchChangelogContent();
+  }, []);
   
   // Function to directly fetch news from the database
   const fetchNewsFromDatabase = async () => {
