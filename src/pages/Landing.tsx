@@ -112,15 +112,29 @@ const checkLatestBuildStatus = async () => {
 };
 
 const Landing = () => {
+  console.log('Landing component rendering...');
+  
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
   const [showTesterDialog, setShowTesterDialog] = useState(false);
   const [buildFailures, setBuildFailures] = useState<any[]>([]);
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
-  const latestVersion = getLatestVersion(changelogContent);
+  
+  // Add error boundary for version loading
+  let latestVersion;
+  try {
+    latestVersion = getLatestVersion(changelogContent);
+    console.log('Latest version loaded:', latestVersion);
+  } catch (error) {
+    console.error('Error loading version:', error);
+    latestVersion = '1.0.0'; // Fallback version
+  }
+  
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated, isTester } = useAuth();
   const { isPreview } = useEnvironment();
+  
+  console.log('Auth state:', { isWabAdmin, isAuthenticated, isTester, isPreview });
   
   // Check if user has permission to see the Play Mode - Ensure guest users can't see it
   const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
@@ -218,9 +232,10 @@ const Landing = () => {
     checkAuthStatus();
   }, []);
 
+  console.log('Rendering Landing page with userCount:', userCount);
+
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
-      {/* Update the positioning of the language switcher and support button */}
       <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
         <SupportButton className="z-50" />
         <LanguageSwitcher />
