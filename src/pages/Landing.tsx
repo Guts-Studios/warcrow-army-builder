@@ -234,93 +234,118 @@ const Landing = () => {
 
   console.log('Rendering Landing page with userCount:', userCount);
 
-  return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
-      <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
-        <SupportButton className="z-50" />
-        <LanguageSwitcher />
-      </div>
-      
-      {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
-      {(!!isWabAdmin || isPreview) && latestFailedBuild && (
-        <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
-          <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
-            <AlertTriangle className="h-5 w-5 text-red-300" />
-            <AlertTitle className="text-red-100 text-lg font-bold">Latest Site Deployment Failed</AlertTitle>
-            <AlertDescription className="text-red-200">
-              <p className="mb-1">Site may be experiencing issues. {isWabAdmin ? "Please check deployment status." : "The team has been notified."}</p>
-              {isWabAdmin && (
-                <Button 
-                  variant="link" 
-                  className="p-0 h-auto text-blue-300 hover:text-blue-200"
-                  onClick={() => latestFailedBuild && window.open(latestFailedBuild.deploy_url, '_blank')}
-                >
-                  View deployment details
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
+  console.log('About to render main JSX...');
+
+  try {
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
+        {console.log('Rendering main container...')}
+        <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
+          {console.log('Rendering top navigation...')}
+          <SupportButton className="z-50" />
+          <LanguageSwitcher />
         </div>
-      )}
-      
-      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto mt-16 mb-16">
-        <Header 
-          latestVersion={latestVersion} 
-          userCount={userCount} 
-          isLoadingUserCount={isLoadingUserCount} 
-          latestFailedBuild={latestFailedBuild}
-        />
-        <MainActions />
         
-        {/* Play Mode Button - Only shown to testers or admins who are not guests */}
-        {canAccessPlayMode && (
-          <div className="flex justify-center">
-            <Button 
-              variant="outline"
-              className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
-              onClick={() => navigate('/play')}
-            >
-              <PlayCircle className="h-5 w-5" />
-              <span>{t('playMode')}</span>
-            </Button>
+        {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
+        {(!!isWabAdmin || isPreview) && latestFailedBuild && (
+          <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
+            {console.log('Rendering build failure alert...')}
+            <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
+              <AlertTriangle className="h-5 w-5 text-red-300" />
+              <AlertTitle className="text-red-100 text-lg font-bold">Latest Site Deployment Failed</AlertTitle>
+              <AlertDescription className="text-red-200">
+                <p className="mb-1">Site may be experiencing issues. {isWabAdmin ? "Please check deployment status." : "The team has been notified."}</p>
+                {isWabAdmin && (
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-blue-300 hover:text-blue-200"
+                    onClick={() => latestFailedBuild && window.open(latestFailedBuild.deploy_url, '_blank')}
+                  >
+                    View deployment details
+                  </Button>
+                )}
+              </AlertDescription>
+            </Alert>
           </div>
         )}
         
-        <SecondaryActions isGuest={isGuest} />
+        <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto mt-16 mb-16">
+          {console.log('Rendering Header component...')}
+          <Header 
+            latestVersion={latestVersion} 
+            userCount={userCount} 
+            isLoadingUserCount={isLoadingUserCount} 
+            latestFailedBuild={latestFailedBuild}
+          />
+          {console.log('Rendering MainActions component...')}
+          <MainActions />
+          
+          {/* Play Mode Button - Only shown to testers or admins who are not guests */}
+          {canAccessPlayMode && (
+            <div className="flex justify-center">
+              {console.log('Rendering Play Mode button...')}
+              <Button 
+                variant="outline"
+                className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
+                onClick={() => navigate('/play')}
+              >
+                <PlayCircle className="h-5 w-5" />
+                <span>{t('playMode')}</span>
+              </Button>
+            </div>
+          )}
+          
+          {console.log('Rendering SecondaryActions component...')}
+          <SecondaryActions isGuest={isGuest} />
 
-        <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
-          <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-warcrow-gold">
-                {t('testersOnly')}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-warcrow-text">
-                {t('testersOnlyDescription')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
-              {t('cancel')}
-            </AlertDialogCancel>
-          </AlertDialogContent>
-        </AlertDialog>
+          <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
+            <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-warcrow-gold">
+                  {t('testersOnly')}
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-warcrow-text">
+                  {t('testersOnlyDescription')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
+                {t('cancel')}
+              </AlertDialogCancel>
+            </AlertDialogContent>
+          </AlertDialog>
 
-        <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
-          <p>
-            {t('haveFeedback')}
-          </p>
-          <a 
-            href="mailto:warcrowarmy@gmail.com"
-            className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
-          >
-            {t('contactEmail')}
-          </a>
+          <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
+            {console.log('Rendering contact section...')}
+            <p>
+              {t('haveFeedback')}
+            </p>
+            <a 
+              href="mailto:warcrowarmy@gmail.com"
+              className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
+            >
+              {t('contactEmail')}
+            </a>
+          </div>
+        </div>
+        <div className="mt-auto w-full">
+          {console.log('Rendering Footer component...')}
+          <Footer />
+        </div>
+        {console.log('Finished rendering Landing page')}
+      </div>
+    );
+  } catch (error) {
+    console.error('Error rendering Landing component:', error);
+    return (
+      <div className="min-h-screen bg-red-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Error Loading Landing Page</h1>
+          <p>Check console for details</p>
+          <pre className="mt-4 text-sm">{error?.toString()}</pre>
         </div>
       </div>
-      <div className="mt-auto w-full">
-        <Footer />
-      </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Landing;
