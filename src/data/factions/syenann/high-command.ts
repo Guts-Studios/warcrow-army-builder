@@ -7,6 +7,7 @@ export const syenannHighCommand: Unit[] = [
     name: "Grand Captain",
     pointsCost: 30,
     faction: "syenann",
+    faction_id: "syenann",
     keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
@@ -27,6 +28,7 @@ export const syenannHighCommand: Unit[] = [
     name: "Lioslaith Coic Caledhee",
     pointsCost: 30,
     faction: "syenann",
+    faction_id: "syenann",
     keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
