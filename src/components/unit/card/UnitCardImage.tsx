@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
@@ -36,12 +37,22 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     
     let imageUrl: string;
     
-    // Special handling for Lady Télia
+    // Special handling for specific units with known issues
     if (unit.id === "lady-telia" || unit.name.includes("Lady Télia") || unit.name.includes("Lady Telia")) {
       imageUrl = language === 'es' ? "/art/card/lady_telia_card_sp.jpg" :
                 language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
                 "/art/card/lady_telia_card_en.jpg";
       console.log(`[UnitCardImage] Using special Lady Télia URL: ${imageUrl}`);
+    } else if (unit.name.includes("Darach Wildling")) {
+      imageUrl = language === 'es' ? "/art/card/darach_wildling_card_sp.jpg" :
+                language === 'fr' ? "/art/card/darach_wildling_card_fr.jpg" :
+                "/art/card/darach_wildling_card_en.jpg";
+      console.log(`[UnitCardImage] Using special Darach Wildling URL: ${imageUrl}`);
+    } else if (unit.name.includes("Mk-Os Automata") || unit.name.includes("MK-OS Automata")) {
+      imageUrl = language === 'es' ? "/art/card/mk-os_automata_card_sp.jpg" :
+                language === 'fr' ? "/art/card/mk-os_automata_card_fr.jpg" :
+                "/art/card/mk-os_automata_card_en.jpg";
+      console.log(`[UnitCardImage] Using special MK-OS Automata URL: ${imageUrl}`);
     } else {
       // Get language-specific URL for other units
       imageUrl = getLanguageSpecificUrl(unit.imageUrl);
@@ -154,7 +165,24 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       }
     }
     
-    // 2. If this is a JPG that failed, try PNG
+    // 2. Special fallbacks for known problematic units
+    if (unit.name.includes("Darach Wildling") && !alternateErrorShown) {
+      setAlternateErrorShown(true);
+      const fallbackUrl = "/art/card/darach_wildling_card.jpg";
+      console.log(`[UnitCardImage] Trying Darach Wildling fallback: ${fallbackUrl}`);
+      target.src = fallbackUrl;
+      return;
+    }
+    
+    if ((unit.name.includes("Mk-Os Automata") || unit.name.includes("MK-OS Automata")) && !alternateErrorShown) {
+      setAlternateErrorShown(true);
+      const fallbackUrl = "/art/card/mk_os_automata_card.jpg";
+      console.log(`[UnitCardImage] Trying MK-OS Automata fallback: ${fallbackUrl}`);
+      target.src = fallbackUrl;
+      return;
+    }
+    
+    // 3. If this is a JPG that failed, try PNG
     if (failedSrc.endsWith('.jpg') && !alternateErrorShown) {
       setAlternateErrorShown(true);
       
@@ -166,7 +194,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       return;
     }
     
-    // 3. Try with unit ID as last resort
+    // 4. Try with unit ID as last resort
     if (alternateErrorShown && fallbackAttempted) {
       const idUrl = `/art/card/${unit.id}_card`;
       let finalUrl;
@@ -185,7 +213,7 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
       return;
     }
     
-    // 4. Special handling for Northern Tribes as a last resort
+    // 5. Special handling for Northern Tribes as a last resort
     if (unit.name.toLowerCase().includes('northern') || 
         unit.faction?.toLowerCase().includes('northern') || 
         unit.name.toLowerCase().includes('tribe')) {

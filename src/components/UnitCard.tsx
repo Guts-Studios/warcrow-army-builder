@@ -59,6 +59,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       "Naergon Caladren": "naergon_caladren",
       "Eskold The Executioner": "eskold_the_executioner",
       "Mk-Os Automata": "mk-os_automata",
+      "MK-OS Automata": "mk-os_automata", // Alternative spelling
       "Iriavik Restless Pup": "iriavik_restless_pup",
       "Njord The Merciless": "njord_the_merciless",
       "Trabor Slepmund": "trabor_slepmund",

@@ -33,9 +33,13 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     
     let imageUrl: string;
     
-    // Special handling for Lady Télia
+    // Special handling for specific units with known naming issues
     if (name.includes("Lady Télia") || name.includes("Lady Telia")) {
       imageUrl = "/art/portrait/lady_telia_portrait.jpg";
+    } else if (name.includes("Darach Wildling")) {
+      imageUrl = "/art/portrait/darach_wildling_portrait.jpg";
+    } else if (name.includes("Mk-Os Automata") || name.includes("MK-OS Automata")) {
+      imageUrl = "/art/portrait/mk-os_automata_portrait.jpg";
     } else {
       imageUrl = generatePortraitUrl();
     }
@@ -130,6 +134,21 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     // If first attempt failed but we haven't tried a fallback yet, try a different naming pattern
     if (!fallbackAttempted && currentUrl) {
       setFallbackAttempted(true);
+      
+      // Special fallbacks for known problematic units
+      if (name.includes("Darach Wildling")) {
+        const fallbackUrl = "/art/portrait/darach_wildling_portrait.jpg";
+        console.log(`[AvatarPortrait] Trying Darach Wildling fallback: ${fallbackUrl}`);
+        setCurrentUrl(fallbackUrl);
+        return;
+      }
+      
+      if (name.includes("Mk-Os Automata") || name.includes("MK-OS Automata")) {
+        const fallbackUrl = "/art/portrait/mk_os_automata_portrait.jpg";
+        console.log(`[AvatarPortrait] Trying MK-OS Automata fallback: ${fallbackUrl}`);
+        setCurrentUrl(fallbackUrl);
+        return;
+      }
       
       // Try a simpler filename structure
       const simpleNameId = name.split(' ')[0].toLowerCase();
