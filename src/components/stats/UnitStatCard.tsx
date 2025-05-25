@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ExtendedUnit } from '@/types/extendedUnit';
 import { GameSymbol } from './GameSymbol';
@@ -30,16 +31,16 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
     </div>
   );
 
-  // Normalize keywords to ensure they're all strings for display
-  const normalizedKeywords: string[] = unit.keywords ? unit.keywords.map(keyword => {
+  // Normalize keywords to ensure they're all Keyword objects
+  const normalizedKeywords: Keyword[] = unit.keywords ? unit.keywords.map(keyword => {
     if (typeof keyword === 'string') {
-      return keyword;
+      return { name: keyword, description: "" };
     }
-    return keyword.name;
+    return keyword;
   }) : [];
 
   // Remove duplicate keywords
-  const uniqueKeywords = [...new Set(normalizedKeywords)];
+  const uniqueKeywords: Keyword[] = [...new Set(normalizedKeywords.map(k => k.name))].map(name => ({ name, description: "" }));
 
   // Choose either the extended unit format or use the stats object
   const commandValue = unit.command !== undefined ? unit.command : (unit.stats?.MOR !== undefined ? unit.stats.MOR : '-');
@@ -58,7 +59,7 @@ const UnitStatCard: React.FC<UnitStatCardProps> = ({
           <div className="flex flex-wrap gap-2">
             {uniqueKeywords.map((keyword, index) => (
               <span key={index} className="text-xs bg-warcrow-gold/20 border border-warcrow-gold px-2 py-1 rounded">
-                {keyword}
+                {keyword.name}
               </span>
             ))}
           </div>
