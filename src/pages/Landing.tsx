@@ -20,7 +20,6 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import changelogContent from '../../CHANGELOG.md?raw';
 import { Header } from "@/components/landing/Header";
 import { MainActions } from "@/components/landing/MainActions";
 import { SecondaryActions } from "@/components/landing/SecondaryActions";
@@ -111,6 +110,32 @@ const checkLatestBuildStatus = async () => {
   }
 };
 
+// Function to fetch changelog content from the public path
+const fetchChangelogContent = async () => {
+  try {
+    const timestamp = new Date().getTime();
+    const response = await fetch(`/CHANGELOG.md?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Accept': 'text/plain, text/markdown'
+      },
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch changelog: ${response.status}`);
+    }
+    
+    const content = await response.text();
+    return content;
+  } catch (error) {
+    console.error('Failed to fetch changelog content:', error);
+    return "# Changelog\n\nFailed to load changelog content.";
+  }
+};
+
 const Landing = () => {
   console.log('Landing component rendering...');
   
@@ -119,6 +144,16 @@ const Landing = () => {
   const [showTesterDialog, setShowTesterDialog] = useState(false);
   const [buildFailures, setBuildFailures] = useState<any[]>([]);
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
+  const [changelogContent, setChangelogContent] = useState<string>("");
+  
+  // Fetch changelog content on mount
+  useEffect(() => {
+    const loadChangelog = async () => {
+      const content = await fetchChangelogContent();
+      setChangelogContent(content);
+    };
+    loadChangelog();
+  }, []);
   
   // Add error boundary for version loading
   let latestVersion;
