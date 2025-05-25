@@ -48,9 +48,11 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     command: 0,
     keywords: [
       { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Infantry", description: "" },
+      { name: "Cover (BLK)", description: "" },
+      { name: "Immovable", description: "" }
     ],
-    specialRules: ["Cover (BLK)", "Immovable", "Shove (3)"],
+    specialRules: ["Shove (3)"],
     imageUrl: "/art/card/bulwarks_card.jpg"
   },
   // Black Legion Arquebusiers
@@ -65,9 +67,10 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     command: 0,
     keywords: [
       { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Infantry", description: "" },
+      { name: "Cover (BLK)", description: "" }
     ],
-    specialRules: ["Cover (BLK)", "Frightened"],
+    specialRules: ["Frightened"],
     imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
   },
   // Pioneers
@@ -83,9 +86,11 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     keywords: [
       { name: "Dwarf", description: "" },
       { name: "Ghent", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Infantry", description: "" },
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Scout", description: "" }
     ],
-    specialRules: ["Dispel (BLU)", "Scout", "Shove (3)", "Disarmed", "Trap", "Slowed"],
+    specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
     imageUrl: "/art/card/pioneers_card.jpg"
   },
   // Black Angels
@@ -100,9 +105,10 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     command: 0,
     keywords: [
       { name: "Cavalry", description: "" },
-      { name: "Human", description: "" }
+      { name: "Human", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" }
     ],
-    specialRules: ["Preferred Terrain (Rugged)", "Intimidating (2)"],
+    specialRules: ["Intimidating (2)"],
     imageUrl: "/art/card/black_angels_card.jpg"
   }
 ];

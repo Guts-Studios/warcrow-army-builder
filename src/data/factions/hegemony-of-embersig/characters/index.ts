@@ -2,42 +2,7 @@
 import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigCharacters: Unit[] = [
-  // Nadezhda Lazard, Champion of Embersig - NOT high command
-  {
-    id: "nadezhda_lazard_champion_of_embersig",
-    name: "Nadezhda Lazard, Champion of Embersig",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 30,
-    availability: 1,
-    highCommand: false,
-    command: 2,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" }
-    ],
-    specialRules: ["Join (Infantry)", "Disarmed", "Vulnerable"],
-    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
-  },
-  // Marhael The Refused - NOT high command, regular character
-  {
-    id: "marhael_the_refused",
-    name: "Marhael The Refused",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 35,
-    availability: 1,
-    highCommand: false,
-    command: 1,
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" }
-    ],
-    specialRules: ["Fearless", "Spellcaster", "Place (11)"],
-    imageUrl: "/art/card/marhael_the_refused_card.jpg"
-  },
-  // Aide - from CSV
+  // Aide
   {
     id: "aide",
     name: "Aide",
@@ -50,9 +15,11 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     keywords: [
       { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Elf", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
-    specialRules: ["Fearless", "Spellcaster", "Place (10)"],
+    specialRules: ["Place (10)"],
     imageUrl: "/art/card/aide_card.jpg"
   },
   // Corporal
@@ -85,9 +52,11 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     keywords: [
       { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Elf", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
-    specialRules: ["Fearless", "Spellcaster", "Slowed", "Impassable"],
+    specialRules: ["Slowed", "Impassable"],
     imageUrl: "/art/card/frostfire_herald_card.jpg"
   },
   // Gunnery Corporal
@@ -107,7 +76,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Join (Arquebusiers | Pioneers)", "Repeat a die"],
     imageUrl: "/art/card/gunnery_corporal_card.jpg"
   },
-  // War Surgeon - FIXED: Ensure it's properly included
+  // War Surgeon
   {
     id: "war_surgeon",
     name: "War Surgeon",
@@ -136,10 +105,49 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 2,
     keywords: [
       { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Scout", description: "" }
+    ],
+    specialRules: ["Join (Arquebusiers | Pioneers)", "Frightened", "Aim", "Repeat a Die"],
+    imageUrl: "/art/card/lady_telia_card.jpg"
+  },
+  // Marhael The Refused
+  {
+    id: "marhael_the_refused",
+    name: "Marhael the Refused",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    pointsCost: 35,
+    availability: 1,
+    highCommand: false,
+    command: 1,
+    keywords: [
+      { name: "Aestari", description: "" },
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
+    ],
+    specialRules: ["Place (11)"],
+    imageUrl: "/art/card/marhael_the_refused_card.jpg"
+  },
+  // Nadezhda Lazard, Champion of Embersig
+  {
+    id: "nadezhda_lazard_champion_of_embersig",
+    name: "Nadezhda Lazard, Champion of Embersig",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    pointsCost: 30,
+    availability: 1,
+    highCommand: false,
+    command: 2,
+    keywords: [
+      { name: "Character", description: "" },
       { name: "Human", description: "" }
     ],
-    specialRules: ["Elite", "Scout", "Join (Arquebusiers | Pioneers)", "Frightened", "Aim", "Repeat a Die"],
-    imageUrl: "/art/card/lady_telia_card.jpg"
+    specialRules: ["Join (Infantry)", "Disarmed", "Vulnerable"],
+    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   // Nayra Caladren
   {
@@ -155,9 +163,12 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
       { name: "Aestari", description: "" },
       { name: "Character", description: "" },
       { name: "Colossal Company", description: "" },
-      { name: "Elf", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
-    specialRules: ["Elite", "Fearless", "Spellcaster", "Disarmed", "Slowed", "Vulnerable"],
+    specialRules: ["Disarmed", "Slowed", "Vulnerable"],
     imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
   // Naergon Caladren
@@ -174,9 +185,10 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
       { name: "Aestari", description: "" },
       { name: "Character", description: "" },
       { name: "Colossal Company", description: "" },
-      { name: "Elf", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
-    specialRules: ["Spellcaster", "Place (5)", "Disarmed", "Displace (5)", "Frightened"],
+    specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
     imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
   // Trabor Slepmund
@@ -198,7 +210,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Dispel (BLU)", "Join (War Rig)", "Disarmed"],
     imageUrl: "/art/card/trabor_slepmund_card.jpg"
   },
-  // Gale Falchion - from CSV
+  // Gale Falchion
   {
     id: "gale_falchion",
     name: "Gale Falchion",
@@ -211,9 +223,10 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     keywords: [
       { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Elf", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
-    specialRules: ["Spellcaster"],
+    specialRules: [],
     imageUrl: "/art/card/gale_falchion_card.jpg"
   },
   // Engineer
@@ -234,7 +247,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Dispel (BLU)", "Join (Infantry | War Machine)"],
     imageUrl: "/art/card/engineer_card.jpg"
   },
-  // Ansera Noighman - from CSV
+  // Ansera Noighman
   {
     id: "ansera_noighman",
     name: "Ansera Noighman",
@@ -265,9 +278,10 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "" },
       { name: "Human", description: "" },
-      { name: "Mercenary", description: "" }
+      { name: "Mercenary", description: "" },
+      { name: "Ambusher", description: "" }
     ],
-    specialRules: ["Ambusher", "Place (5)"],
+    specialRules: ["Place (5)"],
     imageUrl: "/art/card/vercana_card.jpg"
   },
   // Strategos

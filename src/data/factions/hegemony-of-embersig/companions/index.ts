@@ -2,7 +2,7 @@
 import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigCompanions: Unit[] = [
-  // MK-OS Automata - Companion for Trabor Slepmund
+  // MK-OS Automata - Companion to Trabor Slepmund
   {
     id: "mk_os_automata",
     name: "MK-OS Automata",
@@ -14,6 +14,7 @@ export const hegemonyOfEmbersigCompanions: Unit[] = [
     command: 0,
     keywords: [],
     specialRules: [],
-    imageUrl: "/art/card/mk-os_automata_card.jpg"
+    companion: "trabor_slepmund",
+    imageUrl: "/art/card/mk_os_automata_card.jpg"
   }
 ];

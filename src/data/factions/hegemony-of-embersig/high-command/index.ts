@@ -35,7 +35,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
       { name: "High Command", description: "" },
       { name: "Human", description: "" }
     ],
-    specialRules: ["Bloodlust (Varank)", "Elite", "Join (Bucklermen | Bulwark)", "Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a Die"],
+    specialRules: ["Bloodlust (Varank)", "Elite", "Join (Bucklermen | Bulwark)", "Vulnerable", "Repeat a Die"],
     imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card.jpg"
   },
   // Amelia Hellbroth - High Command
