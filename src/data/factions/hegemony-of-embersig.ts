@@ -1,6 +1,6 @@
 
 import { Unit } from "@/types/army";
-import { hegemonyOfEmbersigUnits as importedUnits } from "./hegemony-of-embersig";
+import { hegemonyOfEmbersigUnits as importedUnits } from "./hegemony-of-embersig/index";
 
 // Explicitly set faction for all Hegemony units to ensure consistency
 const processedUnits = importedUnits.map(unit => ({
