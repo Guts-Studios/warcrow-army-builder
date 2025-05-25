@@ -3,6 +3,23 @@ import { Unit } from "@/types/army";
 
 export const northernTribesSpecialists: Unit[] = [
   {
+    id: "lotta",
+    name: "Lotta",
+    faction: "northern-tribes",
+    pointsCost: 25,
+    availability: 1,
+    command: 1,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
+      { name: "Raging", description: "" },
+    ],
+    specialRules: ["Disarmed", "Slowed", "Vulnerable", "Displace (X)", "Place (X)"],
+    highCommand: false,
+    imageUrl: "/art/card/lotta_card.jpg"
+  },
+  {
     id: "iriavik-restless-pup",
     name: "Iriavik Restless Pup",
     faction: "northern-tribes",
@@ -21,23 +38,6 @@ export const northernTribesSpecialists: Unit[] = [
     specialRules: ["Slowed", "Place (3)", "Immune to State", "Frightened"],
     highCommand: false,
     imageUrl: "/art/card/iriavik_restless_pup_card.jpg"
-  },
-  {
-    id: "lotta",
-    name: "Lotta",
-    faction: "northern-tribes",
-    pointsCost: 25,
-    availability: 1,
-    command: 1,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Orc", description: "" },
-      { name: "Join (Infantry, Orc)", description: "" },
-      { name: "Raging", description: "" },
-    ],
-    specialRules: ["Disarmed", "Slowed", "Vulnerable", "Displace (X)", "Place (X)"],
-    highCommand: false,
-    imageUrl: "/art/card/lotta_card.jpg"
   },
   {
     id: "selika",

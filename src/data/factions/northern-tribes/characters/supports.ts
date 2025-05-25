@@ -3,23 +3,6 @@ import { Unit } from "@/types/army";
 
 export const northernTribesSupports: Unit[] = [
   {
-    id: "wisemane",
-    name: "Wisemane",
-    faction: "northern-tribes",
-    pointsCost: 15,
-    availability: 1,
-    command: 0,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Orc", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Join (Infantry, Orc)", description: "" },
-    ],
-    specialRules: ["Vulnerable", "Fix a Die"],
-    highCommand: false,
-    imageUrl: "/art/card/wisemane_card.jpg"
-  },
-  {
     id: "darkmaster",
     name: "Darkmaster",
     faction: "northern-tribes",
@@ -36,6 +19,23 @@ export const northernTribesSupports: Unit[] = [
     specialRules: ["Scout", "Disarmed"],
     highCommand: false,
     imageUrl: "/art/card/darkmaster_card.jpg"
+  },
+  {
+    id: "wisemane",
+    name: "Wisemane",
+    faction: "northern-tribes",
+    pointsCost: 15,
+    availability: 1,
+    command: 0,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Join (Infantry, Orc)", description: "" },
+    ],
+    specialRules: ["Vulnerable", "Fix a Die"],
+    highCommand: false,
+    imageUrl: "/art/card/wisemane_card.jpg"
   },
   {
     id: "tattooist",
@@ -67,6 +67,7 @@ export const northernTribesSupports: Unit[] = [
     ],
     specialRules: ["Slowed", "Fix a Die"],
     highCommand: false,
-    imageUrl: "/art/card/coal_card.jpg"
+    imageUrl: "/art/card/coal_card.jpg",
+    companion: "iriavik-restless-pup"
   }
 ];

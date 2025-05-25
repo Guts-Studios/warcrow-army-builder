@@ -1,3 +1,4 @@
+
 export interface Unit {
   id: string;
   name: string;
@@ -37,6 +38,8 @@ export interface Faction {
 export interface ApiUnit {
   id: string;
   name: string;
+  name_es?: string;
+  name_fr?: string;
   faction: string;
   faction_id?: string;
   faction_display?: string;
@@ -51,3 +54,10 @@ export interface ApiUnit {
   };
   type: string;
 }
+
+export interface Keyword {
+  name: string;
+  description?: string;
+}
+
+export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";

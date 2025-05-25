@@ -3,41 +3,6 @@ import { Unit } from "@/types/army";
 
 export const northernTribesLeaders: Unit[] = [
   {
-    id: "njord-the-merciless",
-    name: "Njord, The Merciless",
-    faction: "northern-tribes",
-    pointsCost: 40,
-    availability: 1,
-    command: 2,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Varank", description: "" },
-      { name: "Berserker Rage", description: "" },
-      { name: "Join (Infantry, Varank)", description: "" },
-    ],
-    specialRules: ["Frightened", "Raging", "Fearless"],
-    highCommand: false,
-    imageUrl: "/art/card/njord_the_merciless_card.jpg"
-  },
-  {
-    id: "hersir",
-    name: "Hersir",
-    faction: "northern-tribes",
-    pointsCost: 25,
-    availability: 1,
-    command: 1,
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Varank", description: "" },
-      { name: "Berserker Rage", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Join (Infantry, Varank)", description: "" },
-    ],
-    specialRules: ["Disarmed"],
-    highCommand: false,
-    imageUrl: "/art/card/hersir_card.jpg"
-  },
-  {
     id: "contender",
     name: "Contender",
     faction: "northern-tribes",
@@ -69,6 +34,41 @@ export const northernTribesLeaders: Unit[] = [
     specialRules: ["Intimidating (X)", "Flee", "Slowed"],
     highCommand: false,
     imageUrl: "/art/card/evoker_card.jpg"
+  },
+  {
+    id: "hersir",
+    name: "Hersir",
+    faction: "northern-tribes",
+    pointsCost: 25,
+    availability: 1,
+    command: 1,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Berserker Rage", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
+    ],
+    specialRules: ["Disarmed"],
+    highCommand: false,
+    imageUrl: "/art/card/hersir_card.jpg"
+  },
+  {
+    id: "njord-the-merciless",
+    name: "Njord, The Merciless",
+    faction: "northern-tribes",
+    pointsCost: 40,
+    availability: 1,
+    command: 2,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Berserker Rage", description: "" },
+      { name: "Join (Infantry, Varank)", description: "" },
+    ],
+    specialRules: ["Frightened", "Raging", "Fearless"],
+    highCommand: false,
+    imageUrl: "/art/card/njord_the_merciless_card.jpg"
   },
   {
     id: "eskold-the-executioner",
