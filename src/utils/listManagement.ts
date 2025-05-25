@@ -13,27 +13,23 @@ export const fetchSavedLists = async (wabId?: string) => {
   try {
     const localListsJson = localStorage.getItem("armyLists");
     if (localListsJson) {
-      // Parse local lists and ensure they don't have user_id for proper display
       const parsedLists = JSON.parse(localListsJson);
-      localLists = parsedLists.map((list: SavedList) => {
-        // If it doesn't have user_id, keep as is
+      localLists = Array.isArray(parsedLists) ? parsedLists.map((list: SavedList) => {
+        // Ensure local lists don't have user_id
         if (!list.user_id) return list;
         
-        // Otherwise, strip out the user_id to ensure it shows as local
         const { user_id, ...listWithoutUserId } = list;
         return listWithoutUserId as SavedList;
-      });
+      }) : [];
       
       console.log(`Found ${localLists.length} local lists`);
     } else {
-      console.log("No local lists found in localStorage");
-      // Initialize empty array in localStorage if it doesn't exist
+      console.log("No local lists found, initializing empty array");
       localStorage.setItem("armyLists", JSON.stringify([]));
     }
   } catch (error) {
     console.error("Error parsing local lists:", error);
     toast.error("Error loading your local lists");
-    // Initialize empty array in localStorage if there was an error
     localStorage.setItem("armyLists", JSON.stringify([]));
     localLists = [];
   }
@@ -52,7 +48,7 @@ export const fetchSavedLists = async (wabId?: string) => {
       wabIdProvided: !!wabId 
     });
     
-    // If user is authenticated, fetch their lists first
+    // If user is authenticated, fetch their lists
     if (isAuthenticated) {
       console.log("Fetching cloud lists for authenticated user:", session.user.id);
       
@@ -71,7 +67,7 @@ export const fetchSavedLists = async (wabId?: string) => {
             id: list.id,
             name: list.name,
             faction: list.faction,
-            units: list.units,
+            units: Array.isArray(list.units) ? list.units : [],
             user_id: list.user_id,
             created_at: list.created_at,
             wab_id: list.wab_id
@@ -89,14 +85,11 @@ export const fetchSavedLists = async (wabId?: string) => {
         const wabLists = await fetchListsByWabId(wabId);
         
         if (Array.isArray(wabLists)) {
-          // Only add WAB lists that aren't already in the user's lists
           const existingIds = new Set(cloudLists.map(list => list.id));
           const newWabLists = wabLists.filter(list => !existingIds.has(list.id));
           
           cloudLists = [...cloudLists, ...newWabLists];
           console.log("Found additional cloud lists by WAB ID:", newWabLists.length);
-        } else {
-          console.error("fetchListsByWabId did not return an array:", wabLists);
         }
       } catch (wabError) {
         console.error("Error fetching WAB ID lists:", wabError);
@@ -118,10 +111,25 @@ export const saveListToStorage = (
   selectedFaction: string,
   validatedUnits: SelectedUnit[]
 ): SavedList => {
+  console.log(`[saveListToStorage] Saving list: ${nameToUse} for faction: ${selectedFaction} with ${validatedUnits.length} units`);
+  
+  // Validate inputs
+  if (!nameToUse || !nameToUse.trim()) {
+    throw new Error("List name is required");
+  }
+  
+  if (!selectedFaction) {
+    throw new Error("Faction is required");
+  }
+  
+  if (!Array.isArray(validatedUnits)) {
+    throw new Error("Units must be an array");
+  }
+
   // Create a new list object with explicitly no user_id property
   const newList: SavedList = {
     id: crypto.randomUUID(),
-    name: nameToUse,
+    name: nameToUse.trim(),
     faction: selectedFaction,
     units: validatedUnits,
     created_at: new Date().toISOString()
@@ -132,6 +140,12 @@ export const saveListToStorage = (
     // Update localStorage with the new list
     const existingListsJson = localStorage.getItem("armyLists");
     let existingLists = existingListsJson ? JSON.parse(existingListsJson) : [];
+    
+    // Ensure existing lists is an array
+    if (!Array.isArray(existingLists)) {
+      console.warn("[saveListToStorage] Existing lists was not an array, resetting to empty array");
+      existingLists = [];
+    }
     
     // Clean any existing lists to ensure they don't have user_id property
     existingLists = existingLists.map((list: SavedList) => {
@@ -144,7 +158,7 @@ export const saveListToStorage = (
     
     // Remove any existing list with the same name and faction
     const filteredLists = existingLists.filter((list: SavedList) => 
-      !(list.name === nameToUse && list.faction === selectedFaction)
+      !(list.name === nameToUse.trim() && list.faction === selectedFaction)
     );
     
     // Add the new list
@@ -152,10 +166,11 @@ export const saveListToStorage = (
     
     // Save to localStorage
     localStorage.setItem("armyLists", JSON.stringify(updatedLists));
-    console.log(`List saved to local storage: ${nameToUse} (${selectedFaction})`);
+    console.log(`[saveListToStorage] Successfully saved list to localStorage: ${nameToUse} (${selectedFaction})`);
   } catch (error) {
     console.error("Error saving list to storage:", error);
     toast.error("Failed to save list locally");
+    throw error;
   }
 
   return newList;
