@@ -126,7 +126,7 @@ export const NavDropdown = () => {
           
           <DropdownMenuItem 
             className="cursor-pointer hover:bg-warcrow-gold/10 text-warcrow-text"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/landing')}
           >
             Home
           </DropdownMenuItem>
