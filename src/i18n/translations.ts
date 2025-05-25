@@ -234,6 +234,18 @@ export const translations: TranslationsType = {
     fr: "Warcrow © 2024 Corvus Belli S.L. - Tous droits réservés. Ceci est un outil non officiel créé par des fans."
   },
   
+  // Add missing translations for Admin page
+  backToSite: {
+    en: "Back to Site",
+    es: "Volver al Sitio",
+    fr: "Retour au Site"
+  },
+  builder: {
+    en: "Builder",
+    es: "Constructor",
+    fr: "Constructeur"
+  },
+  
   // Include all landing page translations
   ...landingTranslations,
   
