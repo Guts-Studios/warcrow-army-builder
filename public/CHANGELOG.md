@@ -16,6 +16,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 - Playmode
 - Game sync during play mode
+- Filter by tournament legal or not
+
+## [0.5.10] - 2025-05-25
+
+### Fixed
+- Missing units again x2 but everything looks 100% locked down and images/portraits are good
+- Cleaned out old code
+- Updated the csv sheets format
+
   
 ## [0.5.9] - 2025-05-23
 
