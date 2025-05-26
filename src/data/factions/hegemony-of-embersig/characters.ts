@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigCharacters: Unit[] = [
@@ -162,7 +161,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Elite", "Fearless", "Spellcaster", "Disarmed", "Slowed", "Vulnerable"],
     imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
-  // Naegon Caladren
+  // Naegon Caladren - Updated with correct image path
   {
     id: "naegon_caladren",
     name: "Naegon Caladren",
@@ -179,7 +178,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
       { name: "Elf", description: "" }
     ],
     specialRules: ["Spellcaster", "Place (5)", "Disarmed", "Displace (5)", "Frightened"],
-    imageUrl: "/art/card/naegon_caladren_card.jpg"
+    imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
   // Trabor Slepmund
   {
