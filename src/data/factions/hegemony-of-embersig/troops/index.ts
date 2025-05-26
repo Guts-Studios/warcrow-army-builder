@@ -2,113 +2,99 @@
 import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigTroops: Unit[] = [
-  // Aggressors
+  {
+    id: "black-legion-arquebusiers",
+    name: "Black Legion Arquebusiers",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    pointsCost: 40,
+    availability: 3,
+    command: 0,
+    keywords: [
+      { name: "Infantry", description: "" },
+      { name: "Human", description: "" },
+      { name: "Ranged", description: "" }
+    ],
+    specialRules: ["Precise"],
+    imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
+  },
+  {
+    id: "black-legion-bucklermen",
+    name: "Black Legion Bucklermen",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    pointsCost: 35,
+    availability: 3,
+    command: 0,
+    keywords: [
+      { name: "Infantry", description: "" },
+      { name: "Human", description: "" },
+      { name: "Shield", description: "" }
+    ],
+    specialRules: ["Defensive"],
+    imageUrl: "/art/card/black_legion_bucklermen_card.jpg"
+  },
   {
     id: "aggressors",
     name: "Aggressors",
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
-    pointsCost: 40,
-    availability: 1,
-    highCommand: false,
+    pointsCost: 30,
+    availability: 3,
     command: 0,
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Infantry", description: "" },
+      { name: "Human", description: "" }
     ],
-    specialRules: ["Cancel a symbol", "Disarmed", "Shove (2)", "Displace (4)"],
+    specialRules: ["Aggressive"],
     imageUrl: "/art/card/aggressors_card.jpg"
   },
-  // Black Legion Bucklermen
-  {
-    id: "black_legion_bucklermen",
-    name: "Black Legion Bucklermen",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 20,
-    availability: 3,
-    highCommand: false,
-    command: 0,
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
-    ],
-    specialRules: [],
-    imageUrl: "/art/card/black_legion_bucklermen_card.jpg"
-  },
-  // Bulwarks
   {
     id: "bulwarks",
     name: "Bulwarks",
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
-    pointsCost: 35,
-    availability: 2,
-    highCommand: false,
+    pointsCost: 40,
+    availability: 3,
     command: 0,
     keywords: [
-      { name: "Human", description: "" },
       { name: "Infantry", description: "" },
-      { name: "Cover (BLK)", description: "" },
-      { name: "Immovable", description: "" }
+      { name: "Human", description: "" },
+      { name: "Heavy", description: "" }
     ],
-    specialRules: ["Shove (3)"],
+    specialRules: ["Sturdy"],
     imageUrl: "/art/card/bulwarks_card.jpg"
   },
-  // Black Legion Arquebusiers
-  {
-    id: "black_legion_arquebusiers",
-    name: "Black Legion Arquebusiers",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 30,
-    availability: 2,
-    highCommand: false,
-    command: 0,
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Cover (BLK)", description: "" }
-    ],
-    specialRules: ["Frightened"],
-    imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
-  },
-  // Pioneers
   {
     id: "pioneers",
     name: "Pioneers",
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
-    pointsCost: 35,
-    availability: 1,
-    highCommand: false,
+    pointsCost: 25,
+    availability: 3,
     command: 0,
     keywords: [
-      { name: "Dwarf", description: "" },
-      { name: "Ghent", description: "" },
       { name: "Infantry", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Scout", description: "" }
+      { name: "Human", description: "" },
+      { name: "Engineer", description: "" }
     ],
-    specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
+    specialRules: ["Builder"],
     imageUrl: "/art/card/pioneers_card.jpg"
   },
-  // Black Angels
   {
-    id: "black_angels",
+    id: "black-angels",
     name: "Black Angels",
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
-    pointsCost: 30,
-    availability: 1,
-    highCommand: false,
-    command: 0,
+    pointsCost: 50,
+    availability: 2,
+    command: 1,
     keywords: [
-      { name: "Cavalry", description: "" },
+      { name: "Infantry", description: "" },
       { name: "Human", description: "" },
-      { name: "Preferred Terrain (Rugged)", description: "" }
+      { name: "Elite", description: "" }
     ],
-    specialRules: ["Intimidating (2)"],
+    specialRules: ["Fearless", "Elite"],
     imageUrl: "/art/card/black_angels_card.jpg"
   }
 ];
