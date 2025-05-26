@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import UnitCsvValidator from '@/utils/validateUnitCsvData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,7 +68,7 @@ const CsvUnitValidationPage: React.FC = () => {
             value="scions-of-yaldabaoth"
             className="data-[state=active]:bg-warcrow-accent/20 data-[state=active]:text-warcrow-gold"
           >
-            Scions of Yaldabaoth
+            Scions of Taldabaoth
           </TabsTrigger>
         </TabsList>
         

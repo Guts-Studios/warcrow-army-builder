@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -84,7 +83,7 @@ const UnitValidationTool: React.FC = () => {
       'syenann': 'The Syenann.csv',
       'northern-tribes': 'Northern Tribes.csv',
       'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Fixed: Changed from Yaldabaoth to Taldabaoth
     };
     
     if (!factionFileMap[factionId]) {

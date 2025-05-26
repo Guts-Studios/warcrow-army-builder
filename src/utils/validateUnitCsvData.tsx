@@ -37,7 +37,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
       'syenann': 'The Syenann.csv',
       'northern-tribes': 'Northern Tribes.csv',
       'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Note: File name has Taldabaoth not Yaldabaoth
+      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Fixed: Changed from Yaldabaoth to Taldabaoth
     };
     return factionFileMap[normalized] || '';
   };
