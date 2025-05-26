@@ -178,7 +178,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
       { name: "Elf", description: "" }
     ],
     specialRules: ["Spellcaster", "Place (5)", "Disarmed", "Displace (5)", "Frightened"],
-    imageUrl: "/art/card/naergon_caladren_card.jpg"
+    imageUrl: "/art/card/naergon_caladren_card_en.jpg"
   },
   // Trabor Slepmund
   {
