@@ -12,41 +12,37 @@ import { useTranslateKeyword } from "@/utils/translationUtils";
 import { characteristicDefinitions } from "@/data/characteristicDefinitions";
 
 interface CharacteristicsSectionProps {
-  keywords: Keyword[];
+  characteristics?: Keyword[];
   highCommand?: boolean;
 }
 
 // List of known characteristic types - keep this in sync with characteristicDefinitions.ts
 const characteristicTypes = Object.keys(characteristicDefinitions);
 
-const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
+const CharacteristicsSection = ({ characteristics = [], highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
   const { language } = useLanguage();
   const { translateCharacteristic, translateCharacteristicDescription } = useTranslateKeyword();
   
-  // Extract keyword names
-  const keywordNames = keywords.map(k => typeof k === 'string' ? k : k.name);
-  console.log('Keywords from unit:', keywordNames);
-  
-  // Filter to only show keywords that are characteristics and ensure no duplicates
-  let characteristics = keywordNames.filter(name => 
-    characteristicTypes.includes(name)
-  );
+  // Extract characteristic names
+  const characteristicNames = characteristics.map(c => typeof c === 'string' ? c : c.name);
+  console.log('Characteristics from unit:', characteristicNames);
   
   // Add High Command if provided and not already included
-  if (highCommand && !characteristics.includes("High Command")) {
-    characteristics.push("High Command");
+  let displayCharacteristics = [...characteristicNames];
+  if (highCommand && !displayCharacteristics.includes("High Command")) {
+    displayCharacteristics.push("High Command");
     console.log('Added High Command characteristic');
   }
   
   // Remove duplicates by converting to Set and back to array
-  characteristics = [...new Set(characteristics)];
+  displayCharacteristics = [...new Set(displayCharacteristics)];
   
-  console.log('Characteristics to display:', characteristics);
+  console.log('Characteristics to display:', displayCharacteristics);
   
   // If no characteristics, don't render anything
-  if (characteristics.length === 0) {
+  if (displayCharacteristics.length === 0) {
     console.log('No characteristics to display');
     return null;
   }
@@ -74,7 +70,7 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
 
   return (
     <div className="flex flex-wrap gap-1 items-center">
-      {characteristics.map((characteristic) => (
+      {displayCharacteristics.map((characteristic) => (
         isMobile ? (
           <button 
             key={characteristic}
