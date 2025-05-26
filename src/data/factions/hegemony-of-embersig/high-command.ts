@@ -7,6 +7,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     id: "hetman",
     name: "Hetman",
     faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     pointsCost: 25,
     availability: 1,
     highCommand: true,
@@ -24,6 +25,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     id: "dragoslav_bjelogrc_drago_the_anvil",
     name: "Dragoslav Bjelogríc, Drago the Anvil",
     faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
     highCommand: true,
@@ -33,7 +35,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
       { name: "High Command", description: "" },
       { name: "Human", description: "" }
     ],
-    specialRules: ["Bloodlust (Varank)", "Elite", "Join (Bucklermen | Bulwark)"],
+    specialRules: ["Bloodlust (Varank)", "Elite", "Join (Bucklermen | Bulwark)", "Vulnerable", "Repeat a Die"],
     imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card.jpg"
   },
   // Amelia Hellbroth
@@ -41,6 +43,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     id: "amelia_hellbroth",
     name: "Amelia Hellbroth",
     faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     pointsCost: 40,
     availability: 1,
     highCommand: true,
@@ -51,8 +54,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
       { name: "High Command", description: "" },
       { name: "Human", description: "" }
     ],
-    specialRules: ["Elite", "Join (Infantry)"],
+    specialRules: ["Elite", "Join (Infantry)", "Vulnerable", "Disarmed"],
     imageUrl: "/art/card/amelia_hellbroth_card.jpg"
   }
-  // Nadezhda Lazard and Marhael removed from high command since they are not high command units
 ];

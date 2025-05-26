@@ -17,7 +17,7 @@ export const hegemonyOfEmbersigCompanions: Unit[] = [
       { name: "Companion", description: "" }
     ],
     specialRules: [],
-    companion: "trabor-slepmund",
+    companion: "trabor_slepmund",
     imageUrl: "/art/card/mk-os_automata_card.jpg"
   }
 ];
