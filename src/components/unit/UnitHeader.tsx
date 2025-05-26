@@ -1,5 +1,5 @@
 
-import { Unit } from "@/types/army";
+import { Unit, Keyword } from "@/types/army";
 import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
 
 interface UnitHeaderProps {
@@ -10,6 +10,13 @@ interface UnitHeaderProps {
 
 const UnitHeader = ({ unit, mainName, portraitUrl }: UnitHeaderProps) => {
   const displayName = mainName || unit.name;
+
+  // Normalize characteristics to Keyword[] format
+  const normalizedCharacteristics: Keyword[] = unit.characteristics?.map(char => 
+    typeof char === 'string' 
+      ? { name: char, description: '' }
+      : char
+  ) || [];
 
   return (
     <div className="space-y-2">
@@ -38,7 +45,7 @@ const UnitHeader = ({ unit, mainName, portraitUrl }: UnitHeaderProps) => {
       </div>
       
       <CharacteristicsSection 
-        characteristics={unit.characteristics}
+        characteristics={normalizedCharacteristics}
         highCommand={unit.highCommand}
       />
     </div>
