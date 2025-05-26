@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
