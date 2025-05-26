@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -8,11 +7,10 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 20,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" }
     ],
-    keywords: [],
     highCommand: false,
     availability: 1,
     command: 1,
@@ -25,13 +23,11 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 20,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
       { name: "Nemorous", description: "" },
-      { name: "Syenann", description: "" }
-    ],
-    keywords: [
+      { name: "Syenann", description: "" },
       { name: "Join (Infantry, Synann)", description: "Can join Infantry Syenann units" },
       { name: "Spellcaster", description: "Can cast spells" }
     ],
@@ -47,14 +43,12 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 35,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
       { name: "Colossal Company", description: "" },
       { name: "Nemorous", description: "" },
-      { name: "Syenann", description: "" }
-    ],
-    keywords: [
+      { name: "Syenann", description: "" },
       { name: "Aim", description: "" },
       { name: "Ambusher", description: "" }
     ],
@@ -69,13 +63,11 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 25,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "Can cast spells" },
       { name: "Syenann", description: "" }
-    ],
-    keywords: [
-      { name: "Spellcaster", description: "Can cast spells" }
     ],
     highCommand: false,
     availability: 1,
@@ -89,18 +81,16 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 25,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Ashen", description: "" },
       { name: "Character", description: "" },
       { name: "Colossal Company", description: "" },
       { name: "Elf", description: "" },
       { name: "Nemourous", description: "" },
       { name: "Syenann", description: "" },
-      { name: "Tinge", description: "" }
-    ],
-    keywords: [
       { name: "Intimidating (1)", description: "Causes fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" }
+      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Tinge", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -114,12 +104,10 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 30,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "Character unit type" },
       { name: "Human", description: "Human race" },
-      { name: "Mercenary", description: "Can be hired by different factions" }
-    ],
-    keywords: [
+      { name: "Mercenary", description: "Can be hired by different factions" },
       { name: "Ambusher", description: "Has ambush abilities" }
     ],
     highCommand: false,
@@ -134,12 +122,10 @@ export const syenannCharacters: Unit[] = [
     pointsCost: 35,
     faction: "syenann",
     faction_id: "syenann",
-    characteristics: [
+    keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
-      { name: "Syenann", description: "" }
-    ],
-    keywords: [
+      { name: "Syenann", description: "" },  
       { name: "Scout", description: "" }
     ],
     highCommand: false,

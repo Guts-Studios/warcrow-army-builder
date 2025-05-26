@@ -1,53 +1,41 @@
 
 import { Unit, Keyword } from "@/types/army";
+import AvatarPortrait from "./header/AvatarPortrait";
+import UnitTitle from "./header/UnitTitle";
 import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
 
 interface UnitHeaderProps {
   unit: Unit;
-  mainName?: string;
+  mainName: string;
+  subtitle?: string;
   portraitUrl?: string;
 }
 
-const UnitHeader = ({ unit, mainName, portraitUrl }: UnitHeaderProps) => {
-  const displayName = mainName || unit.name;
-
-  // Normalize characteristics to Keyword[] format
-  const normalizedCharacteristics: Keyword[] = unit.characteristics?.map(char => 
-    typeof char === 'string' 
-      ? { name: char, description: '' }
-      : char
-  ) || [];
+const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) => {
+  // Normalize keywords to ensure they're all Keyword objects
+  const normalizedKeywords: Keyword[] = unit.keywords.map(keyword => {
+    if (typeof keyword === 'string') {
+      return { name: keyword, description: "" };
+    }
+    return keyword;
+  });
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-start gap-3">
-        {portraitUrl && (
-          <img 
-            src={portraitUrl} 
-            alt={`${displayName} portrait`}
-            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
+    <div className="flex items-start gap-2">
+      <AvatarPortrait portraitUrl={portraitUrl} name={mainName} />
+      <div className="space-y-1">
+        <UnitTitle 
+          mainName={mainName}
+          subtitle={subtitle}
+          command={unit.command || Boolean(unit.command)}
+        />
+        <div className="mt-0.5">
+          <CharacteristicsSection 
+            keywords={normalizedKeywords}
+            highCommand={unit.highCommand}
           />
-        )}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-warcrow-text truncate">
-            {displayName}
-          </h3>
-          {unit.availability > 1 && (
-            <p className="text-xs text-warcrow-text/70">
-              Max {unit.availability}
-            </p>
-          )}
         </div>
       </div>
-      
-      <CharacteristicsSection 
-        characteristics={normalizedCharacteristics}
-        highCommand={unit.highCommand}
-      />
     </div>
   );
 };

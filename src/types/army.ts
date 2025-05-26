@@ -7,8 +7,7 @@ export interface Unit {
   pointsCost: number;
   availability: number;
   command?: number;
-  characteristics?: Array<{ name: string; description?: string } | string>;
-  keywords?: Array<{ name: string; description?: string } | string>;
+  keywords: Array<{ name: string; description?: string } | string>;
   specialRules?: string[];
   highCommand?: boolean;
   imageUrl?: string;
