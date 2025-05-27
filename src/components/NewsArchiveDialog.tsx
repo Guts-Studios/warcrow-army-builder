@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -47,17 +48,16 @@ const NewsArchiveDialog: React.FC<NewsArchiveDialogProps> = ({ open, onOpenChang
         .order('date', { ascending: false });
 
       if (error) {
-        console.error('Error fetching news items:', error);
+        console.error('NewsArchiveDialog: Error fetching news items:', error);
         return;
       }
 
       if (data) {
-        console.log(`Directly fetched ${data.length} news items from database`);
-        console.log("NewsArchiveDialog: Got direct items:", data.length);
+        console.log(`NewsArchiveDialog: Fetched ${data.length} news items from database`);
         setNewsItems(data);
       }
     } catch (error) {
-      console.error('Error in fetchNewsItems:', error);
+      console.error('NewsArchiveDialog: Error in fetchNewsItems:', error);
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +66,26 @@ const NewsArchiveDialog: React.FC<NewsArchiveDialogProps> = ({ open, onOpenChang
   // Fetch news when dialog opens and auth is resolved
   useEffect(() => {
     if (open && isAuthResolved) {
+      console.log("NewsArchiveDialog: Dialog opened and auth resolved, fetching news");
       fetchNewsItems();
     }
   }, [open, isAuthResolved]);
+
+  // Subscribe to auth changes and refetch if needed
+  useEffect(() => {
+    if (!authLoading) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("NewsArchiveDialog: Auth state changed:", event, { hasUser: !!session?.user });
+        
+        // Refetch if user signs in and dialog is open
+        if (event === 'SIGNED_IN' && open) {
+          setTimeout(() => fetchNewsItems(), 100);
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [authLoading, open]);
 
   const getContent = (item: NewsItem): string => {
     switch (language) {
@@ -105,7 +122,12 @@ const NewsArchiveDialog: React.FC<NewsArchiveDialogProps> = ({ open, onOpenChang
         </DialogHeader>
         
         <div className="space-y-6 mt-6">
-          {isLoading ? (
+          {!isAuthResolved ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold mx-auto mb-4"></div>
+              <p className="text-warcrow-text/70">Waiting for authentication...</p>
+            </div>
+          ) : isLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold mx-auto mb-4"></div>
               <p className="text-warcrow-text/70">{t('loadingNews')}</p>

@@ -26,20 +26,20 @@ const Landing = () => {
   const { isAuthenticated, isWabAdmin, isLoading: authLoading } = useAuth();
   const { isPreview } = useEnvironment();
 
-  console.log("Auth state:", { isWabAdmin, isAuthenticated, isPreview });
+  console.log("Landing Auth state:", { isWabAdmin, isAuthenticated, isPreview, authLoading });
 
   // Wait for auth to be resolved before fetching data
   const isAuthResolved = !authLoading && isAuthenticated !== null;
 
   const fetchUserCount = async () => {
     if (!isAuthResolved) {
-      console.log("Skipping user count fetch - auth not resolved yet");
+      console.log("Landing: Skipping user count fetch - auth not resolved yet");
       return;
     }
 
     setIsLoadingUserCount(true);
     try {
-      console.log("Fetching user count...");
+      console.log("Landing: Fetching user count...");
       const { count, error } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
@@ -49,7 +49,7 @@ const Landing = () => {
         setUserCount(489); // Fallback
       } else {
         setUserCount(count || 489);
-        console.log(`User count fetched: ${count}`);
+        console.log(`Landing: User count fetched: ${count}`);
       }
     } catch (error) {
       console.error('Error in fetchUserCount:', error);
@@ -61,13 +61,13 @@ const Landing = () => {
 
   const fetchLatestNews = async () => {
     if (!isAuthResolved) {
-      console.log("Skipping news fetch - auth not resolved yet");
+      console.log("Landing: Skipping news fetch - auth not resolved yet");
       return;
     }
 
     setIsLoadingNews(true);
     try {
-      console.log("Fetching latest news...");
+      console.log("Landing: Fetching latest news...");
       const { data, error } = await supabase
         .from('news_items')
         .select('*')
@@ -76,9 +76,9 @@ const Landing = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching latest news:', error);
+        console.error('Landing: Error fetching latest news:', error);
       } else if (data) {
-        console.log("Fetched latest news item from database:", data);
+        console.log("Landing: Fetched latest news item from database:", data);
         setLatestNews({
           id: data.news_id,
           date: data.date,
@@ -86,7 +86,7 @@ const Landing = () => {
         });
       }
     } catch (error) {
-      console.error('Error in fetchLatestNews:', error);
+      console.error('Landing: Error in fetchLatestNews:', error);
     } finally {
       setIsLoadingNews(false);
     }
@@ -95,7 +95,7 @@ const Landing = () => {
   // Fetch data when auth is resolved
   useEffect(() => {
     if (isAuthResolved) {
-      console.log("Auth resolved, fetching data...");
+      console.log("Landing: Auth resolved, fetching data...");
       fetchUserCount();
       fetchLatestNews();
     }
@@ -104,12 +104,13 @@ const Landing = () => {
   // Subscribe to auth state changes and refetch data
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, { hasUser: !!session?.user });
+      console.log("Landing: Auth state changed:", event, { hasUser: !!session?.user });
       
-      // Refetch data when user signs in/out
+      // Refetch data when user signs in/out, but only if auth is no longer loading
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         setTimeout(() => {
           if (!authLoading) {
+            console.log("Landing: Refetching data after auth change");
             fetchUserCount();
             fetchLatestNews();
           }
@@ -120,7 +121,7 @@ const Landing = () => {
     return () => subscription.unsubscribe();
   }, [authLoading]);
 
-  console.log(`Rendering Landing page with userCount: ${userCount}`);
+  console.log(`Landing: Rendering with userCount: ${userCount}, authResolved: ${isAuthResolved}`);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col">
@@ -153,7 +154,9 @@ const Landing = () => {
 
           <div className="text-center text-warcrow-text/70">
             <p className="text-sm">
-              {isLoadingUserCount ? 'Loading...' : `Join ${userCount.toLocaleString()} commanders`} already building their armies
+              {!isAuthResolved ? 'Loading user data...' : 
+               isLoadingUserCount ? 'Loading...' : 
+               `Join ${userCount.toLocaleString()} commanders`} already building their armies
             </p>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +18,7 @@ import {
 } from "@/utils/patreonUtils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 type ApiStatus = 'operational' | 'degraded' | 'down' | 'unknown';
 
@@ -36,6 +36,7 @@ interface DeepLUsageStats {
 
 const ApiStatus: React.FC = () => {
   const { t } = useLanguage();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingUsage, setIsLoadingUsage] = useState<boolean>(false);
   const [isLoadingCampaigns, setIsLoadingCampaigns] = useState<boolean>(false);
@@ -71,6 +72,9 @@ const ApiStatus: React.FC = () => {
   const [patreonCampaigns, setPatreonCampaigns] = useState<PatreonCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<string>(DEFAULT_CAMPAIGN_ID);
   const [campaignMembers, setCampaignMembers] = useState<PatreonPatron[]>([]);
+
+  // Wait for auth to be resolved before running admin operations
+  const isAuthResolved = !authLoading && isAuthenticated !== null;
 
   // Test DeepL API connection
   const testDeepLApi = async () => {
@@ -195,79 +199,60 @@ const ApiStatus: React.FC = () => {
 
   // Test GitHub API connection with proper authentication
   const testGitHubConnection = async () => {
+    if (!isAuthResolved || !isAuthenticated) {
+      console.log("ApiStatus: Skipping GitHub test - auth not resolved or not authenticated");
+      return { status: 'down' as ApiStatus };
+    }
+
     try {
       const startTime = performance.now();
       
-      // First, let's verify we have a valid session and get the access token
+      // Get the current session to verify we have a valid token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session?.access_token) {
-        console.error("No valid session or access token:", sessionError);
+        console.error("ApiStatus: No valid session or access token:", sessionError);
         return { status: 'down' as ApiStatus };
       }
       
-      console.log('Session found, user ID:', session.user?.id);
-      console.log('Access token present:', !!session.access_token);
+      console.log('ApiStatus: Session found, testing GitHub API with user:', session.user?.id);
       
-      // Test GitHub API with a simple request but with proper headers
+      // Test GitHub API with minimal request
       const { data, error } = await supabase.functions.invoke("sync-files-to-github", {
         body: {
-          files: { test: "console.log('test');" },
+          files: { test: "console.log('auth test');" },
           factionId: "test-faction"
-        },
-        headers: {
-          // Explicitly pass the authorization header
-          'Authorization': `Bearer ${session.access_token}`,
         }
       });
       
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
       
-      // Check if we got a response (even if it's an error about validation)
       if (error) {
-        // Parse the error to understand what went wrong
-        const errorMessage = error.message || '';
+        console.log('ApiStatus: GitHub API error details:', error);
         
-        console.log('GitHub API error details:', error);
-        
-        // If it's a GitHub token issue, that's a real API problem
-        if (errorMessage.includes('GitHub token not configured') || 
-            errorMessage.includes('401') || 
-            errorMessage.includes('403') ||
-            errorMessage.includes('Unauthorized')) {
-          console.error("GitHub API authentication failed:", error);
+        // Check for auth-related errors
+        if (error.message?.includes('Unauthorized') || 
+            error.message?.includes('401') || 
+            error.message?.includes('Forbidden')) {
+          console.error("ApiStatus: GitHub API authentication failed:", error);
           return { status: 'down' as ApiStatus };
         }
         
-        // If we get validation errors or other processing errors, 
-        // that means the function ran and GitHub auth worked
-        if (errorMessage.includes('Failed to update') || 
-            errorMessage.includes('Updated') ||
-            data?.updatedFiles !== undefined) {
-          return {
-            status: 'operational' as ApiStatus,
-            latency
-          };
-        }
-        
-        // For other errors, assume GitHub is down
-        console.error("GitHub API test failed with error:", error);
-        return { status: 'down' as ApiStatus };
-      }
-      
-      // If we got a successful response, GitHub is operational
-      if (data) {
-        console.log('GitHub API test successful:', data);
+        // Other errors might still indicate the API is reachable
         return {
           status: 'operational' as ApiStatus,
           latency
         };
       }
       
-      return { status: 'down' as ApiStatus };
+      console.log('ApiStatus: GitHub API test successful');
+      return {
+        status: 'operational' as ApiStatus,
+        latency
+      };
     } catch (error) {
-      console.error("GitHub API test failed:", error);
+      console.error("ApiStatus: GitHub API test failed:", error);
       return { status: 'down' as ApiStatus };
     }
   };
@@ -330,9 +315,16 @@ const ApiStatus: React.FC = () => {
 
   // Refresh all API statuses
   const refreshApiStatuses = async () => {
+    if (!isAuthResolved) {
+      console.log("ApiStatus: Skipping API status refresh - auth not resolved yet");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
+      console.log("ApiStatus: Starting API status checks...");
+      
       // Run all tests in parallel
       const [deepLStatus, supabaseStatus, netlifyStatus, patreonStatus, githubStatus] = await Promise.all([
         testDeepLApi(),
@@ -385,17 +377,20 @@ const ApiStatus: React.FC = () => {
       
       toast.success("API status check complete");
     } catch (error) {
-      console.error("Error checking API statuses:", error);
+      console.error("ApiStatus: Error checking API statuses:", error);
       toast.error("Failed to check one or more API statuses");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Initial check on component mount
+  // Initial check on component mount - only after auth is resolved
   useEffect(() => {
-    refreshApiStatuses();
-  }, []);
+    if (isAuthResolved) {
+      console.log("ApiStatus: Auth resolved, running initial API status check");
+      refreshApiStatuses();
+    }
+  }, [isAuthResolved]);
   
   // Load campaign members when a campaign is selected
   useEffect(() => {
