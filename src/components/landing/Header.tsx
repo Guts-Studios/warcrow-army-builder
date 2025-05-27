@@ -1,6 +1,7 @@
+
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NewsArchiveDialog from "./NewsArchiveDialog";
+import NewsArchiveDialog from "@/components/landing/NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Loader2 } from "lucide-react";
@@ -26,6 +27,7 @@ interface HeaderProps {
   isLoadingUserCount: boolean;
   latestFailedBuild?: any;
   onRefreshUserCount?: () => void;
+  authReady?: boolean; // New prop to indicate auth state is ready
 }
 
 export const Header = ({ 
@@ -33,10 +35,11 @@ export const Header = ({
   userCount, 
   isLoadingUserCount, 
   latestFailedBuild,
-  onRefreshUserCount 
+  onRefreshUserCount,
+  authReady = false // Default to false for safety
 }: HeaderProps) => {
   const { t } = useLanguage();
-  const { isWabAdmin } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
   const { isPreview } = useEnvironment();
   const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
@@ -81,14 +84,9 @@ export const Header = ({
     try {
       console.log("Header: Directly fetching news from database with timestamp:", new Date().toISOString());
       
-      // Use mock data in preview mode, BUT only as fallback
       if (isPreview) {
         console.log("Header: Preview environment detected, trying to fetch real data first");
-        // Try to fetch real data first, use mock only as fallback
       }
-      
-      // Direct database fetch with cache busting
-      const timestamp = new Date().getTime();
       
       const { data, error } = await supabase
         .from('news_items')
@@ -100,7 +98,6 @@ export const Header = ({
       if (error) {
         console.error("Error fetching news from database:", error);
         
-        // If in preview mode and fetch failed, use mock data
         if (isPreview) {
           console.log("Header: Using mock news data in preview mode after fetch failure");
           return {
@@ -116,7 +113,6 @@ export const Header = ({
       if (!data || data.length === 0) {
         console.log("No news items found in database");
         
-        // If in preview mode and no data, use mock data
         if (isPreview) {
           console.log("Header: Using mock news data in preview mode because no real data found");
           return {
@@ -131,7 +127,6 @@ export const Header = ({
       
       console.log("Fetched latest news item from database:", data[0]);
       
-      // Add translations for the news item
       const item = data[0];
       translations[item.translation_key] = {
         en: item.content_en || "No content available",
@@ -147,7 +142,6 @@ export const Header = ({
     } catch (error) {
       console.error("Error in fetchNewsFromDatabase:", error);
       
-      // If in preview mode and fetch failed, use mock data
       if (isPreview) {
         console.log("Header: Using mock news data in preview mode after exception");
         return {
@@ -164,7 +158,6 @@ export const Header = ({
   // In preview mode, set up some default translations
   useEffect(() => {
     if (isPreview) {
-      // Add a default preview translation
       translations["previewNewsKey"] = {
         en: `News ${todaysDate}: Welcome to the preview environment! This is where you can test the latest features before they go live.`,
         es: `Noticias ${todaysDate}: ¡Bienvenido al entorno de vista previa! Aquí puedes probar las últimas funciones antes de que se publiquen.`,
@@ -173,18 +166,22 @@ export const Header = ({
     }
   }, [todaysDate, isPreview]);
   
+  // Only load news after auth state is ready
   useEffect(() => {
     const loadNews = async () => {
+      if (!authReady) {
+        console.log("Header: Auth not ready yet, waiting to load news");
+        return;
+      }
+
       setIsLoading(true);
       setLoadingError(null);
       try {
         console.log("Header: Loading news items with timestamp:", new Date().toISOString());
         
-        // Force a fresh request each time to avoid caching issues
         const newsItem = await fetchNewsFromDatabase();
         
         if (!newsItem) {
-          // If no news found in database, use preview data only as fallback
           if (isPreview) {
             console.log("Header: No news found in database, using preview data");
             const previewNewsItem = {
@@ -197,7 +194,6 @@ export const Header = ({
             console.log("Header: No news found, using default item");
             setLatestNewsItem(defaultNewsItems[0]);
             
-            // Add default translation if not already present
             if (!translations[defaultNewsItems[0].key]) {
               translations[defaultNewsItems[0].key] = {
                 en: 'Latest news will appear here...',
@@ -215,7 +211,6 @@ export const Header = ({
         setLoadingError("Failed to load news");
         setLatestNewsItem(defaultNewsItems[0]);
         
-        // Add default translation if not already present
         if (!translations[defaultNewsItems[0].key]) {
           translations[defaultNewsItems[0].key] = {
             en: 'Latest news will appear here...',
@@ -229,7 +224,7 @@ export const Header = ({
     };
     
     loadNews();
-  }, [isPreview]);
+  }, [isPreview, authReady]); // Add authReady as dependency
   
   // Update the shown build failure ID when a new one comes in
   useEffect(() => {
@@ -257,16 +252,19 @@ export const Header = ({
   
   // Fix the refresh function to always fetch from the database
   const handleRefreshNews = async () => {
+    if (!authReady) {
+      console.log("Header: Auth not ready, cannot refresh news");
+      return;
+    }
+
     setIsLoading(true);
     setLoadingError(null);
     try {
       console.log("Header: Refreshing news with timestamp:", new Date().toISOString());
       
-      // Always try to fetch from the database
       const newsItem = await fetchNewsFromDatabase();
       
       if (!newsItem) {
-        // Only use preview data as fallback if no real data exists
         if (isPreview) {
           const previewNewsItem = {
             id: "preview-news-1",
@@ -296,19 +294,16 @@ export const Header = ({
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return 'Latest news will appear here...';
 
-    // Look for date patterns like "News 5/3/25:" or similar date formats with the word "News" before
     const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
     
     if (dateRegex.test(content)) {
       const parts = content.split(dateRegex);
       
-      // Filter out empty strings and undefined values
       const filteredParts = parts.filter(part => part !== undefined && part !== '');
       
       return (
         <>
           {filteredParts.map((part, i) => {
-            // If this part matches the date pattern, highlight it
             if (dateRegex.test(part)) {
               return (
                 <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
@@ -322,7 +317,6 @@ export const Header = ({
       );
     }
     
-    // If no date found, just return the content
     return content;
   };
   
@@ -331,13 +325,11 @@ export const Header = ({
     if (!key) return "Latest news will appear here...";
     
     try {
-      // If the translation exists, use it
       if (translations[key]) {
         const translation = t(key);
         return translation || "Latest news will appear here...";
       }
       
-      // If not found, provide a default message
       console.warn(`Translation key not found in Header: ${key}`);
       return "Latest news will appear here...";
     } catch (error) {
@@ -397,7 +389,12 @@ export const Header = ({
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
           <NewsArchiveDialog triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" />
         </div>
-        {isLoading ? (
+        {!authReady ? (
+          <div className="flex justify-center items-center py-3">
+            <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
+            <span className="ml-2 text-warcrow-text/70 text-sm">Initializing...</span>
+          </div>
+        ) : isLoading ? (
           <div className="flex justify-center items-center py-3">
             <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
             <span className="ml-2 text-warcrow-text/70 text-sm">Loading latest news...</span>

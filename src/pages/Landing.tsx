@@ -38,19 +38,11 @@ const fetchUserCount = async () => {
   try {
     console.log("Fetching user count with fresh query...");
     
-    // Add timestamp to bust cache completely
-    const timestamp = new Date().getTime();
-    
-    // Use a direct count query with explicit cache busting
     const { count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('banned', false)
-      .eq('deactivated', false)
-      .then(response => {
-        console.log('User count response:', response);
-        return response;
-      });
+      .eq('deactivated', false);
     
     if (error) {
       console.error('Error fetching user count:', error);
@@ -58,15 +50,13 @@ const fetchUserCount = async () => {
     }
     
     console.log('Retrieved user count:', count);
-    return count || 470; // Default to 470 if count is null
+    return count || 470;
   } catch (error) {
     console.error('Error in fetchUserCount:', error);
-    // Return a default value to prevent UI issues
     return 470;
   }
 };
 
-// Function to check if the latest deployment is a failure
 const checkLatestBuildStatus = async () => {
   try {
     console.log("Checking latest build status...");
@@ -83,20 +73,16 @@ const checkLatestBuildStatus = async () => {
       return null;
     }
     
-    // Sort deployments by creation date to ensure we get the most recent first
     const sortedDeployments = [...data.deployments].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
     
-    // Check if the latest deployment is a failure
     const latestDeployment = sortedDeployments[0];
     
-    // Only return warcrow site failures (not other sites)
     const isWarcrowSite = (site) => {
       return site === "warcrow-army-builder" || site === "warcrowarmy.com";
     };
     
-    // If the latest deployment was successful or not a warcrow site, we should return null (no failure)
     if (latestDeployment.state !== 'error' || !isWarcrowSite(latestDeployment.site_name)) {
       console.log('Latest warcrow deployment was successful or not a warcrow site, not showing failure alert');
       return null;
@@ -110,7 +96,6 @@ const checkLatestBuildStatus = async () => {
   }
 };
 
-// Function to fetch changelog content from the public path
 const fetchChangelogContent = async () => {
   try {
     const timestamp = new Date().getTime();
@@ -146,6 +131,12 @@ const Landing = () => {
   const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
   const [changelogContent, setChangelogContent] = useState<string>("");
   
+  const { t } = useLanguage();
+  const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading } = useAuth();
+  const { isPreview } = useEnvironment();
+  
+  console.log('Auth state:', { isWabAdmin, isAuthenticated, isTester, isPreview, authLoading });
+  
   // Fetch changelog content on mount
   useEffect(() => {
     const loadChangelog = async () => {
@@ -155,21 +146,15 @@ const Landing = () => {
     loadChangelog();
   }, []);
   
-  // Add error boundary for version loading
+  // Get latest version from changelog
   let latestVersion;
   try {
     latestVersion = getLatestVersion(changelogContent);
     console.log('Latest version loaded:', latestVersion);
   } catch (error) {
     console.error('Error loading version:', error);
-    latestVersion = '1.0.0'; // Fallback version
+    latestVersion = '1.0.0';
   }
-  
-  const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated, isTester } = useAuth();
-  const { isPreview } = useEnvironment();
-  
-  console.log('Auth state:', { isWabAdmin, isAuthenticated, isTester, isPreview });
   
   // Check if user has permission to see the Play Mode - Ensure guest users can't see it
   const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
@@ -179,19 +164,21 @@ const Landing = () => {
     console.log('Landing.tsx: Is preview environment:', isPreview);
   }, [isPreview]);
 
+  // Only fetch user count after auth state is confirmed
   const { 
-    data: userCount = 470, // Provide a default value here
+    data: userCount = 470,
     isLoading: isLoadingUserCount,
     refetch: refetchUserCount 
   } = useQuery({
     queryKey: ['userCount'],
     queryFn: fetchUserCount,
-    staleTime: 0, // No caching
-    gcTime: 0, // Don't cache at all
-    retry: 2, // Retry twice to ensure we get the data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    enabled: true, // Always enable this query
+    staleTime: 0,
+    gcTime: 0,
+    retry: 2,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    // Wait for auth state to be determined before fetching
+    enabled: !authLoading && isAuthenticated !== null,
     meta: {
       onError: (error: any) => {
         console.error('Failed to fetch user count:', error);
@@ -218,23 +205,22 @@ const Landing = () => {
       }
       return data;
     },
-    enabled: isAuthenticated === true && isGuest === false,
-    staleTime: 0, // No caching
+    // Only fetch profile if authenticated and not guest
+    enabled: !authLoading && isAuthenticated === true && isGuest === false,
+    staleTime: 0,
     retry: 2
   });
 
-  // Only fetch build status if user is admin
+  // Only fetch build status if user is admin and auth is ready
   useEffect(() => {
     const fetchBuildStatus = async () => {
-      if (isWabAdmin || isPreview) {
+      if ((isWabAdmin || isPreview) && !authLoading) {
         try {
-          // Get build failure notifications for the notification system
           const { notifications, error } = await getBuildFailureNotifications();
           if (!error && notifications.length > 0) {
             setBuildFailures(notifications);
           }
           
-          // Check if the latest build specifically has failed
           const latestFailure = await checkLatestBuildStatus();
           console.log('checkLatestBuildStatus returned:', latestFailure);
           setLatestFailedBuild(latestFailure);
@@ -244,28 +230,29 @@ const Landing = () => {
       }
     };
     
-    // Always log isWabAdmin value for debugging
     console.log('isWabAdmin value:', isWabAdmin);
     
     fetchBuildStatus();
     
-    // Set up a refresh interval only if user is admin
-    const intervalId = (isWabAdmin || isPreview) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
+    // Set up a refresh interval only if user is admin and auth is ready
+    const intervalId = ((isWabAdmin || isPreview) && !authLoading) ? 
+      setInterval(fetchBuildStatus, 120000) : null;
     
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isWabAdmin, isPreview]);
+  }, [isWabAdmin, isPreview, authLoading]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      // Force refresh the auth state on mount
       const { data: { session } } = await supabase.auth.getSession();
       setIsGuest(!session);
     };
 
-    checkAuthStatus();
-  }, []);
+    if (!authLoading) {
+      checkAuthStatus();
+    }
+  }, [authLoading]);
 
   console.log('Rendering Landing page with userCount:', userCount);
 
@@ -304,6 +291,7 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
+          authReady={!authLoading && isAuthenticated !== null}
         />
         <MainActions />
         
