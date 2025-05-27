@@ -197,44 +197,57 @@ const ApiStatus: React.FC = () => {
     try {
       const startTime = performance.now();
       
-      // Test GitHub API with a minimal request to check repository access
+      // Test GitHub API with a simple request that should pass authentication
+      // but fail validation (which means auth worked)
       const { data, error } = await supabase.functions.invoke("sync-files-to-github", {
         body: {
-          files: {},
-          factionId: "connection-test"
+          files: { test: "console.log('test');" },
+          factionId: "test-faction"
         }
       });
       
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
       
-      // If we get an error about missing files or invalid faction, that's actually good - 
-      // it means GitHub authentication worked and the function processed the request
-      if (error && (error.message?.includes('Files and factionId are required') || 
-                    error.message?.includes('No valid files provided') ||
-                    error.message?.includes('GitHub token not configured'))) {
+      // Check if we got a response (even if it's an error about validation)
+      if (error) {
+        // Parse the error to understand what went wrong
+        const errorMessage = error.message || '';
         
-        // If it's a token configuration error, that's a real problem
-        if (error.message?.includes('GitHub token not configured')) {
+        // If it's a GitHub token issue, that's a real API problem
+        if (errorMessage.includes('GitHub token not configured') || 
+            errorMessage.includes('401') || 
+            errorMessage.includes('403') ||
+            errorMessage.includes('Unauthorized')) {
+          console.error("GitHub API authentication failed:", error);
           return { status: 'down' as ApiStatus };
         }
         
-        // Otherwise, the authentication worked, just validation failed (which is expected)
+        // If we get validation errors or other processing errors, 
+        // that means the function ran and GitHub auth worked
+        if (errorMessage.includes('Failed to update') || 
+            errorMessage.includes('Updated') ||
+            data?.updatedFiles !== undefined) {
+          return {
+            status: 'operational' as ApiStatus,
+            latency
+          };
+        }
+        
+        // For other errors, assume GitHub is down
+        console.error("GitHub API test failed with error:", error);
+        return { status: 'down' as ApiStatus };
+      }
+      
+      // If we got a successful response, GitHub is operational
+      if (data) {
         return {
           status: 'operational' as ApiStatus,
           latency
         };
       }
       
-      if (error) {
-        console.error("GitHub API test error:", error);
-        return { status: 'down' as ApiStatus };
-      }
-      
-      return {
-        status: 'operational' as ApiStatus,
-        latency
-      };
+      return { status: 'down' as ApiStatus };
     } catch (error) {
       console.error("GitHub API test failed:", error);
       return { status: 'down' as ApiStatus };
