@@ -10,11 +10,11 @@ import Landing from '@/pages/Landing';
 import Play from '@/pages/Play';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
-import Builder from '@/pages/Builder';
+import ArmyBuilder from '@/pages/ArmyBuilder';
 import AboutUs from '@/pages/AboutUs';
 import Rules from '@/pages/Rules';
-import Terms from '@/pages/Terms';
-import Privacy from '@/pages/Privacy';
+import TermsOfService from '@/pages/TermsOfService';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Admin from '@/pages/Admin';
 
 function App() {
@@ -28,11 +28,11 @@ function App() {
             <Route path="/play" element={<Play />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/builder" element={<Builder />} />
+            <Route path="/builder" element={<ArmyBuilder />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/rules" element={<Rules />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
           <Toaster />
