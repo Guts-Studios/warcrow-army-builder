@@ -26,6 +26,7 @@ serve(async (req: Request) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
     if (authError || !user) {
+      console.log('User authentication failed:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 401,
@@ -40,6 +41,7 @@ serve(async (req: Request) => {
       .single();
     
     if (profileError || !profile || !profile.wab_admin) {
+      console.log('Admin check failed:', profileError, profile);
       return new Response(JSON.stringify({ error: 'Forbidden: Admin access required' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 403,
@@ -62,7 +64,10 @@ serve(async (req: Request) => {
     const repoName = 'warcrow-army-builder';
     const branch = 'main';
     
+    console.log('GitHub token status:', githubToken ? 'Token found' : 'Token missing');
+    
     if (!githubToken) {
+      console.error('GitHub token not found in environment variables');
       return new Response(JSON.stringify({ error: 'GitHub token not configured' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
@@ -101,6 +106,9 @@ serve(async (req: Request) => {
           const currentFile = await currentFileResp.json();
           sha = currentFile.sha;
         } else if (currentFileResp.status !== 404) {
+          console.error(`Failed to get current file ${filePath}: ${currentFileResp.status}`);
+          const errorText = await currentFileResp.text();
+          console.error('Error response:', errorText);
           throw new Error(`Failed to get current file: ${currentFileResp.status}`);
         }
         
@@ -136,6 +144,7 @@ serve(async (req: Request) => {
         
         if (!updateResp.ok) {
           const errorData = await updateResp.text();
+          console.error(`Failed to update ${filePath}: ${updateResp.status} ${errorData}`);
           throw new Error(`Failed to update ${filePath}: ${updateResp.status} ${errorData}`);
         }
         
