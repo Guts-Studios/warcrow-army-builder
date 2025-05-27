@@ -132,11 +132,8 @@ const Landing = () => {
   const [changelogContent, setChangelogContent] = useState<string>("");
   
   const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading } = useAuth();
+  const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading, authReady } = useAuth();
   const { isPreview } = useEnvironment();
-  
-  // Properly synchronized authReady state
-  const authReady = !authLoading && isAuthenticated !== null;
   
   console.log('[Landing] Auth state:', { 
     authLoading,
@@ -310,13 +307,6 @@ const Landing = () => {
           authReady={authReady}
         />
         <MainActions />
-        
-        {/* Add Auth State Demo for testing */}
-        {(isWabAdmin || isPreview) && (
-          <div className="mt-8">
-            <AuthStateDemo />
-          </div>
-        )}
         
         {/* Play Mode Button - Only shown to testers or admins who are not guests */}
         {canAccessPlayMode && (
