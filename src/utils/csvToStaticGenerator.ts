@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -157,7 +156,8 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     specialRules: csvUnit.specialRules.length > 0 ? csvUnit.specialRules : undefined,
     highCommand: csvUnit.highCommand,
     imageUrl: `/art/card/${csvUnit.id}_card.jpg`,
-    companion: csvUnit.companion
+    companion: csvUnit.companion,
+    type: csvUnit.type // Preserve the type information
   };
 };
 

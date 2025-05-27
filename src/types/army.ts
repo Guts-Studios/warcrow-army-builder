@@ -12,6 +12,7 @@ export interface Unit {
   highCommand?: boolean;
   imageUrl?: string;
   companion?: string; // ID of the unit this is a companion to
+  type?: string; // Unit type from CSV (troop, character, etc.)
   // CSV mapping fields
   characteristics?: string[]; // For CSV characteristics that aren't keywords
   csvKeywords?: string[]; // Raw CSV keywords before processing
