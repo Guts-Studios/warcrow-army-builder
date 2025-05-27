@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -210,9 +209,17 @@ const ApiStatus: React.FC = () => {
       const latency = Math.round(endTime - startTime);
       
       // If we get an error about missing files or invalid faction, that's actually good - 
-      // it means GitHub authentication worked
+      // it means GitHub authentication worked and the function processed the request
       if (error && (error.message?.includes('Files and factionId are required') || 
-                    error.message?.includes('No valid files provided'))) {
+                    error.message?.includes('No valid files provided') ||
+                    error.message?.includes('GitHub token not configured'))) {
+        
+        // If it's a token configuration error, that's a real problem
+        if (error.message?.includes('GitHub token not configured')) {
+          return { status: 'down' as ApiStatus };
+        }
+        
+        // Otherwise, the authentication worked, just validation failed (which is expected)
         return {
           status: 'operational' as ApiStatus,
           latency
@@ -220,7 +227,8 @@ const ApiStatus: React.FC = () => {
       }
       
       if (error) {
-        throw error;
+        console.error("GitHub API test error:", error);
+        return { status: 'down' as ApiStatus };
       }
       
       return {
