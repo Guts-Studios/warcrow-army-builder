@@ -15,12 +15,11 @@ export const NewsItem: React.FC<NewsItemProps> = ({ english, spanish, french }) 
   const formatContent = (content: string) => {
     if (!content) return <span className="italic text-warcrow-text/50">No content</span>;
     
-    // Add line breaks
+    // Add line breaks using div elements instead of fragments
     return content.split('\n').map((line, i) => (
-      <React.Fragment key={i}>
+      <div key={i}>
         {line}
-        {i < content.split('\n').length - 1 && <br />}
-      </React.Fragment>
+      </div>
     ));
   };
   
@@ -67,4 +66,3 @@ export const NewsItem: React.FC<NewsItemProps> = ({ english, spanish, french }) 
     </div>
   );
 };
-
