@@ -135,16 +135,16 @@ const Landing = () => {
   const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading } = useAuth();
   const { isPreview } = useEnvironment();
   
-  // Determine if auth is ready
+  // Properly synchronized authReady state
   const authReady = !authLoading && isAuthenticated !== null;
   
   console.log('[Landing] Auth state:', { 
-    isWabAdmin, 
-    isAuthenticated, 
-    isTester, 
-    isPreview, 
     authLoading,
+    isAuthenticated, 
     authReady,
+    isWabAdmin, 
+    isTester, 
+    isPreview,
     timestamp: new Date().toISOString()
   });
   
@@ -175,7 +175,7 @@ const Landing = () => {
     console.log('[Landing] Is preview environment:', isPreview);
   }, [isPreview]);
 
-  // Only fetch user count after auth state is confirmed
+  // Fetch user count immediately when auth is ready
   const { 
     data: userCount = 470,
     isLoading: isLoadingUserCount,
@@ -183,7 +183,7 @@ const Landing = () => {
   } = useQuery({
     queryKey: ['userCount'],
     queryFn: () => {
-      console.log("[Landing] About to fetch user count - auth ready:", authReady);
+      console.log("[Landing] ✅ Starting user count fetch - authReady:", authReady);
       return fetchUserCount();
     },
     staleTime: 0,
@@ -204,7 +204,7 @@ const Landing = () => {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      console.log("[Landing] About to fetch profile - auth ready:", authReady);
+      console.log("[Landing] ✅ Starting profile fetch - authReady:", authReady);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return null;
 
@@ -226,11 +226,11 @@ const Landing = () => {
     retry: 2
   });
 
-  // Only fetch build status if user is admin and auth is ready
+  // Fetch build status immediately when auth is ready and user is admin
   useEffect(() => {
     const fetchBuildStatus = async () => {
       if ((isWabAdmin || isPreview) && authReady) {
-        console.log("[Landing] About to fetch build status - auth ready:", authReady);
+        console.log("[Landing] ✅ Starting build status fetch - authReady:", authReady);
         try {
           const { notifications, error } = await getBuildFailureNotifications();
           if (!error && notifications.length > 0) {
@@ -257,7 +257,7 @@ const Landing = () => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isWabAdmin, isPreview, authReady]);
+  }, [isWabAdmin, isPreview, authReady]); // Trigger immediately when authReady changes
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -307,7 +307,6 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
-          authReady={authReady}
         />
         <MainActions />
         

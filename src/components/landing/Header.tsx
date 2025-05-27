@@ -1,4 +1,3 @@
-
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NewsArchiveDialog from "@/components/landing/NewsArchiveDialog";
@@ -27,7 +26,6 @@ interface HeaderProps {
   isLoadingUserCount: boolean;
   latestFailedBuild?: any;
   onRefreshUserCount?: () => void;
-  authReady?: boolean; // New prop to indicate auth state is ready
 }
 
 export const Header = ({ 
@@ -35,11 +33,10 @@ export const Header = ({
   userCount, 
   isLoadingUserCount, 
   latestFailedBuild,
-  onRefreshUserCount,
-  authReady = false // Default to false for safety
+  onRefreshUserCount
 }: HeaderProps) => {
   const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated } = useAuth();
+  const { isWabAdmin, isAuthenticated, isLoading: authLoading } = useAuth();
   const { isPreview } = useEnvironment();
   const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
@@ -48,10 +45,13 @@ export const Header = ({
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [changelogContent, setChangelogContent] = useState<string>("");
   
-  console.log("[Header] Component state:", {
-    authReady,
+  // Properly synchronized authReady state
+  const authReady = !authLoading && isAuthenticated !== null;
+  
+  console.log("[Header] Auth state:", {
+    authLoading,
     isAuthenticated,
-    isWabAdmin,
+    authReady,
     timestamp: new Date().toISOString()
   });
   
@@ -89,8 +89,7 @@ export const Header = ({
   // Function to directly fetch news from the database
   const fetchNewsFromDatabase = async () => {
     try {
-      console.log("[Header] About to fetch news from database - auth ready:", authReady);
-      console.log("[Header] Directly fetching news from database with timestamp:", new Date().toISOString());
+      console.log("[Header] Starting database fetch - authReady:", authReady);
       
       if (isPreview) {
         console.log("[Header] Preview environment detected, trying to fetch real data first");
@@ -174,7 +173,7 @@ export const Header = ({
     }
   }, [todaysDate, isPreview]);
   
-  // Only load news after auth state is ready
+  // Load news immediately when auth is ready
   useEffect(() => {
     const loadNews = async () => {
       if (!authReady) {
@@ -182,7 +181,7 @@ export const Header = ({
         return;
       }
 
-      console.log("[Header] Auth ready, starting to load news");
+      console.log("[Header] ✅ Auth ready, starting to load news immediately");
       setIsLoading(true);
       setLoadingError(null);
       try {
@@ -233,7 +232,7 @@ export const Header = ({
     };
     
     loadNews();
-  }, [isPreview, authReady]); // Add authReady as dependency
+  }, [authReady, isPreview]); // Trigger immediately when authReady changes
   
   // Update the shown build failure ID when a new one comes in
   useEffect(() => {

@@ -27,20 +27,20 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Determine if auth is ready
+  // Properly synchronized authReady state
   const authReady = !authLoading && isAuthenticated !== null;
   
-  console.log("[NewsArchiveDialog] Component state:", {
-    authReady,
+  console.log("[NewsArchiveDialog] Auth state:", {
+    authLoading,
     isAuthenticated,
+    authReady,
     timestamp: new Date().toISOString()
   });
   
   // Direct fetch news items from the database with no caching
   const fetchNewsItemsDirectly = async () => {
     try {
-      console.log("[NewsArchiveDialog] About to fetch news items - auth ready:", authReady);
-      console.log("[NewsArchiveDialog] Fetching news items directly from database");
+      console.log("[NewsArchiveDialog] Starting direct fetch - authReady:", authReady);
       
       const { data, error } = await supabase
         .from('news_items')
@@ -88,7 +88,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
         return;
       }
 
-      console.log("[NewsArchiveDialog] Auth ready, starting to load news");
+      console.log("[NewsArchiveDialog] ✅ Auth ready, starting to load news immediately");
       setIsLoading(true);
       try {
         console.log("[NewsArchiveDialog] Loading news items...");
@@ -113,7 +113,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     };
 
     loadNews();
-  }, [authReady]);
+  }, [authReady]); // Trigger immediately when authReady changes
   
   // Safe translation retrieval function
   const getTranslatedContent = (key: string) => {
