@@ -1,45 +1,44 @@
 
-import { Suspense } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
-import LoadingSpinner from "./components/LoadingSpinner";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { AppRoutes } from "@/components/routing/AppRoutes";
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AuthProvider } from '@/components/auth/AuthProvider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ProvidersWrapper } from '@/components/providers/ProvidersWrapper';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: (failureCount, error) => {
-        console.log('Query failed, attempt:', failureCount, error);
-        return failureCount < 2;
-      },
-    },
-  },
-});
+// Import all pages
+import Landing from '@/pages/Landing';
+import Play from '@/pages/Play';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import Builder from '@/pages/Builder';
+import AboutUs from '@/pages/AboutUs';
+import Rules from '@/pages/Rules';
+import Terms from '@/pages/Terms';
+import Privacy from '@/pages/Privacy';
+import Admin from '@/pages/Admin';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionContextProvider supabaseClient={supabase}>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Suspense fallback={<LoadingSpinner />}>
-                <AppRoutes />
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </LanguageProvider>
-      </SessionContextProvider>
-    </QueryClientProvider>
+    <ProvidersWrapper>
+      <LanguageProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/play" element={<Play />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/builder" element={<Builder />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/rules" element={<Rules />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+          <Toaster />
+        </AuthProvider>
+      </LanguageProvider>
+    </ProvidersWrapper>
   );
 }
 
