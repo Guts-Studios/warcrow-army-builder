@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle2, FileWarning } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileWarning, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { units as staticUnits } from '@/data/factions';
 import { parseCsvContent, compareUnitWithCsv, CsvUnit, findMatchingUnit } from '@/utils/csvValidator';
@@ -24,6 +24,7 @@ interface MismatchDetail {
 const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [csvNotFound, setCsvNotFound] = useState<boolean>(false);
   const [mismatches, setMismatches] = useState<MismatchDetail[]>([]);
   const [matchedUnits, setMatchedUnits] = useState<number>(0);
   const [totalCsvUnits, setTotalCsvUnits] = useState<number>(0);
@@ -37,7 +38,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
       'syenann': 'The Syenann.csv',
       'northern-tribes': 'Northern Tribes.csv',
       'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Fixed: Changed from Yaldabaoth to Taldabaoth
+      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
     };
     return factionFileMap[normalized] || '';
   };
@@ -46,11 +47,9 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
   const getStaticUnitsForFaction = (factionId: string) => {
     const normalized = normalizeFactionId(factionId);
     return staticUnits.filter(unit => {
-      // First check for faction_id match if available
       if (unit.faction_id) {
         return normalizeFactionId(unit.faction_id) === normalized;
       }
-      // Fall back to faction field
       return normalizeFactionId(unit.faction) === normalized;
     });
   };
@@ -59,6 +58,7 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
     const validateUnits = async () => {
       setIsLoading(true);
       setError(null);
+      setCsvNotFound(false);
       setMismatches([]);
       setMissingUnits([]);
       
@@ -73,6 +73,12 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         
         const response = await fetch(filePath);
         if (!response.ok) {
+          if (response.status === 404) {
+            console.log(`CSV file not found: ${filePath}`);
+            setCsvNotFound(true);
+            setIsLoading(false);
+            return;
+          }
           throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
         }
 
@@ -84,10 +90,6 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
         const staticFactionUnits = getStaticUnitsForFaction(faction);
         setTotalStaticUnits(staticFactionUnits.length);
         console.log(`Found ${staticFactionUnits.length} static units for faction ${faction}`);
-        
-        // Log detailed unit information for debugging
-        console.log('CSV Units:', csvUnits.map(u => ({ name: u.name, highCommand: u.highCommand, points: u.pointsCost })));
-        console.log('Static Units:', staticFactionUnits.map(u => ({ name: u.name, highCommand: u.highCommand, points: u.pointsCost })));
         
         const newMismatches: MismatchDetail[] = [];
         const notFoundUnits: string[] = [];
@@ -122,7 +124,6 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
           }
         }
 
-        // Check for static units that don't have a CSV entry
         const csvUnitNames = csvUnits
           .filter(u => u.name && u.name !== 'null' && u.name !== 'undefined')
           .map(u => u.name.toLowerCase());
@@ -145,6 +146,8 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
     validateUnits();
   }, [faction]);
 
+  const staticFactionUnits = getStaticUnitsForFaction(faction);
+
   return (
     <Card className="bg-black/50 border-warcrow-gold/30">
       <CardHeader>
@@ -153,6 +156,24 @@ const UnitCsvValidator: React.FC<ValidationProps> = ({ faction }) => {
       <CardContent>
         {isLoading ? (
           <p className="text-warcrow-gold/70">Loading and validating unit data...</p>
+        ) : csvNotFound ? (
+          <Alert className="bg-blue-900/20 border-blue-500/50">
+            <Info className="h-4 w-4 text-blue-500" />
+            <AlertTitle className="text-blue-500">CSV File Not Available</AlertTitle>
+            <AlertDescription className="text-blue-300">
+              <p className="mb-2">The CSV reference file for this faction is not available in the project.</p>
+              <p className="text-sm">
+                Expected location: <code className="bg-black/50 px-1 rounded">/data/reference-csv/units/{getFactionFileName(faction)}</code>
+              </p>
+              <div className="mt-3 p-3 bg-black/30 rounded border border-blue-500/20">
+                <p className="text-sm font-medium text-blue-400 mb-2">Static Units Available:</p>
+                <p className="text-lg font-bold text-blue-300">{staticFactionUnits.length} units</p>
+                <p className="text-xs text-blue-200 mt-1">
+                  Unit data is loaded from static files in the codebase.
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
         ) : error ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />

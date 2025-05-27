@@ -21,7 +21,8 @@ import {
   Save,
   FileDown,
   Github,
-  CloudUpload
+  CloudUpload,
+  Info
 } from 'lucide-react';
 import { 
   generateFactionFiles, 
@@ -46,6 +47,7 @@ const CsvSyncManager: React.FC = () => {
   const [generatedFiles, setGeneratedFiles] = useState<any>(null);
   const [validationResults, setValidationResults] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  const [csvNotFound, setCsvNotFound] = useState(false);
   
   const factions = [
     { id: 'northern-tribes', name: 'Northern Tribes' },
@@ -142,6 +144,7 @@ const CsvSyncManager: React.FC = () => {
     setProgress(0);
     setGeneratedFiles(null);
     setValidationResults(null);
+    setCsvNotFound(false);
 
     try {
       setProgress(25);
@@ -167,7 +170,12 @@ const CsvSyncManager: React.FC = () => {
       toast.success('Files generated and validated successfully!');
     } catch (error: any) {
       console.error('Error generating files:', error);
-      toast.error(`Failed to generate files: ${error.message}`);
+      if (error.message?.includes('404') || error.message?.includes('Failed to fetch CSV')) {
+        setCsvNotFound(true);
+        toast.warning('CSV reference file not found - validation disabled');
+      } else {
+        toast.error(`Failed to generate files: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -181,6 +189,7 @@ const CsvSyncManager: React.FC = () => {
 
     setIsLoading(true);
     setValidationResults(null);
+    setCsvNotFound(false);
 
     try {
       const normalizedFactionId = normalizeFactionId(selectedFaction);
@@ -201,7 +210,12 @@ const CsvSyncManager: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error validating:', error);
-      toast.error(`Validation failed: ${error.message}`);
+      if (error.message?.includes('404') || error.message?.includes('Failed to fetch CSV')) {
+        setCsvNotFound(true);
+        toast.warning('CSV reference file not found - validation disabled');
+      } else {
+        toast.error(`Validation failed: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -256,6 +270,22 @@ const CsvSyncManager: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {csvNotFound && (
+        <Alert className="bg-blue-900/20 border-blue-500/50">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertTitle className="text-blue-500">CSV Reference Files Not Available</AlertTitle>
+          <AlertDescription className="text-blue-300">
+            <p className="mb-2">CSV reference files are not available in this project.</p>
+            <p className="text-sm">
+              This tool is designed to work with CSV files located in <code className="bg-black/50 px-1 rounded">/data/reference-csv/units/</code>
+            </p>
+            <p className="text-xs text-blue-200 mt-2">
+              Unit data is currently managed through static TypeScript files in the codebase.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card className="p-6 bg-black/50 border-warcrow-gold/30">
         <div className="space-y-4">
@@ -357,7 +387,7 @@ const CsvSyncManager: React.FC = () => {
       )}
 
       {/* Validation Results Panel */}
-      {validationResults && (
+      {validationResults && !csvNotFound && (
         <Card className="p-6 bg-black/50 border-warcrow-gold/30">
           <h2 className="text-lg font-semibold text-warcrow-gold mb-4 flex items-center">
             <Database className="mr-2 h-5 w-5" />
@@ -385,7 +415,6 @@ const CsvSyncManager: React.FC = () => {
             </div>
           </div>
 
-          {/* ... keep existing code (validation tabs) */}
           <Tabs defaultValue="missing" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-black border-warcrow-gold/30">
               <TabsTrigger value="missing">Missing in Static</TabsTrigger>

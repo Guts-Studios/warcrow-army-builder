@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle2, FileWarning, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileWarning, RefreshCw, Info } from 'lucide-react';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
 import DataSyncButton from './DataSyncButton';
@@ -52,6 +53,7 @@ const UnitValidationTool: React.FC = () => {
   const [localData, setLocalData] = useState<Unit[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [csvNotFound, setCsvNotFound] = useState<boolean>(false);
   const [warnings, setWarnings] = useState<UnitWarning[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>('northern-tribes');
 
@@ -75,6 +77,7 @@ const UnitValidationTool: React.FC = () => {
   const loadCsvData = async (factionId: string) => {
     setLoading(true);
     setError(null);
+    setCsvNotFound(false);
     setCsvData([]);
     setWarnings([]);
     
@@ -83,7 +86,7 @@ const UnitValidationTool: React.FC = () => {
       'syenann': 'The Syenann.csv',
       'northern-tribes': 'Northern Tribes.csv',
       'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'  // Fixed: Changed from Yaldabaoth to Taldabaoth
+      'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
     };
     
     if (!factionFileMap[factionId]) {
@@ -98,6 +101,12 @@ const UnitValidationTool: React.FC = () => {
       
       const response = await fetch(filePath);
       if (!response.ok) {
+        if (response.status === 404) {
+          console.log(`CSV file not found: ${filePath}`);
+          setCsvNotFound(true);
+          setLoading(false);
+          return;
+        }
         throw new Error(`Failed to fetch CSV: ${response.statusText}`);
       }
       
@@ -149,7 +158,6 @@ const UnitValidationTool: React.FC = () => {
     console.log(`Validating data for faction: ${factionId}`);
     const newWarnings: UnitWarning[] = [];
     
-    // For now, just log the CSV data - in a real implementation, you'd compare it with your app's data
     csvData.forEach(unit => {
       const normalizedFaction = normalizeFactionName(unit.Faction);
       if (normalizedFaction !== factionId) {
@@ -158,11 +166,8 @@ const UnitValidationTool: React.FC = () => {
           issues: [`Faction mismatch: CSV shows "${unit.Faction}", expected "${factionId}"`]
         });
       }
-      
-      // Add more validation checks as needed...
     });
     
-    // Add our predefined warning for the specific unit
     if (factionId === 'hegemony-of-embersig') {
       const existingWarning = newWarnings.find(w => w.unit === 'Black Legion Arquebusiers');
       if (!existingWarning) {
@@ -196,10 +201,8 @@ const UnitValidationTool: React.FC = () => {
 
   // Handle sync complete event
   const handleSyncComplete = () => {
-    // In a real implementation, this would refresh the validation results
     toast.success('Data sync processed. Refreshing validation...');
     
-    // For our demo, let's just clear the warning for the Black Legion Arquebusiers
     if (selectedTab === 'hegemony-of-embersig') {
       setWarnings(warnings.filter(w => w.unit !== 'Black Legion Arquebusiers'));
     }
@@ -311,6 +314,22 @@ const UnitValidationTool: React.FC = () => {
       );
     }
     
+    if (csvNotFound) {
+      return (
+        <Alert className="bg-blue-900/20 border-blue-500/50">
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertTitle className="text-blue-500">CSV Reference File Not Available</AlertTitle>
+          <AlertDescription className="text-blue-300">
+            <p className="mb-2">The CSV reference file for this faction is not available in the project.</p>
+            <p className="text-sm">This tool requires CSV files to be present in the project for validation.</p>
+            <p className="text-xs text-blue-200 mt-2">
+              Unit data is currently loaded from static files in the codebase.
+            </p>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    
     if (error) {
       return (
         <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
@@ -352,52 +371,54 @@ const UnitValidationTool: React.FC = () => {
           ) : null}
         </div>
         
-        <div className="mt-4 overflow-x-auto">
-          <Table className="text-warcrow-text">
-            <TableHeader className="bg-warcrow-accent/30">
-              <TableRow>
-                <TableHead className="text-warcrow-gold">Unit Name</TableHead>
-                <TableHead className="text-warcrow-gold">Command</TableHead>
-                <TableHead className="text-warcrow-gold">AVB</TableHead>
-                <TableHead className="text-warcrow-gold">Points</TableHead>
-                <TableHead className="text-warcrow-gold">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {csvData.map((unit, index) => {
-                const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
-                const warning = warnings.find(w => w.unit === unit['Unit Name']);
-                
-                return (
-                  <TableRow 
-                    key={index}
-                    className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
-                  >
-                    <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
-                    <TableCell>{unit.Command}</TableCell>
-                    <TableCell>{unit.AVB}</TableCell>
-                    <TableCell>{unit['Points Cost']}</TableCell>
-                    <TableCell>
-                      {hasWarning ? (
-                        <Badge 
-                          variant="outline" 
-                          className="border-amber-500 text-amber-400 cursor-help"
-                          title={warning?.issues.join(', ')}
-                        >
-                          Warning
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-emerald-500 text-emerald-400">
-                          Valid
-                        </Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        {csvData.length > 0 && (
+          <div className="mt-4 overflow-x-auto">
+            <Table className="text-warcrow-text">
+              <TableHeader className="bg-warcrow-accent/30">
+                <TableRow>
+                  <TableHead className="text-warcrow-gold">Unit Name</TableHead>
+                  <TableHead className="text-warcrow-gold">Command</TableHead>
+                  <TableHead className="text-warcrow-gold">AVB</TableHead>
+                  <TableHead className="text-warcrow-gold">Points</TableHead>
+                  <TableHead className="text-warcrow-gold">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {csvData.map((unit, index) => {
+                  const hasWarning = warnings.some(w => w.unit === unit['Unit Name']);
+                  const warning = warnings.find(w => w.unit === unit['Unit Name']);
+                  
+                  return (
+                    <TableRow 
+                      key={index}
+                      className={hasWarning ? "bg-amber-900/10" : "hover:bg-warcrow-accent/10"}
+                    >
+                      <TableCell className="font-medium">{unit['Unit Name']}</TableCell>
+                      <TableCell>{unit.Command}</TableCell>
+                      <TableCell>{unit.AVB}</TableCell>
+                      <TableCell>{unit['Points Cost']}</TableCell>
+                      <TableCell>
+                        {hasWarning ? (
+                          <Badge 
+                            variant="outline" 
+                            className="border-amber-500 text-amber-400 cursor-help"
+                            title={warning?.issues.join(', ')}
+                          >
+                            Warning
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-emerald-500 text-emerald-400">
+                            Valid
+                          </Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     );
   }
