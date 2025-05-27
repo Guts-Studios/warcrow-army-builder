@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,9 @@ import {
   AlertTriangle, 
   CheckCircle, 
   Download,
-  Loader2 
+  Loader2,
+  Copy,
+  Folder
 } from 'lucide-react';
 import { 
   generateFactionFiles, 
@@ -25,6 +26,13 @@ import {
 } from '@/utils/csvToStaticGenerator';
 import { units as localUnits } from '@/data/factions';
 import { normalizeFactionId } from '@/utils/unitManagement';
+
+interface FilePathInfo {
+  key: string;
+  label: string;
+  path: string;
+  description: string;
+}
 
 const CsvSyncManager: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState<string>('');
@@ -39,6 +47,48 @@ const CsvSyncManager: React.FC = () => {
     { id: 'hegemony-of-embersig', name: 'Hegemony of Embersig' },
     { id: 'scions-of-yaldabaoth', name: 'Scions of Yaldabaoth' }
   ];
+
+  // Generate file path information for the selected faction
+  const getFilePathInfo = (factionId: string): FilePathInfo[] => {
+    if (!factionId) return [];
+    
+    return [
+      {
+        key: 'troops',
+        label: 'Troops',
+        path: `src/data/factions/${factionId}/troops.ts`,
+        description: 'Contains all troop units for this faction'
+      },
+      {
+        key: 'characters',
+        label: 'Characters', 
+        path: `src/data/factions/${factionId}/characters.ts`,
+        description: 'Contains all character units for this faction'
+      },
+      {
+        key: 'highCommand',
+        label: 'High Command',
+        path: `src/data/factions/${factionId}/highCommand.ts`,
+        description: 'Contains all high command units for this faction'
+      },
+      {
+        key: 'index',
+        label: 'Index',
+        path: `src/data/factions/${factionId}/index.ts`,
+        description: 'Main faction file that exports all units combined'
+      }
+    ];
+  };
+
+  const copyToClipboard = (content: string, fileName: string) => {
+    navigator.clipboard.writeText(content);
+    toast.success(`${fileName} copied to clipboard!`);
+  };
+
+  const copyPathToClipboard = (path: string) => {
+    navigator.clipboard.writeText(path);
+    toast.success(`File path copied to clipboard!`);
+  };
 
   const handleGenerateFiles = async () => {
     if (!selectedFaction) {
@@ -115,10 +165,7 @@ const CsvSyncManager: React.FC = () => {
     }
   };
 
-  const copyToClipboard = (content: string, fileName: string) => {
-    navigator.clipboard.writeText(content);
-    toast.success(`${fileName} copied to clipboard!`);
-  };
+  const filePathInfo = getFilePathInfo(selectedFaction);
 
   return (
     <div className="space-y-6">
@@ -186,6 +233,51 @@ const CsvSyncManager: React.FC = () => {
         </div>
       </Card>
 
+      {/* File Path Information Panel */}
+      {selectedFaction && filePathInfo.length > 0 && (
+        <Card className="p-6 bg-black/50 border-warcrow-gold/30">
+          <h2 className="text-lg font-semibold text-warcrow-gold mb-4 flex items-center">
+            <Folder className="mr-2 h-5 w-5" />
+            Target File Paths for {factions.find(f => f.id === selectedFaction)?.name}
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {filePathInfo.map((fileInfo) => (
+              <div key={fileInfo.key} className="p-3 bg-black/30 border border-warcrow-gold/20 rounded">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="font-medium text-warcrow-gold">{fileInfo.label}</div>
+                    <div className="text-xs text-warcrow-text/70">{fileInfo.description}</div>
+                  </div>
+                  <Button
+                    onClick={() => copyPathToClipboard(fileInfo.path)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-warcrow-gold hover:bg-warcrow-gold/10 p-1"
+                    title="Copy file path"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="font-mono text-xs text-warcrow-text bg-black/50 p-2 rounded border border-warcrow-gold/10">
+                  {fileInfo.path}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <Alert className="mt-4 bg-blue-900/20 border-blue-500/50">
+            <AlertTriangle className="h-4 w-4 text-blue-500" />
+            <AlertTitle className="text-blue-500">File Update Instructions</AlertTitle>
+            <AlertDescription className="text-blue-300">
+              After generating files, copy each file's content and replace the corresponding file at the path shown above. 
+              Click the copy icon next to each path to copy it to your clipboard.
+            </AlertDescription>
+          </Alert>
+        </Card>
+      )}
+
+      {/* Validation Results Panel */}
       {validationResults && (
         <Card className="p-6 bg-black/50 border-warcrow-gold/30">
           <h2 className="text-lg font-semibold text-warcrow-gold mb-4 flex items-center">
@@ -214,6 +306,7 @@ const CsvSyncManager: React.FC = () => {
             </div>
           </div>
 
+          {/* ... keep existing code (validation tabs) */}
           <Tabs defaultValue="missing" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-black border-warcrow-gold/30">
               <TabsTrigger value="missing">Missing in Static</TabsTrigger>
@@ -295,6 +388,7 @@ const CsvSyncManager: React.FC = () => {
         </Card>
       )}
 
+      {/* Generated Files Panel */}
       {generatedFiles && (
         <Card className="p-6 bg-black/50 border-warcrow-gold/30">
           <h2 className="text-lg font-semibold text-warcrow-gold mb-4 flex items-center">
@@ -304,20 +398,41 @@ const CsvSyncManager: React.FC = () => {
           
           <Tabs defaultValue="troops" className="w-full">
             <TabsList className="grid w-full grid-cols-4 bg-black border-warcrow-gold/30">
-              <TabsTrigger value="troops">Troops</TabsTrigger>
-              <TabsTrigger value="characters">Characters</TabsTrigger>
-              <TabsTrigger value="highCommand">High Command</TabsTrigger>
-              <TabsTrigger value="index">Index</TabsTrigger>
+              {filePathInfo.map((fileInfo) => (
+                <TabsTrigger key={fileInfo.key} value={fileInfo.key}>
+                  {fileInfo.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
             
-            {['troops', 'characters', 'highCommand', 'index'].map((fileType) => (
-              <TabsContent key={fileType} value={fileType} className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-warcrow-gold font-medium">
-                    {fileType}.ts
-                  </h3>
+            {filePathInfo.map((fileInfo) => (
+              <TabsContent key={fileInfo.key} value={fileInfo.key} className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <h3 className="text-warcrow-gold font-medium flex items-center">
+                      <FileText className="mr-2 h-4 w-4" />
+                      {fileInfo.label}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-warcrow-text/70">Path:</span>
+                      <code className="text-xs bg-black/50 px-2 py-1 rounded border border-warcrow-gold/20 text-warcrow-text">
+                        {fileInfo.path}
+                      </code>
+                      <Button
+                        onClick={() => copyPathToClipboard(fileInfo.path)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-warcrow-gold hover:bg-warcrow-gold/10 p-1"
+                        title="Copy file path"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-warcrow-text/60">{fileInfo.description}</p>
+                  </div>
+                  
                   <Button
-                    onClick={() => copyToClipboard(generatedFiles[fileType], `${fileType}.ts`)}
+                    onClick={() => copyToClipboard(generatedFiles[fileInfo.key], `${fileInfo.key}.ts`)}
                     variant="outline"
                     size="sm"
                     className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
@@ -328,7 +443,7 @@ const CsvSyncManager: React.FC = () => {
                 </div>
                 
                 <Textarea
-                  value={generatedFiles[fileType]}
+                  value={generatedFiles[fileInfo.key]}
                   readOnly
                   className="font-mono text-xs h-96 bg-black/80 border-warcrow-gold/20 text-warcrow-text"
                 />
@@ -341,9 +456,10 @@ const CsvSyncManager: React.FC = () => {
             <AlertTitle className="text-blue-500">Implementation Instructions</AlertTitle>
             <AlertDescription className="text-blue-300">
               <ol className="list-decimal ml-4 space-y-1">
-                <li>Copy each generated file content to replace the corresponding files in your project</li>
-                <li>Update the main faction index file to import from the new structure</li>
-                <li>Run validation again to ensure everything is synchronized</li>
+                <li>Copy each generated file content using the "Copy Code" button</li>
+                <li>Navigate to the corresponding file path shown above each tab</li>
+                <li>Replace the existing file content with the generated content</li>
+                <li>Save the files and run validation again to confirm synchronization</li>
                 <li>Always update CSV files first, then regenerate static files</li>
               </ol>
             </AlertDescription>
