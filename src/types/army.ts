@@ -12,6 +12,9 @@ export interface Unit {
   highCommand?: boolean;
   imageUrl?: string;
   companion?: string; // ID of the unit this is a companion to
+  // CSV mapping fields
+  characteristics?: string[]; // For CSV characteristics that aren't keywords
+  csvKeywords?: string[]; // Raw CSV keywords before processing
 }
 
 export interface SelectedUnit extends Unit {
@@ -61,3 +64,35 @@ export interface Keyword {
 }
 
 export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc";
+
+// CSV Processing Types
+export interface CsvUnitRow {
+  'Unit Name': string;
+  'Unit Type': string;
+  Faction: string;
+  'Faction ID'?: string;
+  Command: string;
+  AVB: string;
+  Characteristics: string;
+  Keywords: string;
+  'High Command': string;
+  'Points Cost': string;
+  'Special Rules': string;
+  Companion?: string;
+}
+
+export interface ProcessedCsvUnit {
+  id: string;
+  name: string;
+  faction: string;
+  faction_id?: string;
+  type: string;
+  pointsCost: number;
+  availability: number;
+  command?: number;
+  characteristics: string[];
+  keywords: string[];
+  highCommand: boolean;
+  specialRules: string[];
+  companion?: string;
+}

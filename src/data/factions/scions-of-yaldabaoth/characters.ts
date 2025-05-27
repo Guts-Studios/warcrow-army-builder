@@ -112,7 +112,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
   {
     id: "master-nepharim",
     name: "Master Nepharim",
-    pointsCost: 35,
+    pointsCost: 50,
     faction: "scions-of-yaldabaoth",
     keywords: [
       { name: "Character", description: "Character unit type" },
@@ -121,9 +121,9 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Spellcaster", description: "Can cast spells" },
       { name: "Join (Red Caps, Infantry)", description: "Can join Red Caps or Infantry units" }
     ],
-    highCommand: false,
+    highCommand: true,
     availability: 1,
-    command: 1,
+    command: 3,
     specialRules: ["Dispel (BLU, BLK)"],
     imageUrl: "/art/card/master_nepharim_card.jpg"
   },
