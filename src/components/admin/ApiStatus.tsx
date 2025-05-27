@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart, List, Users } from "lucide-react";
+import { LoaderIcon, CheckCircle2, AlertCircle, XCircle, InfoIcon, BarChart, List, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   checkPatreonApiStatus, 
   getPatreonCampaignUrl, 
@@ -56,6 +57,11 @@ const ApiStatus: React.FC = () => {
     },
     {
       name: 'Patreon API',
+      status: 'unknown',
+      lastChecked: new Date()
+    },
+    {
+      name: 'GitHub API',
       status: 'unknown',
       lastChecked: new Date()
     }
@@ -186,6 +192,37 @@ const ApiStatus: React.FC = () => {
     }
   };
 
+  // Test GitHub API connection
+  const testGitHubConnection = async () => {
+    try {
+      const startTime = performance.now();
+      
+      // Test GitHub API by checking repository access
+      const { data, error } = await supabase.functions.invoke("sync-files-to-github", {
+        body: {
+          files: { test: "// Test connection" },
+          factionId: "test",
+          testConnection: true
+        }
+      });
+      
+      const endTime = performance.now();
+      const latency = Math.round(endTime - startTime);
+      
+      if (error) {
+        throw error;
+      }
+      
+      return {
+        status: 'operational' as ApiStatus,
+        latency
+      };
+    } catch (error) {
+      console.error("GitHub API test failed:", error);
+      return { status: 'down' as ApiStatus };
+    }
+  };
+
   // Fetch Patreon campaigns
   const fetchPatreonCampaigns = async () => {
     setIsLoadingCampaigns(true);
@@ -248,11 +285,12 @@ const ApiStatus: React.FC = () => {
     
     try {
       // Run all tests in parallel
-      const [deepLStatus, supabaseStatus, netlifyStatus, patreonStatus] = await Promise.all([
+      const [deepLStatus, supabaseStatus, netlifyStatus, patreonStatus, githubStatus] = await Promise.all([
         testDeepLApi(),
         testSupabaseConnection(),
         testNetlifyConnection(),
-        testPatreonConnection()
+        testPatreonConnection(),
+        testGitHubConnection()
       ]);
       
       const now = new Date();
@@ -280,6 +318,12 @@ const ApiStatus: React.FC = () => {
           name: 'Patreon API',
           status: patreonStatus.status,
           latency: patreonStatus.latency,
+          lastChecked: now
+        },
+        {
+          name: 'GitHub API',
+          status: githubStatus.status,
+          latency: githubStatus.latency,
           lastChecked: now
         }
       ]);
@@ -379,6 +423,16 @@ const ApiStatus: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* GitHub Token Expiration Warning */}
+          <Alert className="bg-yellow-900/20 border-yellow-500/50">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertTitle className="text-yellow-500">GitHub Token Expiration</AlertTitle>
+            <AlertDescription className="text-yellow-300">
+              The GitHub Personal Access Token expires on <strong>December 31st, 2025</strong>. 
+              Please renew the token before this date to maintain GitHub sync functionality.
+            </AlertDescription>
+          </Alert>
+
           {apiStatuses.map((api, index) => (
             <div key={index} className="border border-warcrow-gold/20 rounded-md p-3">
               <div className="flex justify-between items-center">
