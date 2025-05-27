@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +13,7 @@ import TranslationManagerPanel from '@/components/admin/TranslationManagerPanel'
 import UnitImagesManager from '@/components/admin/units/UnitImagesManager';
 import ValidationsPanel from '@/components/admin/validations/ValidationsPanel';
 import DebugPanel from '@/components/admin/DebugPanel';
+import CsvSyncManager from '@/components/admin/CsvSyncManager';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -140,6 +140,12 @@ const Admin = () => {
           <TabsContent value="validations">
             <AdminTabContent title="Data Validations">
               <ValidationsPanel />
+            </AdminTabContent>
+          </TabsContent>
+          
+          <TabsContent value="csv-sync">
+            <AdminTabContent title="CSV Synchronization Manager">
+              <CsvSyncManager />
             </AdminTabContent>
           </TabsContent>
           

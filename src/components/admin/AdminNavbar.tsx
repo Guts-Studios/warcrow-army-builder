@@ -12,7 +12,8 @@ import {
   Bug, 
   ActivitySquare,
   Flag,
-  FileCheck
+  FileCheck,
+  Database
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ activeTab, setActiveTab }) =>
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4 mr-2" /> },
     { id: 'users', label: 'Users', icon: <Users className="h-4 w-4 mr-2" /> },
     { id: 'validations', label: 'Validations', icon: <ActivitySquare className="h-4 w-4 mr-2" /> },
+    { id: 'csv-sync', label: 'CSV Sync', icon: <Database className="h-4 w-4 mr-2" /> },
     { id: 'unit-images', label: 'Unit Images', icon: <Image className="h-4 w-4 mr-2" /> },
     { id: 'factions', label: 'Factions', icon: <Flag className="h-4 w-4 mr-2" /> },
     { id: 'rules', label: 'Rules', icon: <Book className="h-4 w-4 mr-2" /> },
