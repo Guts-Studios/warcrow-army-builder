@@ -81,15 +81,66 @@ export function useAuth() {
 
   useEffect(() => {
     let mounted = true;
-    let sessionCheckTimeout: number | null = null;
+    let profileFetchTimeout: NodeJS.Timeout | null = null;
+
+    const fetchUserProfile = async (userId: string, retryCount = 0) => {
+      const MAX_RETRIES = 3;
+      const RETRY_DELAY = 1000;
+
+      try {
+        console.log(`[Auth] Fetching profile for user ${userId}, attempt ${retryCount + 1}`);
+        
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('wab_admin, tester')
+          .eq('id', userId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("[Auth] Error fetching profile:", error);
+          if (retryCount < MAX_RETRIES) {
+            console.log(`[Auth] Retrying profile fetch in ${RETRY_DELAY}ms...`);
+            profileFetchTimeout = setTimeout(() => {
+              if (mounted) {
+                fetchUserProfile(userId, retryCount + 1);
+              }
+            }, RETRY_DELAY);
+            return;
+          }
+        }
+        
+        if (mounted && data) {
+          const isAdminUser = !!data.wab_admin;
+          console.log(`[Auth] Profile loaded successfully: admin=${isAdminUser}, tester=${!!data.tester}`);
+          setIsAdmin(isAdminUser);
+          setIsTester(!!data.tester);
+          setIsWabAdmin(isAdminUser);
+        } else if (mounted) {
+          console.log("[Auth] No profile data found or error occurred");
+          setIsAdmin(isPreview);
+          setIsTester(isPreview);
+          setIsWabAdmin(isPreview);
+        }
+      } catch (err) {
+        console.error("[Auth] Exception during profile fetch:", err);
+        if (mounted) {
+          setIsAdmin(isPreview);
+          setIsTester(isPreview);
+          setIsWabAdmin(isPreview);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
 
     const checkAuthStatus = async () => {
       try {
-        setIsLoading(true);
+        console.log("[Auth] Starting auth check...");
         
         // Handle preview environment explicitly
         if (isPreview) {
-          // In preview, users are authenticated unless explicitly marked as guests
           const isGuestUser = localStorage.getItem('guestSession') === 'true';
           
           if (mounted) {
@@ -107,186 +158,73 @@ export function useAuth() {
         // For production environments, check real auth state
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        // If there's an error getting the session, treat as authentication failure
         if (sessionError) {
           console.error("[Auth] Session error:", sessionError);
-          
           if (mounted) {
             setIsAuthenticated(false);
             setIsGuest(true);
-            
-            // If there was a session error, try to clean up auth state
+            setIsLoading(false);
             forceSignOut();
           }
           return;
         }
         
         if (mounted) {
-          // Set auth state based on session
-          setIsAuthenticated(!!session);
+          const isAuth = !!session;
+          console.log(`[Auth] Session check complete: authenticated=${isAuth}`);
+          
+          setIsAuthenticated(isAuth);
           setUserId(session?.user?.id || null);
           setIsGuest(!session);
           
-          // If authenticated, check for admin/tester status
           if (session?.user?.id) {
-            try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('wab_admin, tester')
-                .eq('id', session.user.id)
-                .maybeSingle(); // Use maybeSingle to avoid errors if no row is found
-                
-              if (!error && data && mounted) {
-                const isAdminUser = !!data.wab_admin;
-                setIsAdmin(isAdminUser);
-                setIsTester(!!data.tester);
-                setIsWabAdmin(isAdminUser);
-              } else if (mounted) {
-                // In preview mode, default to admin
-                if (isPreview) {
-                  setIsAdmin(true);
-                  setIsTester(true);
-                  setIsWabAdmin(true);
-                } else {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
-              }
-            } catch (err) {
-              console.error("[Auth] Error checking user roles:", err);
-              if (mounted) {
-                // In preview mode, default to admin
-                if (isPreview) {
-                  setIsAdmin(true);
-                  setIsTester(true);
-                  setIsWabAdmin(true);
-                } else {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
-              }
-            }
-          } else if (isPreview && mounted) {
-            // Not authenticated but in preview mode
-            const isGuestUser = localStorage.getItem('guestSession') === 'true';
-            if (!isGuestUser) {
-              setIsAdmin(true);
-              setIsTester(true);
-              setIsWabAdmin(true);
-              setIsAuthenticated(true);
-              setUserId("preview-user-id");
-              setIsGuest(false);
-            } else {
-              setIsAuthenticated(false);
-              setIsAdmin(false);
-              setIsTester(false);
-              setIsWabAdmin(false);
-              setIsGuest(true);
-            }
+            // Don't set loading to false yet, wait for profile fetch
+            await fetchUserProfile(session.user.id);
           } else {
-            // Not authenticated and not in preview
             setIsAdmin(false);
             setIsTester(false);
             setIsWabAdmin(false);
+            setIsLoading(false);
           }
-          
-          setIsLoading(false);
         }
       } catch (error) {
-        console.error("[Auth] Error in auth hook:", error);
+        console.error("[Auth] Error in auth check:", error);
         if (mounted) {
           setIsLoading(false);
-          
-          // In preview, default to admin even on error
-          if (isPreview) {
-            const isGuestUser = localStorage.getItem('guestSession') === 'true';
-            if (!isGuestUser) {
-              setIsAuthenticated(true);
-              setIsAdmin(true);
-              setIsTester(true);
-              setIsWabAdmin(true);
-              setIsGuest(false);
-            } else {
-              setIsAuthenticated(false);
-              setIsAdmin(false);
-              setIsTester(false);
-              setIsWabAdmin(false);
-              setIsGuest(true);
-            }
-          } else {
-            // In production, default to guest on error
-            setIsAuthenticated(false);
-            setIsAdmin(false);
-            setIsTester(false);
-            setIsWabAdmin(false);
-            setIsGuest(true);
-          }
+          setIsAuthenticated(false);
+          setIsAdmin(isPreview);
+          setIsTester(isPreview);
+          setIsWabAdmin(isPreview);
+          setIsGuest(!isPreview);
         }
       }
     };
     
     const setupAuthListener = () => {
-      // Set up the auth state listener
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (!mounted) return;
           
-          setIsAuthenticated(!!session);
+          console.log(`[Auth] Auth state changed: ${event}`, {
+            hasUser: !!session?.user,
+            userId: session?.user?.id
+          });
+          
+          const isAuth = !!session;
+          setIsAuthenticated(isAuth);
           setUserId(session?.user?.id || null);
           setIsGuest(!session);
           
-          // If authenticated, check for admin/tester status
-          if (session?.user?.id) {
-            try {
-              // Use setTimeout to prevent deadlocks in Auth state changes
-              setTimeout(async () => {
-                if (!mounted) return;
-                
-                const { data, error } = await supabase
-                  .from('profiles')
-                  .select('wab_admin, tester')
-                  .eq('id', session.user.id)
-                  .maybeSingle();
-                    
-                if (!error && data && mounted) {
-                  const isAdminUser = !!data.wab_admin;
-                  setIsAdmin(isAdminUser);
-                  setIsTester(!!data.tester);
-                  setIsWabAdmin(isAdminUser);
-                } else if (mounted && isPreview) {
-                  setIsAdmin(true);
-                  setIsTester(true);
-                  setIsWabAdmin(true);
-                } else if (mounted) {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
-              }, 0);
-            } catch (err) {
-              console.error("[Auth] Error checking user roles on auth change:", err);
-              if (mounted && isPreview) {
-                setIsAdmin(true);
-                setIsTester(true);
-                setIsWabAdmin(true);
-              } else if (mounted) {
-                setIsAdmin(false);
-                setIsTester(false);
-                setIsWabAdmin(false);
-              }
+          if (session?.user?.id && event !== 'INITIAL_SESSION') {
+            setIsLoading(true);
+            await fetchUserProfile(session.user.id);
+          } else if (!session) {
+            setIsAdmin(isPreview);
+            setIsTester(isPreview);
+            setIsWabAdmin(isPreview);
+            if (event !== 'INITIAL_SESSION') {
+              setIsLoading(false);
             }
-          } else if (isPreview && mounted) {
-            // Not authenticated but in preview mode
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-          } else if (mounted) {
-            // Not authenticated and not in preview
-            setIsAdmin(false);
-            setIsTester(false);
-            setIsWabAdmin(false);
           }
         }
       );
@@ -296,16 +234,14 @@ export function useAuth() {
       };
     };
 
-    // Setup auth listener first
+    // Setup auth listener first, then check auth status
     const unsubscribeAuth = setupAuthListener();
-    
-    // Then check auth status
     checkAuthStatus();
     
     return () => {
       mounted = false;
       if (unsubscribeAuth) unsubscribeAuth();
-      if (sessionCheckTimeout) window.clearInterval(sessionCheckTimeout);
+      if (profileFetchTimeout) clearTimeout(profileFetchTimeout);
     };
   }, [isPreview, isProduction, hostname]);
 

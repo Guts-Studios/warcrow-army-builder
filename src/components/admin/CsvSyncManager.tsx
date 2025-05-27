@@ -17,7 +17,9 @@ import {
   Download,
   Loader2,
   Copy,
-  Folder
+  Folder,
+  Save,
+  FileDown
 } from 'lucide-react';
 import { 
   generateFactionFiles, 
@@ -88,6 +90,42 @@ const CsvSyncManager: React.FC = () => {
   const copyPathToClipboard = (path: string) => {
     navigator.clipboard.writeText(path);
     toast.success(`File path copied to clipboard!`);
+  };
+
+  const downloadFile = (content: string, fileName: string) => {
+    try {
+      const blob = new Blob([content], { type: 'text/typescript' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(`${fileName} downloaded successfully!`);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error(`Failed to download ${fileName}`);
+    }
+  };
+
+  const downloadAllFiles = () => {
+    if (!generatedFiles) {
+      toast.error('No files to download');
+      return;
+    }
+
+    const filePathInfo = getFilePathInfo(selectedFaction);
+    
+    filePathInfo.forEach((fileInfo) => {
+      if (generatedFiles[fileInfo.key]) {
+        const fileName = fileInfo.path.split('/').pop() || `${fileInfo.key}.ts`;
+        downloadFile(generatedFiles[fileInfo.key], fileName);
+      }
+    });
+
+    toast.success('All files downloaded!');
   };
 
   const handleGenerateFiles = async () => {
@@ -270,8 +308,8 @@ const CsvSyncManager: React.FC = () => {
             <AlertTriangle className="h-4 w-4 text-blue-500" />
             <AlertTitle className="text-blue-500">File Update Instructions</AlertTitle>
             <AlertDescription className="text-blue-300">
-              After generating files, copy each file's content and replace the corresponding file at the path shown above. 
-              Click the copy icon next to each path to copy it to your clipboard.
+              After generating files, you can either download them individually or use the "Download All Files" button. 
+              Then replace the corresponding files at the paths shown above.
             </AlertDescription>
           </Alert>
         </Card>
@@ -391,10 +429,20 @@ const CsvSyncManager: React.FC = () => {
       {/* Generated Files Panel */}
       {generatedFiles && (
         <Card className="p-6 bg-black/50 border-warcrow-gold/30">
-          <h2 className="text-lg font-semibold text-warcrow-gold mb-4 flex items-center">
-            <FileText className="mr-2 h-5 w-5" />
-            Generated Files
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-warcrow-gold flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              Generated Files
+            </h2>
+            
+            <Button
+              onClick={downloadAllFiles}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Download All Files
+            </Button>
+          </div>
           
           <Tabs defaultValue="troops" className="w-full">
             <TabsList className="grid w-full grid-cols-4 bg-black border-warcrow-gold/30">
@@ -408,7 +456,7 @@ const CsvSyncManager: React.FC = () => {
             {filePathInfo.map((fileInfo) => (
               <TabsContent key={fileInfo.key} value={fileInfo.key} className="space-y-4">
                 <div className="flex justify-between items-start">
-                  <div className="space-y-1">
+                  <div className="space-y-1 flex-1">
                     <h3 className="text-warcrow-gold font-medium flex items-center">
                       <FileText className="mr-2 h-4 w-4" />
                       {fileInfo.label}
@@ -431,15 +479,30 @@ const CsvSyncManager: React.FC = () => {
                     <p className="text-xs text-warcrow-text/60">{fileInfo.description}</p>
                   </div>
                   
-                  <Button
-                    onClick={() => copyToClipboard(generatedFiles[fileInfo.key], `${fileInfo.key}.ts`)}
-                    variant="outline"
-                    size="sm"
-                    className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Copy Code
-                  </Button>
+                  <div className="flex gap-2 ml-4">
+                    <Button
+                      onClick={() => copyToClipboard(generatedFiles[fileInfo.key], `${fileInfo.key}.ts`)}
+                      variant="outline"
+                      size="sm"
+                      className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10"
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Code
+                    </Button>
+                    
+                    <Button
+                      onClick={() => {
+                        const fileName = fileInfo.path.split('/').pop() || `${fileInfo.key}.ts`;
+                        downloadFile(generatedFiles[fileInfo.key], fileName);
+                      }}
+                      variant="default"
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                  </div>
                 </div>
                 
                 <Textarea
@@ -456,7 +519,7 @@ const CsvSyncManager: React.FC = () => {
             <AlertTitle className="text-blue-500">Implementation Instructions</AlertTitle>
             <AlertDescription className="text-blue-300">
               <ol className="list-decimal ml-4 space-y-1">
-                <li>Copy each generated file content using the "Copy Code" button</li>
+                <li>Use "Download All Files" to get all generated files at once, or download individually</li>
                 <li>Navigate to the corresponding file path shown above each tab</li>
                 <li>Replace the existing file content with the generated content</li>
                 <li>Save the files and run validation again to confirm synchronization</li>

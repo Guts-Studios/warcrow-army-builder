@@ -24,59 +24,60 @@ import FactionManager from '@/components/admin/units/FactionManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { isAuthenticated, isWabAdmin } = useAuth();
+  const { isAuthenticated, isWabAdmin, isLoading } = useAuth();
   const { isPreview } = useEnvironment();
   
   // Use our hook to ensure default factions exist
   useEnsureDefaultFactions();
   
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      setIsCheckingAdmin(true);
-      try {
-        // ACCESS CONTROL LOGIC:
-        // 1. In preview environments: Always allow access regardless of authentication or admin status
-        // 2. In production: Only allow access if user is both authenticated AND has admin privileges
-        
-        // If the auth check is still loading, wait before making any decisions
-        if (isAuthenticated === null) {
-          return; // Don't redirect yet, still loading auth state
-        }
-        
-        // Apply the access control logic
-        const hasAccess = isPreview || (isAuthenticated === true && isWabAdmin === true);
-        
-        if (!hasAccess) {
-          console.log("Admin page: Access denied, redirecting to home");
-          navigate('/');
-          return;
-        }
-        
-        console.log("Admin page: Access granted");
-      } catch (error) {
-        console.error('Error checking admin status:', error);
+    // Don't redirect while authentication is still loading
+    if (isLoading) {
+      console.log("Admin page: Auth still loading, waiting...");
+      return;
+    }
+
+    const checkAdminAccess = () => {
+      console.log("Admin page: Checking access with:", {
+        isAuthenticated,
+        isWabAdmin,
+        isPreview,
+        isLoading
+      });
+
+      // ACCESS CONTROL LOGIC:
+      // 1. In preview environments: Always allow access regardless of authentication or admin status
+      // 2. In production: Only allow access if user is both authenticated AND has admin privileges
+      
+      const hasAccess = isPreview || (isAuthenticated === true && isWabAdmin === true);
+      
+      if (!hasAccess) {
+        console.log("Admin page: Access denied, redirecting to home");
         navigate('/');
-      } finally {
-        setIsCheckingAdmin(false);
+        return;
       }
+      
+      console.log("Admin page: Access granted");
     };
     
-    checkAdminStatus();
-  }, [navigate, isWabAdmin, isPreview, isAuthenticated]);
+    checkAdminAccess();
+  }, [navigate, isAuthenticated, isWabAdmin, isPreview, isLoading]);
   
-  // Show loading spinner if we're still checking admin status or auth state is still loading
-  if (isCheckingAdmin || isAuthenticated === null) {
+  // Show loading spinner while authentication is being determined
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-warcrow-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold"></div>
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-warcrow-gold mx-auto"></div>
+          <p className="text-warcrow-gold">Checking admin access...</p>
+        </div>
       </div>
     );
   }
   
-  // Show admin content
+  // Show admin content only after auth state is fully determined
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       {/* Main navigation bar */}
@@ -93,6 +94,9 @@ const Admin = () => {
               {t('backToSite')}
             </Button>
             <h1 className="text-xl font-bold text-warcrow-gold">Admin Panel</h1>
+            {isPreview && (
+              <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">PREVIEW MODE</span>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
