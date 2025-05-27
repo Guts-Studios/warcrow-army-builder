@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import PatreonSupportSection from '@/components/about/PatreonSupportSection';
 import SupportersList from '@/components/about/SupportersList';
 import LatestPosts from '@/components/about/LatestPosts';
-import { Footer } from '@/components/landing/Footer';
+import Footer from '@/components/Footer';
 import { Container } from '@/components/ui/custom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { aboutTranslations } from '@/i18n/about';

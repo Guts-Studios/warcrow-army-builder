@@ -1,6 +1,7 @@
+
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
-import NewsArchiveDialog from "./NewsArchiveDialog";
+import NewsArchiveDialog from "@/components/NewsArchiveDialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Loader2 } from "lucide-react";
