@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +71,7 @@ const ApiStatus: React.FC = () => {
   const [patreonCampaigns, setPatreonCampaigns] = useState<PatreonCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<string>(DEFAULT_CAMPAIGN_ID);
   const [campaignMembers, setCampaignMembers] = useState<PatreonPatron[]>([]);
-  
+
   // Test DeepL API connection
   const testDeepLApi = async () => {
     try {
@@ -192,17 +193,31 @@ const ApiStatus: React.FC = () => {
     }
   };
 
-  // Test GitHub API connection
+  // Test GitHub API connection with proper authentication
   const testGitHubConnection = async () => {
     try {
       const startTime = performance.now();
       
-      // Test GitHub API with a simple request that should pass authentication
-      // but fail validation (which means auth worked)
+      // First, let's verify we have a valid session and get the access token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error("No valid session or access token:", sessionError);
+        return { status: 'down' as ApiStatus };
+      }
+      
+      console.log('Session found, user ID:', session.user?.id);
+      console.log('Access token present:', !!session.access_token);
+      
+      // Test GitHub API with a simple request but with proper headers
       const { data, error } = await supabase.functions.invoke("sync-files-to-github", {
         body: {
           files: { test: "console.log('test');" },
           factionId: "test-faction"
+        },
+        headers: {
+          // Explicitly pass the authorization header
+          'Authorization': `Bearer ${session.access_token}`,
         }
       });
       
@@ -213,6 +228,8 @@ const ApiStatus: React.FC = () => {
       if (error) {
         // Parse the error to understand what went wrong
         const errorMessage = error.message || '';
+        
+        console.log('GitHub API error details:', error);
         
         // If it's a GitHub token issue, that's a real API problem
         if (errorMessage.includes('GitHub token not configured') || 
@@ -241,6 +258,7 @@ const ApiStatus: React.FC = () => {
       
       // If we got a successful response, GitHub is operational
       if (data) {
+        console.log('GitHub API test successful:', data);
         return {
           status: 'operational' as ApiStatus,
           latency

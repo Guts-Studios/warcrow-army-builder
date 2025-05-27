@@ -15,30 +15,42 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Debug: Log the authorization header we received
+    const authHeader = req.headers.get('Authorization');
+    console.log('Authorization header received:', authHeader ? 'Present' : 'Missing');
+    console.log('Authorization header preview:', authHeader ? authHeader.substring(0, 20) + '...' : 'None');
+    
     // Create a Supabase client with the Auth context of the logged in user
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      { global: { headers: { Authorization: authHeader! } } }
     );
 
     // Verify the user is an admin
+    console.log('Attempting to get user from token...');
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
     if (authError || !user) {
       console.log('User authentication failed:', authError);
+      console.log('Auth error details:', JSON.stringify(authError, null, 2));
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 401,
       });
     }
 
+    console.log('User authenticated successfully:', user.id);
+
     // Check if the user is an admin
+    console.log('Checking admin privileges for user:', user.id);
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('wab_admin')
       .eq('id', user.id)
       .single();
+    
+    console.log('Profile query result:', { profile, profileError });
     
     if (profileError || !profile || !profile.wab_admin) {
       console.log('Admin check failed:', profileError, profile);
@@ -47,6 +59,8 @@ serve(async (req: Request) => {
         status: 403,
       });
     }
+
+    console.log('Admin privileges confirmed for user:', user.id);
 
     // Parse the request body
     const { files, factionId } = await req.json();
