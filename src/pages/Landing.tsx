@@ -1,359 +1,170 @@
 
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Header } from "@/components/landing/Header";
-import { MainActions } from "@/components/landing/MainActions";
-import { SecondaryActions } from "@/components/landing/SecondaryActions";
-import { Footer } from "@/components/landing/Footer";
-import { getLatestVersion } from "@/utils/version";
-import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "@/components/common/LanguageSwitcher";
-import { getBuildFailureNotifications } from "@/utils/notificationUtils";
-import { AlertTriangle, PlayCircle } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
-import { useEnvironment } from "@/hooks/useEnvironment";
-import { SupportButton } from "@/components/landing/SupportButton";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import NewsArchiveDialog from '@/components/NewsArchiveDialog';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
-const fetchUserCount = async () => {
-  try {
-    console.log("Fetching user count with fresh query...");
-    
-    // Add timestamp to bust cache completely
-    const timestamp = new Date().getTime();
-    
-    // Use a direct count query with explicit cache busting
-    const { count, error } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('banned', false)
-      .eq('deactivated', false)
-      .then(response => {
-        console.log('User count response:', response);
-        return response;
-      });
-    
-    if (error) {
-      console.error('Error fetching user count:', error);
-      throw error;
-    }
-    
-    console.log('Retrieved user count:', count);
-    return count || 470; // Default to 470 if count is null
-  } catch (error) {
-    console.error('Error in fetchUserCount:', error);
-    // Return a default value to prevent UI issues
-    return 470;
-  }
-};
-
-// Function to check if the latest deployment is a failure
-const checkLatestBuildStatus = async () => {
-  try {
-    console.log("Checking latest build status...");
-    const { data, error } = await supabase.functions.invoke('get-netlify-deployments', {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
-    
-    if (error || !data || !data.deployments || data.deployments.length === 0) {
-      console.error('Error fetching deployments:', error);
-      return null;
-    }
-    
-    // Sort deployments by creation date to ensure we get the most recent first
-    const sortedDeployments = [...data.deployments].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-    
-    // Check if the latest deployment is a failure
-    const latestDeployment = sortedDeployments[0];
-    
-    // Only return warcrow site failures (not other sites)
-    const isWarcrowSite = (site) => {
-      return site === "warcrow-army-builder" || site === "warcrowarmy.com";
-    };
-    
-    // If the latest deployment was successful or not a warcrow site, we should return null (no failure)
-    if (latestDeployment.state !== 'error' || !isWarcrowSite(latestDeployment.site_name)) {
-      console.log('Latest warcrow deployment was successful or not a warcrow site, not showing failure alert');
-      return null;
-    }
-    
-    console.log('Latest warcrow deployment failed, showing failure alert:', latestDeployment);
-    return latestDeployment;
-  } catch (err) {
-    console.error('Error checking latest build status:', err);
-    return null;
-  }
-};
-
-// Function to fetch changelog content from the public path
-const fetchChangelogContent = async () => {
-  try {
-    const timestamp = new Date().getTime();
-    const response = await fetch(`/CHANGELOG.md?t=${timestamp}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Accept': 'text/plain, text/markdown'
-      },
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch changelog: ${response.status}`);
-    }
-    
-    const content = await response.text();
-    return content;
-  } catch (error) {
-    console.error('Failed to fetch changelog content:', error);
-    return "# Changelog\n\nFailed to load changelog content.";
-  }
-};
+interface NewsItem {
+  id: string;
+  date: string;
+  key: string;
+}
 
 const Landing = () => {
-  console.log('Landing component rendering...');
-  
   const navigate = useNavigate();
-  const [isGuest, setIsGuest] = useState(false);
-  const [showTesterDialog, setShowTesterDialog] = useState(false);
-  const [buildFailures, setBuildFailures] = useState<any[]>([]);
-  const [latestFailedBuild, setLatestFailedBuild] = useState<any>(null);
-  const [changelogContent, setChangelogContent] = useState<string>("");
+  const [userCount, setUserCount] = useState<number>(0);
+  const [latestNews, setLatestNews] = useState<NewsItem | null>(null);
+  const [newsDialogOpen, setNewsDialogOpen] = useState(false);
+  const [isLoadingUserCount, setIsLoadingUserCount] = useState(false);
+  const [isLoadingNews, setIsLoadingNews] = useState(false);
   
-  // Fetch changelog content on mount
-  useEffect(() => {
-    const loadChangelog = async () => {
-      const content = await fetchChangelogContent();
-      setChangelogContent(content);
-    };
-    loadChangelog();
-  }, []);
-  
-  // Add error boundary for version loading
-  let latestVersion;
-  try {
-    latestVersion = getLatestVersion(changelogContent);
-    console.log('Latest version loaded:', latestVersion);
-  } catch (error) {
-    console.error('Error loading version:', error);
-    latestVersion = '1.0.0'; // Fallback version
-  }
-  
-  const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated, isTester } = useAuth();
+  const { isAuthenticated, isWabAdmin, isLoading: authLoading } = useAuth();
   const { isPreview } = useEnvironment();
-  
-  console.log('Auth state:', { isWabAdmin, isAuthenticated, isTester, isPreview });
-  
-  // Check if user has permission to see the Play Mode - Ensure guest users can't see it
-  const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
 
-  useEffect(() => {
-    console.log('Landing.tsx: Current hostname:', window.location.hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreview);
-  }, [isPreview]);
+  console.log("Auth state:", { isWabAdmin, isAuthenticated, isPreview });
 
-  const { 
-    data: userCount = 470, // Provide a default value here
-    isLoading: isLoadingUserCount,
-    refetch: refetchUserCount 
-  } = useQuery({
-    queryKey: ['userCount'],
-    queryFn: fetchUserCount,
-    staleTime: 0, // No caching
-    gcTime: 0, // Don't cache at all
-    retry: 2, // Retry twice to ensure we get the data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    enabled: true, // Always enable this query
-    meta: {
-      onError: (error: any) => {
-        console.error('Failed to fetch user count:', error);
-        toast.error('Failed to fetch user statistics');
-      }
+  // Wait for auth to be resolved before fetching data
+  const isAuthResolved = !authLoading && isAuthenticated !== null;
+
+  const fetchUserCount = async () => {
+    if (!isAuthResolved) {
+      console.log("Skipping user count fetch - auth not resolved yet");
+      return;
     }
-  });
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
-
-      const { data, error } = await supabase
+    setIsLoadingUserCount(true);
+    try {
+      console.log("Fetching user count...");
+      const { count, error } = await supabase
         .from('profiles')
-        .select('tester, wab_admin')
-        .eq('id', session.user.id)
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Error fetching user count:', error);
+        setUserCount(489); // Fallback
+      } else {
+        setUserCount(count || 489);
+        console.log(`User count fetched: ${count}`);
+      }
+    } catch (error) {
+      console.error('Error in fetchUserCount:', error);
+      setUserCount(489); // Fallback
+    } finally {
+      setIsLoadingUserCount(false);
+    }
+  };
+
+  const fetchLatestNews = async () => {
+    if (!isAuthResolved) {
+      console.log("Skipping news fetch - auth not resolved yet");
+      return;
+    }
+
+    setIsLoadingNews(true);
+    try {
+      console.log("Fetching latest news...");
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1)
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
-        throw error;
+        console.error('Error fetching latest news:', error);
+      } else if (data) {
+        console.log("Fetched latest news item from database:", data);
+        setLatestNews({
+          id: data.news_id,
+          date: data.date,
+          key: data.translation_key
+        });
       }
-      return data;
-    },
-    enabled: isAuthenticated === true && isGuest === false,
-    staleTime: 0, // No caching
-    retry: 2
-  });
+    } catch (error) {
+      console.error('Error in fetchLatestNews:', error);
+    } finally {
+      setIsLoadingNews(false);
+    }
+  };
 
-  // Only fetch build status if user is admin
+  // Fetch data when auth is resolved
   useEffect(() => {
-    const fetchBuildStatus = async () => {
-      if (isWabAdmin || isPreview) {
-        try {
-          // Get build failure notifications for the notification system
-          const { notifications, error } = await getBuildFailureNotifications();
-          if (!error && notifications.length > 0) {
-            setBuildFailures(notifications);
+    if (isAuthResolved) {
+      console.log("Auth resolved, fetching data...");
+      fetchUserCount();
+      fetchLatestNews();
+    }
+  }, [isAuthResolved]);
+
+  // Subscribe to auth state changes and refetch data
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, { hasUser: !!session?.user });
+      
+      // Refetch data when user signs in/out
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setTimeout(() => {
+          if (!authLoading) {
+            fetchUserCount();
+            fetchLatestNews();
           }
-          
-          // Check if the latest build specifically has failed
-          const latestFailure = await checkLatestBuildStatus();
-          console.log('checkLatestBuildStatus returned:', latestFailure);
-          setLatestFailedBuild(latestFailure);
-        } catch (err) {
-          console.error('Error checking build status:', err);
-        }
+        }, 100);
       }
-    };
-    
-    // Always log isWabAdmin value for debugging
-    console.log('isWabAdmin value:', isWabAdmin);
-    
-    fetchBuildStatus();
-    
-    // Set up a refresh interval only if user is admin
-    const intervalId = (isWabAdmin || isPreview) ? setInterval(fetchBuildStatus, 120000) : null; // Refresh every 2 minutes
-    
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isWabAdmin, isPreview]);
+    });
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      // Force refresh the auth state on mount
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsGuest(!session);
-    };
+    return () => subscription.unsubscribe();
+  }, [authLoading]);
 
-    checkAuthStatus();
-  }, []);
-
-  console.log('Rendering Landing page with userCount:', userCount);
+  console.log(`Rendering Landing page with userCount: ${userCount}`);
 
   return (
-    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
-      <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
-        <SupportButton className="z-50" />
-        <LanguageSwitcher />
-      </div>
+    <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col">
+      <Header 
+        latestNewsItem={latestNews} 
+        onNewsClick={() => setNewsDialogOpen(true)}
+      />
       
-      {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}
-      {(!!isWabAdmin || isPreview) && latestFailedBuild && (
-        <div className="fixed top-16 inset-x-0 mx-auto z-50 max-w-3xl w-full px-4">
-          <Alert variant="destructive" className="mb-4 bg-red-900/90 border-red-600 backdrop-blur-sm animate-pulse">
-            <AlertTriangle className="h-5 w-5 text-red-300" />
-            <AlertTitle className="text-red-100 text-lg font-bold">Latest Site Deployment Failed</AlertTitle>
-            <AlertDescription className="text-red-200">
-              <p className="mb-1">Site may be experiencing issues. {isWabAdmin ? "Please check deployment status." : "The team has been notified."}</p>
-              {isWabAdmin && (
-                <Button 
-                  variant="link" 
-                  className="p-0 h-auto text-blue-300 hover:text-blue-200"
-                  onClick={() => latestFailedBuild && window.open(latestFailedBuild.deploy_url, '_blank')}
-                >
-                  View deployment details
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-      
-      <div className="text-center space-y-6 md:space-y-8 max-w-xl mx-auto mt-16 mb-16">
-        <Header 
-          latestVersion={latestVersion} 
-          userCount={userCount} 
-          isLoadingUserCount={isLoadingUserCount} 
-          latestFailedBuild={latestFailedBuild}
-        />
-        <MainActions />
-        
-        {/* Play Mode Button - Only shown to testers or admins who are not guests */}
-        {canAccessPlayMode && (
-          <div className="flex justify-center">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="text-6xl md:text-8xl font-bold text-warcrow-gold mb-8 tracking-wider">
+            WARCROW
+          </h1>
+          <h2 className="text-2xl md:text-4xl font-semibold text-warcrow-text mb-6">
+            Army Builder
+          </h2>
+          <p className="text-lg md:text-xl text-warcrow-text/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Build competitive armies, explore unit synergies, and dominate the battlefield in the world of Warcrow.
+          </p>
+          
+          <div className="space-y-4 mb-8">
             <Button 
-              variant="outline"
-              className="border-warcrow-gold/30 text-warcrow-gold hover:bg-warcrow-gold/10 flex items-center gap-2"
-              onClick={() => navigate('/play')}
+              onClick={() => navigate('/army-builder')}
+              className="bg-warcrow-gold text-black hover:bg-warcrow-gold/90 text-lg px-8 py-4 font-semibold tracking-wide"
+              size="lg"
             >
-              <PlayCircle className="h-5 w-5" />
-              <span>{t('playMode')}</span>
+              START BUILDING
             </Button>
           </div>
-        )}
-        
-        <SecondaryActions isGuest={isGuest} />
 
-        <AlertDialog open={showTesterDialog} onOpenChange={setShowTesterDialog}>
-          <AlertDialogContent className="bg-warcrow-background border border-warcrow-gold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-warcrow-gold">
-                {t('testersOnly')}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-warcrow-text">
-                {t('testersOnlyDescription')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogCancel className="border-warcrow-gold text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black">
-              {t('cancel')}
-            </AlertDialogCancel>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <div className="mt-6 md:mt-8 text-sm text-warcrow-text/80">
-          <p>
-            {t('haveFeedback')}
-          </p>
-          <a 
-            href="mailto:warcrowarmy@gmail.com"
-            className="text-warcrow-gold hover:text-warcrow-gold/80 underline"
-          >
-            {t('contactEmail')}
-          </a>
+          <div className="text-center text-warcrow-text/70">
+            <p className="text-sm">
+              {isLoadingUserCount ? 'Loading...' : `Join ${userCount.toLocaleString()} commanders`} already building their armies
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="mt-auto w-full">
-        <Footer />
-      </div>
+      </main>
+
+      <Footer />
+      
+      <NewsArchiveDialog 
+        open={newsDialogOpen} 
+        onOpenChange={setNewsDialogOpen}
+      />
     </div>
   );
 };

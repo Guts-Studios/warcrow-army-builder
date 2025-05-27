@@ -38,17 +38,36 @@ export const factionNameMap: Record<string, string> = {
 
 // Improved normalize and deduplicate units function
 const normalizeUnits = () => {
-  // Explicitly pre-normalize the Northern Tribes units to ensure consistent faction property
+  // Explicitly pre-normalize all faction units to ensure consistent faction property
   const normalizedNorthernTribesUnits = northernTribesUnits.map(unit => ({
     ...unit,
-    faction: 'northern-tribes'
+    faction: 'northern-tribes',
+    faction_id: 'northern-tribes'
+  }));
+  
+  const normalizedHegemonyUnits = hegemonyOfEmbersigUnits.map(unit => ({
+    ...unit,
+    faction: 'hegemony-of-embersig',
+    faction_id: 'hegemony-of-embersig'
+  }));
+
+  const normalizedScionsUnits = scionsOfYaldabaothUnits.map(unit => ({
+    ...unit,
+    faction: 'scions-of-yaldabaoth',
+    faction_id: 'scions-of-yaldabaoth'
+  }));
+
+  const normalizedSyenannUnits = syenannUnits.map(unit => ({
+    ...unit,
+    faction: 'syenann',
+    faction_id: 'syenann'
   }));
   
   const allUnits = [
     ...normalizedNorthernTribesUnits,
-    ...hegemonyOfEmbersigUnits, 
-    ...scionsOfYaldabaothUnits, 
-    ...syenannUnits
+    ...normalizedHegemonyUnits, 
+    ...normalizedScionsUnits, 
+    ...normalizedSyenannUnits
   ];
   
   const uniqueUnits = [];
@@ -56,11 +75,11 @@ const normalizeUnits = () => {
   const namesByFaction: Record<string, Set<string>> = {};
   
   // Debug info about units before normalization
-  console.log(`Normalizing ${allUnits.length} total units:`);
+  console.log(`[FACTION DEBUG] Normalizing ${allUnits.length} total units:`);
   console.log(`- Northern Tribes: ${normalizedNorthernTribesUnits.length}`);
-  console.log(`- Hegemony: ${hegemonyOfEmbersigUnits.length}`);
-  console.log(`- Scions: ${scionsOfYaldabaothUnits.length}`);
-  console.log(`- Syenann: ${syenannUnits.length}`);
+  console.log(`- Hegemony: ${normalizedHegemonyUnits.length}`);
+  console.log(`- Scions: ${normalizedScionsUnits.length}`);
+  console.log(`- Syenann: ${normalizedSyenannUnits.length}`);
   
   // Keep track of faction distribution
   const factionCounts = {
@@ -70,6 +89,9 @@ const normalizeUnits = () => {
     'syenann': 0,
     'unknown': 0
   };
+  
+  // Debug: Print valid faction IDs
+  console.log(`[FACTION DEBUG] Valid faction IDs:`, Object.keys(factionCounts).filter(f => f !== 'unknown'));
   
   // First pass: initialize namesByFaction sets
   Object.keys(factionCounts).forEach(faction => {
@@ -83,30 +105,19 @@ const normalizeUnits = () => {
       continue;
     }
     
-    // Normalize faction name
-    let normalizedFaction = unit.faction?.toLowerCase() || "";
+    // Use the normalized faction_id that we set above
+    const normalizedFaction = unit.faction_id || unit.faction;
     
-    // Check if faction name needs normalization from the map
-    if (factionNameMap[unit.faction]) {
-      normalizedFaction = factionNameMap[unit.faction];
-    }
-    // Check if it's a space-separated name that needs conversion
-    else if (unit.faction && unit.faction.includes(' ')) {
-      const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
-      normalizedFaction = factionNameMap[kebabName] || kebabName;
-    }
-    
-    // Special case for Northern Tribes - ensure faction consistency
-    if (unit.name.toLowerCase().includes('northern') || 
-        (unit.faction && unit.faction.toLowerCase().includes('northern')) ||
-        (unit.faction && unit.faction.toLowerCase().includes('tribe'))) {
-      normalizedFaction = 'northern-tribes';
+    // Debug: Print first few unit faction mappings
+    if (uniqueUnits.length < 5) {
+      console.log(`[FACTION DEBUG] Unit "${unit.name}" has faction: "${unit.faction}", faction_id: "${unit.faction_id}", normalized: "${normalizedFaction}"`);
     }
     
     // Create a normalized unit with consistent faction naming
     const normalizedUnit = {
       ...unit,
-      faction: normalizedFaction
+      faction: normalizedFaction,
+      faction_id: normalizedFaction
     };
     
     // Create a unique key including both ID and faction to guarantee uniqueness
@@ -138,12 +149,12 @@ const normalizeUnits = () => {
       factionCounts[normalizedFaction]++;
     } else {
       factionCounts['unknown']++;
-      console.warn(`Unit ${normalizedUnit.name} has unknown faction: ${normalizedFaction}`);
+      console.warn(`[FACTION DEBUG] Unit ${normalizedUnit.name} has unknown faction: "${normalizedFaction}"`);
     }
   }
   
   // Log faction distribution after normalization
-  console.log('Final faction distribution:');
+  console.log('[FACTION DEBUG] Final faction distribution:');
   Object.entries(factionCounts).forEach(([faction, count]) => {
     console.log(`- ${faction}: ${count} units`);
   });
@@ -180,5 +191,7 @@ export const normalizeFactionId = (factionId: string): string => {
   }
   
   // If all else fails, return the original (but ensure it's lowercase and kebab-case)
-  return factionId.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+  const normalized = factionId.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+  console.log(`[FACTION DEBUG] No exact match for "${factionId}", normalized to: "${normalized}"`);
+  return normalized;
 };
