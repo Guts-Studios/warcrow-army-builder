@@ -19,7 +19,9 @@ import {
   Copy,
   Folder,
   Save,
-  FileDown
+  FileDown,
+  Github,
+  CloudUpload
 } from 'lucide-react';
 import { 
   generateFactionFiles, 
@@ -28,6 +30,7 @@ import {
 } from '@/utils/csvToStaticGenerator';
 import { units as localUnits } from '@/data/factions';
 import { normalizeFactionId } from '@/utils/unitManagement';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FilePathInfo {
   key: string;
@@ -39,6 +42,7 @@ interface FilePathInfo {
 const CsvSyncManager: React.FC = () => {
   const [selectedFaction, setSelectedFaction] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [generatedFiles, setGeneratedFiles] = useState<any>(null);
   const [validationResults, setValidationResults] = useState<any>(null);
   const [progress, setProgress] = useState(0);
@@ -200,6 +204,43 @@ const CsvSyncManager: React.FC = () => {
       toast.error(`Validation failed: ${error.message}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSyncToGithub = async () => {
+    if (!generatedFiles || !selectedFaction) {
+      toast.error('No files to sync. Generate files first.');
+      return;
+    }
+
+    setIsSyncing(true);
+    
+    try {
+      toast.info('Syncing files to GitHub...');
+      
+      const { data, error } = await supabase.functions.invoke('sync-files-to-github', {
+        body: {
+          files: generatedFiles,
+          factionId: selectedFaction
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.errors && data.errors.length > 0) {
+        console.warn('Some files had errors:', data.errors);
+        toast.warning(`Synced ${data.updatedFiles.length} files with ${data.errors.length} errors`);
+      } else {
+        toast.success(`Successfully synced ${data.updatedFiles.length} files to GitHub!`);
+      }
+
+    } catch (error: any) {
+      console.error('Error syncing to GitHub:', error);
+      toast.error(`Failed to sync to GitHub: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -435,13 +476,28 @@ const CsvSyncManager: React.FC = () => {
               Generated Files
             </h2>
             
-            <Button
-              onClick={downloadAllFiles}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <FileDown className="mr-2 h-4 w-4" />
-              Download All Files
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSyncToGithub}
+                disabled={isSyncing}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {isSyncing ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Github className="mr-2 h-4 w-4" />
+                )}
+                {isSyncing ? 'Syncing...' : 'Sync to GitHub'}
+              </Button>
+              
+              <Button
+                onClick={downloadAllFiles}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Download All Files
+              </Button>
+            </div>
           </div>
           
           <Tabs defaultValue="troops" className="w-full">
@@ -516,15 +572,15 @@ const CsvSyncManager: React.FC = () => {
           
           <Alert className="mt-4 bg-blue-900/20 border-blue-500/50">
             <AlertTriangle className="h-4 w-4 text-blue-500" />
-            <AlertTitle className="text-blue-500">Implementation Instructions</AlertTitle>
+            <AlertTitle className="text-blue-500">Implementation Options</AlertTitle>
             <AlertDescription className="text-blue-300">
-              <ol className="list-decimal ml-4 space-y-1">
-                <li>Use "Download All Files" to get all generated files at once, or download individually</li>
-                <li>Navigate to the corresponding file path shown above each tab</li>
-                <li>Replace the existing file content with the generated content</li>
-                <li>Save the files and run validation again to confirm synchronization</li>
-                <li>Always update CSV files first, then regenerate static files</li>
-              </ol>
+              <div className="space-y-2">
+                <p><strong>Option 1 - GitHub Sync:</strong> Use "Sync to GitHub" to automatically commit files to your repository at the correct paths.</p>
+                <p><strong>Option 2 - Manual Download:</strong> Use "Download All Files" to get files locally, then manually replace the corresponding files at the paths shown above.</p>
+                <p className="text-xs text-blue-200 mt-2">
+                  Always update CSV files first, then regenerate static files. Run validation again after syncing to confirm synchronization.
+                </p>
+              </div>
             </AlertDescription>
           </Alert>
         </Card>
