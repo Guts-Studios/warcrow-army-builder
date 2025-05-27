@@ -110,6 +110,24 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     imageUrl: "/art/card/harvester_card.jpg"
   },
   {
+    id: "master-nepharim",
+    name: "Master Nepharim",
+    pointsCost: 35,
+    faction: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "Character unit type" },
+      { name: "Red Cap", description: "Red Cap race" },
+      { name: "Elite", description: "Elite unit" },
+      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Join (Red Caps, Infantry)", description: "Can join Red Caps or Infantry units" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    specialRules: ["Dispel (BLU, BLK)"],
+    imageUrl: "/art/card/master_nepharim_card.jpg"
+  },
+  {
     id: "namaoin",
     name: "Namaoin",
     pointsCost: 30,
