@@ -48,6 +48,13 @@ export const Header = ({
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [changelogContent, setChangelogContent] = useState<string>("");
   
+  console.log("[Header] Component state:", {
+    authReady,
+    isAuthenticated,
+    isWabAdmin,
+    timestamp: new Date().toISOString()
+  });
+  
   // Function to fetch changelog content from the public path
   const fetchChangelogContent = async () => {
     try {
@@ -69,7 +76,7 @@ export const Header = ({
       const content = await response.text();
       setChangelogContent(content);
     } catch (error) {
-      console.error('Failed to fetch changelog content:', error);
+      console.error('[Header] Failed to fetch changelog content:', error);
       setChangelogContent("# Changelog\n\nFailed to load changelog content.");
     }
   };
@@ -82,10 +89,11 @@ export const Header = ({
   // Function to directly fetch news from the database
   const fetchNewsFromDatabase = async () => {
     try {
-      console.log("Header: Directly fetching news from database with timestamp:", new Date().toISOString());
+      console.log("[Header] About to fetch news from database - auth ready:", authReady);
+      console.log("[Header] Directly fetching news from database with timestamp:", new Date().toISOString());
       
       if (isPreview) {
-        console.log("Header: Preview environment detected, trying to fetch real data first");
+        console.log("[Header] Preview environment detected, trying to fetch real data first");
       }
       
       const { data, error } = await supabase
@@ -96,10 +104,10 @@ export const Header = ({
         .throwOnError();
       
       if (error) {
-        console.error("Error fetching news from database:", error);
+        console.error("[Header] Error fetching news from database:", error);
         
         if (isPreview) {
-          console.log("Header: Using mock news data in preview mode after fetch failure");
+          console.log("[Header] Using mock news data in preview mode after fetch failure");
           return {
             id: "preview-news-1",
             date: format(new Date(), 'yyyy-MM-dd'),
@@ -111,10 +119,10 @@ export const Header = ({
       }
       
       if (!data || data.length === 0) {
-        console.log("No news items found in database");
+        console.log("[Header] No news items found in database");
         
         if (isPreview) {
-          console.log("Header: Using mock news data in preview mode because no real data found");
+          console.log("[Header] Using mock news data in preview mode because no real data found");
           return {
             id: "preview-news-1",
             date: format(new Date(), 'yyyy-MM-dd'),
@@ -125,7 +133,7 @@ export const Header = ({
         return null;
       }
       
-      console.log("Fetched latest news item from database:", data[0]);
+      console.log("[Header] Fetched latest news item from database:", data[0]);
       
       const item = data[0];
       translations[item.translation_key] = {
@@ -140,10 +148,10 @@ export const Header = ({
         key: item.translation_key
       };
     } catch (error) {
-      console.error("Error in fetchNewsFromDatabase:", error);
+      console.error("[Header] Error in fetchNewsFromDatabase:", error);
       
       if (isPreview) {
-        console.log("Header: Using mock news data in preview mode after exception");
+        console.log("[Header] Using mock news data in preview mode after exception");
         return {
           id: "preview-news-1",
           date: format(new Date(), 'yyyy-MM-dd'),
@@ -170,20 +178,21 @@ export const Header = ({
   useEffect(() => {
     const loadNews = async () => {
       if (!authReady) {
-        console.log("Header: Auth not ready yet, waiting to load news");
+        console.log("[Header] Auth not ready yet, waiting to load news");
         return;
       }
 
+      console.log("[Header] Auth ready, starting to load news");
       setIsLoading(true);
       setLoadingError(null);
       try {
-        console.log("Header: Loading news items with timestamp:", new Date().toISOString());
+        console.log("[Header] Loading news items with timestamp:", new Date().toISOString());
         
         const newsItem = await fetchNewsFromDatabase();
         
         if (!newsItem) {
           if (isPreview) {
-            console.log("Header: No news found in database, using preview data");
+            console.log("[Header] No news found in database, using preview data");
             const previewNewsItem = {
               id: "preview-news-1",
               date: format(new Date(), 'yyyy-MM-dd'),
@@ -191,7 +200,7 @@ export const Header = ({
             };
             setLatestNewsItem(previewNewsItem);
           } else {
-            console.log("Header: No news found, using default item");
+            console.log("[Header] No news found, using default item");
             setLatestNewsItem(defaultNewsItems[0]);
             
             if (!translations[defaultNewsItems[0].key]) {
@@ -204,10 +213,10 @@ export const Header = ({
           }
         } else {
           setLatestNewsItem(newsItem);
-          console.log("Header: Set latest news item:", newsItem);
+          console.log("[Header] Set latest news item:", newsItem);
         }
       } catch (error) {
-        console.error("Header: Error loading news items:", error);
+        console.error("[Header] Error loading news items:", error);
         setLoadingError("Failed to load news");
         setLatestNewsItem(defaultNewsItems[0]);
         
@@ -253,14 +262,15 @@ export const Header = ({
   // Fix the refresh function to always fetch from the database
   const handleRefreshNews = async () => {
     if (!authReady) {
-      console.log("Header: Auth not ready, cannot refresh news");
+      console.log("[Header] Auth not ready, cannot refresh news");
       return;
     }
 
+    console.log("[Header] Auth ready, refreshing news");
     setIsLoading(true);
     setLoadingError(null);
     try {
-      console.log("Header: Refreshing news with timestamp:", new Date().toISOString());
+      console.log("[Header] Refreshing news with timestamp:", new Date().toISOString());
       
       const newsItem = await fetchNewsFromDatabase();
       
@@ -282,7 +292,7 @@ export const Header = ({
         toast.success("News refreshed");
       }
     } catch (error) {
-      console.error("Error refreshing news:", error);
+      console.error("[Header] Error refreshing news:", error);
       setLoadingError("Failed to refresh news");
       toast.error("Failed to refresh news");
     } finally {
@@ -392,7 +402,7 @@ export const Header = ({
         {!authReady ? (
           <div className="flex justify-center items-center py-3">
             <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
-            <span className="ml-2 text-warcrow-text/70 text-sm">Initializing...</span>
+            <span className="ml-2 text-warcrow-text/70 text-sm">Waiting for authentication...</span>
           </div>
         ) : isLoading ? (
           <div className="flex justify-center items-center py-3">

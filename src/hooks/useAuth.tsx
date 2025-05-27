@@ -38,7 +38,7 @@ export function useAuth() {
 
   // Handle session recovery issues with manual sign out
   const forceSignOut = async () => {
-    console.log("[Auth] Forcing sign out due to potential session issues");
+    console.log("[useAuth] Forcing sign out due to potential session issues");
     
     try {
       // Clear all auth-related localStorage items first
@@ -59,6 +59,13 @@ export function useAuth() {
       setIsWabAdmin(false);
       setUserId(null);
       setIsGuest(true);
+      setIsLoading(false);
+      
+      console.log("[useAuth] Auth state ready after force sign out:", {
+        isAuthenticated: false,
+        isLoading: false,
+        timestamp: new Date().toISOString()
+      });
       
       // Purge storage to ensure clean slate
       if (typeof window !== 'undefined') {
@@ -73,7 +80,7 @@ export function useAuth() {
       }, 500);
       
     } catch (error) {
-      console.error('[Auth] Error during force sign out:', error);
+      console.error('[useAuth] Error during force sign out:', error);
       // Still try to reload as last resort
       window.location.href = '/';
     }
@@ -88,7 +95,7 @@ export function useAuth() {
       const RETRY_DELAY = 1000;
 
       try {
-        console.log(`[Auth] Fetching profile for user ${userId}, attempt ${retryCount + 1}`);
+        console.log(`[useAuth] Fetching profile for user ${userId}, attempt ${retryCount + 1}`);
         
         const { data, error } = await supabase
           .from('profiles')
@@ -97,9 +104,9 @@ export function useAuth() {
           .maybeSingle();
           
         if (error) {
-          console.error("[Auth] Error fetching profile:", error);
+          console.error("[useAuth] Error fetching profile:", error);
           if (retryCount < MAX_RETRIES) {
-            console.log(`[Auth] Retrying profile fetch in ${RETRY_DELAY}ms...`);
+            console.log(`[useAuth] Retrying profile fetch in ${RETRY_DELAY}ms...`);
             profileFetchTimeout = setTimeout(() => {
               if (mounted) {
                 fetchUserProfile(userId, retryCount + 1);
@@ -111,18 +118,18 @@ export function useAuth() {
         
         if (mounted && data) {
           const isAdminUser = !!data.wab_admin;
-          console.log(`[Auth] Profile loaded successfully: admin=${isAdminUser}, tester=${!!data.tester}`);
+          console.log(`[useAuth] Profile loaded successfully: admin=${isAdminUser}, tester=${!!data.tester}`);
           setIsAdmin(isAdminUser);
           setIsTester(!!data.tester);
           setIsWabAdmin(isAdminUser);
         } else if (mounted) {
-          console.log("[Auth] No profile data found or error occurred");
+          console.log("[useAuth] No profile data found or error occurred");
           setIsAdmin(isPreview);
           setIsTester(isPreview);
           setIsWabAdmin(isPreview);
         }
       } catch (err) {
-        console.error("[Auth] Exception during profile fetch:", err);
+        console.error("[useAuth] Exception during profile fetch:", err);
         if (mounted) {
           setIsAdmin(isPreview);
           setIsTester(isPreview);
@@ -131,13 +138,17 @@ export function useAuth() {
       } finally {
         if (mounted) {
           setIsLoading(false);
+          console.log("[useAuth] Auth state ready after profile fetch:", {
+            isLoading: false,
+            timestamp: new Date().toISOString()
+          });
         }
       }
     };
 
     const checkAuthStatus = async () => {
       try {
-        console.log("[Auth] Starting auth check...");
+        console.log("[useAuth] Starting auth check...", { isPreview, timestamp: new Date().toISOString() });
         
         // Handle preview environment explicitly
         if (isPreview) {
@@ -151,6 +162,11 @@ export function useAuth() {
             setUserId(isGuestUser ? null : "preview-user-id");
             setIsGuest(isGuestUser);
             setIsLoading(false);
+            console.log("[useAuth] Auth state ready (preview):", {
+              isAuthenticated: !isGuestUser,
+              isLoading: false,
+              timestamp: new Date().toISOString()
+            });
           }
           return;
         }
@@ -159,11 +175,16 @@ export function useAuth() {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("[Auth] Session error:", sessionError);
+          console.error("[useAuth] Session error:", sessionError);
           if (mounted) {
             setIsAuthenticated(false);
             setIsGuest(true);
             setIsLoading(false);
+            console.log("[useAuth] Auth state ready (session error):", {
+              isAuthenticated: false,
+              isLoading: false,
+              timestamp: new Date().toISOString()
+            });
             forceSignOut();
           }
           return;
@@ -171,7 +192,7 @@ export function useAuth() {
         
         if (mounted) {
           const isAuth = !!session;
-          console.log(`[Auth] Session check complete: authenticated=${isAuth}`);
+          console.log(`[useAuth] Session check complete: authenticated=${isAuth}`);
           
           setIsAuthenticated(isAuth);
           setUserId(session?.user?.id || null);
@@ -185,10 +206,15 @@ export function useAuth() {
             setIsTester(false);
             setIsWabAdmin(false);
             setIsLoading(false);
+            console.log("[useAuth] Auth state ready (no session):", {
+              isAuthenticated: false,
+              isLoading: false,
+              timestamp: new Date().toISOString()
+            });
           }
         }
       } catch (error) {
-        console.error("[Auth] Error in auth check:", error);
+        console.error("[useAuth] Error in auth check:", error);
         if (mounted) {
           setIsLoading(false);
           setIsAuthenticated(false);
@@ -196,6 +222,11 @@ export function useAuth() {
           setIsTester(isPreview);
           setIsWabAdmin(isPreview);
           setIsGuest(!isPreview);
+          console.log("[useAuth] Auth state ready (error):", {
+            isAuthenticated: false,
+            isLoading: false,
+            timestamp: new Date().toISOString()
+          });
         }
       }
     };
@@ -205,7 +236,7 @@ export function useAuth() {
         async (event, session) => {
           if (!mounted) return;
           
-          console.log(`[Auth] Auth state changed: ${event}`, {
+          console.log(`[useAuth] Auth state changed: ${event}`, {
             hasUser: !!session?.user,
             userId: session?.user?.id
           });
@@ -224,6 +255,11 @@ export function useAuth() {
             setIsWabAdmin(isPreview);
             if (event !== 'INITIAL_SESSION') {
               setIsLoading(false);
+              console.log("[useAuth] Auth state ready (no user):", {
+                isAuthenticated: false,
+                isLoading: false,
+                timestamp: new Date().toISOString()
+              });
             }
           }
         }

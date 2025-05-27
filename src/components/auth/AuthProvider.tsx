@@ -71,12 +71,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const initializeAuth = async () => {
       try {
-        setIsLoading(true);
-        console.log("AuthProvider: isPreview =", isPreview);
+        console.log("[AuthProvider] Initializing auth state...", { isPreview, timestamp: new Date().toISOString() });
         
         // For preview environment, provide dummy authenticated state
         if (isPreview) {
-          console.log("Preview mode detected in AuthProvider, using demo auth state");
+          console.log("[AuthProvider] Preview mode detected, using demo auth state");
           if (mounted) {
             setIsAuthenticated(true);
             setIsAdmin(true);
@@ -85,16 +84,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUserId("preview-user-id");
             setIsGuest(false);
             setIsLoading(false);
+            console.log("[AuthProvider] Auth state ready (preview mode):", {
+              isAuthenticated: true,
+              isLoading: false,
+              timestamp: new Date().toISOString()
+            });
           }
           return;
         }
 
-        console.log("Production environment detected in AuthProvider, using real auth state");
+        console.log("[AuthProvider] Production environment detected, using real auth state");
 
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("Auth state changed in AuthProvider:", event, {
+            console.log("[AuthProvider] Auth state changed:", event, {
               hasUser: !!session?.user,
               userId: session?.user?.id,
               email: session?.user?.email,
@@ -117,7 +121,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     .eq('id', session.user.id)
                     .single();
                     
-                  console.log("Profile data check on auth change:", {
+                  console.log("[AuthProvider] Profile data check on auth change:", {
                     profileExists: !!data,
                     wabAdmin: data?.wab_admin,
                     tester: data?.tester,
@@ -128,12 +132,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     
                   if (!error && data && mounted) {
                     const isAdminUser = !!data.wab_admin;
-                    console.log("Admin status from auth state change:", isAdminUser);
                     setIsAdmin(isAdminUser);
                     setIsTester(!!data.tester);
                     setIsWabAdmin(isAdminUser);
                   } else {
-                    console.error("Error or no data in onAuthStateChange:", error);
+                    console.error("[AuthProvider] Error or no data in onAuthStateChange:", error);
                     if (mounted) {
                       setIsAdmin(false);
                       setIsTester(false);
@@ -141,7 +144,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     }
                   }
                 } catch (err) {
-                  console.error("Error checking user roles in auth state change:", err);
+                  console.error("[AuthProvider] Error checking user roles in auth state change:", err);
                   if (mounted) {
                     setIsAdmin(false);
                     setIsTester(false);
@@ -155,15 +158,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                   setIsWabAdmin(false);
                 }
               }
+              
+              // Always set loading to false after processing auth state change
+              setIsLoading(false);
+              console.log("[AuthProvider] Auth state ready after change:", {
+                isAuthenticated: authState,
+                isLoading: false,
+                timestamp: new Date().toISOString()
+              });
             }
           }
         );
         
         // Get initial session
-        const { data } = await supabase.auth.getSession();
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("[AuthProvider] Session error:", sessionError);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsGuest(true);
+            setIsLoading(false);
+            console.log("[AuthProvider] Auth state ready (session error):", {
+              isAuthenticated: false,
+              isLoading: false,
+              timestamp: new Date().toISOString()
+            });
+          }
+          return;
+        }
+        
         const session = data?.session;
         
-        console.log("AuthProvider: Initial session check result:", {
+        console.log("[AuthProvider] Initial session check result:", {
           hasSession: !!session,
           userId: session?.user?.id,
           userEmail: session?.user?.email,
@@ -178,14 +205,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (session?.user?.id) {
             // Get user role information
             try {
-              console.log("AuthProvider: Fetching profile data for user:", session.user.id);
+              console.log("[AuthProvider] Fetching profile data for user:", session.user.id);
               const { data, error } = await supabase
                 .from('profiles')
                 .select('wab_admin, tester')
                 .eq('id', session.user.id)
                 .single();
                 
-              console.log("AuthProvider: Profile data fetched:", {
+              console.log("[AuthProvider] Profile data fetched:", {
                 profileExists: !!data,
                 wabAdmin: data?.wab_admin,
                 tester: data?.tester,
@@ -196,12 +223,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 
               if (!error && data && mounted) {
                 const isAdminUser = !!data.wab_admin;
-                console.log("Initial admin status:", isAdminUser);
                 setIsAdmin(isAdminUser);
                 setIsTester(!!data.tester);
                 setIsWabAdmin(isAdminUser);
               } else {
-                console.error("Error or no data in initial session check:", error);
+                console.error("[AuthProvider] Error or no data in initial session check:", error);
                 if (mounted) {
                   setIsAdmin(false);
                   setIsTester(false);
@@ -209,7 +235,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 }
               }
             } catch (err) {
-              console.error("Error checking user roles in AuthProvider:", err);
+              console.error("[AuthProvider] Error checking user roles in AuthProvider:", err);
               if (mounted) {
                 setIsAdmin(false);
                 setIsTester(false);
@@ -225,14 +251,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
           }
           
+          // Always set loading to false after initial session check
           setIsLoading(false);
+          console.log("[AuthProvider] Auth state ready (initial):", {
+            isAuthenticated: !!session,
+            isLoading: false,
+            timestamp: new Date().toISOString()
+          });
         }
         
         return () => {
           subscription.unsubscribe();
         };
       } catch (error) {
-        console.error("Error in AuthProvider:", error);
+        console.error("[AuthProvider] Error in AuthProvider:", error);
         if (mounted) {
           setIsLoading(false);
           setIsAuthenticated(false);
@@ -240,6 +272,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsTester(false);
           setIsWabAdmin(false);
           setIsGuest(true);
+          console.log("[AuthProvider] Auth state ready (error):", {
+            isAuthenticated: false,
+            isLoading: false,
+            timestamp: new Date().toISOString()
+          });
         }
       }
     };

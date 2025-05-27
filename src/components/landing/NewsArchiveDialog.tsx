@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -14,6 +15,7 @@ import { Loader2 } from "lucide-react";
 import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -21,13 +23,24 @@ interface NewsArchiveDialogProps {
 
 const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
   const { t } = useLanguage();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Determine if auth is ready
+  const authReady = !authLoading && isAuthenticated !== null;
+  
+  console.log("[NewsArchiveDialog] Component state:", {
+    authReady,
+    isAuthenticated,
+    timestamp: new Date().toISOString()
+  });
   
   // Direct fetch news items from the database with no caching
   const fetchNewsItemsDirectly = async () => {
     try {
-      console.log("NewsArchiveDialog: Fetching news items directly from database");
+      console.log("[NewsArchiveDialog] About to fetch news items - auth ready:", authReady);
+      console.log("[NewsArchiveDialog] Fetching news items directly from database");
       
       const { data, error } = await supabase
         .from('news_items')
@@ -35,16 +48,16 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
         .order('date', { ascending: false });
         
       if (error) {
-        console.error('Error directly fetching news items:', error);
+        console.error('[NewsArchiveDialog] Error directly fetching news items:', error);
         return null;
       }
       
       if (!data || data.length === 0) {
-        console.log('No news items found in direct database fetch');
+        console.log('[NewsArchiveDialog] No news items found in direct database fetch');
         return null;
       }
       
-      console.log(`Directly fetched ${data.length} news items from database`);
+      console.log(`[NewsArchiveDialog] Directly fetched ${data.length} news items from database`);
       
       const formattedItems: NewsItem[] = data.map(item => {
         // Add translations to the translations object
@@ -63,29 +76,35 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       
       return formattedItems;
     } catch (error) {
-      console.error("Error in direct database fetch:", error);
+      console.error("[NewsArchiveDialog] Error in direct database fetch:", error);
       return null;
     }
   };
   
   useEffect(() => {
     const loadNews = async () => {
+      if (!authReady) {
+        console.log("[NewsArchiveDialog] Auth not ready yet, waiting to load news");
+        return;
+      }
+
+      console.log("[NewsArchiveDialog] Auth ready, starting to load news");
       setIsLoading(true);
       try {
-        console.log("NewsArchiveDialog: Loading news items...");
+        console.log("[NewsArchiveDialog] Loading news items...");
         
         // Try direct fetch first (fastest path)
         const directItems = await fetchNewsItemsDirectly();
         if (directItems && directItems.length > 0) {
-          console.log("NewsArchiveDialog: Got direct items:", directItems.length);
+          console.log("[NewsArchiveDialog] Got direct items:", directItems.length);
           setItems(directItems);
         } else {
           // Use defaults if nothing else works
-          console.log("NewsArchiveDialog: No items found, using defaults");
+          console.log("[NewsArchiveDialog] No items found, using defaults");
           setItems(defaultNewsItems);
         }
       } catch (error) {
-        console.error("Error loading news items:", error);
+        console.error("[NewsArchiveDialog] Error loading news items:", error);
         setItems(defaultNewsItems);
         toast.error("Failed to load news archive");
       } finally {
@@ -94,7 +113,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     };
 
     loadNews();
-  }, []);
+  }, [authReady]);
   
   // Safe translation retrieval function
   const getTranslatedContent = (key: string) => {
@@ -107,7 +126,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       }
       
       // Fall back to showing the key if translation is missing
-      console.warn(`Translation key not found: ${key}`);
+      console.warn(`[NewsArchiveDialog] Translation key not found: ${key}`);
       
       // Add a fallback translation to prevent future failures
       translations[key] = {
@@ -119,7 +138,7 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
       // Return something meaningful to the user
       return `Missing translation: ${key}`;
     } catch (error) {
-      console.error(`Error getting translation for key ${key}:`, error);
+      console.error(`[NewsArchiveDialog] Error getting translation for key ${key}:`, error);
       return "Translation error";
     }
   };
@@ -136,7 +155,12 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
           </DialogTitle>
         </DialogHeader>
         <div className="pt-4 space-y-4">
-          {isLoading ? (
+          {!authReady ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
+              <span className="ml-2 text-warcrow-text/70">Waiting for authentication...</span>
+            </div>
+          ) : isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-warcrow-gold/70" />
               <span className="ml-2 text-warcrow-text/70">Loading news archive...</span>

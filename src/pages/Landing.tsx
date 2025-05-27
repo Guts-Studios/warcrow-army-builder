@@ -36,7 +36,7 @@ import { SupportButton } from "@/components/landing/SupportButton";
 
 const fetchUserCount = async () => {
   try {
-    console.log("Fetching user count with fresh query...");
+    console.log("[Landing] Fetching user count with fresh query...");
     
     const { count, error } = await supabase
       .from('profiles')
@@ -45,21 +45,21 @@ const fetchUserCount = async () => {
       .eq('deactivated', false);
     
     if (error) {
-      console.error('Error fetching user count:', error);
+      console.error('[Landing] Error fetching user count:', error);
       throw error;
     }
     
-    console.log('Retrieved user count:', count);
+    console.log('[Landing] Retrieved user count:', count);
     return count || 470;
   } catch (error) {
-    console.error('Error in fetchUserCount:', error);
+    console.error('[Landing] Error in fetchUserCount:', error);
     return 470;
   }
 };
 
 const checkLatestBuildStatus = async () => {
   try {
-    console.log("Checking latest build status...");
+    console.log("[Landing] Checking latest build status...");
     const { data, error } = await supabase.functions.invoke('get-netlify-deployments', {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -69,7 +69,7 @@ const checkLatestBuildStatus = async () => {
     });
     
     if (error || !data || !data.deployments || data.deployments.length === 0) {
-      console.error('Error fetching deployments:', error);
+      console.error('[Landing] Error fetching deployments:', error);
       return null;
     }
     
@@ -84,14 +84,14 @@ const checkLatestBuildStatus = async () => {
     };
     
     if (latestDeployment.state !== 'error' || !isWarcrowSite(latestDeployment.site_name)) {
-      console.log('Latest warcrow deployment was successful or not a warcrow site, not showing failure alert');
+      console.log('[Landing] Latest warcrow deployment was successful or not a warcrow site, not showing failure alert');
       return null;
     }
     
-    console.log('Latest warcrow deployment failed, showing failure alert:', latestDeployment);
+    console.log('[Landing] Latest warcrow deployment failed, showing failure alert:', latestDeployment);
     return latestDeployment;
   } catch (err) {
-    console.error('Error checking latest build status:', err);
+    console.error('[Landing] Error checking latest build status:', err);
     return null;
   }
 };
@@ -116,13 +116,13 @@ const fetchChangelogContent = async () => {
     const content = await response.text();
     return content;
   } catch (error) {
-    console.error('Failed to fetch changelog content:', error);
+    console.error('[Landing] Failed to fetch changelog content:', error);
     return "# Changelog\n\nFailed to load changelog content.";
   }
 };
 
 const Landing = () => {
-  console.log('Landing component rendering...');
+  console.log('[Landing] Component rendering...');
   
   const navigate = useNavigate();
   const [isGuest, setIsGuest] = useState(false);
@@ -135,7 +135,18 @@ const Landing = () => {
   const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading } = useAuth();
   const { isPreview } = useEnvironment();
   
-  console.log('Auth state:', { isWabAdmin, isAuthenticated, isTester, isPreview, authLoading });
+  // Determine if auth is ready
+  const authReady = !authLoading && isAuthenticated !== null;
+  
+  console.log('[Landing] Auth state:', { 
+    isWabAdmin, 
+    isAuthenticated, 
+    isTester, 
+    isPreview, 
+    authLoading,
+    authReady,
+    timestamp: new Date().toISOString()
+  });
   
   // Fetch changelog content on mount
   useEffect(() => {
@@ -150,9 +161,9 @@ const Landing = () => {
   let latestVersion;
   try {
     latestVersion = getLatestVersion(changelogContent);
-    console.log('Latest version loaded:', latestVersion);
+    console.log('[Landing] Latest version loaded:', latestVersion);
   } catch (error) {
-    console.error('Error loading version:', error);
+    console.error('[Landing] Error loading version:', error);
     latestVersion = '1.0.0';
   }
   
@@ -160,8 +171,8 @@ const Landing = () => {
   const canAccessPlayMode = (isTester || isWabAdmin || isPreview) && !isGuest;
 
   useEffect(() => {
-    console.log('Landing.tsx: Current hostname:', window.location.hostname);
-    console.log('Landing.tsx: Is preview environment:', isPreview);
+    console.log('[Landing] Current hostname:', window.location.hostname);
+    console.log('[Landing] Is preview environment:', isPreview);
   }, [isPreview]);
 
   // Only fetch user count after auth state is confirmed
@@ -171,17 +182,20 @@ const Landing = () => {
     refetch: refetchUserCount 
   } = useQuery({
     queryKey: ['userCount'],
-    queryFn: fetchUserCount,
+    queryFn: () => {
+      console.log("[Landing] About to fetch user count - auth ready:", authReady);
+      return fetchUserCount();
+    },
     staleTime: 0,
     gcTime: 0,
     retry: 2,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     // Wait for auth state to be determined before fetching
-    enabled: !authLoading && isAuthenticated !== null,
+    enabled: authReady,
     meta: {
       onError: (error: any) => {
-        console.error('Failed to fetch user count:', error);
+        console.error('[Landing] Failed to fetch user count:', error);
         toast.error('Failed to fetch user statistics');
       }
     }
@@ -190,6 +204,7 @@ const Landing = () => {
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      console.log("[Landing] About to fetch profile - auth ready:", authReady);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return null;
 
@@ -200,13 +215,13 @@ const Landing = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('[Landing] Error fetching profile:', error);
         throw error;
       }
       return data;
     },
-    // Only fetch profile if authenticated and not guest
-    enabled: !authLoading && isAuthenticated === true && isGuest === false,
+    // Only fetch profile if authenticated and not guest and auth is ready
+    enabled: authReady && isAuthenticated === true && isGuest === false,
     staleTime: 0,
     retry: 2
   });
@@ -214,7 +229,8 @@ const Landing = () => {
   // Only fetch build status if user is admin and auth is ready
   useEffect(() => {
     const fetchBuildStatus = async () => {
-      if ((isWabAdmin || isPreview) && !authLoading) {
+      if ((isWabAdmin || isPreview) && authReady) {
+        console.log("[Landing] About to fetch build status - auth ready:", authReady);
         try {
           const { notifications, error } = await getBuildFailureNotifications();
           if (!error && notifications.length > 0) {
@@ -222,39 +238,39 @@ const Landing = () => {
           }
           
           const latestFailure = await checkLatestBuildStatus();
-          console.log('checkLatestBuildStatus returned:', latestFailure);
+          console.log('[Landing] checkLatestBuildStatus returned:', latestFailure);
           setLatestFailedBuild(latestFailure);
         } catch (err) {
-          console.error('Error checking build status:', err);
+          console.error('[Landing] Error checking build status:', err);
         }
       }
     };
     
-    console.log('isWabAdmin value:', isWabAdmin);
+    console.log('[Landing] isWabAdmin value:', isWabAdmin);
     
     fetchBuildStatus();
     
     // Set up a refresh interval only if user is admin and auth is ready
-    const intervalId = ((isWabAdmin || isPreview) && !authLoading) ? 
+    const intervalId = ((isWabAdmin || isPreview) && authReady) ? 
       setInterval(fetchBuildStatus, 120000) : null;
     
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isWabAdmin, isPreview, authLoading]);
+  }, [isWabAdmin, isPreview, authReady]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsGuest(!session);
+      if (authReady) {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsGuest(!session);
+      }
     };
 
-    if (!authLoading) {
-      checkAuthStatus();
-    }
-  }, [authLoading]);
+    checkAuthStatus();
+  }, [authReady]);
 
-  console.log('Rendering Landing page with userCount:', userCount);
+  console.log('[Landing] Rendering Landing page with userCount:', userCount);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
@@ -291,7 +307,7 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
-          authReady={!authLoading && isAuthenticated !== null}
+          authReady={authReady}
         />
         <MainActions />
         
