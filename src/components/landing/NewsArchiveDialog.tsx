@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -19,25 +18,33 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
+  authReady: boolean;
 }
 
-const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
+const NewsArchiveDialog = ({ triggerClassName, authReady }: NewsArchiveDialogProps) => {
   const { t } = useLanguage();
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Properly synchronized authReady state
-  const authReady = !authLoading && isAuthenticated !== null;
-  
-  console.log("[NewsArchiveDialog] Auth state:", {
-    authLoading,
-    isAuthenticated,
+  console.log("[NewsArchiveDialog] Received authReady prop:", {
     authReady,
+    isAuthenticated,
     timestamp: new Date().toISOString()
   });
   
-  // Direct fetch news items from the database with no caching
+  useEffect(() => {
+    console.log("[NewsArchiveDialog] 🔄 Auth ready state changed:", {
+      authReady,
+      isAuthenticated,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (authReady) {
+      console.log("[NewsArchiveDialog] ✅ Auth is ready, can now fetch news archive");
+    }
+  }, [authReady, isAuthenticated]);
+  
   const fetchNewsItemsDirectly = async () => {
     try {
       console.log("[NewsArchiveDialog] Starting direct fetch - authReady:", authReady);
@@ -115,7 +122,6 @@ const NewsArchiveDialog = ({ triggerClassName }: NewsArchiveDialogProps) => {
     loadNews();
   }, [authReady]); // Trigger immediately when authReady changes
   
-  // Safe translation retrieval function
   const getTranslatedContent = (key: string) => {
     if (!key) return "No content available";
     

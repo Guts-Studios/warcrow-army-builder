@@ -26,6 +26,7 @@ interface HeaderProps {
   isLoadingUserCount: boolean;
   latestFailedBuild?: any;
   onRefreshUserCount?: () => void;
+  authReady: boolean;
 }
 
 export const Header = ({ 
@@ -33,10 +34,11 @@ export const Header = ({
   userCount, 
   isLoadingUserCount, 
   latestFailedBuild,
-  onRefreshUserCount
+  onRefreshUserCount,
+  authReady
 }: HeaderProps) => {
   const { t } = useLanguage();
-  const { isWabAdmin, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
   const { isPreview } = useEnvironment();
   const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
@@ -45,15 +47,24 @@ export const Header = ({
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [changelogContent, setChangelogContent] = useState<string>("");
   
-  // Properly synchronized authReady state
-  const authReady = !authLoading && isAuthenticated !== null;
-  
-  console.log("[Header] Auth state:", {
-    authLoading,
-    isAuthenticated,
+  console.log("[Header] Received authReady prop:", {
     authReady,
+    isAuthenticated,
     timestamp: new Date().toISOString()
   });
+  
+  // Log when authReady changes
+  useEffect(() => {
+    console.log("[Header] 🔄 Auth ready state changed:", {
+      authReady,
+      isAuthenticated,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (authReady) {
+      console.log("[Header] ✅ Auth is ready, can now fetch news data");
+    }
+  }, [authReady, isAuthenticated]);
   
   // Function to fetch changelog content from the public path
   const fetchChangelogContent = async () => {
@@ -396,7 +407,10 @@ export const Header = ({
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
           <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
-          <NewsArchiveDialog triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" />
+          <NewsArchiveDialog 
+            triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" 
+            authReady={authReady}
+          />
         </div>
         {!authReady ? (
           <div className="flex justify-center items-center py-3">

@@ -14,6 +14,8 @@ interface AuthContextType {
   isGuest: boolean;
   setIsGuest: (value: boolean) => void;
   resendConfirmationEmail: (email: string) => Promise<void>;
+  // Add authReady to context for direct access
+  authReady: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,7 +27,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isGuest: false,
   setIsGuest: () => {},
-  resendConfirmationEmail: async () => {}
+  resendConfirmationEmail: async () => {},
+  authReady: false
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -43,6 +46,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const { isPreview } = useEnvironment();
+
+  // Calculate authReady based on loading state
+  const authReady = !isLoading && isAuthenticated !== null;
+
+  // Log auth state changes for debugging
+  useEffect(() => {
+    console.log("[AuthProvider] Auth state updated:", {
+      isLoading,
+      isAuthenticated,
+      authReady,
+      isAdmin,
+      isTester,
+      isWabAdmin,
+      timestamp: new Date().toISOString()
+    });
+  }, [isLoading, isAuthenticated, authReady, isAdmin, isTester, isWabAdmin]);
 
   // Function to resend confirmation email
   const resendConfirmationEmail = async (email: string) => {
@@ -66,6 +85,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Helper function to finalize auth state
+  const finalizeAuthState = (session: any, roles?: { wab_admin?: boolean; tester?: boolean }) => {
+    const authState = !!session;
+    
+    console.log("[AuthProvider] Finalizing auth state:", {
+      hasSession: !!session,
+      roles,
+      timestamp: new Date().toISOString()
+    });
+    
+    setIsAuthenticated(authState);
+    setUserId(session?.user?.id || null);
+    setIsGuest(!session);
+    
+    if (roles) {
+      const isAdminUser = !!roles.wab_admin;
+      setIsAdmin(isAdminUser);
+      setIsTester(!!roles.tester);
+      setIsWabAdmin(isAdminUser);
+    } else if (session?.user?.id) {
+      // Set defaults for authenticated users without roles
+      setIsAdmin(false);
+      setIsTester(false);
+      setIsWabAdmin(false);
+    } else {
+      // Set defaults for non-authenticated users
+      setIsAdmin(isPreview);
+      setIsTester(isPreview);
+      setIsWabAdmin(isPreview);
+    }
+    
+    // Always set loading to false at the end
+    setIsLoading(false);
+    
+    console.log("[AuthProvider] ✅ Auth state ready:", {
+      isAuthenticated: authState,
+      isLoading: false,
+      authReady: true,
+      timestamp: new Date().toISOString()
+    });
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -77,27 +138,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (isPreview) {
           console.log("[AuthProvider] Preview mode detected, using demo auth state");
           if (mounted) {
-            setIsAuthenticated(true);
-            setIsAdmin(true);
-            setIsTester(true);
-            setIsWabAdmin(true);
-            setUserId("preview-user-id");
-            setIsGuest(false);
-            setIsLoading(false);
-            console.log("[AuthProvider] Auth state ready (preview mode):", {
-              isAuthenticated: true,
-              isLoading: false,
-              timestamp: new Date().toISOString()
-            });
+            finalizeAuthState({ user: { id: "preview-user-id" } }, { wab_admin: true, tester: true });
           }
           return;
         }
 
         console.log("[AuthProvider] Production environment detected, using real auth state");
 
-        // Set up auth state listener
+        // Set up auth state listener FIRST
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
+            if (!mounted) return;
+            
             console.log("[AuthProvider] Auth state changed:", event, {
               hasUser: !!session?.user,
               userId: session?.user?.id,
@@ -105,85 +157,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               timestamp: new Date().toISOString()
             });
             
-            const authState = !!session;
-            
-            if (mounted) {
-              setIsAuthenticated(authState);
-              setUserId(session?.user?.id || null);
-              setIsGuest(!session);
-              
-              if (session?.user?.id) {
-                // Get user role information
-                try {
-                  const { data, error } = await supabase
-                    .from('profiles')
-                    .select('wab_admin, tester')
-                    .eq('id', session.user.id)
-                    .single();
-                    
-                  console.log("[AuthProvider] Profile data check on auth change:", {
-                    profileExists: !!data,
-                    wabAdmin: data?.wab_admin,
-                    tester: data?.tester,
-                    error: error?.message,
-                    userId: session.user.id,
-                    timestamp: new Date().toISOString()
-                  });
-                    
-                  if (!error && data && mounted) {
-                    const isAdminUser = !!data.wab_admin;
-                    setIsAdmin(isAdminUser);
-                    setIsTester(!!data.tester);
-                    setIsWabAdmin(isAdminUser);
-                  } else {
-                    console.error("[AuthProvider] Error or no data in onAuthStateChange:", error);
-                    if (mounted) {
-                      setIsAdmin(false);
-                      setIsTester(false);
-                      setIsWabAdmin(false);
-                    }
-                  }
-                } catch (err) {
-                  console.error("[AuthProvider] Error checking user roles in auth state change:", err);
-                  if (mounted) {
-                    setIsAdmin(false);
-                    setIsTester(false);
-                    setIsWabAdmin(false);
-                  }
-                }
-              } else {
+            if (session?.user?.id) {
+              // Get user role information
+              try {
+                const { data, error } = await supabase
+                  .from('profiles')
+                  .select('wab_admin, tester')
+                  .eq('id', session.user.id)
+                  .single();
+                  
+                console.log("[AuthProvider] Profile data check on auth change:", {
+                  profileExists: !!data,
+                  wabAdmin: data?.wab_admin,
+                  tester: data?.tester,
+                  error: error?.message,
+                  userId: session.user.id,
+                  timestamp: new Date().toISOString()
+                });
+                
                 if (mounted) {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
+                  finalizeAuthState(session, data || undefined);
+                }
+              } catch (err) {
+                console.error("[AuthProvider] Error checking user roles in auth state change:", err);
+                if (mounted) {
+                  finalizeAuthState(session);
                 }
               }
-              
-              // Always set loading to false after processing auth state change
-              setIsLoading(false);
-              console.log("[AuthProvider] Auth state ready after change:", {
-                isAuthenticated: authState,
-                isLoading: false,
-                timestamp: new Date().toISOString()
-              });
+            } else {
+              if (mounted) {
+                finalizeAuthState(null);
+              }
             }
           }
         );
         
-        // Get initial session
+        // THEN get initial session
         const { data, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error("[AuthProvider] Session error:", sessionError);
           if (mounted) {
-            setIsAuthenticated(false);
-            setIsGuest(true);
-            setIsLoading(false);
-            console.log("[AuthProvider] Auth state ready (session error):", {
-              isAuthenticated: false,
-              isLoading: false,
-              timestamp: new Date().toISOString()
-            });
+            finalizeAuthState(null);
           }
           return;
         }
@@ -197,67 +212,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           timestamp: new Date().toISOString()
         });
         
-        if (mounted) {
-          setIsAuthenticated(!!session);
-          setUserId(session?.user?.id || null);
-          setIsGuest(!session);
-          
-          if (session?.user?.id) {
-            // Get user role information
-            try {
-              console.log("[AuthProvider] Fetching profile data for user:", session.user.id);
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('wab_admin, tester')
-                .eq('id', session.user.id)
-                .single();
-                
-              console.log("[AuthProvider] Profile data fetched:", {
-                profileExists: !!data,
-                wabAdmin: data?.wab_admin,
-                tester: data?.tester,
-                error: error?.message,
-                userId: session.user.id,
-                timestamp: new Date().toISOString()
-              });
-                
-              if (!error && data && mounted) {
-                const isAdminUser = !!data.wab_admin;
-                setIsAdmin(isAdminUser);
-                setIsTester(!!data.tester);
-                setIsWabAdmin(isAdminUser);
-              } else {
-                console.error("[AuthProvider] Error or no data in initial session check:", error);
-                if (mounted) {
-                  setIsAdmin(false);
-                  setIsTester(false);
-                  setIsWabAdmin(false);
-                }
-              }
-            } catch (err) {
-              console.error("[AuthProvider] Error checking user roles in AuthProvider:", err);
-              if (mounted) {
-                setIsAdmin(false);
-                setIsTester(false);
-                setIsWabAdmin(false);
-              }
-            }
-          } else {
-            // Not authenticated
+        if (session?.user?.id) {
+          // Get user role information
+          try {
+            console.log("[AuthProvider] Fetching profile data for user:", session.user.id);
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('wab_admin, tester')
+              .eq('id', session.user.id)
+              .single();
+              
+            console.log("[AuthProvider] Profile data fetched:", {
+              profileExists: !!data,
+              wabAdmin: data?.wab_admin,
+              tester: data?.tester,
+              error: error?.message,
+              userId: session.user.id,
+              timestamp: new Date().toISOString()
+            });
+            
             if (mounted) {
-              setIsAdmin(false);
-              setIsTester(false);
-              setIsWabAdmin(false);
+              finalizeAuthState(session, data || undefined);
+            }
+          } catch (err) {
+            console.error("[AuthProvider] Error checking user roles in AuthProvider:", err);
+            if (mounted) {
+              finalizeAuthState(session);
             }
           }
-          
-          // Always set loading to false after initial session check
-          setIsLoading(false);
-          console.log("[AuthProvider] Auth state ready (initial):", {
-            isAuthenticated: !!session,
-            isLoading: false,
-            timestamp: new Date().toISOString()
-          });
+        } else {
+          if (mounted) {
+            finalizeAuthState(null);
+          }
         }
         
         return () => {
@@ -266,17 +252,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (error) {
         console.error("[AuthProvider] Error in AuthProvider:", error);
         if (mounted) {
-          setIsLoading(false);
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setIsTester(false);
-          setIsWabAdmin(false);
-          setIsGuest(true);
-          console.log("[AuthProvider] Auth state ready (error):", {
-            isAuthenticated: false,
-            isLoading: false,
-            timestamp: new Date().toISOString()
-          });
+          finalizeAuthState(null);
         }
       }
     };
@@ -297,7 +273,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoading,
     isGuest,
     setIsGuest,
-    resendConfirmationEmail
+    resendConfirmationEmail,
+    authReady
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

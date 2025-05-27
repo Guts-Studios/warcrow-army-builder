@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +32,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { SupportButton } from "@/components/landing/SupportButton";
+import { AuthStateDemo } from "@/components/auth/AuthStateDemo";
 
 const fetchUserCount = async () => {
   try {
@@ -307,8 +307,16 @@ const Landing = () => {
           userCount={userCount} 
           isLoadingUserCount={isLoadingUserCount} 
           latestFailedBuild={latestFailedBuild}
+          authReady={authReady}
         />
         <MainActions />
+        
+        {/* Add Auth State Demo for testing */}
+        {(isWabAdmin || isPreview) && (
+          <div className="mt-8">
+            <AuthStateDemo />
+          </div>
+        )}
         
         {/* Play Mode Button - Only shown to testers or admins who are not guests */}
         {canAccessPlayMode && (
