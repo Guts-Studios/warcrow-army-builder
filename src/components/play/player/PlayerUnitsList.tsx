@@ -7,6 +7,7 @@ import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import UnitCardDialog from '@/components/stats/unit-explorer/UnitCardDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { generateCardUrl } from '@/utils/imageUtils';
 
 interface PlayerUnitsListProps {
   units: Unit[];
@@ -16,23 +17,6 @@ const PlayerUnitsList: React.FC<PlayerUnitsListProps> = ({ units }) => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   const [currentUnit, setCurrentUnit] = useState<Unit | null>(null);
   const { language } = useLanguage();
-
-  // Helper function to get the correct card URL
-  const getCardUrl = (unit: Unit) => {
-    if (!unit) return "";
-    
-    // Clean the unit name to create URL-friendly version
-    const cleanUnitName = unit.name
-      .toLowerCase()
-      .replace(/\s+/g, '_')
-      .replace(/[-]/g, '_')
-      .replace(/[']/g, '')
-      .replace(/[^a-z0-9_]/g, '');
-    
-    // Always use language suffixes to match your file structure
-    const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
-    return `/art/card/${cleanUnitName}_card${langSuffix}.jpg`;
-  };
 
   const handleViewCard = (unit: Unit) => {
     setCurrentUnit(unit);
@@ -76,7 +60,7 @@ const PlayerUnitsList: React.FC<PlayerUnitsListProps> = ({ units }) => {
           isOpen={isCardDialogOpen}
           onClose={() => setIsCardDialogOpen(false)}
           unitName={currentUnit.name}
-          cardUrl={getCardUrl(currentUnit)}
+          cardUrl={generateCardUrl(currentUnit.name, language)}
         />
       )}
     </div>
