@@ -20,7 +20,7 @@ export const useProfileSession = (): ProfileSession => {
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isGuest, setIsGuest] = useState<boolean>(false);
+  const [isGuest, setIsGuest] = useState<boolean>(true);
   const { isPreview, isProduction, hostname } = useEnvironment();
   
   // Only use preview data if we're in a preview environment AND no real user is logged in
@@ -44,17 +44,18 @@ export const useProfileSession = (): ProfileSession => {
       setUserId(null);
       setIsAdmin(false);
       setIsGuest(true);
+      setUsePreviewData(false);
       
       // Force clear localStorage to ensure all session data is removed
       localStorage.removeItem('supabase.auth.token');
       
-      // Redirect to home page after sign out
-      window.location.href = '/';
+      // Redirect to login page after sign out
+      window.location.href = '/login';
       
     } catch (err) {
       console.error("[useProfileSession] Error in sign out process:", err);
       // Force redirect even if there was an error
-      window.location.href = '/';
+      window.location.href = '/login';
     }
   };
 
@@ -66,7 +67,20 @@ export const useProfileSession = (): ProfileSession => {
         console.log("[useProfileSession] Checking authentication state on:", hostname);
         
         // Get current session first to check for real authentication
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("[useProfileSession] Session error:", error);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setUserId(null);
+            setIsAdmin(false);
+            setIsGuest(true);
+            setUsePreviewData(false);
+            setSessionChecked(true);
+          }
+          return;
+        }
         
         // If we have a real authenticated session, use it
         if (session?.user && mounted) {
@@ -78,17 +92,17 @@ export const useProfileSession = (): ProfileSession => {
           
           // Check admin status
           try {
-            const { data, error } = await supabase
+            const { data, error: profileError } = await supabase
               .from('profiles')
               .select('wab_admin')
               .eq('id', session.user.id)
               .maybeSingle();
               
-            if (!error && data) {
+            if (!profileError && data) {
               setIsAdmin(!!data.wab_admin);
               console.log("[useProfileSession] Admin status:", !!data.wab_admin);
             } else {
-              console.error("[useProfileSession] Error checking admin status:", error);
+              console.error("[useProfileSession] Error checking admin status:", profileError);
               setIsAdmin(false);
             }
           } catch (err) {

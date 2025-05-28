@@ -23,7 +23,7 @@ export const ProfileGuard = ({ children }: ProfileGuardProps) => {
   // Still loading auth state
   if (!sessionChecked) {
     return <div className="min-h-screen flex items-center justify-center bg-warcrow-background text-warcrow-gold">
-      Loading authentication...
+      <div className="animate-pulse">Loading...</div>
     </div>;
   }
   
