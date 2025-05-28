@@ -7,12 +7,13 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Anointed",
     pointsCost: 50,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elite", description: "Elite unit" }
+      { name: "Infantry", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elite", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -24,9 +25,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Bugbowls",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Red Cap", description: "Red Cap race" }
+      { name: "Infantry", description: "" },
+      { name: "Red Cap", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -38,12 +40,13 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Crucible",
     pointsCost: 45,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elite", description: "Elite unit" }
+      { name: "Infantry", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elite", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -55,11 +58,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Echoes",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Elf", description: "Elf race" }
+      { name: "Infantry", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Elf", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -71,9 +75,10 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Gobblers",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Red Cap", description: "Red Cap race" }
+      { name: "Infantry", description: "" },
+      { name: "Red Cap", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -85,11 +90,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Husks",
     pointsCost: 15,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Human", description: "Human race" }
+      { name: "Infantry", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Human", description: "" }
     ],
     highCommand: false,
     availability: 3,
@@ -101,11 +107,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Intact",
     pointsCost: 35,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" }
+      { name: "Infantry", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -117,11 +124,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Marked",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" }
+      { name: "Infantry", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" }
     ],
     highCommand: false,
     availability: 3,
@@ -133,11 +141,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Marked Marksmen",
     pointsCost: 35,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Darkminded", description: "Darkminded trait" }
+      { name: "Infantry", description: "" },
+      { name: "Living Flesh", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Darkminded", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -149,11 +158,12 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     name: "Osseous",
     pointsCost: 35,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Infantry", description: "Infantry unit type" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Golem", description: "Artificial construct" }
+      { name: "Infantry", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Golem", description: "" }
     ],
     highCommand: false,
     availability: 2,
