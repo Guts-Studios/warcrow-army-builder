@@ -1,11 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatreonPatron, getPatreonPatrons } from '@/utils/patreonUtils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { aboutTranslations } from '@/i18n/about';
-import { toast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { StarIcon, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -38,11 +36,6 @@ export default function SupportersList() {
           // Don't set error here, we'll handle empty state separately
         } else {
           console.log(`${sortedPatrons.length} patrons successfully loaded`);
-          toast({
-            title: "Supporters loaded",
-            description: `Successfully loaded ${sortedPatrons.length} supporter${sortedPatrons.length === 1 ? '' : 's'}.`,
-            duration: 3000,
-          });
         }
       } catch (err) {
         console.error('Error fetching supporters:', err);
