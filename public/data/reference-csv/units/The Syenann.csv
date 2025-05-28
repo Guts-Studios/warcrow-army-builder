@@ -1,13 +1,13 @@
-faction_id,Faction,Unit Type,Unit Name,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion
-syenann,Sÿenann,Character,Alula,1,1,"Character, Elf",,No,20,Disarmed,
-syenann,Sÿenann,Character,Aoidos,0,1,"Chracter, Elf, Nemorous, Syenann","Join (Infantry, Synann), Spellcaster",No,20,"Vulnerable, Slowed, Disarmed, Frightened",
-syenann,Sÿenann,Named Character,Darach Wilding,0,1,"Character, Elf, Colossal Company, Nemorous, Syenann","Aim, Ambusher",No,35,,
-syenann,Sÿenann,Character,Druid,0,1,"Character, Elf","Spellcaster, Syenann",No,25,Slowed,
-syenann,Sÿenann,Character,Grand Captain,2,1,"Character, Elf, High Command, Nemorous, Syenann","Join (Infantry, Syenann), Preferred Terrain (Rugged | Forest)",Yes,30,Preferred Terrain,
-syenann,Sÿenann,Troop,Grove Curtailers,0,2,"Infantry, Elf","Syenann, Scout",No,35,Disarmed,
-syenann,Sÿenann,Named Character,Lioslaith Coic Caledhee,1,1,"Character, Elf, High Command, Nemorous, Syenann","Ambusher, Elite, Join (Infantry, Syenann)",Yes,30,"Place (3), Vulnerable",
-syenann,Sÿenann,Named Character,Oona,0,1,"Ashen, Character, Colossal Company, Elf, Nemourous, Syenann","Itimidating (1), Spellcaster, Tinge",No,25,Slowed,
-syenann,Sÿenann,Troop,Protectors of the Forest,0,3,"Elf, Infantry, Syenann",,No,25,Displace (4),
-syenann,Sÿenann,Troop,Shadows of the Yew,0,1,"Elf, Infantry, Shadow, Syenann","Ambusher, Preferred Terrain (Rugged | Forest)",No,35,Place (5),
-syenann,Sÿenann,Named Character,Vercana,0,1,"Character, Human, Mercenary",Ambusher,No,30,Place (5),
-syenann,Sÿenann,Named Character,Ynyr Dara Lainn,0,1,"Character,Elf","Syenann,  Scout",No,35,"Place (10), Shove (4)",
+faction_id,Faction,Unit Type,Unit Name,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion,Tournament Legal
+syenann,Sÿenann,Character,Alula,1,1,"[Character, Elf]",[],No,20,[Disarmed],,Yes
+syenann,Sÿenann,Character,Aoidos,0,1,"[Chracter, Elf, Nemorous, Syenann]","[Join (Infantry Synann), Spellcaster]",No,20,"[Vulnerable, Slowed, Disarmed, Frightened]",,Yes
+syenann,Sÿenann,Named Character,Darach Wilding,0,1,"[Character, Elf, Colossal Company, Nemorous, Syenann]","[Aim, Ambusher]",No,35,[],,No
+syenann,Sÿenann,Character,Druid,0,1,"[Character, Elf]","[Spellcaster, Syenann]",No,25,[Slowed],,Yes
+syenann,Sÿenann,Character,Grand Captain,2,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Join (Infantry Syenann), Preferred Terrain (Rugged or Forest)]",Yes,30,[Preferred Terrain],,Yes
+syenann,Sÿenann,Troop,Grove Curtailers,0,2,"[Infantry, Elf]","[Syenann, Scout]",No,35,[Disarmed],,Yes
+syenann,Sÿenann,Named Character,Lioslaith Coic Caledhee,1,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Ambusher, Elite, Join (Infantry Syenann)]",Yes,30,"[Place (3), Vulnerable]",,Yes
+syenann,Sÿenann,Named Character,Oona,0,1,"[Ashen, Character, Colossal Company, Elf, Nemourous, Syenann]","[Itimidating (1), Spellcaster, Tinge]",No,25,[Slowed],,No
+syenann,Sÿenann,Troop,Protectors of the Forest,0,3,"[Elf, Infantry, Syenann]",[],No,25,[Displace (4)],,Yes
+syenann,Sÿenann,Troop,Shadows of the Yew,0,1,"[Elf, Infantry, Shadow, Syenann]","[Ambusher, Preferred Terrain (Rugged or Forest)]",No,35,[Place (5)],,Yes
+syenann,Sÿenann,Named Character,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],No,30,[Place (5)],,No
+syenann,Sÿenann,Named Character,Ynyr Dara Lainn,0,1,"[Character,Elf]","[Syenann,  Scout]",No,35,"[Place (10), Shove (4)]",,Yes
