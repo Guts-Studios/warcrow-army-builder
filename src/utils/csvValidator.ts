@@ -1,405 +1,165 @@
 
-/**
- * Utility functions for CSV validation
- */
-import Papa from 'papaparse';
-import { normalizeFactionId } from './unitManagement';
+// Utility functions for CSV validation and file loading
 
-export type CsvUnit = {
-  id: string;
-  name: string;
-  faction: string;
-  faction_id?: string;
-  type: string;
-  pointsCost: number | string;
-  availability: number | string;
-  keywords: string[];
-  specialRules?: string[];
-  highCommand: string | boolean;
-  command?: number | string;
+export const getFactionCsvPath = (factionId: string): string => {
+  const factionFileMap: Record<string, string> = {
+    'syenann': 'The Syenann.csv',
+    'northern-tribes': 'Northern Tribes.csv',
+    'hegemony-of-embersig': 'Hegemony of Embersig.csv',
+    'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+  };
+  
+  const fileName = factionFileMap[factionId];
+  if (!fileName) {
+    throw new Error(`No CSV file mapping for faction: ${factionId}`);
+  }
+  
+  return `/data/reference-csv/units/${fileName}`;
 };
 
-/**
- * Parse a CSV file and return the data as an array of objects
- */
-export const parseCsvFile = (file: File): Promise<CsvUnit[]> => {
+export const checkCsvFileExists = async (filePath: string): Promise<boolean> => {
+  try {
+    const response = await fetch(filePath, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    console.error(`Error checking if CSV file exists at ${filePath}:`, error);
+    return false;
+  }
+};
+
+export const loadCsvFile = async (filePath: string): Promise<string> => {
+  console.log(`Attempting to load CSV from: ${filePath}`);
+  
+  const response = await fetch(filePath);
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`CSV file not found at ${filePath}. Status: ${response.status}`);
+    }
+    throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.text();
+};
+
+export interface CsvUnit {
+  Faction: string;
+  'Unit Type': string;
+  'Unit Name': string;
+  Command: string;
+  AVB: string;
+  Characteristics: string;
+  Keywords: string;
+  'High Command': string;
+  'Points Cost': string;
+  'Special Rules': string;
+  Companion: string;
+  name?: string;
+  type?: string;
+  pointsCost?: number;
+  commandValue?: number;
+  avbValue?: number;
+}
+
+export const parseCsvContent = async (csvContent: string): Promise<CsvUnit[]> => {
   return new Promise((resolve, reject) => {
-    Papa.parse(file, {
-      header: true,
-      complete: (results) => {
-        // Type cast and normalize the data
-        const units = results.data as CsvUnit[];
-        resolve(units);
-      },
-      error: (error) => {
-        reject(error);
-      }
-    });
+    const lines = csvContent.split('\n');
+    if (lines.length < 2) {
+      reject(new Error('CSV file appears to be empty or invalid'));
+      return;
+    }
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const units: CsvUnit[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+      if (values.length !== headers.length) continue;
+      
+      const unit: any = {};
+      headers.forEach((header, index) => {
+        unit[header] = values[index];
+      });
+      
+      // Add normalized properties
+      unit.name = unit['Unit Name'];
+      unit.type = unit['Unit Type'];
+      unit.pointsCost = parseInt(unit['Points Cost']) || 0;
+      unit.commandValue = parseInt(unit.Command) || 0;
+      unit.avbValue = parseInt(unit.AVB) || 0;
+      
+      units.push(unit);
+    }
+    
+    resolve(units);
   });
 };
 
-/**
- * Parse CSV content string directly
- * This is useful for parsing CSV content loaded as text
- */
-export const parseCsvContent = (csvContent: string): Promise<CsvUnit[]> => {
-  return new Promise((resolve) => {
-    Papa.parse(csvContent, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        console.log('CSV parsing raw results:', results.data.slice(0, 2));
-        
-        // Map the parsed data to our CsvUnit type
-        const units = results.data
-          .filter((row: any) => row.name || row['Unit Name'] || row.id) // Filter out empty rows
-          .map((row: any) => {
-            // Log first couple of rows to help debug
-            if (results.data.indexOf(row) < 2) {
-              console.log('Processing CSV row:', row);
-            }
-            
-            // Helper function to safely parse field values
-            const parseField = (value: any) => {
-              if (!value || value === '' || value === 'null' || value === 'undefined') return '';
-              return value;
-            };
-            
-            // Explicitly check for faction_id first
-            const factionId = parseField(row['faction_id'] || row['Faction ID']);
-            const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
-            
-            const faction = parseField(row.Faction || row.faction);
-            const normalizedFaction = faction ? normalizeFactionId(faction) : '';
-            
-            // Parse keywords, handling nulls and empty strings
-            const parseKeywords = (keywordsStr: string) => {
-              if (!keywordsStr || keywordsStr === 'null' || keywordsStr === 'undefined' || keywordsStr === '') return [];
-              return keywordsStr.split(',').map(k => k.trim()).filter(Boolean);
-            };
-            
-            // Parse special rules, handling nulls and empty strings
-            const parseSpecialRules = (rulesStr: string) => {
-              if (!rulesStr || rulesStr === 'null' || rulesStr === 'undefined' || rulesStr === '') return [];
-              return rulesStr.split(',').map(r => r.trim()).filter(Boolean);
-            };
-            
-            // Parse high command value
-            const parseHighCommand = (hcValue: string) => {
-              if (!hcValue || hcValue === '' || hcValue === 'null' || hcValue === 'undefined') return false;
-              return hcValue.toLowerCase() === 'yes' || hcValue.toLowerCase() === 'true';
-            };
-            
-            return {
-              id: parseField(row.id),
-              name: parseField(row['Unit Name'] || row.name),
-              faction: normalizedFaction,
-              faction_id: normalizedFactionId || normalizedFaction, // Make sure faction_id is set
-              type: parseField(row['Unit Type'] || row.type),
-              pointsCost: parseInt(parseField(row['Points Cost'] || row.pointsCost) || '0', 10) || 0,
-              availability: parseInt(parseField(row.AVB || row.availability) || '0', 10) || 0,
-              keywords: parseKeywords(parseField(row.Keywords || row.keywords)),
-              specialRules: parseSpecialRules(parseField(row['Special Rules'] || row.specialRules)),
-              highCommand: parseHighCommand(parseField(row['High Command'] || row.highCommand)),
-              command: parseInt(parseField(row.Command || row.command) || '0', 10) || 0
-            };
-          });
-        console.log(`Parsed ${units.length} units from CSV`);
-        resolve(units);
-      }
-    });
-  });
-};
-
-/**
- * Compare a unit from static data with a unit from CSV
- * Returns an array of mismatches
- */
 export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{field: string, staticValue: any, csvValue: any}> => {
   const mismatches: Array<{field: string, staticValue: any, csvValue: any}> = [];
   
-  // Check points cost
-  const csvPoints = Number(csvUnit.pointsCost);
-  if (!isNaN(csvPoints) && staticUnit.pointsCost !== csvPoints) {
+  // Compare name
+  if (staticUnit.name !== csvUnit.name) {
+    mismatches.push({
+      field: 'name',
+      staticValue: staticUnit.name,
+      csvValue: csvUnit.name
+    });
+  }
+  
+  // Compare points cost
+  if (staticUnit.pointsCost !== csvUnit.pointsCost) {
     mismatches.push({
       field: 'pointsCost',
       staticValue: staticUnit.pointsCost,
-      csvValue: csvPoints
+      csvValue: csvUnit.pointsCost
     });
   }
   
-  // Check availability
-  const csvAvailability = Number(csvUnit.availability);
-  if (!isNaN(csvAvailability) && staticUnit.availability !== csvAvailability) {
+  // Compare command value
+  if (staticUnit.commandValue !== csvUnit.commandValue) {
     mismatches.push({
-      field: 'availability',
-      staticValue: staticUnit.availability,
-      csvValue: csvAvailability
+      field: 'commandValue',
+      staticValue: staticUnit.commandValue,
+      csvValue: csvUnit.commandValue
     });
   }
   
-  // Check high command (handle both boolean and string representations)
-  const csvHighCommand = typeof csvUnit.highCommand === 'boolean' 
-    ? csvUnit.highCommand 
-    : String(csvUnit.highCommand).toLowerCase() === 'yes' || 
-      String(csvUnit.highCommand).toLowerCase() === 'true';
-  
-  if (Boolean(staticUnit.highCommand) !== csvHighCommand) {
+  // Compare AVB value
+  if (staticUnit.avbValue !== csvUnit.avbValue) {
     mismatches.push({
-      field: 'highCommand',
-      staticValue: Boolean(staticUnit.highCommand),
-      csvValue: csvHighCommand
+      field: 'avbValue',
+      staticValue: staticUnit.avbValue,
+      csvValue: csvUnit.avbValue
     });
-  }
-  
-  // Check command
-  const csvCommand = Number(csvUnit.command);
-  if (!isNaN(csvCommand) && staticUnit.command !== csvCommand && (csvCommand > 0 || staticUnit.command > 0)) {
-    mismatches.push({
-      field: 'command',
-      staticValue: staticUnit.command || 0,
-      csvValue: csvCommand
-    });
-  }
-  
-  // Check faction_id if available
-  if (csvUnit.faction_id && staticUnit.faction_id && staticUnit.faction_id !== csvUnit.faction_id) {
-    const normalizedStaticFactionId = normalizeFactionId(staticUnit.faction_id);
-    const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
-    
-    if (normalizedStaticFactionId !== normalizedCsvFactionId) {
-      mismatches.push({
-        field: 'faction_id',
-        staticValue: normalizedStaticFactionId,
-        csvValue: normalizedCsvFactionId
-      });
-    }
-  }
-  
-  // Check keywords (improved comparison)
-  if (Array.isArray(staticUnit.keywords) && Array.isArray(csvUnit.keywords)) {
-    const staticKeywords = staticUnit.keywords
-      .map((k: any) => typeof k === 'string' ? k.toLowerCase() : k.name.toLowerCase())
-      .filter(Boolean)
-      .sort();
-    
-    const csvKeywordsList = csvUnit.keywords
-      .map(k => k.toLowerCase())
-      .filter(Boolean)
-      .sort();
-    
-    // More lenient comparison (check if each CSV keyword appears in static keywords)
-    let keywordMismatches = false;
-    
-    // Check if each required CSV keyword is in static keywords
-    for (const keyword of csvKeywordsList) {
-      if (keyword && !staticKeywords.some(k => k.includes(keyword) || keyword.includes(k))) {
-        keywordMismatches = true;
-        break;
-      }
-    }
-    
-    // Check if static data has important keywords not in CSV
-    for (const keyword of staticKeywords) {
-      if (keyword && !csvKeywordsList.some(k => k.includes(keyword) || keyword.includes(k))) {
-        keywordMismatches = true;
-        break;
-      }
-    }
-    
-    if (keywordMismatches) {
-      mismatches.push({
-        field: 'keywords',
-        staticValue: staticKeywords,
-        csvValue: csvKeywordsList
-      });
-    }
-  }
-  
-  // Check special rules (improved comparison)
-  if (Array.isArray(staticUnit.specialRules) || Array.isArray(csvUnit.specialRules)) {
-    const staticRules = (staticUnit.specialRules || [])
-      .map((r: string) => r.toLowerCase())
-      .filter(Boolean)
-      .sort();
-    
-    const csvRules = (csvUnit.specialRules || [])
-      .map(r => r.toLowerCase())
-      .filter(Boolean)
-      .sort();
-    
-    // More lenient comparison
-    let ruleMismatches = false;
-    
-    // Check if each CSV rule is in static rules
-    for (const rule of csvRules) {
-      if (rule && !staticRules.some(r => r.includes(rule) || rule.includes(r))) {
-        ruleMismatches = true;
-        break;
-      }
-    }
-    
-    // Check if static rules has important rules not in CSV
-    for (const rule of staticRules) {
-      if (rule && !csvRules.some(r => r.includes(rule) || rule.includes(r))) {
-        ruleMismatches = true;
-        break;
-      }
-    }
-    
-    if (ruleMismatches) {
-      mismatches.push({
-        field: 'specialRules',
-        staticValue: staticRules,
-        csvValue: csvRules
-      });
-    }
   }
   
   return mismatches;
 };
 
-/**
- * Find matching units between CSV and static data
- */
-export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any => {
-  // First try to match by ID if available
-  if (csvUnit.id) {
-    const matchById = staticUnits.find(unit => unit.id === csvUnit.id);
-    if (matchById) {
-      return matchById;
-    }
-  }
-  
-  // Then try to match by name and faction_id if available
-  if (csvUnit.faction_id) {
-    const normalizedCsvFactionId = normalizeFactionId(csvUnit.faction_id);
-    
-    const matchByNameAndFactionId = staticUnits.find(unit => {
-      const unitFactionId = unit.faction_id ? normalizeFactionId(unit.faction_id) : '';
-      const unitFaction = unit.faction ? normalizeFactionId(unit.faction) : '';
-      
-      return unit.name.toLowerCase() === csvUnit.name.toLowerCase() && 
-             (unitFactionId === normalizedCsvFactionId || unitFaction === normalizedCsvFactionId);
-    });
-    
-    if (matchByNameAndFactionId) {
-      return matchByNameAndFactionId;
-    }
-  }
-  
-  // Then try to match by name only (case insensitive)
-  const matchByName = staticUnits.find(unit => 
-    unit.name.toLowerCase() === csvUnit.name.toLowerCase()
+export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any | null => {
+  // First try exact name match
+  let match = staticUnits.find(unit => 
+    unit.name.toLowerCase() === csvUnit.name?.toLowerCase()
   );
   
-  return matchByName;
-};
-
-/**
- * Create a sample CSV file header
- */
-export const getSampleCsvHeader = (): string => {
-  return 'id,name,faction,faction_id,type,pointsCost,availability,keywords,specialRules,highCommand,command';
-};
-
-/**
- * Create a sample CSV row from a unit
- */
-export const createCsvRowFromUnit = (unit: any): string => {
-  const keywords = unit.keywords.map((k: any) => typeof k === 'string' ? k : k.name).join(',');
-  const specialRules = (unit.specialRules || []).join(',');
-  const highCommand = unit.highCommand ? 'Yes' : 'No';
-  const faction_id = unit.faction_id || unit.faction;
+  if (match) return match;
   
-  return `${unit.id},${unit.name},${unit.faction},${faction_id},${unit.type || ''},${unit.pointsCost},${unit.availability},${keywords},${specialRules},${highCommand},${unit.command || ''}`;
-};
-
-/**
- * Export units to CSV format
- */
-export const exportUnitsToCSV = (units: any[]): string => {
-  const header = "id,name,faction,faction_id,type,pointsCost,availability,keywords,specialRules,highCommand,command";
-  const rows = units.map(createCsvRowFromUnit);
-  return [header, ...rows].join('\n');
-};
-
-/**
- * Generate JavaScript code for a unit file from CSV data
- */
-export const generateUnitFileCode = (units: CsvUnit[], faction: string): string => {
-  const formattedUnits = units.map(unit => {
-    const keywords = unit.keywords.map(keyword => {
-      // Clean up the keyword
-      const cleanKeyword = keyword.trim();
-      if (!cleanKeyword) return null;
-      return `{ name: "${cleanKeyword}", description: "" }`;
-    }).filter(Boolean).join(",\n      ");
-    
-    const specialRules = Array.isArray(unit.specialRules) && unit.specialRules.length > 0 
-      ? `specialRules: [${unit.specialRules.filter(Boolean).map(rule => `"${rule.trim()}"`).join(', ')}],` 
-      : '';
-    
-    const command = unit.command && Number(unit.command) > 0 
-      ? `command: ${Number(unit.command)},` 
-      : '';
-    
-    // Add faction_id to generated code  
-    const faction_id = unit.faction_id 
-      ? `faction_id: "${unit.faction_id}",` 
-      : '';
-    
-    return `
-  {
-    id: "${unit.id}",
-    name: "${unit.name}",
-    pointsCost: ${Number(unit.pointsCost)},
-    faction: "${faction}",
-    ${faction_id}
-    keywords: [
-      ${keywords}
-    ],
-    highCommand: ${typeof unit.highCommand === 'boolean' ? unit.highCommand : unit.highCommand.toString().toLowerCase() === 'yes'},
-    availability: ${Number(unit.availability)},
-    ${specialRules}
-    ${command}
-    imageUrl: "/art/card/${unit.id}_card.jpg"
-  }`;
-  }).join(',');
+  // Try fuzzy matching by removing common prefixes/suffixes
+  const normalizedCsvName = csvUnit.name?.toLowerCase()
+    .replace(/^(the|a)\s+/, '')
+    .replace(/\s+(unit|troops?|warriors?)$/, '')
+    .trim();
   
-  return `
-import { Unit } from "@/types/army";
-
-export const ${faction.replace(/-/g, '')}Troops: Unit[] = [${formattedUnits}
-];
-`;
-};
-
-/**
- * Get faction ID from file name
- */
-export const getFactionIdFromFileName = (fileName: string): string => {
-  return fileName.replace('.csv', '').toLowerCase().replace(/\s+/g, '-');
-};
-
-/**
- * Normalize faction name for consistency
- */
-export const normalizeFactionName = (factionName: string): string => {
-  const lowerFaction = factionName.toLowerCase();
+  match = staticUnits.find(unit => {
+    const normalizedStaticName = unit.name.toLowerCase()
+      .replace(/^(the|a)\s+/, '')
+      .replace(/\s+(unit|troops?|warriors?)$/, '')
+      .trim();
+    return normalizedStaticName === normalizedCsvName;
+  });
   
-  // Map of known faction name variations to standardized names
-  const factionMap: Record<string, string> = {
-    'scions of taldabaoth': 'scions-of-yaldabaoth',
-    'scions of yaldabaoth': 'scions-of-yaldabaoth',
-    'scions-of-taldabaoth': 'scions-of-yaldabaoth',
-    'the syenann': 'syenann',
-    'syenann': 'syenann',
-    'northern tribes': 'northern-tribes',
-    'northern-tribes': 'northern-tribes',
-    'hegemony of embersig': 'hegemony-of-embersig',
-    'hegemony-of-embersig': 'hegemony-of-embersig'
-  };
-  
-  return factionMap[lowerFaction] || lowerFaction.replace(/\s+/g, '-');
+  return match || null;
 };
