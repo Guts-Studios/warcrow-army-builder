@@ -14,9 +14,9 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
       { name: "Darkminded", description: "" },
       { name: "High Command", description: "" },
       { name: "Living Flesh", description: "" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
+      { name: "Intimidating (2)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Infantry, Living Flesh)", description: "" }
     ],
     highCommand: true,
     availability: 1,
@@ -36,9 +36,9 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
       { name: "Darkminded", description: "" },
       { name: "Elf", description: "" },
       { name: "High Command", description: "" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Dead Flesh)", description: "Can join Infantry Dead Flesh units" }
+      { name: "Intimidating (2)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Infantry, Dead Flesh)", description: "" }
     ],
     highCommand: true,
     availability: 1,
@@ -77,9 +77,9 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
       { name: "Darkminded", description: "" },
       { name: "High Command", description: "" },
       { name: "Living Flesh", description: "" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Infantry, Living Flesh)", description: "Can join Infantry Living Flesh units" }
+      { name: "Intimidating (2)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Infantry, Living Flesh)", description: "" }
     ],
     highCommand: true,
     availability: 1,

@@ -1,6 +1,5 @@
 
 import { Unit } from "@/types/army";
-import { vercana } from "./characters/vercana";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
   {
@@ -8,10 +7,11 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Overseer",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Red Cap", description: "Red Cap race" },
-      { name: "Join (Gobblers, Bugbowls, Osseous)", description: "Can join Gobblers, Bugbowls, or Osseous units" }
+      { name: "Character", description: "" },
+      { name: "Red Cap", description: "" },
+      { name: "Join (Gobblers, Bugbowls, Osseous)", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -24,14 +24,15 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Puppeteer",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Dispel (BLU)", description: "Can dispel BLU effects" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Risen)", description: "Can join Risen units" }
+      { name: "Character", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Risen)", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -44,16 +45,18 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Rumpy Ride",
     pointsCost: 45,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Red Cap", description: "Red Cap race" },
-      { name: "Dispel (BLU, BLK)", description: "Can dispel BLU and BLK effects" },
-      { name: "Elite", description: "Elite unit" },
-      { name: "Join (Red Caps, Infantry, Spellcaster)", description: "Can join Red Caps, Infantry, or Spellcaster units" }
+      { name: "Character", description: "" },
+      { name: "Red Cap", description: "" },
+      { name: "Dispel (BLU, BLK)", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Red Caps, Infantry, Spellcaster)", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 2,
+    specialRules: [],
     imageUrl: "/art/card/rumpy_ride_card.jpg"
   },
   {
@@ -61,13 +64,14 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Aodharu",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Bloodlust", description: "Gains bonuses from killing" },
-      { name: "Dispel (BLK, BLK)", description: "Can dispel multiple BLK effects" },
-      { name: "Golem", description: "Artificial construct" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" }
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Bloodlust", description: "" },
+      { name: "Dispel (BLK, BLK)", description: "" },
+      { name: "Golem", description: "" },
+      { name: "Intimidating (2)", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -79,11 +83,12 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Feadhalu",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Living Flesh", description: "Living unit type" },
-      { name: "Ambusher", description: "Can ambush enemy units" },
-      { name: "Dispel (BLK)", description: "Can dispel BLK effects" },
-      { name: "Golem", description: "Artificial construct" }
+      { name: "Living Flesh", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Dispel (BLK)", description: "" },
+      { name: "Golem", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -95,13 +100,14 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Harvester",
     pointsCost: 40,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Dispel (BLK)", description: "Can dispel BLK effects" },
-      { name: "Golem", description: "Artificial construct" },
-      { name: "Intimidating (2)", description: "Causes strong fear in nearby enemies" }
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Dispel (BLK)", description: "" },
+      { name: "Golem", description: "" },
+      { name: "Intimidating (2)", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -110,36 +116,19 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     imageUrl: "/art/card/harvester_card.jpg"
   },
   {
-    id: "master-nepharim",
-    name: "Master Nepharim",
-    pointsCost: 50,
-    faction: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Red Cap", description: "Red Cap race" },
-      { name: "Elite", description: "Elite unit" },
-      { name: "Spellcaster", description: "Can cast spells" },
-      { name: "Join (Red Caps, Infantry)", description: "Can join Red Caps or Infantry units" }
-    ],
-    highCommand: true,
-    availability: 1,
-    command: 3,
-    specialRules: ["Dispel (BLU, BLK)"],
-    imageUrl: "/art/card/master_nepharim_card.jpg"
-  },
-  {
     id: "namaoin",
     name: "Namaoin",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Fog", description: "Fog element" },
-      { name: "Ambusher", description: "Can ambush enemy units" },
-      { name: "Dispel (BLK, BLK)", description: "Can dispel multiple BLK effects" },
-      { name: "Spellcaster", description: "Can cast spells" }
+      { name: "Character", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Fog", description: "" },
+      { name: "Ambusher", description: "" },
+      { name: "Dispel (BLK, BLK)", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -151,14 +140,15 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Needle",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Darkminded", description: "Darkminded trait" },
-      { name: "Elf", description: "Elf race" },
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Dispel (BLU, BLK)", description: "Can dispel BLU and BLK effects" },
-      { name: "Join (Living Flesh, Dead Flesh)", description: "Can join Living Flesh or Dead Flesh units" },
-      { name: "Spellcaster", description: "Can cast spells" }
+      { name: "Character", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Dispel (BLU, BLK)", description: "" },
+      { name: "Join (Living Flesh, Dead Flesh)", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
     availability: 3,
@@ -171,11 +161,12 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Orc Husk",
     pointsCost: 10,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Dead Flesh", description: "Dead unit type" },
-      { name: "Risen", description: "Reanimated unit" },
-      { name: "Golem", description: "Artificial construct" },
-      { name: "Join (Infantry, Dead Flesh)", description: "Can join Infantry Dead Flesh units" }
+      { name: "Dead Flesh", description: "" },
+      { name: "Risen", description: "" },
+      { name: "Golem", description: "" },
+      { name: "Join (Infantry, Dead Flesh)", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -187,15 +178,33 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     name: "Sightless",
     pointsCost: 15,
     faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Red Cap", description: "Red Cap race" },
-      { name: "Dispel (BLU)", description: "Can dispel BLU effects" },
-      { name: "Join (Red Cap, Infantry)", description: "Can join Red Cap Infantry units" }
+      { name: "Character", description: "" },
+      { name: "Red Cap", description: "" },
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Join (Red Cap, Infantry)", description: "" }
     ],
     highCommand: false,
     availability: 3,
+    specialRules: [],
     imageUrl: "/art/card/sightless_card.jpg"
   },
-  vercana
+  {
+    id: "vercana",
+    name: "Vercana",
+    pointsCost: 30,
+    faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Human", description: "" },
+      { name: "Character", description: "" },
+      { name: "Mercenary", description: "" },
+      { name: "Ambusher", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    specialRules: ["Place (5)"],
+    imageUrl: "/art/card/vercana_card.jpg"
+  }
 ];
