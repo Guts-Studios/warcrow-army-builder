@@ -3,38 +3,62 @@ import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigHighCommand: Unit[] = [
   {
-    id: "strategos",
-    name: "Strategos",
+    id: "hetman",
+    name: "Hetman",
+    pointsCost: 25,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
-    pointsCost: 40,
-    availability: 1,
-    command: 2,
     keywords: [
       { name: "Character", description: "" },
+      { name: "High Command", description: "" },
       { name: "Human", description: "" },
-      { name: "High Command", description: "" }
+      { name: "Join (Infantry)", description: "" }
     ],
-    specialRules: ["Leadership"],
-    highCommand: true,
-    imageUrl: "/art/card/strategos_card.jpg"
-  },
-  {
-    id: "lady-telia",
-    name: "Lady Télia",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 60,
     availability: 1,
     command: 3,
+    specialRules: [],
+    highCommand: true,
+    imageUrl: "/art/card/hetman_card_en.jpg"
+  },
+  {
+    id: "dragoslav-bjelogric-drago-the-anvil",
+    name: "Dragoslav Bjelogríc, Drago the Anvil",
+    pointsCost: 40,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     keywords: [
       { name: "Character", description: "" },
-      { name: "Human", description: "" },
       { name: "High Command", description: "" },
-      { name: "Noble", description: "" }
+      { name: "Human", description: "" },
+      { name: "Bloodlust (Varank)", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Bucklermen)", description: "" },
+      { name: "Join (Bulwark)", description: "" }
     ],
-    specialRules: ["Inspiring", "Noble"],
+    availability: 1,
+    command: 3,
+    specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a Die"],
     highCommand: true,
-    imageUrl: "/art/card/lady_telia_card.jpg"
+    imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card_en.jpg"
+  },
+  {
+    id: "amelia-hellbroth",
+    name: "Amelia Hellbroth",
+    pointsCost: 40,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Human", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Infantry)", description: "" }
+    ],
+    availability: 1,
+    command: 3,
+    specialRules: ["Vulnerable", "Disarmed"],
+    highCommand: true,
+    imageUrl: "/art/card/amelia_hellbroth_card_en.jpg"
   }
 ];

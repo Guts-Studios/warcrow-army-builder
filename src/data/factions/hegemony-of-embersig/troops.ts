@@ -9,12 +9,13 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
     ],
     availability: 1,
     command: 0,
     specialRules: ["Cancel a symbol", "Disarmed", "Shove (2)", "Displace (4)"],
+    highCommand: false,
     imageUrl: "/art/card/aggressors_card_en.jpg"
   },
   {
@@ -24,12 +25,13 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" }
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
     ],
     availability: 3,
     command: 0,
     specialRules: [],
+    highCommand: false,
     imageUrl: "/art/card/black_legion_bucklermen_card_en.jpg"
   },
   {
@@ -39,14 +41,15 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
       { name: "Cover (BLK)", description: "" },
       { name: "Immovable", description: "" }
     ],
     availability: 2,
     command: 0,
     specialRules: ["Shove (3)"],
+    highCommand: false,
     imageUrl: "/art/card/bulwarks_card_en.jpg"
   },
   {
@@ -56,13 +59,14 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
       { name: "Cover (BLK)", description: "" }
     ],
     availability: 2,
     command: 0,
     specialRules: ["Frightened"],
+    highCommand: false,
     imageUrl: "/art/card/black_legion_arquebusiers_card_en.jpg"
   },
   {
@@ -72,15 +76,16 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Dwarf", description: "" },
-      { name: "Ghent", description: "" },
-      { name: "Infantry", description: "" },
+      { name: "Dwarf", description: "A sturdy and technically-minded race known for their craftsmanship and resilience." },
+      { name: "Ghent", description: "Members of the Ghent faction, known for their technological prowess." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
       { name: "Dispel (BLU)", description: "" },
       { name: "Scout", description: "" }
     ],
     availability: 1,
     command: 0,
     specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
+    highCommand: false,
     imageUrl: "/art/card/pioneers_card_en.jpg"
   },
   {
@@ -90,13 +95,14 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Cavalry", description: "" },
-      { name: "Human", description: "" },
+      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
       { name: "Preferred Terrain (Rugged)", description: "" }
     ],
     availability: 1,
     command: 0,
     specialRules: ["Intimidating (2)"],
+    highCommand: false,
     imageUrl: "/art/card/black_angels_card_en.jpg"
   }
 ];
