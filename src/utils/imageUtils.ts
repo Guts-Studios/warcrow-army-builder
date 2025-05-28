@@ -1,4 +1,5 @@
 
+
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const generateCardUrl = (unitName: string, language: string = 'en'): string => {
@@ -21,8 +22,7 @@ export const generateCardUrl = (unitName: string, language: string = 'en'): stri
     "Dragoslav Bjelogríc, Drago the Anvil": "dragoslav_bjelogrc_drago_the_anvil",
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
     "Ynyr Dara Lainn": "ynyr_dara_lainn",
-    "Tattoist": "tattooist",
-    "Naegon Caladren": "naergon_caladren"
+    "Tattoist": "tattooist"
   };
   
   // Check for special case mapping
@@ -66,8 +66,7 @@ export const generatePortraitUrl = (unitName: string): string => {
     "Dragoslav Bjelogríc, Drago the Anvil": "dragoslav_bjelogrc_drago_the_anvil",
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
     "Ynyr Dara Lainn": "ynyr_dara_lainn",
-    "Tattoist": "tattooist",
-    "Naegon Caladren": "naergon_caladren"
+    "Tattoist": "tattooist"
   };
   
   // Check for special case mapping

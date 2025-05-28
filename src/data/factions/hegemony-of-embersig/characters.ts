@@ -170,8 +170,8 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     imageUrl: "/art/card/nayra_caladren_card_en.jpg"
   },
   {
-    id: "naegon-caladren",
-    name: "Naegon Caladren",
+    id: "naergon-caladren",
+    name: "Naergon Caladren",
     pointsCost: 15,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
