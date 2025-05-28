@@ -66,7 +66,7 @@ export const generatePortraitUrl = (unitName: string): string => {
     "Dragoslav Bjelogríc, Drago the Anvil": "dragoslav_bjelogrc_drago_the_anvil",
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
     "Ynyr Dara Lainn": "ynyr_dara_lainn",
-    "Darach Wilding": "darach_wildling",
+    "Darach Wilding": "darach_wilding",
     "Tattoist": "tattooist"
   };
   

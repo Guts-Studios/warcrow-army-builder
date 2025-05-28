@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Unit } from "@/types/army";
@@ -43,11 +42,11 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
                 language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
                 "/art/card/lady_telia_card_en.jpg";
       console.log(`[UnitCardImage] Using special Lady Télia URL: ${imageUrl}`);
-    } else if (unit.name.includes("Darach Wildling")) {
-      imageUrl = language === 'es' ? "/art/card/darach_wildling_card_sp.jpg" :
-                language === 'fr' ? "/art/card/darach_wildling_card_fr.jpg" :
-                "/art/card/darach_wildling_card_en.jpg";
-      console.log(`[UnitCardImage] Using special Darach Wildling URL: ${imageUrl}`);
+    } else if (unit.name.includes("Darach Wilding")) {
+      imageUrl = language === 'es' ? "/art/card/darach_wilding_card_sp.jpg" :
+                language === 'fr' ? "/art/card/darach_wilding_card_fr.jpg" :
+                "/art/card/darach_wilding_card_en.jpg";
+      console.log(`[UnitCardImage] Using special Darach Wilding URL: ${imageUrl}`);
     } else if (unit.name.includes("Mk-Os Automata") || unit.name.includes("MK-OS Automata")) {
       imageUrl = language === 'es' ? "/art/card/mk-os_automata_card_sp.jpg" :
                 language === 'fr' ? "/art/card/mk-os_automata_card_fr.jpg" :
@@ -166,10 +165,10 @@ const UnitCardImage = ({ unit }: UnitCardImageProps) => {
     }
     
     // 2. Special fallbacks for known problematic units
-    if (unit.name.includes("Darach Wildling") && !alternateErrorShown) {
+    if (unit.name.includes("Darach Wilding") && !alternateErrorShown) {
       setAlternateErrorShown(true);
-      const fallbackUrl = "/art/card/darach_wildling_card.jpg";
-      console.log(`[UnitCardImage] Trying Darach Wildling fallback: ${fallbackUrl}`);
+      const fallbackUrl = "/art/card/darach_wilding_card.jpg";
+      console.log(`[UnitCardImage] Trying Darach Wilding fallback: ${fallbackUrl}`);
       target.src = fallbackUrl;
       return;
     }
