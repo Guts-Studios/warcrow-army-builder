@@ -13,11 +13,18 @@ const Missions = () => {
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
   const [missions, setMissions] = React.useState<Mission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const { language, t } = useLanguage();
 
+  console.log('[Missions] Component mounting, language:', language);
+
   React.useEffect(() => {
+    console.log('[Missions] useEffect triggered');
+    
     const fetchMissions = async () => {
       try {
+        console.log('[Missions] Starting to fetch missions from Supabase');
+        
         const { data, error } = await supabase
           .from('rules_sections')
           .select('id, title, mission_details')
@@ -25,18 +32,23 @@ const Missions = () => {
           .order('order_index');
 
         if (error) {
-          console.error('Error fetching missions:', error);
+          console.error('[Missions] Supabase error:', error);
+          setError('Failed to load missions from database');
           return;
         }
+
+        console.log('[Missions] Supabase data received:', data);
 
         // Format official missions
         const formattedMissions = data.map(mission => ({
           id: mission.id,
           title: mission.title,
           details: mission.mission_details || '',
-          isHomebrew: false, // Mark as official
+          isHomebrew: false,
           isOfficial: true
         }));
+
+        console.log('[Missions] Formatted official missions:', formattedMissions.length);
 
         // Add the Tree Mother official mission with updated details
         formattedMissions.push({
@@ -91,22 +103,60 @@ const Missions = () => {
           }
         ];
 
+        console.log('[Missions] Adding community missions:', communityMissions.length);
+
         // Add the community missions to the formatted missions
         formattedMissions.push(...communityMissions);
 
+        console.log('[Missions] Total missions:', formattedMissions.length);
         setMissions(formattedMissions);
+        
         if (formattedMissions.length > 0) {
+          console.log('[Missions] Setting first mission as selected');
           setSelectedMission(formattedMissions[0]);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('[Missions] Unexpected error:', error);
+        setError('An unexpected error occurred while loading missions');
       } finally {
+        console.log('[Missions] Setting loading to false');
         setIsLoading(false);
       }
     };
 
     fetchMissions();
   }, []);
+
+  console.log('[Missions] Render state:', { 
+    isLoading, 
+    error, 
+    missionsCount: missions.length, 
+    selectedMissionId: selectedMission?.id 
+  });
+
+  // Error boundary fallback
+  if (error) {
+    return (
+      <div className="min-h-screen bg-warcrow-background">
+        <PageHeader title="Missions">
+          <LanguageSwitcher />
+          <NavDropdown />
+        </PageHeader>
+        <div className="container mx-auto py-8">
+          <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 text-center">
+            <h2 className="text-red-400 text-xl font-bold mb-2">Error Loading Missions</h2>
+            <p className="text-red-300">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-warcrow-background">
