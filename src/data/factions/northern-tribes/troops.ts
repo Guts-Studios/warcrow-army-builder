@@ -3,20 +3,37 @@ import { Unit } from "@/types/army";
 
 export const northernTribesTroops: Unit[] = [
   {
-    id: "battlescarred",
+    id: "battle-scarred",
     name: "Battle-Scarred",
     pointsCost: 40,
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
       { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." },
+      { name: "Raging", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
-    imageUrl: "/art/card/battlescarred_card.jpg"
+    imageUrl: "/art/card/battle-scarred_card.jpg"
+  },
+  {
+    id: "ice-archers",
+    name: "Ice Archers",
+    pointsCost: 25,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Slowed"],
+    imageUrl: "/art/card/ice-archers_card.jpg"
   },
   {
     id: "orc-hunters",
@@ -42,7 +59,8 @@ export const northernTribesTroops: Unit[] = [
     faction_id: "northern-tribes",
     keywords: [
       { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Varank", description: "A proud warrior culture from the northern regions." },
+      { name: "Fearless", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -51,32 +69,16 @@ export const northernTribesTroops: Unit[] = [
     imageUrl: "/art/card/skin-changers_card.jpg"
   },
   {
-    id: "ice-archers",
-    name: "Ice Archers",
-    pointsCost: 25,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
-    keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Slowed"],
-    imageUrl: "/art/card/ice-archers_card.jpg"
-  },
-  {
     id: "tundra-marauders",
     name: "Tundra Marauders",
     pointsCost: 30,
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Scout", description: "" },
       { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Varank", description: "A proud warrior culture from the northern regions." },
+      { name: "Preferred Terrain (Rugged)", description: "" },
+      { name: "Scout", description: "" }
     ],
     highCommand: false,
     availability: 2,
@@ -91,10 +93,11 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
+      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." },
       { name: "Bloodlust", description: "" },
       { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
-      { name: "Orc", description: "A physically powerful race known for their martial proweus and tribal culture." }
+      { name: "Raging", description: "" }
     ],
     highCommand: false,
     availability: 2,
