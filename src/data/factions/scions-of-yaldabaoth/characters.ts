@@ -1,5 +1,5 @@
-
 import { Unit } from "@/types/army";
+import { vercana } from "./characters/vercana";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
   {
@@ -206,5 +206,6 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     specialRules: ["Place (5)"],
     imageUrl: "/art/card/vercana_card.jpg"
-  }
+  },
+  vercana
 ];
