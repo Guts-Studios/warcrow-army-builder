@@ -16,14 +16,10 @@ const Missions = () => {
   const [error, setError] = React.useState<string | null>(null);
   const { language, t } = useLanguage();
 
-  console.log('[Missions] Component mounting, language:', language);
-
   React.useEffect(() => {
-    console.log('[Missions] useEffect triggered');
-    
     const fetchMissions = async () => {
       try {
-        console.log('[Missions] Starting to fetch missions from Supabase');
+        console.log('[Missions] Fetching missions from Supabase...');
         
         const { data, error } = await supabase
           .from('rules_sections')
@@ -37,8 +33,6 @@ const Missions = () => {
           return;
         }
 
-        console.log('[Missions] Supabase data received:', data);
-
         // Format official missions
         const formattedMissions = data.map(mission => ({
           id: mission.id,
@@ -47,8 +41,6 @@ const Missions = () => {
           isHomebrew: false,
           isOfficial: true
         }));
-
-        console.log('[Missions] Formatted official missions:', formattedMissions.length);
 
         // Add the Tree Mother official mission with updated details
         formattedMissions.push({
@@ -103,36 +95,25 @@ const Missions = () => {
           }
         ];
 
-        console.log('[Missions] Adding community missions:', communityMissions.length);
-
         // Add the community missions to the formatted missions
         formattedMissions.push(...communityMissions);
 
-        console.log('[Missions] Total missions:', formattedMissions.length);
+        console.log(`[Missions] Loaded ${formattedMissions.length} total missions`);
         setMissions(formattedMissions);
         
         if (formattedMissions.length > 0) {
-          console.log('[Missions] Setting first mission as selected');
           setSelectedMission(formattedMissions[0]);
         }
       } catch (error) {
         console.error('[Missions] Unexpected error:', error);
         setError('An unexpected error occurred while loading missions');
       } finally {
-        console.log('[Missions] Setting loading to false');
         setIsLoading(false);
       }
     };
 
     fetchMissions();
   }, []);
-
-  console.log('[Missions] Render state:', { 
-    isLoading, 
-    error, 
-    missionsCount: missions.length, 
-    selectedMissionId: selectedMission?.id 
-  });
 
   // Error boundary fallback
   if (error) {
