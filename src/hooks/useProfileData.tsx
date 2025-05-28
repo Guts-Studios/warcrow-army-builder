@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { ProfileFormData } from "@/types/profile";
 import { toast } from "sonner";
-import { useProfileSession } from "./useProfileSession";
-import { useProfileFetch } from "./useProfileFetch";
-import { useProfileUpdate } from "./useProfileUpdate";
-import { useProfileNavigation } from "./useProfileNavigation";
+import { useProfileSession } from "@/hooks/useProfileSession";
+import { useProfileFetch } from "@/hooks/useProfileFetch";
+import { useProfileUpdate } from "@/hooks/useProfileUpdate";
+import { useProfileNavigation } from "@/hooks/useProfileNavigation";
 import { ensureWabId } from "@/utils/wabIdUtils";
 import { supabase } from "@/integrations/supabase/client";
 
