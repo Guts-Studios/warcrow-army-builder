@@ -79,7 +79,7 @@ export const scionsOfYaldabaothHighCommand: Unit[] = [
       { name: "Living Flesh", description: "" },
       { name: "Intimidating (2)", description: "" },
       { name: "Spellcaster", description: "" },
-      { name: "Join (Infantry, Living Flesh)", description: "" }
+      { name: "Join (Infantry Living Flesh)", description: "" }
     ],
     highCommand: true,
     availability: 1,

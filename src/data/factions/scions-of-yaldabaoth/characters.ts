@@ -3,63 +3,6 @@ import { Unit } from "@/types/army";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
   {
-    id: "overseer",
-    name: "Overseer",
-    pointsCost: 25,
-    faction: "scions-of-yaldabaoth",
-    faction_id: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Red Cap", description: "" },
-      { name: "Join (Gobblers, Bugbowls, Osseous)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: ["Shove (4)", "Slowed", "Place (10)"],
-    imageUrl: "/art/card/overseer_card.jpg"
-  },
-  {
-    id: "puppeteer",
-    name: "Puppeteer",
-    pointsCost: 30,
-    faction: "scions-of-yaldabaoth",
-    faction_id: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Dead Flesh", description: "" },
-      { name: "Darkminded", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Spellcaster", description: "" },
-      { name: "Join (Risen)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: ["Place (5)"],
-    imageUrl: "/art/card/puppeteer_card.jpg"
-  },
-  {
-    id: "rumpy-ride",
-    name: "Rumpy Ride",
-    pointsCost: 45,
-    faction: "scions-of-yaldabaoth",
-    faction_id: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Red Cap", description: "" },
-      { name: "Dispel (BLU, BLK)", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Join (Red Caps, Infantry, Spellcaster)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: [],
-    imageUrl: "/art/card/rumpy_ride_card.jpg"
-  },
-  {
     id: "aodharu",
     name: "Aodharu",
     pointsCost: 30,
@@ -69,7 +12,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Dead Flesh", description: "" },
       { name: "Risen", description: "" },
       { name: "Bloodlust", description: "" },
-      { name: "Dispel (BLK, BLK)", description: "" },
+      { name: "Dispel (BLK BLK)", description: "" },
       { name: "Golem", description: "" },
       { name: "Intimidating (2)", description: "" }
     ],
@@ -127,7 +70,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Elf", description: "" },
       { name: "Fog", description: "" },
       { name: "Ambusher", description: "" },
-      { name: "Dispel (BLK, BLK)", description: "" },
+      { name: "Dispel (BLK BLK)", description: "" },
       { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
@@ -146,8 +89,8 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Darkminded", description: "" },
       { name: "Elf", description: "" },
       { name: "Dead Flesh", description: "" },
-      { name: "Dispel (BLU, BLK)", description: "" },
-      { name: "Join (Living Flesh, Dead Flesh)", description: "" },
+      { name: "Dispel (BLU BLK)", description: "" },
+      { name: "Join (Living Flesh Dead Flesh)", description: "" },
       { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
@@ -166,12 +109,69 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
       { name: "Dead Flesh", description: "" },
       { name: "Risen", description: "" },
       { name: "Golem", description: "" },
-      { name: "Join (Infantry, Dead Flesh)", description: "" }
+      { name: "Join (Infantry Dead Flesh)", description: "" }
     ],
     highCommand: false,
     availability: 2,
     specialRules: ["Vulnerable", "Frightened", "Slowed", "Disarmed"],
     imageUrl: "/art/card/orc_husk_card.jpg"
+  },
+  {
+    id: "overseer",
+    name: "Overseer",
+    pointsCost: 25,
+    faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Red Cap", description: "" },
+      { name: "Join (Gobblers, Bugbowls, Osseous)", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 2,
+    specialRules: ["Shove (4)", "Slowed", "Place (10)"],
+    imageUrl: "/art/card/overseer_card.jpg"
+  },
+  {
+    id: "puppeteer",
+    name: "Puppeteer",
+    pointsCost: 30,
+    faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Dead Flesh", description: "" },
+      { name: "Darkminded", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Join (Risen)", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 2,
+    specialRules: ["Place (5)"],
+    imageUrl: "/art/card/puppeteer_card.jpg"
+  },
+  {
+    id: "rumpy-ride",
+    name: "Rumpy Ride",
+    pointsCost: 45,
+    faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Red Cap", description: "" },
+      { name: "Dispel (BLU BLK)", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Red Caps Infantry Spellcaster)", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 2,
+    specialRules: [],
+    imageUrl: "/art/card/rumpy_ride_card.jpg"
   },
   {
     id: "sightless",
@@ -197,8 +197,8 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
     keywords: [
-      { name: "Human", description: "" },
       { name: "Character", description: "" },
+      { name: "Human", description: "" },
       { name: "Mercenary", description: "" },
       { name: "Ambusher", description: "" }
     ],
