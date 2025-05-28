@@ -1,6 +1,6 @@
 
 import { Unit } from "@/types/army";
-import { hegemonyOfEmbersigHighCommand } from "./high-command";
+import { hegemonyOfEmbersigHighCommand } from "./high-command/index";
 import { hegemonyOfEmbersigCharacters } from "./characters";
 import { hegemonyOfEmbersigTroops } from "./troops";
 import { hegemonyOfEmbersigCompanions } from "./companions";
