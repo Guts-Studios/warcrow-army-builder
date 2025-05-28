@@ -20,7 +20,8 @@ export const generateCardUrl = (unitName: string, language: string = 'en'): stri
     "Nadezhda Lazard, Champion of Embersig": "nadezhda_lazard_champion_of_embersig",
     "Dragoslav Bjelogríc, Drago the Anvil": "dragoslav_bjelogrc_drago_the_anvil",
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
-    "Ynyr Dara Lainn": "ynyr_dara_lainn"
+    "Ynyr Dara Lainn": "ynyr_dara_lainn",
+    "Tattoist": "tattoist"
   };
   
   // Check for special case mapping
@@ -63,7 +64,8 @@ export const generatePortraitUrl = (unitName: string): string => {
     "Nadezhda Lazard, Champion of Embersig": "nadezhda_lazard_champion_of_embersig",
     "Dragoslav Bjelogríc, Drago the Anvil": "dragoslav_bjelogrc_drago_the_anvil",
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
-    "Ynyr Dara Lainn": "ynyr_dara_lainn"
+    "Ynyr Dara Lainn": "ynyr_dara_lainn",
+    "Tattoist": "tattoist"
   };
   
   // Check for special case mapping
