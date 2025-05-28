@@ -9,8 +9,8 @@ export const northernTribesCompanions: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Join (Iriavik)", description: "" },
-      { name: "Companion", description: "A unit that must be assigned to a specific character or unit type." }
+      { name: "Companion", description: "A unit that must be assigned to a specific character or unit type." },
+      { name: "Join (Iriavik)", description: "" }
     ],
     highCommand: false,
     availability: 1,
