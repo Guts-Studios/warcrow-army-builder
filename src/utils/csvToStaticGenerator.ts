@@ -1,3 +1,4 @@
+
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -100,17 +101,11 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   };
 };
 
-/**
- * Parse comma-delimited field, handling empty values
- */
 const parseDelimitedField = (field: string): string[] => {
   if (!field || field.trim() === '') return [];
   return field.split(',').map(item => item.trim()).filter(Boolean);
 };
 
-/**
- * Normalize faction name to match our faction IDs
- */
 const normalizeFactionName = (factionName: string): string => {
   const nameMap: Record<string, string> = {
     'Northern Tribes': 'northern-tribes',
@@ -161,9 +156,6 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
   };
 };
 
-/**
- * Generate TypeScript file content for a list of units
- */
 export const generateUnitFileContent = (
   units: Unit[], 
   factionId: string, 
@@ -214,7 +206,7 @@ ${unitDefinitions}
 };
 
 /**
- * Load and process CSV file for a faction
+ * Load and process CSV file for a faction with better error handling
  */
 export const loadFactionCsvData = async (factionId: string): Promise<ProcessedCsvUnit[]> => {
   const csvFileName = FACTION_CSV_MAPPING[factionId];
@@ -227,6 +219,10 @@ export const loadFactionCsvData = async (factionId: string): Promise<ProcessedCs
   try {
     const response = await fetch(filePath);
     if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`CSV file not found at ${filePath}. This is expected if CSV files are not available in this environment.`);
+        throw new Error(`CSV file not found: ${csvFileName}`);
+      }
       throw new Error(`Failed to fetch CSV: ${response.statusText}`);
     }
     
@@ -309,9 +305,6 @@ ${indexArrays.join(',\n')}
   };
 };
 
-/**
- * Validation utility to compare CSV and static data
- */
 export const validateCsvStaticSync = async (factionId: string, staticUnits: Unit[]): Promise<{
   missingInStatic: ProcessedCsvUnit[];
   extraInStatic: Unit[];
@@ -322,72 +315,81 @@ export const validateCsvStaticSync = async (factionId: string, staticUnits: Unit
     staticValue: any;
   }>;
 }> => {
-  const csvUnits = await loadFactionCsvData(factionId);
-  
-  const missingInStatic = csvUnits.filter(csvUnit => 
-    !staticUnits.some(staticUnit => staticUnit.id === csvUnit.id)
-  );
-  
-  const extraInStatic = staticUnits.filter(staticUnit => 
-    !csvUnits.some(csvUnit => csvUnit.id === staticUnit.id)
-  );
-  
-  const mismatches: Array<{
-    unit: string;
-    field: string;
-    csvValue: any;
-    staticValue: any;
-  }> = [];
-  
-  // Check for field mismatches
-  csvUnits.forEach(csvUnit => {
-    const staticUnit = staticUnits.find(u => u.id === csvUnit.id);
-    if (staticUnit) {
-      // Check points cost
-      if (staticUnit.pointsCost !== csvUnit.pointsCost) {
-        mismatches.push({
-          unit: csvUnit.name,
-          field: 'pointsCost',
-          csvValue: csvUnit.pointsCost,
-          staticValue: staticUnit.pointsCost
-        });
+  try {
+    const csvUnits = await loadFactionCsvData(factionId);
+    
+    const missingInStatic = csvUnits.filter(csvUnit => 
+      !staticUnits.some(staticUnit => staticUnit.id === csvUnit.id)
+    );
+    
+    const extraInStatic = staticUnits.filter(staticUnit => 
+      !csvUnits.some(csvUnit => csvUnit.id === staticUnit.id)
+    );
+    
+    const mismatches: Array<{
+      unit: string;
+      field: string;
+      csvValue: any;
+      staticValue: any;
+    }> = [];
+    
+    // Check for field mismatches
+    csvUnits.forEach(csvUnit => {
+      const staticUnit = staticUnits.find(u => u.id === csvUnit.id);
+      if (staticUnit) {
+        // Check points cost
+        if (staticUnit.pointsCost !== csvUnit.pointsCost) {
+          mismatches.push({
+            unit: csvUnit.name,
+            field: 'pointsCost',
+            csvValue: csvUnit.pointsCost,
+            staticValue: staticUnit.pointsCost
+          });
+        }
+        
+        // Check availability
+        if (staticUnit.availability !== csvUnit.availability) {
+          mismatches.push({
+            unit: csvUnit.name,
+            field: 'availability',
+            csvValue: csvUnit.availability,
+            staticValue: staticUnit.availability
+          });
+        }
+        
+        // Check high command
+        if (Boolean(staticUnit.highCommand) !== csvUnit.highCommand) {
+          mismatches.push({
+            unit: csvUnit.name,
+            field: 'highCommand',
+            csvValue: csvUnit.highCommand,
+            staticValue: Boolean(staticUnit.highCommand)
+          });
+        }
+        
+        // Check command
+        if (staticUnit.command !== csvUnit.command) {
+          mismatches.push({
+            unit: csvUnit.name,
+            field: 'command',
+            csvValue: csvUnit.command,
+            staticValue: staticUnit.command
+          });
+        }
       }
-      
-      // Check availability
-      if (staticUnit.availability !== csvUnit.availability) {
-        mismatches.push({
-          unit: csvUnit.name,
-          field: 'availability',
-          csvValue: csvUnit.availability,
-          staticValue: staticUnit.availability
-        });
-      }
-      
-      // Check high command
-      if (Boolean(staticUnit.highCommand) !== csvUnit.highCommand) {
-        mismatches.push({
-          unit: csvUnit.name,
-          field: 'highCommand',
-          csvValue: csvUnit.highCommand,
-          staticValue: Boolean(staticUnit.highCommand)
-        });
-      }
-      
-      // Check command
-      if (staticUnit.command !== csvUnit.command) {
-        mismatches.push({
-          unit: csvUnit.name,
-          field: 'command',
-          csvValue: csvUnit.command,
-          staticValue: staticUnit.command
-        });
-      }
-    }
-  });
-  
-  return {
-    missingInStatic,
-    extraInStatic,
-    mismatches
-  };
+    });
+    
+    return {
+      missingInStatic,
+      extraInStatic,
+      mismatches
+    };
+  } catch (error) {
+    console.warn(`CSV validation failed for ${factionId}, falling back to static data only:`, error);
+    return {
+      missingInStatic: [],
+      extraInStatic: [],
+      mismatches: []
+    };
+  }
 };

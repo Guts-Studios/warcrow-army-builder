@@ -1,4 +1,3 @@
-
 // Utility functions for CSV validation and file loading
 
 export const getFactionCsvPath = (factionId: string): string => {
@@ -30,15 +29,21 @@ export const checkCsvFileExists = async (filePath: string): Promise<boolean> => 
 export const loadCsvFile = async (filePath: string): Promise<string> => {
   console.log(`Attempting to load CSV from: ${filePath}`);
   
-  const response = await fetch(filePath);
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`CSV file not found at ${filePath}. Status: ${response.status}`);
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`CSV file not found at ${filePath}. Using static data instead.`);
+        throw new Error(`CSV file not found at ${filePath}. Status: ${response.status}`);
+      }
+      throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
     }
-    throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+    
+    return await response.text();
+  } catch (error) {
+    console.error(`Error loading CSV file from ${filePath}:`, error);
+    throw error;
   }
-  
-  return await response.text();
 };
 
 export interface CsvUnit {
