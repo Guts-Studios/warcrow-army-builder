@@ -1,6 +1,6 @@
 import { Unit } from "@/types/army";
 
-export const northerntribesTroops: Unit[] = [
+export const northernTribesTroops: Unit[] = [
   {
     id: "battlescarred",
     name: "Battle-Scarred",
