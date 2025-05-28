@@ -276,7 +276,7 @@ const Landing = () => {
         <SupportButton className="z-50" />
         <div className="flex items-center gap-2">
           <NavDropdown iconOnly />
-          <LanguageSwitcher />
+          <LanguageSwitcher iconOnly />
         </div>
       </div>
       

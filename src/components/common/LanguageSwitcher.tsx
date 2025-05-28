@@ -10,7 +10,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe, Check } from 'lucide-react';
 
-const LanguageSwitcher = () => {
+interface LanguageSwitcherProps {
+  iconOnly?: boolean;
+}
+
+const LanguageSwitcher = ({ iconOnly = false }: LanguageSwitcherProps) => {
   const { language, setLanguage, t } = useLanguage();
 
   const languages = [
@@ -28,7 +32,7 @@ const LanguageSwitcher = () => {
           className="border-warcrow-gold/50 text-warcrow-gold hover:bg-black hover:border-black hover:text-warcrow-gold transition-colors bg-black flex items-center gap-1"
         >
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{t('language')}</span>
+          {!iconOnly && <span className="hidden sm:inline">{t('language')}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-black border border-warcrow-gold/30">
