@@ -26,6 +26,7 @@ import { Footer } from "@/components/landing/Footer";
 import { getLatestVersion } from "@/utils/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 import { getBuildFailureNotifications } from "@/utils/notificationUtils";
 import { AlertTriangle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -273,7 +274,10 @@ const Landing = () => {
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
       <div className="absolute top-4 w-full max-w-4xl mx-auto px-4 flex justify-between">
         <SupportButton className="z-50" />
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2">
+          <NavDropdown iconOnly />
+          <LanguageSwitcher />
+        </div>
       </div>
       
       {/* Latest Build Failure Alert - only shown if the latest build failed AND user is admin AND it's a warcrow site */}

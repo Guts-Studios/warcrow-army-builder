@@ -16,9 +16,12 @@ import { NotificationsMenu } from "@/components/profile/NotificationsMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnvironment } from "@/hooks/useEnvironment";
-import { Container } from "@/components/ui/custom";
 
-export const NavDropdown = () => {
+interface NavDropdownProps {
+  iconOnly?: boolean;
+}
+
+export const NavDropdown = ({ iconOnly = false }: NavDropdownProps) => {
   const navigate = useNavigate();
   const { isAuthenticated, isWabAdmin, userId, isLoading, isGuest } = useAuth();
   const { isPreview } = useEnvironment();
@@ -40,7 +43,7 @@ export const NavDropdown = () => {
             className="bg-black/90 border-warcrow-gold text-warcrow-gold hover:bg-warcrow-gold/10 hover:text-warcrow-gold transition-colors"
           >
             <Menu className="h-5 w-5" />
-            <span className="ml-2">Navigation</span>
+            {!iconOnly && <span className="ml-2">Navigation</span>}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
