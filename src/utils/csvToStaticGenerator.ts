@@ -1,3 +1,4 @@
+
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -63,9 +64,9 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, '-');
 
-  // Parse characteristics and keywords
-  const rawCharacteristics = parseDelimitedField(row.Characteristics);
-  const rawKeywords = parseDelimitedField(row.Keywords);
+  // Parse characteristics and keywords using the new bracket format
+  const rawCharacteristics = parseDelimitedFieldWithBrackets(row.Characteristics);
+  const rawKeywords = parseDelimitedFieldWithBrackets(row.Keywords);
   
   // Separate characteristics from keywords
   const characteristics = rawCharacteristics.filter(item => 
@@ -85,8 +86,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   // Parse boolean fields
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
 
-  // Parse special rules
-  const specialRules = parseDelimitedField(row['Special Rules']);
+  // Parse special rules using the new bracket format
+  const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
 
   // Normalize faction ID
   const factionId = row['Faction ID'] || normalizeFactionName(row.Faction);
@@ -108,9 +109,26 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   };
 };
 
-const parseDelimitedField = (field: string): string[] => {
+/**
+ * Enhanced parsing function to handle bracket-enclosed groups
+ * Handles formats like: [Character, High Command, Varank] or Character, High Command, Varank
+ */
+const parseDelimitedFieldWithBrackets = (field: string): string[] => {
   if (!field || field.trim() === '') return [];
-  return field.split(',').map(item => item.trim()).filter(Boolean);
+  
+  const trimmedField = field.trim();
+  
+  // Check if the field is enclosed in brackets
+  if (trimmedField.startsWith('[') && trimmedField.endsWith(']')) {
+    // Extract content between brackets and split by commas
+    const content = trimmedField.slice(1, -1).trim();
+    if (!content) return [];
+    
+    return content.split(',').map(item => item.trim()).filter(Boolean);
+  }
+  
+  // Fallback to original parsing for fields without brackets
+  return trimmedField.split(',').map(item => item.trim()).filter(Boolean);
 };
 
 const normalizeFactionName = (factionName: string): string => {
