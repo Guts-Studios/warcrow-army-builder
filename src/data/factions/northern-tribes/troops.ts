@@ -1,102 +1,110 @@
-
 import { Unit } from "@/types/army";
 
-export const northernTribesTroops: Unit[] = [
+export const northerntribesTroops: Unit[] = [
   {
-    id: "battle-scarred",
+    id: "battlescarred",
     name: "Battle-Scarred",
-    faction: "northern-tribes",
     pointsCost: 40,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Orc", description: "" },
-      { name: "Raging", description: "" },
-    ],
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
-    highCommand: false,
-    imageUrl: "/art/card/battle-scarred_card_en.jpg"
+    
+    imageUrl: "/art/card/battlescarred_card.jpg"
   },
   {
     id: "orc-hunters",
     name: "Orc Hunters",
-    faction: "northern-tribes",
     pointsCost: 20,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+    ],
+    highCommand: false,
     availability: 3,
     command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Orc", description: "" },      
-    ],
     specialRules: ["Vulnerable"],
-    highCommand: false,
-    imageUrl: "/art/card/orc_hunters_card_en.jpg"
+    
+    imageUrl: "/art/card/orc-hunters_card.jpg"
   },
   {
     id: "skin-changers",
     name: "Skin Changers",
-    faction: "northern-tribes",
     pointsCost: 35,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Varank", description: "" },
-      { name: "Fearless", description: "" },
-    ],
     specialRules: ["Scout"],
-    highCommand: false,
-    imageUrl: "/art/card/skin_changers_card_en.jpg"
+    
+    imageUrl: "/art/card/skin-changers_card.jpg"
   },
   {
     id: "ice-archers",
     name: "Ice Archers",
-    faction: "northern-tribes",
     pointsCost: 25,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Varank", description: "" },
-    ],
     specialRules: ["Slowed"],
-    highCommand: false,
-    imageUrl: "/art/card/ice_archers_card_en.jpg"
+    
+    imageUrl: "/art/card/ice-archers_card.jpg"
   },
   {
     id: "tundra-marauders",
     name: "Tundra Marauders",
-    faction: "northern-tribes",
     pointsCost: 30,
-    availability: 2,
-    command: 0,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Varank", description: "" },
       { name: "Preferred Terrain (Rugged)", description: "" },
       { name: "Scout", description: "" },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
     ],
-    specialRules: ["Displace (3)", "Rugged", "Trap"],
     highCommand: false,
-    imageUrl: "/art/card/tundra_marauders_card_en.jpg"
+    availability: 2,
+    command: 0,
+    specialRules: ["Displace (3)", "Rugged", "Trap"],
+    
+    imageUrl: "/art/card/tundra-marauders_card.jpg"
   },
   {
     id: "warg-riders",
     name: "Warg Riders",
-    faction: "northern-tribes",
     pointsCost: 35,
-    availability: 2,
-    command: 0,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Cavalry", description: "" },
-      { name: "Orc", description: "" },  
       { name: "Bloodlust", description: "" },
       { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Raging", description: "" }
+      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
     ],
-    specialRules: ["Vulnerable", "Repeat a Die"],
     highCommand: false,
-    imageUrl: "/art/card/warg_riders_card_en.jpg"
+    availability: 2,
+    command: 0,
+    specialRules: ["Vulnerable", "Repeat a Die"],
+    
+    imageUrl: "/art/card/warg-riders_card.jpg"
   }
 ];
