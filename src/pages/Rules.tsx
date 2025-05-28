@@ -13,7 +13,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import FAQ from "@/pages/FAQ"; // Import the FAQ component
 import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,7 +24,6 @@ const Rules = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = React.useState<string>("rules");
-  const [isManualRefreshing, setIsManualRefreshing] = React.useState(false);
 
   // Force refetch when language changes
   React.useEffect(() => {
@@ -66,41 +64,13 @@ const Rules = () => {
     }
   }, [location.pathname]);
 
-  // Function to manually refresh the rules data
-  const handleManualRefresh = async () => {
-    setIsManualRefreshing(true);
-    try {
-      await refetch();
-      toast.success("Rules data refreshed");
-    } catch (error) {
-      console.error("Error refreshing rules:", error);
-      toast.error("Failed to refresh rules data");
-    } finally {
-      setIsManualRefreshing(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader 
         title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')} 
         showNavigation={true}
       >
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleManualRefresh}
-            disabled={isLoading || isManualRefreshing}
-            className="text-warcrow-gold border-warcrow-gold hover:bg-warcrow-gold/10"
-          >
-            {(isLoading || isManualRefreshing) ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            Refresh Data
-          </Button>
-          <LanguageSwitcher />
-        </div>
+        <LanguageSwitcher />
       </PageHeader>
       <div className="container max-w-7xl mx-auto py-4 px-4">
         <UnifiedSearchProvider>
@@ -133,34 +103,12 @@ const Rules = () => {
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center space-y-4">
                       <p className="text-red-500">Failed to load rules data</p>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleManualRefresh} 
-                        disabled={isManualRefreshing}
-                        className="border-warcrow-gold text-warcrow-gold"
-                      >
-                        {isManualRefreshing ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : null}
-                        Try Again
-                      </Button>
                     </div>
                   </div>
                 ) : chapters.length === 0 ? (
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center space-y-4">
                       <p className="text-warcrow-text">No rules data available</p>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleManualRefresh} 
-                        disabled={isManualRefreshing}
-                        className="border-warcrow-gold text-warcrow-gold"
-                      >
-                        {isManualRefreshing ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : null}
-                        Refresh
-                      </Button>
                     </div>
                   </div>
                 ) : (
