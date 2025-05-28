@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -110,25 +109,54 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 };
 
 /**
- * Enhanced parsing function to handle bracket-enclosed groups
+ * Enhanced parsing function to handle bracket-enclosed groups and parentheses within keywords
  * Handles formats like: [Character, High Command, Varank] or Character, High Command, Varank
+ * Also handles complex keywords like "Join (Infantry, Orc)" or "Dispel (BLK, BLK)"
  */
 const parseDelimitedFieldWithBrackets = (field: string): string[] => {
   if (!field || field.trim() === '') return [];
   
-  const trimmedField = field.trim();
+  let trimmedField = field.trim();
   
   // Check if the field is enclosed in brackets
   if (trimmedField.startsWith('[') && trimmedField.endsWith(']')) {
     // Extract content between brackets and split by commas
     const content = trimmedField.slice(1, -1).trim();
     if (!content) return [];
-    
-    return content.split(',').map(item => item.trim()).filter(Boolean);
+    trimmedField = content;
   }
   
-  // Fallback to original parsing for fields without brackets
-  return trimmedField.split(',').map(item => item.trim()).filter(Boolean);
+  // Smart parsing that respects parentheses
+  const result: string[] = [];
+  let current = '';
+  let depth = 0;
+  
+  for (let i = 0; i < trimmedField.length; i++) {
+    const char = trimmedField[i];
+    
+    if (char === '(') {
+      depth++;
+      current += char;
+    } else if (char === ')') {
+      depth--;
+      current += char;
+    } else if (char === ',' && depth === 0) {
+      // Only split on commas that are not inside parentheses
+      if (current.trim()) {
+        result.push(current.trim());
+      }
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  // Add the last item
+  if (current.trim()) {
+    result.push(current.trim());
+  }
+  
+  return result.filter(Boolean);
 };
 
 const normalizeFactionName = (factionName: string): string => {
