@@ -1,3 +1,4 @@
+
 export const aboutTranslations = {
   aboutTitle: {
     en: 'About Us',
@@ -50,9 +51,9 @@ export const aboutTranslations = {
     fr: 'par mois'
   },
   supportText: {
-    en: 'You can support the development of this app by buying us a coffee!',
-    es: '¡Puedes apoyar el desarrollo de esta aplicación invitándonos a un café!',
-    fr: 'Vous pouvez soutenir le développement de cette application en nous offrant un café !'
+    en: 'You can support the development of this app by buying us a coffee! Or just visit the Patreon page and see whats been going on and what is to come!',
+    es: '¡Puedes apoyar el desarrollo de esta aplicación invitándonos a un café! ¡O simplemente visita la página de Patreon y ve lo que ha estado pasando y lo que está por venir!',
+    fr: 'Vous pouvez soutenir le développement de cette application en nous offrant un café ! Ou visitez simplement la page Patreon et voyez ce qui se passe et ce qui va arriver !'
   },
   loadingSupport: {
     en: 'Loading support options...',
@@ -77,7 +78,7 @@ export const aboutTranslations = {
   errorLoadingSupporters: {
     en: 'Unable to load supporters list',
     es: 'No se pudo cargar la lista de colaboradores',
-    fr: 'Impossible de cargar la liste des soutiens'
+    fr: 'Impossible de charger la liste des soutiens'
   },
   beFirstSupporter: {
     en: 'Be the first to support Warcrow Army Builder and see your name here!',
