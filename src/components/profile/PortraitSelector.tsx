@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -9,14 +10,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { northernTribesHighCommand } from "@/data/factions/northern-tribes/high-command";
+import { northernTribesHighCommand } from "@/data/factions/northern-tribes/highCommand";
 import { northernTribesTroops } from "@/data/factions/northern-tribes/troops";
 import { northernTribesCharacters } from "@/data/factions/northern-tribes/characters";
 import { syenannCharacters } from "@/data/factions/syenann/characters";
 import { syenannTroops } from "@/data/factions/syenann/troops";
 import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
 import { scionsOfYaldabaothCharacters } from "@/data/factions/scions-of-yaldabaoth/characters";
-import { scionsOfYaldabaothHighCommand } from "@/data/factions/scions-of-yaldabaoth/high-command";
+import { scionsOfYaldabaothHighCommand } from "@/data/factions/scions-of-yaldabaoth/highCommand";
 import { scionsOfYaldabaothTroops } from "@/data/factions/scions-of-yaldabaoth/troops";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
