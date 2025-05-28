@@ -1,3 +1,4 @@
+
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -82,21 +83,34 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   const availability = parseInt(row.AVB) || 0;
   const command = row.Command ? parseInt(row.Command) : undefined;
 
-  // Parse boolean fields
+  // Parse boolean fields - handle both "Yes"/"No" and "yes"/"no"
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
 
   // Parse special rules using the new bracket format
   const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
 
   // Normalize faction ID
-  const factionId = row['Faction ID'] || normalizeFactionName(row.Faction);
+  const factionId = row['Faction ID'] || row['faction_id'] || normalizeFactionName(row.Faction);
+
+  // Determine unit type from the CSV data
+  let unitType = 'troop';
+  if (row['Unit Type']) {
+    const typeStr = row['Unit Type'].toLowerCase();
+    if (typeStr.includes('character') || typeStr.includes('named')) {
+      unitType = 'character';
+    } else if (typeStr.includes('companion')) {
+      unitType = 'companion';
+    } else if (typeStr.includes('troop')) {
+      unitType = 'troop';
+    }
+  }
 
   return {
     id,
     name: row['Unit Name'],
     faction: factionId,
     faction_id: factionId,
-    type: row['Unit Type']?.toLowerCase() || 'troop',
+    type: unitType,
     pointsCost,
     availability,
     command,
@@ -109,9 +123,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 };
 
 /**
- * Enhanced parsing function to handle bracket-enclosed groups and parentheses within keywords
- * Handles formats like: [Character, High Command, Varank] or Character, High Command, Varank
- * Also handles complex keywords like "Join (Infantry, Orc)" or "Dispel (BLK, BLK)"
+ * Enhanced parsing function to handle bracket-enclosed groups with updated format
+ * Now handles formats like: [Join (Infantry Orc), Elite] without commas inside Join
  */
 const parseDelimitedFieldWithBrackets = (field: string): string[] => {
   if (!field || field.trim() === '') return [];
