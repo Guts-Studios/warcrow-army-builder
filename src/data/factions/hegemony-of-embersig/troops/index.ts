@@ -1,100 +1,110 @@
-
 import { Unit } from "@/types/army";
 
-export const hegemonyOfEmbersigTroops: Unit[] = [
+export const northerntribesTroops: Unit[] = [
   {
-    id: "black-legion-arquebusiers",
-    name: "Black Legion Arquebusiers",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
+    id: "battlescarred",
+    name: "Battle-Scarred",
     pointsCost: 40,
-    availability: 3,
-    command: 0,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Ranged", description: "" }
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
     ],
-    specialRules: ["Precise"],
-    imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
+    
+    imageUrl: "/art/card/battlescarred_card.jpg"
   },
   {
-    id: "black-legion-bucklermen",
-    name: "Black Legion Bucklermen",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
+    id: "orc-hunters",
+    name: "Orc Hunters",
+    pointsCost: 20,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+    ],
+    highCommand: false,
+    availability: 3,
+    command: 0,
+    specialRules: ["Vulnerable"],
+    
+    imageUrl: "/art/card/orc-hunters_card.jpg"
+  },
+  {
+    id: "skin-changers",
+    name: "Skin Changers",
     pointsCost: 35,
-    availability: 3,
-    command: 0,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Shield", description: "" }
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
     ],
-    specialRules: ["Defensive"],
-    imageUrl: "/art/card/black_legion_bucklermen_card.jpg"
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Scout"],
+    
+    imageUrl: "/art/card/skin-changers_card.jpg"
   },
   {
-    id: "aggressors",
-    name: "Aggressors",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 30,
-    availability: 3,
-    command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" }
-    ],
-    specialRules: ["Aggressive"],
-    imageUrl: "/art/card/aggressors_card.jpg"
-  },
-  {
-    id: "bulwarks",
-    name: "Bulwarks",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 40,
-    availability: 3,
-    command: 0,
-    keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Heavy", description: "" }
-    ],
-    specialRules: ["Sturdy"],
-    imageUrl: "/art/card/bulwarks_card.jpg"
-  },
-  {
-    id: "pioneers",
-    name: "Pioneers",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
+    id: "ice-archers",
+    name: "Ice Archers",
     pointsCost: 25,
-    availability: 3,
-    command: 0,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Engineer", description: "" }
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
     ],
-    specialRules: ["Builder"],
-    imageUrl: "/art/card/pioneers_card.jpg"
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Slowed"],
+    
+    imageUrl: "/art/card/ice-archers_card.jpg"
   },
   {
-    id: "black-angels",
-    name: "Black Angels",
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    pointsCost: 50,
-    availability: 2,
-    command: 1,
+    id: "tundra-marauders",
+    name: "Tundra Marauders",
+    pointsCost: 30,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Elite", description: "" }
+      { name: "Preferred Terrain (Rugged)", description: "" },
+      { name: "Scout", description: "" },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
+      { name: "Varank", description: "A proud warrior culture from the northern regions." }
     ],
-    specialRules: ["Fearless", "Elite"],
-    imageUrl: "/art/card/black_angels_card.jpg"
+    highCommand: false,
+    availability: 2,
+    command: 0,
+    specialRules: ["Displace (3)", "Rugged", "Trap"],
+    
+    imageUrl: "/art/card/tundra-marauders_card.jpg"
+  },
+  {
+    id: "warg-riders",
+    name: "Warg Riders",
+    pointsCost: 35,
+    faction: "northern-tribes",
+    faction_id: "northern-tribes",
+    keywords: [
+      { name: "Bloodlust", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" },
+      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
+      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+    ],
+    highCommand: false,
+    availability: 2,
+    command: 0,
+    specialRules: ["Vulnerable", "Repeat a Die"],
+    
+    imageUrl: "/art/card/warg-riders_card.jpg"
   }
 ];
