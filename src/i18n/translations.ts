@@ -1,5 +1,6 @@
 
 import { armyTranslations } from './army';
+import { landingTranslations } from './landing';
 import { TranslationsType } from './types';
 
 export const translations: TranslationsType = {
@@ -9,6 +10,9 @@ export const translations: TranslationsType = {
     es: 'Constructor de Ejércitos Warcrow',
     fr: 'Constructeur d\'Armée Warcrow'
   },
+  
+  // Landing page translations
+  ...landingTranslations,
   
   // Army builder specific translations
   ...Object.fromEntries(
@@ -87,5 +91,32 @@ export const translations: TranslationsType = {
     en: 'Unit Card',
     es: 'Tarjeta de Unidad',
     fr: 'Carte d\'Unité'
+  },
+
+  // Missing translations that might be needed elsewhere
+  logoAlt: {
+    en: 'Warcrow Logo',
+    es: 'Logo de Warcrow',
+    fr: 'Logo Warcrow'
+  },
+  testersOnly: {
+    en: 'Testers Only',
+    es: 'Solo para Probadores',
+    fr: 'Testeurs Seulement'
+  },
+  testersOnlyDescription: {
+    en: 'This feature is only available to testers.',
+    es: 'Esta función solo está disponible para probadores.',
+    fr: 'Cette fonctionnalité n\'est disponible que pour les testeurs.'
+  },
+  haveFeedback: {
+    en: 'Have feedback or found a bug?',
+    es: '¿Tienes comentarios o encontraste un error?',
+    fr: 'Vous avez des commentaires ou avez trouvé un bug?'
+  },
+  contactEmail: {
+    en: 'warcrowarmy@gmail.com',
+    es: 'warcrowarmy@gmail.com',
+    fr: 'warcrowarmy@gmail.com'
   }
 };
