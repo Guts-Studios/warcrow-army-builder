@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Separator } from '@/components/ui/separator';
@@ -11,13 +10,16 @@ import { Container } from '@/components/ui/custom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { aboutTranslations } from '@/i18n/about';
 import { Github, Mail, Globe } from 'lucide-react';
+import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 
 const AboutUs = () => {
   const { t, language } = useLanguage();
   
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
-      <PageHeader title={aboutTranslations.aboutTitle[language]} />
+      <PageHeader title={aboutTranslations.aboutTitle[language]} showNavigation={true}>
+        <LanguageSwitcher />
+      </PageHeader>
       
       <Container className="py-8 pb-24 px-4 md:px-6">
         {/* Move the Patreon support section to the top */}
