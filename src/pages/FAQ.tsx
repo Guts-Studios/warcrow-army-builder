@@ -13,6 +13,8 @@ import { FAQSearch } from '@/components/faq/FAQSearch';
 import { fetchFAQSections, FAQSection } from '@/services/faqService';
 import { useUnifiedSearch } from '@/contexts/UnifiedSearchContext';
 import { SearchProvider } from "@/contexts/SearchContext";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import Rules from "@/pages/Rules";
 
 interface FAQProps {
   showHeader?: boolean;
@@ -27,6 +29,7 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   const [faqSections, setFaqSections] = useState<FAQSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("faq");
   
   // Initialize the search query from the unified search context
   useEffect(() => {
@@ -77,6 +80,25 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
       setSearchQuery(state.searchTerm);
     }
   }, [location.state]);
+
+  // Set the active tab based on the current path
+  useEffect(() => {
+    if (location.pathname === "/faq") {
+      setActiveTab("faq");
+    } else {
+      setActiveTab("rules");
+    }
+  }, [location.pathname]);
+
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "rules") {
+      navigate("/rules", { replace: true });
+    } else {
+      navigate("/faq", { replace: true });
+    }
+  };
 
   // Filter sections based on search query
   const filteredSections = searchQuery.trim() 
@@ -138,58 +160,73 @@ const FAQ: React.FC<FAQProps> = ({ showHeader = true }) => {
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       <PageHeader 
-        title={t('faqTitle')} 
+        title={activeTab === "rules" ? t('rulesTitle') : t('faqTitle')} 
         showNavigation={true}
       >
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate('/rules')}
-            className="border-warcrow-gold text-warcrow-gold hover:bg-warcrow-accent/20"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <LanguageSwitcher />
-        </div>
+        <LanguageSwitcher />
       </PageHeader>
       
       <Container className="py-8">
-        <div className="max-w-3xl mx-auto">
-          <SearchProvider>
-            {/* Search Component */}
-            <FAQSearch 
-              searchQuery={searchQuery} 
-              setSearchQuery={setSearchQuery}
-              resultsCount={filteredSections.length}
-            />
+        <div className="max-w-7xl mx-auto">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-black/70 border border-warcrow-gold/30">
+              <TabsTrigger 
+                value="rules"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none text-warcrow-text"
+              >
+                {t('rulesTitle')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="faq"
+                className="data-[state=active]:bg-warcrow-gold/20 data-[state=active]:text-warcrow-gold data-[state=active]:shadow-none text-warcrow-text"
+              >
+                {t('faqTitle')}
+              </TabsTrigger>
+            </TabsList>
             
-            {searchQuery && (
-              <div className="flex justify-end mb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={searchInRules}
-                  className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
-                >
-                  <BookOpen className="mr-1 h-3 w-3" />
-                  {t("searchInRules")}
-                </Button>
-              </div>
-            )}
+            <TabsContent value="rules" className="mt-0">
+              <Rules />
+            </TabsContent>
             
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
+            <TabsContent value="faq" className="mt-0 w-full">
+              <div className="w-full max-w-3xl mx-auto">
+                <SearchProvider>
+                  {/* Search Component */}
+                  <FAQSearch 
+                    searchQuery={searchQuery} 
+                    setSearchQuery={setSearchQuery}
+                    resultsCount={filteredSections.length}
+                  />
+                  
+                  {searchQuery && (
+                    <div className="flex justify-end mb-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={searchInRules}
+                        className="text-xs border-warcrow-gold/40 text-warcrow-gold hover:bg-warcrow-gold/10"
+                      >
+                        <BookOpen className="mr-1 h-3 w-3" />
+                        {t("searchInRules")}
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-pulse text-warcrow-gold">{t('loading')}</div>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-8 text-red-500">
+                      {error}
+                    </div>
+                  ) : (
+                    <FAQList items={filteredSections} />
+                  )}
+                </SearchProvider>
               </div>
-            ) : error ? (
-              <div className="text-center py-8 text-red-500">
-                {error}
-              </div>
-            ) : (
-              <FAQList items={filteredSections} />
-            )}
-          </SearchProvider>
+            </TabsContent>
+          </Tabs>
         </div>
       </Container>
       <ScrollToTopButton />
