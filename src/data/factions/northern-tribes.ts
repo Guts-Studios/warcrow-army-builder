@@ -1,30 +1,9 @@
 
 import { Unit } from "@/types/army";
-import { northernTribesTroops } from "./northern-tribes/troops";
-import { northernTribesCharacters } from "./northern-tribes/characters";
-import { northernTribesHighCommand } from "./northern-tribes/highCommand";
+import { northernTribesUnits } from "./northern-tribes/index";
 
-// Explicitly set faction for all Northern Tribes units to ensure consistency
-const processedTroops = northernTribesTroops.map(unit => ({
-  ...unit,
-  faction: 'northern-tribes',
-  faction_id: 'northern-tribes'
-}));
+// Re-export the units from the index file to ensure proper data flow
+export { northernTribesUnits };
 
-const processedCharacters = northernTribesCharacters.map(unit => ({
-  ...unit,
-  faction: 'northern-tribes',
-  faction_id: 'northern-tribes'
-}));
-
-const processedHighCommand = northernTribesHighCommand.map(unit => ({
-  ...unit,
-  faction: 'northern-tribes',
-  faction_id: 'northern-tribes'
-}));
-
-export const northernTribesUnits: Unit[] = [
-  ...processedTroops,
-  ...processedCharacters,
-  ...processedHighCommand
-];
+// Also export as default for compatibility
+export default northernTribesUnits;

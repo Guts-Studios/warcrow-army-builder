@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
 import { SavedList } from "@/types/army";
@@ -6,6 +5,7 @@ import FactionSelector from "@/components/FactionSelector";
 import ArmyList from "@/components/ArmyList";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useArmyBuilderUnits } from '@/hooks/useArmyData';
 
 interface ArmyBuilderProps {
   session: Session | null;
@@ -31,6 +31,22 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
       setSelectedFaction(state.selectedFaction);
     }
   }, [state]);
+
+  // Use the new hook that forces fresh data
+  const { 
+    data: factionUnits = [], 
+    isLoading: isLoadingUnits, 
+    error: unitsError,
+    refetch: refetchUnits
+  } = useArmyBuilderUnits(selectedFaction);
+
+  // Force a refetch when faction changes
+  useEffect(() => {
+    if (selectedFaction) {
+      console.log(`[ArmyBuilder] Faction changed to: ${selectedFaction}, refetching units`);
+      refetchUnits();
+    }
+  }, [selectedFaction, refetchUnits]);
 
   // Log the guest status and authentication for debugging
   useEffect(() => {
