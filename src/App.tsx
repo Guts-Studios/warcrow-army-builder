@@ -16,6 +16,7 @@ import Rules from '@/pages/Rules';
 import TermsOfService from '@/pages/TermsOfService';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Admin from '@/pages/Admin';
+import Missions from '@/pages/Missions';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/builder" element={<ArmyBuilder />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/rules" element={<Rules />} />
+            <Route path="/missions" element={<Missions />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/admin" element={<Admin />} />
