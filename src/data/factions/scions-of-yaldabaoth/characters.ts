@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 import { vercana } from "./characters/vercana";
 
@@ -189,23 +190,6 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 3,
     specialRules: [],
     imageUrl: "/art/card/sightless_card.jpg"
-  },
-  {
-    id: "vercana",
-    name: "Vercana",
-    pointsCost: 30,
-    faction: "scions-of-yaldabaoth",
-    faction_id: "scions-of-yaldabaoth",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Mercenary", description: "" },
-      { name: "Ambusher", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    specialRules: ["Place (5)"],
-    imageUrl: "/art/card/vercana_card.jpg"
   },
   vercana
 ];
