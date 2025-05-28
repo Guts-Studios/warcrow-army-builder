@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -18,6 +17,14 @@ const FACTION_CSV_MAPPING: Record<string, string> = {
   'syenann': 'The Syenann.csv',
   'hegemony-of-embersig': 'Hegemony of Embersig.csv',
   'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+};
+
+// Faction naming conventions that match existing codebase
+const FACTION_NAMING: Record<string, string> = {
+  'northern-tribes': 'northernTribes',
+  'syenann': 'syenann',
+  'hegemony-of-embersig': 'hegemonyOfEmbersig',
+  'scions-of-yaldabaoth': 'scionsOfYaldabaoth'
 };
 
 /**
@@ -161,7 +168,7 @@ export const generateUnitFileContent = (
   factionId: string, 
   unitType: string
 ): string => {
-  const factionPrefix = factionId.replace(/-/g, '');
+  const factionPrefix = FACTION_NAMING[factionId] || factionId.replace(/-/g, '');
   const capitalizedType = unitType.charAt(0).toUpperCase() + unitType.slice(1);
   
   const unitDefinitions = units.map(unit => {
@@ -176,7 +183,7 @@ export const generateUnitFileContent = (
       ? `specialRules: [${unit.specialRules.map(rule => `"${rule}"`).join(', ')}],`
       : '';
     
-    const command = unit.command !== undefined ? `command: ${unit.command},` : 'command: 0,';
+    const command = unit.command !== undefined ? `command: ${unit.command},` : '';
     const companion = unit.companion ? `companion: "${unit.companion}",` : '';
     
     return `  {
@@ -235,7 +242,7 @@ export const loadFactionCsvData = async (factionId: string): Promise<ProcessedCs
 };
 
 /**
- * Generate all unit files for a faction from CSV data
+ * Generate all unit files for a faction from CSV data with correct file structure
  */
 export const generateFactionFiles = async (factionId: string): Promise<{
   troops: string;
@@ -268,14 +275,20 @@ export const generateFactionFiles = async (factionId: string): Promise<{
     unit.type === 'companion'
   );
   
-  const factionPrefix = factionId.replace(/-/g, '');
+  const factionPrefix = FACTION_NAMING[factionId] || factionId.replace(/-/g, '');
   
-  // Generate index file with conditional companion import
+  // Generate index file with correct import paths based on existing structure
   const indexImports = [
     `import { ${factionPrefix}Troops } from "./troops";`,
-    `import { ${factionPrefix}Characters } from "./characters";`,
-    `import { ${factionPrefix}HighCommand } from "./highCommand";`
+    `import { ${factionPrefix}Characters } from "./characters";`
   ];
+  
+  // Handle high command import path based on faction structure
+  if (factionId === 'hegemony-of-embersig') {
+    indexImports.push(`import { ${factionPrefix}HighCommand } from "./high-command/index";`);
+  } else {
+    indexImports.push(`import { ${factionPrefix}HighCommand } from "./highCommand";`);
+  }
   
   const indexArrays = [
     `  ...${factionPrefix}Troops,`,

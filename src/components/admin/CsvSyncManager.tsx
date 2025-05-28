@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,7 +57,7 @@ const CsvSyncManager: React.FC = () => {
     { id: 'scions-of-yaldabaoth', name: 'Scions of Yaldabaoth' }
   ];
 
-  // Generate file path information for the selected faction
+  // Generate file path information for the selected faction with correct structure
   const getFilePathInfo = (factionId: string): FilePathInfo[] => {
     if (!factionId) return [];
     
@@ -72,14 +73,25 @@ const CsvSyncManager: React.FC = () => {
         label: 'Characters', 
         path: `src/data/factions/${factionId}/characters.ts`,
         description: 'Contains all character units for this faction'
-      },
-      {
+      }
+    ];
+
+    // Handle different high command structures
+    if (factionId === 'hegemony-of-embersig') {
+      baseFiles.push({
+        key: 'highCommand',
+        label: 'High Command',
+        path: `src/data/factions/${factionId}/high-command/index.ts`,
+        description: 'Contains all high command units for this faction (nested structure)'
+      });
+    } else {
+      baseFiles.push({
         key: 'highCommand',
         label: 'High Command',
         path: `src/data/factions/${factionId}/highCommand.ts`,
         description: 'Contains all high command units for this faction'
-      }
-    ];
+      });
+    }
 
     // Add companions file if it exists in generated files
     if (generatedFiles?.companions && generatedFiles.companions.trim() !== `import { Unit } from "@/types/army";
@@ -184,7 +196,7 @@ export const ${factionId.replace(/-/g, '')}Companions: Unit[] = [
       setValidationResults(validation);
       setProgress(100);
       
-      toast.success('Files generated and validated successfully!');
+      toast.success('Files generated with correct structure!');
     } catch (error: any) {
       console.error('Error generating files:', error);
       if (error.message?.includes('404') || error.message?.includes('Failed to fetch CSV')) {
@@ -283,7 +295,7 @@ export const ${factionId.replace(/-/g, '')}Companions: Unit[] = [
         <div>
           <h1 className="text-2xl font-bold text-warcrow-gold">CSV to Static File Synchronization</h1>
           <p className="text-warcrow-text/70 mt-1">
-            Generate TypeScript files from CSV data and validate synchronization
+            Generate TypeScript files from CSV data with correct file structure and paths
           </p>
         </div>
       </div>
@@ -392,12 +404,13 @@ export const ${factionId.replace(/-/g, '')}Companions: Unit[] = [
             ))}
           </div>
           
-          <Alert className="mt-4 bg-blue-900/20 border-blue-500/50">
-            <AlertTriangle className="h-4 w-4 text-blue-500" />
-            <AlertTitle className="text-blue-500">File Update Instructions</AlertTitle>
-            <AlertDescription className="text-blue-300">
-              After generating files, you can either download them individually or use the "Download All Files" button. 
-              Then replace the corresponding files at the paths shown above. Note: Companions file is only generated if companion units exist in the CSV.
+          <Alert className="mt-4 bg-emerald-900/20 border-emerald-500/50">
+            <CheckCircle className="h-4 w-4 text-emerald-500" />
+            <AlertTitle className="text-emerald-500">Improved File Generation</AlertTitle>
+            <AlertDescription className="text-emerald-300">
+              The generated files now use the correct import paths and naming conventions to match your existing codebase structure. 
+              Files can be directly replaced without manual fixes. The tool handles different faction structures automatically 
+              (e.g., nested high-command folders for Hegemony of Embersig).
             </AlertDescription>
           </Alert>
         </Card>
