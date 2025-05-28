@@ -14,8 +14,8 @@ export const syenannHighCommand: Unit[] = [
       { name: "High Command", description: "" },
       { name: "Nemorous", description: "" },
       { name: "Syenann", description: "" },
-      { name: "Join (Infantry, Syenann)", description: "Can join Infantry Syenann units" },
-      { name: "Preferred Terrain (Rugged | Forest)", description: "Gains bonuses in rugged or forest terrain" }
+      { name: "Join (Infantry Syenann)", description: "" },
+      { name: "Preferred Terrain (Rugged or Forest)", description: "" }
     ],
     highCommand: true,
     availability: 1,
@@ -37,7 +37,7 @@ export const syenannHighCommand: Unit[] = [
       { name: "Syenann", description: "" },
       { name: "Ambusher", description: "" },
       { name: "Elite", description: "" },
-      { name: "Join (Infantry, Syenann)", description: "Can join Infantry Syenann units" }
+      { name: "Join (Infantry Syenann)", description: "" }
     ],
     highCommand: true,
     availability: 1,

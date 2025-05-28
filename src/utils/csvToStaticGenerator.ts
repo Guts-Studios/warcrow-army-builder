@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -10,7 +9,8 @@ import { characteristicDefinitions } from '@/data/characteristicDefinitions';
  */
 
 // Known characteristics that should be treated as characteristics, not keywords
-const KNOWN_CHARACTERISTICS = Object.keys(characteristicDefinitions);
+// Elite is specifically excluded as it should only appear in keywords
+const KNOWN_CHARACTERISTICS = Object.keys(characteristicDefinitions).filter(char => char !== 'Elite');
 
 // Faction file mappings
 const FACTION_CSV_MAPPING: Record<string, string> = {
@@ -68,7 +68,7 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   const rawCharacteristics = parseDelimitedFieldWithBrackets(row.Characteristics);
   const rawKeywords = parseDelimitedFieldWithBrackets(row.Keywords);
   
-  // Separate characteristics from keywords
+  // Separate characteristics from keywords - Elite is now excluded from characteristics
   const characteristics = rawCharacteristics.filter(item => 
     KNOWN_CHARACTERISTICS.includes(item)
   );

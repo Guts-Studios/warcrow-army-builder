@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -28,8 +29,8 @@ export const syenannCharacters: Unit[] = [
       { name: "Elf", description: "" },
       { name: "Nemorous", description: "" },
       { name: "Syenann", description: "" },
-      { name: "Join (Infantry, Synann)", description: "Can join Infantry Syenann units" },
-      { name: "Spellcaster", description: "Can cast spells" }
+      { name: "Join (Infantry Synann)", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -66,7 +67,7 @@ export const syenannCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
-      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Spellcaster", description: "" },
       { name: "Syenann", description: "" }
     ],
     highCommand: false,
@@ -88,8 +89,8 @@ export const syenannCharacters: Unit[] = [
       { name: "Elf", description: "" },
       { name: "Nemourous", description: "" },
       { name: "Syenann", description: "" },
-      { name: "Intimidating (1)", description: "Causes fear in nearby enemies" },
-      { name: "Spellcaster", description: "Can cast spells" },
+      { name: "Intimidating (1)", description: "" },
+      { name: "Spellcaster", description: "" },
       { name: "Tinge", description: "" }
     ],
     highCommand: false,
@@ -105,10 +106,10 @@ export const syenannCharacters: Unit[] = [
     faction: "syenann",
     faction_id: "syenann",
     keywords: [
-      { name: "Character", description: "Character unit type" },
-      { name: "Human", description: "Human race" },
-      { name: "Mercenary", description: "Can be hired by different factions" },
-      { name: "Ambusher", description: "Has ambush abilities" }
+      { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Mercenary", description: "" },
+      { name: "Ambusher", description: "" }
     ],
     highCommand: false,
     availability: 1,
@@ -125,7 +126,7 @@ export const syenannCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
-      { name: "Syenann", description: "" },  
+      { name: "Syenann", description: "" },
       { name: "Scout", description: "" }
     ],
     highCommand: false,

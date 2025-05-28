@@ -17,8 +17,8 @@ export const syenannTroops: Unit[] = [
     highCommand: false,
     availability: 2,
     command: 0,
-    imageUrl: "/art/card/grove_curtailers_card.jpg",
-    specialRules: ["Disarmed"]
+    specialRules: ["Disarmed"],
+    imageUrl: "/art/card/grove_curtailers_card.jpg"
   },
   {
     id: "protectors-of-the-forest",
@@ -34,8 +34,8 @@ export const syenannTroops: Unit[] = [
     highCommand: false,
     availability: 3,
     command: 0,
-    imageUrl: "/art/card/protectors_of_the_forest_card.jpg",
-    specialRules: ["Displace (4)"]
+    specialRules: ["Displace (4)"],
+    imageUrl: "/art/card/protectors_of_the_forest_card.jpg"
   },
   {
     id: "shadows-of-the-yew",
@@ -49,12 +49,12 @@ export const syenannTroops: Unit[] = [
       { name: "Shadow", description: "" },
       { name: "Syenann", description: "" },
       { name: "Ambusher", description: "" },
-      { name: "Preferred Terrain (Rugged | Forest)", description: "" }
+      { name: "Preferred Terrain (Rugged or Forest)", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
-    imageUrl: "/art/card/shadows_of_the_yew_card.jpg",
-    specialRules: ["Place (5)"]
+    specialRules: ["Place (5)"],
+    imageUrl: "/art/card/shadows_of_the_yew_card.jpg"
   }
 ];
