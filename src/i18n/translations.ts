@@ -1,6 +1,9 @@
 
 import { armyTranslations } from './army';
 import { landingTranslations } from './landing';
+import { commonTranslations } from './common';
+import { uiTranslations } from './ui';
+import { faqTranslations } from './faq';
 import { TranslationsType } from './types';
 
 export const translations: TranslationsType = {
@@ -10,6 +13,15 @@ export const translations: TranslationsType = {
     es: 'Constructor de Ejércitos Warcrow',
     fr: 'Constructeur d\'Armée Warcrow'
   },
+  
+  // Import all common translations
+  ...commonTranslations,
+  
+  // Import UI translations
+  ...uiTranslations,
+  
+  // Import FAQ translations
+  ...faqTranslations,
   
   // Landing page translations
   ...landingTranslations,
@@ -32,6 +44,16 @@ export const translations: TranslationsType = {
     en: 'Rules',
     es: 'Reglas',
     fr: 'Règles'
+  },
+  rulesTitle: {
+    en: 'Rules',
+    es: 'Reglas',
+    fr: 'Règles'
+  },
+  missions: {
+    en: 'Missions',
+    es: 'Misiones',
+    fr: 'Missions'
   },
   faq: {
     en: 'FAQ',
@@ -57,6 +79,18 @@ export const translations: TranslationsType = {
     en: 'Logout',
     es: 'Cerrar Sesión',
     fr: 'Déconnexion'
+  },
+  
+  // Missing keys that are causing console warnings
+  prepareTheGame: {
+    en: 'Prepare the Game',
+    es: 'Preparar el Juego',
+    fr: 'Préparer le Jeu'
+  },
+  supportUs: {
+    en: 'Support Us',
+    es: 'Apóyanos',
+    fr: 'Soutenez-nous'
   },
   
   // Common actions
