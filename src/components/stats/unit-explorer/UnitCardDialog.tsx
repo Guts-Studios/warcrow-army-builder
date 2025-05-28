@@ -34,57 +34,9 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       setIsLoading(true);
       setFallbackAttempts(0);
       
-      // Process the URL to determine the best version to use
-      let processedUrl = cardUrl;
-      
-      // Special case for Lady Télia
-      if (unitName.includes("Lady Télia") || unitName.includes("Lady Telia") || cardUrl.includes("lady_telia")) {
-        processedUrl = language === 'es' ? "/art/card/lady_telia_card_sp.jpg" :
-                      language === 'fr' ? "/art/card/lady_telia_card_fr.jpg" :
-                      "/art/card/lady_telia_card_en.jpg";
-                      
-        console.log(`Using special Lady Télia URL: ${processedUrl}`);
-      } 
-      // If URL is a UUID format or contains a dash
-      else if ((cardUrl.includes('-') && (cardUrl.length > 60 || cardUrl.includes('uuid'))) || 
-               cardUrl.includes("undefined") || // Handle broken URLs
-               cardUrl === "") {
-        // Clean the name for URL generation
-        const cleanName = unitName
-          .toLowerCase()
-          .replace(/\s+/g, '_')
-          .replace(/[^\w-]/g, '')
-          .replace(/é|è|ê|ë/g, 'e')
-          .replace(/á|à|â|ä/g, 'a')
-          .replace(/í|ì|î|ï/g, 'i')
-          .replace(/ó|ò|ô|ö/g, 'o')
-          .replace(/ú|ù|û|ü/g, 'u');
-          
-        // Try a standard naming pattern with language suffix
-        const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
-        processedUrl = `/art/card/${cleanName}_card${langSuffix}.jpg`;
-        console.log(`Generated clean URL from name: ${processedUrl}`);
-      }
-      // Add language suffix if not present
-      else if (!processedUrl.includes('_sp.jpg') && 
-               !processedUrl.includes('_fr.jpg') && 
-               !processedUrl.includes('_en.jpg')) {
-        
-        // Extract the base URL without extension
-        const baseUrl = processedUrl.replace(/\.jpg$|\.png$/, '');
-        
-        if (language === 'es') {
-          processedUrl = `${baseUrl}_sp.jpg`;
-        } else if (language === 'fr') {
-          processedUrl = `${baseUrl}_fr.jpg`;
-        } else {
-          processedUrl = `${baseUrl}_en.jpg`;
-        }
-        console.log(`Added language suffix to URL: ${processedUrl}`);
-      }
-      
-      console.log(`Dialog processing card URL - Original: ${cardUrl}, Processed: ${processedUrl}, Language: ${language}, isPreview: ${isPreview}`);
-      setFinalUrl(processedUrl);
+      // Use the provided URL directly since it should already match the file structure
+      console.log(`Dialog using provided URL: ${cardUrl}, Language: ${language}, isPreview: ${isPreview}`);
+      setFinalUrl(cardUrl);
     }
   }, [isOpen, cardUrl, language, unitName, isPreview]);
 
@@ -113,7 +65,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     console.error(`Image load error: ${currentSrc}, attempt: ${fallbackAttempts + 1}`);
     
     // Prevent infinite loop of fallbacks
-    if (fallbackAttempts >= 3) {
+    if (fallbackAttempts >= 2) {
       setImageError(true);
       setIsLoading(false);
       return;
@@ -121,20 +73,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
     
     setFallbackAttempts(prev => prev + 1);
     
-    // Series of fallbacks
-    if (currentSrc.includes('_sp.jpg') || currentSrc.includes('_fr.jpg') || currentSrc.includes('_en.jpg')) {
-      // Try without language suffix
-      const baseUrl = currentSrc
-        .replace('_sp.jpg', '.jpg')
-        .replace('_fr.jpg', '.jpg')
-        .replace('_en.jpg', '.jpg');
-      
-      console.log(`Trying without language suffix: ${baseUrl}`);
-      target.src = baseUrl;
-      return;
-    }
-    
-    // Try PNG format
+    // Try PNG format as fallback
     if (currentSrc.endsWith('.jpg')) {
       const pngUrl = currentSrc.replace('.jpg', '.png');
       console.log(`Trying PNG format: ${pngUrl}`);
@@ -142,17 +81,7 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
       return;
     }
     
-    // If URL contains invalid characters, try a simpler filename approach
-    const cleanNameSimple = unitName
-      .toLowerCase()
-      .replace(/\s+/g, '_')
-      .replace(/[^a-z0-9_-]/g, '');
-      
-    const simpleUrl = `/art/card/${cleanNameSimple}_card.jpg`;
-    console.log(`Trying simplified name URL: ${simpleUrl}`);
-    target.src = simpleUrl;
-    
-    // If all fallbacks failed
+    // Final fallback - show error
     console.log("All fallbacks failed, showing error state");
     setImageError(true);
     setIsLoading(false);

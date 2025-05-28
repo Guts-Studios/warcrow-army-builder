@@ -21,20 +21,17 @@ const PlayerUnitsList: React.FC<PlayerUnitsListProps> = ({ units }) => {
   const getCardUrl = (unit: Unit) => {
     if (!unit) return "";
     
-    // Instead of checking imageUrl property directly (which doesn't exist on Unit type from game.ts)
-    // we need to construct the URL based on the unit id
+    // Clean the unit name to create URL-friendly version
+    const cleanUnitName = unit.name
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[-]/g, '_')
+      .replace(/[']/g, '')
+      .replace(/[^a-z0-9_]/g, '');
     
-    // Construct URL based on unit id
-    const baseUrl = `/art/card/${unit.id}_card`;
-    
-    // Add language suffix
-    if (language === 'es') {
-      return `${baseUrl}_sp.jpg`;
-    } else if (language === 'fr') {
-      return `${baseUrl}_fr.jpg`;
-    } else {
-      return `${baseUrl}_en.jpg`; 
-    }
+    // Always use language suffixes to match your file structure
+    const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
+    return `/art/card/${cleanUnitName}_card${langSuffix}.jpg`;
   };
 
   const handleViewCard = (unit: Unit) => {

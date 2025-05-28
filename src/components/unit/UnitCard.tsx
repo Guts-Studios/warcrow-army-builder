@@ -27,168 +27,57 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Translate unit name based on the selected language for display only
   const displayName = translateUnitName(unit.name);
 
-  // Improved function to generate the correct GitHub card URL based on the unit name 
-  // Always using English names for file paths regardless of selected language
+  // Generate the correct card URL based on your actual file structure
   const getCardUrl = () => {
-    // Debug the incoming unit name
     console.log(`Getting card URL for: ${unit.name} (${unit.id})`);
   
-    // Special cases mapping for tricky unit names - expanded list
+    // Special cases mapping for units with non-standard naming
     const specialCases: Record<string, string> = {
-      // Core cases for specific units
-      "Aggressors": "aggressors",
-      "Ahlwardt Ice Bear": "ahlwardt_ice_bear",
-      "Battle-Scarred": "battle-scarred",
-      "Battle Scarred": "battle-scarred", // Alternative spelling
-      "BattleScarred": "battle-scarred", // Alternative spelling
+      "Lady Télia": "lady_telia",
+      "Lady Telia": "lady_telia",
       "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
-      "Lady Télia": "lady_telia", // Special case for Lady Télia
-      "Lady Telia": "lady_telia", // Alternative spelling without accent
-      "Nayra Caladren": "nayra_caladren",
-      "Naergon Caladren": "naergon_caladren",
-      "Eskold The Executioner": "eskold_the_executioner",
       "Mk-Os Automata": "mk-os_automata",
-      "Iriavik Restless Pup": "iriavik_restless_pup",
+      "MK-OS Automata": "mk-os_automata",
+      "Battle-Scarred": "battle-scarred",
+      "Battle Scarred": "battle-scarred",
+      "Eskold The Executioner": "eskold_the_executioner",
       "Njord The Merciless": "njord_the_merciless",
-      "Trabor Slepmund": "trabor_slepmund",
-      "Darach Wildling": "darach_wildling",
       "Marhael The Refused": "marhael_the_refused",
-      // Add more special cases here as needed
     };
     
-    // First check if we have a special case mapping for this unit
+    // Check for special case mapping
     let baseNameForUrl = specialCases[unit.name];
     
-    // If no special mapping exists, create the URL-friendly name
+    // If no special mapping, create URL-friendly name from unit name
     if (!baseNameForUrl) {
-      // Try to normalize the name first by checking for hyphenated versions
-      const normalizedName = unit.name
-        .replace(/([a-z])([A-Z])/g, '$1 $2') // Convert camelCase to space-separated
-        .trim();
-        
-      // Check again with the normalized name
-      baseNameForUrl = specialCases[normalizedName];
-      
-      // If still no match, create a URL-friendly version
-      if (!baseNameForUrl) {
-        baseNameForUrl = unit.name
-          .toLowerCase()
-          .replace(/\s+/g, '_')  // Replace spaces with underscores
-          .replace(/[-]/g, '_')  // Replace hyphens with underscores for consistency
-          .replace(/[']/g, '')   // Remove apostrophes
-          .replace(/[^a-z0-9_-]/g, ''); // Remove any other non-alphanumeric characters
-      }
+      baseNameForUrl = unit.name
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[-]/g, '_')
+        .replace(/[']/g, '')
+        .replace(/[^a-z0-9_]/g, '');
     }
     
-    // If a unit has its own imageUrl property, use that directly
-    if (unit.imageUrl) {
-      console.log(`Using provided imageUrl for ${unit.name}: ${unit.imageUrl}`);
-      return unit.imageUrl;
-    }
+    // Always use language suffixes to match your file structure
+    const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
+    const fullUrl = `/art/card/${baseNameForUrl}_card${langSuffix}.jpg`;
     
-    // Special case for Lady Télia who has a different file name structure
-    if (unit.name.includes("Lady Télia") || unit.id === "lady-telia") {
-      // Use language-specific version
-      if (language === 'es') {
-        return "/art/card/lady_telia_card_sp.jpg";
-      } else if (language === 'fr') {
-        return "/art/card/lady_telia_card_fr.jpg";
-      } else {
-        return "/art/card/lady_telia_card_en.jpg";
-      }
-    }
-    
-    // Base URL pointing to the card directory
-    const baseUrl = `/art/card/${baseNameForUrl}_card`;
-    
-    // Add language suffix for the current language
-    let suffix = '';
-    if (language === 'es') {
-      suffix = '_sp';
-    } else if (language === 'fr') {
-      suffix = '_fr';
-    } else {
-      suffix = '_en'; // Now adding _en for English
-    }
-    
-    // Generate full URL with language suffix
-    const fullUrl = `${baseUrl}${suffix}.jpg`;
     console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
     return fullUrl;
   };
 
-  // Preload image when component is mounted or language changes
+  // Update card URL when language changes
   useEffect(() => {
-    const preloadImage = () => {
-      if (unit) {
-        const url = getCardUrl();
-        setCardUrl(url);
-        
-        // Create a new Image to preload
-        const img = new Image();
-        img.src = url;
-        
-        // If language-specific version fails, try without suffix
-        img.onerror = () => {
-          const currentUrl = url;
-          
-          // Try without language suffix
-          if (currentUrl.includes('_sp.jpg') || currentUrl.includes('_fr.jpg') || currentUrl.includes('_en.jpg')) {
-            const baseUrl = currentUrl
-              .replace('_sp.jpg', '.jpg')
-              .replace('_fr.jpg', '.jpg')
-              .replace('_en.jpg', '.jpg');
-              
-            console.log(`Language-specific version failed, trying without suffix: ${baseUrl}`);
-            
-            // Set the fallback URL
-            setCardUrl(baseUrl);
-            
-            // Preload the base version
-            const fallbackImg = new Image();
-            fallbackImg.src = baseUrl;
-            
-            // If base version fails too, try with PNG extension
-            fallbackImg.onerror = () => {
-              const pngUrl = baseUrl.replace('.jpg', '.png');
-              console.log(`Base version failed, trying PNG format: ${pngUrl}`);
-              setCardUrl(pngUrl);
-              
-              // If PNG fails, try with unit ID as last resort
-              const finalFallbackImg = new Image();
-              finalFallbackImg.src = pngUrl;
-              finalFallbackImg.onerror = () => {
-                const idBasedUrl = `/art/card/${unit.id}_card.jpg`;
-                console.log(`All standard formats failed, trying ID-based URL: ${idBasedUrl}`);
-                setCardUrl(idBasedUrl);
-              };
-            };
-          }
-        };
-        
-        console.log(`Preloading image for ${unit.name}: ${url}`);
-      }
-    };
-    
-    preloadImage();
-  }, [language, unit.name, unit.id, unit.imageUrl]);
+    if (unit) {
+      const url = getCardUrl();
+      setCardUrl(url);
+      console.log(`Updated card URL for ${unit.name}: ${url}`);
+    }
+  }, [language, unit.name, unit.id]);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {
-    // For Lady Télia, use a specific hardcoded path that we know exists
-    let url;
-    if (unit.id === "lady-telia") {
-      if (language === 'es') {
-        url = "/art/card/lady_telia_card_sp.jpg";
-      } else if (language === 'fr') {
-        url = "/art/card/lady_telia_card_fr.jpg";
-      } else {
-        url = "/art/card/lady_telia_card_en.jpg";
-      }
-    } else {
-      url = getCardUrl();
-    }
-    
+    const url = getCardUrl();
     console.log("Opening card dialog with URL:", url);
     setCardUrl(url);
     setIsCardDialogOpen(true);
