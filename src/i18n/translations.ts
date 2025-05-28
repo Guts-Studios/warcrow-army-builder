@@ -93,28 +93,6 @@ export const translations: TranslationsType = {
     fr: 'Soutenez-nous'
   },
   
-  // Common actions
-  save: {
-    en: 'Save',
-    es: 'Guardar',
-    fr: 'Enregistrer'
-  },
-  cancel: {
-    en: 'Cancel',
-    es: 'Cancelar',
-    fr: 'Annuler'
-  },
-  delete: {
-    en: 'Delete',
-    es: 'Eliminar',
-    fr: 'Supprimer'
-  },
-  edit: {
-    en: 'Edit',
-    es: 'Editar',
-    fr: 'Modifier'
-  },
-  
   // Unit and army related
   points: {
     en: 'points',
