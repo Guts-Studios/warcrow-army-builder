@@ -11,6 +11,7 @@ interface ProfileSession {
   sessionChecked: boolean;
   usePreviewData: boolean;
   isAdmin: boolean;
+  isGuest: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -19,10 +20,11 @@ export const useProfileSession = (): ProfileSession => {
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
   const { isPreview, isProduction, hostname } = useEnvironment();
   
-  // For preview environments, always set usePreviewData to true
-  const usePreviewData = isPreview;
+  // Only use preview data if we're in a preview environment AND no real user is logged in
+  const [usePreviewData, setUsePreviewData] = useState<boolean>(false);
 
   // Handle sign out function
   const signOut = async () => {
@@ -41,6 +43,7 @@ export const useProfileSession = (): ProfileSession => {
       setIsAuthenticated(false);
       setUserId(null);
       setIsAdmin(false);
+      setIsGuest(true);
       
       // Force clear localStorage to ensure all session data is removed
       localStorage.removeItem('supabase.auth.token');
@@ -62,59 +65,61 @@ export const useProfileSession = (): ProfileSession => {
       try {
         console.log("[useProfileSession] Checking authentication state on:", hostname);
         
-        // Special handling for preview environment - automatically authenticate with demo user
-        if (isPreview && mounted) {
-          console.log("[useProfileSession] Preview environment detected, using demo auth state");
+        // Get current session first to check for real authentication
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // If we have a real authenticated session, use it
+        if (session?.user && mounted) {
+          console.log("[useProfileSession] Real authenticated user found:", session.user.id);
           setIsAuthenticated(true);
-          setUserId("preview-user-id");
-          setIsAdmin(true); // Admins in preview mode
+          setUserId(session.user.id);
+          setIsGuest(false);
+          setUsePreviewData(false);
+          
+          // Check admin status
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('wab_admin')
+              .eq('id', session.user.id)
+              .maybeSingle();
+              
+            if (!error && data) {
+              setIsAdmin(!!data.wab_admin);
+              console.log("[useProfileSession] Admin status:", !!data.wab_admin);
+            } else {
+              console.error("[useProfileSession] Error checking admin status:", error);
+              setIsAdmin(false);
+            }
+          } catch (err) {
+            console.error("[useProfileSession] Error fetching profile:", err);
+            setIsAdmin(false);
+          }
+          
           setSessionChecked(true);
           return;
         }
         
-        // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
+        // No real session - check if we should use preview mode
+        if (isPreview && mounted) {
+          console.log("[useProfileSession] No real session, using preview mode");
+          setIsAuthenticated(true);
+          setUserId("preview-user-id");
+          setIsAdmin(true);
+          setIsGuest(false);
+          setUsePreviewData(true);
+          setSessionChecked(true);
+          return;
+        }
         
-        // Set authentication state based on session
-        const hasSession = !!session;
-        
+        // No session and not preview - user is not authenticated
         if (mounted) {
-          console.log("[useProfileSession] Session check result:", { 
-            hasSession, 
-            userId: session?.user?.id,
-            hostname,
-            timestamp: new Date().toISOString()
-          });
-          
-          setIsAuthenticated(hasSession);
-          
-          // If authenticated, set user ID and check admin status
-          if (hasSession) {
-            setUserId(session?.user?.id || null);
-            
-            try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('wab_admin')
-                .eq('id', session.user.id)
-                .maybeSingle();
-                
-              if (!error && data) {
-                setIsAdmin(!!data.wab_admin);
-                console.log("[useProfileSession] Admin status:", !!data.wab_admin);
-              } else {
-                console.error("[useProfileSession] Error checking admin status:", error);
-                setIsAdmin(false);
-              }
-            } catch (err) {
-              console.error("[useProfileSession] Error fetching profile:", err);
-              setIsAdmin(false);
-            }
-          } else {
-            setUserId(null);
-            setIsAdmin(false);
-          }
-          
+          console.log("[useProfileSession] No session found, user not authenticated");
+          setIsAuthenticated(false);
+          setUserId(null);
+          setIsAdmin(false);
+          setIsGuest(true);
+          setUsePreviewData(false);
           setSessionChecked(true);
         }
       } catch (error) {
@@ -123,6 +128,8 @@ export const useProfileSession = (): ProfileSession => {
           setIsAuthenticated(false);
           setUserId(null);
           setIsAdmin(false);
+          setIsGuest(true);
+          setUsePreviewData(false);
           setSessionChecked(true);
         }
       }
@@ -134,26 +141,17 @@ export const useProfileSession = (): ProfileSession => {
       
       console.log("[useProfileSession] Auth state changed:", event, {
         hasUser: !!session?.user,
+        userId: session?.user?.id,
         environment: { isPreview, isProduction, hostname },
-        usePreviewData,
         timestamp: new Date().toISOString()
       });
       
-      // Special handling for preview environment
-      if (isPreview) {
+      // If we have a real session, prioritize it over preview
+      if (session?.user) {
         setIsAuthenticated(true);
-        setUserId("preview-user-id");
-        setIsAdmin(true);
-        setSessionChecked(true);
-        return;
-      }
-      
-      // Update authentication state based on event
-      setIsAuthenticated(!!session);
-      
-      // If signed in, update user ID
-      if (session?.user?.id) {
         setUserId(session.user.id);
+        setIsGuest(false);
+        setUsePreviewData(false);
         
         // Check for admin status
         try {
@@ -175,8 +173,20 @@ export const useProfileSession = (): ProfileSession => {
           setIsAdmin(false);
         }
       } else if (event === 'SIGNED_OUT') {
-        setUserId(null);
-        setIsAdmin(false);
+        // User signed out - fallback to preview if in preview environment
+        if (isPreview) {
+          setIsAuthenticated(true);
+          setUserId("preview-user-id");
+          setIsAdmin(true);
+          setIsGuest(false);
+          setUsePreviewData(true);
+        } else {
+          setIsAuthenticated(false);
+          setUserId(null);
+          setIsAdmin(false);
+          setIsGuest(true);
+          setUsePreviewData(false);
+        }
       }
       
       setSessionChecked(true);
@@ -190,16 +200,17 @@ export const useProfileSession = (): ProfileSession => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [isPreview, isProduction, hostname, usePreviewData]);
+  }, [isPreview, isProduction, hostname]);
   
   return {
-    isPreview,
     isAuthenticated,
     userId,
+    isPreview,
     isProduction,
     sessionChecked,
     usePreviewData,
     isAdmin,
+    isGuest,
     signOut
   };
 };

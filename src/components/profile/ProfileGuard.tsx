@@ -9,16 +9,16 @@ interface ProfileGuardProps {
 }
 
 export const ProfileGuard = ({ children }: ProfileGuardProps) => {
-  const { isAuthenticated, isGuest, sessionChecked } = useProfileSession();
+  const { isAuthenticated, isGuest, sessionChecked, usePreviewData } = useProfileSession();
   
   useEffect(() => {
-    if (sessionChecked && isGuest) {
-      toast.error("You must login with an account to access your profile", {
-        description: "Guest users cannot access profiles",
+    if (sessionChecked && !isAuthenticated && !usePreviewData) {
+      toast.error("Please log in to access your profile", {
+        description: "You need to be authenticated to view your profile",
         duration: 5000
       });
     }
-  }, [sessionChecked, isGuest]);
+  }, [sessionChecked, isAuthenticated, usePreviewData]);
   
   // Still loading auth state
   if (!sessionChecked) {
@@ -27,11 +27,11 @@ export const ProfileGuard = ({ children }: ProfileGuardProps) => {
     </div>;
   }
   
-  // If user is a guest or not authenticated, redirect to home
-  if (isGuest || !isAuthenticated) {
-    return <Navigate to="/" replace />;
+  // If user is not authenticated and not in preview mode, redirect to login
+  if (!isAuthenticated && !usePreviewData) {
+    return <Navigate to="/login" replace />;
   }
   
-  // User is authenticated and not a guest, render children
+  // User is authenticated or in preview mode, render children
   return <>{children}</>;
 };

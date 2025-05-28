@@ -8,7 +8,6 @@ import { useProfileUpdate } from "./useProfileUpdate";
 import { useProfileNavigation } from "./useProfileNavigation";
 import { ensureWabId } from "@/utils/wabIdUtils";
 import { supabase } from "@/integrations/supabase/client";
-import { useEnvironment } from "@/hooks/useEnvironment";
 
 export const useProfileData = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -26,25 +25,21 @@ export const useProfileData = () => {
     wab_id: "",
   });
   const [isFriendRequestSent, setIsFriendRequestSent] = useState(false);
-  const { isPreview } = useEnvironment();
 
   // Get session information with session checked status
   const { isAuthenticated, usePreviewData, userId, sessionChecked } = useProfileSession();
 
-  // Use preview data in preview environments
-  const actualUsePreviewData = usePreviewData || isPreview;
-
   // Fetch profile data, only when session is checked
   const { profile, isLoading, isError, error, refetch } = useProfileFetch({
     isAuthenticated,
-    usePreviewData: actualUsePreviewData,
+    usePreviewData,
     userId,
     sessionChecked
   });
 
   // Profile update hooks
   const { updateProfile } = useProfileUpdate({
-    usePreviewData: actualUsePreviewData,
+    usePreviewData,
     profile,
     onSuccess: () => setIsEditing(false)
   });
@@ -52,11 +47,11 @@ export const useProfileData = () => {
   // Navigation hooks
   const { handleListSelect } = useProfileNavigation();
 
-  // Check and generate WAB ID if needed
+  // Check and generate WAB ID if needed (only for real users, not preview)
   useEffect(() => {
     const checkWabId = async () => {
       // Skip WAB ID generation for preview users
-      if (profile && !profile.wab_id && userId && !usePreviewData && userId !== "preview-user-id" && !isPreview) {
+      if (profile && !profile.wab_id && userId && !usePreviewData && userId !== "preview-user-id") {
         console.log("Profile missing WAB ID, generating one...");
         const newWabId = await ensureWabId(userId);
         
@@ -69,7 +64,7 @@ export const useProfileData = () => {
     };
     
     checkWabId();
-  }, [profile, userId, usePreviewData, refetch, isPreview]);
+  }, [profile, userId, usePreviewData, refetch]);
 
   useEffect(() => {
     if (profile) {
@@ -100,8 +95,8 @@ export const useProfileData = () => {
   // Add sendFriendRequest function
   const sendFriendRequest = async (recipientId: string) => {
     try {
-      if (!userId) {
-        toast.error("You must be logged in to add friends");
+      if (!userId || usePreviewData) {
+        toast.error("You must be logged in with a real account to add friends");
         return;
       }
 
@@ -176,7 +171,7 @@ export const useProfileData = () => {
     profile,
     formData,
     isEditing,
-    isLoading: (isLoading && !actualUsePreviewData) || (!sessionChecked && !actualUsePreviewData),
+    isLoading: (isLoading && !usePreviewData) || (!sessionChecked && !usePreviewData),
     error: isError ? error as Error : null,
     updateProfile,
     setIsEditing,
