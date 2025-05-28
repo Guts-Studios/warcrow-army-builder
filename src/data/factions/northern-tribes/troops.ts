@@ -1,3 +1,4 @@
+
 import { Unit } from "@/types/army";
 
 export const northernTribesTroops: Unit[] = [
@@ -8,14 +9,14 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Infantry", description: "" },
+      { name: "Orc", description: "" },
+      { name: "Raging", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
-    specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
-    
+    specialRules: [],
     imageUrl: "/art/card/battlescarred_card.jpg"
   },
   {
@@ -25,14 +26,13 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Infantry", description: "" },
+      { name: "Orc", description: "" }
     ],
     highCommand: false,
     availability: 3,
     command: 0,
-    specialRules: ["Vulnerable"],
-    
+    specialRules: [],
     imageUrl: "/art/card/orc-hunters_card.jpg"
   },
   {
@@ -42,14 +42,14 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" },
+      { name: "Fearless", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
-    specialRules: ["Scout"],
-    
+    specialRules: [],
     imageUrl: "/art/card/skin-changers_card.jpg"
   },
   {
@@ -59,14 +59,13 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
-    specialRules: ["Slowed"],
-    
+    specialRules: [],
     imageUrl: "/art/card/ice-archers_card.jpg"
   },
   {
@@ -76,16 +75,15 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
+      { name: "Infantry", description: "" },
+      { name: "Varank", description: "" },
       { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Scout", description: "" },
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Scout", description: "" }
     ],
     highCommand: false,
     availability: 2,
     command: 0,
-    specialRules: ["Displace (3)", "Rugged", "Trap"],
-    
+    specialRules: [],
     imageUrl: "/art/card/tundra-marauders_card.jpg"
   },
   {
@@ -95,16 +93,16 @@ export const northernTribesTroops: Unit[] = [
     faction: "northern-tribes",
     faction_id: "northern-tribes",
     keywords: [
+      { name: "Cavalry", description: "" },
+      { name: "Orc", description: "" },
       { name: "Bloodlust", description: "" },
       { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Raging", description: "" }
     ],
     highCommand: false,
     availability: 2,
     command: 0,
-    specialRules: ["Vulnerable", "Repeat a Die"],
-    
+    specialRules: [],
     imageUrl: "/art/card/warg-riders_card.jpg"
   }
 ];
