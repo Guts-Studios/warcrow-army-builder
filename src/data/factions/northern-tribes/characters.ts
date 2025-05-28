@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const northernTribesCharacters: Unit[] = [
@@ -252,7 +251,6 @@ export const northernTribesCharacters: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 0,
-    
     
     imageUrl: "/art/card/tattoist_card.jpg"
   },
