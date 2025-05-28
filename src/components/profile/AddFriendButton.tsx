@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { useProfileContext } from "@/context/ProfileContext"; // Fix the import path
+import { useProfileContext } from "@/context/ProfileContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileSession } from "@/hooks/useProfileSession";
 import { useLanguage } from "@/contexts/LanguageContext";
