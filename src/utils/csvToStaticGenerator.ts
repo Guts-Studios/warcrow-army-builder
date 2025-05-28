@@ -184,7 +184,7 @@ export const generateUnitFileContent = (
       ? `specialRules: [${unit.specialRules.map(rule => `"${rule}"`).join(', ')}],`
       : '';
     
-    const command = unit.command !== undefined ? `command: ${unit.command},` : '';
+    const command = unit.command !== undefined ? `command: ${unit.command},` : 'command: 0,';
     const companion = unit.companion ? `companion: "${unit.companion}",` : '';
     
     return `  {
@@ -245,6 +245,7 @@ export const generateFactionFiles = async (factionId: string): Promise<{
   troops: string;
   characters: string;
   highCommand: string;
+  companions: string;
   index: string;
 }> => {
   const csvUnits = await loadFactionCsvData(factionId);
@@ -252,34 +253,59 @@ export const generateFactionFiles = async (factionId: string): Promise<{
   
   // Categorize units
   const troops = staticUnits.filter(unit => 
-    unit.type === 'troop' || unit.type === 'troops' || (!unit.type && !unit.highCommand)
+    (unit.type === 'troop' || unit.type === 'troops' || (!unit.type && !unit.highCommand)) &&
+    !unit.keywords.some(k => (typeof k === 'string' ? k : k.name).toLowerCase() === 'character') &&
+    unit.type !== 'companion'
   );
   
   const characters = staticUnits.filter(unit => 
     unit.keywords.some(k => 
       (typeof k === 'string' ? k : k.name).toLowerCase() === 'character'
-    ) && !unit.highCommand
+    ) && !unit.highCommand && unit.type !== 'companion'
   );
   
-  const highCommand = staticUnits.filter(unit => unit.highCommand);
+  const highCommand = staticUnits.filter(unit => 
+    unit.highCommand && unit.type !== 'companion'
+  );
+  
+  const companions = staticUnits.filter(unit => 
+    unit.type === 'companion'
+  );
   
   const factionPrefix = factionId.replace(/-/g, '');
+  
+  // Generate index file with conditional companion import
+  const indexImports = [
+    `import { ${factionPrefix}Troops } from "./troops";`,
+    `import { ${factionPrefix}Characters } from "./characters";`,
+    `import { ${factionPrefix}HighCommand } from "./highCommand";`
+  ];
+  
+  const indexArrays = [
+    `  ...${factionPrefix}Troops,`,
+    `  ...${factionPrefix}Characters,`,
+    `  ...${factionPrefix}HighCommand`
+  ];
+  
+  if (companions.length > 0) {
+    indexImports.push(`import { ${factionPrefix}Companions } from "./companions";`);
+    indexArrays.push(`  ...${factionPrefix}Companions`);
+  }
+  
+  const indexContent = `import { Unit } from "@/types/army";
+${indexImports.join('\n')}
+
+export const ${factionPrefix}Units: Unit[] = [
+${indexArrays.join(',\n')}
+];
+`;
   
   return {
     troops: generateUnitFileContent(troops, factionId, 'troops'),
     characters: generateUnitFileContent(characters, factionId, 'characters'),
     highCommand: generateUnitFileContent(highCommand, factionId, 'highCommand'),
-    index: `import { Unit } from "@/types/army";
-import { ${factionPrefix}Troops } from "./troops";
-import { ${factionPrefix}Characters } from "./characters";
-import { ${factionPrefix}HighCommand } from "./highCommand";
-
-export const ${factionPrefix}Units: Unit[] = [
-  ...${factionPrefix}Troops,
-  ...${factionPrefix}Characters,
-  ...${factionPrefix}HighCommand
-];
-`
+    companions: generateUnitFileContent(companions, factionId, 'companions'),
+    index: indexContent
   };
 };
 

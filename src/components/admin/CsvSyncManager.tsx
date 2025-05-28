@@ -60,7 +60,7 @@ const CsvSyncManager: React.FC = () => {
   const getFilePathInfo = (factionId: string): FilePathInfo[] => {
     if (!factionId) return [];
     
-    return [
+    const baseFiles = [
       {
         key: 'troops',
         label: 'Troops',
@@ -78,14 +78,31 @@ const CsvSyncManager: React.FC = () => {
         label: 'High Command',
         path: `src/data/factions/${factionId}/highCommand.ts`,
         description: 'Contains all high command units for this faction'
-      },
-      {
-        key: 'index',
-        label: 'Index',
-        path: `src/data/factions/${factionId}/index.ts`,
-        description: 'Main faction file that exports all units combined'
       }
     ];
+
+    // Add companions file if it exists in generated files
+    if (generatedFiles?.companions && generatedFiles.companions.trim() !== `import { Unit } from "@/types/army";
+
+export const ${factionId.replace(/-/g, '')}Companions: Unit[] = [
+];
+`) {
+      baseFiles.push({
+        key: 'companions',
+        label: 'Companions',
+        path: `src/data/factions/${factionId}/companions.ts`,
+        description: 'Contains all companion units for this faction'
+      });
+    }
+
+    baseFiles.push({
+      key: 'index',
+      label: 'Index',
+      path: `src/data/factions/${factionId}/index.ts`,
+      description: 'Main faction file that exports all units combined'
+    });
+
+    return baseFiles;
   };
 
   const copyToClipboard = (content: string, fileName: string) => {
@@ -380,7 +397,7 @@ const CsvSyncManager: React.FC = () => {
             <AlertTitle className="text-blue-500">File Update Instructions</AlertTitle>
             <AlertDescription className="text-blue-300">
               After generating files, you can either download them individually or use the "Download All Files" button. 
-              Then replace the corresponding files at the paths shown above.
+              Then replace the corresponding files at the paths shown above. Note: Companions file is only generated if companion units exist in the CSV.
             </AlertDescription>
           </Alert>
         </Card>
@@ -530,7 +547,7 @@ const CsvSyncManager: React.FC = () => {
           </div>
           
           <Tabs defaultValue="troops" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-black border-warcrow-gold/30">
+            <TabsList className={`grid w-full ${filePathInfo.length === 4 ? 'grid-cols-4' : filePathInfo.length === 5 ? 'grid-cols-5' : 'grid-cols-4'} bg-black border-warcrow-gold/30`}>
               {filePathInfo.map((fileInfo) => (
                 <TabsTrigger key={fileInfo.key} value={fileInfo.key}>
                   {fileInfo.label}
@@ -607,7 +624,7 @@ const CsvSyncManager: React.FC = () => {
                 <p><strong>Option 1 - GitHub Sync:</strong> Use "Sync to GitHub" to automatically commit files to your repository at the correct paths.</p>
                 <p><strong>Option 2 - Manual Download:</strong> Use "Download All Files" to get files locally, then manually replace the corresponding files at the paths shown above.</p>
                 <p className="text-xs text-blue-200 mt-2">
-                  Always update CSV files first, then regenerate static files. Run validation again after syncing to confirm synchronization.
+                  Always update CSV files first, then regenerate static files. Run validation again after syncing to confirm synchronization. The companions file is only generated when companion units exist.
                 </p>
               </div>
             </AlertDescription>
