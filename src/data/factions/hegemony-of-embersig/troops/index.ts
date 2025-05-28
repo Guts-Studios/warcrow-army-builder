@@ -1,110 +1,113 @@
 import { Unit } from "@/types/army";
 
-export const northerntribesTroops: Unit[] = [
+export const hegemonyofembersigTroops: Unit[] = [
   {
-    id: "battlescarred",
-    name: "Battle-Scarred",
+    id: "aggressors",
+    name: "Aggressors",
     pointsCost: 40,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
     ],
     highCommand: false,
     availability: 1,
     command: 0,
-    specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
+    specialRules: ["Cancel a symbol", "Disarmed", "Shove (2)", "Displace (4)"],
     
-    imageUrl: "/art/card/battlescarred_card.jpg"
+    imageUrl: "/art/card/aggressors_card.jpg"
   },
   {
-    id: "orc-hunters",
-    name: "Orc Hunters",
+    id: "black-legion-bucklermen",
+    name: "Black Legion Bucklermen",
     pointsCost: 20,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
     ],
     highCommand: false,
     availability: 3,
     command: 0,
-    specialRules: ["Vulnerable"],
     
-    imageUrl: "/art/card/orc-hunters_card.jpg"
+    
+    imageUrl: "/art/card/black-legion-bucklermen_card.jpg"
   },
   {
-    id: "skin-changers",
-    name: "Skin Changers",
+    id: "bulwarks",
+    name: "Bulwarks",
     pointsCost: 35,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Scout"],
-    
-    imageUrl: "/art/card/skin-changers_card.jpg"
-  },
-  {
-    id: "ice-archers",
-    name: "Ice Archers",
-    pointsCost: 25,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
-    keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Slowed"],
-    
-    imageUrl: "/art/card/ice-archers_card.jpg"
-  },
-  {
-    id: "tundra-marauders",
-    name: "Tundra Marauders",
-    pointsCost: 30,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
-    keywords: [
-      { name: "Preferred Terrain (Rugged)", description: "" },
-      { name: "Scout", description: "" },
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
+      { name: "Cover (BLK)", description: "" },
+      { name: "Immovable", description: "" },
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
     ],
     highCommand: false,
     availability: 2,
     command: 0,
-    specialRules: ["Displace (3)", "Rugged", "Trap"],
+    specialRules: ["Shove (3)"],
     
-    imageUrl: "/art/card/tundra-marauders_card.jpg"
+    imageUrl: "/art/card/bulwarks_card.jpg"
   },
   {
-    id: "warg-riders",
-    name: "Warg Riders",
-    pointsCost: 35,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
+    id: "black-legion-arquebusiers",
+    name: "Black Legion Arquebusiers",
+    pointsCost: 30,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Bloodlust", description: "" },
+      { name: "Cover (BLK)", description: "" },
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
+    ],
+    highCommand: false,
+    availability: 2,
+    command: 0,
+    specialRules: ["Frightened"],
+    
+    imageUrl: "/art/card/black-legion-arquebusiers_card.jpg"
+  },
+  {
+    id: "pioneers",
+    name: "Pioneers",
+    pointsCost: 35,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Scout", description: "" },
+      { name: "Dwarf", description: "A sturdy and technically-minded race known for their craftsmanship and resilience." },
+      { name: "Ghent", description: "Members of the Ghent faction, known for their technological prowess." },
+      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
+    
+    imageUrl: "/art/card/pioneers_card.jpg"
+  },
+  {
+    id: "black-angels",
+    name: "Black Angels",
+    pointsCost: 30,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
       { name: "Preferred Terrain (Rugged)", description: "" },
       { name: "Cavalry", description: "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield." },
-      { name: "Orc", description: "A physically powerful race known for their martial prowess and tribal culture." }
+      { name: "Human", description: "Members of the human race, the most numerous and adaptable species." }
     ],
     highCommand: false,
-    availability: 2,
+    availability: 1,
     command: 0,
-    specialRules: ["Vulnerable", "Repeat a Die"],
+    specialRules: ["Intimidating (2)"],
     
-    imageUrl: "/art/card/warg-riders_card.jpg"
+    imageUrl: "/art/card/black-angels_card.jpg"
   }
 ];
