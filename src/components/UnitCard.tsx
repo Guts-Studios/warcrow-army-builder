@@ -55,6 +55,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       "Eskold The Executioner": "eskold_the_executioner",
       "Njord The Merciless": "njord_the_merciless",
       "Marhael The Refused": "marhael_the_refused",
+      "Darach Wilding": "darach_wildling",
     };
     
     // Check for special case mapping
