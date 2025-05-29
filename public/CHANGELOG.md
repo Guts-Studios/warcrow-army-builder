@@ -18,6 +18,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Filter by tournament legal or not
 
+## [0.5.11] - 2025-05-29
+
+### Added 
+- System to clear/purge local cache data on version change to eliminate stale data
+- Improved authnetication system to keep state throughout out
+- Tournament Legal is added to the data but needs to be added to the builder in next update
+- Performance optimization again for a smooth experience
+
+### Fixed
+- Units not showing correctly or their stats matching the data sheet we use
+- Data not clearing locally such as auth tokens causing old app data to show up instead
+- Units needing to be normalized so using a faction-id column to resolve the issue
+
 ## [0.5.10] - 2025-05-25
 
 ### Fixed
