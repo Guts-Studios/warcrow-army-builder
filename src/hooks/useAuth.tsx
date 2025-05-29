@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
 import { useAuth as useAuthFromProvider } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useAuth() {
   const authContext = useAuthFromProvider();
