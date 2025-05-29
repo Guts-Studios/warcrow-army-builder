@@ -14,7 +14,6 @@ interface AuthContextType {
   isGuest: boolean;
   setIsGuest: (value: boolean) => void;
   resendConfirmationEmail: (email: string) => Promise<void>;
-  // Add authReady to context for direct access
   authReady: boolean;
 }
 
@@ -50,21 +49,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Calculate authReady based on loading state
   const authReady = !isLoading && isAuthenticated !== null;
 
-  // Log auth state changes for debugging
-  useEffect(() => {
-    console.log("[AuthProvider] Auth state updated:", {
-      isLoading,
-      isAuthenticated,
-      authReady,
-      isAdmin,
-      isTester,
-      isWabAdmin,
-      timestamp: new Date().toISOString()
-    });
-  }, [isLoading, isAuthenticated, authReady, isAdmin, isTester, isWabAdmin]);
+  console.log("[AuthProvider] 🔍 Current state:", {
+    isLoading,
+    isAuthenticated,
+    authReady,
+    isAdmin,
+    isTester,
+    isWabAdmin,
+    userId,
+    isPreview,
+    timestamp: new Date().toISOString()
+  });
 
   // Function to resend confirmation email
   const resendConfirmationEmail = async (email: string) => {
+    console.log("[AuthProvider] 📧 Resending confirmation email for:", email);
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
@@ -72,187 +71,189 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       
       if (error) {
-        console.error('Error resending confirmation email:', error);
+        console.error('[AuthProvider] ❌ Error resending confirmation email:', error);
         toast.error('Failed to resend confirmation email');
         throw error;
       }
       
+      console.log("[AuthProvider] ✅ Confirmation email sent successfully");
       toast.success('Confirmation email has been sent');
     } catch (err) {
-      console.error('Error in resendConfirmationEmail:', err);
+      console.error('[AuthProvider] ❌ Exception in resendConfirmationEmail:', err);
       toast.error('Failed to send confirmation email');
       throw err;
     }
   };
 
-  // Helper function to finalize auth state
-  const finalizeAuthState = (session: any, roles?: { wab_admin?: boolean; tester?: boolean }) => {
-    const authState = !!session;
-    
-    console.log("[AuthProvider] Finalizing auth state:", {
+  // Helper function to fetch user profile data
+  const fetchUserProfile = async (sessionUserId: string) => {
+    console.log("[AuthProvider] 👤 Fetching profile for user:", sessionUserId);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('wab_admin, tester')
+        .eq('id', sessionUserId)
+        .single();
+        
+      if (error) {
+        console.error("[AuthProvider] ❌ Profile fetch error:", error.message);
+        // Don't throw - continue with default values
+        return { wab_admin: false, tester: false };
+      }
+      
+      console.log("[AuthProvider] ✅ Profile data fetched:", {
+        wabAdmin: data?.wab_admin,
+        tester: data?.tester,
+        userId: sessionUserId
+      });
+      
+      return data || { wab_admin: false, tester: false };
+    } catch (err) {
+      console.error("[AuthProvider] ❌ Exception fetching profile:", err);
+      return { wab_admin: false, tester: false };
+    }
+  };
+
+  // Helper function to set authenticated state
+  const setAuthenticatedState = async (session: any, skipProfileFetch = false) => {
+    console.log("[AuthProvider] 🔄 Setting authenticated state:", {
       hasSession: !!session,
-      roles,
+      userId: session?.user?.id,
+      skipProfileFetch,
       timestamp: new Date().toISOString()
     });
-    
-    setIsAuthenticated(authState);
-    setUserId(session?.user?.id || null);
-    setIsGuest(!session);
-    
-    if (roles) {
-      const isAdminUser = !!roles.wab_admin;
-      setIsAdmin(isAdminUser);
-      setIsTester(!!roles.tester);
-      setIsWabAdmin(isAdminUser);
-    } else if (session?.user?.id) {
-      // Set defaults for authenticated users without roles
-      setIsAdmin(false);
-      setIsTester(false);
-      setIsWabAdmin(false);
+
+    if (session?.user?.id) {
+      setIsAuthenticated(true);
+      setUserId(session.user.id);
+      setIsGuest(false);
+      
+      if (!skipProfileFetch) {
+        const profile = await fetchUserProfile(session.user.id);
+        const isAdminUser = !!profile.wab_admin;
+        setIsAdmin(isAdminUser);
+        setIsTester(!!profile.tester);
+        setIsWabAdmin(isAdminUser);
+      }
     } else {
-      // Set defaults for non-authenticated users
-      setIsAdmin(isPreview);
-      setIsTester(isPreview);
-      setIsWabAdmin(isPreview);
+      console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
+      setIsAuthenticated(false);
+      setUserId(null);
+      setIsGuest(true);
+      
+      // In preview mode, give admin/tester privileges
+      if (isPreview) {
+        console.log("[AuthProvider] 🔧 Preview mode - granting admin privileges");
+        setIsAdmin(true);
+        setIsTester(true);
+        setIsWabAdmin(true);
+      } else {
+        setIsAdmin(false);
+        setIsTester(false);
+        setIsWabAdmin(false);
+      }
     }
     
-    // Always set loading to false at the end
     setIsLoading(false);
     
-    console.log("[AuthProvider] ✅ Auth state ready:", {
-      isAuthenticated: authState,
+    console.log("[AuthProvider] ✅ Auth state finalized:", {
+      isAuthenticated: !!session?.user?.id,
       isLoading: false,
       authReady: true,
       timestamp: new Date().toISOString()
     });
   };
 
+  // Helper function for preview mode
+  const setPreviewMode = () => {
+    console.log("[AuthProvider] 🔧 Setting up preview mode");
+    setIsAuthenticated(true);
+    setUserId("preview-user-id");
+    setIsGuest(false);
+    setIsAdmin(true);
+    setIsTester(true);
+    setIsWabAdmin(true);
+    setIsLoading(false);
+    
+    console.log("[AuthProvider] ✅ Preview mode setup complete");
+  };
+
   useEffect(() => {
     let mounted = true;
+    let authSubscription: any = null;
 
     const initializeAuth = async () => {
+      console.log("[AuthProvider] 🚀 Initializing auth...", {
+        isPreview,
+        hostname: window.location.hostname,
+        timestamp: new Date().toISOString()
+      });
+
       try {
-        console.log("[AuthProvider] Initializing auth state...", { isPreview, timestamp: new Date().toISOString() });
-        
-        // For preview environment, provide dummy authenticated state
+        // For preview environment, use demo state
         if (isPreview) {
-          console.log("[AuthProvider] Preview mode detected, using demo auth state");
+          console.log("[AuthProvider] 🔧 Preview mode detected");
           if (mounted) {
-            finalizeAuthState({ user: { id: "preview-user-id" } }, { wab_admin: true, tester: true });
+            setPreviewMode();
           }
           return;
         }
 
-        console.log("[AuthProvider] Production environment detected, using real auth state");
+        console.log("[AuthProvider] 🏭 Production mode - setting up real auth");
 
         // Set up auth state listener FIRST
+        console.log("[AuthProvider] 👂 Setting up auth state listener");
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            if (!mounted) return;
+            if (!mounted) {
+              console.log("[AuthProvider] 🚫 Component unmounted, ignoring auth change");
+              return;
+            }
             
-            console.log("[AuthProvider] Auth state changed:", event, {
+            console.log("[AuthProvider] 🔄 Auth state change event:", event, {
               hasUser: !!session?.user,
               userId: session?.user?.id,
               email: session?.user?.email,
               timestamp: new Date().toISOString()
             });
             
-            if (session?.user?.id) {
-              // Get user role information
-              try {
-                const { data, error } = await supabase
-                  .from('profiles')
-                  .select('wab_admin, tester')
-                  .eq('id', session.user.id)
-                  .single();
-                  
-                console.log("[AuthProvider] Profile data check on auth change:", {
-                  profileExists: !!data,
-                  wabAdmin: data?.wab_admin,
-                  tester: data?.tester,
-                  error: error?.message,
-                  userId: session.user.id,
-                  timestamp: new Date().toISOString()
-                });
-                
-                if (mounted) {
-                  finalizeAuthState(session, data || undefined);
-                }
-              } catch (err) {
-                console.error("[AuthProvider] Error checking user roles in auth state change:", err);
-                if (mounted) {
-                  finalizeAuthState(session);
-                }
-              }
-            } else {
-              if (mounted) {
-                finalizeAuthState(null);
-              }
-            }
+            // Handle the auth state change
+            await setAuthenticatedState(session);
           }
         );
         
-        // THEN get initial session
+        authSubscription = subscription;
+        console.log("[AuthProvider] ✅ Auth listener established");
+        
+        // Get initial session
+        console.log("[AuthProvider] 🔍 Checking for existing session");
         const { data, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("[AuthProvider] Session error:", sessionError);
+          console.error("[AuthProvider] ❌ Session check error:", sessionError);
           if (mounted) {
-            finalizeAuthState(null);
+            await setAuthenticatedState(null);
           }
           return;
         }
         
         const session = data?.session;
-        
-        console.log("[AuthProvider] Initial session check result:", {
+        console.log("[AuthProvider] 📋 Initial session check result:", {
           hasSession: !!session,
           userId: session?.user?.id,
           userEmail: session?.user?.email,
           timestamp: new Date().toISOString()
         });
         
-        if (session?.user?.id) {
-          // Get user role information
-          try {
-            console.log("[AuthProvider] Fetching profile data for user:", session.user.id);
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('wab_admin, tester')
-              .eq('id', session.user.id)
-              .single();
-              
-            console.log("[AuthProvider] Profile data fetched:", {
-              profileExists: !!data,
-              wabAdmin: data?.wab_admin,
-              tester: data?.tester,
-              error: error?.message,
-              userId: session.user.id,
-              timestamp: new Date().toISOString()
-            });
-            
-            if (mounted) {
-              finalizeAuthState(session, data || undefined);
-            }
-          } catch (err) {
-            console.error("[AuthProvider] Error checking user roles in AuthProvider:", err);
-            if (mounted) {
-              finalizeAuthState(session);
-            }
-          }
-        } else {
-          if (mounted) {
-            finalizeAuthState(null);
-          }
+        if (mounted) {
+          // Set initial state based on existing session
+          await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
         }
         
-        return () => {
-          subscription.unsubscribe();
-        };
       } catch (error) {
-        console.error("[AuthProvider] Error in AuthProvider:", error);
+        console.error("[AuthProvider] ❌ Fatal error in auth initialization:", error);
         if (mounted) {
-          finalizeAuthState(null);
+          await setAuthenticatedState(null);
         }
       }
     };
@@ -260,9 +261,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initializeAuth();
 
     return () => {
+      console.log("[AuthProvider] 🧹 Cleaning up auth provider");
       mounted = false;
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
-  }, [isPreview]);
+  }, []); // Remove isPreview dependency to prevent re-initialization
 
   const value = {
     isAuthenticated,
