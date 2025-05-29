@@ -19,6 +19,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Frightened"],
     imageUrl: "/art/card/aodharu_card.jpg"
   },
@@ -36,6 +37,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Frightened", "Place (7)"],
     imageUrl: "/art/card/feadhalu_card.jpg"
   },
@@ -76,6 +78,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Vulnerable", "Frightened", "Impassable"],
     imageUrl: "/art/card/namaoin_card.jpg"
   },
@@ -114,6 +117,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
+    command: 0,
     specialRules: ["Vulnerable", "Frightened", "Slowed", "Disarmed"],
     imageUrl: "/art/card/orc_husk_card.jpg"
   },
@@ -188,6 +192,7 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 3,
+    command: 0,
     specialRules: [],
     imageUrl: "/art/card/sightless_card.jpg"
   },

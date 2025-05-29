@@ -17,6 +17,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: [],
     imageUrl: "/art/card/anointed_card.jpg"
   },
@@ -34,6 +35,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Shove (2)", "Slowed", "Displace (8)"],
     imageUrl: "/art/card/bugbowls_card.jpg"
   },
@@ -52,6 +54,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Vulnerable", "Place (10)"],
     imageUrl: "/art/card/crucible_card.jpg"
   },
@@ -87,6 +90,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: [],
     imageUrl: "/art/card/flamecobs_card.jpg"
   },
@@ -105,6 +109,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Slowed", "Displace (8)"],
     imageUrl: "/art/card/gobblers_card.jpg"
   },
@@ -121,6 +126,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
+    command: 0,
     specialRules: ["Slowed"],
     imageUrl: "/art/card/husks_card.jpg"
   },
@@ -137,6 +143,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Frightened", "Bloodlust", "Repeat a Die"],
     imageUrl: "/art/card/intact_card.jpg"
   },
@@ -155,6 +162,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Slowed", "Frightened", "Place", "Displace", "Repeat a Die"],
     imageUrl: "/art/card/kipleacht_card.jpg"
   },
@@ -171,6 +179,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Repeat a Die"],
     imageUrl: "/art/card/marked_card.jpg"
   },
@@ -188,6 +197,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Shove (3)", "Displace (3)", "Repeat a Die"],
     imageUrl: "/art/card/marked_marksmen_card.jpg"
   },
@@ -206,6 +216,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Frightened", "Shove (3)", "Displace (3)"],
     imageUrl: "/art/card/mornmab_card.jpg"
   },
@@ -222,6 +233,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Bloodlust", "Shove (5)", "Displace (8)"],
     imageUrl: "/art/card/osseous_card.jpg"
   },
@@ -240,6 +252,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Frightened", "Slowed"],
     imageUrl: "/art/card/stompers_card.jpg"
   }
