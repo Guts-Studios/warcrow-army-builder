@@ -12,7 +12,7 @@ function extractVersionPlugin() {
     buildStart() {
       console.log('Extracting version from CHANGELOG.md...');
       try {
-        execSync('node scripts/extract-version.js', { stdio: 'inherit' });
+        execSync('node scripts/extract-version.cjs', { stdio: 'inherit' });
       } catch (error) {
         console.error('Failed to extract version:', error);
         throw error;
