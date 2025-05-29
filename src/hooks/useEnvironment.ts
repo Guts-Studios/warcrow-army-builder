@@ -17,13 +17,13 @@ export const useEnvironment = (): EnvironmentInfo => {
     isPreview: false,
     isProduction: false,
     hostname: '',
-    useLocalContentData: true
+    useLocalContentData: true // Default to true until we determine environment
   });
   
   useEffect(() => {
     const hostname = window.location.hostname;
     
-    // Comprehensive check for preview environments - REMOVED netlify.app from preview check
+    // Comprehensive check for preview environments
     const isPreview = hostname === 'localhost' || 
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
@@ -31,7 +31,7 @@ export const useEnvironment = (): EnvironmentInfo => {
                      hostname.includes('lovable.app') ||
                      hostname.includes('id-preview');
     
-    // Explicit production domains - INCLUDING both domains
+    // Explicit production domains
     const productionDomains = [
       'warcrowarmy.com',
       'www.warcrowarmy.com',
@@ -42,9 +42,24 @@ export const useEnvironment = (): EnvironmentInfo => {
       hostname === domain || hostname.endsWith(`.${domain}`)
     );
     
+    // Check for environment variable override (for build-time configuration)
+    const envUseLocal = typeof window !== 'undefined' && 
+      window.location.search.includes('use_local=true');
+    
     // Use local data only for development/preview environments
-    // In production, use database data
-    const useLocalContentData = !isProduction;
+    // In production, ALWAYS use database data unless explicitly overridden
+    let useLocalContentData: boolean;
+    
+    if (envUseLocal) {
+      useLocalContentData = true;
+      console.warn("[useEnvironment] Forced to use local data via URL parameter");
+    } else if (isProduction) {
+      useLocalContentData = false;
+      console.log("[useEnvironment] Production environment - using database data");
+    } else {
+      useLocalContentData = true;
+      console.log("[useEnvironment] Development/preview environment - using local data");
+    }
     
     setEnvironmentInfo({
       isPreview,

@@ -52,14 +52,17 @@ const fetchUserCount = async (useLocalData: boolean) => {
     
     if (error) {
       console.error('[Landing] Error fetching user count:', error);
-      throw error;
+      console.log('[Landing] Falling back to default count due to error');
+      return 470; // Fallback on error
     }
     
-    console.log('[Landing] Retrieved user count from database:', count);
-    return count || 470;
+    const userCount = count || 470;
+    console.log('[Landing] Retrieved user count from database:', userCount);
+    return userCount;
   } catch (error) {
     console.error('[Landing] Error in fetchUserCount:', error);
-    return 470;
+    console.log('[Landing] Falling back to default count due to exception');
+    return 470; // Fallback on exception
   }
 };
 
@@ -182,7 +185,7 @@ const Landing = () => {
     console.log('[Landing] Use local content data:', useLocalContentData);
   }, [isPreview, isProduction, useLocalContentData]);
 
-  // Updated user count fetch to use environment settings
+  // Updated user count fetch to properly use environment settings
   const { 
     data: userCount = 470,
     isLoading: isLoadingUserCount,
@@ -195,7 +198,14 @@ const Landing = () => {
     },
     staleTime: 0,
     gcTime: 0,
-    retry: 2,
+    retry: (failureCount, error) => {
+      // Only retry in production, and limit retries
+      if (!useLocalContentData && failureCount < 2) {
+        console.log(`[Landing] Retrying user count fetch (attempt ${failureCount + 1})`);
+        return true;
+      }
+      return false;
+    },
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     // Wait for auth state to be determined before fetching
@@ -203,7 +213,9 @@ const Landing = () => {
     meta: {
       onError: (error: any) => {
         console.error('[Landing] Failed to fetch user count:', error);
-        toast.error('Failed to fetch user statistics');
+        if (!useLocalContentData) {
+          console.log('[Landing] Production environment - this should not happen');
+        }
       }
     }
   });
@@ -277,7 +289,7 @@ const Landing = () => {
     checkAuthStatus();
   }, [authReady]);
 
-  console.log('[Landing] Rendering Landing page with userCount:', userCount);
+  console.log('[Landing] Rendering Landing page with userCount:', userCount, 'useLocal:', useLocalContentData);
 
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text flex flex-col items-center relative overflow-x-hidden px-4">
