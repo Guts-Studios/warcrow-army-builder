@@ -3,17 +3,22 @@ import { Unit } from "@/types/army";
 
 export const iriavik_restless_pup: Unit = {
   id: "iriavik_restless_pup",
-  name: "Iriavik, Restless Pup",
+  name: "Iriavik Restless Pup",
   pointsCost: 30,
   faction: "northern-tribes",
   faction_id: "northern-tribes",
   keywords: [
     { name: "Character", description: "" },
-    { name: "Beast", description: "" },
-    { name: "Companion", description: "" }
+    { name: "Colossal Company", description: "" },
+    { name: "Nemorous", description: "" },
+    { name: "Varank", description: "" },
+    { name: "Ambusher", description: "" },
+    { name: "Dispel (BLK)", description: "" },
+    { name: "Preferred Terrain (Rugged)", description: "" }
   ],
   highCommand: false,
   availability: 1,
-  specialRules: ["Companion (Njörd the Merciless)"],
+  command: 1,
+  specialRules: ["Slowed", "Place (3)", "Immune to State", "Frightened"],
   imageUrl: "/art/card/iriavik_restless_pup_card.jpg"
 };

@@ -1,7 +1,7 @@
 
 import { Unit } from "@/types/army";
-import { ahlwardt_ice_bear } from "./companions/ahlwardt_ice_bear";
+import { coal } from "./companions/coal";
 
 export const northernTribesCompanions: Unit[] = [
-  ahlwardt_ice_bear
+  coal
 ];

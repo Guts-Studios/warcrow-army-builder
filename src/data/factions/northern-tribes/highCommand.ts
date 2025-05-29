@@ -1,7 +1,11 @@
 
 import { Unit } from "@/types/army";
-import { njord_the_merciless } from "./characters/njord_the_merciless";
+import { ahlwardt_ice_bear } from "./characters/ahlwardt_ice_bear";
+import { alborc } from "./characters/alborc";
+import { wrathmane } from "./characters/wrathmane";
 
 export const northernTribesHighCommand: Unit[] = [
-  njord_the_merciless
+  ahlwardt_ice_bear,
+  alborc,
+  wrathmane
 ];

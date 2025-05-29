@@ -10,11 +10,13 @@ export const hersir: Unit = {
   keywords: [
     { name: "Character", description: "" },
     { name: "Varank", description: "" },
+    { name: "Beserker Rage", description: "" },
+    { name: "Fearless", description: "" },
     { name: "Join (Infantry Varank)", description: "" }
   ],
   highCommand: false,
   availability: 1,
   command: 1,
-  specialRules: [],
+  specialRules: ["Disarmed"],
   imageUrl: "/art/card/hersir_card.jpg"
 };
