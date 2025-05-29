@@ -3,17 +3,14 @@ import { Unit } from "@/types/army";
 
 export const marhael_the_refused: Unit = {
   id: "marhael_the_refused",
-  name: "Marhael The Refused",
+  name: "Marhael the Refused",
   pointsCost: 35,
   faction: "hegemony-of-embersig",
   faction_id: "hegemony-of-embersig",
   keywords: [
     { name: "Character", description: "" },
-    { name: "Elf", description: "" },
-    { name: "High Command", description: "" },
-    { name: "Dispel (BLU BLK)", description: "" },
-    { name: "Elite", description: "" },
-    { name: "Join (Infantry Elf)", description: "" }
+    { name: "Human", description: "" },
+    { name: "High Command", description: "" }
   ],
   highCommand: true,
   availability: 1,
