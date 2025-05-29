@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -6,6 +7,28 @@ import { factions as fallbackFactions } from '@/data/factions';
 import { translations } from '@/i18n/translations';
 import { useEnvironment } from '@/hooks/useEnvironment';
 import { supabase } from '@/integrations/supabase/client';
+
+// Utility function to normalize characteristics to the expected ApiUnit shape
+const normalizeCharacteristics = (characteristics: any): { availability: number; command: number; highCommand: boolean; imageUrl?: string } => {
+  // Handle different input types
+  if (!characteristics || typeof characteristics === 'string' || typeof characteristics === 'number' || typeof characteristics === 'boolean') {
+    return {
+      availability: 0,
+      command: 0,
+      highCommand: false
+    };
+  }
+
+  // If it's already an object, extract the expected properties
+  const charObj = typeof characteristics === 'object' ? characteristics : {};
+  
+  return {
+    availability: typeof charObj.availability === 'number' ? charObj.availability : 0,
+    command: typeof charObj.command === 'number' ? charObj.command : 0,
+    highCommand: Boolean(charObj.highCommand),
+    imageUrl: typeof charObj.imageUrl === 'string' ? charObj.imageUrl : undefined
+  };
+};
 
 // First normalize all units before using them as fallback data
 const normalizedLocalUnits = normalizeUnits(units);
@@ -20,11 +43,11 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   points: unit.pointsCost,
   keywords: unit.keywords.map(k => typeof k === 'string' ? k : k.name),
   special_rules: unit.specialRules || [],
-  characteristics: {
-    availability: unit.availability || 0,
-    command: unit.command || 0,
-    highCommand: unit.highCommand || false
-  },
+  characteristics: normalizeCharacteristics({
+    availability: unit.availability,
+    command: unit.command,
+    highCommand: unit.highCommand
+  }),
   type: 'unit'
 }));
 
@@ -52,7 +75,7 @@ const fetchUnitsFromDatabase = async (factionId?: string): Promise<ApiUnit[]> =>
       return localUnits;
     }
     
-    // Convert database format to ApiUnit format
+    // Convert database format to ApiUnit format with proper characteristics normalization
     const dbUnits: ApiUnit[] = data.map(unit => ({
       id: unit.id,
       name: unit.name,
@@ -62,7 +85,7 @@ const fetchUnitsFromDatabase = async (factionId?: string): Promise<ApiUnit[]> =>
       points: unit.points || 0,
       keywords: unit.keywords || [],
       special_rules: unit.special_rules || [],
-      characteristics: unit.characteristics || {},
+      characteristics: normalizeCharacteristics(unit.characteristics),
       type: unit.type || 'unit'
     }));
     
@@ -187,10 +210,8 @@ export function useFactions(language: string = 'en') {
 
 // Fixed mapApiUnitToUnit function to be more reliable
 export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
-  // Safely access characteristics as an object and handle nullability
-  const characteristics = apiUnit.characteristics && 
-    typeof apiUnit.characteristics === 'object' ? 
-    apiUnit.characteristics as Record<string, any> : {};
+  // Use the normalized characteristics directly since they're already in the correct format
+  const characteristics = apiUnit.characteristics;
     
   // Normalize the faction ID to ensure it matches our expected format
   let normalizedFaction = apiUnit.faction ? normalizeFactionId(apiUnit.faction) : 'unknown';
@@ -206,12 +227,12 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
     faction: normalizedFaction,
     faction_id: normalizedFactionId, // Ensure faction_id is set
     pointsCost: apiUnit.points,
-    availability: characteristics?.availability || 0,
-    command: characteristics?.command || 0,
+    availability: characteristics.availability,
+    command: characteristics.command,
     keywords: (apiUnit.keywords || []).map(k => ({ name: k })),
     specialRules: apiUnit.special_rules || [],
-    highCommand: Boolean(characteristics?.highCommand) || false,
-    imageUrl: characteristics?.imageUrl || `/art/card/${apiUnit.id}_card.jpg`
+    highCommand: characteristics.highCommand,
+    imageUrl: characteristics.imageUrl || `/art/card/${apiUnit.id}_card.jpg`
   };
 }
 
@@ -263,18 +284,18 @@ export const useArmyBuilderUnits = (factionId: string) => {
             return removeDuplicateUnits(factionUnits);
           }
           
-          // Convert database units to the expected format
+          // Convert database units to the expected format with proper characteristics normalization
           const dbUnits = data.map(unit => ({
             id: unit.id,
             name: unit.name,
             faction: unit.faction,
             faction_id: unit.faction,
             pointsCost: unit.points || 0,
-            availability: unit.characteristics?.availability || 0,
-            command: unit.characteristics?.command || 0,
+            availability: normalizeCharacteristics(unit.characteristics).availability,
+            command: normalizeCharacteristics(unit.characteristics).command,
             keywords: (unit.keywords || []).map(k => ({ name: k })),
             specialRules: unit.special_rules || [],
-            highCommand: Boolean(unit.characteristics?.highCommand) || false,
+            highCommand: normalizeCharacteristics(unit.characteristics).highCommand,
             imageUrl: `/art/card/${unit.id}_card.jpg`
           }));
           
