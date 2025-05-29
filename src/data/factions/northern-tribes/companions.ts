@@ -1,22 +1,7 @@
 
 import { Unit } from "@/types/army";
+import { ahlwardt_ice_bear } from "./companions/ahlwardt_ice_bear";
 
 export const northernTribesCompanions: Unit[] = [
-  {
-    id: "coal",
-    name: "Coal",
-    pointsCost: 20,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
-    keywords: [
-      { name: "Companion", description: "A unit that must be assigned to a specific character or unit type." },
-      { name: "Join (Iriavik)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Slowed", "Fix a Die"],
-    companion: "iriavik restless pup",
-    imageUrl: "/art/card/coal_card.jpg"
-  }
+  ahlwardt_ice_bear
 ];

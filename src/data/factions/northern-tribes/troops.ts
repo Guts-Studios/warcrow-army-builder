@@ -1,5 +1,6 @@
 
 import { Unit } from "@/types/army";
+import { ice_archers } from "./troops/ice_archers";
 
 export const northernTribesTroops: Unit[] = [
   {
@@ -19,22 +20,7 @@ export const northernTribesTroops: Unit[] = [
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
     imageUrl: "/art/card/battle-scarred_card.jpg"
   },
-  {
-    id: "ice-archers",
-    name: "Ice Archers",
-    pointsCost: 25,
-    faction: "northern-tribes",
-    faction_id: "northern-tribes",
-    keywords: [
-      { name: "Infantry", description: "Ground-based troops that form the backbone of most armies." },
-      { name: "Varank", description: "A proud warrior culture from the northern regions." }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Slowed"],
-    imageUrl: "/art/card/ice-archers_card.jpg"
-  },
+  ice_archers,
   {
     id: "orc-hunters",
     name: "Orc Hunters",
