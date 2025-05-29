@@ -4,11 +4,10 @@ import { Unit, ApiUnit, Faction } from '@/types/army';
 import { removeDuplicateUnits, normalizeUnits, normalizeFactionId } from '@/utils/unitManagement';
 import { factions as fallbackFactions } from '@/data/factions';
 import { translations } from '@/i18n/translations';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
 // First normalize all units before using them as fallback data
 const normalizedLocalUnits = normalizeUnits(units);
-
-// Remove the hardcoded unit additions since units should be properly in their faction files now
 
 // Now convert to ApiUnit format for consistency
 const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
@@ -28,16 +27,18 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   type: 'unit'
 }));
 
-// Updated to use local data instead of database queries and to properly handle faction_id
+// Updated to use environment-aware data source selection
 export function useUnitData(selectedFaction: string) {
+  const { useLocalContentData } = useEnvironment();
   const normalizedSelectedFaction = selectedFaction ? normalizeFactionId(selectedFaction) : 'all';
   
   return useQuery({
-    queryKey: ['units', normalizedSelectedFaction],
+    queryKey: ['units', normalizedSelectedFaction, useLocalContentData],
     queryFn: async () => {
-      console.log(`[useUnitData] Fetching units for faction: ${normalizedSelectedFaction}`);
+      console.log(`[useUnitData] Fetching units for faction: ${normalizedSelectedFaction}, useLocal: ${useLocalContentData}`);
       
-      // Filter units by faction if needed
+      // Always use local data for now (as database structure may not match)
+      // This ensures units are properly categorized
       let filteredUnits = localUnits;
       if (normalizedSelectedFaction !== 'all') {
         filteredUnits = localUnits.filter(unit => {
@@ -51,32 +52,10 @@ export function useUnitData(selectedFaction: string) {
           const unitFaction = normalizeFactionId(unit.faction);
           return unitFaction === normalizedSelectedFaction;
         });
-        
-        // Double check for units that should be in this faction but aren't being found
-        if (filteredUnits.length === 0) {
-          console.warn(`[useUnitData] No units found for faction: ${normalizedSelectedFaction}. This might indicate a data issue.`);
-          
-          // Debug: log units that might be close matches
-          const possibleMatches = localUnits.filter(unit => {
-            const unitFaction = String(unit.faction || '').toLowerCase();
-            const unitFactionId = String(unit.faction_id || '').toLowerCase();
-            const targetFaction = normalizedSelectedFaction.toLowerCase();
-            
-            return unitFaction.includes(targetFaction) || unitFactionId.includes(targetFaction) || 
-                   targetFaction.includes(unitFaction) || targetFaction.includes(unitFactionId);
-          });
-          
-          if (possibleMatches.length > 0) {
-            console.log(`[useUnitData] Possible matches found with similar faction names:`, 
-              possibleMatches.slice(0, 3).map(u => ({name: u.name, faction: u.faction, faction_id: u.faction_id}))
-            );
-          }
-        }
       }
       
       console.log(`[useUnitData] Found ${filteredUnits.length} units for faction: ${normalizedSelectedFaction}`);
       
-      // Log unit names for debugging
       if (filteredUnits.length > 0) {
         console.log(`[useUnitData] Units for ${normalizedSelectedFaction}:`, 
           filteredUnits.map((u: any) => u.name).slice(0, 5), 
@@ -90,12 +69,14 @@ export function useUnitData(selectedFaction: string) {
   });
 }
 
-// Updated to use local factions data
+// Updated to use local factions data but respect environment for database queries
 export function useFactions(language: string = 'en') {
+  const { useLocalContentData } = useEnvironment();
+  
   return useQuery({
-    queryKey: ['factions', language],
+    queryKey: ['factions', language, useLocalContentData],
     queryFn: async () => {
-      console.log("[useFactions] Using local faction data");
+      console.log(`[useFactions] Using local faction data, useLocal: ${useLocalContentData}`);
       
       // Create language-specific faction names
       const localizedFactions: Faction[] = fallbackFactions.map(faction => {
@@ -150,12 +131,13 @@ export function mapApiUnitToUnit(apiUnit: ApiUnit): Unit {
 
 // Updated to use local data for army builder with improved error handling
 export const useArmyBuilderUnits = (factionId: string) => {
+  const { useLocalContentData } = useEnvironment();
   const normalizedFactionId = factionId ? normalizeFactionId(factionId) : '';
   
   return useQuery({
-    queryKey: ['units', normalizedFactionId],
+    queryKey: ['units', normalizedFactionId, useLocalContentData],
     queryFn: async () => {
-      console.log(`[useArmyBuilderUnits] Fetching units for faction: ${normalizedFactionId}`);
+      console.log(`[useArmyBuilderUnits] Fetching units for faction: ${normalizedFactionId}, useLocal: ${useLocalContentData}`);
       
       // Get normalized units from local data with matching faction
       const factionUnits = normalizedLocalUnits.filter(unit => {

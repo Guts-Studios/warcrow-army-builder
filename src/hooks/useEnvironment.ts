@@ -23,16 +23,15 @@ export const useEnvironment = (): EnvironmentInfo => {
   useEffect(() => {
     const hostname = window.location.hostname;
     
-    // Comprehensive check for preview environments
+    // Comprehensive check for preview environments - REMOVED netlify.app from preview check
     const isPreview = hostname === 'localhost' || 
                      hostname === '127.0.0.1' || 
                      hostname.includes('lovableproject.com') || 
                      hostname.endsWith('.lovableproject.com') ||
                      hostname.includes('lovable.app') ||
-                     hostname.includes('id-preview') ||
-                     hostname.includes('netlify.app');
+                     hostname.includes('id-preview');
     
-    // Explicit production domains only
+    // Explicit production domains - INCLUDING both domains
     const productionDomains = [
       'warcrowarmy.com',
       'www.warcrowarmy.com',
@@ -43,8 +42,9 @@ export const useEnvironment = (): EnvironmentInfo => {
       hostname === domain || hostname.endsWith(`.${domain}`)
     );
     
-    // Always use local data for content in all environments
-    const useLocalContentData = true;
+    // Use local data only for development/preview environments
+    // In production, use database data
+    const useLocalContentData = !isProduction;
     
     setEnvironmentInfo({
       isPreview,

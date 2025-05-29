@@ -35,9 +35,14 @@ import { useEnvironment } from "@/hooks/useEnvironment";
 import { SupportButton } from "@/components/landing/SupportButton";
 import { AuthStateDemo } from "@/components/auth/AuthStateDemo";
 
-const fetchUserCount = async () => {
+const fetchUserCount = async (useLocalData: boolean) => {
+  if (useLocalData) {
+    console.log("[Landing] Using fallback user count for local/preview environment");
+    return 470;
+  }
+  
   try {
-    console.log("[Landing] Fetching user count with fresh query...");
+    console.log("[Landing] Fetching user count from database...");
     
     const { count, error } = await supabase
       .from('profiles')
@@ -50,7 +55,7 @@ const fetchUserCount = async () => {
       throw error;
     }
     
-    console.log('[Landing] Retrieved user count:', count);
+    console.log('[Landing] Retrieved user count from database:', count);
     return count || 470;
   } catch (error) {
     console.error('[Landing] Error in fetchUserCount:', error);
@@ -134,7 +139,7 @@ const Landing = () => {
   
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated, isTester, isLoading: authLoading, authReady } = useAuth();
-  const { isPreview } = useEnvironment();
+  const { isPreview, isProduction, useLocalContentData } = useEnvironment();
   
   console.log('[Landing] Auth state:', { 
     authLoading,
@@ -143,6 +148,8 @@ const Landing = () => {
     isWabAdmin, 
     isTester, 
     isPreview,
+    isProduction,
+    useLocalContentData,
     timestamp: new Date().toISOString()
   });
   
@@ -171,18 +178,20 @@ const Landing = () => {
   useEffect(() => {
     console.log('[Landing] Current hostname:', window.location.hostname);
     console.log('[Landing] Is preview environment:', isPreview);
-  }, [isPreview]);
+    console.log('[Landing] Is production environment:', isProduction);
+    console.log('[Landing] Use local content data:', useLocalContentData);
+  }, [isPreview, isProduction, useLocalContentData]);
 
-  // Fetch user count immediately when auth is ready
+  // Updated user count fetch to use environment settings
   const { 
     data: userCount = 470,
     isLoading: isLoadingUserCount,
     refetch: refetchUserCount 
   } = useQuery({
-    queryKey: ['userCount'],
+    queryKey: ['userCount', useLocalContentData],
     queryFn: () => {
-      console.log("[Landing] ✅ Starting user count fetch - authReady:", authReady);
-      return fetchUserCount();
+      console.log("[Landing] ✅ Starting user count fetch - authReady:", authReady, "useLocal:", useLocalContentData);
+      return fetchUserCount(useLocalContentData);
     },
     staleTime: 0,
     gcTime: 0,

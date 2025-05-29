@@ -1,3 +1,4 @@
+
 import { Faction } from "../types/army";
 import { northernTribesUnits } from "./factions/northern-tribes";
 import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";
@@ -36,33 +37,20 @@ export const factionNameMap: Record<string, string> = {
   'syenann_': 'syenann'
 };
 
-// Improved normalize and deduplicate units function
+// Fixed normalize function to properly assign faction IDs
 const normalizeUnits = () => {
-  // Explicitly pre-normalize the Northern Tribes units to ensure consistent faction property
-  const normalizedNorthernTribesUnits = northernTribesUnits.map(unit => ({
-    ...unit,
-    faction: 'northern-tribes'
-  }));
+  console.log('Starting unit normalization with explicit faction assignment...');
   
-  const allUnits = [
-    ...normalizedNorthernTribesUnits,
-    ...hegemonyOfEmbersigUnits, 
-    ...scionsOfYaldabaothUnits, 
-    ...syenannUnits
+  // Explicitly assign correct faction IDs to each unit collection
+  const factionUnitsMap = [
+    { units: northernTribesUnits, factionId: 'northern-tribes', name: 'Northern Tribes' },
+    { units: hegemonyOfEmbersigUnits, factionId: 'hegemony-of-embersig', name: 'Hegemony' },
+    { units: scionsOfYaldabaothUnits, factionId: 'scions-of-yaldabaoth', name: 'Scions' },
+    { units: syenannUnits, factionId: 'syenann', name: 'Syenann' }
   ];
   
-  const uniqueUnits = [];
+  const allUnits = [];
   const seen = new Set();
-  const namesByFaction: Record<string, Set<string>> = {};
-  
-  // Debug info about units before normalization
-  console.log(`Normalizing ${allUnits.length} total units:`);
-  console.log(`- Northern Tribes: ${normalizedNorthernTribesUnits.length}`);
-  console.log(`- Hegemony: ${hegemonyOfEmbersigUnits.length}`);
-  console.log(`- Scions: ${scionsOfYaldabaothUnits.length}`);
-  console.log(`- Syenann: ${syenannUnits.length}`);
-  
-  // Keep track of faction distribution
   const factionCounts = {
     'northern-tribes': 0,
     'hegemony-of-embersig': 0,
@@ -71,84 +59,44 @@ const normalizeUnits = () => {
     'unknown': 0
   };
   
-  // First pass: initialize namesByFaction sets
-  Object.keys(factionCounts).forEach(faction => {
-    namesByFaction[faction] = new Set();
-  });
-  
-  for (const unit of allUnits) {
-    // Skip units without an ID (should never happen but just in case)
-    if (!unit.id) {
-      console.warn("Found unit without ID:", unit.name);
-      continue;
-    }
+  // Process each faction's units with explicit faction assignment
+  for (const factionGroup of factionUnitsMap) {
+    console.log(`Processing ${factionGroup.name} units: ${factionGroup.units.length} units`);
     
-    // Normalize faction name
-    let normalizedFaction = unit.faction?.toLowerCase() || "";
-    
-    // Check if faction name needs normalization from the map
-    if (factionNameMap[unit.faction]) {
-      normalizedFaction = factionNameMap[unit.faction];
-    }
-    // Check if it's a space-separated name that needs conversion
-    else if (unit.faction && unit.faction.includes(' ')) {
-      const kebabName = unit.faction.toLowerCase().replace(/\s+/g, '-');
-      normalizedFaction = factionNameMap[kebabName] || kebabName;
-    }
-    
-    // Special case for Northern Tribes - ensure faction consistency
-    if (unit.name.toLowerCase().includes('northern') || 
-        (unit.faction && unit.faction.toLowerCase().includes('northern')) ||
-        (unit.faction && unit.faction.toLowerCase().includes('tribe'))) {
-      normalizedFaction = 'northern-tribes';
-    }
-    
-    // Create a normalized unit with consistent faction naming
-    const normalizedUnit = {
-      ...unit,
-      faction: normalizedFaction
-    };
-    
-    // Create a unique key including both ID and faction to guarantee uniqueness
-    const key = `${normalizedUnit.id}`;
-    const nameKey = `${normalizedFaction}:${normalizedUnit.name.toLowerCase()}`;
-    
-    // Check for duplicates based on ID or name within same faction
-    if (seen.has(key)) {
-      console.warn(`Found duplicate unit ID: ${normalizedUnit.name} with ID ${normalizedUnit.id}`);
-      continue;
-    }
-    
-    // Check for duplicate names within the same faction
-    if (namesByFaction[normalizedFaction] && namesByFaction[normalizedFaction].has(normalizedUnit.name.toLowerCase())) {
-      console.warn(`Found duplicate unit name in ${normalizedFaction}: ${normalizedUnit.name}`);
-      continue;
-    }
-    
-    // Only add if we haven't seen this key before
-    seen.add(key);
-    if (namesByFaction[normalizedFaction]) {
-      namesByFaction[normalizedFaction].add(normalizedUnit.name.toLowerCase());
-    }
-    
-    uniqueUnits.push(normalizedUnit);
-    
-    // Count by faction
-    if (factionCounts[normalizedFaction]) {
-      factionCounts[normalizedFaction]++;
-    } else {
-      factionCounts['unknown']++;
-      console.warn(`Unit ${normalizedUnit.name} has unknown faction: ${normalizedFaction}`);
+    for (const unit of factionGroup.units) {
+      // Skip units without an ID
+      if (!unit.id) {
+        console.warn(`Found unit without ID in ${factionGroup.name}:`, unit.name);
+        continue;
+      }
+      
+      // Check for duplicates
+      if (seen.has(unit.id)) {
+        console.warn(`Found duplicate unit ID: ${unit.name} with ID ${unit.id}`);
+        continue;
+      }
+      
+      // Create normalized unit with explicit faction assignment
+      const normalizedUnit = {
+        ...unit,
+        faction: factionGroup.factionId,
+        faction_id: factionGroup.factionId
+      };
+      
+      seen.add(unit.id);
+      allUnits.push(normalizedUnit);
+      factionCounts[factionGroup.factionId]++;
     }
   }
   
-  // Log faction distribution after normalization
+  // Log final faction distribution
   console.log('Final faction distribution:');
   Object.entries(factionCounts).forEach(([faction, count]) => {
     console.log(`- ${faction}: ${count} units`);
   });
   
-  return uniqueUnits;
+  console.log(`Total normalized units: ${allUnits.length}`);
+  return allUnits;
 };
 
 // Export normalized and deduplicated units
