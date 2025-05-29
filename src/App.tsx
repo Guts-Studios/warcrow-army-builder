@@ -1,10 +1,12 @@
 
+import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ProvidersWrapper } from '@/components/providers/ProvidersWrapper';
 import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
+import { checkVersionAndPurgeStorage } from '@/utils/versionPurge';
 
 // Import all pages
 import Landing from '@/pages/Landing';
@@ -26,6 +28,37 @@ import Activity from '@/pages/Activity';
 import NotFound from '@/pages/NotFound';
 
 function App() {
+  const [versionChecked, setVersionChecked] = useState(false);
+
+  useEffect(() => {
+    // Run version check as the very first thing
+    const runVersionCheck = async () => {
+      console.log('[App] Running version check before app initialization...');
+      try {
+        const wasStoragePurged = await checkVersionAndPurgeStorage();
+        if (!wasStoragePurged) {
+          // Only continue if storage wasn't purged (which would reload the page)
+          setVersionChecked(true);
+        }
+        // If storage was purged, the page will reload and this component will unmount
+      } catch (error) {
+        console.error('[App] Version check failed, continuing with app load:', error);
+        setVersionChecked(true);
+      }
+    };
+
+    runVersionCheck();
+  }, []);
+
+  // Don't render the app until version check is complete
+  if (!versionChecked) {
+    return (
+      <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
+        <div className="text-warcrow-text">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <ProvidersWrapper>
       <LanguageProvider>

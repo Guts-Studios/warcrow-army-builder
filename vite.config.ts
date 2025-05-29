@@ -1,7 +1,25 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { execSync } from "child_process";
+
+// Extract version during build
+function extractVersionPlugin() {
+  return {
+    name: 'extract-version',
+    buildStart() {
+      console.log('Extracting version from CHANGELOG.md...');
+      try {
+        execSync('node scripts/extract-version.js', { stdio: 'inherit' });
+      } catch (error) {
+        console.error('Failed to extract version:', error);
+        throw error;
+      }
+    }
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -24,6 +42,7 @@ export default defineConfig(({ mode }) => ({
     }
   },
   plugins: [
+    extractVersionPlugin(),
     react(),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
