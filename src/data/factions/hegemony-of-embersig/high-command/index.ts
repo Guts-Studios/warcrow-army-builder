@@ -3,25 +3,27 @@ import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigHighCommand: Unit[] = [
   {
-    id: "hetman",
-    name: "Hetman",
-    pointsCost: 25,
+    id: "amelia_hellbroth",
+    name: "Amelia Hellbroth",
+    pointsCost: 40,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
       { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
       { name: "High Command", description: "" },
       { name: "Human", description: "" },
+      { name: "Elite", description: "" },
       { name: "Join (Infantry)", description: "" }
     ],
     availability: 1,
     command: 3,
-    specialRules: [],
+    specialRules: ["Vulnerable", "Disarmed"],
     highCommand: true,
-    imageUrl: "/art/card/hetman_card_en.jpg"
+    imageUrl: "/art/card/amelia_hellbroth_card_en.jpg"
   },
   {
-    id: "dragoslav-bjelogric-drago-the-anvil",
+    id: "dragoslav_bjelogric_drago_the_anvil",
     name: "Dragoslav Bjelogríc, Drago the Anvil",
     pointsCost: 40,
     faction: "hegemony-of-embersig",
@@ -42,23 +44,21 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card_en.jpg"
   },
   {
-    id: "amelia-hellbroth",
-    name: "Amelia Hellbroth",
-    pointsCost: 40,
+    id: "hetman",
+    name: "Hetman",
+    pointsCost: 25,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
       { name: "Character", description: "" },
-      { name: "Colossal Company", description: "" },
       { name: "High Command", description: "" },
       { name: "Human", description: "" },
-      { name: "Elite", description: "" },
       { name: "Join (Infantry)", description: "" }
     ],
     availability: 1,
     command: 3,
-    specialRules: ["Vulnerable", "Disarmed"],
+    specialRules: [],
     highCommand: true,
-    imageUrl: "/art/card/amelia_hellbroth_card_en.jpg"
+    imageUrl: "/art/card/hetman_card_en.jpg"
   }
 ];
