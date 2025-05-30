@@ -145,6 +145,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Helper function to finalize auth state - ALWAYS sets loading to false
+  const finalizeAuthState = (
+    authenticated: boolean,
+    userIdValue: string | null = null,
+    adminValue: boolean = false,
+    testerValue: boolean = false,
+    wabAdminValue: boolean = false,
+    guestValue: boolean = false
+  ) => {
+    console.log("[AuthProvider] 🔒 Finalizing auth state:", {
+      authenticated,
+      userIdValue,
+      adminValue,
+      testerValue,
+      wabAdminValue,
+      guestValue,
+      timestamp: new Date().toISOString()
+    });
+
+    setIsAuthenticated(authenticated);
+    setUserId(userIdValue);
+    setIsAdmin(adminValue);
+    setIsTester(testerValue);
+    setIsWabAdmin(wabAdminValue);
+    setIsGuest(guestValue);
+    setIsLoading(false); // CRITICAL: Always set loading to false
+
+    console.log("[AuthProvider] ✅ Auth state finalized - loading set to false:", {
+      isAuthenticated: authenticated,
+      isLoading: false,
+      authReady: true,
+      userId: userIdValue,
+      isAdmin: adminValue,
+      timestamp: new Date().toISOString()
+    });
+  };
+
   // Helper function to set authenticated state
   const setAuthenticatedState = async (session: any, skipProfileFetch = false) => {
     console.log("[AuthProvider] 🔄 Setting authenticated state:", {
@@ -159,75 +196,58 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       timestamp: new Date().toISOString()
     });
 
-    if (session?.user?.id) {
-      setIsAuthenticated(true);
-      setUserId(session.user.id);
-      setIsGuest(false);
-      
-      if (!skipProfileFetch) {
-        console.log("[AuthProvider] 🔍 Fetching user profile...");
-        const profile = await fetchUserProfile(session.user.id);
-        const isAdminUser = !!profile.wab_admin;
-        setIsAdmin(isAdminUser);
-        setIsTester(!!profile.tester);
-        setIsWabAdmin(isAdminUser);
-        
-        console.log("[AuthProvider] ✅ Profile set:", {
-          isAdmin: isAdminUser,
-          isTester: !!profile.tester,
-          timestamp: new Date().toISOString()
-        });
-      }
-    } else {
-      console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
-      setIsAuthenticated(false);
-      setUserId(null);
-      setIsGuest(true);
-      
-      // UPDATED: Only give admin privileges for Lovable preview environments
-      // But still try to use real auth first - fallback to demo mode only if needed
-      if (isPreview && !useLocalContentData) {
-        console.log("[AuthProvider] 🔧 Preview mode without local data - granting demo admin privileges as fallback");
-        setIsAdmin(true);
-        setIsTester(true);
-        setIsWabAdmin(true);
+    try {
+      if (session?.user?.id) {
+        if (!skipProfileFetch) {
+          console.log("[AuthProvider] 🔍 Fetching user profile...");
+          const profile = await fetchUserProfile(session.user.id);
+          const isAdminUser = !!profile.wab_admin;
+          
+          finalizeAuthState(
+            true,
+            session.user.id,
+            isAdminUser,
+            !!profile.tester,
+            isAdminUser,
+            false
+          );
+        } else {
+          // Just set basic auth state without profile fetch
+          finalizeAuthState(true, session.user.id, false, false, false, false);
+        }
       } else {
-        setIsAdmin(false);
-        setIsTester(false);
-        setIsWabAdmin(false);
+        console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
+        
+        // Handle preview mode fallback for remote data environments
+        if (isPreview && !useLocalContentData) {
+          console.log("[AuthProvider] 🔧 Preview mode without local data - granting demo admin privileges as fallback");
+          finalizeAuthState(false, null, true, true, true, true);
+        } else {
+          finalizeAuthState(false, null, false, false, false, true);
+        }
       }
+    } catch (error) {
+      console.error("[AuthProvider] ❌ Error in setAuthenticatedState:", {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      });
+      
+      // CRITICAL: Even on error, finalize the state to prevent stuck loading
+      finalizeAuthState(false, null, false, false, false, true);
     }
-    
-    setIsLoading(false);
-    
-    console.log("[AuthProvider] ✅ Auth state finalized:", {
-      isAuthenticated: !!session?.user?.id,
-      isLoading: false,
-      authReady: true,
-      isPreview,
-      hostname,
-      useLocalContentData,
-      timestamp: new Date().toISOString()
-    });
   };
 
   // Helper function for preview mode (only as fallback)
   const setPreviewMode = () => {
     console.log("[AuthProvider] 🔧 Setting up preview mode as fallback");
-    setIsAuthenticated(true);
-    setUserId("preview-user-id");
-    setIsGuest(false);
-    setIsAdmin(true);
-    setIsTester(true);
-    setIsWabAdmin(true);
-    setIsLoading(false);
-    
+    finalizeAuthState(true, "preview-user-id", true, true, true, false);
     console.log("[AuthProvider] ✅ Preview mode setup complete");
   };
 
   useEffect(() => {
     let mounted = true;
     let authSubscription: any = null;
+    let timeoutId: NodeJS.Timeout | null = null;
 
     const initializeAuth = async () => {
       console.log("[AuthProvider] 🚀 Initializing auth...", {
@@ -237,8 +257,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         timestamp: new Date().toISOString()
       });
 
+      // Set up timeout fallback - if auth is stuck for 10 seconds, force completion
+      timeoutId = setTimeout(() => {
+        if (mounted) {
+          console.warn("[AuthProvider] ⏰ Auth initialization timeout - forcing completion");
+          if (isPreview && !useLocalContentData) {
+            setPreviewMode();
+          } else {
+            finalizeAuthState(false, null, false, false, false, true);
+          }
+        }
+      }, 10000);
+
       try {
-        // UPDATED: Always try real auth first, even in preview
         console.log("[AuthProvider] 🔍 Attempting real authentication for all environments");
 
         // Set up auth state listener FIRST
@@ -267,8 +298,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               console.log("[AuthProvider] 🎉 SIGNED_IN event detected - user authenticated successfully!");
             }
             
-            // Handle the auth state change
-            await setAuthenticatedState(session);
+            try {
+              // Handle the auth state change
+              await setAuthenticatedState(session);
+              
+              // Clear timeout since we successfully handled auth
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+              }
+            } catch (error) {
+              console.error("[AuthProvider] ❌ Error handling auth state change:", {
+                error: error instanceof Error ? error.message : String(error),
+                event,
+                timestamp: new Date().toISOString()
+              });
+              
+              // Ensure we don't get stuck on auth change errors
+              finalizeAuthState(false, null, false, false, false, true);
+            }
           }
         );
         
@@ -287,12 +335,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           });
           
           if (mounted) {
+            // Clear timeout and finalize state
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            
             // Only fall back to preview mode if we're in a preview environment AND there's an auth error
             if (isPreview && !useLocalContentData) {
               console.log("[AuthProvider] 🔧 Auth error in preview with remote data - falling back to demo mode");
               setPreviewMode();
             } else {
-              await setAuthenticatedState(null);
+              finalizeAuthState(false, null, false, false, false, true);
             }
           }
           return;
@@ -311,6 +365,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
         
         if (mounted) {
+          // Clear timeout since we're handling the initial state
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          
           // If no session and in preview with remote data, fall back to demo mode
           if (!session && isPreview && !useLocalContentData) {
             console.log("[AuthProvider] 🔧 No session in preview with remote data - using demo mode");
@@ -329,12 +389,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
         
         if (mounted) {
+          // Clear timeout
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          
           // Fall back to preview mode only if in preview environment with remote data
           if (isPreview && !useLocalContentData) {
             console.log("[AuthProvider] 🔧 Fatal auth error in preview with remote data - falling back to demo mode");
             setPreviewMode();
           } else {
-            await setAuthenticatedState(null);
+            finalizeAuthState(false, null, false, false, false, true);
           }
         }
       }
@@ -347,6 +413,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       mounted = false;
       if (authSubscription) {
         authSubscription.unsubscribe();
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
   }, []); // Remove dependencies to prevent re-initialization
