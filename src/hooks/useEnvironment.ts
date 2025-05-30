@@ -23,13 +23,15 @@ export const useEnvironment = (): EnvironmentInfo => {
   useEffect(() => {
     const hostname = window.location.hostname;
     
-    // Comprehensive check for preview environments
-    const isPreview = hostname === 'localhost' || 
-                     hostname === '127.0.0.1' || 
-                     hostname.includes('lovableproject.com') || 
-                     hostname.endsWith('.lovableproject.com') ||
-                     hostname.includes('lovable.app') ||
-                     hostname.includes('id-preview');
+    // ONLY local development should be considered "preview" for data purposes
+    const isLocalDev = hostname === 'localhost' || 
+                      hostname === '127.0.0.1';
+    
+    // Lovable preview environments should behave like production for data fetching
+    const isLovablePreview = hostname.includes('lovableproject.com') || 
+                            hostname.endsWith('.lovableproject.com') ||
+                            hostname.includes('lovable.app') ||
+                            hostname.includes('id-preview');
     
     // Explicit production domains
     const productionDomains = [
@@ -46,23 +48,23 @@ export const useEnvironment = (): EnvironmentInfo => {
     const envUseLocal = typeof window !== 'undefined' && 
       window.location.search.includes('use_local=true');
     
-    // Use local data only for development/preview environments
-    // In production, ALWAYS use database data unless explicitly overridden
+    // NEW LOGIC: Only use local data for actual local development
+    // Preview and production should BOTH use remote data
     let useLocalContentData: boolean;
     
     if (envUseLocal) {
       useLocalContentData = true;
       console.warn("[useEnvironment] Forced to use local data via URL parameter");
-    } else if (isProduction) {
-      useLocalContentData = false;
-      console.log("[useEnvironment] Production environment - using database data");
-    } else {
+    } else if (isLocalDev) {
       useLocalContentData = true;
-      console.log("[useEnvironment] Development/preview environment - using local data");
+      console.log("[useEnvironment] Local development - using local data");
+    } else {
+      useLocalContentData = false;
+      console.log("[useEnvironment] Remote environment (preview/production) - using database data");
     }
     
     setEnvironmentInfo({
-      isPreview,
+      isPreview: isLovablePreview, // Still track if it's a preview environment
       isProduction,
       hostname,
       useLocalContentData
@@ -70,9 +72,11 @@ export const useEnvironment = (): EnvironmentInfo => {
     
     console.log("[useEnvironment] Environment detected:", { 
       hostname, 
-      isPreview, 
+      isLocalDev,
+      isLovablePreview,
       isProduction,
       useLocalContentData,
+      environmentType: isLocalDev ? 'local-dev' : isLovablePreview ? 'lovable-preview' : isProduction ? 'production' : 'unknown',
       timestamp: new Date().toISOString()
     });
   }, []);

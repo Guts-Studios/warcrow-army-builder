@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
-  const { isPreview } = useEnvironment();
+  const { isPreview, hostname } = useEnvironment();
 
   // Calculate authReady based on loading state
   const authReady = !isLoading && isAuthenticated !== null;
@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isWabAdmin,
     userId,
     isPreview,
+    hostname,
     timestamp: new Date().toISOString()
   });
 
@@ -141,9 +142,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUserId(null);
       setIsGuest(true);
       
-      // In preview mode, give admin/tester privileges
+      // UPDATED: Only give admin privileges for Lovable preview environments
+      // But still try to use real auth first - fallback to demo mode only if needed
       if (isPreview) {
-        console.log("[AuthProvider] 🔧 Preview mode - granting admin privileges");
+        console.log("[AuthProvider] 🔧 Preview mode - granting demo admin privileges as fallback");
         setIsAdmin(true);
         setIsTester(true);
         setIsWabAdmin(true);
@@ -160,13 +162,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       isAuthenticated: !!session?.user?.id,
       isLoading: false,
       authReady: true,
+      isPreview,
+      hostname,
       timestamp: new Date().toISOString()
     });
   };
 
-  // Helper function for preview mode
+  // Helper function for preview mode (only as fallback)
   const setPreviewMode = () => {
-    console.log("[AuthProvider] 🔧 Setting up preview mode");
+    console.log("[AuthProvider] 🔧 Setting up preview mode as fallback");
     setIsAuthenticated(true);
     setUserId("preview-user-id");
     setIsGuest(false);
@@ -185,21 +189,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       console.log("[AuthProvider] 🚀 Initializing auth...", {
         isPreview,
-        hostname: window.location.hostname,
+        hostname,
         timestamp: new Date().toISOString()
       });
 
       try {
-        // For preview environment, use demo state
-        if (isPreview) {
-          console.log("[AuthProvider] 🔧 Preview mode detected");
-          if (mounted) {
-            setPreviewMode();
-          }
-          return;
-        }
-
-        console.log("[AuthProvider] 🏭 Production mode - setting up real auth");
+        // UPDATED: Always try real auth first, even in preview
+        console.log("[AuthProvider] 🔍 Attempting real authentication for all environments");
 
         // Set up auth state listener FIRST
         console.log("[AuthProvider] 👂 Setting up auth state listener");
@@ -214,6 +210,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               hasUser: !!session?.user,
               userId: session?.user?.id,
               email: session?.user?.email,
+              isPreview,
+              hostname,
               timestamp: new Date().toISOString()
             });
             
@@ -232,7 +230,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (sessionError) {
           console.error("[AuthProvider] ❌ Session check error:", sessionError);
           if (mounted) {
-            await setAuthenticatedState(null);
+            // Only fall back to preview mode if we're in a preview environment AND there's an auth error
+            if (isPreview) {
+              console.log("[AuthProvider] 🔧 Auth error in preview - falling back to demo mode");
+              setPreviewMode();
+            } else {
+              await setAuthenticatedState(null);
+            }
           }
           return;
         }
@@ -242,18 +246,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           hasSession: !!session,
           userId: session?.user?.id,
           userEmail: session?.user?.email,
+          isPreview,
+          hostname,
           timestamp: new Date().toISOString()
         });
         
         if (mounted) {
-          // Set initial state based on existing session
-          await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
+          // If no session and in preview, fall back to demo mode
+          if (!session && isPreview) {
+            console.log("[AuthProvider] 🔧 No session in preview - using demo mode");
+            setPreviewMode();
+          } else {
+            // Set initial state based on existing session (or lack thereof)
+            await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
+          }
         }
         
       } catch (error) {
         console.error("[AuthProvider] ❌ Fatal error in auth initialization:", error);
         if (mounted) {
-          await setAuthenticatedState(null);
+          // Fall back to preview mode only if in preview environment
+          if (isPreview) {
+            console.log("[AuthProvider] 🔧 Fatal auth error in preview - falling back to demo mode");
+            setPreviewMode();
+          } else {
+            await setAuthenticatedState(null);
+          }
         }
       }
     };
