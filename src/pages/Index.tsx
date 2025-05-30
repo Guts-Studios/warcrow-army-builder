@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { PageHeader } from "@/components/common/PageHeader";
 import { DataLoadingDiagnostics } from "@/components/debug/DataLoadingDiagnostics";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Lazy load the heavy ArmyBuilder component
 const ArmyBuilder = lazy(() => import("@/components/army/ArmyBuilder"));

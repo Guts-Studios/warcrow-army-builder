@@ -2,7 +2,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Core pages that should load immediately
 import Landing from '@/pages/Landing';

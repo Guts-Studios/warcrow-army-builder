@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
 
-export const AuthStateDemo = () => {
+const AuthStateDemo = () => {
   const { isLoading, isAuthenticated, authReady } = useAuth();
   const [simulatedDelay, setSimulatedDelay] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
@@ -95,3 +95,5 @@ export const AuthStateDemo = () => {
     </Card>
   );
 };
+
+export default AuthStateDemo;
