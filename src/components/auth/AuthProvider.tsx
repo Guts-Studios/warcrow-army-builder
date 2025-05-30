@@ -1,3 +1,4 @@
+
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -103,7 +104,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         hasError: !!error,
         errorMessage: error?.message || null,
         errorCode: error?.code || null,
-        errorDetails: error?.details || null,
         userId: sessionUserId,
         timestamp: new Date().toISOString()
       });
@@ -111,8 +111,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) {
         console.error("[AuthProvider] ❌ Profile fetch error details:", {
           message: error.message,
-          details: error.details,
-          hint: error.hint,
           code: error.code,
           userId: sessionUserId,
           timestamp: new Date().toISOString()
@@ -284,8 +282,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (sessionError) {
           console.error("[AuthProvider] ❌ Session check error:", {
             message: sessionError.message,
-            details: sessionError.details,
-            hint: sessionError.hint,
             code: sessionError.code,
             timestamp: new Date().toISOString()
           });
