@@ -1,0 +1,26 @@
+
+{
+  "name": "Warcrow Army Builder",
+  "short_name": "WAB",
+  "description": "Create, customize, and manage your Warcrow armies with our unofficial army builder tool",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#111827",
+  "background_color": "#111827",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/WAB_FAVICON.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/WAB_FAVICON.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
