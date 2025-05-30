@@ -10,4 +10,4 @@ syenann,Sÿenann,Named Character,Oona,0,1,"[Ashen, Character, Colossal Company, 
 syenann,Sÿenann,Troop,Protectors of the Forest,0,3,"[Elf, Infantry, Syenann]",[],No,25,[Displace (4)],,Yes
 syenann,Sÿenann,Troop,Shadows of the Yew,0,1,"[Elf, Infantry, Shadow, Syenann]","[Ambusher, Preferred Terrain (Rugged or Forest)]",No,35,[Place (5)],,Yes
 syenann,Sÿenann,Named Character,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],No,30,[Place (5)],,No
-syenann,Sÿenann,Named Character,Ynyr Dara Lainn,0,1,"[Character,Elf]","[Syenann,  Scout]",No,35,"[Place (10), Shove (4)]",,Yes
+syenann,Sÿenann,Named Character,Ynyr Dara Lainn,1,1,"[Character,Elf]","[Syenann,  Scout]",No,35,"[Place (10), Shove (4)]",,Yes
