@@ -23,6 +23,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'align': [] }],
       ['link'],
@@ -33,6 +34,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const formats = [
     'header',
     'bold', 'italic', 'underline',
+    'color', 'background',
     'list', 'bullet',
     'align',
     'link'
@@ -117,6 +119,27 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           
           .ql-toolbar .ql-picker-item:hover {
             background-color: rgb(212, 175, 55, 0.1) !important;
+          }
+
+          /* Color picker specific styling */
+          .ql-color .ql-picker-options {
+            padding: 3px 5px !important;
+            width: 152px !important;
+          }
+          
+          .ql-background .ql-picker-options {
+            padding: 3px 5px !important;
+            width: 152px !important;
+          }
+          
+          .ql-color .ql-picker-item,
+          .ql-background .ql-picker-item {
+            border: 1px solid transparent !important;
+            float: left !important;
+            height: 16px !important;
+            margin: 2px !important;
+            padding: 0 !important;
+            width: 16px !important;
           }
         `}
       </style>
