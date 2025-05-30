@@ -31,18 +31,19 @@ function App() {
   const [versionChecked, setVersionChecked] = useState(false);
 
   useEffect(() => {
-    // Run version check as the very first thing
+    // Run version check as the very first thing - this is critical to prevent stale data
     const runVersionCheck = async () => {
-      console.log('[App] Running version check before app initialization...');
+      console.log('[App] 🔍 Running version check before app initialization...');
       try {
         const wasStoragePurged = await checkVersionAndPurgeStorage();
         if (!wasStoragePurged) {
           // Only continue if storage wasn't purged (which would reload the page)
+          console.log('[App] ✅ Version check complete, proceeding with app initialization');
           setVersionChecked(true);
         }
         // If storage was purged, the page will reload and this component will unmount
       } catch (error) {
-        console.error('[App] Version check failed, continuing with app load:', error);
+        console.error('[App] ❌ Version check failed, continuing with app load:', error);
         setVersionChecked(true);
       }
     };
