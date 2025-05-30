@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SafeHtmlRenderer } from "@/components/ui/safe-html-renderer";
 
 interface NewsItemProps {
   english: string;
@@ -15,12 +15,19 @@ export const NewsItem: React.FC<NewsItemProps> = ({ english, spanish, french }) 
   const formatContent = (content: string) => {
     if (!content) return <span className="italic text-warcrow-text/50">No content</span>;
     
-    // Add line breaks using div elements instead of fragments
-    return content.split('\n').map((line, i) => (
-      <div key={i}>
-        {line}
-      </div>
-    ));
+    // Check if content contains HTML tags
+    const hasHtmlTags = /<[^>]*>/.test(content);
+    
+    if (hasHtmlTags) {
+      return <SafeHtmlRenderer html={content} className="max-w-none" />;
+    } else {
+      // Handle plain text with line breaks
+      return content.split('\n').map((line, i) => (
+        <div key={i}>
+          {line}
+        </div>
+      ));
+    }
   };
   
   return (

@@ -2,10 +2,9 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Save, Languages } from "lucide-react";
-import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 export interface NewsFormData {
   id: string;
@@ -116,11 +115,11 @@ export const NewsForm = ({
           <TabsContent value="english">
             <div className="flex flex-col">
               <label className="text-sm text-warcrow-text mb-1">English Content</label>
-              <Textarea
+              <RichTextEditor
                 value={formData.contentEn}
-                onChange={(e) => onChange('contentEn', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text min-h-[150px]"
+                onChange={(value) => onChange('contentEn', value)}
                 placeholder="News content in English"
+                className="min-h-[200px]"
               />
             </div>
           </TabsContent>
@@ -139,11 +138,11 @@ export const NewsForm = ({
                   Auto-translate to Spanish
                 </Button>
               </div>
-              <Textarea
+              <RichTextEditor
                 value={formData.contentEs}
-                onChange={(e) => onChange('contentEs', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text min-h-[150px]"
+                onChange={(value) => onChange('contentEs', value)}
                 placeholder="News content in Spanish"
+                className="min-h-[200px]"
               />
             </div>
           </TabsContent>
@@ -162,11 +161,11 @@ export const NewsForm = ({
                   Auto-translate to French
                 </Button>
               </div>
-              <Textarea
+              <RichTextEditor
                 value={formData.contentFr}
-                onChange={(e) => onChange('contentFr', e.target.value)}
-                className="bg-black border-warcrow-gold/30 text-warcrow-text min-h-[150px]"
+                onChange={(value) => onChange('contentFr', value)}
                 placeholder="News content in French"
+                className="min-h-[200px]"
               />
             </div>
           </TabsContent>
@@ -192,4 +191,3 @@ export const NewsForm = ({
     </div>
   );
 };
-

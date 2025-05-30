@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { SafeHtmlRenderer } from "@/components/ui/safe-html-renderer";
 
 interface HeaderProps {
   latestVersion: string;
@@ -310,34 +311,50 @@ export const Header = ({
     }
   };
 
-  // Function to format news content with highlighted date
+  // Function to format news content with highlighted date and HTML support
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return 'Latest news will appear here...';
 
-    const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+    // Check if content contains HTML tags
+    const hasHtmlTags = /<[^>]*>/.test(content);
     
-    if (dateRegex.test(content)) {
-      const parts = content.split(dateRegex);
-      
-      const filteredParts = parts.filter(part => part !== undefined && part !== '');
-      
+    if (hasHtmlTags) {
+      // Render as HTML with sanitization
       return (
-        <>
-          {filteredParts.map((part, i) => {
-            if (dateRegex.test(part)) {
-              return (
-                <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
-                  {part}
-                </span>
-              );
-            }
-            return <span key={i}>{part}</span>;
-          })}
-        </>
+        <div className="max-w-2xl mx-auto">
+          <SafeHtmlRenderer 
+            html={content} 
+            className="text-sm md:text-base [&>p]:mb-2 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm" 
+          />
+        </div>
       );
+    } else {
+      // Handle plain text with date highlighting
+      const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
+      
+      if (dateRegex.test(content)) {
+        const parts = content.split(dateRegex);
+        
+        const filteredParts = parts.filter(part => part !== undefined && part !== '');
+        
+        return (
+          <div className="max-w-2xl mx-auto">
+            {filteredParts.map((part, i) => {
+              if (dateRegex.test(part)) {
+                return (
+                  <span key={i} className="text-warcrow-gold font-bold bg-warcrow-accent/70 px-2 py-0.5 rounded">
+                    {part}
+                  </span>
+                );
+              }
+              return <span key={i}>{part}</span>;
+            })}
+          </div>
+        );
+      }
+      
+      return <div className="max-w-2xl mx-auto">{content}</div>;
     }
-    
-    return content;
   };
   
   // Safe translation getter
@@ -435,9 +452,9 @@ export const Header = ({
             </Button>
           </div>
         ) : latestNewsItem ? (
-          <p className="text-warcrow-text text-sm md:text-base">
+          <div className="text-warcrow-text text-sm md:text-base">
             {formatNewsContent(getTranslatedContent(latestNewsItem.key))}
-          </p>
+          </div>
         ) : (
           <p className="text-warcrow-text/70 text-sm">No recent news available.</p>
         )}
