@@ -13,65 +13,44 @@ interface EnvironmentInfo {
  * across the application
  */
 export const useEnvironment = (): EnvironmentInfo => {
-  const [environmentInfo, setEnvironmentInfo] = useState<EnvironmentInfo>({
-    isPreview: false,
-    isProduction: false,
-    hostname: '',
-    useLocalContentData: true // Default to true until we determine environment
+  // Calculate environment info synchronously and deterministically
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  
+  // STRICT: Only localhost and 127.* should use local data
+  const useLocalContentData = hostname === 'localhost' || hostname.startsWith('127.');
+  
+  // ONLY local development should be considered "preview" for data purposes
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  
+  // Lovable preview environments should behave like production for data fetching
+  const isLovablePreview = hostname.includes('lovableproject.com') || 
+                          hostname.endsWith('.lovableproject.com') ||
+                          hostname.includes('lovable.app') ||
+                          hostname.includes('id-preview');
+  
+  // Explicit production domains
+  const productionDomains = [
+    'warcrowarmy.com',
+    'www.warcrowarmy.com',
+    'warcrow-army-builder.netlify.app'
+  ];
+  
+  const isProduction = productionDomains.some(domain => 
+    hostname === domain || hostname.endsWith(`.${domain}`)
+  );
+  
+  // Create the environment info object once, synchronously
+  const [environmentInfo] = useState<EnvironmentInfo>({
+    isPreview: isLovablePreview,
+    isProduction,
+    hostname,
+    useLocalContentData
   });
   
   useEffect(() => {
-    const hostname = window.location.hostname;
-    
-    // ONLY local development should be considered "preview" for data purposes
-    const isLocalDev = hostname === 'localhost' || 
-                      hostname === '127.0.0.1';
-    
-    // Lovable preview environments should behave like production for data fetching
-    const isLovablePreview = hostname.includes('lovableproject.com') || 
-                            hostname.endsWith('.lovableproject.com') ||
-                            hostname.includes('lovable.app') ||
-                            hostname.includes('id-preview');
-    
-    // Explicit production domains
-    const productionDomains = [
-      'warcrowarmy.com',
-      'www.warcrowarmy.com',
-      'warcrow-army-builder.netlify.app'
-    ];
-    
-    const isProduction = productionDomains.some(domain => 
-      hostname === domain || hostname.endsWith(`.${domain}`)
-    );
-    
-    // Check for environment variable override (for build-time configuration)
-    const envUseLocal = typeof window !== 'undefined' && 
-      window.location.search.includes('use_local=true');
-    
-    // NEW LOGIC: Only use local data for actual local development
-    // Preview and production should BOTH use remote data
-    let useLocalContentData: boolean;
-    
-    if (envUseLocal) {
-      useLocalContentData = true;
-      console.warn("[useEnvironment] Forced to use local data via URL parameter");
-    } else if (isLocalDev) {
-      useLocalContentData = true;
-      console.log("[useEnvironment] Local development - using local data");
-    } else {
-      useLocalContentData = false;
-      console.log("[useEnvironment] Remote environment (preview/production) - using database data");
-    }
-    
-    setEnvironmentInfo({
-      isPreview: isLovablePreview, // Still track if it's a preview environment
-      isProduction,
+    // Log environment detection on every app load
+    console.log("[useEnvironment] 🌍 Environment detected on app load:", {
       hostname,
-      useLocalContentData
-    });
-    
-    console.log("[useEnvironment] Environment detected:", { 
-      hostname, 
       isLocalDev,
       isLovablePreview,
       isProduction,
@@ -79,7 +58,34 @@ export const useEnvironment = (): EnvironmentInfo => {
       environmentType: isLocalDev ? 'local-dev' : isLovablePreview ? 'lovable-preview' : isProduction ? 'production' : 'unknown',
       timestamp: new Date().toISOString()
     });
-  }, []);
+    
+    // ERROR CHECK: Detect mismatches and log errors
+    if (!isLocalDev && useLocalContentData) {
+      console.error("[useEnvironment] 🚨 ENVIRONMENT MISMATCH DETECTED!", {
+        hostname,
+        useLocalContentData,
+        shouldBeLocal: false,
+        message: "Remote hostname is trying to use local data - this should never happen!"
+      });
+      
+      // Force reload to prevent inconsistent state
+      setTimeout(() => {
+        console.error("[useEnvironment] 🔄 Reloading app due to environment mismatch");
+        window.location.reload();
+      }, 1000);
+    }
+    
+    // Prevent mode flipping - warn if somehow the state would change
+    const currentUseLocal = hostname === 'localhost' || hostname.startsWith('127.');
+    if (currentUseLocal !== useLocalContentData) {
+      console.error("[useEnvironment] 🚨 MODE FLIPPING DETECTED!", {
+        original: useLocalContentData,
+        computed: currentUseLocal,
+        hostname,
+        message: "Environment mode changed after initial detection - this should never happen!"
+      });
+    }
+  }, []); // Empty dependency array - only run once on mount
   
   return environmentInfo;
 };
