@@ -1,0 +1,37 @@
+
+User-agent: *
+Allow: /
+
+# Allow crawling of main pages
+Allow: /builder
+Allow: /landing
+Allow: /rules
+Allow: /faq
+Allow: /unit-stats
+Allow: /missions
+Allow: /about
+Allow: /privacy-policy
+Allow: /terms-of-service
+
+# Disallow admin pages and user-specific content
+Disallow: /admin
+Disallow: /profile
+Disallow: /login
+Disallow: /reset-password
+Disallow: /mail
+Disallow: /activity
+Disallow: /play
+Disallow: /setup
+Disallow: /deployment
+Disallow: /scoring
+Disallow: /summary
+Disallow: /game
+Disallow: /shared-list
+
+# Allow static assets
+Allow: /art/
+Allow: /lovable-uploads/
+Allow: /fonts/
+
+# Sitemap location
+Sitemap: https://warcrowarmy.com/sitemap.xml
