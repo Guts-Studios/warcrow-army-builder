@@ -41,7 +41,6 @@ export const Header = ({
   const { t } = useLanguage();
   const { isWabAdmin, isAuthenticated } = useAuth();
   const { isPreview } = useEnvironment();
-  const todaysDate = format(new Date(), 'MM/dd/yy');
   const [latestNewsItem, setLatestNewsItem] = useState<NewsItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [shownBuildFailureId, setShownBuildFailureId] = useState<string | null>(null);
@@ -375,6 +374,12 @@ export const Header = ({
     }
   };
   
+  // Get the formatted news date
+  const getNewsDateDisplay = () => {
+    if (!latestNewsItem?.date) return format(new Date(), 'MM/dd/yy');
+    return format(new Date(latestNewsItem.date), 'MM/dd/yy');
+  };
+  
   return (
     <div className="text-center space-y-6 md:space-y-8">
       <img 
@@ -423,7 +428,7 @@ export const Header = ({
       
       <div className="bg-warcrow-accent/50 p-3 md:p-4 rounded-lg">
         <div className="flex justify-between items-center mb-2">
-          <p className="text-warcrow-gold font-semibold text-sm md:text-base">News {todaysDate}</p>
+          <p className="text-warcrow-gold font-semibold text-sm md:text-base">News as of {getNewsDateDisplay()}</p>
           <NewsArchiveDialog 
             triggerClassName="text-warcrow-gold hover:text-warcrow-gold/80 text-sm" 
             authReady={authReady}
