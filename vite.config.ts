@@ -41,6 +41,14 @@ export default defineConfig(({ mode }) => ({
       'X-Frame-Options': 'ALLOWALL'
     }
   },
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        sourcemapExcludeSources: false
+      }
+    }
+  },
   plugins: [
     extractVersionPlugin(),
     react(),
