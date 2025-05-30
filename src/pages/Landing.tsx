@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog,
@@ -33,7 +33,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { SupportButton } from "@/components/landing/SupportButton";
-import { AuthStateDemo } from "@/components/auth/AuthStateDemo";
+
+// Lazy load admin-only components
+const AuthStateDemo = lazy(() => import("@/components/auth/AuthStateDemo"));
 
 const fetchUserCount = async (useLocalData: boolean) => {
   if (useLocalData) {
