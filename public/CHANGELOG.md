@@ -18,7 +18,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Filter by tournament legal or not
 
+## [0.5.12] - 2025-05-30
+
+### Updated
+- Updated some information in Syenann. 
+### Fixed
+- Rebuilt the auth token checking and purging old data if there is a mismatch of versions so no more needing to manually clearing local storage (hopefully, tested it a bunch on our end so we'll see).
+-  Unit cards and data should be 100% now.
+### To Do
+- Lots to do but the most important recent items are related to tournament play. We've added the data but want to carefully adjust the units to show tournament legal or not on the cards and in your lists and without breaking everything
+- 
 ## [0.5.11] - 2025-05-29
+
 
 ### Added 
 - System to clear/purge local cache data on version change to eliminate stale data
