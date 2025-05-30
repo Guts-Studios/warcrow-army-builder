@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { units } from '@/data/factions';
 import { Unit, ApiUnit, Faction } from '@/types/army';
@@ -51,27 +50,44 @@ const localUnits: ApiUnit[] = normalizedLocalUnits.map(unit => ({
   type: 'unit'
 }));
 
-// Fetch units from database
+// Fetch units from database with comprehensive logging
 const fetchUnitsFromDatabase = async (factionId?: string): Promise<ApiUnit[]> => {
-  console.log(`[useUnitData] Fetching units from database for faction: ${factionId || 'all'}`);
+  console.log(`[useUnitData] 🚀 fetchUnitsFromDatabase called for faction: ${factionId || 'all'} - timestamp:`, new Date().toISOString());
   
   try {
     let query = supabase.from('unit_data').select('*');
     
     if (factionId && factionId !== 'all') {
       const normalizedFactionId = normalizeFactionId(factionId);
+      console.log(`[useUnitData] 🔍 Filtering by faction: ${normalizedFactionId}`);
       query = query.eq('faction', normalizedFactionId);
     }
     
+    console.log('[useUnitData] 📡 Executing Supabase query...');
     const { data, error } = await query;
     
+    console.log('[useUnitData] 📊 Supabase response:', {
+      hasData: !!data,
+      dataLength: data?.length || 0,
+      hasError: !!error,
+      error: error?.message || null,
+      factionFilter: factionId,
+      timestamp: new Date().toISOString()
+    });
+    
     if (error) {
-      console.error('[useUnitData] Database error:', error);
+      console.error('[useUnitData] ❌ Database error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
     
     if (!data || data.length === 0) {
-      console.log('[useUnitData] No units found in database, using local fallback');
+      console.warn('[useUnitData] ⚠️ No units found in database, falling back to local data');
       return localUnits;
     }
     
@@ -89,27 +105,38 @@ const fetchUnitsFromDatabase = async (factionId?: string): Promise<ApiUnit[]> =>
       type: unit.type || 'unit'
     }));
     
-    console.log(`[useUnitData] Retrieved ${dbUnits.length} units from database`);
+    console.log(`[useUnitData] ✅ Successfully converted ${dbUnits.length} units from database format`);
     return dbUnits;
     
   } catch (error) {
-    console.error('[useUnitData] Failed to fetch from database:', error);
+    console.error('[useUnitData] ❌ Failed to fetch from database:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     throw error;
   }
 };
 
-// Updated to use environment-aware data source selection
+// Updated to use environment-aware data source selection with comprehensive logging
 export function useUnitData(selectedFaction: string) {
   const { useLocalContentData } = useEnvironment();
   const normalizedSelectedFaction = selectedFaction ? normalizeFactionId(selectedFaction) : 'all';
   
+  console.log('[useUnitData] 🔧 useUnitData called with:', {
+    selectedFaction,
+    normalizedSelectedFaction,
+    useLocalContentData,
+    timestamp: new Date().toISOString()
+  });
+  
   return useQuery({
     queryKey: ['units', normalizedSelectedFaction, useLocalContentData],
     queryFn: async () => {
-      console.log(`[useUnitData] Fetching units for faction: ${normalizedSelectedFaction}, useLocal: ${useLocalContentData}`);
+      console.log(`[useUnitData] 📥 Query function executing for faction: ${normalizedSelectedFaction}, useLocal: ${useLocalContentData}`);
       
       if (useLocalContentData) {
-        console.log('[useUnitData] Using local unit data');
+        console.log('[useUnitData] 🏠 Using local unit data (as configured by environment)');
         let filteredUnits = localUnits;
         if (normalizedSelectedFaction !== 'all') {
           filteredUnits = localUnits.filter(unit => {
@@ -125,14 +152,20 @@ export function useUnitData(selectedFaction: string) {
           });
         }
         
-        console.log(`[useUnitData] Found ${filteredUnits.length} local units for faction: ${normalizedSelectedFaction}`);
+        console.log(`[useUnitData] ✅ Found ${filteredUnits.length} local units for faction: ${normalizedSelectedFaction}`);
         return filteredUnits;
       } else {
-        console.log('[useUnitData] Using database unit data');
+        console.log('[useUnitData] 🌐 Using database unit data (as configured by environment)');
         try {
-          return await fetchUnitsFromDatabase(normalizedSelectedFaction);
+          const dbUnits = await fetchUnitsFromDatabase(normalizedSelectedFaction);
+          console.log(`[useUnitData] ✅ Successfully fetched ${dbUnits.length} units from database`);
+          return dbUnits;
         } catch (error) {
-          console.error('[useUnitData] Database fetch failed, falling back to local data:', error);
+          console.error('[useUnitData] ❌ Database fetch failed, falling back to local data:', {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString()
+          });
+          
           // Only fall back to local data if database fails
           let filteredUnits = localUnits;
           if (normalizedSelectedFaction !== 'all') {
@@ -145,6 +178,7 @@ export function useUnitData(selectedFaction: string) {
               return unitFaction === normalizedSelectedFaction;
             });
           }
+          console.log(`[useUnitData] 📦 Fallback: returning ${filteredUnits.length} local units`);
           return filteredUnits;
         }
       }

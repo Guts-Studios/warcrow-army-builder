@@ -169,31 +169,52 @@ export const translateContent = async (
   }
 };
 
-// Function to fetch all news items directly from the database with no caching
+// Function to fetch all news items directly from the database with comprehensive logging
 export const fetchNewsItems = async (): Promise<NewsItem[]> => {
   try {
-    // Log the start of the fetch process for debugging
-    console.log('Fetching news items from Supabase without caching...');
+    console.log('[NewsUtils] 🚀 Starting fetchNewsItems - timestamp:', new Date().toISOString());
+    console.log('[NewsUtils] 📡 Attempting Supabase query...');
     
     const { data, error } = await supabase
       .from('news_items')
       .select('*')
       .order('date', { ascending: false });
     
+    console.log('[NewsUtils] 📊 Supabase response received:', {
+      hasData: !!data,
+      dataLength: data?.length || 0,
+      hasError: !!error,
+      error: error?.message || null,
+      timestamp: new Date().toISOString()
+    });
+    
     if (error) {
-      console.error('Error fetching news items:', error);
+      console.error('[NewsUtils] ❌ Supabase error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        timestamp: new Date().toISOString()
+      });
       return [];
     }
     
     if (!data || data.length === 0) {
-      console.log('No news items found in database');
+      console.warn('[NewsUtils] ⚠️ No news items found in database - returning empty array');
       return [];
     }
     
-    console.log(`Found ${data.length} news items in database`);
+    console.log('[NewsUtils] ✅ Processing', data.length, 'news items from database');
     
-    // Process the data
-    const processedData = data.map(item => {
+    // Process the data with detailed logging
+    const processedData = data.map((item, index) => {
+      console.log(`[NewsUtils] Processing item ${index + 1}/${data.length}:`, {
+        id: item.id,
+        news_id: item.news_id,
+        translation_key: item.translation_key,
+        date: item.date
+      });
+      
       // Ensure we have news_id - crucial fix for ID handling
       const newsId = item.news_id || item.id;
       
@@ -211,10 +232,19 @@ export const fetchNewsItems = async (): Promise<NewsItem[]> => {
       };
     });
     
-    console.log(`Processed ${processedData.length} news items successfully`);
+    console.log('[NewsUtils] ✅ Successfully processed news items:', {
+      processedCount: processedData.length,
+      sampleItems: processedData.slice(0, 2),
+      timestamp: new Date().toISOString()
+    });
+    
     return processedData;
   } catch (error) {
-    console.error('Error in fetchNewsItems:', error);
+    console.error('[NewsUtils] ❌ Unexpected error in fetchNewsItems:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     return [];
   }
 };

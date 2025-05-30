@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -44,7 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGuest, setIsGuest] = useState<boolean>(false);
-  const { isPreview, hostname } = useEnvironment();
+  const { isPreview, hostname, useLocalContentData } = useEnvironment();
 
   // Calculate authReady based on loading state
   const authReady = !isLoading && isAuthenticated !== null;
@@ -59,6 +58,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     userId,
     isPreview,
     hostname,
+    useLocalContentData,
+    authReadyStatus: authReady ? 'READY' : 'NOT_READY',
     timestamp: new Date().toISOString()
   });
 
@@ -86,31 +87,62 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to fetch user profile data
+  // Helper function to fetch user profile data with RLS diagnostics
   const fetchUserProfile = async (sessionUserId: string) => {
     console.log("[AuthProvider] 👤 Fetching profile for user:", sessionUserId);
     try {
+      console.log("[AuthProvider] 📡 Executing profile query...");
       const { data, error } = await supabase
         .from('profiles')
         .select('wab_admin, tester')
         .eq('id', sessionUserId)
         .single();
+      
+      console.log("[AuthProvider] 📊 Profile query response:", {
+        hasData: !!data,
+        hasError: !!error,
+        errorMessage: error?.message || null,
+        errorCode: error?.code || null,
+        errorDetails: error?.details || null,
+        userId: sessionUserId,
+        timestamp: new Date().toISOString()
+      });
         
       if (error) {
-        console.error("[AuthProvider] ❌ Profile fetch error:", error.message);
+        console.error("[AuthProvider] ❌ Profile fetch error details:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userId: sessionUserId,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Check if this is an RLS policy violation
+        if (error.message.includes('row-level security') || error.code === 'PGRST116') {
+          console.error("[AuthProvider] 🚨 RLS POLICY VIOLATION - User cannot access their own profile!");
+          toast.error("Profile access denied. Please check authentication.");
+        }
+        
         // Don't throw - continue with default values
         return { wab_admin: false, tester: false };
       }
       
-      console.log("[AuthProvider] ✅ Profile data fetched:", {
+      console.log("[AuthProvider] ✅ Profile data fetched successfully:", {
         wabAdmin: data?.wab_admin,
         tester: data?.tester,
-        userId: sessionUserId
+        userId: sessionUserId,
+        timestamp: new Date().toISOString()
       });
       
       return data || { wab_admin: false, tester: false };
     } catch (err) {
-      console.error("[AuthProvider] ❌ Exception fetching profile:", err);
+      console.error("[AuthProvider] ❌ Exception fetching profile:", {
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        userId: sessionUserId,
+        timestamp: new Date().toISOString()
+      });
       return { wab_admin: false, tester: false };
     }
   };
@@ -121,6 +153,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       hasSession: !!session,
       userId: session?.user?.id,
       skipProfileFetch,
+      sessionDetails: session ? {
+        accessToken: session.access_token ? 'present' : 'missing',
+        refreshToken: session.refresh_token ? 'present' : 'missing',
+        expiresAt: session.expires_at,
+      } : null,
       timestamp: new Date().toISOString()
     });
 
@@ -130,11 +167,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsGuest(false);
       
       if (!skipProfileFetch) {
+        console.log("[AuthProvider] 🔍 Fetching user profile...");
         const profile = await fetchUserProfile(session.user.id);
         const isAdminUser = !!profile.wab_admin;
         setIsAdmin(isAdminUser);
         setIsTester(!!profile.tester);
         setIsWabAdmin(isAdminUser);
+        
+        console.log("[AuthProvider] ✅ Profile set:", {
+          isAdmin: isAdminUser,
+          isTester: !!profile.tester,
+          timestamp: new Date().toISOString()
+        });
       }
     } else {
       console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
@@ -144,8 +188,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       // UPDATED: Only give admin privileges for Lovable preview environments
       // But still try to use real auth first - fallback to demo mode only if needed
-      if (isPreview) {
-        console.log("[AuthProvider] 🔧 Preview mode - granting demo admin privileges as fallback");
+      if (isPreview && !useLocalContentData) {
+        console.log("[AuthProvider] 🔧 Preview mode without local data - granting demo admin privileges as fallback");
         setIsAdmin(true);
         setIsTester(true);
         setIsWabAdmin(true);
@@ -164,6 +208,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       authReady: true,
       isPreview,
       hostname,
+      useLocalContentData,
       timestamp: new Date().toISOString()
     });
   };
@@ -190,6 +235,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log("[AuthProvider] 🚀 Initializing auth...", {
         isPreview,
         hostname,
+        useLocalContentData,
         timestamp: new Date().toISOString()
       });
 
@@ -212,8 +258,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               email: session?.user?.email,
               isPreview,
               hostname,
+              useLocalContentData,
+              eventType: event,
+              sessionValid: !!session && !!session.access_token,
               timestamp: new Date().toISOString()
             });
+            
+            // Special logging for SIGNED_IN events
+            if (event === 'SIGNED_IN') {
+              console.log("[AuthProvider] 🎉 SIGNED_IN event detected - user authenticated successfully!");
+            }
             
             // Handle the auth state change
             await setAuthenticatedState(session);
@@ -228,11 +282,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const { data, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("[AuthProvider] ❌ Session check error:", sessionError);
+          console.error("[AuthProvider] ❌ Session check error:", {
+            message: sessionError.message,
+            details: sessionError.details,
+            hint: sessionError.hint,
+            code: sessionError.code,
+            timestamp: new Date().toISOString()
+          });
+          
           if (mounted) {
             // Only fall back to preview mode if we're in a preview environment AND there's an auth error
-            if (isPreview) {
-              console.log("[AuthProvider] 🔧 Auth error in preview - falling back to demo mode");
+            if (isPreview && !useLocalContentData) {
+              console.log("[AuthProvider] 🔧 Auth error in preview with remote data - falling back to demo mode");
               setPreviewMode();
             } else {
               await setAuthenticatedState(null);
@@ -248,13 +309,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           userEmail: session?.user?.email,
           isPreview,
           hostname,
+          useLocalContentData,
+          sessionValid: !!session && !!session.access_token,
           timestamp: new Date().toISOString()
         });
         
         if (mounted) {
-          // If no session and in preview, fall back to demo mode
-          if (!session && isPreview) {
-            console.log("[AuthProvider] 🔧 No session in preview - using demo mode");
+          // If no session and in preview with remote data, fall back to demo mode
+          if (!session && isPreview && !useLocalContentData) {
+            console.log("[AuthProvider] 🔧 No session in preview with remote data - using demo mode");
             setPreviewMode();
           } else {
             // Set initial state based on existing session (or lack thereof)
@@ -263,11 +326,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         
       } catch (error) {
-        console.error("[AuthProvider] ❌ Fatal error in auth initialization:", error);
+        console.error("[AuthProvider] ❌ Fatal error in auth initialization:", {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          timestamp: new Date().toISOString()
+        });
+        
         if (mounted) {
-          // Fall back to preview mode only if in preview environment
-          if (isPreview) {
-            console.log("[AuthProvider] 🔧 Fatal auth error in preview - falling back to demo mode");
+          // Fall back to preview mode only if in preview environment with remote data
+          if (isPreview && !useLocalContentData) {
+            console.log("[AuthProvider] 🔧 Fatal auth error in preview with remote data - falling back to demo mode");
             setPreviewMode();
           } else {
             await setAuthenticatedState(null);
@@ -285,7 +353,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         authSubscription.unsubscribe();
       }
     };
-  }, []); // Remove isPreview dependency to prevent re-initialization
+  }, []); // Remove dependencies to prevent re-initialization
 
   const value = {
     isAuthenticated,

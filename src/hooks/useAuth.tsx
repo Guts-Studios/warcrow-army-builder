@@ -9,7 +9,7 @@ export function useAuth() {
   // Calculate authReady from context
   const authReady = !authContext.isLoading && authContext.isAuthenticated !== null;
   
-  // Log when authReady changes for debugging
+  // Log when authReady changes for debugging with more detail
   useEffect(() => {
     console.log("[useAuth] 📊 Auth state summary:", {
       isLoading: authContext.isLoading,
@@ -18,8 +18,19 @@ export function useAuth() {
       userId: authContext.userId,
       isWabAdmin: authContext.isWabAdmin,
       isTester: authContext.isTester,
+      isGuest: authContext.isGuest,
+      authReadyTransition: authReady ? 'READY' : 'NOT_READY',
       timestamp: new Date().toISOString()
     });
+    
+    // Log when authReady becomes true for the first time
+    if (authReady && !authContext.isLoading) {
+      console.log("[useAuth] 🎉 AUTH READY - Data fetching can now proceed!", {
+        userId: authContext.userId,
+        isAuthenticated: authContext.isAuthenticated,
+        timestamp: new Date().toISOString()
+      });
+    }
   }, [authContext.isLoading, authContext.isAuthenticated, authReady, authContext.userId]);
 
   return {

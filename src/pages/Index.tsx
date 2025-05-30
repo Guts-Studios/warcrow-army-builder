@@ -7,6 +7,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { PageHeader } from "@/components/common/PageHeader";
+import { DataLoadingDiagnostics } from "@/components/debug/DataLoadingDiagnostics";
 
 const Index = () => {
   const [session, setSession] = React.useState(null);
@@ -38,6 +39,8 @@ const Index = () => {
           <ArmyBuilder session={session} />
         </div>
       </div>
+
+      <DataLoadingDiagnostics />
     </div>
   );
 };

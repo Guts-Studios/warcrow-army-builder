@@ -1,11 +1,13 @@
 
 export const getLatestVersion = (content: string): string => {
   try {
+    console.log('[Version] getLatestVersion called with content length:', content?.length || 0);
+    
     // If we're in a preview environment or the content is empty/invalid,
     // return a default version instead of trying to parse
     if (!content || typeof content !== 'string' || content.trim() === '') {
       console.log('[Version] Empty or invalid changelog content, using default version');
-      return '0.5.8'; // Return current version
+      return '0.5.11'; // Updated to match changelog
     }
 
     // Enhanced HTML detection - more comprehensive check
@@ -14,8 +16,7 @@ export const getLatestVersion = (content: string): string => {
         content.includes('<head>') || 
         content.includes('<body>')) {
       console.log('[Version] Received HTML instead of markdown content, using default version');
-      // Use fallback hardcoded version
-      return '0.5.8'; // Return current version
+      return '0.5.11'; // Updated to match changelog
     }
 
     // Improved regex to better match version patterns in different formats
@@ -24,14 +25,14 @@ export const getLatestVersion = (content: string): string => {
     
     if (!matches || matches.length === 0) {
       console.log('[Version] No version found in changelog content, using default version');
-      return '0.5.8'; // Return current version as fallback
+      return '0.5.11'; // Updated to match changelog
     }
     
     // The versions appear in descending order in the changelog, so the first one is the most recent
     const latestVersionMatch = matches[0].match(versionRegex);
     if (!latestVersionMatch || latestVersionMatch.length < 2) {
       console.log('[Version] Failed to extract version number from match, using default version');
-      return '0.5.8';
+      return '0.5.11';
     }
     
     const version = latestVersionMatch[1];
@@ -39,7 +40,7 @@ export const getLatestVersion = (content: string): string => {
     return version;
   } catch (error) {
     console.error('[Version] Error extracting version from changelog:', error);
-    return '0.5.8';  // Return current version as fallback
+    return '0.5.11';  // Updated to match changelog
   }
 };
 
