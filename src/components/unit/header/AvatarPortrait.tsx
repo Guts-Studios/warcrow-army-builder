@@ -46,8 +46,8 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
           alt={displayName} 
           className="object-cover"
           onError={handleImageError}
-          width="32" 
-          height="32" 
+          width="64" 
+          height="64" 
           loading="lazy" 
         />
       )}

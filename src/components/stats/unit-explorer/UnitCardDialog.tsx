@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -119,8 +118,8 @@ const UnitCardDialog: React.FC<UnitCardDialogProps> = ({
                 setIsLoading(false);
               }}
               onError={handleImageError}
-              width="600"
-              height="400"
+              width="800"
+              height="1120"
               loading="lazy"
               decoding="async"
             />
