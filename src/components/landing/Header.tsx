@@ -176,13 +176,14 @@ export const Header = ({
   // In preview mode, set up some default translations
   useEffect(() => {
     if (isPreview) {
+      const todaysDateFormatted = format(new Date(), 'MM/dd/yy');
       translations["previewNewsKey"] = {
-        en: `News ${todaysDate}: Welcome to the preview environment! This is where you can test the latest features before they go live.`,
-        es: `Noticias ${todaysDate}: ¡Bienvenido al entorno de vista previa! Aquí puedes probar las últimas funciones antes de que se publiquen.`,
-        fr: `Nouvelles ${todaysDate}: Bienvenue dans l'environnement de prévisualisation! C'est ici que vous pouvez tester les dernières fonctionnalités avant leur mise en ligne.`
+        en: `News ${todaysDateFormatted}: Welcome to the preview environment! This is where you can test the latest features before they go live.`,
+        es: `Noticias ${todaysDateFormatted}: ¡Bienvenido al entorno de vista previa! Aquí puedes probar las últimas funciones antes de que se publiquen.`,
+        fr: `Nouvelles ${todaysDateFormatted}: Bienvenue dans l'environnement de prévisualisation! C'est ici que vous pouvez tester les dernières fonctionnalités avant leur mise en ligne.`
       };
     }
-  }, [todaysDate, isPreview]);
+  }, [isPreview]);
   
   // Load news immediately when auth is ready
   useEffect(() => {
