@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -16,33 +17,18 @@ function App() {
     if (typeof window === 'undefined') return;
     
     const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('localhost:') || hostname.startsWith('127.0.0.1:');
+    const isLovablePreview = hostname.includes('lovableproject.com') || hostname.endsWith('.lovableproject.com') || hostname.includes('lovable.app');
+    const isCanonicalDomain = hostname === 'warcrowarmy.com' || hostname === 'www.warcrowarmy.com';
     
-    // Production domains that should NOT redirect
-    const productionDomains = [
-      'warcrowarmy.com',
-      'www.warcrowarmy.com'
-    ];
+    // Only redirect if:
+    // 1. Not on localhost/development
+    // 2. Not on Lovable preview domains
+    // 3. Not already on canonical domain
+    // 4. Actually on a Netlify domain that needs redirecting
+    const isNetlifyDomain = hostname.includes('netlify.app') || hostname.includes('netlify.com');
     
-    // Development/preview domains that should NOT redirect
-    const developmentDomains = [
-      'localhost',
-      '127.0.0.1'
-    ];
-    
-    // Lovable/preview domains that should NOT redirect
-    const isLovablePreview = hostname.includes('lovableproject.com') || 
-                            hostname.endsWith('.lovableproject.com') ||
-                            hostname.includes('lovable.app') ||
-                            hostname.includes('id-preview');
-    
-    // Check if we're on a domain that should not redirect
-    const shouldNotRedirect = 
-      productionDomains.some(domain => hostname === domain) ||
-      developmentDomains.some(domain => hostname === domain || hostname.startsWith(domain)) ||
-      isLovablePreview;
-    
-    // Only redirect if we're NOT on an exempt domain
-    if (!shouldNotRedirect) {
+    if (!isLocalhost && !isLovablePreview && !isCanonicalDomain && isNetlifyDomain) {
       console.log('[App] Redirecting to canonical domain warcrowarmy.com from:', hostname);
       window.location.replace(
         `https://warcrowarmy.com${window.location.pathname}${window.location.search}${window.location.hash}`

@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AdminOnly } from "@/utils/adminUtils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, RefreshCw, FileText, AlertCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +13,7 @@ import { useEnvironment } from "@/hooks/useEnvironment";
 
 const ChangelogEditor = () => {
   const navigate = useNavigate();
-  const { isWabAdmin } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
   const { isPreview } = useEnvironment();
   const [changelog, setChangelog] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -102,7 +101,11 @@ const ChangelogEditor = () => {
   };
 
   return (
-    <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
+    <AdminOnly 
+      isAuthenticated={isAuthenticated} 
+      isWabAdmin={isWabAdmin} 
+      fallback={null}
+    >
       <div className="min-h-screen bg-warcrow-background text-warcrow-text p-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6 flex items-center justify-between">

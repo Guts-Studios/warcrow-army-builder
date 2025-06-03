@@ -1,12 +1,18 @@
 
-# Force redirect to canonical domain - this must be first
+# Force redirect to canonical domain - only for specific Netlify domains
 [[redirects]]
-  from = "/*"
+  from = "https://warcrow-army-builder.netlify.app/*"
   to = "https://warcrowarmy.com/:splat"
   status = 301
   force = true
-  conditions = {Host = ["!warcrowarmy.com"]}
 
+[[redirects]]
+  from = "https://warcrowarmy.netlify.app/*"
+  to = "https://warcrowarmy.com/:splat"
+  status = 301
+  force = true
+
+# Catch-all for SPA routing - this must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"

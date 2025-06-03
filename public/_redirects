@@ -1,4 +1,7 @@
 
-# Force all traffic to canonical domain warcrowarmy.com
-# This will redirect any access from Netlify/Lovable subdomains to the main domain
-/*    https://warcrowarmy.com/:splat    301!
+# Specific Netlify domain redirects to canonical domain
+https://warcrow-army-builder.netlify.app/* https://warcrowarmy.com/:splat 301!
+https://warcrowarmy.netlify.app/* https://warcrowarmy.com/:splat 301!
+
+# SPA fallback for warcrowarmy.com - must be last
+/* /index.html 200
