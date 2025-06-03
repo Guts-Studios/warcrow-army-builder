@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AdminOnly } from "@/utils/adminUtils";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
 
 const AdminAlerts = () => {
   const navigate = useNavigate();
@@ -15,45 +15,19 @@ const AdminAlerts = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAlerts();
+    // Since there's no alerts table in the database, we'll simulate loading
+    // In a real implementation, you would need to create an alerts table first
+    setLoading(true);
+    setTimeout(() => {
+      setAlerts([]); // No alerts to show since table doesn't exist
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  const fetchAlerts = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('alerts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching alerts:", error);
-        return;
-      }
-
-      setAlerts(data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const dismissAlert = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('alerts')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error("Error dismissing alert:", error);
-        return;
-      }
-
-      // Optimistically update the UI
-      setAlerts(alerts.filter(alert => alert.id !== id));
-    } catch (error) {
-      console.error("Error dismissing alert:", error);
-    }
+    // Placeholder function - would need alerts table to implement
+    console.log("Would dismiss alert with id:", id);
+    setAlerts(alerts.filter(alert => alert.id !== id));
   };
 
   return (
@@ -83,6 +57,13 @@ const AdminAlerts = () => {
             <div className="text-center">Loading alerts...</div>
           ) : (
             <div className="space-y-4">
+              <Alert className="bg-blue-900/50 border-blue-600">
+                <Bell className="h-4 w-4" />
+                <AlertDescription className="text-blue-200">
+                  Alert system is not yet configured. The alerts table needs to be created in the database to enable this functionality.
+                </AlertDescription>
+              </Alert>
+              
               {alerts.length === 0 ? (
                 <Alert className="bg-green-900/50 border-green-600">
                   <CheckCircle className="h-4 w-4" />
