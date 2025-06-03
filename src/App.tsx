@@ -12,6 +12,20 @@ import { AppRoutes } from '@/components/routing/AppRoutes';
 function App() {
   const [versionChecked, setVersionChecked] = useState(false);
 
+  // Force redirect to canonical domain
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'warcrowarmy.com'
+    ) {
+      console.log('[App] Redirecting to canonical domain warcrowarmy.com');
+      window.location.replace(
+        `https://warcrowarmy.com${window.location.pathname}${window.location.search}${window.location.hash}`
+      );
+      return; // Exit early since we're redirecting
+    }
+  }, []);
+
   useEffect(() => {
     // Run version check as the very first thing - this is critical to prevent stale data
     const runVersionCheck = async () => {

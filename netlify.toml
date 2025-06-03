@@ -1,4 +1,12 @@
 
+# Force redirect to canonical domain - this must be first
+[[redirects]]
+  from = "/*"
+  to = "https://warcrowarmy.com/:splat"
+  status = 301
+  force = true
+  conditions = {Host = ["!warcrowarmy.com"]}
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

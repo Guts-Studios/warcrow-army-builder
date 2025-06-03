@@ -1,0 +1,4 @@
+
+# Force all traffic to canonical domain warcrowarmy.com
+# This will redirect any access from Netlify/Lovable subdomains to the main domain
+/*    https://warcrowarmy.com/:splat    301!
