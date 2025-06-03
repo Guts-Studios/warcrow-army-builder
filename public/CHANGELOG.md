@@ -17,6 +17,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Playmode
 - Game sync during play mode
 - Filter by tournament legal or not
+  
+## [0.5.13] - 2025-06-03
+
+### Added
+- Redirects from the old links to the main domain site (might be work in progress need more testing)
 
 ## [0.5.12] - 2025-05-30
 
