@@ -1,18 +1,28 @@
-
-# Force redirect to canonical domain - only for specific Netlify domains
+# Redirect Netlify subdomain to main domain
 [[redirects]]
-  from = "https://warcrow-army-builder.netlify.app/*"
+  from = "/*"
   to = "https://warcrowarmy.com/:splat"
   status = 301
   force = true
+  conditions = { Host = "warcrowarmybuilder.netlify.app" }
+
+# Supabase auth and login routes
+[[redirects]]
+  from = "/auth/*"
+  to = "/auth/:splat"
+  status = 200
 
 [[redirects]]
-  from = "https://warcrowarmy.netlify.app/*"
-  to = "https://warcrowarmy.com/:splat"
-  status = 301
-  force = true
+  from = "/login"
+  to = "/index.html"
+  status = 200
 
-# Catch-all for SPA routing - this must be last
+[[redirects]]
+  from = "/logout"
+  to = "/login"
+  status = 302
+
+# Catch-all for SPA routing - must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -21,15 +31,18 @@
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
 
-# Add cache headers for assets - no caching for HTML and API responses
+# Disable caching for HTML & API
 [[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "*"
 
-# Long-term cache for JavaScript and CSS files (1 year)
+# Long-term cache for JS, CSS, fonts, images
 [[headers]]
   for = "/assets/*.js"
   [headers.values]
@@ -40,70 +53,11 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Long-term cache for other static assets in the assets folder
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Long-term cache for images - one year cache
-[[headers]]
-  for = "/*.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.jpeg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.png"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.webp"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.gif"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.ico"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# Long-term cache for fonts
-[[headers]]
-  for = "/*.woff"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.woff2"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.ttf"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.otf"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# Long-term cache for art and image directories
 [[headers]]
   for = "/art/*"
   [headers.values]
@@ -114,27 +68,17 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Add CORS headers to ensure API requests work properly
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "*"
+# Image formats
+[[headers]]  for = "/*.jpg"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.jpeg"  [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.png"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.webp"  [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.gif"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.svg"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.ico"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
 
-# Ensure Supabase auth paths work properly
-[[redirects]]
-  from = "/auth/*"
-  to = "/auth/:splat"
-  status = 200
-
-# Add explicit redirects for login and authentication flows
-[[redirects]]
-  from = "/login"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/logout"
-  to = "/login"
-  status = 302
+# Fonts
+[[headers]]  for = "/*.woff"  [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.woff2" [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.ttf"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]  for = "/*.otf"   [headers.values]  Cache-Control = "public, max-age=31536000, immutable"
