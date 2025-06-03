@@ -12,11 +12,29 @@ import PopulateDataButton from '@/components/admin/units/PopulateDataButton';
 
 const DeploymentManagement = () => {
   const navigate = useNavigate();
-  const { isWabAdmin } = useAuth();
+  const { isWabAdmin, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("deployments");
 
   return (
-    <AdminOnly isWabAdmin={isWabAdmin} fallback={null}>
+    <AdminOnly 
+      isAuthenticated={isAuthenticated} 
+      isWabAdmin={isWabAdmin} 
+      fallback={
+        <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold text-warcrow-gold">Access Denied</h1>
+            <p className="text-warcrow-text/80">Administrator privileges required</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+            >
+              Go Home
+            </Button>
+          </div>
+        </div>
+      }
+    >
       <div className="min-h-screen bg-warcrow-background text-warcrow-text p-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 flex items-center justify-between">

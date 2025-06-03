@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import React from 'react';
 
@@ -83,20 +84,23 @@ export const revokeWabAdmin = async (
 
 interface AdminOnlyProps {
   children: React.ReactNode;
+  isAuthenticated: boolean | null;
   isWabAdmin: boolean;
   fallback?: React.ReactNode;
 }
 
 export function AdminOnly(props: AdminOnlyProps) {
-  const { children, isWabAdmin, fallback = null } = props;
+  const { children, isAuthenticated, isWabAdmin, fallback = null } = props;
   
   console.log('AdminOnly component - Access check:', { 
+    isAuthenticated,
     isWabAdmin, 
-    accessGranted: !!isWabAdmin,
-    componentDisplayed: isWabAdmin ? 'Admin content' : 'Fallback or null'
+    accessGranted: isAuthenticated === true && isWabAdmin === true,
+    componentDisplayed: (isAuthenticated === true && isWabAdmin === true) ? 'Admin content' : 'Fallback or null'
   });
   
-  if (!isWabAdmin) {
+  // Only show admin content if user is authenticated AND has admin privileges
+  if (isAuthenticated !== true || !isWabAdmin) {
     return <>{fallback}</>;
   }
 

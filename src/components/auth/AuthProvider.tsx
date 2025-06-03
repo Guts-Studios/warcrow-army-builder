@@ -217,14 +217,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } else {
         console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
-        
-        // Handle preview mode fallback for remote data environments
-        if (isPreview && !useLocalContentData) {
-          console.log("[AuthProvider] 🔧 Preview mode without local data - granting demo admin privileges as fallback");
-          finalizeAuthState(false, null, true, true, true, true);
-        } else {
-          finalizeAuthState(false, null, false, false, false, true);
-        }
+        // Always set guest state when not authenticated, regardless of environment
+        finalizeAuthState(false, null, false, false, false, true);
       }
     } catch (error) {
       console.error("[AuthProvider] ❌ Error in setAuthenticatedState:", {
@@ -235,13 +229,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // CRITICAL: Even on error, finalize the state to prevent stuck loading
       finalizeAuthState(false, null, false, false, false, true);
     }
-  };
-
-  // Helper function for preview mode (only as fallback)
-  const setPreviewMode = () => {
-    console.log("[AuthProvider] 🔧 Setting up preview mode as fallback");
-    finalizeAuthState(true, "preview-user-id", true, true, true, false);
-    console.log("[AuthProvider] ✅ Preview mode setup complete");
   };
 
   useEffect(() => {
@@ -261,11 +248,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       timeoutId = setTimeout(() => {
         if (mounted) {
           console.warn("[AuthProvider] ⏰ Auth initialization timeout - forcing completion");
-          if (isPreview && !useLocalContentData) {
-            setPreviewMode();
-          } else {
-            finalizeAuthState(false, null, false, false, false, true);
-          }
+          finalizeAuthState(false, null, false, false, false, true);
         }
       }, 10000);
 
@@ -341,13 +324,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               timeoutId = null;
             }
             
-            // Only fall back to preview mode if we're in a preview environment AND there's an auth error
-            if (isPreview && !useLocalContentData) {
-              console.log("[AuthProvider] 🔧 Auth error in preview with remote data - falling back to demo mode");
-              setPreviewMode();
-            } else {
-              finalizeAuthState(false, null, false, false, false, true);
-            }
+            finalizeAuthState(false, null, false, false, false, true);
           }
           return;
         }
@@ -371,14 +348,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             timeoutId = null;
           }
           
-          // If no session and in preview with remote data, fall back to demo mode
-          if (!session && isPreview && !useLocalContentData) {
-            console.log("[AuthProvider] 🔧 No session in preview with remote data - using demo mode");
-            setPreviewMode();
-          } else {
-            // Set initial state based on existing session (or lack thereof)
-            await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
-          }
+          // Set initial state based on existing session (or lack thereof)
+          await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
         }
         
       } catch (error) {
@@ -395,13 +366,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             timeoutId = null;
           }
           
-          // Fall back to preview mode only if in preview environment with remote data
-          if (isPreview && !useLocalContentData) {
-            console.log("[AuthProvider] 🔧 Fatal auth error in preview with remote data - falling back to demo mode");
-            setPreviewMode();
-          } else {
-            finalizeAuthState(false, null, false, false, false, true);
-          }
+          finalizeAuthState(false, null, false, false, false, true);
         }
       }
     };

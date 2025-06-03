@@ -15,19 +15,18 @@ import ValidationsPanel from '@/components/admin/validations/ValidationsPanel';
 import DebugPanel from '@/components/admin/DebugPanel';
 import CsvSyncManager from '@/components/admin/CsvSyncManager';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Home } from 'lucide-react';
+import { ChevronLeft, Home, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useEnvironment } from '@/hooks/useEnvironment';
 import { useEnsureDefaultFactions } from '@/hooks/useEnsureDefaultFactions';
 import FactionManager from '@/components/admin/units/FactionManager';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { isAuthenticated, isWabAdmin, isLoading } = useAuth();
-  const { isPreview } = useEnvironment();
   
   // Use our hook to ensure default factions exist
   useEnsureDefaultFactions();
@@ -43,19 +42,14 @@ const Admin = () => {
       console.log("Admin page: Checking access with:", {
         isAuthenticated,
         isWabAdmin,
-        isPreview,
         isLoading
       });
 
-      // ACCESS CONTROL LOGIC:
-      // 1. In preview environments: Always allow access regardless of authentication or admin status
-      // 2. In production: Only allow access if user is both authenticated AND has admin privileges
-      
-      const hasAccess = isPreview || (isAuthenticated === true && isWabAdmin === true);
+      // ACCESS CONTROL: Only allow access if user is authenticated AND has admin privileges
+      const hasAccess = isAuthenticated === true && isWabAdmin === true;
       
       if (!hasAccess) {
-        console.log("Admin page: Access denied, redirecting to home");
-        navigate('/');
+        console.log("Admin page: Access denied, user is not authenticated admin");
         return;
       }
       
@@ -63,7 +57,7 @@ const Admin = () => {
     };
     
     checkAdminAccess();
-  }, [navigate, isAuthenticated, isWabAdmin, isPreview, isLoading]);
+  }, [navigate, isAuthenticated, isWabAdmin, isLoading]);
   
   // Show loading spinner while authentication is being determined
   if (isLoading) {
@@ -77,7 +71,50 @@ const Admin = () => {
     );
   }
   
-  // Show admin content only after auth state is fully determined
+  // If user is not authenticated or not an admin, show access denied
+  if (isAuthenticated !== true || !isWabAdmin) {
+    return (
+      <div className="min-h-screen bg-warcrow-background text-warcrow-text flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <Alert variant="destructive" className="bg-red-900/50 border-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="text-red-200">
+              Access Denied: Administrator privileges required
+            </AlertDescription>
+          </Alert>
+          
+          <div className="space-y-4">
+            <h1 className="text-2xl font-bold text-warcrow-gold">Restricted Area</h1>
+            <p className="text-warcrow-text/80">
+              You need to be logged in with administrator privileges to access this page.
+            </p>
+            
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="border-warcrow-gold/50 text-warcrow-gold hover:bg-warcrow-gold/10"
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Go Home
+              </Button>
+              
+              {isAuthenticated !== true && (
+                <Button
+                  variant="gold"
+                  onClick={() => navigate('/login')}
+                >
+                  Login
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show admin content only for authenticated admins
   return (
     <div className="min-h-screen bg-warcrow-background text-warcrow-text">
       {/* Main navigation bar */}
@@ -94,9 +131,6 @@ const Admin = () => {
               {t('backToSite')}
             </Button>
             <h1 className="text-xl font-bold text-warcrow-gold">Admin Panel</h1>
-            {isPreview && (
-              <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">PREVIEW MODE</span>
-            )}
           </div>
           
           <div className="flex items-center gap-2">
@@ -129,6 +163,7 @@ const Admin = () => {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
+          
           <TabsContent value="dashboard">
             <AdminTabContent title="Dashboard">
               <AdminDashboard />
