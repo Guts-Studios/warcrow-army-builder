@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -12,18 +11,46 @@ import { AppRoutes } from '@/components/routing/AppRoutes';
 function App() {
   const [versionChecked, setVersionChecked] = useState(false);
 
-  // Force redirect to canonical domain
+  // Force redirect to canonical domain only in production
   useEffect(() => {
-    if (
-      typeof window !== 'undefined' &&
-      window.location.hostname !== 'warcrowarmy.com'
-    ) {
-      console.log('[App] Redirecting to canonical domain warcrowarmy.com');
+    if (typeof window === 'undefined') return;
+    
+    const hostname = window.location.hostname;
+    
+    // Production domains that should NOT redirect
+    const productionDomains = [
+      'warcrowarmy.com',
+      'www.warcrowarmy.com'
+    ];
+    
+    // Development/preview domains that should NOT redirect
+    const developmentDomains = [
+      'localhost',
+      '127.0.0.1'
+    ];
+    
+    // Lovable/preview domains that should NOT redirect
+    const isLovablePreview = hostname.includes('lovableproject.com') || 
+                            hostname.endsWith('.lovableproject.com') ||
+                            hostname.includes('lovable.app') ||
+                            hostname.includes('id-preview');
+    
+    // Check if we're on a domain that should not redirect
+    const shouldNotRedirect = 
+      productionDomains.some(domain => hostname === domain) ||
+      developmentDomains.some(domain => hostname === domain || hostname.startsWith(domain)) ||
+      isLovablePreview;
+    
+    // Only redirect if we're NOT on an exempt domain
+    if (!shouldNotRedirect) {
+      console.log('[App] Redirecting to canonical domain warcrowarmy.com from:', hostname);
       window.location.replace(
         `https://warcrowarmy.com${window.location.pathname}${window.location.search}${window.location.hash}`
       );
       return; // Exit early since we're redirecting
     }
+    
+    console.log('[App] No redirect needed, running on:', hostname);
   }, []);
 
   useEffect(() => {
