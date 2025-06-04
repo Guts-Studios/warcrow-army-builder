@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -131,7 +130,7 @@ export const syenannCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
+    command: 1,
     specialRules: ["Place (10)", "Shove (4)"],
     imageUrl: "/art/card/ynyr_dara_lainn_card.jpg"
   }
