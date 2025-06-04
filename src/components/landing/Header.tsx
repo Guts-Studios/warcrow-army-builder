@@ -319,14 +319,12 @@ export const Header = ({
     const hasHtmlTags = /<[^>]*>/.test(content);
     
     if (hasHtmlTags) {
-      // Render as HTML with sanitization
+      // Render as HTML with sanitization - removed forced centering
       return (
-        <div className="max-w-2xl mx-auto">
-          <SafeHtmlRenderer 
-            html={content} 
-            className="text-sm md:text-base [&>p]:mb-2 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm" 
-          />
-        </div>
+        <SafeHtmlRenderer 
+          html={content} 
+          className="text-sm md:text-base [&>p]:mb-2 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm" 
+        />
       );
     } else {
       // Handle plain text with date highlighting
