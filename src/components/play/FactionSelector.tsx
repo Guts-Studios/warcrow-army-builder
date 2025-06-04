@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Check, Shield, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -29,6 +28,9 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
     refetch,
     isRefetching
   } = useFactions(language);
+
+  // Sort factions alphabetically
+  const sortedNations = [...nations].sort((a, b) => a.name.localeCompare(b.name));
 
   useEffect(() => {
     if (nations.length === 0 && !isLoading && !isError) {
@@ -103,7 +105,7 @@ const FactionSelector: React.FC<NationSelectorProps> = ({
       animate="visible"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {nations.map((faction) => (
+        {sortedNations.map((faction) => (
           <motion.div
             key={faction.id}
             whileHover={{ scale: 1.02 }}

@@ -34,6 +34,9 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
   isLoadingFactions = false,
   onRefreshFactions
 }) => {
+  // Sort factions alphabetically
+  const sortedFactions = [...factions].sort((a, b) => a.name.localeCompare(b.name));
+
   const handleRefreshFactions = () => {
     if (onRefreshFactions) {
       toast.promise(onRefreshFactions(), {
@@ -80,7 +83,7 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
                     {t('loading')}
                   </div>
                 ) : (
-                  factions.find(f => f.id === selectedFaction)?.name || t('selectFaction')
+                  sortedFactions.find(f => f.id === selectedFaction)?.name || t('selectFaction')
                 )}
               </SelectValue>
             </SelectTrigger>
@@ -93,8 +96,8 @@ export const UnitFilters: React.FC<UnitFiltersProps> = ({
                   <Loader2 className="animate-spin h-4 w-4 mr-2" />
                   {t('loading')}
                 </div>
-              ) : factions.length > 0 ? (
-                factions.map(faction => (
+              ) : sortedFactions.length > 0 ? (
+                sortedFactions.map(faction => (
                   <SelectItem 
                     key={faction.id} 
                     value={faction.id}

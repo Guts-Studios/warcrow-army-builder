@@ -25,10 +25,11 @@ const FactionSelector = ({ selectedFaction, onFactionChange }: FactionSelectorPr
   
   const [hasFallbackNotified, setHasFallbackNotified] = useState(false);
   
-  // Use fallback factions if needed
-  const displayFactions = availableFactions.length > 0 
+  // Use fallback factions if needed and sort alphabetically
+  const displayFactions = (availableFactions.length > 0 
     ? availableFactions 
-    : fallbackFactions;
+    : fallbackFactions
+  ).sort((a, b) => a.name.localeCompare(b.name));
   
   const handleRefetch = () => {
     toast.promise(refetch(), {
