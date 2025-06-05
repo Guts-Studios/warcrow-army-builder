@@ -188,7 +188,9 @@ const ListManagement = ({
     <div className="space-y-4 w-full">
       {/* Desktop Layout */}
       <div className="hidden md:flex flex-col gap-4 w-full">
-        <NewListButton onNewList={onNewList} />
+        <div className="flex justify-start">
+          <NewListButton onNewList={onNewList} />
+        </div>
         <SaveListSection
           listName={listName}
           onListNameChange={onListNameChange}
@@ -202,7 +204,9 @@ const ListManagement = ({
 
       {/* Mobile Layout */}
       <div className="flex flex-col gap-4 md:hidden w-full">
-        <NewListButton onNewList={onNewList} />
+        <div className="flex justify-start">
+          <NewListButton onNewList={onNewList} />
+        </div>
         <div className="bg-warcrow-accent rounded-lg p-4 w-full">
           <SaveListSection
             listName={listName}
