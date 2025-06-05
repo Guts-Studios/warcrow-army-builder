@@ -1,9 +1,9 @@
 
 import { Unit } from "@/types/army";
 
-export const tattoist: Unit = {
-  id: "tattoist",
-  name: "Tattoist",
+export const tattooist: Unit = {
+  id: "tattooist",
+  name: "Tattooist",
   pointsCost: 15,
   faction: "northern-tribes",
   faction_id: "northern-tribes",
@@ -17,5 +17,5 @@ export const tattoist: Unit = {
   availability: 1,
   command: 0,
   specialRules: [],
-  imageUrl: "/art/card/tattoist_card.jpg"
+  imageUrl: "/art/card/tattooist_card.jpg"
 };

@@ -14,7 +14,7 @@ import { ormuk } from "./characters/ormuk";
 import { prime_warrior } from "./characters/prime_warrior";
 import { revenant } from "./characters/revenant";
 import { selika } from "./characters/selika";
-import { tattoist } from "./characters/tattoist";
+import { tattooist } from "./characters/tattooist";
 import { vercana } from "./characters/vercana";
 import { wisemane } from "./characters/wisemane";
 import { wrathmane } from "./characters/wrathmane";
@@ -32,7 +32,7 @@ export const northernTribesCharacters: Unit[] = [
   prime_warrior,
   revenant,
   selika,
-  tattoist,
+  tattooist,
   vercana,
   wisemane
 ];
