@@ -219,7 +219,7 @@ export const NewsSection = ({ authReady }: NewsSectionProps) => {
     }
   };
 
-  // Function to format news content with highlighted date and HTML support
+  // Function to format news content with HTML support and simplified date highlighting
   const formatNewsContent = (content: string): React.ReactNode => {
     if (!content) return 'Latest news will appear here...';
 
@@ -227,24 +227,23 @@ export const NewsSection = ({ authReady }: NewsSectionProps) => {
     const hasHtmlTags = /<[^>]*>/.test(content);
     
     if (hasHtmlTags) {
-      // Render as HTML with sanitization - removed forced centering
+      // Render as HTML with sanitization - let SafeHtmlRenderer handle all formatting
       return (
         <SafeHtmlRenderer 
           html={content} 
-          className="text-sm md:text-base [&>p]:mb-2 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm" 
+          className="text-sm md:text-base" 
         />
       );
     } else {
-      // Handle plain text with date highlighting
+      // Handle plain text with date highlighting only
       const dateRegex = /(News\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)|(Noticias\s+\d{1,2}\/\d{1,2}\/\d{2,4}:)/;
       
       if (dateRegex.test(content)) {
         const parts = content.split(dateRegex);
-        
         const filteredParts = parts.filter(part => part !== undefined && part !== '');
         
         return (
-          <div className="max-w-2xl mx-auto">
+          <div>
             {filteredParts.map((part, i) => {
               if (dateRegex.test(part)) {
                 return (
@@ -259,7 +258,7 @@ export const NewsSection = ({ authReady }: NewsSectionProps) => {
         );
       }
       
-      return <div className="max-w-2xl mx-auto">{content}</div>;
+      return <div>{content}</div>;
     }
   };
   
