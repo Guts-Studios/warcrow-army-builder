@@ -6,38 +6,24 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ProvidersWrapper } from '@/components/providers/ProvidersWrapper';
 import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
-import { checkVersionAndPurgeStorage } from '@/utils/versionPurge';
+import { checkAndPurgeIfNeeded } from '@/utils/versionPurge';
 import { AppRoutes } from '@/components/routing/AppRoutes';
 
 function App() {
-  const [versionChecked, setVersionChecked] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
-    // Run version check as the very first thing - this is critical to prevent stale data
-    const runVersionCheck = async () => {
-      console.log('[App] 🔍 Running version check before app initialization...');
-      try {
-        const wasStoragePurged = await checkVersionAndPurgeStorage();
-        if (!wasStoragePurged) {
-          // Only continue if storage wasn't purged (which would reload the page)
-          console.log('[App] ✅ Version check complete, proceeding with app initialization');
-          setVersionChecked(true);
-        }
-        // If storage was purged, the page will reload and this component will unmount
-      } catch (error) {
-        console.error('[App] ❌ Version check failed, continuing with app load:', error);
-        setVersionChecked(true);
-      }
-    };
-
-    runVersionCheck();
+    // Check version and purge stale cache if needed (preserves auth & army lists)
+    console.log('[App] 🚀 Checking for stale cache on startup...');
+    checkAndPurgeIfNeeded();
+    setStorageReady(true);
   }, []);
 
-  // Don't render the app until version check is complete
-  if (!versionChecked) {
+  // Don't render the app until storage check is complete
+  if (!storageReady) {
     return (
       <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
-        <div className="text-warcrow-text">Loading...</div>
+        <div className="text-warcrow-text">Initializing...</div>
       </div>
     );
   }
