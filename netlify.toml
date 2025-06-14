@@ -1,3 +1,4 @@
+
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
 
@@ -31,6 +32,28 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# PWA-specific headers - always fetch fresh
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
 
 # Global headers (no-cache, CORS)
 [[headers]]
