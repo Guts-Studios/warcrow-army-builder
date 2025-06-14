@@ -8,6 +8,7 @@ import { ProvidersWrapper } from '@/components/providers/ProvidersWrapper';
 import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 import { checkAndPurgeIfNeeded } from '@/utils/versionPurge';
 import { AppRoutes } from '@/components/routing/AppRoutes';
+import { PWAUpdatePrompt } from '@/components/pwa/PWAUpdatePrompt';
 
 function App() {
   const [storageReady, setStorageReady] = useState(false);
@@ -35,6 +36,7 @@ function App() {
           <UnifiedSearchProvider>
             <AppRoutes />
             <Toaster />
+            <PWAUpdatePrompt />
           </UnifiedSearchProvider>
         </AuthProvider>
       </LanguageProvider>
