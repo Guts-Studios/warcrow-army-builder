@@ -60,6 +60,10 @@ export const Header = ({
         src="https://odqyoncwqawdzhquxcmh.supabase.co/storage/v1/object/public/images/Logo.png?t=2024-12-31T22%3A06%3A03.113Z" 
         alt={t('logoAlt')} 
         className="w-64 md:w-[32rem] mx-auto"
+        width="512"
+        height="256"
+        loading="eager"
+        decoding="async"
       />
       <h1 className="text-2xl md:text-4xl font-bold text-warcrow-gold">
         {t('welcomeMessage')}

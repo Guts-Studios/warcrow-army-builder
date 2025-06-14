@@ -37,6 +37,8 @@ export const PageHeader = ({
                 className="h-12 md:h-16"
                 width="120"
                 height="64"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
