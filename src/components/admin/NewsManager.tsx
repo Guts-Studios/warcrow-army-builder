@@ -130,13 +130,16 @@ export const NewsManager = () => {
     setIsAddingNew(true);
     setEditingIndex(null);
     
-    // Auto-generate initial ID based on today's date
+    // Auto-generate initial ID based on today's date in local timezone
     const today = new Date();
     const formattedDate = format(today, 'yyyyMMdd');
     
+    // Use local date to avoid timezone issues
+    const localDateString = format(today, 'yyyy-MM-dd');
+    
     setNewNews({
       id: `news-${formattedDate}`,
-      date: format(today, 'yyyy-MM-dd'),
+      date: localDateString,
       key: `news${Date.now()}`,
       contentEn: "",
       contentEs: "",
@@ -196,11 +199,14 @@ export const NewsManager = () => {
     if (success) {
       toast.success(`New news "${newNews.id}" added successfully`);
       
-      // Reset form
+      // Reset form with current date
+      const today = new Date();
+      const localDateString = format(today, 'yyyy-MM-dd');
+      
       setIsAddingNew(false);
       setNewNews({
         id: "",
-        date: format(new Date(), 'yyyy-MM-dd'),
+        date: localDateString,
         key: "",
         contentEn: "",
         contentEs: "",

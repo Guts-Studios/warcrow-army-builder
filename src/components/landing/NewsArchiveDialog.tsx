@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -15,6 +16,7 @@ import { translations } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { SafeHtmlRenderer } from "@/components/ui/safe-html-renderer";
 
 interface NewsArchiveDialogProps {
   triggerClassName?: string;
@@ -148,6 +150,30 @@ const NewsArchiveDialog = ({ triggerClassName, authReady }: NewsArchiveDialogPro
       return "Translation error";
     }
   };
+
+  const formatNewsContent = (content: string): React.ReactNode => {
+    if (!content) return 'No content available';
+
+    // Check if content contains HTML tags
+    const hasHtmlTags = /<[^>]*>/.test(content);
+    
+    if (hasHtmlTags) {
+      // Render as HTML with sanitization
+      return (
+        <SafeHtmlRenderer 
+          html={content} 
+          className="text-sm" 
+        />
+      );
+    } else {
+      // Handle plain text with line breaks
+      return content.split('\n').map((line, i) => (
+        <div key={i}>
+          {line}
+        </div>
+      ));
+    }
+  };
   
   return (
     <Dialog>
@@ -184,7 +210,9 @@ const NewsArchiveDialog = ({ triggerClassName, authReady }: NewsArchiveDialogPro
                       {format(new Date(item.date), 'MMM dd, yyyy')}
                     </h3>
                   </div>
-                  <p className="text-warcrow-text">{getTranslatedContent(item.key)}</p>
+                  <div className="text-warcrow-text">
+                    {formatNewsContent(getTranslatedContent(item.key))}
+                  </div>
                 </div>
               ))}
             </div>
