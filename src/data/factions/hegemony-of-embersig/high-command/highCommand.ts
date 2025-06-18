@@ -20,6 +20,24 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     imageUrl: "/art/card/hetman_card.jpg"
   },
   {
+    id: "mounted-hetman",
+    name: "Mounted Hetman",
+    pointsCost: 40,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Cavalry", description: "" },
+      { name: "Character", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Human", description: "" },
+      { name: "Join (Cavalry)", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 2,
+    imageUrl: "/art/card/mounted_hetman_card.jpg"
+  },
+  {
     id: "dragoslav-bjelogric-drago-the-anvil",
     name: "Dragoslav Bjelogríc, Drago the Anvil",
     pointsCost: 40,
