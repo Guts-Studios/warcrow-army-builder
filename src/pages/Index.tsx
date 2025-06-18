@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { PageHeader } from "@/components/common/PageHeader";
 import { DataLoadingDiagnostics } from "@/components/debug/DataLoadingDiagnostics";
+import { ManualCacheButton } from "@/components/cache/ManualCacheButton";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Lazy load the heavy ArmyBuilder component
@@ -51,6 +52,7 @@ const Index = () => {
       </div>
 
       <DataLoadingDiagnostics />
+      <ManualCacheButton />
     </div>
   );
 };
