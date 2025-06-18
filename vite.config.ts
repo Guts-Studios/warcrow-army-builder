@@ -66,6 +66,42 @@ export default defineConfig(({ mode }) => ({
           /version\.json$/,
         ],
         runtimeCaching: [
+          // NetworkFirst for HTML documents to always get fresh content
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 3600 // 1 hour
+              },
+              networkTimeoutSeconds: 3
+            }
+          },
+          // NetworkFirst for version.json to always check for updates
+          {
+            urlPattern: /\/version\.json$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'version-cache',
+              networkTimeoutSeconds: 3
+            }
+          },
+          // NetworkFirst for critical JS/CSS files
+          {
+            urlPattern: /\.(js|css)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'assets-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 86400 // 1 day
+              },
+              networkTimeoutSeconds: 3
+            }
+          },
+          // CacheFirst for Google Fonts (they rarely change)
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
