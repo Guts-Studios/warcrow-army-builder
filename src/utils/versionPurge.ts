@@ -2,6 +2,7 @@
 import { APP_VERSION } from '@/constants/version';
 
 const VERSION_STORAGE_KEY = 'appVersion';
+const TOKEN_VERSION_KEY = 'tokenVersion';
 const ARMY_LIST_PREFIX = 'armyList_';
 
 // Keys that should be preserved (auth, user preferences, etc.)
@@ -51,6 +52,37 @@ export async function clearAllCachesAndSW(): Promise<void> {
 }
 
 /**
+ * Clears only stale authentication tokens while preserving other data
+ */
+export function clearStaleAuthTokens(): void {
+  console.log('[Storage] 🔐 Clearing stale authentication tokens...');
+  
+  try {
+    // Find all Supabase auth-related keys
+    const authKeysToRemove = Object.keys(localStorage).filter(key => 
+      key.includes('supabase.auth') || 
+      key.startsWith('sb-') ||
+      key === 'supabase.auth.token'
+    );
+    
+    authKeysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`[Storage] 🗑️ Removed auth key: ${key}`);
+    });
+    
+    // Clear session storage (may contain temporary auth data)
+    sessionStorage.clear();
+    
+    // Update token version to current app version
+    localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
+    
+    console.log(`[Storage] ✅ Cleared ${authKeysToRemove.length} stale auth tokens`);
+  } catch (error) {
+    console.error('[Storage] ❌ Error clearing stale auth tokens:', error);
+  }
+}
+
+/**
  * Selectively purges only stale app cache data while preserving:
  * - Army lists (armyList_ prefix)
  * - Authentication tokens and session data
@@ -69,7 +101,8 @@ export function purgeStaleAppCache(): void {
         const shouldPreserve = 
           key.startsWith(ARMY_LIST_PREFIX) ||
           PRESERVED_KEYS.some(prefix => key.startsWith(prefix)) ||
-          key === VERSION_STORAGE_KEY;
+          key === VERSION_STORAGE_KEY ||
+          key === TOKEN_VERSION_KEY;
           
         if (shouldPreserve) {
           const value = localStorage.getItem(key);
@@ -92,10 +125,31 @@ export function purgeStaleAppCache(): void {
 
     // Update version to current
     localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+    localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
 
     console.log(`[Storage] ✅ Selective purge complete. Preserved auth tokens and army lists.`);
   } catch (error) {
     console.error('[Storage] ❌ Error during selective purge:', error);
+  }
+}
+
+/**
+ * Checks if authentication tokens need to be cleared due to version changes
+ */
+export function checkTokenVersionAndClear(): void {
+  try {
+    const storedTokenVersion = localStorage.getItem(TOKEN_VERSION_KEY);
+    
+    console.log(`[Storage] 🔐 Token version check: stored=${storedTokenVersion}, current=${APP_VERSION}`);
+    
+    if (storedTokenVersion !== APP_VERSION) {
+      console.log(`[Storage] 🔄 Token version change detected: ${storedTokenVersion} → ${APP_VERSION}`);
+      clearStaleAuthTokens();
+    } else {
+      console.log('[Storage] ✅ Token version unchanged, no token clear needed');
+    }
+  } catch (error) {
+    console.error('[Storage] ❌ Error checking token version:', error);
   }
 }
 
@@ -126,6 +180,9 @@ export function checkAndPurgeIfNeeded(): void {
     } else {
       console.log('[Storage] ✅ Version unchanged, no purge needed');
     }
+    
+    // Also check token version separately
+    checkTokenVersionAndClear();
   } catch (error) {
     console.error('[Storage] ❌ Error checking version:', error);
   }

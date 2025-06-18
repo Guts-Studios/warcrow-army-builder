@@ -2,13 +2,16 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCw, X, Trash2 } from 'lucide-react';
+import { RefreshCw, X, Trash2, Bug } from 'lucide-react';
 import { toast } from 'sonner';
 import { APP_VERSION } from '@/constants/version';
+import { useCacheDiagnostics } from '@/hooks/useCacheDiagnostics';
 
 export const PWAUpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [showDebugOptions, setShowDebugOptions] = useState(false);
+  const { clearStaleAuthData, clearAllCachesAndReload } = useCacheDiagnostics();
   
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -39,6 +42,7 @@ export const PWAUpdatePrompt = () => {
     setNeedRefresh(false);
     setShowPrompt(false);
     setShowAdvancedOptions(false);
+    setShowDebugOptions(false);
   };
 
   const handleUpdate = () => {
@@ -47,38 +51,21 @@ export const PWAUpdatePrompt = () => {
     setShowPrompt(false);
   };
 
-  const clearSWAndReload = () => {
-    console.log('Clearing all caches and service workers...');
-    
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
-    
-    // Clear all storage
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Clear all caches
-    if ('caches' in window) {
-      caches.keys().then(cacheNames => {
-        cacheNames.forEach(cacheName => {
-          caches.delete(cacheName);
-        });
-      });
-    }
-    
-    toast.success('All caches cleared! Reloading...');
-    
-    // Force reload without cache
+  const handleClearStaleAuth = () => {
+    clearStaleAuthData();
+    toast.success('Stale auth data cleared! Please refresh the page.');
     setTimeout(() => {
       window.location.reload();
     }, 1000);
   };
 
+  const handleDiagnostics = () => {
+    // Enable diagnostics for this session
+    const diagnostics = useCacheDiagnostics(true);
+    toast.info('Check browser console for detailed cache diagnostics');
+  };
+
+  // Show prompt if there's an update OR if user is having auth issues
   if (!showPrompt && !needRefresh) return null;
 
   return (
@@ -124,17 +111,48 @@ export const PWAUpdatePrompt = () => {
               ) : (
                 <div className="border-t border-warcrow-accent pt-2 mt-1">
                   <p className="text-xs text-warcrow-text/70 mb-2">
-                    If you're still seeing old content:
+                    If you're still seeing old content or auth issues:
                   </p>
-                  <Button
-                    onClick={clearSWAndReload}
-                    size="sm"
-                    variant="destructive"
-                    className="w-full text-xs"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Clear All Cache & Reload
-                  </Button>
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      onClick={handleClearStaleAuth}
+                      size="sm"
+                      variant="secondary"
+                      className="w-full text-xs"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Clear Auth Data Only
+                    </Button>
+                    <Button
+                      onClick={clearAllCachesAndReload}
+                      size="sm"
+                      variant="destructive"
+                      className="w-full text-xs"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Clear All Cache & Reload
+                    </Button>
+                    {!showDebugOptions ? (
+                      <Button
+                        onClick={() => setShowDebugOptions(true)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs text-warcrow-text/70 hover:text-warcrow-text p-0 h-auto"
+                      >
+                        Still having issues? Debug options
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleDiagnostics}
+                        size="sm"
+                        variant="outline"
+                        className="w-full text-xs"
+                      >
+                        <Bug className="h-3 w-3 mr-1" />
+                        Run Cache Diagnostics
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

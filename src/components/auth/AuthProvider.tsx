@@ -231,10 +231,111 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Check stored auth tokens for debugging
+  const debugStoredTokens = () => {
+    const localToken = localStorage.getItem('supabase.auth.token');
+    const sessionToken = sessionStorage.getItem('supabase.auth.token');
+    
+    console.log("[AuthProvider] 🔍 Stored tokens debug:", {
+      localStorageToken: localToken ? 'present' : 'missing',
+      sessionStorageToken: sessionToken ? 'present' : 'missing',
+      localStorageKeys: Object.keys(localStorage),
+      hasStoredSupabaseData: Object.keys(localStorage).some(key => key.includes('supabase')),
+      timestamp: new Date().toISOString()
+    });
+    
+    // Parse and log token details if present
+    if (localToken) {
+      try {
+        const tokenData = JSON.parse(localToken);
+        console.log("[AuthProvider] 📋 Local token details:", {
+          hasAccessToken: !!tokenData.access_token,
+          hasRefreshToken: !!tokenData.refresh_token,
+          expiresAt: tokenData.expires_at,
+          isExpired: tokenData.expires_at ? new Date(tokenData.expires_at * 1000) < new Date() : 'unknown',
+          userId: tokenData.user?.id,
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error("[AuthProvider] ❌ Failed to parse stored token:", err);
+      }
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     let authSubscription: any = null;
     let timeoutId: NodeJS.Timeout | null = null;
+
+    const restoreSession = async () => {
+      console.log("[AuthProvider] 🚀 Starting session restoration...", {
+        isPreview,
+        hostname,
+        useLocalContentData,
+        timestamp: new Date().toISOString()
+      });
+
+      // Debug stored tokens first
+      debugStoredTokens();
+
+      try {
+        console.log("[AuthProvider] 🔍 Attempting to restore existing session");
+        
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("[AuthProvider] ❌ Session restoration error:", {
+            message: error.message,
+            code: error.code,
+            timestamp: new Date().toISOString()
+          });
+          throw error;
+        }
+        
+        const session = data?.session;
+        console.log("[AuthProvider] 📋 Session restoration result:", {
+          hasSession: !!session,
+          userId: session?.user?.id,
+          userEmail: session?.user?.email,
+          sessionValid: !!session && !!session.access_token,
+          expiresAt: session?.expires_at,
+          isExpired: session?.expires_at ? new Date(session.expires_at * 1000) < new Date() : 'unknown',
+          timestamp: new Date().toISOString()
+        });
+        
+        if (mounted) {
+          if (session?.user) {
+            console.log("[AuthProvider] 🎉 Session restored successfully - user authenticated!");
+            await setAuthenticatedState(session);
+          } else {
+            console.log("[AuthProvider] 🚫 No valid session found - user not authenticated");
+            finalizeAuthState(false, null, false, false, false, true);
+          }
+          
+          // Clear timeout since we successfully restored session
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        }
+      } catch (error) {
+        console.error("[AuthProvider] ❌ Error during session restoration:", {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          timestamp: new Date().toISOString()
+        });
+        
+        if (mounted) {
+          // Clear timeout and finalize state
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          
+          finalizeAuthState(false, null, false, false, false, true);
+        }
+      }
+    };
 
     const initializeAuth = async () => {
       console.log("[AuthProvider] 🚀 Initializing auth...", {
@@ -244,131 +345,71 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         timestamp: new Date().toISOString()
       });
 
-      // Set up timeout fallback - if auth is stuck for 10 seconds, force completion
+      // Set up timeout fallback - if auth is stuck for 8 seconds, force completion
       timeoutId = setTimeout(() => {
         if (mounted) {
           console.warn("[AuthProvider] ⏰ Auth initialization timeout - forcing completion");
           finalizeAuthState(false, null, false, false, false, true);
         }
-      }, 10000);
+      }, 8000);
 
-      try {
-        console.log("[AuthProvider] 🔍 Attempting real authentication for all environments");
-
-        // Set up auth state listener FIRST
-        console.log("[AuthProvider] 👂 Setting up auth state listener");
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            if (!mounted) {
-              console.log("[AuthProvider] 🚫 Component unmounted, ignoring auth change");
-              return;
-            }
-            
-            console.log("[AuthProvider] 🔄 Auth state change event:", event, {
-              hasUser: !!session?.user,
-              userId: session?.user?.id,
-              email: session?.user?.email,
-              isPreview,
-              hostname,
-              useLocalContentData,
-              eventType: event,
-              sessionValid: !!session && !!session.access_token,
-              timestamp: new Date().toISOString()
-            });
-            
-            // Special logging for SIGNED_IN events
-            if (event === 'SIGNED_IN') {
-              console.log("[AuthProvider] 🎉 SIGNED_IN event detected - user authenticated successfully!");
-            }
-            
-            try {
-              // Handle the auth state change
-              await setAuthenticatedState(session);
-              
-              // Clear timeout since we successfully handled auth
-              if (timeoutId) {
-                clearTimeout(timeoutId);
-                timeoutId = null;
-              }
-            } catch (error) {
-              console.error("[AuthProvider] ❌ Error handling auth state change:", {
-                error: error instanceof Error ? error.message : String(error),
-                event,
-                timestamp: new Date().toISOString()
-              });
-              
-              // Ensure we don't get stuck on auth change errors
-              finalizeAuthState(false, null, false, false, false, true);
-            }
+      // Set up auth state listener FIRST
+      console.log("[AuthProvider] 👂 Setting up auth state listener");
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!mounted) {
+            console.log("[AuthProvider] 🚫 Component unmounted, ignoring auth change");
+            return;
           }
-        );
-        
-        authSubscription = subscription;
-        console.log("[AuthProvider] ✅ Auth listener established");
-        
-        // Get initial session
-        console.log("[AuthProvider] 🔍 Checking for existing session");
-        const { data, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("[AuthProvider] ❌ Session check error:", {
-            message: sessionError.message,
-            code: sessionError.code,
+          
+          console.log("[AuthProvider] 🔄 Auth state change event:", event, {
+            hasUser: !!session?.user,
+            userId: session?.user?.id,
+            email: session?.user?.email,
+            isPreview,
+            hostname,
+            useLocalContentData,
+            eventType: event,
+            sessionValid: !!session && !!session.access_token,
             timestamp: new Date().toISOString()
           });
           
-          if (mounted) {
-            // Clear timeout and finalize state
+          // Special logging for important events
+          if (event === 'SIGNED_IN') {
+            console.log("[AuthProvider] 🎉 SIGNED_IN event detected - user authenticated successfully!");
+          } else if (event === 'SIGNED_OUT') {
+            console.log("[AuthProvider] 👋 SIGNED_OUT event detected - user logged out");
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log("[AuthProvider] 🔄 TOKEN_REFRESHED event detected - session updated");
+          }
+          
+          try {
+            // Handle the auth state change
+            await setAuthenticatedState(session);
+            
+            // Clear timeout since we successfully handled auth
             if (timeoutId) {
               clearTimeout(timeoutId);
               timeoutId = null;
             }
+          } catch (error) {
+            console.error("[AuthProvider] ❌ Error handling auth state change:", {
+              error: error instanceof Error ? error.message : String(error),
+              event,
+              timestamp: new Date().toISOString()
+            });
             
+            // Ensure we don't get stuck on auth change errors
             finalizeAuthState(false, null, false, false, false, true);
           }
-          return;
         }
-        
-        const session = data?.session;
-        console.log("[AuthProvider] 📋 Initial session check result:", {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          userEmail: session?.user?.email,
-          isPreview,
-          hostname,
-          useLocalContentData,
-          sessionValid: !!session && !!session.access_token,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (mounted) {
-          // Clear timeout since we're handling the initial state
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-          
-          // Set initial state based on existing session (or lack thereof)
-          await setAuthenticatedState(session, true); // Skip profile fetch since auth listener will handle it
-        }
-        
-      } catch (error) {
-        console.error("[AuthProvider] ❌ Fatal error in auth initialization:", {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (mounted) {
-          // Clear timeout
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-          
-          finalizeAuthState(false, null, false, false, false, true);
-        }
-      }
+      );
+      
+      authSubscription = subscription;
+      console.log("[AuthProvider] ✅ Auth listener established");
+      
+      // Then restore existing session
+      await restoreSession();
     };
 
     initializeAuth();
