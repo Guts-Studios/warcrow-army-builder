@@ -19,41 +19,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     imageUrl: "/art/card/aggressors_card.jpg"
   },
   {
-    id: "black_angels",
-    name: "Black Angels",
-    pointsCost: 30,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Cavalry", description: "" },
-      { name: "Human", description: "" },
-      { name: "Preferred Terrain (Rugged)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Intimidating (2)"],
-    imageUrl: "/art/card/black_angels_card.jpg"
-  },
-  {
-    id: "black_legion_arquebusiers",
-    name: "Black Legion Arquebusiers",
-    pointsCost: 30,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Human", description: "" },
-      { name: "Infantry", description: "" },
-      { name: "Cover (BLK)", description: "" }
-    ],
-    highCommand: false,
-    availability: 2,
-    command: 0,
-    specialRules: ["Frightened"],
-    imageUrl: "/art/card/black_legion_arquebusiers_card.jpg"
-  },
-  {
-    id: "black_legion_bucklermen",
+    id: "black-legion-bucklermen",
     name: "Black Legion Bucklermen",
     pointsCost: 20,
     faction: "hegemony-of-embersig",
@@ -65,8 +31,7 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     highCommand: false,
     availability: 3,
     command: 0,
-    specialRules: [],
-    imageUrl: "/art/card/black_legion_bucklermen_card.jpg"
+    imageUrl: "/art/card/black-legion-bucklermen_card.jpg"
   },
   {
     id: "bulwarks",
@@ -87,6 +52,23 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     imageUrl: "/art/card/bulwarks_card.jpg"
   },
   {
+    id: "black-legion-arquebusiers",
+    name: "Black Legion Arquebusiers",
+    pointsCost: 30,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Human", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Cover (BLK)", description: "" }
+    ],
+    highCommand: false,
+    availability: 2,
+    command: 0,
+    specialRules: ["Frightened"],
+    imageUrl: "/art/card/black-legion-arquebusiers_card.jpg"
+  },
+  {
     id: "pioneers",
     name: "Pioneers",
     pointsCost: 35,
@@ -104,5 +86,22 @@ export const hegemonyOfEmbersigTroops: Unit[] = [
     command: 0,
     specialRules: ["Shove (3)", "Disarmed", "Trap", "Slowed"],
     imageUrl: "/art/card/pioneers_card.jpg"
+  },
+  {
+    id: "black-angels",
+    name: "Black Angels",
+    pointsCost: 30,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Cavalry", description: "" },
+      { name: "Human", description: "" },
+      { name: "Preferred Terrain (Rugged)", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Intimidating (2)"],
+    imageUrl: "/art/card/black-angels_card.jpg"
   }
 ];

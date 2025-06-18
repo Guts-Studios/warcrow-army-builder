@@ -3,7 +3,7 @@ import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigCompanions: Unit[] = [
   {
-    id: "mk_os_automata",
+    id: "mk-os-automata",
     name: "MK-OS Automata",
     pointsCost: 0,
     faction: "hegemony-of-embersig",
@@ -12,8 +12,7 @@ export const hegemonyOfEmbersigCompanions: Unit[] = [
     highCommand: false,
     availability: 3,
     command: 0,
-    specialRules: [],
-    companion: "trabor_slepmund",
-    imageUrl: "/art/card/mk-os_automata_card.jpg"
+    companion: "trabor-slepmund",
+    imageUrl: "/art/card/mk-os-automata_card.jpg"
   }
 ];
