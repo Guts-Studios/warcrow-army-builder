@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Filter by tournament legal or not
   
+## [0.5.14] - 2025-06-18
+
+### Added
+- Mounted Hetman unit added
+- PWA to handle caching issues, still some quirks being worked out
+
 ## [0.5.13] - 2025-06-03
 
 ### Added
