@@ -22,20 +22,19 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
   {
     id: "mounted-hetman",
     name: "Mounted Hetman",
-    pointsCost: 35,
+    pointsCost: 40,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
+      { name: "Cavalry", description: "" },
       { name: "Character", description: "" },
       { name: "High Command", description: "" },
       { name: "Human", description: "" },
-      { name: "Cavalry", description: "" },
       { name: "Join (Cavalry)", description: "" }
     ],
     highCommand: true,
     availability: 1,
-    command: 3,
-    specialRules: ["Swift"],
+    command: 2,
     imageUrl: "/art/card/mounted_hetman_card.jpg"
   },
   {
