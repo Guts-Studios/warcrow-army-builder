@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { ManualCacheButton } from "@/components/cache/ManualCacheButton";
 
 export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => {
   const { t } = useLanguage();
@@ -31,7 +32,7 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
   };
   
   return (
-    <div className="max-w-xs mx-auto px-4 sm:px-0 w-full">
+    <div className="max-w-xs mx-auto px-4 sm:px-0 w-full space-y-4">
       <div className="flex justify-center">
         {!isGuest ? (
           <Button
@@ -58,7 +59,9 @@ export const SecondaryActions = ({ isGuest = false }: { isGuest?: boolean }) => 
         )}
       </div>
 
-      {/* We've kept the About Us button as it was already moved to the top as a SupportButton */}
+      <div className="flex justify-center">
+        <ManualCacheButton />
+      </div>
     </div>
   );
 };

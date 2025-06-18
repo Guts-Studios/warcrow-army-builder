@@ -31,21 +31,19 @@ export const ManualCacheButton: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-40">
-      <Button
-        onClick={handleClearCache}
-        disabled={isClearing}
-        variant="outline"
-        size="sm"
-        className="bg-red-600 hover:bg-red-700 border-red-500 text-white shadow-lg transition-all duration-200 hover:shadow-xl"
-      >
-        {isClearing ? (
-          <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-        ) : (
-          <Trash2 className="h-3 w-3 mr-1" />
-        )}
-        {isClearing ? 'Clearing...' : 'Clear Cache'}
-      </Button>
-    </div>
+    <Button
+      onClick={handleClearCache}
+      disabled={isClearing}
+      variant="outline"
+      size="sm"
+      className="bg-red-600 hover:bg-red-700 border-red-500 text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+    >
+      {isClearing ? (
+        <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+      ) : (
+        <Trash2 className="h-3 w-3 mr-1" />
+      )}
+      {isClearing ? 'Clearing...' : 'Clear Cache'}
+    </Button>
   );
 };

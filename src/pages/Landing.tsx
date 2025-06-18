@@ -33,7 +33,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { SupportButton } from "@/components/landing/SupportButton";
-import { ManualCacheButton } from "@/components/cache/ManualCacheButton";
 
 // Lazy load admin-only components
 const AuthStateDemo = lazy(() => import("@/components/auth/AuthStateDemo"));
@@ -383,8 +382,6 @@ const Landing = () => {
       <div className="mt-auto w-full">
         <Footer />
       </div>
-      
-      <ManualCacheButton />
     </div>
   );
 };
