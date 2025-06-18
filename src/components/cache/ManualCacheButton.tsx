@@ -37,7 +37,7 @@ export const ManualCacheButton: React.FC = () => {
         disabled={isClearing}
         variant="outline"
         size="sm"
-        className="bg-black/80 border-warcrow-gold/50 text-warcrow-text hover:bg-warcrow-gold/20 hover:text-warcrow-gold"
+        className="bg-red-600 hover:bg-red-700 border-red-500 text-white shadow-lg transition-all duration-200 hover:shadow-xl"
       >
         {isClearing ? (
           <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
