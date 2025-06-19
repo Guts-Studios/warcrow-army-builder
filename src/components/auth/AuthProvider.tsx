@@ -341,8 +341,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-warcrow-gold mx-auto mb-4"></div>
           <div>Initializing authentication...</div>
         </div>
-      );
-    }
+      </div>
+    );
   }
 
   const value = {
