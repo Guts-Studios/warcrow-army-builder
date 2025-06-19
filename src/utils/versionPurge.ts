@@ -71,9 +71,29 @@ export async function clearAllCachesAndSW(): Promise<void> {
       }
     }
 
-    // Clear all storage
+    // Clear all storage but preserve cross-environment data
+    const keysToPreserve: Record<string, string> = {};
+    
+    // In production, preserve preview data and vice versa
+    const otherEnvPrefix = ENV_PREFIX === 'preview_' ? 'prod_' : 'preview_';
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(otherEnvPrefix)) {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          keysToPreserve[key] = value;
+        }
+      }
+    }
+    
     localStorage.clear();
     sessionStorage.clear();
+    
+    // Restore other environment's data
+    Object.entries(keysToPreserve).forEach(([key, value]) => {
+      localStorage.setItem(key, value);
+    });
 
     console.log('[Storage] ✅ Nuclear cache clear complete');
   } catch (error) {
@@ -109,6 +129,43 @@ export function clearStaleAuthTokens(): void {
     console.log(`[Storage] ✅ Cleared ${authKeysToRemove.length} stale auth tokens`);
   } catch (error) {
     console.error('[Storage] ❌ Error clearing stale auth tokens:', error);
+  }
+}
+
+/**
+ * Force clear unit cache to ensure fresh data loads
+ */
+export function clearUnitCache(): void {
+  console.log('[Storage] 🎯 Clearing unit data cache...');
+  
+  try {
+    // Clear any cached unit data
+    const unitCacheKeys = Object.keys(localStorage).filter(key => 
+      key.includes('army-builder-units') ||
+      key.includes('unit-data') ||
+      key.includes('faction-units')
+    );
+    
+    unitCacheKeys.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`[Storage] 🗑️ Removed unit cache key: ${key}`);
+    });
+    
+    // Also clear any cached queries from React Query
+    if ('caches' in window) {
+      caches.keys().then(cacheNames => {
+        cacheNames.forEach(cacheName => {
+          if (cacheName.includes('unit') || cacheName.includes('army')) {
+            caches.delete(cacheName);
+            console.log(`[Storage] 🗑️ Deleted unit cache: ${cacheName}`);
+          }
+        });
+      });
+    }
+    
+    console.log('[Storage] ✅ Unit cache cleared');
+  } catch (error) {
+    console.error('[Storage] ❌ Error clearing unit cache:', error);
   }
 }
 
@@ -156,6 +213,9 @@ export function purgeStaleAppCache(): void {
     // Update version to current
     localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
     localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
+    
+    // Force clear unit cache after version update
+    clearUnitCache();
 
     console.log(`[Storage] ✅ Selective purge complete for ${ENV_PREFIX} environment. Preserved auth tokens and army lists.`);
   } catch (error) {
@@ -212,6 +272,12 @@ export function checkAndPurgeIfNeeded(): void {
       }
     } else {
       console.log('[Storage] ✅ Version unchanged, no purge needed');
+      
+      // Even if version is the same, force clear unit cache if in production
+      // to ensure fresh unit data loads
+      if (ENV_PREFIX === 'prod_') {
+        clearUnitCache();
+      }
     }
     
     // Also check token version separately
@@ -240,6 +306,19 @@ if (typeof window !== 'undefined') {
         console.log(`[Storage] 🗑️ Removed preview key: ${key}`);
       }
     }
+    clearUnitCache();
+    location.reload();
+  };
+  
+  (window as any).__resetProd = () => {
+    console.log('[Storage] 🔄 Manual production reset triggered');
+    for (let key in localStorage) {
+      if (key.startsWith('prod_')) {
+        localStorage.removeItem(key);
+        console.log(`[Storage] 🗑️ Removed production key: ${key}`);
+      }
+    }
+    clearUnitCache();
     location.reload();
   };
 }

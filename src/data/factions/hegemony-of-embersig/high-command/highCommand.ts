@@ -59,3 +59,6 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     imageUrl: "/art/card/dragoslav-bjelogric-drago-the-anvil_card.jpg"
   }
 ];
+
+// Debug: Log the units when this module loads
+console.log("[Hegemony High Command] Loaded units:", hegemonyOfEmbersigHighCommand.map(u => u.name));
