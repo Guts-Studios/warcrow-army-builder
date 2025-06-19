@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Trash2, Cloud, HardDrive, RefreshCw } from "lucide-react";
 import { SavedList } from "@/types/army";
@@ -31,30 +30,28 @@ const SavedListsSection = ({
     return typeof list.user_id === 'string' && list.user_id.length > 0;
   };
   
-  // Filter and sort lists whenever savedLists or selectedFaction changes
+  // Sort all lists (not faction-filtered) whenever savedLists changes
   useEffect(() => {
     console.log("SavedListsSection - Received lists:", {
       totalLists: savedLists?.length || 0,
-      selectedFaction,
       isAuthenticated,
       timestamp: new Date().toISOString()
     });
     
-    // Filter lists by faction first, if they're not an empty array
-    const filteredLists = Array.isArray(savedLists) ? 
-      savedLists.filter((list) => list.faction === selectedFaction) : [];
+    // Use all lists, not filtered by faction
+    const allLists = Array.isArray(savedLists) ? savedLists : [];
     
-    if (filteredLists.length === 0) {
-      console.log("No lists found for faction:", selectedFaction);
+    if (allLists.length === 0) {
+      console.log("No lists found");
       setSortedLists([]);
       return;
     }
     
-    console.log(`Found ${filteredLists.length} lists for faction "${selectedFaction}"`);
+    console.log(`Found ${allLists.length} total lists`);
     
     // Create a map to store unique lists, keeping the most recent version of each name
     const uniqueListsMap = new Map();
-    filteredLists.forEach((list) => {
+    allLists.forEach((list) => {
       // If the name already exists, only replace if the current list is newer
       const existingList = uniqueListsMap.get(list.name);
       if (!existingList || new Date(list.created_at) > new Date(existingList.created_at)) {
@@ -77,12 +74,12 @@ const SavedListsSection = ({
     
     // Debug log lists
     sorted.forEach(list => {
-      console.log(`List: ${list.name}, isCloud: ${isCloudList(list)}, userId: ${list.user_id || 'none'}`);
+      console.log(`List: ${list.name}, faction: ${list.faction}, isCloud: ${isCloudList(list)}, userId: ${list.user_id || 'none'}`);
     });
     
     setSortedLists(sorted);
     
-  }, [savedLists, selectedFaction, isAuthenticated, refreshTrigger]);
+  }, [savedLists, isAuthenticated, refreshTrigger]);
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -90,38 +87,34 @@ const SavedListsSection = ({
   };
 
   if (sortedLists.length === 0) {
-    // Check if we have any lists at all and show message accordingly
-    if (savedLists && savedLists.length > 0) {
-      return (
-        <div className="bg-warcrow-accent rounded-lg p-4 w-full">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-semibold text-warcrow-gold">
-              {t('savedLists')}
-            </h3>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-warcrow-accent/50"
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Refresh
-            </Button>
-          </div>
-          <div className="text-center py-3 text-warcrow-text/80">
-            No lists found for "{selectedFaction}" faction.
-          </div>
+    return (
+      <div className="bg-warcrow-accent rounded-lg p-4 w-full">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold text-warcrow-gold">
+            {t('savedLists')}
+          </h3>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-warcrow-gold hover:text-warcrow-gold/80 hover:bg-warcrow-accent/50"
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
         </div>
-      );
-    }
-    return null;
+        <div className="text-center py-3 text-warcrow-text/80">
+          No saved lists found.
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-4 w-full">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold text-warcrow-gold">
-          {t('savedLists')}
+          {t('savedLists')} ({sortedLists.length})
         </h3>
         <div className="flex items-center space-x-2">
           <Button 
@@ -147,7 +140,10 @@ const SavedListsSection = ({
               ) : (
                 <HardDrive className="h-4 w-4 text-warcrow-gold/70" aria-label="Local save" />
               )}
-              <span className="text-warcrow-gold font-medium">{list.name}</span>
+              <div className="flex flex-col">
+                <span className="text-warcrow-gold font-medium">{list.name}</span>
+                <span className="text-xs text-warcrow-text/70">{list.faction}</span>
+              </div>
               {list.wab_id && (
                 <span className="text-xs text-warcrow-gold/70">{list.wab_id.slice(0, 8)}</span>
               )}
