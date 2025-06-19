@@ -1,20 +1,50 @@
 
 import { APP_VERSION } from '@/constants/version';
 
-const VERSION_STORAGE_KEY = 'appVersion';
-const TOKEN_VERSION_KEY = 'tokenVersion';
-const ARMY_LIST_PREFIX = 'armyList_';
+// Environment-specific prefixes to prevent cross-contamination
+const ENV_PREFIX = typeof window !== 'undefined' && window.location.hostname.includes('lovable') ? 'preview_' : 'prod_';
+
+const VERSION_STORAGE_KEY = `${ENV_PREFIX}appVersion`;
+const TOKEN_VERSION_KEY = `${ENV_PREFIX}tokenVersion`;
+const ARMY_LIST_PREFIX = `${ENV_PREFIX}armyList_`;
 
 // Keys that should be preserved (auth, user preferences, etc.)
 const PRESERVED_KEYS = [
-  'sb-', // Supabase auth tokens
-  'supabase.auth.token',
-  'language',
-  'theme',
-  'user-preferences',
-  'auth-token',
-  'session'
+  `${ENV_PREFIX}sb-`, // Supabase auth tokens
+  `${ENV_PREFIX}supabase.auth.token`,
+  `${ENV_PREFIX}language`,
+  `${ENV_PREFIX}theme`,
+  `${ENV_PREFIX}user-preferences`,
+  `${ENV_PREFIX}auth-token`,
+  `${ENV_PREFIX}session`
 ];
+
+/**
+ * One-time migration to clear old global keys that might be causing conflicts
+ */
+export function clearOldGlobalKeys(): void {
+  console.log('[Storage] 🧹 Clearing old global keys to prevent environment conflicts...');
+  
+  const oldGlobalKeys = [
+    'appVersion',
+    'tokenVersion', 
+    'supabase.auth.token',
+    'sb-odqyoncwqawdzhquxcmh-auth-token',
+    'language',
+    'theme'
+  ];
+  
+  // Also clear any armyList_ keys without prefix
+  const allKeys = Object.keys(localStorage);
+  const oldArmyListKeys = allKeys.filter(key => key.startsWith('armyList_') && !key.startsWith(ENV_PREFIX));
+  
+  [...oldGlobalKeys, ...oldArmyListKeys].forEach(key => {
+    if (localStorage.getItem(key)) {
+      localStorage.removeItem(key);
+      console.log(`[Storage] 🗑️ Removed old global key: ${key}`);
+    }
+  });
+}
 
 /**
  * Clears all service workers and caches (nuclear option)
@@ -58,11 +88,11 @@ export function clearStaleAuthTokens(): void {
   console.log('[Storage] 🔐 Clearing stale authentication tokens...');
   
   try {
-    // Find all Supabase auth-related keys
+    // Find all Supabase auth-related keys for this environment
     const authKeysToRemove = Object.keys(localStorage).filter(key => 
       key.includes('supabase.auth') || 
-      key.startsWith('sb-') ||
-      key === 'supabase.auth.token'
+      key.startsWith(`${ENV_PREFIX}sb-`) ||
+      key === `${ENV_PREFIX}supabase.auth.token`
     );
     
     authKeysToRemove.forEach(key => {
@@ -94,7 +124,7 @@ export function purgeStaleAppCache(): void {
   try {
     const keysToPreserve: Record<string, string> = {};
     
-    // Gather keys to preserve
+    // Gather keys to preserve for this environment
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key) {
@@ -113,7 +143,7 @@ export function purgeStaleAppCache(): void {
       }
     }
 
-    console.log(`[Storage] 📦 Preserving ${Object.keys(keysToPreserve).length} important keys`);
+    console.log(`[Storage] 📦 Preserving ${Object.keys(keysToPreserve).length} important keys for ${ENV_PREFIX} environment`);
 
     // Clear all localStorage
     localStorage.clear();
@@ -127,7 +157,7 @@ export function purgeStaleAppCache(): void {
     localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
     localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
 
-    console.log(`[Storage] ✅ Selective purge complete. Preserved auth tokens and army lists.`);
+    console.log(`[Storage] ✅ Selective purge complete for ${ENV_PREFIX} environment. Preserved auth tokens and army lists.`);
   } catch (error) {
     console.error('[Storage] ❌ Error during selective purge:', error);
   }
@@ -140,7 +170,7 @@ export function checkTokenVersionAndClear(): void {
   try {
     const storedTokenVersion = localStorage.getItem(TOKEN_VERSION_KEY);
     
-    console.log(`[Storage] 🔐 Token version check: stored=${storedTokenVersion}, current=${APP_VERSION}`);
+    console.log(`[Storage] 🔐 Token version check (${ENV_PREFIX}): stored=${storedTokenVersion}, current=${APP_VERSION}`);
     
     if (storedTokenVersion !== APP_VERSION) {
       console.log(`[Storage] 🔄 Token version change detected: ${storedTokenVersion} → ${APP_VERSION}`);
@@ -158,9 +188,12 @@ export function checkTokenVersionAndClear(): void {
  */
 export function checkAndPurgeIfNeeded(): void {
   try {
+    // First, clear old global keys that might cause conflicts
+    clearOldGlobalKeys();
+    
     const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     
-    console.log(`[Storage] 🔍 Version check: stored=${storedVersion}, current=${APP_VERSION}`);
+    console.log(`[Storage] 🔍 Version check (${ENV_PREFIX}): stored=${storedVersion}, current=${APP_VERSION}`);
     
     if (storedVersion !== APP_VERSION) {
       console.log(`[Storage] 🔄 Version change detected: ${storedVersion} → ${APP_VERSION}`);
@@ -195,4 +228,18 @@ export function createVersionedFetch(baseUrl: string): string {
   const url = new URL(baseUrl, window.location.origin);
   url.searchParams.set('version', APP_VERSION);
   return url.toString();
+}
+
+// Expose helper for development/testing
+if (typeof window !== 'undefined') {
+  (window as any).__resetPreview = () => {
+    console.log('[Storage] 🔄 Manual preview reset triggered');
+    for (let key in localStorage) {
+      if (key.startsWith('preview_')) {
+        localStorage.removeItem(key);
+        console.log(`[Storage] 🗑️ Removed preview key: ${key}`);
+      }
+    }
+    location.reload();
+  };
 }

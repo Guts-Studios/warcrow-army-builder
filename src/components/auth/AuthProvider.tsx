@@ -88,16 +88,52 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to fetch user profile data with RLS diagnostics
-  const fetchUserProfile = async (sessionUserId: string) => {
+  // Helper function to finalize auth state
+  const finalizeAuthState = (
+    authenticated: boolean, 
+    user: string | null, 
+    admin: boolean, 
+    tester: boolean, 
+    wabAdmin: boolean, 
+    guest: boolean
+  ) => {
+    console.log("[AuthProvider] 🎯 Finalizing auth state:", {
+      authenticated,
+      user,
+      admin,
+      tester,
+      wabAdmin,
+      guest,
+      timestamp: new Date().toISOString()
+    });
+    
+    setIsAuthenticated(authenticated);
+    setUserId(user);
+    setIsAdmin(admin);
+    setIsTester(tester);
+    setIsWabAdmin(wabAdmin);
+    setIsGuest(guest);
+    setIsLoading(false);
+  };
+
+  // Helper function to fetch user profile data with timeout
+  const fetchUserProfile = async (sessionUserId: string): Promise<{ wab_admin: boolean; tester: boolean }> => {
     console.log("[AuthProvider] 👤 Fetching profile for user:", sessionUserId);
+    
     try {
-      console.log("[AuthProvider] 📡 Executing profile query...");
-      const { data, error } = await supabase
+      // Add a timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+      );
+      
+      const profilePromise = supabase
         .from('profiles')
         .select('wab_admin, tester')
         .eq('id', sessionUserId)
         .single();
+      
+      console.log("[AuthProvider] 📡 Executing profile query with timeout...");
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
       
       console.log("[AuthProvider] 📊 Profile query response:", {
         hasData: !!data,
@@ -122,7 +158,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           toast.error("Profile access denied. Please check authentication.");
         }
         
-        // Don't throw - continue with default values
+        // Return default values on error
         return { wab_admin: false, tester: false };
       }
       
@@ -145,9 +181,68 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Helper function to set authenticated state
-  const setAuthenticatedState = async (session: any) => {
-    console.log("[AuthProvider] 🔄 Setting authenticated state:", {
+  // Helper function to restore session with improved error handling
+  const restoreSession = async () => {
+    console.log("[AuthProvider] 🔄 Restoring session...");
+    
+    try {
+      // Clear any potentially corrupted tokens first
+      console.warn("[AuthProvider] 🧹 Flushing old auth tokens from both storages");
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('supabase.auth.token');
+      
+      // Add timeout to prevent infinite hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session restore timeout')), 15000)
+      );
+      
+      console.log("[AuthProvider] ⏳ Awaiting supabase.auth.getSession()...");
+      const sessionPromise = supabase.auth.getSession();
+      
+      let sessionData;
+      let sessionError;
+      try {
+        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        sessionData = result.data;
+        sessionError = result.error;
+        console.log("[AuthProvider] 📦 Session fetch result:", { 
+          hasSession: !!sessionData?.session,
+          hasError: !!sessionError,
+          errorMessage: sessionError?.message || null
+        });
+      } catch (err) {
+        console.error("[AuthProvider] ❌ Exception thrown in getSession:", err);
+        sessionError = err;
+      }
+      
+      if (sessionError || !sessionData?.session) {
+        console.warn("[AuthProvider] ⚠️ No valid session returned - finalizing as guest");
+        finalizeAuthState(false, null, false, false, false, true);
+        return;
+      }
+      
+      const session = sessionData.session;
+      console.log("[AuthProvider] 🎉 Session restored successfully - user authenticated!");
+      
+      // Fetch profile data
+      const profile = await fetchUserProfile(session.user.id);
+      const isAdminUser = !!profile.wab_admin;
+      
+      finalizeAuthState(true, session.user.id, isAdminUser, !!profile.tester, isAdminUser, false);
+    } catch (error) {
+      console.error("[AuthProvider] ❌ Error in restoreSession:", {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      });
+      
+      // Fallback to guest state on any error
+      finalizeAuthState(false, null, false, false, false, true);
+    }
+  };
+
+  // Helper function to set authenticated state from auth change
+  const handleAuthChange = async (session: any) => {
+    console.log("[AuthProvider] 🔄 Handling auth change:", {
       hasSession: !!session,
       userId: session?.user?.id,
       sessionDetails: session ? {
@@ -160,41 +255,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     try {
       if (session?.user?.id) {
-        console.log("[AuthProvider] 🔍 Fetching user profile...");
+        console.log("[AuthProvider] 🔍 Fetching user profile for auth change...");
         const profile = await fetchUserProfile(session.user.id);
         const isAdminUser = !!profile.wab_admin;
         
-        setIsAuthenticated(true);
-        setUserId(session.user.id);
-        setIsAdmin(isAdminUser);
-        setIsTester(!!profile.tester);
-        setIsWabAdmin(isAdminUser);
-        setIsGuest(false);
+        finalizeAuthState(true, session.user.id, isAdminUser, !!profile.tester, isAdminUser, false);
       } else {
-        console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
-        setIsAuthenticated(false);
-        setUserId(null);
-        setIsAdmin(false);
-        setIsTester(false);
-        setIsWabAdmin(false);
-        setIsGuest(true);
+        console.log("[AuthProvider] 🚫 No session in auth change - setting unauthenticated state");
+        finalizeAuthState(false, null, false, false, false, true);
       }
     } catch (error) {
-      console.error("[AuthProvider] ❌ Error in setAuthenticatedState:", {
+      console.error("[AuthProvider] ❌ Error in handleAuthChange:", {
         error: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
       });
       
       // Set fallback state on error
-      setIsAuthenticated(false);
-      setUserId(null);
-      setIsAdmin(false);
-      setIsTester(false);
-      setIsWabAdmin(false);
-      setIsGuest(true);
-    } finally {
-      setIsLoading(false);
-      console.log("[AuthProvider] ✅ Auth state finalized - loading set to false");
+      finalizeAuthState(false, null, false, false, false, true);
     }
   };
 
@@ -239,40 +316,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
             
             // Handle the auth state change
-            await setAuthenticatedState(session);
+            await handleAuthChange(session);
           }
         );
         
         authSubscription = subscription;
         console.log("[AuthProvider] ✅ Auth listener established");
         
-        // THEN check for existing session
-        console.log("[AuthProvider] 🔍 Checking for existing session");
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("[AuthProvider] ❌ Session check error:", error);
-          throw error;
-        }
-        
-        const session = data?.session;
-        console.log("[AuthProvider] 📋 Session check result:", {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          userEmail: session?.user?.email,
-          sessionValid: !!session && !!session.access_token,
-          expiresAt: session?.expires_at,
-          isExpired: session?.expires_at ? new Date(session.expires_at * 1000) < new Date() : 'unknown',
-          timestamp: new Date().toISOString()
-        });
-        
+        // THEN restore session
         if (mounted) {
-          if (session?.user) {
-            console.log("[AuthProvider] 🎉 Session restored successfully - user authenticated!");
-          } else {
-            console.log("[AuthProvider] 🚫 No valid session found - user not authenticated");
-          }
-          await setAuthenticatedState(session);
+          await restoreSession();
         }
       } catch (error) {
         console.error("[AuthProvider] ❌ Error during auth initialization:", {
@@ -283,13 +336,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (mounted) {
           // Set fallback state on error
-          setIsAuthenticated(false);
-          setUserId(null);
-          setIsAdmin(false);
-          setIsTester(false);
-          setIsWabAdmin(false);
-          setIsGuest(true);
-          setIsLoading(false);
+          finalizeAuthState(false, null, false, false, false, true);
         }
       }
     };

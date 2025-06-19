@@ -31,7 +31,17 @@ const getSupabaseAnonKey = () => {
 const SUPABASE_URL = getSupabaseUrl();
 const SUPABASE_PUBLISHABLE_KEY = getSupabaseAnonKey();
 
+// Environment-specific storage key to prevent cross-contamination
+const getStorageKey = () => {
+  if (typeof window !== 'undefined') {
+    const isLovablePreview = window.location.hostname.includes('lovable');
+    return isLovablePreview ? 'preview.supabase.auth.token' : 'prod.supabase.auth.token';
+  }
+  return 'supabase.auth.token';
+};
+
 console.log("[Supabase Client] Initializing with URL:", SUPABASE_URL);
+console.log("[Supabase Client] Using storage key:", getStorageKey());
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +49,7 @@ console.log("[Supabase Client] Initializing with URL:", SUPABASE_URL);
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: getStorageKey(),
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true
