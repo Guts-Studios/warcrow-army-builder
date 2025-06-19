@@ -145,6 +145,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Helper function to finalize auth state
+  const finalizeAuthState = (authenticated: boolean, userId: string | null, admin: boolean, tester: boolean, wabAdmin: boolean, guest: boolean) => {
+    setIsAuthenticated(authenticated);
+    setUserId(userId);
+    setIsAdmin(admin);
+    setIsTester(tester);
+    setIsWabAdmin(wabAdmin);
+    setIsGuest(guest);
+    setIsLoading(false);
+    console.log("[AuthProvider] ✅ Auth state finalized:", { authenticated, userId, admin, tester, wabAdmin, guest });
+  };
+
   // Helper function to set authenticated state
   const setAuthenticatedState = async (session: any) => {
     console.log("[AuthProvider] 🔄 Setting authenticated state:", {
@@ -164,20 +176,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const profile = await fetchUserProfile(session.user.id);
         const isAdminUser = !!profile.wab_admin;
         
-        setIsAuthenticated(true);
-        setUserId(session.user.id);
-        setIsAdmin(isAdminUser);
-        setIsTester(!!profile.tester);
-        setIsWabAdmin(isAdminUser);
-        setIsGuest(false);
+        finalizeAuthState(true, session.user.id, isAdminUser, !!profile.tester, isAdminUser, false);
       } else {
         console.log("[AuthProvider] 🚫 No session - setting unauthenticated state");
-        setIsAuthenticated(false);
-        setUserId(null);
-        setIsAdmin(false);
-        setIsTester(false);
-        setIsWabAdmin(false);
-        setIsGuest(true);
+        finalizeAuthState(false, null, false, false, false, true);
       }
     } catch (error) {
       console.error("[AuthProvider] ❌ Error in setAuthenticatedState:", {
@@ -186,15 +188,71 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       
       // Set fallback state on error
-      setIsAuthenticated(false);
-      setUserId(null);
-      setIsAdmin(false);
-      setIsTester(false);
-      setIsWabAdmin(false);
-      setIsGuest(true);
-    } finally {
-      setIsLoading(false);
-      console.log("[AuthProvider] ✅ Auth state finalized - loading set to false");
+      finalizeAuthState(false, null, false, false, false, true);
+    }
+  };
+
+  // Function to restore session with enhanced debugging
+  const restoreSession = async () => {
+    console.log("[AuthProvider] 🔍 Checking for existing session");
+    
+    try {
+      // Hard flush broken tokens before restoring session
+      console.warn("[AuthProvider] 🧹 Flushing old auth tokens from both storages");
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('supabase.auth.token');
+      
+      let sessionData;
+      let sessionError;
+      try {
+        console.log("[AuthProvider] ⏳ Awaiting supabase.auth.getSession()...");
+        const result = await supabase.auth.getSession();
+        sessionData = result.data;
+        sessionError = result.error;
+        console.log("[AuthProvider] 📦 Session fetch result:", { sessionData, sessionError });
+      } catch (err) {
+        console.error("[AuthProvider] ❌ Exception thrown in getSession:", err);
+        sessionError = err;
+      }
+      
+      if (!sessionData?.session) {
+        console.warn("[AuthProvider] ⚠️ No valid session returned - finalizing as guest");
+        finalizeAuthState(false, null, false, false, false, true);
+        return;
+      }
+      
+      if (sessionError) {
+        console.error("[AuthProvider] ❌ Session check error:", sessionError);
+        finalizeAuthState(false, null, false, false, false, true);
+        return;
+      }
+      
+      const session = sessionData.session;
+      console.log("[AuthProvider] 📋 Session check result:", {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        sessionValid: !!session && !!session.access_token,
+        expiresAt: session?.expires_at,
+        isExpired: session?.expires_at ? new Date(session.expires_at * 1000) < new Date() : 'unknown',
+        timestamp: new Date().toISOString()
+      });
+      
+      if (session?.user) {
+        console.log("[AuthProvider] 🎉 Session restored successfully - user authenticated!");
+      } else {
+        console.log("[AuthProvider] 🚫 No valid session found - user not authenticated");
+      }
+      await setAuthenticatedState(session);
+    } catch (error) {
+      console.error("[AuthProvider] ❌ Error during session restoration:", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Set fallback state on error
+      finalizeAuthState(false, null, false, false, false, true);
     }
   };
 
@@ -247,32 +305,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log("[AuthProvider] ✅ Auth listener established");
         
         // THEN check for existing session
-        console.log("[AuthProvider] 🔍 Checking for existing session");
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("[AuthProvider] ❌ Session check error:", error);
-          throw error;
-        }
-        
-        const session = data?.session;
-        console.log("[AuthProvider] 📋 Session check result:", {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          userEmail: session?.user?.email,
-          sessionValid: !!session && !!session.access_token,
-          expiresAt: session?.expires_at,
-          isExpired: session?.expires_at ? new Date(session.expires_at * 1000) < new Date() : 'unknown',
-          timestamp: new Date().toISOString()
-        });
-        
         if (mounted) {
-          if (session?.user) {
-            console.log("[AuthProvider] 🎉 Session restored successfully - user authenticated!");
-          } else {
-            console.log("[AuthProvider] 🚫 No valid session found - user not authenticated");
-          }
-          await setAuthenticatedState(session);
+          await restoreSession();
         }
       } catch (error) {
         console.error("[AuthProvider] ❌ Error during auth initialization:", {
@@ -283,13 +317,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (mounted) {
           // Set fallback state on error
-          setIsAuthenticated(false);
-          setUserId(null);
-          setIsAdmin(false);
-          setIsTester(false);
-          setIsWabAdmin(false);
-          setIsGuest(true);
-          setIsLoading(false);
+          finalizeAuthState(false, null, false, false, false, true);
         }
       }
     };
@@ -303,7 +331,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         authSubscription.unsubscribe();
       }
     };
-  }, []); // Remove dependencies to prevent re-initialization
+  }, []);
 
   // Show loading state while auth is initializing
   if (isLoading) {
@@ -313,8 +341,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-warcrow-gold mx-auto mb-4"></div>
           <div>Initializing authentication...</div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   const value = {
