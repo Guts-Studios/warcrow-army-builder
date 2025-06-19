@@ -28,7 +28,8 @@ interface ListManagementProps {
   onNewList: () => void;
   savedLists: SavedList[];
   selectedFaction: string;
-  selectedUnits: any[]; // Using any[] for now since we don't have the type
+  selectedUnits: any[];
+  onListsUpdate?: (lists: SavedList[]) => void; // Add callback for updating parent
 }
 
 const ListManagement = ({
@@ -41,17 +42,11 @@ const ListManagement = ({
   savedLists,
   selectedFaction,
   selectedUnits,
+  onListsUpdate,
 }: ListManagementProps) => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
   const [localSavedLists, setLocalSavedLists] = useState<SavedList[]>(savedLists);
   const { isAuthenticated } = useProfileSession();
-
-  // Refresh lists when authentication state changes or component mounts
-  useEffect(() => {
-    if (isAuthenticated !== null) {
-      refreshSavedLists();
-    }
-  }, [isAuthenticated]);
 
   // Update local lists when savedLists prop changes
   useEffect(() => {
@@ -125,10 +120,19 @@ const ListManagement = ({
         });
         
         setLocalSavedLists(combinedLists);
+        
+        // Update parent component if callback is provided
+        if (onListsUpdate) {
+          onListsUpdate(combinedLists);
+        }
       } else {
         // If not authenticated, just use local lists
         const localLists: SavedList[] = JSON.parse(localStorage.getItem('armyLists') || '[]');
         setLocalSavedLists(localLists);
+        
+        if (onListsUpdate) {
+          onListsUpdate(localLists);
+        }
       }
     } catch (error) {
       console.error('Error refreshing lists:', error);
@@ -144,16 +148,22 @@ const ListManagement = ({
   };
 
   const handleDeleteList = async (listId: string) => {
-    const listToRemove = savedLists.find((list) => list.id === listId);
-    if (!listToRemove) return;
+    const listToRemove = localSavedLists.find((list) => list.id === listId);
+    if (!listToRemove) {
+      console.error("List not found for deletion:", listId);
+      return;
+    }
     
     try {
-      // Get all lists with the same name
-      const listsWithSameName = savedLists.filter((list) => list.name === listToRemove.name);
+      console.log("Deleting list:", listToRemove.name);
       
-      // Delete cloud saves
+      // Get all lists with the same name
+      const listsWithSameName = localSavedLists.filter((list) => list.name === listToRemove.name);
+      
+      // Delete cloud saves first
       const cloudLists = listsWithSameName.filter(list => list.user_id);
       if (cloudLists.length > 0) {
+        console.log("Deleting cloud lists:", cloudLists.length);
         const { error } = await supabase
           .from('army_lists')
           .delete()
@@ -167,17 +177,28 @@ const ListManagement = ({
       }
       
       // Update local storage by removing all lists with the same name
-      const updatedLists = savedLists.filter((list) => list.name !== listToRemove.name);
-      localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+      const currentLocalLists = JSON.parse(localStorage.getItem('armyLists') || '[]');
+      const updatedLocalLists = currentLocalLists.filter((list: SavedList) => list.name !== listToRemove.name);
+      localStorage.setItem("armyLists", JSON.stringify(updatedLocalLists));
+      
+      // Update the combined lists by removing all lists with the same name
+      const updatedCombinedLists = localSavedLists.filter((list) => list.name !== listToRemove.name);
+      
+      // Update local state immediately
+      setLocalSavedLists(updatedCombinedLists);
+      
+      // Update parent component if callback is provided
+      if (onListsUpdate) {
+        onListsUpdate(updatedCombinedLists);
+      }
       
       // Show success message
-      toast.success("Lists deleted successfully");
+      toast.success(`"${listToRemove.name}" deleted successfully`);
       
       // Close the delete dialog
       setListToDelete(null);
       
-      // Update the local state instead of refreshing the page
-      setLocalSavedLists(updatedLists);
+      console.log("List deletion completed successfully");
     } catch (error) {
       console.error('Error during list deletion:', error);
       toast.error("An error occurred while deleting the lists");
@@ -223,7 +244,7 @@ const ListManagement = ({
       </div>
 
       <SavedListsSection
-        savedLists={localSavedLists.length > 0 ? localSavedLists : savedLists}
+        savedLists={localSavedLists}
         selectedFaction={selectedFaction}
         onLoadList={handleLoadList}
         onDeleteClick={(listId) => setListToDelete(listId)}
