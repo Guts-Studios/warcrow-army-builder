@@ -1,4 +1,5 @@
 
+
 import { Unit } from "../../../types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -46,6 +47,27 @@ export const syenannCharacters: Unit[] = [
     characteristics: []
   },
   {
+    id: "darach-wildling",
+    name: "Darach Wildling",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 35,
+    availability: 1,
+    command: 0,
+    highCommand: false,
+    keywords: [
+      "Character",
+      "Elf",
+      "Colossal Company",
+      "Nemorous",
+      "Syenann",
+      "Aim",
+      "Ambusher"
+    ],
+    specialRules: [],
+    characteristics: []
+  },
+  {
     id: "druid",
     name: "Druid",
     faction: "syenann",
@@ -62,6 +84,120 @@ export const syenannCharacters: Unit[] = [
     ],
     specialRules: [
       "Slowed"
+    ],
+    characteristics: []
+  },
+  {
+    id: "grand-captain",
+    name: "Grand Captain",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 30,
+    availability: 1,
+    command: 2,
+    highCommand: true,
+    keywords: [
+      "Character",
+      "Elf",
+      "High Command",
+      "Nemorous",
+      "Syenann",
+      "Join (Infantry Syenann)",
+      "Preferred Terrain (Rugged or Forest)"
+    ],
+    specialRules: [
+      "Preferred Terrain"
+    ],
+    characteristics: []
+  },
+  {
+    id: "lioslaith-coic-caledhee",
+    name: "Lioslaith Coic Caledhee",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 30,
+    availability: 1,
+    command: 1,
+    highCommand: true,
+    keywords: [
+      "Character",
+      "Elf",
+      "High Command",
+      "Nemorous",
+      "Syenann",
+      "Ambusher",
+      "Elite",
+      "Join (Infantry Syenann)"
+    ],
+    specialRules: [
+      "Place (3)",
+      "Vulnerable"
+    ],
+    characteristics: []
+  },
+  {
+    id: "oona",
+    name: "Oona",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 25,
+    availability: 1,
+    command: 0,
+    highCommand: false,
+    keywords: [
+      "Ashen",
+      "Character",
+      "Colossal Company",
+      "Elf",
+      "Nemorous",
+      "Syenann",
+      "Intimidating (1)",
+      "Spellcaster",
+      "Tinge"
+    ],
+    specialRules: [
+      "Slowed"
+    ],
+    characteristics: []
+  },
+  {
+    id: "vercana",
+    name: "Vercana",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 30,
+    availability: 1,
+    command: 0,
+    highCommand: false,
+    keywords: [
+      "Character",
+      "Human",
+      "Mercenary",
+      "Ambusher"
+    ],
+    specialRules: [
+      "Place (5)"
+    ],
+    characteristics: []
+  },
+  {
+    id: "ynyr-dara-lainn",
+    name: "Ynyr Dara Lainn",
+    faction: "syenann",
+    faction_id: "syenann",
+    pointsCost: 35,
+    availability: 1,
+    command: 1,
+    highCommand: false,
+    keywords: [
+      "Character",
+      "Elf",
+      "Syenann",
+      "Scout"
+    ],
+    specialRules: [
+      "Place (10)",
+      "Shove (4)"
     ],
     characteristics: []
   },
@@ -112,3 +248,4 @@ export const syenannCharacters: Unit[] = [
     characteristics: []
   }
 ];
+
