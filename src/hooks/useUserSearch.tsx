@@ -33,92 +33,45 @@ export const useUserSearch = () => {
       
       if (profileError) throw profileError;
       
-      // If no results found, try to search by email
-      if ((!profileData || profileData.length === 0) && query.includes('@')) {
+      // If we have results from WAB ID or username search, return them
+      if (profileData && profileData.length > 0) {
+        setSearchResults(profileData);
+        return;
+      }
+      
+      // If no results found and query looks like an email, try email search
+      if (query.includes('@')) {
         try {
-          // Use the function to get user by email
-          const { data: emailData, error: emailError } = await supabase
+          // Use the RPC function to get user by email first
+          const { data: emailSearchData, error: emailSearchError } = await supabase
             .rpc('get_user_email', { user_id: query });
             
-          if (emailError) {
-            console.error("Email search error:", emailError);
-            // If this fails, just return empty results
+          // If the RPC call fails, it means the user doesn't exist or we can't access their email
+          if (emailSearchError) {
+            console.log("Email search via RPC failed:", emailSearchError);
             setSearchResults([]);
             return;
           }
           
-          if (emailData) {
-            // Try to find the user profile by matching email
-            try {
-              // Direct query to find a profile with matching email-like ID
-              const { data: userProfile, error: profileError } = await supabase
-                .from("profiles")
-                .select("id, username, wab_id, avatar_url, banned, deactivated")
-                .eq("id", query)
-                .single();
-                
-              if (profileError) {
-                console.error("Profile search error:", profileError);
-                setSearchResults([]);
-              } else {
-                setSearchResults(userProfile ? [userProfile] : []);
-              }
-              return;
-            } catch (profileSearchError: unknown) {
-              if (profileSearchError instanceof Error) {
-                console.error("Profile search error:", profileSearchError.message);
-              } else {
-                console.error("Profile search error:", profileSearchError);
-              }
-              setSearchResults([]); // Safe fallback
-              return;
-            }
-          }
-        } catch (emailSearchError: unknown) {
-          if (emailSearchError instanceof Error) {
-            console.error("Email search error:", emailSearchError.message);
-          } else {
-            console.error("Email search error:", emailSearchError);
-          }
-          // If this fails, return empty results
+          // If we got a result from the email RPC, we need to find the corresponding profile
+          // The RPC function expects a user_id, but we're passing an email, so this approach won't work
+          // Instead, let's try a different approach using the admin function
+          
+          // For admin users, we can try to find profiles that might match
+          // Since we can't directly search by email in profiles, we'll return empty results
+          // and suggest the admin look up the user's WAB ID or username instead
           setSearchResults([]);
           return;
-        }
-
-        // As a fallback, try to directly query profiles that might match the email pattern
-        try {
-          const { data: emailProfileData, error: emailProfileError } = await supabase
-            .from("profiles")
-            .select("id, username, wab_id, avatar_url, banned, deactivated")
-            .eq("id", query)
-            .limit(10);
           
-          if (emailProfileError) {
-            console.error("Direct email search error:", emailProfileError);
-            setSearchResults([]);
-            return;
-          }
-          
-          if (emailProfileData && emailProfileData.length > 0) {
-            setSearchResults(emailProfileData);
-            return;
-          } else {
-            setSearchResults([]);
-            return;
-          }
-        } catch (directSearchError: unknown) {
-          if (directSearchError instanceof Error) {
-            console.error("Direct email search error:", directSearchError.message);
-          } else {
-            console.error("Direct email search error:", directSearchError);
-          }
+        } catch (emailSearchError: unknown) {
+          console.error("Email search error:", emailSearchError);
           setSearchResults([]);
           return;
         }
       }
       
-      // If we reached here, return the results from the initial query
-      setSearchResults(profileData || []);
+      // If we reached here, return empty results
+      setSearchResults([]);
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Error searching users:", error.message);

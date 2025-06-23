@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Shield, Users, Search, Trash2, Ban } from "lucide-react";
+import { Shield, Users, Search, Trash2, Ban, AlertCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { updateUserWabAdminStatus, getWabAdmins } from "@/utils/email/adminManagement";
@@ -51,20 +50,33 @@ const UserManagement = () => {
     try {
       setIsLoading(true);
       
-      // If the identifier is an email or WAB ID, we need to find the user ID first
+      // If the identifier is an email, try to find the user ID from the admin list first
       let actualUserId = userIdentifier;
       
-      if (userIdentifier.includes('@') || userIdentifier.includes('WAB-')) {
-        // Try to find the user by email or WAB ID
+      if (userIdentifier.includes('@')) {
+        // Check if this email is in our admin list
+        const adminMatch = adminList.find(admin => 
+          admin.email && admin.email.toLowerCase() === userIdentifier.toLowerCase()
+        );
+        
+        if (adminMatch) {
+          actualUserId = adminMatch.id;
+          console.log(`Found admin user ID: ${actualUserId} for email: ${userIdentifier}`);
+        } else {
+          toast.error("Email search is limited. For non-admin users, please use their WAB ID or ask them to provide their User ID from their profile.");
+          return;
+        }
+      } else if (userIdentifier.includes('WAB-')) {
+        // Try to find the user by WAB ID
         const { data: userData, error: searchError } = await supabase
           .from("profiles")
           .select("id")
-          .or(`wab_id.eq.${userIdentifier}${userIdentifier.includes('@') ? '' : ',email.eq.' + userIdentifier}`)
+          .eq("wab_id", userIdentifier)
           .limit(1)
           .single();
           
         if (searchError || !userData) {
-          toast.error("User not found with the provided identifier");
+          toast.error("User not found with the provided WAB ID");
           return;
         }
         
@@ -208,11 +220,20 @@ const UserManagement = () => {
           <Search className="h-5 w-5 mr-2" />
           Find Users
         </h2>
+        
+        <Alert className="mb-4 bg-yellow-900/20 border-yellow-600/30">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle className="text-yellow-600">Search Limitations</AlertTitle>
+          <AlertDescription className="text-yellow-200">
+            Email search only works for current admins. For other users, search by WAB ID or username.
+          </AlertDescription>
+        </Alert>
+        
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
             <Input
               type="text"
-              placeholder="Search by email, username, or WAB ID"
+              placeholder="Search by WAB ID or username (email only works for admins)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -292,7 +313,7 @@ const UserManagement = () => {
             <Alert className="bg-black border border-warcrow-gold/20 text-warcrow-gold">
               <AlertTitle>No users found</AlertTitle>
               <AlertDescription>
-                No users match your search criteria. Try a different search term.
+                No users match your search criteria. Try searching by WAB ID or username instead of email.
               </AlertDescription>
             </Alert>
           )}
@@ -305,12 +326,21 @@ const UserManagement = () => {
           <Shield className="h-5 w-5 mr-2" />
           Update User Admin Status
         </h2>
+        
+        <Alert className="mb-4 bg-blue-900/20 border-blue-600/30">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle className="text-blue-600">Admin Management</AlertTitle>
+          <AlertDescription className="text-blue-200">
+            For existing admins, you can use their email. For other users, use their WAB ID or User ID.
+          </AlertDescription>
+        </Alert>
+        
         <div className="space-y-4">
           <div className="flex flex-col space-y-2">
-            <label className="text-warcrow-text">User ID, Email, or WAB ID</label>
+            <label className="text-warcrow-text">User ID, Email (for admins), or WAB ID</label>
             <Input
               type="text"
-              placeholder="Enter ID, Email, or WAB ID"
+              placeholder="Enter ID, Email (for current admins), or WAB ID"
               value={userIdentifier}
               onChange={(e) => setUserIdentifier(e.target.value)}
               className="border border-warcrow-gold/30 bg-black text-warcrow-text focus:border-warcrow-gold focus:outline-none"
@@ -348,6 +378,7 @@ const UserManagement = () => {
                 <TableHead className="text-warcrow-gold/80">Username</TableHead>
                 <TableHead className="text-warcrow-gold/80">Email</TableHead>
                 <TableHead className="text-warcrow-gold/80">WAB ID</TableHead>
+                <TableHead className="text-warcrow-gold/80">User ID</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -356,6 +387,7 @@ const UserManagement = () => {
                   <TableCell className="font-medium text-warcrow-gold">{admin.username}</TableCell>
                   <TableCell className="text-warcrow-muted">{admin.email}</TableCell>
                   <TableCell className="text-warcrow-muted">{admin.wab_id}</TableCell>
+                  <TableCell className="text-warcrow-muted text-xs">{admin.id}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
