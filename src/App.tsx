@@ -15,31 +15,47 @@ function App() {
   const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
-    // Check version and purge stale cache if needed (preserves auth & army lists)
-    console.log('[App] 🚀 Checking for stale cache on startup...');
-    
-    // Quick performance check - if localStorage is very large, optimize it
-    const storageSize = JSON.stringify(localStorage).length;
-    if (storageSize > 3 * 1024 * 1024) { // > 3MB
-      console.warn('[App] ⚠️ Large localStorage detected, running quick cleanup...');
+    // Async function to handle storage check without blocking
+    const initializeStorage = async () => {
+      console.log('[App] 🚀 Quick storage check...');
       
-      // Clear any obvious temporary data
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('temp') || key.includes('cache') || key.includes('query')) {
-          localStorage.removeItem(key);
+      try {
+        // Quick storage size check - don't block on large cleanups
+        const storageSize = JSON.stringify(localStorage).length;
+        if (storageSize > 3 * 1024 * 1024) { // > 3MB
+          console.warn('[App] ⚠️ Large localStorage detected');
+          
+          // Do a quick cleanup of obvious temp data only
+          const tempKeys = Object.keys(localStorage).filter(key => 
+            key.includes('temp') || key.includes('cache') || key.includes('query')
+          );
+          
+          // Only clear if there are obvious temp keys and not too many
+          if (tempKeys.length > 0 && tempKeys.length < 20) {
+            tempKeys.forEach(key => localStorage.removeItem(key));
+            console.log(`[App] 🧹 Cleared ${tempKeys.length} temp keys`);
+          }
         }
-      });
-    }
-    
-    checkAndPurgeIfNeeded();
-    setStorageReady(true);
+        
+        // Run version check asynchronously without blocking
+        checkAndPurgeIfNeeded();
+        
+      } catch (error) {
+        console.warn('[App] ⚠️ Storage check error:', error);
+      } finally {
+        // Always mark as ready to not block the app
+        setStorageReady(true);
+      }
+    };
+
+    initializeStorage();
   }, []);
 
-  // Don't render the app until storage check is complete
+  // Don't block app loading on storage check - just show a minimal loader
   if (!storageReady) {
     return (
       <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
-        <div className="text-warcrow-text">Initializing...</div>
+        <div className="text-warcrow-text text-sm">Loading...</div>
       </div>
     );
   }
