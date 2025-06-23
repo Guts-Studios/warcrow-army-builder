@@ -28,7 +28,7 @@ export const useCacheDiagnostics = (enableDiagnostics: boolean = false) => {
         size: JSON.stringify(sessionStorage).length,
         keys: Object.keys(sessionStorage).length
       },
-      caches: 'unknown'
+      caches: 0
     };
 
     try {
