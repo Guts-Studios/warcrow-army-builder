@@ -1,4 +1,3 @@
-
 import { Unit } from "../../../types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -75,14 +74,14 @@ export const syenannCharacters: Unit[] = [
     command: 1,
     highCommand: false,
     keywords: [
-      { name: "Character", category: "unit_type" },
-      { name: "Infantry", category: "unit_type" },
-      { name: "Syenann", category: "faction" },
-      { name: "Aim", category: "ability" },
-      { name: "Join (Infantry, Syenann)", category: "ability" }
+      "Character",
+      "Infantry", 
+      "Syenann",
+      "Aim",
+      "Join (Infantry, Syenann)"
     ],
     specialRules: [
-      { name: "Repeat a Die", category: "ability" }
+      "Repeat a Die"
     ],
     characteristics: []
   },
@@ -96,18 +95,18 @@ export const syenannCharacters: Unit[] = [
     command: 1,
     highCommand: false,
     keywords: [
-      { name: "Character", category: "unit_type" },
-      { name: "Infantry", category: "unit_type" },
-      { name: "Nemorous", category: "trait" },
-      { name: "Syenann", category: "faction" },
-      { name: "Elite", category: "quality" },
-      { name: "Join (Syena Wardens)", category: "ability" }
+      "Character",
+      "Infantry",
+      "Nemorous",
+      "Syenann",
+      "Elite",
+      "Join (Syena Wardens)"
     ],
     specialRules: [
-      { name: "Place (5)", category: "ability" },
-      { name: "Shove (5)", category: "ability" },
-      { name: "Repeat a Die", category: "ability" },
-      { name: "Disarmed", category: "condition" }
+      "Place (5)",
+      "Shove (5)",
+      "Repeat a Die",
+      "Disarmed"
     ],
     characteristics: []
   }
