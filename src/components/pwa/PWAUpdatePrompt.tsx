@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCw, X, Trash2, Bug } from 'lucide-react';
+import { RefreshCw, X, Trash2, Bug, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { APP_VERSION } from '@/constants/version';
 import { useCacheDiagnostics } from '@/hooks/useCacheDiagnostics';
@@ -11,7 +11,7 @@ export const PWAUpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [showDebugOptions, setShowDebugOptions] = useState(false);
-  const { clearStaleAuthData, clearAllCachesAndReload } = useCacheDiagnostics();
+  const { clearStaleAuthData, clearAllCachesAndReload, quickCacheOptimization } = useCacheDiagnostics();
   
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -49,6 +49,13 @@ export const PWAUpdatePrompt = () => {
     console.log('Updating service worker...');
     updateServiceWorker(true);
     setShowPrompt(false);
+  };
+
+  const handleQuickOptimization = () => {
+    quickCacheOptimization();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const handleClearStaleAuth = () => {
@@ -106,14 +113,23 @@ export const PWAUpdatePrompt = () => {
                   variant="ghost"
                   className="text-xs text-warcrow-text/70 hover:text-warcrow-text p-0 h-auto"
                 >
-                  Having cache issues? Click for advanced options
+                  Having performance or cache issues? Click for options
                 </Button>
               ) : (
                 <div className="border-t border-warcrow-accent pt-2 mt-1">
                   <p className="text-xs text-warcrow-text/70 mb-2">
-                    If you're still seeing old content or auth issues:
+                    If the app is loading slowly or you're seeing old content:
                   </p>
                   <div className="flex flex-col gap-1">
+                    <Button
+                      onClick={handleQuickOptimization}
+                      size="sm"
+                      variant="secondary"
+                      className="w-full text-xs"
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      Quick Speed Boost
+                    </Button>
                     <Button
                       onClick={handleClearStaleAuth}
                       size="sm"

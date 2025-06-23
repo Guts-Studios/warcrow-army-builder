@@ -9,6 +9,7 @@ import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
 import { checkAndPurgeIfNeeded } from '@/utils/versionPurge';
 import { AppRoutes } from '@/components/routing/AppRoutes';
 import { PWAUpdatePrompt } from '@/components/pwa/PWAUpdatePrompt';
+import { PerformanceOptimizer } from '@/components/performance/PerformanceOptimizer';
 
 function App() {
   const [storageReady, setStorageReady] = useState(false);
@@ -16,6 +17,20 @@ function App() {
   useEffect(() => {
     // Check version and purge stale cache if needed (preserves auth & army lists)
     console.log('[App] 🚀 Checking for stale cache on startup...');
+    
+    // Quick performance check - if localStorage is very large, optimize it
+    const storageSize = JSON.stringify(localStorage).length;
+    if (storageSize > 3 * 1024 * 1024) { // > 3MB
+      console.warn('[App] ⚠️ Large localStorage detected, running quick cleanup...');
+      
+      // Clear any obvious temporary data
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('temp') || key.includes('cache') || key.includes('query')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+    
     checkAndPurgeIfNeeded();
     setStorageReady(true);
   }, []);
@@ -37,6 +52,7 @@ function App() {
             <AppRoutes />
             <Toaster />
             <PWAUpdatePrompt />
+            <PerformanceOptimizer />
           </UnifiedSearchProvider>
         </AuthProvider>
       </LanguageProvider>
