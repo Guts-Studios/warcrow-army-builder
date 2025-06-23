@@ -9,7 +9,7 @@ scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Flamecobs,0,1,"[Infantry, Projec
 scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Gobblers,0,1,"[Infantry, Projectile, Red Cap]","[Fearless, Scout]",No,30,"[Slowed, Diplsace (8)]",,Yes
 scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Harvester,1,1,"[Dead Flesh, Risen, Elf]","[Dispel (BLK), Golem, Intimidating (2)]",No,40,[Frightened],,Yes
 scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Husks,0,2,"[Dead Flesh, Risen]",[Golem],No,15,[Slowed],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Intact,0,1,"[Human, Infantry, Living Flesh]",[],no,25,"[Frightened, Bloodlust, Repeat a Die]",,Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Intact,0,2,"[Human, Infantry, Living Flesh]",[],no,25,"[Frightened, Bloodlust, Repeat a Die]",,Yes
 scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Kipleacht,0,1,[Living Flesh],"[Ambusher, Golem, Large, Intimidating (1)]",No,30,"[Slowed, Frightened, Place, Displace, Repeat a Die]",,Yes
 scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked,0,1,"[Human, Infantry, Living Flesh]",[],No,35,[Repeat a Die],,Yes
 scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked Marksmen,0,1,"[Human, Infantry, Living Flesh]",[Scout],No,25,"[Shove (3), Displace (3), Repeat a Die]",,Yes
