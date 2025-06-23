@@ -1,120 +1,142 @@
-// Utility functions for CSV validation and file loading
 
-export const getFactionCsvPath = (factionId: string): string => {
-  const factionFileMap: Record<string, string> = {
-    'syenann': 'The Syenann.csv',
-    'northern-tribes': 'Northern Tribes.csv',
-    'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-    'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
-  };
-  
-  const fileName = factionFileMap[factionId];
-  if (!fileName) {
-    throw new Error(`No CSV file mapping for faction: ${factionId}`);
-  }
-  
-  return `/data/reference-csv/units/${fileName}`;
-};
-
-export const checkCsvFileExists = async (filePath: string): Promise<boolean> => {
-  try {
-    const response = await fetch(filePath, { method: 'HEAD' });
-    return response.ok;
-  } catch (error) {
-    console.error(`Error checking if CSV file exists at ${filePath}:`, error);
-    return false;
-  }
-};
-
-export const loadCsvFile = async (filePath: string): Promise<string> => {
-  console.log(`Attempting to load CSV from: ${filePath}`);
-  
-  try {
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.warn(`CSV file not found at ${filePath}. Using static data instead.`);
-        throw new Error(`CSV file not found at ${filePath}. Status: ${response.status}`);
-      }
-      throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.text();
-  } catch (error) {
-    console.error(`Error loading CSV file from ${filePath}:`, error);
-    throw error;
-  }
-};
+import Papa from 'papaparse';
 
 export interface CsvUnit {
-  Faction: string;
-  'Unit Type': string;
-  'Unit Name': string;
-  Command: string;
-  AVB: string;
-  Characteristics: string;
-  Keywords: string;
-  'High Command': string;
-  'Points Cost': string;
-  'Special Rules': string;
-  Companion: string;
-  name?: string;
-  type?: string;
-  pointsCost?: number;
-  commandValue?: number;
-  avbValue?: number;
+  name: string;
+  faction: string;
+  pointsCost: number;
+  availability: number;
+  command?: number;
+  highCommand: boolean;
+  keywords: string[];
+  specialRules: string[];
+  characteristics: string[];
 }
 
+export interface UnitMismatch {
+  field: string;
+  staticValue: any;
+  csvValue: any;
+}
+
+// Parse CSV content into structured units
 export const parseCsvContent = async (csvContent: string): Promise<CsvUnit[]> => {
   return new Promise((resolve, reject) => {
-    const lines = csvContent.split('\n');
-    if (lines.length < 2) {
-      reject(new Error('CSV file appears to be empty or invalid'));
-      return;
-    }
-    
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    const units: CsvUnit[] = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      
-      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-      if (values.length !== headers.length) continue;
-      
-      const unit: any = {};
-      headers.forEach((header, index) => {
-        unit[header] = values[index];
-      });
-      
-      // Add normalized properties
-      unit.name = unit['Unit Name'];
-      unit.type = unit['Unit Type'];
-      unit.pointsCost = parseInt(unit['Points Cost']) || 0;
-      unit.commandValue = parseInt(unit.Command) || 0;
-      unit.avbValue = parseInt(unit.AVB) || 0;
-      
-      units.push(unit);
-    }
-    
-    resolve(units);
+    Papa.parse(csvContent, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          const units = results.data
+            .filter((row: any) => row['Unit Name'] && row['Unit Name'].trim())
+            .map((row: any) => processCsvRow(row));
+          
+          console.log(`Processed ${units.length} units from CSV`);
+          resolve(units);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
   });
 };
 
-export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{field: string, staticValue: any, csvValue: any}> => {
-  const mismatches: Array<{field: string, staticValue: any, csvValue: any}> = [];
+// Process a single CSV row into a CsvUnit
+const processCsvRow = (row: any): CsvUnit => {
+  // Parse characteristics and keywords using bracket format
+  const rawCharacteristics = parseDelimitedFieldWithBrackets(row.Characteristics || '');
+  const rawKeywords = parseDelimitedFieldWithBrackets(row.Keywords || '');
   
-  // Compare name
-  if (staticUnit.name !== csvUnit.name) {
-    mismatches.push({
-      field: 'name',
-      staticValue: staticUnit.name,
-      csvValue: csvUnit.name
-    });
+  // Known characteristics that should be treated as characteristics, not keywords
+  const KNOWN_CHARACTERISTICS = ['Vulnerable', 'Elite', 'Experienced', 'Veteran'];
+  
+  // Separate characteristics from keywords
+  const characteristics = rawCharacteristics.filter(item => 
+    KNOWN_CHARACTERISTICS.includes(item)
+  );
+  
+  const keywords = [
+    ...rawKeywords.filter(item => !KNOWN_CHARACTERISTICS.includes(item)),
+    ...rawCharacteristics.filter(item => !KNOWN_CHARACTERISTICS.includes(item))
+  ];
+
+  // Parse numeric fields
+  const pointsCost = parseInt(row['Points Cost']) || 0;
+  const availability = parseInt(row.AVB) || 0;
+  const command = row.Command ? parseInt(row.Command) : undefined;
+
+  // Parse boolean fields
+  const highCommand = row['High Command']?.toLowerCase() === 'yes';
+
+  // Parse special rules
+  const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules'] || '');
+
+  return {
+    name: row['Unit Name'],
+    faction: row.Faction || '',
+    pointsCost,
+    availability,
+    command,
+    highCommand,
+    keywords,
+    specialRules,
+    characteristics
+  };
+};
+
+// Parse bracket-enclosed fields with smart comma handling
+const parseDelimitedFieldWithBrackets = (field: string): string[] => {
+  if (!field || field.trim() === '') return [];
+  
+  let trimmedField = field.trim();
+  
+  // Check if the field is enclosed in brackets
+  if (trimmedField.startsWith('[') && trimmedField.endsWith(']')) {
+    const content = trimmedField.slice(1, -1).trim();
+    if (!content) return [];
+    trimmedField = content;
   }
   
-  // Compare points cost
+  // Smart parsing that respects parentheses
+  const result: string[] = [];
+  let current = '';
+  let depth = 0;
+  
+  for (let i = 0; i < trimmedField.length; i++) {
+    const char = trimmedField[i];
+    
+    if (char === '(') {
+      depth++;
+      current += char;
+    } else if (char === ')') {
+      depth--;
+      current += char;
+    } else if (char === ',' && depth === 0) {
+      if (current.trim()) {
+        result.push(current.trim());
+      }
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  // Add the last item
+  if (current.trim()) {
+    result.push(current.trim());
+  }
+  
+  return result.filter(Boolean);
+};
+
+// Compare a static unit with a CSV unit
+export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): UnitMismatch[] => {
+  const mismatches: UnitMismatch[] = [];
+  
+  // Check points cost
   if (staticUnit.pointsCost !== csvUnit.pointsCost) {
     mismatches.push({
       field: 'pointsCost',
@@ -123,48 +145,39 @@ export const compareUnitWithCsv = (staticUnit: any, csvUnit: CsvUnit): Array<{fi
     });
   }
   
-  // Compare command value
-  if (staticUnit.commandValue !== csvUnit.commandValue) {
+  // Check availability
+  if (staticUnit.availability !== csvUnit.availability) {
     mismatches.push({
-      field: 'commandValue',
-      staticValue: staticUnit.commandValue,
-      csvValue: csvUnit.commandValue
+      field: 'availability',
+      staticValue: staticUnit.availability,
+      csvValue: csvUnit.availability
     });
   }
   
-  // Compare AVB value
-  if (staticUnit.avbValue !== csvUnit.avbValue) {
+  // Check high command
+  if (Boolean(staticUnit.highCommand) !== csvUnit.highCommand) {
     mismatches.push({
-      field: 'avbValue',
-      staticValue: staticUnit.avbValue,
-      csvValue: csvUnit.avbValue
+      field: 'highCommand',
+      staticValue: Boolean(staticUnit.highCommand),
+      csvValue: csvUnit.highCommand
+    });
+  }
+  
+  // Check command
+  if (staticUnit.command !== csvUnit.command) {
+    mismatches.push({
+      field: 'command',
+      staticValue: staticUnit.command,
+      csvValue: csvUnit.command
     });
   }
   
   return mismatches;
 };
 
+// Find matching unit by name (case-insensitive)
 export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any | null => {
-  // First try exact name match
-  let match = staticUnits.find(unit => 
-    unit.name.toLowerCase() === csvUnit.name?.toLowerCase()
-  );
-  
-  if (match) return match;
-  
-  // Try fuzzy matching by removing common prefixes/suffixes
-  const normalizedCsvName = csvUnit.name?.toLowerCase()
-    .replace(/^(the|a)\s+/, '')
-    .replace(/\s+(unit|troops?|warriors?)$/, '')
-    .trim();
-  
-  match = staticUnits.find(unit => {
-    const normalizedStaticName = unit.name.toLowerCase()
-      .replace(/^(the|a)\s+/, '')
-      .replace(/\s+(unit|troops?|warriors?)$/, '')
-      .trim();
-    return normalizedStaticName === normalizedCsvName;
-  });
-  
-  return match || null;
+  return staticUnits.find(staticUnit => 
+    staticUnit.name.toLowerCase() === csvUnit.name.toLowerCase()
+  ) || null;
 };
