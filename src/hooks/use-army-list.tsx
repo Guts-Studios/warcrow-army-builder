@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +5,7 @@ import { validateUnitAddition, validateHighCommandAddition } from "@/utils/armyV
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useArmyBuilderUnits } from "@/components/stats/unit-explorer/useUnitData";
+import { useArmyBuilderUnits } from "@/hooks/useArmyData"; // Fixed import path
 import { toast } from "sonner";
 import { validateFactionUnits, validateKeyUnits } from "@/utils/unitValidation";
 
