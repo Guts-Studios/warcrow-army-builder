@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ArmyListProps {
   selectedFaction: string;
@@ -20,6 +21,7 @@ interface ArmyListProps {
 }
 
 const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListProps) => {
+  const { authReady, isAuthenticated } = useAuth();
   const {
     quantities,
     selectedUnits,
@@ -49,6 +51,14 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
       handleLoadList(initialList);
     }
   }, [initialList, handleLoadList]);
+
+  // Refetch units when authentication state changes
+  useEffect(() => {
+    if (authReady) {
+      console.log(`[ArmyList] Auth state ready, refetching units. Authenticated: ${isAuthenticated}`);
+      refetchUnits();
+    }
+  }, [authReady, isAuthenticated, refetchUnits]);
 
   // Notify user about faction units loading state
   useEffect(() => {
@@ -97,6 +107,16 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
       setIsManuallyRefreshing(false);
     }
   };
+
+  // Show loading state while auth is initializing
+  if (!authReady) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 text-warcrow-gold animate-spin mb-2" />
+        <p className="text-warcrow-muted">Initializing...</p>
+      </div>
+    );
+  }
 
   return (
     <>
