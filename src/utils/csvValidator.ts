@@ -181,3 +181,35 @@ export const findMatchingUnit = (csvUnit: CsvUnit, staticUnits: any[]): any | nu
     staticUnit.name.toLowerCase() === csvUnit.name.toLowerCase()
   ) || null;
 };
+
+// Get the expected CSV file path for a faction
+export const getFactionCsvPath = (factionId: string): string => {
+  const csvFileMap: Record<string, string> = {
+    'northern-tribes': 'Northern Tribes.csv',
+    'syenann': 'The Syenann.csv',
+    'hegemony-of-embersig': 'Hegemony of Embersig.csv',
+    'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+  };
+  
+  const fileName = csvFileMap[factionId];
+  return fileName ? `/data/reference-csv/units/${fileName}` : '';
+};
+
+// Check if a CSV file exists
+export const checkCsvFileExists = async (filePath: string): Promise<boolean> => {
+  try {
+    const response = await fetch(filePath);
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Load a CSV file and return its content
+export const loadCsvFile = async (filePath: string): Promise<string> => {
+  const response = await fetch(filePath);
+  if (!response.ok) {
+    throw new Error(`Failed to load CSV file: ${response.status} ${response.statusText}`);
+  }
+  return await response.text();
+};
