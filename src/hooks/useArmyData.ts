@@ -14,6 +14,8 @@ export const useArmyBuilderUnits = (factionId: string) => {
       
       // Get all units and filter by faction
       const allUnits = normalizeUnits(units);
+      console.log(`[useArmyBuilderUnits] Total units loaded: ${allUnits.length}`);
+      
       const factionUnits = allUnits.filter(unit => {
         const unitFactionId = normalizeFactionId(unit.faction_id || unit.faction);
         return unitFactionId === normalizedFactionId;
@@ -21,16 +23,17 @@ export const useArmyBuilderUnits = (factionId: string) => {
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units for ${normalizedFactionId}`);
       
-      // Log a sample unit to verify data format
-      if (factionUnits.length > 0) {
-        const sampleUnit = factionUnits.find(u => u.name === 'Wisemane');
-        if (sampleUnit) {
-          console.log(`[useArmyBuilderUnits] Wisemane data:`, {
-            name: sampleUnit.name,
-            keywords: sampleUnit.keywords,
-            specialRules: sampleUnit.specialRules
-          });
+      // Debug: Check specifically for Mounted Hetman in Hegemony
+      if (normalizedFactionId === 'hegemony-of-embersig') {
+        const mountedHetman = factionUnits.find(u => u.name === 'Mounted Hetman');
+        console.log(`[useArmyBuilderUnits] Mounted Hetman found:`, mountedHetman ? 'YES' : 'NO');
+        if (mountedHetman) {
+          console.log(`[useArmyBuilderUnits] Mounted Hetman data:`, mountedHetman);
         }
+        
+        // Log all high command units for debugging
+        const highCommandUnits = factionUnits.filter(u => u.highCommand);
+        console.log(`[useArmyBuilderUnits] Hegemony High Command units:`, highCommandUnits.map(u => u.name));
       }
       
       return removeDuplicateUnits(factionUnits);

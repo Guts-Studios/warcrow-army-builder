@@ -121,9 +121,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log("[AuthProvider] 👤 Fetching profile for user:", sessionUserId);
     
     try {
-      // Add a timeout to prevent hanging
+      // Reduced timeout to 5 seconds to speed up initialization
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
       );
       
       const profilePromise = supabase
@@ -191,9 +191,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.removeItem('supabase.auth.token');
       sessionStorage.removeItem('supabase.auth.token');
       
-      // Add timeout to prevent infinite hanging
+      // Reduced timeout to 8 seconds to speed up initialization
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session restore timeout')), 15000)
+        setTimeout(() => reject(new Error('Session restore timeout')), 8000)
       );
       
       console.log("[AuthProvider] ⏳ Awaiting supabase.auth.getSession()...");
