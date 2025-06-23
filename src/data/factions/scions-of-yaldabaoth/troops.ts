@@ -142,7 +142,7 @@ export const scionsOfYaldabaothTroops: Unit[] = [
       { name: "Living Flesh", description: "" }
     ],
     highCommand: false,
-    availability: 1,
+    availability: 2,
     command: 0,
     specialRules: ["Frightened", "Bloodlust", "Repeat a Die"],
     imageUrl: "/art/card/intact_card.jpg"
