@@ -17,6 +17,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Playmode
 - Game sync during play mode
 - Filter by tournament legal or not
+- 
+## [0.5.15] - 2025-06-23 
+
+### Added
+- Syenann Captain
+- Warded Captain
   
 ## [0.5.14] - 2025-06-18
 
