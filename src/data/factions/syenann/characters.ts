@@ -1,3 +1,4 @@
+
 import { Unit } from "../../../types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -11,11 +12,11 @@ export const syenannCharacters: Unit[] = [
     command: 1,
     highCommand: false,
     keywords: [
-      { name: "Character", category: "unit_type" },
-      { name: "Elf", category: "race" }
+      "Character",
+      "Elf"
     ],
     specialRules: [
-      { name: "Disarmed", category: "condition" }
+      "Disarmed"
     ],
     characteristics: []
   },
@@ -29,18 +30,18 @@ export const syenannCharacters: Unit[] = [
     command: 0,
     highCommand: false,
     keywords: [
-      { name: "Character", category: "unit_type" },
-      { name: "Elf", category: "race" },
-      { name: "Nemorous", category: "trait" },
-      { name: "Syenann", category: "faction" },
-      { name: "Join (Infantry Synann)", category: "ability" },
-      { name: "Spellcaster", category: "ability" }
+      "Character",
+      "Elf",
+      "Nemorous",
+      "Syenann",
+      "Join (Infantry Synann)",
+      "Spellcaster"
     ],
     specialRules: [
-      { name: "Vulnerable", category: "condition" },
-      { name: "Slowed", category: "condition" },
-      { name: "Disarmed", category: "condition" },
-      { name: "Frightened", category: "condition" }
+      "Vulnerable",
+      "Slowed",
+      "Disarmed",
+      "Frightened"
     ],
     characteristics: []
   },
@@ -54,13 +55,13 @@ export const syenannCharacters: Unit[] = [
     command: 0,
     highCommand: false,
     keywords: [
-      { name: "Character", category: "unit_type" },
-      { name: "Elf", category: "race" },
-      { name: "Spellcaster", category: "ability" },
-      { name: "Syenann", category: "faction" }
+      "Character",
+      "Elf",
+      "Spellcaster",
+      "Syenann"
     ],
     specialRules: [
-      { name: "Slowed", category: "condition" }
+      "Slowed"
     ],
     characteristics: []
   },
