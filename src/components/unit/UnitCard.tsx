@@ -29,6 +29,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     ? unit.name_es 
     : translateUnitName(unit.name);
 
+  console.log(`Unit: ${unit.name}, Spanish name: ${unit.name_es}, Language: ${language}, Display name: ${displayName}`);
+
   // Function to handle view card button click
   const handleViewCardClick = () => {
     const url = generateCardUrl(unit.name, language);
