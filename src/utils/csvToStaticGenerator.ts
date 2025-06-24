@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 import { CsvUnitRow, ProcessedCsvUnit, Unit } from '@/types/army';
 import { characteristicDefinitions } from '@/data/characteristicDefinitions';
@@ -86,7 +85,6 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 
   // Parse boolean fields - handle both "Yes"/"No" and "yes"/"no"
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
-  const tournamentLegal = row['Tournament Legal']?.toLowerCase() === 'yes';
 
   // Parse special rules using the new bracket format
   const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
@@ -107,13 +105,9 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     }
   }
 
-  // Debug: Log the Spanish name processing
-  console.log(`Processing CSV row for ${row['Unit Name']}: Spanish name = ${row['Unit Name SP']}`);
-
   return {
     id,
     name: row['Unit Name'],
-    name_es: row['Unit Name SP'], // Ensure Spanish name is captured
     faction: factionId,
     faction_id: factionId,
     type: unitType,
@@ -124,8 +118,7 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     keywords,
     highCommand,
     specialRules,
-    companion: row.Companion,
-    tournamentLegal
+    companion: row.Companion
   };
 };
 
@@ -212,13 +205,9 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     }
   });
 
-  // Debug: Log the unit conversion process
-  console.log(`Converting CSV unit ${csvUnit.name} to static unit. Spanish name: ${csvUnit.name_es}`);
-
   return {
     id: csvUnit.id,
     name: csvUnit.name,
-    name_es: csvUnit.name_es, // Ensure Spanish name is preserved in the conversion
     faction: csvUnit.faction,
     faction_id: csvUnit.faction_id,
     pointsCost: csvUnit.pointsCost,
@@ -229,8 +218,7 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     highCommand: csvUnit.highCommand,
     imageUrl: `/art/card/${csvUnit.id}_card.jpg`,
     companion: csvUnit.companion,
-    type: csvUnit.type,
-    tournamentLegal: csvUnit.tournamentLegal
+    type: csvUnit.type // Preserve the type information
   };
 };
 
@@ -305,7 +293,6 @@ export const loadFactionCsvData = async (factionId: string): Promise<ProcessedCs
     }
     
     const csvContent = await response.text();
-    console.log(`Loaded CSV content for ${factionId}, processing units...`);
     return await parseCsvToUnits(csvContent);
   } catch (error) {
     console.error(`Error loading CSV for faction ${factionId}:`, error);

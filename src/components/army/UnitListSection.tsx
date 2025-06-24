@@ -91,14 +91,9 @@ const UnitListSection = ({
 
   // Filter units based on search query, selected characteristics, and selected keywords
   const filteredUnits = factionUnits.filter(unit => {
-    // Get display name for search (use Spanish name if available and language is Spanish)
-    const displayName = language === 'es' && unit.name_es ? unit.name_es : unit.name;
-    
-    // Text search filter - search both English and Spanish names
+    // Text search filter
     const matchesSearch = searchQuery === "" || 
       unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (unit.name_es && unit.name_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (unit.keywords && unit.keywords.some(keyword => {
         const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
         return keywordName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -131,7 +126,7 @@ const UnitListSection = ({
     return matchesSearch && matchesCharacteristics && matchesKeywords;
   });
 
-  // Sort filtered units - use display names for sorting
+  // Sort filtered units
   const sortedUnits = [...filteredUnits].sort((a, b) => {
     switch (sortBy) {
       case "points-asc":
@@ -139,13 +134,9 @@ const UnitListSection = ({
       case "points-desc":
         return b.pointsCost - a.pointsCost;
       case "name-asc":
-        const nameA = language === 'es' && a.name_es ? a.name_es : a.name;
-        const nameB = language === 'es' && b.name_es ? b.name_es : b.name;
-        return nameA.localeCompare(nameB);
+        return a.name.localeCompare(b.name);
       case "name-desc":
-        const nameA2 = language === 'es' && a.name_es ? a.name_es : a.name;
-        const nameB2 = language === 'es' && b.name_es ? b.name_es : b.name;
-        return nameB2.localeCompare(nameA2);
+        return b.name.localeCompare(a.name);
       default:
         return 0;
     }

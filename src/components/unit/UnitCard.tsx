@@ -24,20 +24,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
-  // Debug: Log the raw unit data
-  console.log(`Raw unit data for ${unit.name}:`, {
-    name: unit.name,
-    name_es: unit.name_es,
-    language: language,
-    hasSpanishName: !!unit.name_es
-  });
-  
-  // Use Spanish name from CSV if available and language is Spanish, otherwise use translation system
-  const displayName = language === 'es' && unit.name_es 
-    ? unit.name_es 
-    : translateUnitName(unit.name);
-
-  console.log(`Unit: ${unit.name}, Spanish name: ${unit.name_es}, Language: ${language}, Display name: ${displayName}`);
+  // Translate unit name based on the selected language for display only
+  const displayName = translateUnitName(unit.name);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {

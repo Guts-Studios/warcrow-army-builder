@@ -3,7 +3,6 @@ import { Unit, Keyword } from "@/types/army";
 import AvatarPortrait from "./header/AvatarPortrait";
 import UnitTitle from "./header/UnitTitle";
 import CharacteristicsSection from "./keyword-sections/CharacteristicsSection";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnitHeaderProps {
   unit: Unit;
@@ -13,8 +12,6 @@ interface UnitHeaderProps {
 }
 
 const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) => {
-  const { language } = useLanguage();
-  
   // Normalize keywords to ensure they're all Keyword objects
   const normalizedKeywords: Keyword[] = unit.keywords.map(keyword => {
     if (typeof keyword === 'string') {
@@ -22,9 +19,6 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
     }
     return keyword;
   });
-
-  // Use the passed mainName which should already be the correct display name
-  console.log(`UnitHeader - Unit: ${unit.name}, Spanish name: ${unit.name_es}, Language: ${language}, Display name: ${mainName}`);
 
   return (
     <div className="flex items-start gap-2">
