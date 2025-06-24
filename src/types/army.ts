@@ -82,11 +82,14 @@ export interface CsvUnitRow {
   'Points Cost': string;
   'Special Rules': string;
   Companion?: string;
+  'Unit Name SP'?: string;
+  'Tournament Legal'?: string;
 }
 
 export interface ProcessedCsvUnit {
   id: string;
   name: string;
+  name_es?: string;
   faction: string;
   faction_id?: string;
   type: string;
@@ -98,4 +101,5 @@ export interface ProcessedCsvUnit {
   highCommand: boolean;
   specialRules: string[];
   companion?: string;
+  tournamentLegal?: boolean;
 }
