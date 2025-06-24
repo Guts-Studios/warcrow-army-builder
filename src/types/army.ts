@@ -2,6 +2,7 @@
 export interface Unit {
   id: string;
   name: string;
+  name_es?: string;
   faction: string;
   faction_id?: string;
   pointsCost: number;
@@ -13,6 +14,7 @@ export interface Unit {
   imageUrl?: string;
   companion?: string; // ID of the unit this is a companion to
   type?: string; // Unit type from CSV (troop, character, etc.)
+  tournamentLegal?: boolean;
   // CSV mapping fields
   characteristics?: string[]; // For CSV characteristics that aren't keywords
   csvKeywords?: string[]; // Raw CSV keywords before processing

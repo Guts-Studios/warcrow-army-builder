@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 import UnitHeader from "@/components/unit/UnitHeader";
 import UnitControls from "@/components/unit/UnitControls";
@@ -24,8 +23,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
-  // Translate unit name based on the selected language for display only
-  const displayName = translateUnitName(unit.name);
+  // Use Spanish name from CSV if available and language is Spanish, otherwise use translation system
+  const displayName = language === 'es' && unit.name_es 
+    ? unit.name_es 
+    : translateUnitName(unit.name);
 
   // Function to handle view card button click
   const handleViewCardClick = () => {

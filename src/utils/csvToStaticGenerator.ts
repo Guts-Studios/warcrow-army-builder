@@ -85,6 +85,7 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 
   // Parse boolean fields - handle both "Yes"/"No" and "yes"/"no"
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
+  const tournamentLegal = row['Tournament Legal']?.toLowerCase() === 'yes';
 
   // Parse special rules using the new bracket format
   const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
@@ -108,6 +109,7 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
   return {
     id,
     name: row['Unit Name'],
+    name_es: row['Unit Name SP'] || row['Unit Name'], // Use Spanish name if available
     faction: factionId,
     faction_id: factionId,
     type: unitType,
@@ -118,7 +120,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     keywords,
     highCommand,
     specialRules,
-    companion: row.Companion
+    companion: row.Companion,
+    tournamentLegal
   };
 };
 
@@ -208,6 +211,7 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
   return {
     id: csvUnit.id,
     name: csvUnit.name,
+    name_es: csvUnit.name_es, // Include Spanish name
     faction: csvUnit.faction,
     faction_id: csvUnit.faction_id,
     pointsCost: csvUnit.pointsCost,
@@ -218,7 +222,8 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     highCommand: csvUnit.highCommand,
     imageUrl: `/art/card/${csvUnit.id}_card.jpg`,
     companion: csvUnit.companion,
-    type: csvUnit.type // Preserve the type information
+    type: csvUnit.type,
+    tournamentLegal: csvUnit.tournamentLegal
   };
 };
 
