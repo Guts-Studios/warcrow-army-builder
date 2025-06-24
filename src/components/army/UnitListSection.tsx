@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
@@ -127,9 +126,9 @@ const UnitListSection = ({
         });
       });
 
-    // Tournament legal filter
+    // Tournament legal filter - fixed logic
     const matchesTournament = tournamentFilter === "all" || 
-      (tournamentFilter === "legal" && unit.tournamentLegal !== false) ||
+      (tournamentFilter === "legal" && unit.tournamentLegal === true) ||
       (tournamentFilter === "non-legal" && unit.tournamentLegal === false);
 
     return matchesSearch && matchesCharacteristics && matchesKeywords && matchesTournament;
