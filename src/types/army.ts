@@ -1,5 +1,4 @@
 
-
 export interface Unit {
   id: string;
   name: string;
@@ -14,7 +13,6 @@ export interface Unit {
   imageUrl?: string;
   companion?: string; // ID of the unit this is a companion to
   type?: string; // Unit type from CSV (troop, character, etc.)
-  tournamentLegal?: boolean; // Whether the unit is tournament legal
   // CSV mapping fields
   characteristics?: string[]; // For CSV characteristics that aren't keywords
   csvKeywords?: string[]; // Raw CSV keywords before processing
@@ -81,7 +79,6 @@ export interface CsvUnitRow {
   'High Command': string;
   'Points Cost': string;
   'Special Rules': string;
-  'Tournament Legal': string;
   Companion?: string;
 }
 
@@ -99,5 +96,4 @@ export interface ProcessedCsvUnit {
   highCommand: boolean;
   specialRules: string[];
   companion?: string;
-  tournamentLegal: boolean;
 }

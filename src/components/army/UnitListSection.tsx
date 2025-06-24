@@ -5,8 +5,6 @@ import SortControls from "./SortControls";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 
@@ -33,7 +31,6 @@ const UnitListSection = ({
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [showKeywords, setShowKeywords] = useState(false);
-  const [tournamentFilter, setTournamentFilter] = useState<string>("all");
 
   // Define characteristics to filter by
   const characteristicTypes = [
@@ -92,7 +89,7 @@ const UnitListSection = ({
     });
   };
 
-  // Filter units based on search query, selected characteristics, selected keywords, and tournament legal status
+  // Filter units based on search query, selected characteristics, and selected keywords
   const filteredUnits = factionUnits.filter(unit => {
     // Text search filter
     const matchesSearch = searchQuery === "" || 
@@ -126,12 +123,7 @@ const UnitListSection = ({
         });
       });
 
-    // Tournament legal filter - fixed logic
-    const matchesTournament = tournamentFilter === "all" || 
-      (tournamentFilter === "legal" && unit.tournamentLegal === true) ||
-      (tournamentFilter === "non-legal" && unit.tournamentLegal === false);
-
-    return matchesSearch && matchesCharacteristics && matchesKeywords && matchesTournament;
+    return matchesSearch && matchesCharacteristics && matchesKeywords;
   });
 
   // Sort filtered units
@@ -154,7 +146,6 @@ const UnitListSection = ({
     setSelectedCharacteristics([]);
     setSelectedKeywords([]);
     setSearchQuery("");
-    setTournamentFilter("all");
   };
 
   // Function to translate and display characteristics/keywords
@@ -188,26 +179,6 @@ const UnitListSection = ({
         
         {showFilters && (
           <div className="p-3 bg-warcrow-background/80 border border-warcrow-gold/30 rounded-md space-y-3">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-warcrow-gold">Tournament Legal</h3>
-              </div>
-              <RadioGroup value={tournamentFilter} onValueChange={setTournamentFilter} className="flex flex-row space-x-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="tournament-all" className="border-warcrow-gold/70 text-warcrow-gold" />
-                  <Label htmlFor="tournament-all" className="text-sm text-warcrow-text">All Units</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="legal" id="tournament-legal" className="border-warcrow-gold/70 text-warcrow-gold" />
-                  <Label htmlFor="tournament-legal" className="text-sm text-warcrow-text">Tournament Legal</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="non-legal" id="tournament-non-legal" className="border-warcrow-gold/70 text-warcrow-gold" />
-                  <Label htmlFor="tournament-non-legal" className="text-sm text-warcrow-text">Non-Tournament</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-warcrow-gold">{t('filterByCharacteristics')}</h3>
@@ -263,7 +234,7 @@ const UnitListSection = ({
               )}
             </div>
             
-            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery || tournamentFilter !== "all") && (
+            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery) && (
               <div className="flex justify-end">
                 <button
                   onClick={clearAllFilters}
