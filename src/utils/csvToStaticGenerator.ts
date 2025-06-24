@@ -85,6 +85,9 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 
   // Parse boolean fields - handle both "Yes"/"No" and "yes"/"no"
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
+  
+  // Parse tournament legal field - handle "Yes"/"No" and "yes"/"no"
+  const tournamentLegal = row['Tournament Legal']?.toLowerCase() === 'yes';
 
   // Parse special rules using the new bracket format
   const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
@@ -118,7 +121,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     keywords,
     highCommand,
     specialRules,
-    companion: row.Companion
+    companion: row.Companion,
+    tournamentLegal
   };
 };
 
@@ -218,7 +222,8 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     highCommand: csvUnit.highCommand,
     imageUrl: `/art/card/${csvUnit.id}_card.jpg`,
     companion: csvUnit.companion,
-    type: csvUnit.type // Preserve the type information
+    type: csvUnit.type,
+    tournamentLegal: csvUnit.tournamentLegal
   };
 };
 
@@ -244,6 +249,7 @@ export const generateUnitFileContent = (
     
     const command = unit.command !== undefined ? `command: ${unit.command},` : '';
     const companion = unit.companion ? `companion: "${unit.companion}",` : '';
+    const tournamentLegal = unit.tournamentLegal !== undefined ? `tournamentLegal: ${unit.tournamentLegal},` : '';
     
     return `  {
     id: "${unit.id}",
@@ -259,6 +265,7 @@ export const generateUnitFileContent = (
     ${command}
     ${specialRules}
     ${companion}
+    ${tournamentLegal}
     imageUrl: "${unit.imageUrl}"
   }`;
   }).join(',\n');
@@ -446,6 +453,16 @@ export const validateCsvStaticSync = async (factionId: string, staticUnits: Unit
             field: 'command',
             csvValue: csvUnit.command,
             staticValue: staticUnit.command
+          });
+        }
+        
+        // Check tournament legal
+        if (staticUnit.tournamentLegal !== csvUnit.tournamentLegal) {
+          mismatches.push({
+            unit: csvUnit.name,
+            field: 'tournamentLegal',
+            csvValue: csvUnit.tournamentLegal,
+            staticValue: staticUnit.tournamentLegal
           });
         }
       }

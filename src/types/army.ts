@@ -1,4 +1,5 @@
 
+
 export interface Unit {
   id: string;
   name: string;
@@ -80,6 +81,7 @@ export interface CsvUnitRow {
   'High Command': string;
   'Points Cost': string;
   'Special Rules': string;
+  'Tournament Legal': string;
   Companion?: string;
 }
 
@@ -97,4 +99,5 @@ export interface ProcessedCsvUnit {
   highCommand: boolean;
   specialRules: string[];
   companion?: string;
+  tournamentLegal: boolean;
 }
