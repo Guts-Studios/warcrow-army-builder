@@ -6,12 +6,13 @@ import ArmyList from "@/components/ArmyList";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from '@/hooks/useArmyData';
+import { StaleDataWarning } from './StaleDataWarning';
 
 interface ArmyBuilderProps {
   session: Session | null;
 }
 
-const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
+const ArmyBuilder: React.FC<ArmyBuilderProps> = ({ session }) => {
   const location = useLocation();
   const { isGuest } = useAuth();
   const [selectedFaction, setSelectedFaction] = useState(() => {
@@ -65,7 +66,9 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
   }, []);
 
   return (
-    <div className="space-y-4 md:space-y-8 px-2 md:px-4">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
+      <StaleDataWarning />
+      
       <div className="hidden md:block">
         <FactionSelector
           selectedFaction={selectedFaction}

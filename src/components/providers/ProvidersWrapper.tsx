@@ -7,7 +7,7 @@ import { GameProvider } from "@/context/GameContext";
 import { BrowserRouter as Router } from 'react-router-dom';
 
 // Create a QueryClient instance with default options
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60 * 1000,
