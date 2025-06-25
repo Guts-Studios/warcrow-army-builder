@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { SelectedUnit } from "@/types/army";
 import { generateListText, filterUnitsForCourtesy } from "@/utils/listFormatUtils";
 import { PrintListContent } from "./PrintListContent";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ShareDialogContentProps {
   shareableLink: string;
@@ -17,6 +18,7 @@ interface ShareDialogContentProps {
 
 export const ShareDialogContent = ({ shareableLink, selectedUnits, listName, faction }: ShareDialogContentProps) => {
   const [copied, setCopied] = useState(false);
+  const { language } = useLanguage();
 
   const copyToClipboard = async () => {
     try {
@@ -35,7 +37,7 @@ export const ShareDialogContent = ({ shareableLink, selectedUnits, listName, fac
 
   const handleCopyExport = async () => {
     try {
-      const exportText = generateListText(selectedUnits, listName, faction);
+      const exportText = generateListText(selectedUnits, listName, faction, language);
       await navigator.clipboard.writeText(exportText);
       toast.success("Army list has been copied to your clipboard");
     } catch (err) {
@@ -139,7 +141,7 @@ export const ShareDialogContent = ({ shareableLink, selectedUnits, listName, fac
           <div className="border-t border-warcrow-gold/20 pt-3 mt-2">
             <h4 className="text-warcrow-gold font-medium text-sm mb-2">Export as Text</h4>
             <pre className="whitespace-pre-wrap bg-warcrow-accent p-3 rounded-lg text-warcrow-text font-mono text-xs max-h-[150px] overflow-y-auto">
-              {generateListText(selectedUnits, listName, faction)}
+              {generateListText(selectedUnits, listName, faction, language)}
             </pre>
             <Button
               onClick={handleCopyExport}
