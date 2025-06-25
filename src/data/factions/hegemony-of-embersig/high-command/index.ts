@@ -3,7 +3,29 @@ import { Unit } from "@/types/army";
 
 export const hegemonyOfEmbersigHighCommand: Unit[] = [
   {
-    id: "dragoslav-bjelogríc-drago-the-anvil",
+    id: "amelia-hellbroth",
+    name: "Amelia Hellbroth",
+    name_es: "Amelia Hellbroth",
+    pointsCost: 40,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "High Command", description: "" },
+      { name: "Human", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Infantry)", description: "" }
+    ],
+    highCommand: true,
+    availability: 1,
+    command: 3,
+    specialRules: ["Vulnerable", "Disarmed"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/amelia-hellbroth_card.jpg"
+  },
+  {
+    id: "dragoslav-bjelogric-drago-the-anvil",
     name: "Dragoslav Bjelogríc, Drago the Anvil",
     name_es: "Dragoslav Bjelogríc, Drago El Yunque",
     pointsCost: 40,
@@ -23,7 +45,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     command: 3,
     specialRules: ["Vulnerable", "Elite", "Bloodlust (Varank)", "Repeat a Die"],
     tournamentLegal: true,
-    imageUrl: "/art/card/dragoslav_bjelogrc_drago_the_anvil_card.jpg"
+    imageUrl: "/art/card/dragoslav-bjelogric-drago-the-anvil_card.jpg"
   },
   {
     id: "hetman",
@@ -41,6 +63,7 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
     highCommand: true,
     availability: 1,
     command: 3,
+    specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/hetman_card.jpg"
   },
@@ -56,12 +79,13 @@ export const hegemonyOfEmbersigHighCommand: Unit[] = [
       { name: "Character", description: "" },
       { name: "High Command", description: "" },
       { name: "Human", description: "" },
-      { name: "Join (Calvary)", description: "" }
+      { name: "Join (Cavalry)", description: "" }
     ],
     highCommand: true,
     availability: 1,
     command: 2,
+    specialRules: [],
     tournamentLegal: true,
-    imageUrl: "/art/card/mounted_hetman_card.jpg"
+    imageUrl: "/art/card/mounted-hetman_card.jpg"
   }
 ];
