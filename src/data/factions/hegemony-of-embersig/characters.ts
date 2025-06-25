@@ -7,19 +7,21 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
   {
     id: "aide",
     name: "Aide",
-    name_es: "Ayudante",
-    pointsCost: 15,
+    name_es: "Legado",
+    pointsCost: 25,  // CORRECTED: Was 15, should be 25
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
+      { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Infantry Human)", description: "" }
+      { name: "Elf", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
     ],
     highCommand: false,
-    availability: 2,
-    command: 0,
-    specialRules: [],
+    availability: 1,  // CORRECTED: Was 2, should be 1
+    command: 1,       // CORRECTED: Was 0, should be 1
+    specialRules: ["Place (10)"],
     tournamentLegal: true,
     imageUrl: "/art/card/aide_card.jpg"
   },
