@@ -39,6 +39,7 @@ const ArmyList = ({ selectedFaction, onFactionChange, initialList }: ArmyListPro
     factionUnits,
     unitsLoading,
     unitsError,
+    isLoadingLists,
     refetchUnits
   } = useArmyList(selectedFaction);
 
