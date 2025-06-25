@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Printer, Check } from "lucide-react";
+import { Copy, Printer, Check, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SelectedUnit } from "@/types/army";
@@ -69,9 +69,21 @@ export const ShareDialogContent = ({ shareableLink, selectedUnits, listName, fac
     });
   };
 
+  // Check if any units are not tournament legal
+  const hasNonTournamentLegalUnits = selectedUnits.some(unit => unit.tournamentLegal === false);
+
   return (
     <ScrollArea className="h-[80vh] md:h-[60vh] pr-4">
       <div className="space-y-3">
+        {hasNonTournamentLegalUnits && (
+          <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-3 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0" />
+            <p className="text-amber-200 text-sm">
+              <strong>Warning:</strong> This list contains units that are not tournament legal.
+            </p>
+          </div>
+        )}
+        
         <p className="text-warcrow-text text-sm">
           Share this link with others to view "{listName}" list:
         </p>

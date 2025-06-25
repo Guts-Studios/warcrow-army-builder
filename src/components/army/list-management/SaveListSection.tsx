@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Save, CloudUpload } from "lucide-react";
+import { Save, CloudUpload, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -132,20 +132,32 @@ const SaveListSection = ({
     }
   };
 
+  // Check if any units are not tournament legal
+  const hasNonTournamentLegalUnits = selectedUnits.some(unit => unit.tournamentLegal === false);
+
   return (
     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full">
+      {hasNonTournamentLegalUnits && (
+        <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-2 flex items-center gap-2 order-1">
+          <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0" />
+          <p className="text-amber-200 text-xs">
+            <strong>Warning:</strong> This list contains units not tournament legal.
+          </p>
+        </div>
+      )}
+      
       <Input
         placeholder={t('enterListName')}
         value={listName}
         onChange={(e) => onListNameChange(e.target.value)}
-        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold order-1 md:order-3"
+        className="flex-1 bg-warcrow-background text-warcrow-text border-warcrow-accent focus:border-warcrow-gold order-2 md:order-3"
       />
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               onClick={onSaveList}
-              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-2 md:order-1"
+              className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-3 md:order-1"
             >
               <Save className="h-4 w-4 mr-2" />
               {t('saveListLocally')}
@@ -165,7 +177,7 @@ const SaveListSection = ({
             <Button
               onClick={handleCloudSave}
               disabled={!isAuthenticated || isSaving}
-              className={`whitespace-nowrap order-3 md:order-2 ${
+              className={`whitespace-nowrap order-4 md:order-2 ${
                 !isAuthenticated || isSaving 
                   ? "bg-gray-500 text-gray-300 hover:bg-gray-500 cursor-not-allowed opacity-60" 
                   : "bg-blue-500 hover:bg-blue-600 text-white"

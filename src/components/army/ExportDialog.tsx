@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FileText, Copy } from "lucide-react";
+import { FileText, Copy, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { SelectedUnit } from "@/types/army";
@@ -45,6 +45,9 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
     }
   };
 
+  // Check if any units are not tournament legal
+  const hasNonTournamentLegalUnits = selectedUnits.some(unit => unit.tournamentLegal === false);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -64,6 +67,15 @@ const ExportDialog = ({ selectedUnits, listName }: ExportDialogProps) => {
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
+          {hasNonTournamentLegalUnits && (
+            <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-3 flex items-center gap-2 mb-4">
+              <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0" />
+              <p className="text-amber-200 text-sm">
+                <strong>Warning:</strong> This list contains units that are not tournament legal.
+              </p>
+            </div>
+          )}
+          
           <pre className="whitespace-pre-wrap bg-warcrow-accent p-4 rounded-lg text-warcrow-text font-mono text-sm max-h-[70vh] overflow-y-auto">
             {fullText}
           </pre>
