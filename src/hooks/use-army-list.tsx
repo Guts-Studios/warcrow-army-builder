@@ -30,11 +30,20 @@ export const useArmyList = (selectedFaction: string) => {
     refetch: refetchUnits
   } = useArmyBuilderUnits(selectedFaction);
 
-  // Debug logging for unit loading
+  // Debug logging for unit loading - specifically check tournament legal status
   useEffect(() => {
     console.log(`[useArmyList] Faction: ${selectedFaction}, Units loaded: ${factionUnits.length}, Loading: ${unitsLoading}`);
     if (factionUnits.length > 0) {
-      console.log(`[useArmyList] First 3 units:`, factionUnits.slice(0, 3).map(u => ({ id: u.id, name: u.name })));
+      console.log(`[useArmyList] First 3 units:`, factionUnits.slice(0, 3).map(u => ({ 
+        id: u.id, 
+        name: u.name, 
+        tournamentLegal: u.tournamentLegal,
+        tournamentLegalType: typeof u.tournamentLegal
+      })));
+      
+      // Check if any units have tournamentLegal set to false
+      const nonTournamentUnits = factionUnits.filter(u => u.tournamentLegal === false || u.tournamentLegal === "false");
+      console.log(`[useArmyList] Non-tournament legal units found:`, nonTournamentUnits.length, nonTournamentUnits.map(u => u.name));
     }
   }, [factionUnits, unitsLoading, selectedFaction]);
 
@@ -109,6 +118,9 @@ export const useArmyList = (selectedFaction: string) => {
         return;
       }
 
+      // Log tournament legal status when adding unit
+      console.log(`[useArmyList] Adding unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
+
       if (!validateUnitAddition(selectedUnits, unit, selectedFaction)) {
         toast.error(`Cannot add more ${unit.name} to your list.`);
         return;
@@ -171,7 +183,7 @@ export const useArmyList = (selectedFaction: string) => {
     }
 
     try {
-      // Validate and clean the selected units data
+      // Validate and clean the selected units data - preserve tournament legal status
       const validatedUnits = selectedUnits.map((unit) => {
         const cleanUnit: SelectedUnit = {
           id: unit.id,
@@ -188,8 +200,12 @@ export const useArmyList = (selectedFaction: string) => {
           imageUrl: unit.imageUrl,
           specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : [],
           command: unit.command || 0,
-          tournamentLegal: unit.tournamentLegal
+          tournamentLegal: unit.tournamentLegal // Explicitly preserve this property
         };
+        
+        // Log the tournament legal status being saved
+        console.log(`[useArmyList] Saving unit ${cleanUnit.name} - tournamentLegal:`, cleanUnit.tournamentLegal);
+        
         return cleanUnit;
       });
 
@@ -218,9 +234,15 @@ export const useArmyList = (selectedFaction: string) => {
   const handleLoadList = useCallback((list: SavedList) => {
     console.log(`[useArmyList] Loading list: ${list.name} with ${list.units.length} units`);
     
+    // Log tournament legal status when loading
+    list.units.forEach(unit => {
+      console.log(`[useArmyList] Loading unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
+    });
+    
     const validatedUnits = list.units.map((unit) => ({
       ...unit,
       quantity: Math.min(unit.quantity, unit.availability),
+      tournamentLegal: unit.tournamentLegal // Ensure this property is preserved
     }));
 
     const newQuantities: Record<string, number> = {};

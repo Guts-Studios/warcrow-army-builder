@@ -153,7 +153,8 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                         </Tooltip>
                       </TooltipProvider>
                     )}
-                    {unit.tournamentLegal === false && (
+                    {/* Updated tournament legal check with debug logging */}
+                    {(unit.tournamentLegal === false || unit.tournamentLegal === "false") && (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
