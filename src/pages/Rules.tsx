@@ -72,7 +72,7 @@ const Rules = () => {
       >
         <LanguageSwitcher />
       </PageHeader>
-      <div className="container max-w-7xl mx-auto py-4 px-4">
+      <div className="container max-w-3xl mx-auto py-4 px-4">
         <UnifiedSearchProvider>
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6 bg-black/70 border border-warcrow-gold/30">
