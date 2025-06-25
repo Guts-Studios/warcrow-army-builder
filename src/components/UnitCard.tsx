@@ -7,6 +7,7 @@ import UnitCardKeywords from "./unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { useState, useEffect, memo } from "react";
 import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
 
@@ -119,6 +120,16 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           />
         </div>
       </div>
+
+      {/* Tournament Legal Status - Show for all non-tournament legal units */}
+      {unit.tournamentLegal === false && (
+        <div className="flex justify-center">
+          <Badge variant="destructive" className="text-xs">
+            {language === 'en' ? "Not Tournament Legal" : 
+             language === 'es' ? "No Legal para Torneo" : "Not Tournament Legal"}
+          </Badge>
+        </div>
+      )}
 
       <UnitCardKeywords 
         unit={normalizedUnit}
