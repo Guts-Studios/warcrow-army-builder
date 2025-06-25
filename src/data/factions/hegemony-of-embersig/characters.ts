@@ -104,7 +104,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
   {
     id: "gale-falchion",
     name: "Gale Falchion",
-    name_es: "Gale Falchion",
+    name_es: "Alfanje Del Vendaval",
     pointsCost: 25,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
