@@ -267,7 +267,7 @@ const UnitListSection = ({
               )}
             </div>
             
-            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery || tournamentLegalFilter !== 'all') && (
+            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery || hideTournamentIllegal) && (
               <div className="flex justify-end">
                 <button
                   onClick={clearAllFilters}
