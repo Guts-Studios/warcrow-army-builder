@@ -7,7 +7,7 @@ export const getFactionName = (factionId: string): string => {
   return factionData?.name || "Unknown Faction";
 };
 
-export const generateListText = (selectedUnits: SelectedUnit[], listName: string | null, faction: string): string => {
+export const generateListText = (selectedUnits: SelectedUnit[], listName: string | null, faction: string, language: string = 'en'): string => {
   const sortedUnits = [...selectedUnits].sort((a, b) => {
     if (a.highCommand && !b.highCommand) return -1;
     if (!a.highCommand && b.highCommand) return 1;
@@ -15,11 +15,23 @@ export const generateListText = (selectedUnits: SelectedUnit[], listName: string
   });
 
   const factionName = getFactionName(faction);
+  
+  // Get the appropriate unit name based on language
+  const getUnitName = (unit: SelectedUnit) => {
+    if (language === 'es' && unit.name_es) {
+      return unit.name_es;
+    }
+    return unit.name;
+  };
+
   const listText = `${listName || "Untitled List"}\nFaction: ${factionName}\n\n${sortedUnits
     .map((unit) => {
+      const unitName = getUnitName(unit);
       const highCommandLabel = unit.highCommand ? " [High Command]" : "";
       const commandPoints = unit.command ? ` (${unit.command} CP)` : "";
-      return `${unit.name}${highCommandLabel}${commandPoints} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
+      const tournamentStatus = unit.tournamentLegal === false ? 
+        (language === 'es' ? " [No Legal para Torneo]" : " [Not Tournament Legal]") : "";
+      return `${unitName}${highCommandLabel}${commandPoints}${tournamentStatus} x${unit.quantity} (${unit.pointsCost * unit.quantity} pts)`;
     })
     .join("\n")}`;
 
@@ -33,7 +45,10 @@ export const generateListText = (selectedUnits: SelectedUnit[], listName: string
     0
   );
 
-  return `${listText}\n\nTotal Command Points: ${totalCommand}\nTotal Points: ${totalPoints}`;
+  const commandLabel = language === 'es' ? "Puntos de Comando Totales" : "Total Command Points";
+  const pointsLabel = language === 'es' ? "Puntos Totales" : "Total Points";
+
+  return `${listText}\n\n${commandLabel}: ${totalCommand}\n${pointsLabel}: ${totalPoints}`;
 };
 
 export const filterUnitsForCourtesy = (units: SelectedUnit[]): SelectedUnit[] => {

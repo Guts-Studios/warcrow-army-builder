@@ -5,11 +5,11 @@ import UnitControls from "@/components/unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UnitCardKeywords from "@/components/unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslateKeyword } from "@/utils/translationUtils";
 import { generateCardUrl } from "@/utils/imageUtils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import UnitCardDialog from "@/components/stats/unit-explorer/UnitCardDialog";
+import { Badge } from "@/components/ui/badge";
 
 interface UnitCardProps {
   unit: Unit;
@@ -21,11 +21,17 @@ interface UnitCardProps {
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
   const { language } = useLanguage();
-  const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
-  // Translate unit name based on the selected language for display only
-  const displayName = translateUnitName(unit.name);
+  // Get the appropriate unit name based on language
+  const getUnitName = () => {
+    if (language === 'es' && unit.name_es) {
+      return unit.name_es;
+    }
+    return unit.name;
+  };
+
+  const displayName = getUnitName();
 
   // Function to handle view card button click
   const handleViewCardClick = () => {
@@ -57,6 +63,16 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           />
         </div>
       </div>
+
+      {/* Tournament Legal Status */}
+      {unit.tournamentLegal === false && (
+        <div className="flex justify-center">
+          <Badge variant="destructive" className="text-xs">
+            {language === 'en' ? "Not Tournament Legal" : 
+             language === 'es' ? "No Legal para Torneo" : "Not Tournament Legal"}
+          </Badge>
+        </div>
+      )}
 
       <UnitCardKeywords 
         unit={unit}

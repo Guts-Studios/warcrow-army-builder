@@ -2,6 +2,7 @@
 export interface Unit {
   id: string;
   name: string;
+  name_es?: string; // Spanish name
   faction: string;
   faction_id?: string;
   pointsCost: number;
@@ -13,6 +14,7 @@ export interface Unit {
   imageUrl?: string;
   companion?: string; // ID of the unit this is a companion to
   type?: string; // Unit type from CSV (troop, character, etc.)
+  tournamentLegal?: boolean; // Tournament legal status
   // CSV mapping fields
   characteristics?: string[]; // For CSV characteristics that aren't keywords
   csvKeywords?: string[]; // Raw CSV keywords before processing
@@ -68,10 +70,13 @@ export type SortOption = "points-asc" | "points-desc" | "name-asc" | "name-desc"
 
 // CSV Processing Types
 export interface CsvUnitRow {
-  'Unit Name': string;
+  'Unit Name'?: string; // For backwards compatibility
+  'Unit Name EN': string;
+  'Unit Name SP'?: string;
   'Unit Type': string;
   Faction: string;
   'Faction ID'?: string;
+  'faction_id'?: string;
   Command: string;
   AVB: string;
   Characteristics: string;
@@ -79,12 +84,14 @@ export interface CsvUnitRow {
   'High Command': string;
   'Points Cost': string;
   'Special Rules': string;
+  'Tournament Legal'?: string;
   Companion?: string;
 }
 
 export interface ProcessedCsvUnit {
   id: string;
   name: string;
+  name_es?: string;
   faction: string;
   faction_id?: string;
   type: string;
@@ -96,4 +103,5 @@ export interface ProcessedCsvUnit {
   highCommand: boolean;
   specialRules: string[];
   companion?: string;
+  tournamentLegal?: boolean;
 }

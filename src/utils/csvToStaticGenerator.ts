@@ -17,7 +17,7 @@ const FACTION_CSV_MAPPING: Record<string, string> = {
   'northern-tribes': 'Northern Tribes.csv',
   'syenann': 'The Syenann.csv',
   'hegemony-of-embersig': 'Hegemony of Embersig.csv',
-  'scions-of-yaldabaoth': 'Scions of Taldabaoth.csv'
+  'scions-of-yaldabaoth': 'Scions of Yaldabaoth.csv'
 };
 
 // Faction naming conventions that match existing codebase
@@ -39,7 +39,7 @@ export const parseCsvToUnits = async (csvContent: string): Promise<ProcessedCsvU
       complete: (results) => {
         try {
           const units = results.data
-            .filter((row: any) => row['Unit Name'] && row['Unit Name'].trim())
+            .filter((row: any) => (row['Unit Name EN'] || row['Unit Name']) && (row['Unit Name EN'] || row['Unit Name']).trim())
             .map((row: any) => processCsvRow(row as CsvUnitRow));
           
           console.log(`Processed ${units.length} units from CSV`);
@@ -59,8 +59,12 @@ export const parseCsvToUnits = async (csvContent: string): Promise<ProcessedCsvU
  * Process a single CSV row into a ProcessedCsvUnit
  */
 const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
-  // Generate ID from unit name
-  const id = row['Unit Name'].toLowerCase()
+  // Handle both old and new CSV formats
+  const unitNameEn = row['Unit Name EN'] || row['Unit Name'];
+  const unitNameEs = row['Unit Name SP'];
+  
+  // Generate ID from English unit name
+  const id = unitNameEn.toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, '-');
 
@@ -85,12 +89,13 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 
   // Parse boolean fields - handle both "Yes"/"No" and "yes"/"no"
   const highCommand = row['High Command']?.toLowerCase() === 'yes';
+  const tournamentLegal = row['Tournament Legal']?.toLowerCase() === 'yes';
 
   // Parse special rules using the new bracket format
   const specialRules = parseDelimitedFieldWithBrackets(row['Special Rules']);
 
   // Normalize faction ID
-  const factionId = row['Faction ID'] || row['faction_id'] || normalizeFactionName(row.Faction);
+  const factionId = row['faction_id'] || row['Faction ID'] || normalizeFactionName(row.Faction);
 
   // Determine unit type from the CSV data
   let unitType = 'troop';
@@ -107,7 +112,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
 
   return {
     id,
-    name: row['Unit Name'],
+    name: unitNameEn,
+    name_es: unitNameEs,
     faction: factionId,
     faction_id: factionId,
     type: unitType,
@@ -118,7 +124,8 @@ const processCsvRow = (row: CsvUnitRow): ProcessedCsvUnit => {
     keywords,
     highCommand,
     specialRules,
-    companion: row.Companion
+    companion: row.Companion,
+    tournamentLegal
   };
 };
 
@@ -208,6 +215,7 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
   return {
     id: csvUnit.id,
     name: csvUnit.name,
+    name_es: csvUnit.name_es,
     faction: csvUnit.faction,
     faction_id: csvUnit.faction_id,
     pointsCost: csvUnit.pointsCost,
@@ -218,7 +226,8 @@ export const csvUnitToStaticUnit = (csvUnit: ProcessedCsvUnit): Unit => {
     highCommand: csvUnit.highCommand,
     imageUrl: `/art/card/${csvUnit.id}_card.jpg`,
     companion: csvUnit.companion,
-    type: csvUnit.type // Preserve the type information
+    type: csvUnit.type,
+    tournamentLegal: csvUnit.tournamentLegal
   };
 };
 
@@ -244,10 +253,13 @@ export const generateUnitFileContent = (
     
     const command = unit.command !== undefined ? `command: ${unit.command},` : '';
     const companion = unit.companion ? `companion: "${unit.companion}",` : '';
+    const nameEs = unit.name_es ? `name_es: "${unit.name_es}",` : '';
+    const tournamentLegal = unit.tournamentLegal !== undefined ? `tournamentLegal: ${unit.tournamentLegal},` : '';
     
     return `  {
     id: "${unit.id}",
     name: "${unit.name}",
+    ${nameEs}
     pointsCost: ${unit.pointsCost},
     faction: "${unit.faction}",
     faction_id: "${unit.faction_id || unit.faction}",
@@ -259,6 +271,7 @@ export const generateUnitFileContent = (
     ${command}
     ${specialRules}
     ${companion}
+    ${tournamentLegal}
     imageUrl: "${unit.imageUrl}"
   }`;
   }).join(',\n');

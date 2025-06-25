@@ -7,16 +7,40 @@ interface PrintListContentProps {
   listName: string | null;
   faction: string;
   isCourtesyList?: boolean;
+  language?: string;
 }
 
-export const PrintListContent = ({ units, listName, faction, isCourtesyList }: PrintListContentProps) => {
+export const PrintListContent = ({ units, listName, faction, isCourtesyList, language = 'en' }: PrintListContentProps) => {
   const totalPoints = units.reduce((sum, unit) => sum + (unit.pointsCost * (unit.quantity || 1)), 0);
   const totalCommand = units.reduce((sum, unit) => sum + ((unit.command || 0) * (unit.quantity || 1)), 0);
+
+  // Get the appropriate unit name based on language
+  const getUnitName = (unit: SelectedUnit) => {
+    if (language === 'es' && unit.name_es) {
+      return unit.name_es;
+    }
+    return unit.name;
+  };
+
+  const listTypeLabel = isCourtesyList ? 
+    (language === 'es' ? "Lista de Cortesía" : "Courtesy List") :
+    (language === 'es' ? "Lista Completa" : "Full List");
+
+  const factionLabel = language === 'es' ? "Facción" : "Faction";
+  const createdLabel = language === 'es' ? "Creado" : "Created";
+  const unitsLabel = language === 'es' ? "Unidades" : "Units";
+  const commandPointsLabel = language === 'es' ? "Puntos de Comando" : "Command Points";
+  const totalPointsLabel = language === 'es' ? "Puntos Totales" : "Total Points";
+  const highCommandLabel = language === 'es' ? "Alto Mando" : "High Command";
+  const notTournamentLegalLabel = language === 'es' ? "No Legal para Torneo" : "Not Tournament Legal";
+  const courtesyNoticeLabel = language === 'es' ? 
+    "Lista de Cortesía - Unidades Scout y Ambusher ocultas" :
+    "Courtesy List - Scout and Ambusher units hidden";
 
   return `
     <html>
       <head>
-        <title>${isCourtesyList ? "Courtesy List" : "Full List"} - ${listName || "Untitled List"}</title>
+        <title>${listTypeLabel} - ${listName || "Untitled List"}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -46,6 +70,11 @@ export const PrintListContent = ({ units, listName, faction, isCourtesyList }: P
             color: #8a6d3b;
             margin-left: 5px;
           }
+          .tournament-status {
+            color: #d9534f;
+            margin-left: 5px;
+            font-style: italic;
+          }
           .totals {
             margin-top: 20px;
             padding-top: 10px;
@@ -64,19 +93,20 @@ export const PrintListContent = ({ units, listName, faction, isCourtesyList }: P
       <body>
         <div class="header">
           <h1>${listName || "Untitled List"}</h1>
-          <p>Faction: ${getFactionName(faction)}</p>
-          <p class="meta">Created: ${new Date().toLocaleDateString()}</p>
-          ${isCourtesyList ? '<p class="notice">Courtesy List - Scout and Ambusher units hidden</p>' : ''}
+          <p>${factionLabel}: ${getFactionName(faction)}</p>
+          <p class="meta">${createdLabel}: ${new Date().toLocaleDateString()}</p>
+          ${isCourtesyList ? `<p class="notice">${courtesyNoticeLabel}</p>` : ''}
         </div>
 
-        <h2>Units</h2>
+        <h2>${unitsLabel}</h2>
         <div class="units">
           ${units.map(unit => `
             <div class="unit">
               <div>
-                <span class="unit-name">${unit.name}</span>
-                ${unit.highCommand ? ' [High Command]' : ''}
+                <span class="unit-name">${getUnitName(unit)}</span>
+                ${unit.highCommand ? ` [${highCommandLabel}]` : ''}
                 ${unit.command ? `<span class="command">(${unit.command} CP)</span>` : ''}
+                ${unit.tournamentLegal === false ? `<span class="tournament-status">[${notTournamentLegalLabel}]</span>` : ''}
                 ${unit.quantity > 1 ? ` ×${unit.quantity}` : ''}
               </div>
               <div>${unit.pointsCost * (unit.quantity || 1)} pts</div>
@@ -85,8 +115,8 @@ export const PrintListContent = ({ units, listName, faction, isCourtesyList }: P
         </div>
 
         <div class="totals">
-          <div>Command Points: ${totalCommand} CP</div>
-          <div>Total Points: ${totalPoints} pts</div>
+          <div>${commandPointsLabel}: ${totalCommand} CP</div>
+          <div>${totalPointsLabel}: ${totalPoints} pts</div>
         </div>
 
         <div class="footer">
