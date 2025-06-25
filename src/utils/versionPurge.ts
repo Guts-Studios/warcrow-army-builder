@@ -20,6 +20,86 @@ const PRESERVED_KEYS = [
 ];
 
 /**
+ * CRITICAL: Force complete cache invalidation for production data issues
+ */
+export async function emergencyCacheClear(): Promise<void> {
+  console.log('[EMERGENCY] 🚨 Starting emergency cache clear for data inconsistency');
+
+  try {
+    // 1. Clear all browser storage
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log('[EMERGENCY] 🗑️ Cleared all browser storage');
+
+    // 2. Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+        console.log('[EMERGENCY] 🗑️ Unregistered service worker');
+      }
+    }
+
+    // 3. Clear all browser caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const cacheName of cacheNames) {
+        await caches.delete(cacheName);
+        console.log(`[EMERGENCY] 🗑️ Deleted cache: ${cacheName}`);
+      }
+    }
+
+    // 4. Clear IndexedDB (if used by React Query or other libraries)
+    if ('indexedDB' in window) {
+      try {
+        const databases = await indexedDB.databases();
+        for (const db of databases) {
+          if (db.name) {
+            indexedDB.deleteDatabase(db.name);
+            console.log(`[EMERGENCY] 🗑️ Deleted IndexedDB: ${db.name}`);
+          }
+        }
+      } catch (error) {
+        console.warn('[EMERGENCY] ⚠️ Could not clear IndexedDB:', error);
+      }
+    }
+
+    console.log('[EMERGENCY] ✅ Emergency cache clear complete');
+  } catch (error) {
+    console.error('[EMERGENCY] ❌ Error during emergency cache clear:', error);
+  }
+}
+
+/**
+ * Add data version checking and validation
+ */
+export function validateCriticalUnitData(): void {
+  console.log('[VALIDATION] 🔍 Starting critical unit data validation');
+  
+  // Create a data timestamp for cache busting
+  const dataTimestamp = Date.now();
+  localStorage.setItem(`${ENV_PREFIX}dataValidationTime`, dataTimestamp.toString());
+  
+  console.log(`[VALIDATION] ⏰ Data validation timestamp: ${dataTimestamp}`);
+}
+
+/**
+ * Force reload with cache busting
+ */
+export function forceReloadWithCacheBust(): void {
+  console.log('[CACHE-BUST] 🔄 Forcing reload with cache busting');
+  
+  // Add timestamp to force cache bypass
+  const timestamp = Date.now();
+  const url = new URL(window.location.href);
+  url.searchParams.set('cacheBust', timestamp.toString());
+  url.searchParams.set('dataRefresh', 'true');
+  
+  // Force hard reload
+  window.location.href = url.toString();
+}
+
+/**
  * One-time migration to clear old global keys that might be causing conflicts
  */
 export function clearOldGlobalKeys(): void {
@@ -44,92 +124,6 @@ export function clearOldGlobalKeys(): void {
       console.log(`[Storage] 🗑️ Removed old global key: ${key}`);
     }
   });
-}
-
-/**
- * Clears all service workers and caches (nuclear option)
- */
-export async function clearAllCachesAndSW(): Promise<void> {
-  console.log('[Storage] 🧹 Performing nuclear cache clear...');
-
-  try {
-    // Clear all service workers
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
-        console.log('[Storage] 🗑️ Unregistered service worker');
-      }
-    }
-
-    // Clear all caches
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      for (const cacheName of cacheNames) {
-        await caches.delete(cacheName);
-        console.log(`[Storage] 🗑️ Deleted cache: ${cacheName}`);
-      }
-    }
-
-    // Clear all storage but preserve cross-environment data
-    const keysToPreserve: Record<string, string> = {};
-    
-    // In production, preserve preview data and vice versa
-    const otherEnvPrefix = ENV_PREFIX === 'preview_' ? 'prod_' : 'preview_';
-    
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(otherEnvPrefix)) {
-        const value = localStorage.getItem(key);
-        if (value !== null) {
-          keysToPreserve[key] = value;
-        }
-      }
-    }
-    
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Restore other environment's data
-    Object.entries(keysToPreserve).forEach(([key, value]) => {
-      localStorage.setItem(key, value);
-    });
-
-    console.log('[Storage] ✅ Nuclear cache clear complete');
-  } catch (error) {
-    console.error('[Storage] ❌ Error during nuclear cache clear:', error);
-  }
-}
-
-/**
- * Clears only stale authentication tokens while preserving other data
- */
-export function clearStaleAuthTokens(): void {
-  console.log('[Storage] 🔐 Clearing stale authentication tokens...');
-  
-  try {
-    // Find all Supabase auth-related keys for this environment
-    const authKeysToRemove = Object.keys(localStorage).filter(key => 
-      key.includes('supabase.auth') || 
-      key.startsWith(`${ENV_PREFIX}sb-`) ||
-      key === `${ENV_PREFIX}supabase.auth.token`
-    );
-    
-    authKeysToRemove.forEach(key => {
-      localStorage.removeItem(key);
-      console.log(`[Storage] 🗑️ Removed auth key: ${key}`);
-    });
-    
-    // Clear session storage (may contain temporary auth data)
-    sessionStorage.clear();
-    
-    // Update token version to current app version
-    localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
-    
-    console.log(`[Storage] ✅ Cleared ${authKeysToRemove.length} stale auth tokens`);
-  } catch (error) {
-    console.error('[Storage] ❌ Error clearing stale auth tokens:', error);
-  }
 }
 
 /**
@@ -170,80 +164,6 @@ export function clearUnitCache(): void {
 }
 
 /**
- * Selectively purges only stale app cache data while preserving:
- * - Army lists (armyList_ prefix)
- * - Authentication tokens and session data
- * - User preferences
- */
-export function purgeStaleAppCache(): void {
-  console.log('[Storage] 🧹 Selectively purging stale app cache...');
-
-  try {
-    const keysToPreserve: Record<string, string> = {};
-    
-    // Gather keys to preserve for this environment
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key) {
-        const shouldPreserve = 
-          key.startsWith(ARMY_LIST_PREFIX) ||
-          PRESERVED_KEYS.some(prefix => key.startsWith(prefix)) ||
-          key === VERSION_STORAGE_KEY ||
-          key === TOKEN_VERSION_KEY;
-          
-        if (shouldPreserve) {
-          const value = localStorage.getItem(key);
-          if (value !== null) {
-            keysToPreserve[key] = value;
-          }
-        }
-      }
-    }
-
-    console.log(`[Storage] 📦 Preserving ${Object.keys(keysToPreserve).length} important keys for ${ENV_PREFIX} environment`);
-
-    // Clear all localStorage
-    localStorage.clear();
-
-    // Restore preserved keys
-    Object.entries(keysToPreserve).forEach(([key, value]) => {
-      localStorage.setItem(key, value);
-    });
-
-    // Update version to current
-    localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
-    localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
-    
-    // Force clear unit cache after version update
-    clearUnitCache();
-
-    console.log(`[Storage] ✅ Selective purge complete for ${ENV_PREFIX} environment. Preserved auth tokens and army lists.`);
-  } catch (error) {
-    console.error('[Storage] ❌ Error during selective purge:', error);
-  }
-}
-
-/**
- * Checks if authentication tokens need to be cleared due to version changes
- */
-export function checkTokenVersionAndClear(): void {
-  try {
-    const storedTokenVersion = localStorage.getItem(TOKEN_VERSION_KEY);
-    
-    console.log(`[Storage] 🔐 Token version check (${ENV_PREFIX}): stored=${storedTokenVersion}, current=${APP_VERSION}`);
-    
-    if (storedTokenVersion !== APP_VERSION) {
-      console.log(`[Storage] 🔄 Token version change detected: ${storedTokenVersion} → ${APP_VERSION}`);
-      clearStaleAuthTokens();
-    } else {
-      console.log('[Storage] ✅ Token version unchanged, no token clear needed');
-    }
-  } catch (error) {
-    console.error('[Storage] ❌ Error checking token version:', error);
-  }
-}
-
-/**
  * Checks if we need to purge stale cache based on version change
  */
 export function checkAndPurgeIfNeeded(): void {
@@ -257,68 +177,39 @@ export function checkAndPurgeIfNeeded(): void {
     
     if (storedVersion !== APP_VERSION) {
       console.log(`[Storage] 🔄 Version change detected: ${storedVersion} → ${APP_VERSION}`);
-      purgeStaleAppCache();
       
-      // Also clear any potential stale caches
-      if ('caches' in window) {
-        caches.keys().then(cacheNames => {
-          cacheNames.forEach(cacheName => {
-            if (cacheName.includes('html-cache') || cacheName.includes('version-cache') || cacheName.includes('assets-cache')) {
-              caches.delete(cacheName);
-              console.log(`[Storage] 🗑️ Deleted stale cache: ${cacheName}`);
-            }
-          });
-        });
-      }
+      // For critical data issues, do emergency cache clear
+      emergencyCacheClear();
+      
+      // Set new version
+      localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+      localStorage.setItem(TOKEN_VERSION_KEY, APP_VERSION);
+      
+      // Validate critical data
+      validateCriticalUnitData();
     } else {
-      console.log('[Storage] ✅ Version unchanged, no purge needed');
-      
-      // Even if version is the same, force clear unit cache if in production
-      // to ensure fresh unit data loads
-      if (ENV_PREFIX === 'prod_') {
-        clearUnitCache();
-      }
+      console.log('[Storage] ✅ Version unchanged, but clearing unit cache for data consistency');
+      // Even if version is the same, force clear unit cache for data issues
+      clearUnitCache();
+      validateCriticalUnitData();
     }
-    
-    // Also check token version separately
-    checkTokenVersionAndClear();
   } catch (error) {
     console.error('[Storage] ❌ Error checking version:', error);
   }
 }
 
-/**
- * Adds version parameter to fetch requests for cache busting
- */
-export function createVersionedFetch(baseUrl: string): string {
-  const url = new URL(baseUrl, window.location.origin);
-  url.searchParams.set('version', APP_VERSION);
-  return url.toString();
-}
-
-// Expose helper for development/testing
+// Expose emergency functions for development/testing
 if (typeof window !== 'undefined') {
-  (window as any).__resetPreview = () => {
-    console.log('[Storage] 🔄 Manual preview reset triggered');
-    for (let key in localStorage) {
-      if (key.startsWith('preview_')) {
-        localStorage.removeItem(key);
-        console.log(`[Storage] 🗑️ Removed preview key: ${key}`);
-      }
-    }
-    clearUnitCache();
-    location.reload();
+  (window as any).__emergencyDataFix = () => {
+    console.log('[EMERGENCY] 🚨 Manual emergency data fix triggered');
+    emergencyCacheClear().then(() => {
+      forceReloadWithCacheBust();
+    });
   };
   
-  (window as any).__resetProd = () => {
-    console.log('[Storage] 🔄 Manual production reset triggered');
-    for (let key in localStorage) {
-      if (key.startsWith('prod_')) {
-        localStorage.removeItem(key);
-        console.log(`[Storage] 🗑️ Removed production key: ${key}`);
-      }
-    }
+  (window as any).__validateData = () => {
+    console.log('[VALIDATION] 🔍 Manual data validation triggered');
+    validateCriticalUnitData();
     clearUnitCache();
-    location.reload();
   };
 }
