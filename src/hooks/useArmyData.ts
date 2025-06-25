@@ -18,12 +18,24 @@ export const useArmyBuilderUnits = (factionId: string) => {
       const allUnits = normalizeUnits(units);
       console.log(`[useArmyBuilderUnits] Total units loaded: ${allUnits.length}`);
       
+      // Debug: Log all Syenann units before filtering
+      const syenannUnitsAll = allUnits.filter(unit => {
+        const unitFactionId = normalizeFactionId(unit.faction_id || unit.faction);
+        return unitFactionId === 'syenann';
+      });
+      console.log(`[useArmyBuilderUnits] All Syenann units found:`, syenannUnitsAll.map(u => ({ 
+        name: u.name, 
+        faction: u.faction, 
+        faction_id: u.faction_id 
+      })));
+      
       const factionUnits = allUnits.filter(unit => {
         const unitFactionId = normalizeFactionId(unit.faction_id || unit.faction);
         return unitFactionId === normalizedFactionId;
       });
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units for ${normalizedFactionId}`);
+      console.log(`[useArmyBuilderUnits] Unit names:`, factionUnits.map(u => u.name));
       
       // Debug: Check specifically for Mounted Hetman in Hegemony
       if (normalizedFactionId === 'hegemony-of-embersig') {
