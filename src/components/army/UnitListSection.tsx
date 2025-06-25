@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
@@ -99,9 +100,10 @@ const UnitListSection = ({
 
   // Filter units based on search query, selected characteristics, selected keywords, and tournament legal status
   const filteredUnits = factionUnits.filter(unit => {
-    // Text search filter
+    // Text search filter - now includes Spanish names when language is Spanish
     const matchesSearch = searchQuery === "" || 
       unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (language === 'es' && unit.name_es && unit.name_es.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (unit.keywords && unit.keywords.some(keyword => {
         const keywordName = typeof keyword === 'string' ? keyword : keyword.name;
         return keywordName.toLowerCase().includes(searchQuery.toLowerCase());
