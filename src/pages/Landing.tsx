@@ -22,12 +22,12 @@ const Landing = () => {
           <CardContent className="text-center space-y-4">
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/army-builder">Start Building</Link>
+                <Link to="/builder">Start Building</Link>
               </Button>
               
               {isAuthenticated && (
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/account">My Account</Link>
+                  <Link to="/profile">My Profile</Link>
                 </Button>
               )}
               
