@@ -22,7 +22,11 @@ const UnitHeader = ({ unit, mainName, subtitle, portraitUrl }: UnitHeaderProps) 
 
   return (
     <div className="flex items-start gap-2">
-      <AvatarPortrait portraitUrl={portraitUrl} name={mainName} />
+      <AvatarPortrait 
+        portraitUrl={portraitUrl} 
+        name={unit.name}
+        fallback={mainName.split(' ').map(word => word[0]).join('')}
+      />
       <div className="space-y-1">
         <UnitTitle 
           mainName={mainName}
