@@ -1,4 +1,3 @@
-
 import { SelectedUnit, Unit } from "@/types/army";
 
 export const getUpdatedQuantities = (
@@ -52,6 +51,8 @@ export const updateSelectedUnits = (
       const newSelectedUnit: SelectedUnit = {
         id: unit.id,
         name: unit.name,
+        name_es: unit.name_es, // Preserve Spanish name
+        name_fr: unit.name_fr, // Preserve French name
         pointsCost: unit.pointsCost,
         quantity: 1,
         faction: unit.faction,
@@ -63,7 +64,8 @@ export const updateSelectedUnits = (
         availability: unit.availability,
         imageUrl: unit.imageUrl,
         specialRules: unit.specialRules || [],
-        command: unit.command || 0
+        command: unit.command || 0,
+        tournamentLegal: unit.tournamentLegal
       };
       const updatedUnits = [...currentUnits, newSelectedUnit];
       console.log(`[updateSelectedUnits] Added new unit: ${unit.name}`);

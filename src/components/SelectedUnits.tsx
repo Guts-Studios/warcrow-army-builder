@@ -48,11 +48,21 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
     return total + ((unit.command || 0) * unit.quantity);
   }, 0);
 
-  const formatUnitDisplay = (name: string, quantity: number | undefined) => {
-    if (!name || typeof quantity !== 'number') return "";
-    // Translate unit name if not in English
-    const displayName = language !== 'en' ? translateUnitName(name) : name;
-    const displayQuantity = Math.min(quantity, 9);
+  const getTranslatedUnitName = (unit: SelectedUnit): string => {
+    if (language === 'es' && unit.name_es) {
+      return unit.name_es;
+    }
+    // Add support for French when available
+    if (language === 'fr' && unit.name_fr) {
+      return unit.name_fr;
+    }
+    return unit.name;
+  };
+
+  const formatUnitDisplay = (unit: SelectedUnit) => {
+    if (!unit.name || typeof unit.quantity !== 'number') return "";
+    const displayName = getTranslatedUnitName(unit);
+    const displayQuantity = Math.min(unit.quantity, 9);
     return `${displayName} x${displayQuantity}`;
   };
 
@@ -115,7 +125,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
               >
                 <div className="flex items-center gap-2">
                   <div className="text-warcrow-text flex items-center gap-1">
-                    <span>{formatUnitDisplay(unit.name, unit.quantity)}</span>
+                    <span>{formatUnitDisplay(unit)}</span>
                     {unit.command ? (
                       <TooltipProvider>
                         <Tooltip>
@@ -202,7 +212,7 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
         <UnitCardDialog
           isOpen={isCardDialogOpen}
           onClose={() => setIsCardDialogOpen(false)}
-          unitName={translateUnitName(currentUnit.name)}
+          unitName={getTranslatedUnitName(currentUnit)}
           cardUrl={getCardUrl(currentUnit)}
         />
       )}
