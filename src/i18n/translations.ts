@@ -4,6 +4,7 @@ import { landingTranslations } from './landing';
 import { commonTranslations } from './common';
 import { uiTranslations } from './ui';
 import { faqTranslations } from './faq';
+import { unitsTranslations } from './units';
 import { TranslationsType } from './types';
 
 export const translations: TranslationsType = {
@@ -22,6 +23,9 @@ export const translations: TranslationsType = {
   
   // Import FAQ translations
   ...faqTranslations,
+  
+  // Import units translations
+  ...unitsTranslations,
   
   // Landing page translations
   ...landingTranslations,
