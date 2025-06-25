@@ -1,25 +1,24 @@
-
 import { Unit } from "@/types/army";
+import { vercana } from "./vercana";
 
 export const hegemonyOfEmbersigCharacters: Unit[] = [
+  vercana,
   {
     id: "aide",
     name: "Aide",
-    name_es: "Legado",
+    name_es: "Ayudante",
     pointsCost: 25,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
-      { name: "Aestari", description: "" },
       { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Spellcaster", description: "" }
+      { name: "Human", description: "" },
+      { name: "Join (Infantry Human)", description: "" }
     ],
     highCommand: false,
     availability: 1,
     command: 1,
-    specialRules: ["Place (10)"],
+    specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/aide_card.jpg"
   },
@@ -40,10 +39,8 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
-    specialRules: [],
     tournamentLegal: true,
-    imageUrl: "/art/card/ansera-noighman_card.jpg"
+    imageUrl: "/art/card/ansera_noighman_card.jpg"
   },
   {
     id: "corporal",
@@ -60,7 +57,6 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 2,
-    specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/corporal_card.jpg"
   },
@@ -81,8 +77,6 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
-    specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/engineer_card.jpg"
   },
@@ -102,10 +96,9 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
     specialRules: ["Slowed", "Impassable"],
     tournamentLegal: true,
-    imageUrl: "/art/card/frostfire-herald_card.jpg"
+    imageUrl: "/art/card/frostfire_herald_card.jpg"
   },
   {
     id: "gale-falchion",
@@ -122,10 +115,8 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
-    specialRules: [],
     tournamentLegal: true,
-    imageUrl: "/art/card/gale-falchion_card.jpg"
+    imageUrl: "/art/card/gale_falchion_card.jpg"
   },
   {
     id: "gunnery-corporal",
@@ -145,10 +136,10 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 1,
     specialRules: ["Repeat a die"],
     tournamentLegal: true,
-    imageUrl: "/art/card/gunnery-corporal_card.jpg"
+    imageUrl: "/art/card/gunnery_corporal_card.jpg"
   },
   {
-    id: "lady-telia",
+    id: "lady-télia",
     name: "Lady Télia",
     name_es: "Lady Télia",
     pointsCost: 25,
@@ -167,7 +158,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 2,
     specialRules: ["Frightened", "Aim", "Repeat a Die"],
     tournamentLegal: true,
-    imageUrl: "/art/card/lady-telia_card.jpg"
+    imageUrl: "/art/card/lady_telia_card.jpg"
   },
   {
     id: "marhael-the-refused",
@@ -188,7 +179,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 1,
     specialRules: ["Place (11)"],
     tournamentLegal: true,
-    imageUrl: "/art/card/marhael-the-refused_card.jpg"
+    imageUrl: "/art/card/marhael_the_refused_card.jpg"
   },
   {
     id: "nadezhda-lazard-champion-of-embersig",
@@ -207,7 +198,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 2,
     specialRules: ["Disarmed", "Vulnerable"],
     tournamentLegal: true,
-    imageUrl: "/art/card/nadezhda-lazard-champion-of-embersig_card.jpg"
+    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   {
     id: "naergon-caladren",
@@ -228,7 +219,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 1,
     specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
     tournamentLegal: true,
-    imageUrl: "/art/card/naergon-caladren_card.jpg"
+    imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
   {
     id: "nayra-caladren",
@@ -248,10 +239,9 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
     specialRules: ["Disarmed", "Slowed", "Vulnerable"],
     tournamentLegal: true,
-    imageUrl: "/art/card/nayra-caladren_card.jpg"
+    imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
   {
     id: "strategos",
@@ -268,7 +258,6 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 1,
-    specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/strategos_card.jpg"
   },
@@ -292,27 +281,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     command: 1,
     specialRules: ["Disarmed"],
     tournamentLegal: true,
-    imageUrl: "/art/card/trabor-slepmund_card.jpg"
-  },
-  {
-    id: "vercana",
-    name: "Vercana",
-    name_es: "Vercana",
-    pointsCost: 30,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Mercenary", description: "" },
-      { name: "Ambusher", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Place (5)"],
-    tournamentLegal: false,
-    imageUrl: "/art/card/vercana_card.jpg"
+    imageUrl: "/art/card/trabor_slepmund_card.jpg"
   },
   {
     id: "war-surgeon",
@@ -328,9 +297,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
-    command: 0,
-    specialRules: [],
     tournamentLegal: true,
-    imageUrl: "/art/card/war-surgeon_card.jpg"
+    imageUrl: "/art/card/war_surgeon_card.jpg"
   }
 ];
