@@ -1,6 +1,6 @@
 
 import { Button } from "./ui/button";
-import { Minus, Eye, Check, Diamond } from "lucide-react";
+import { Minus, Eye, Check, Diamond, AlertTriangle } from "lucide-react";
 import { SelectedUnit } from "@/types/army";
 import {
   Dialog,
@@ -139,6 +139,18 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>High Command</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                    {unit.tournamentLegal === false && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <AlertTriangle className="h-4 w-4 text-red-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{language === 'es' ? 'No Legal para Torneo' : 'Not Tournament Legal'}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
