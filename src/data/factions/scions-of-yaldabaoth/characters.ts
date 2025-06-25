@@ -1,11 +1,11 @@
 
 import { Unit } from "@/types/army";
-import { vercana } from "./characters/vercana";
 
 export const scionsOfYaldabaothCharacters: Unit[] = [
   {
     id: "aodharu",
     name: "Aodharu",
+    name_es: "Aodharu",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -21,11 +21,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 0,
     specialRules: ["Frightened"],
+    tournamentLegal: true,
     imageUrl: "/art/card/aodharu_card.jpg"
   },
   {
     id: "feadhalu",
     name: "Feadhalu",
+    name_es: "Feadhalu",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -39,11 +41,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 0,
     specialRules: ["Frightened", "Place (7)"],
+    tournamentLegal: true,
     imageUrl: "/art/card/feadhalu_card.jpg"
   },
   {
     id: "harvester",
     name: "Harvester",
+    name_es: "Segador",
     pointsCost: 40,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -59,11 +63,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Frightened"],
+    tournamentLegal: true,
     imageUrl: "/art/card/harvester_card.jpg"
   },
   {
     id: "namaoin",
     name: "Namaoin",
+    name_es: "Namaoin",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -80,11 +86,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 0,
     specialRules: ["Vulnerable", "Frightened", "Impassable"],
+    tournamentLegal: true,
     imageUrl: "/art/card/namaoin_card.jpg"
   },
   {
     id: "needle",
     name: "Needle",
+    name_es: "Aguja",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -101,11 +109,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 3,
     command: 1,
     specialRules: ["Heal", "Frightened"],
+    tournamentLegal: true,
     imageUrl: "/art/card/needle_card.jpg"
   },
   {
     id: "orc-husk",
     name: "Orc Husk",
+    name_es: "Cascara Orco",
     pointsCost: 10,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -119,11 +129,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 2,
     command: 0,
     specialRules: ["Vulnerable", "Frightened", "Slowed", "Disarmed"],
+    tournamentLegal: true,
     imageUrl: "/art/card/orc_husk_card.jpg"
   },
   {
     id: "overseer",
     name: "Overseer",
+    name_es: "Capataz",
     pointsCost: 25,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -136,11 +148,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 2,
     specialRules: ["Shove (4)", "Slowed", "Place (10)"],
+    tournamentLegal: true,
     imageUrl: "/art/card/overseer_card.jpg"
   },
   {
     id: "puppeteer",
     name: "Puppeteer",
+    name_es: "Titiritera",
     pointsCost: 30,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -157,11 +171,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 2,
     specialRules: ["Place (5)"],
+    tournamentLegal: true,
     imageUrl: "/art/card/puppeteer_card.jpg"
   },
   {
     id: "rumpy-ride",
     name: "Rumpy Ride",
+    name_es: "Cabalgachepas",
     pointsCost: 45,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -176,11 +192,13 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 1,
     command: 2,
     specialRules: [],
+    tournamentLegal: true,
     imageUrl: "/art/card/rumpy_ride_card.jpg"
   },
   {
     id: "sightless",
     name: "Sightless",
+    name_es: "Cegaton",
     pointsCost: 15,
     faction: "scions-of-yaldabaoth",
     faction_id: "scions-of-yaldabaoth",
@@ -194,7 +212,27 @@ export const scionsOfYaldabaothCharacters: Unit[] = [
     availability: 3,
     command: 0,
     specialRules: [],
+    tournamentLegal: true,
     imageUrl: "/art/card/sightless_card.jpg"
   },
-  vercana
+  {
+    id: "vercana",
+    name: "Vercana",
+    name_es: "Vercana",
+    pointsCost: 30,
+    faction: "scions-of-yaldabaoth",
+    faction_id: "scions-of-yaldabaoth",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Mercenary", description: "" },
+      { name: "Ambusher", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Place (5)"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/vercana_card.jpg"
+  }
 ];
