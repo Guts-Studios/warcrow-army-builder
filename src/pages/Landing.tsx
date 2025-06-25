@@ -1,53 +1,52 @@
 
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getLatestVersion } from "@/utils/version";
+import { Header } from "@/components/landing/Header";
+import { MainActions } from "@/components/landing/MainActions";
+import { SecondaryActions } from "@/components/landing/SecondaryActions";
+import { Footer } from "@/components/landing/Footer";
+import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Landing = () => {
-  const { isAuthenticated, isWabAdmin } = useAuth();
+  const { authReady } = useAuth();
+  const { t } = useLanguage();
+  const latestVersion = getLatestVersion();
+
+  // Fetch user count
+  const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
+    queryKey: ['user-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      return count || 0;
+    },
+    enabled: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   return (
-    <div className="min-h-screen bg-warcrow-background p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-warcrow-gold text-center text-3xl">
-              Welcome to Warcrow Army Builder
-            </CardTitle>
-            <CardDescription className="text-center text-lg">
-              Build and manage your Warcrow armies with ease
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg">
-                <Link to="/builder">Start Building</Link>
-              </Button>
-              
-              {isAuthenticated && (
-                <Button asChild variant="outline" size="lg">
-                  <Link to="/profile">My Profile</Link>
-                </Button>
-              )}
-              
-              {!isAuthenticated && (
-                <Button asChild variant="outline" size="lg">
-                  <Link to="/login">Sign In</Link>
-                </Button>
-              )}
-            </div>
-            
-            {isWabAdmin && (
-              <div className="pt-4 border-t">
-                <Button asChild variant="secondary">
-                  <Link to="/admin">Admin Dashboard</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-warcrow-background flex flex-col">
+      <div className="flex-grow flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl mx-auto space-y-8">
+          <Header 
+            latestVersion={latestVersion}
+            userCount={userCount}
+            isLoadingUserCount={isLoadingUserCount}
+            authReady={authReady}
+          />
+          
+          <MainActions />
+          
+          <SecondaryActions />
+        </div>
       </div>
+      
+      <Footer />
+      <PWAUpdatePrompt />
     </div>
   );
 };
