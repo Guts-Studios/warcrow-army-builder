@@ -5,6 +5,7 @@ export const syenannHighCommand: Unit[] = [
   {
     id: "grand-captain",
     name: "Grand Captain",
+    name_es: "Gran Capitan",
     pointsCost: 30,
     faction: "syenann",
     faction_id: "syenann",
@@ -21,11 +22,13 @@ export const syenannHighCommand: Unit[] = [
     availability: 1,
     command: 2,
     specialRules: ["Preferred Terrain"],
+    tournamentLegal: true,
     imageUrl: "/art/card/grand_captain_card.jpg"
   },
   {
     id: "lioslaith-coic-caledhee",
     name: "Lioslaith Coic Caledhee",
+    name_es: "Lioslaith Coic Caledhee",
     pointsCost: 30,
     faction: "syenann",
     faction_id: "syenann",
@@ -43,6 +46,7 @@ export const syenannHighCommand: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Place (3)", "Vulnerable"],
+    tournamentLegal: true,
     imageUrl: "/art/card/lioslaith_coic_caledhee_card.jpg"
   }
 ];

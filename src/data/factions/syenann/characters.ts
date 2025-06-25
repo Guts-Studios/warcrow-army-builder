@@ -1,251 +1,196 @@
 
-
-import { Unit } from "../../../types/army";
+import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
   {
     id: "alula",
     name: "Alula",
+    name_es: "Alula",
+    pointsCost: 20,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 20,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 1,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Elf"
-    ],
-    specialRules: [
-      "Disarmed"
-    ],
-    characteristics: []
+    specialRules: ["Disarmed"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/alula_card.jpg"
   },
   {
     id: "aoidos",
     name: "Aoidos",
+    name_es: "Aedo",
+    pointsCost: 20,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 20,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Join (Infantry Synann)", description: "" },
+      { name: "Spellcaster", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Elf",
-      "Nemorous",
-      "Syenann",
-      "Join (Infantry Synann)",
-      "Spellcaster"
-    ],
-    specialRules: [
-      "Vulnerable",
-      "Slowed",
-      "Disarmed",
-      "Frightened"
-    ],
-    characteristics: []
+    specialRules: ["Vulnerable", "Slowed", "Disarmed", "Frightened"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/aoidos_card.jpg"
   },
   {
     id: "darach-wildling",
     name: "Darach Wildling",
+    name_es: "Darach Brutamontes",
+    pointsCost: 35,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 35,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Aim", description: "" },
+      { name: "Ambusher", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Elf",
-      "Colossal Company",
-      "Nemorous",
-      "Syenann",
-      "Aim",
-      "Ambusher"
-    ],
     specialRules: [],
-    characteristics: []
+    tournamentLegal: false,
+    imageUrl: "/art/card/darach_wildling_card.jpg"
   },
   {
     id: "druid",
     name: "Druid",
+    name_es: "Druida",
+    pointsCost: 25,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 25,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Syenann", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Elf",
-      "Spellcaster",
-      "Syenann"
-    ],
-    specialRules: [
-      "Slowed"
-    ],
-    characteristics: []
-  },
-  {
-    id: "grand-captain",
-    name: "Grand Captain",
-    faction: "syenann",
-    faction_id: "syenann",
-    pointsCost: 30,
-    availability: 1,
-    command: 2,
-    highCommand: true,
-    keywords: [
-      "Character",
-      "Elf",
-      "High Command",
-      "Nemorous",
-      "Syenann",
-      "Join (Infantry Syenann)",
-      "Preferred Terrain (Rugged or Forest)"
-    ],
-    specialRules: [
-      "Preferred Terrain"
-    ],
-    characteristics: []
-  },
-  {
-    id: "lioslaith-coic-caledhee",
-    name: "Lioslaith Coic Caledhee",
-    faction: "syenann",
-    faction_id: "syenann",
-    pointsCost: 30,
-    availability: 1,
-    command: 1,
-    highCommand: true,
-    keywords: [
-      "Character",
-      "Elf",
-      "High Command",
-      "Nemorous",
-      "Syenann",
-      "Ambusher",
-      "Elite",
-      "Join (Infantry Syenann)"
-    ],
-    specialRules: [
-      "Place (3)",
-      "Vulnerable"
-    ],
-    characteristics: []
+    specialRules: ["Slowed"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/druid_card.jpg"
   },
   {
     id: "oona",
     name: "Oona",
-    faction: "syenann",
-    faction_id: "syenann",
+    name_es: "Oona",
     pointsCost: 25,
-    availability: 1,
-    command: 0,
-    highCommand: false,
-    keywords: [
-      "Ashen",
-      "Character",
-      "Colossal Company",
-      "Elf",
-      "Nemorous",
-      "Syenann",
-      "Intimidating (1)",
-      "Spellcaster",
-      "Tinge"
-    ],
-    specialRules: [
-      "Slowed"
-    ],
-    characteristics: []
-  },
-  {
-    id: "vercana",
-    name: "Vercana",
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 30,
+    keywords: [
+      { name: "Ashen", description: "" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Intimidating (1)", description: "" },
+      { name: "Spellcaster", description: "" },
+      { name: "Tinge", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 0,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Human",
-      "Mercenary",
-      "Ambusher"
-    ],
-    specialRules: [
-      "Place (5)"
-    ],
-    characteristics: []
-  },
-  {
-    id: "ynyr-dara-lainn",
-    name: "Ynyr Dara Lainn",
-    faction: "syenann",
-    faction_id: "syenann",
-    pointsCost: 35,
-    availability: 1,
-    command: 1,
-    highCommand: false,
-    keywords: [
-      "Character",
-      "Elf",
-      "Syenann",
-      "Scout"
-    ],
-    specialRules: [
-      "Place (10)",
-      "Shove (4)"
-    ],
-    characteristics: []
+    specialRules: ["Slowed"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/oona_card.jpg"
   },
   {
     id: "syenann-captain",
     name: "Syenann Captain",
+    name_es: "Capitan Syenann",
+    pointsCost: 20,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 20,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Aim", description: "" },
+      { name: "Join (Infantry, Syenann)", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 1,
-    highCommand: false,
+    specialRules: ["Repeat a Die"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/syenann_captain_card.jpg"
+  },
+  {
+    id: "vercana",
+    name: "Vercana",
+    name_es: "Vercana",
+    pointsCost: 30,
+    faction: "syenann",
+    faction_id: "syenann",
     keywords: [
-      "Character",
-      "Infantry", 
-      "Syenann",
-      "Aim",
-      "Join (Infantry, Syenann)"
+      { name: "Character", description: "" },
+      { name: "Human", description: "" },
+      { name: "Mercenary", description: "" },
+      { name: "Ambusher", description: "" }
     ],
-    specialRules: [
-      "Repeat a Die"
-    ],
-    characteristics: []
+    highCommand: false,
+    availability: 1,
+    command: 0,
+    specialRules: ["Place (5)"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/vercana_card.jpg"
   },
   {
     id: "warden-captain",
     name: "Warden Captain",
+    name_es: "Capitan Custodio",
+    pointsCost: 30,
     faction: "syenann",
     faction_id: "syenann",
-    pointsCost: 30,
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Infantry", description: "" },
+      { name: "Nemorous", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Join (Syena Wardens)", description: "" }
+    ],
+    highCommand: false,
     availability: 1,
     command: 1,
-    highCommand: false,
+    specialRules: ["Place (5)", "Shove (5)", "Repeat a Die", "Disarmed"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/warden_captain_card.jpg"
+  },
+  {
+    id: "ynyr-dara-lainn",
+    name: "Ynyr Dara Lainn",
+    name_es: "Ynyr Dara Lainn",
+    pointsCost: 35,
+    faction: "syenann",
+    faction_id: "syenann",
     keywords: [
-      "Character",
-      "Infantry",
-      "Nemorous",
-      "Syenann",
-      "Elite",
-      "Join (Syena Wardens)"
+      { name: "Character", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Syenann", description: "" },
+      { name: "Scout", description: "" }
     ],
-    specialRules: [
-      "Place (5)",
-      "Shove (5)",
-      "Repeat a Die",
-      "Disarmed"
-    ],
-    characteristics: []
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    specialRules: ["Place (10)", "Shove (4)"],
+    tournamentLegal: true,
+    imageUrl: "/art/card/ynyr_dara_lainn_card.jpg"
   }
 ];
-
