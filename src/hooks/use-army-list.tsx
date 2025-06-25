@@ -153,7 +153,7 @@ export const useArmyList = (selectedFaction: string) => {
 
   const handleSaveList = useCallback(() => {
     const nameToUse = currentListName || listName;
-    console.log(`[useArmyList] Saving list: ${nameToUse}`);
+    console.log(`[useArmyList] Saving list locally: ${nameToUse}`);
 
     if (!nameToUse || !nameToUse.trim()) {
       toast.error("Please enter a name for your list before saving");
@@ -193,8 +193,9 @@ export const useArmyList = (selectedFaction: string) => {
         return cleanUnit;
       });
 
-      console.log(`[useArmyList] Validated units for save:`, validatedUnits.length);
+      console.log(`[useArmyList] Validated units for local save:`, validatedUnits.length);
 
+      // Only save to local storage - no database operations
       const newList = saveListToStorage(nameToUse, selectedFaction, validatedUnits);
       
       // Update saved lists state
@@ -205,12 +206,12 @@ export const useArmyList = (selectedFaction: string) => {
       setCurrentListName(nameToUse);
       setListName("");
 
-      console.log(`[useArmyList] List saved successfully: ${nameToUse} with ${validatedUnits.length} units`);
-      toast.success("Army list saved successfully");
+      console.log(`[useArmyList] List saved locally successfully: ${nameToUse} with ${validatedUnits.length} units`);
+      toast.success("Army list saved locally");
     } catch (error) {
-      console.error("[useArmyList] Error saving list:", error);
+      console.error("[useArmyList] Error saving list locally:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-      toast.error(`Failed to save list: ${errorMessage}`);
+      toast.error(`Failed to save list locally: ${errorMessage}`);
     }
   }, [currentListName, listName, selectedFaction, selectedUnits, savedLists]);
 
