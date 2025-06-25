@@ -5,7 +5,6 @@ import UnitControls from "@/components/unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UnitCardKeywords from "@/components/unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslateKeyword } from "@/utils/translationUtils";
 import { generateCardUrl } from "@/utils/imageUtils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -22,17 +21,12 @@ interface UnitCardProps {
 const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
   const { language } = useLanguage();
-  const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   
-  // Get the appropriate unit name based on language - prioritize CSV data over translations
+  // Get the appropriate unit name based on language
   const getUnitName = () => {
     if (language === 'es' && unit.name_es) {
       return unit.name_es;
-    }
-    // Fallback to translation system if no CSV translation available
-    if (language !== 'en') {
-      return translateUnitName(unit.name);
     }
     return unit.name;
   };
@@ -53,7 +47,6 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
           <UnitHeader 
             unit={unit} 
             mainName={displayName}
-            portraitUrl={unit.imageUrl}
           />
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
