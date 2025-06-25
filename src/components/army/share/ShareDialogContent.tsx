@@ -58,7 +58,8 @@ export const ShareDialogContent = ({ shareableLink, selectedUnits, listName, fac
       units: filteredUnits, 
       listName, 
       faction, 
-      isCourtesyList: courtesyList 
+      isCourtesyList: courtesyList,
+      language: language
     }));
 
     printWindow.document.close();
