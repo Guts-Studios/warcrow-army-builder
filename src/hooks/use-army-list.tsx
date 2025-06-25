@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
@@ -5,7 +6,7 @@ import { validateUnitAddition, validateHighCommandAddition } from "@/utils/armyV
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useArmyBuilderUnits } from "@/hooks/useArmyData"; // Fixed import path
+import { useArmyBuilderUnits } from "@/hooks/useArmyData";
 import { toast } from "sonner";
 import { validateFactionUnits, validateKeyUnits } from "@/utils/unitValidation";
 
@@ -70,7 +71,17 @@ export const useArmyList = (selectedFaction: string) => {
         console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest });
         const lists = await fetchSavedLists();
         console.log(`Fetched ${lists.length} saved lists`);
-        setSavedLists(lists);
+        // Convert the raw database format to SavedList format
+        const convertedLists: SavedList[] = lists.map(list => ({
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: Array.isArray(list.units) ? list.units as SelectedUnit[] : [],
+          user_id: list.user_id || undefined,
+          created_at: list.created_at,
+          wab_id: list.wab_id || undefined
+        }));
+        setSavedLists(convertedLists);
       } catch (error) {
         console.error('[useArmyList] Error fetching saved lists:', error);
       } finally {

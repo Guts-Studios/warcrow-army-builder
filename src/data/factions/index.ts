@@ -21,6 +21,13 @@ export const factions: Faction[] = [
   { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" }
 ];
 
+// Function to get all units for a specific faction
+export const getAllFactionUnits = (factionId: string): Unit[] => {
+  return units.filter(unit => 
+    unit.faction === factionId || unit.faction_id === factionId
+  );
+};
+
 // Export individual faction units for direct access
 export {
   northernTribesUnits,
