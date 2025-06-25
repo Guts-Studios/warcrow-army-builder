@@ -29,10 +29,11 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   useEffect(() => {
     setImageError(false);
     // Use provided portraitUrl if available, otherwise generate from name
+    // Portraits are the same for all languages, so we don't need language-specific URLs
     const imageUrl = portraitUrl || generatePortraitUrl(name);
     console.log(`[AvatarPortrait] Using portrait URL for ${name}: ${imageUrl}`);
     setCurrentUrl(imageUrl);
-  }, [name, portraitUrl]); // Keep portraitUrl dependency but remove language
+  }, [name, portraitUrl]); // Removed language dependency since portraits are language-independent
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.error(`Portrait image failed to load for ${name}:`, currentUrl);
