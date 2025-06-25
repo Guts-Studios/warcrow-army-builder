@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
@@ -7,6 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, ChevronDown, ChevronUp, Shield, ShieldOff } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 
@@ -33,7 +38,7 @@ const UnitListSection = ({
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [showKeywords, setShowKeywords] = useState(false);
-  const [tournamentLegalFilter, setTournamentLegalFilter] = useState<'all' | 'legal' | 'illegal'>('all');
+  const [hideTournamentIllegal, setHideTournamentIllegal] = useState(false);
 
   // Define characteristics to filter by
   const characteristicTypes = [
@@ -126,10 +131,8 @@ const UnitListSection = ({
         });
       });
 
-    // Tournament legal filter
-    const matchesTournamentLegal = tournamentLegalFilter === 'all' || 
-      (tournamentLegalFilter === 'legal' && unit.tournamentLegal !== false) ||
-      (tournamentLegalFilter === 'illegal' && unit.tournamentLegal === false);
+    // Tournament legal filter - if hideTournamentIllegal is true, only show tournament legal units
+    const matchesTournamentLegal = !hideTournamentIllegal || unit.tournamentLegal !== false;
 
     return matchesSearch && matchesCharacteristics && matchesKeywords && matchesTournamentLegal;
   });
@@ -154,7 +157,7 @@ const UnitListSection = ({
     setSelectedCharacteristics([]);
     setSelectedKeywords([]);
     setSearchQuery("");
-    setTournamentLegalFilter('all');
+    setHideTournamentIllegal(false);
   };
 
   // Function to translate and display characteristics/keywords
@@ -178,23 +181,25 @@ const UnitListSection = ({
             className="w-full pl-10 bg-warcrow-accent/50 border-warcrow-gold/70 text-warcrow-text placeholder:text-warcrow-muted"
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTournamentLegalFilter(tournamentLegalFilter === 'all' ? 'legal' : tournamentLegalFilter === 'legal' ? 'illegal' : 'all')}
-              className={`p-1 h-6 w-6 ${
-                tournamentLegalFilter === 'legal' ? 'text-green-400' : 
-                tournamentLegalFilter === 'illegal' ? 'text-red-400' : 
-                'text-warcrow-gold hover:text-warcrow-gold/80'
-              }`}
-              title={
-                tournamentLegalFilter === 'all' ? 'Show all units' :
-                tournamentLegalFilter === 'legal' ? 'Show only tournament legal units' :
-                'Show only non-tournament legal units'
-              }
-            >
-              {tournamentLegalFilter === 'illegal' ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setHideTournamentIllegal(!hideTournamentIllegal)}
+                    className={`p-1 h-6 w-6 ${
+                      hideTournamentIllegal ? 'text-green-400' : 'text-warcrow-gold hover:text-warcrow-gold/80'
+                    }`}
+                  >
+                    {hideTournamentIllegal ? <Shield className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{hideTournamentIllegal ? 'Show all units' : 'Hide non-tournament legal units'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <button 
               onClick={() => setShowFilters(!showFilters)}
               className="text-warcrow-gold hover:text-warcrow-gold/80 focus:outline-none"
