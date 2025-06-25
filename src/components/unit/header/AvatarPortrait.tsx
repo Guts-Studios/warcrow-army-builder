@@ -42,9 +42,11 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
     
     setImageError(false);
     // Use provided portraitUrl if available, otherwise generate from name
-    // Portraits are the same for all languages, so we don't need language-specific URLs
+    // IMPORTANT: Always use the original English name for portrait generation
+    // Portraits are the same for all languages and should use English names
     const imageUrl = portraitUrl || generatePortraitUrl(name);
     console.log(`[AvatarPortrait] Setting new URL for ${name}: ${imageUrl}`);
+    console.log(`[AvatarPortrait] Note: Using original English name "${name}" for portrait lookup`);
     setCurrentUrl(imageUrl);
   }, [name, portraitUrl]); // Removed language dependency since portraits are language-independent
 
