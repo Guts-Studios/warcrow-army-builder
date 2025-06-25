@@ -1,3 +1,4 @@
+
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const generateCardUrl = (unitName: string, language: string = 'en'): string => {
@@ -66,7 +67,8 @@ export const generatePortraitUrl = (unitName: string): string => {
     "Lioslaith Coic Caledhee": "lioslaith_coic_caledhee",
     "Ynyr Dara Lainn": "ynyr_dara_lainn",
     "Darach Wilding": "darach_wildling",
-    "Tattoist": "tattooist"
+    "Tattoist": "tattooist",
+    "Orc Hunters": "orc_hunters"
   };
   
   // Check for special case mapping
@@ -82,7 +84,7 @@ export const generatePortraitUrl = (unitName: string): string => {
       .replace(/[^a-z0-9_]/g, '');
   }
   
-  // Portraits don't have language suffixes
+  // Portraits don't have language suffixes - they should be the same for all languages
   const fullUrl = `/art/portrait/${baseNameForUrl}_portrait.jpg`;
   
   console.log(`Generated portrait URL: ${fullUrl}`);
