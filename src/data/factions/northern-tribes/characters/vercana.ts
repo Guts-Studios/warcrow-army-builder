@@ -4,6 +4,7 @@ import { Unit } from "@/types/army";
 export const vercana: Unit = {
   id: "vercana-northern-tribes",
   name: "Vercana",
+  name_es: "Vercana",
   pointsCost: 30,
   faction: "northern-tribes",
   faction_id: "northern-tribes",
@@ -17,5 +18,6 @@ export const vercana: Unit = {
   availability: 1,
   command: 0,
   specialRules: ["Place (5)"],
+  tournamentLegal: false,
   imageUrl: "/art/card/vercana_card.jpg"
 };

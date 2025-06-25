@@ -48,13 +48,13 @@ export const useArmyList = (selectedFaction: string) => {
             faction: unit.faction,
             faction_id: unit.faction,
             pointsCost: unit.points || 0,
-            availability: unit.characteristics?.availability || 1,
-            command: unit.characteristics?.command || 0,
+            availability: (unit.characteristics as any)?.availability || 1,
+            command: (unit.characteristics as any)?.command || 0,
             keywords: (unit.keywords || []).map((k: string) => ({ name: k })),
             specialRules: unit.special_rules || [],
-            highCommand: unit.characteristics?.highCommand || false,
-            tournamentLegal: unit.characteristics?.tournamentLegal !== false, // Default to true if not specified
-            imageUrl: unit.characteristics?.imageUrl
+            highCommand: (unit.characteristics as any)?.highCommand || false,
+            tournamentLegal: (unit.characteristics as any)?.tournamentLegal !== false, // Default to true if not specified
+            imageUrl: (unit.characteristics as any)?.imageUrl
           }));
         } catch (error) {
           console.error('Failed to fetch from database, using local data:', error);
@@ -76,7 +76,17 @@ export const useArmyList = (selectedFaction: string) => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data || [];
+      
+      // Convert the raw database format to SavedList format
+      return (data || []).map(list => ({
+        id: list.id,
+        name: list.name,
+        faction: list.faction,
+        units: Array.isArray(list.units) ? list.units as SelectedUnit[] : [],
+        user_id: list.user_id || undefined,
+        created_at: list.created_at,
+        wab_id: list.wab_id || undefined
+      }));
     },
   });
 
@@ -157,7 +167,7 @@ export const useArmyList = (selectedFaction: string) => {
       const listData = {
         name: listName,
         faction: selectedFaction,
-        units: selectedUnits,
+        units: selectedUnits as any, // Cast to any to handle Json type
       };
 
       const { error } = await supabase
