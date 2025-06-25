@@ -26,7 +26,7 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   const displayName = language === 'en' ? name : translateUnitName(name, language);
   
   // Generate and set portrait URL when component mounts or name changes
-  // Note: Removed language dependency since portraits should be the same for all languages
+  // Removed language dependency since portraits should be the same for all languages
   useEffect(() => {
     setImageError(false);
     const imageUrl = generatePortraitUrl(name);
