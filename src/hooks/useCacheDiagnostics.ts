@@ -26,6 +26,16 @@ export const useCacheDiagnostics = () => {
     await clearStaleAuthTokens();
   };
 
+  const clearStaleAuthData = async () => {
+    console.log('[useCacheDiagnostics] Clearing stale auth data...');
+    await clearStaleAuthTokens();
+  };
+
+  const quickCacheOptimization = () => {
+    console.log('[useCacheDiagnostics] Quick cache optimization...');
+    queryClient.invalidateQueries();
+  };
+
   const invalidateUnitData = () => {
     console.log('[useCacheDiagnostics] Invalidating unit data...');
     queryClient.invalidateQueries({ queryKey: ['army-builder-units'] });
@@ -35,6 +45,8 @@ export const useCacheDiagnostics = () => {
   return {
     clearAllCachesAndReload,
     clearAuthTokens,
+    clearStaleAuthData,
+    quickCacheOptimization,
     invalidateUnitData,
   };
 };

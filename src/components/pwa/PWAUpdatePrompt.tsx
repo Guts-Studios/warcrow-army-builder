@@ -1,188 +1,99 @@
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCw, X, Trash2, Bug, Zap } from 'lucide-react';
-import { toast } from 'sonner';
-import { APP_VERSION } from '@/constants/version';
+import React, { useState, useEffect } from 'react';
 import { useCacheDiagnostics } from '@/hooks/useCacheDiagnostics';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { RefreshCw, Download } from 'lucide-react';
 
-export const PWAUpdatePrompt = () => {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [showDebugOptions, setShowDebugOptions] = useState(false);
-  const { clearStaleAuthData, clearAllCachesAndReload, quickCacheOptimization } = useCacheDiagnostics();
-  
-  const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      console.log('SW Registered: ' + r);
-      console.log('App version:', APP_VERSION);
-      console.log('Storage keys:', Object.keys(localStorage));
-    },
-    onRegisterError(error) {
-      console.log('SW registration error', error);
-    },
-    onNeedRefresh() {
-      console.log('SW needs refresh - new version available');
-      setShowPrompt(true);
-      toast.info('New app version available!');
-    },
-    onOfflineReady() {
-      console.log('SW offline ready');
-      toast.success('App is ready to work offline');
-    },
-  });
+export const PWAUpdatePrompt: React.FC = () => {
+  const { clearStaleAuthData, quickCacheOptimization, clearAllCachesAndReload } = useCacheDiagnostics();
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [isInstallable, setIsInstallable] = useState(false);
 
-  const close = () => {
-    setOfflineReady(false);
-    setNeedRefresh(false);
-    setShowPrompt(false);
-    setShowAdvancedOptions(false);
-    setShowDebugOptions(false);
-  };
+  useEffect(() => {
+    // Check for service worker updates
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => {
+          if (registration.waiting) {
+            setUpdateAvailable(true);
+          }
+        });
+      });
+    }
 
-  const handleUpdate = () => {
-    console.log('Updating service worker...');
-    updateServiceWorker(true);
-    setShowPrompt(false);
-  };
+    // Check if app is installable
+    window.addEventListener('beforeinstallprompt', () => {
+      setIsInstallable(true);
+    });
+  }, []);
 
-  const handleQuickOptimization = () => {
+  const handleUpdate = async () => {
+    console.log('[PWAUpdatePrompt] Handling app update...');
+    
+    // Clear stale data
+    await clearStaleAuthData();
+    
+    // Optimize cache
     quickCacheOptimization();
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+    
+    // Force reload to get the latest version
+    window.location.reload();
   };
 
-  const handleClearStaleAuth = () => {
-    clearStaleAuthData();
-    toast.success('Stale auth data cleared! Please refresh the page.');
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+  const handleInstall = () => {
+    console.log('[PWAUpdatePrompt] Handling app install...');
+    // Implementation would depend on stored install prompt event
   };
 
-  const handleDiagnostics = () => {
-    // Enable diagnostics for this session
-    const diagnostics = useCacheDiagnostics(true);
-    toast.info('Check browser console for detailed cache diagnostics');
+  const handleEmergencyReset = async () => {
+    console.log('[PWAUpdatePrompt] Emergency reset requested...');
+    await clearAllCachesAndReload();
   };
 
-  // Show prompt if there's an update OR if user is having auth issues
-  if (!showPrompt && !needRefresh) return null;
+  if (!updateAvailable && !isInstallable) {
+    return null;
+  }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm">
-      <div className="bg-warcrow-background border border-warcrow-gold rounded-lg p-4 shadow-lg">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h4 className="text-warcrow-gold font-semibold text-sm mb-1">
-              Update Available
-            </h4>
-            <p className="text-warcrow-text text-xs mb-3">
-              A new version of the app is available. Reload to get the latest features and fixes.
-            </p>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleUpdate}
-                  size="sm"
-                  className="bg-warcrow-gold text-warcrow-background hover:bg-warcrow-gold/90"
-                >
-                  <RefreshCw className="h-3 w-3 mr-1" />
-                  Update Now
-                </Button>
-                <Button
-                  onClick={close}
-                  size="sm"
-                  variant="outline"
-                  className="border-warcrow-accent text-warcrow-text hover:bg-warcrow-accent"
-                >
-                  Later
-                </Button>
-              </div>
-              
-              {!showAdvancedOptions ? (
-                <Button
-                  onClick={() => setShowAdvancedOptions(true)}
-                  size="sm"
-                  variant="ghost"
-                  className="text-xs text-warcrow-text/70 hover:text-warcrow-text p-0 h-auto"
-                >
-                  Having performance or cache issues? Click for options
-                </Button>
-              ) : (
-                <div className="border-t border-warcrow-accent pt-2 mt-1">
-                  <p className="text-xs text-warcrow-text/70 mb-2">
-                    If the app is loading slowly or you're seeing old content:
-                  </p>
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      onClick={handleQuickOptimization}
-                      size="sm"
-                      variant="secondary"
-                      className="w-full text-xs"
-                    >
-                      <Zap className="h-3 w-3 mr-1" />
-                      Quick Speed Boost
-                    </Button>
-                    <Button
-                      onClick={handleClearStaleAuth}
-                      size="sm"
-                      variant="secondary"
-                      className="w-full text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Clear Auth Data Only
-                    </Button>
-                    <Button
-                      onClick={clearAllCachesAndReload}
-                      size="sm"
-                      variant="destructive"
-                      className="w-full text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Clear All Cache & Reload
-                    </Button>
-                    {!showDebugOptions ? (
-                      <Button
-                        onClick={() => setShowDebugOptions(true)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-xs text-warcrow-text/70 hover:text-warcrow-text p-0 h-auto"
-                      >
-                        Still having issues? Debug options
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={handleDiagnostics}
-                        size="sm"
-                        variant="outline"
-                        className="w-full text-xs"
-                      >
-                        <Bug className="h-3 w-3 mr-1" />
-                        Run Cache Diagnostics
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          <Button
-            onClick={close}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0 text-warcrow-text hover:text-warcrow-gold"
-          >
-            <X className="h-3 w-3" />
-          </Button>
+    <Card className="fixed bottom-4 right-4 w-80 z-50 bg-black/90 border-warcrow-gold/30">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-warcrow-gold text-sm flex items-center gap-2">
+          {updateAvailable && <RefreshCw className="h-4 w-4" />}
+          {isInstallable && <Download className="h-4 w-4" />}
+          {updateAvailable ? 'Update Available' : 'Install App'}
+        </CardTitle>
+        <CardDescription className="text-xs">
+          {updateAvailable 
+            ? 'A new version of the app is available' 
+            : 'Install this app for a better experience'
+          }
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex gap-2">
+          {updateAvailable && (
+            <Button size="sm" onClick={handleUpdate} className="flex-1">
+              Update
+            </Button>
+          )}
+          {isInstallable && (
+            <Button size="sm" onClick={handleInstall} variant="outline" className="flex-1">
+              Install
+            </Button>
+          )}
         </div>
-      </div>
-    </div>
+        {updateAvailable && (
+          <Button 
+            size="sm" 
+            variant="destructive" 
+            onClick={handleEmergencyReset}
+            className="w-full mt-2 text-xs"
+          >
+            Emergency Reset
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 };

@@ -11,6 +11,12 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   isAuthenticated: boolean;
   authReady: boolean;
+  isLoading: boolean;
+  userId: string | null;
+  isWabAdmin: boolean;
+  isTester: boolean;
+  isGuest: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +27,12 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null }),
   isAuthenticated: false,
   authReady: false,
+  isLoading: true,
+  userId: null,
+  isWabAdmin: false,
+  isTester: false,
+  isGuest: true,
+  isAdmin: false,
 });
 
 export const useAuth = () => {
@@ -35,15 +47,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isWabAdmin, setIsWabAdmin] = useState(false);
+  const [isTester, setIsTester] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('[AuthProvider] Auth state change:', event, session?.user?.id || 'no user');
         setSession(session);
         setUser(session?.user ?? null);
+        setIsLoading(false);
         setAuthReady(true);
+
+        // Check for admin/tester roles if user exists
+        if (session?.user) {
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('wab_admin, tester')
+              .eq('id', session.user.id)
+              .maybeSingle();
+            
+            if (!error && data) {
+              setIsWabAdmin(!!data.wab_admin);
+              setIsTester(!!data.tester);
+            } else {
+              setIsWabAdmin(false);
+              setIsTester(false);
+            }
+          } catch (error) {
+            console.error('[AuthProvider] Error fetching user roles:', error);
+            setIsWabAdmin(false);
+            setIsTester(false);
+          }
+        } else {
+          setIsWabAdmin(false);
+          setIsTester(false);
+        }
       }
     );
 
@@ -52,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('[AuthProvider] Initial session check:', session?.user?.id || 'no user');
       setSession(session);
       setUser(session?.user ?? null);
+      setIsLoading(false);
       setAuthReady(true);
     });
 
@@ -105,6 +148,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     isAuthenticated: !!user,
     authReady,
+    isLoading,
+    userId: user?.id ?? null,
+    isWabAdmin,
+    isTester,
+    isGuest: !user,
+    isAdmin: isWabAdmin, // isAdmin is an alias for isWabAdmin
   };
 
   return (
