@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { Unit, SortOption } from "@/types/army";
 import UnitCard from "../UnitCard";
 import SortControls from "./SortControls";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Filter, ChevronDown, ChevronUp, Shield, ShieldOff } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
 
@@ -31,6 +33,7 @@ const UnitListSection = ({
   const [selectedCharacteristics, setSelectedCharacteristics] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [showKeywords, setShowKeywords] = useState(false);
+  const [tournamentLegalFilter, setTournamentLegalFilter] = useState<'all' | 'legal' | 'illegal'>('all');
 
   // Define characteristics to filter by
   const characteristicTypes = [
@@ -89,7 +92,7 @@ const UnitListSection = ({
     });
   };
 
-  // Filter units based on search query, selected characteristics, and selected keywords
+  // Filter units based on search query, selected characteristics, selected keywords, and tournament legal status
   const filteredUnits = factionUnits.filter(unit => {
     // Text search filter
     const matchesSearch = searchQuery === "" || 
@@ -123,7 +126,12 @@ const UnitListSection = ({
         });
       });
 
-    return matchesSearch && matchesCharacteristics && matchesKeywords;
+    // Tournament legal filter
+    const matchesTournamentLegal = tournamentLegalFilter === 'all' || 
+      (tournamentLegalFilter === 'legal' && unit.tournamentLegal !== false) ||
+      (tournamentLegalFilter === 'illegal' && unit.tournamentLegal === false);
+
+    return matchesSearch && matchesCharacteristics && matchesKeywords && matchesTournamentLegal;
   });
 
   // Sort filtered units
@@ -146,6 +154,7 @@ const UnitListSection = ({
     setSelectedCharacteristics([]);
     setSelectedKeywords([]);
     setSearchQuery("");
+    setTournamentLegalFilter('all');
   };
 
   // Function to translate and display characteristics/keywords
@@ -168,13 +177,32 @@ const UnitListSection = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 bg-warcrow-accent/50 border-warcrow-gold/70 text-warcrow-text placeholder:text-warcrow-muted"
           />
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-warcrow-gold hover:text-warcrow-gold/80 focus:outline-none"
-            aria-label="Toggle filters"
-          >
-            <Filter className="h-4 w-4" />
-          </button>
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTournamentLegalFilter(tournamentLegalFilter === 'all' ? 'legal' : tournamentLegalFilter === 'legal' ? 'illegal' : 'all')}
+              className={`p-1 h-6 w-6 ${
+                tournamentLegalFilter === 'legal' ? 'text-green-400' : 
+                tournamentLegalFilter === 'illegal' ? 'text-red-400' : 
+                'text-warcrow-gold hover:text-warcrow-gold/80'
+              }`}
+              title={
+                tournamentLegalFilter === 'all' ? 'Show all units' :
+                tournamentLegalFilter === 'legal' ? 'Show only tournament legal units' :
+                'Show only non-tournament legal units'
+              }
+            >
+              {tournamentLegalFilter === 'illegal' ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+            </Button>
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className="text-warcrow-gold hover:text-warcrow-gold/80 focus:outline-none"
+              aria-label="Toggle filters"
+            >
+              <Filter className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         
         {showFilters && (
@@ -234,7 +262,7 @@ const UnitListSection = ({
               )}
             </div>
             
-            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery) && (
+            {(selectedCharacteristics.length > 0 || selectedKeywords.length > 0 || searchQuery || tournamentLegalFilter !== 'all') && (
               <div className="flex justify-end">
                 <button
                   onClick={clearAllFilters}
