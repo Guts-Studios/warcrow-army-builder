@@ -126,6 +126,22 @@ export const saveListToStorage = (
     throw new Error("Units must be an array");
   }
 
+  // Validate each unit has required properties
+  validatedUnits.forEach((unit, index) => {
+    if (!unit.id) {
+      throw new Error(`Unit at index ${index} is missing ID`);
+    }
+    if (!unit.name) {
+      throw new Error(`Unit at index ${index} is missing name`);
+    }
+    if (typeof unit.pointsCost !== 'number') {
+      throw new Error(`Unit ${unit.name} has invalid points cost`);
+    }
+    if (typeof unit.quantity !== 'number' || unit.quantity < 1) {
+      throw new Error(`Unit ${unit.name} has invalid quantity`);
+    }
+  });
+
   // Create a new list object with explicitly no user_id property
   const newList: SavedList = {
     id: crypto.randomUUID(),
@@ -137,14 +153,18 @@ export const saveListToStorage = (
   };
 
   try {
-    // Update localStorage with the new list
+    // Get existing lists from localStorage
+    let existingLists: SavedList[] = [];
     const existingListsJson = localStorage.getItem("armyLists");
-    let existingLists = existingListsJson ? JSON.parse(existingListsJson) : [];
     
-    // Ensure existing lists is an array
-    if (!Array.isArray(existingLists)) {
-      console.warn("[saveListToStorage] Existing lists was not an array, resetting to empty array");
-      existingLists = [];
+    if (existingListsJson) {
+      try {
+        const parsedLists = JSON.parse(existingListsJson);
+        existingLists = Array.isArray(parsedLists) ? parsedLists : [];
+      } catch (parseError) {
+        console.warn("[saveListToStorage] Error parsing existing lists, starting fresh:", parseError);
+        existingLists = [];
+      }
     }
     
     // Clean any existing lists to ensure they don't have user_id property
@@ -165,11 +185,19 @@ export const saveListToStorage = (
     const updatedLists = [...filteredLists, newList];
     
     // Save to localStorage
-    localStorage.setItem("armyLists", JSON.stringify(updatedLists));
+    const jsonString = JSON.stringify(updatedLists, null, 2);
+    localStorage.setItem("armyLists", jsonString);
+    
     console.log(`[saveListToStorage] Successfully saved list to localStorage: ${nameToUse} (${selectedFaction})`);
   } catch (error) {
     console.error("Error saving list to storage:", error);
-    toast.error("Failed to save list locally");
+    
+    // Check if it's a quota exceeded error
+    if (error instanceof Error && error.name === 'QuotaExceededError') {
+      toast.error("Browser storage is full. Please clear some saved lists.");
+    } else {
+      toast.error("Failed to save list locally");
+    }
     throw error;
   }
 

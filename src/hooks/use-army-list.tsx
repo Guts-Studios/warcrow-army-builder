@@ -171,10 +171,29 @@ export const useArmyList = (selectedFaction: string) => {
     }
 
     try {
-      const validatedUnits = selectedUnits.map((unit) => ({
-        ...unit,
-        quantity: Math.min(unit.quantity, unit.availability),
-      }));
+      // Validate and clean the selected units data
+      const validatedUnits = selectedUnits.map((unit) => {
+        const cleanUnit: SelectedUnit = {
+          id: unit.id,
+          name: unit.name,
+          name_es: unit.name_es,
+          name_fr: unit.name_fr,
+          pointsCost: unit.pointsCost,
+          quantity: Math.min(unit.quantity, unit.availability),
+          faction: unit.faction,
+          faction_id: unit.faction_id,
+          keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
+          highCommand: unit.highCommand || false,
+          availability: unit.availability,
+          imageUrl: unit.imageUrl,
+          specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : [],
+          command: unit.command || 0,
+          tournamentLegal: unit.tournamentLegal
+        };
+        return cleanUnit;
+      });
+
+      console.log(`[useArmyList] Validated units for save:`, validatedUnits.length);
 
       const newList = saveListToStorage(nameToUse, selectedFaction, validatedUnits);
       
@@ -190,7 +209,8 @@ export const useArmyList = (selectedFaction: string) => {
       toast.success("Army list saved successfully");
     } catch (error) {
       console.error("[useArmyList] Error saving list:", error);
-      toast.error("Failed to save list");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast.error(`Failed to save list: ${errorMessage}`);
     }
   }, [currentListName, listName, selectedFaction, selectedUnits, savedLists]);
 
