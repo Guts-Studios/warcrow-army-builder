@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 const Landing = () => {
   const { authReady } = useAuth();
   const { t } = useLanguage();
-  const latestVersion = getLatestVersion();
+  const latestVersion = getLatestVersion("1.0.0"); // Provide default version argument
 
   // Fetch user count
   const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
