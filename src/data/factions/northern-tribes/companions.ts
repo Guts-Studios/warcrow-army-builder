@@ -15,6 +15,7 @@ export const northernTribesCompanions: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Slowed", "Fix a Die"],
     companion: "iriavik restless pup",
     tournamentLegal: false,
@@ -63,11 +64,12 @@ export const northernTribesCompanions: Unit[] = [
     highCommand: false,
     availability: 1,
     command: 1,
+    specialRules: [],
     tournamentLegal: false,
     imageUrl: "/art/card/ormuk_card.jpg"
   },
   {
-    id: "vercana",
+    id: "vercana-northern-tribes",
     name: "Vercana",
     name_es: "Vercana",
     pointsCost: 30,
@@ -81,6 +83,7 @@ export const northernTribesCompanions: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Place (5)"],
     tournamentLegal: false,
     imageUrl: "/art/card/vercana_card.jpg"

@@ -3,16 +3,24 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Trash2, RefreshCw, Gauge } from 'lucide-react';
+import { Zap, Trash2, RefreshCw, Gauge, X } from 'lucide-react';
 import { useCacheDiagnostics } from '@/hooks/useCacheDiagnostics';
 import { toast } from 'sonner';
 
 export const PerformanceOptimizer = () => {
   const [showOptimizer, setShowOptimizer] = useState(false);
   const [loadTime, setLoadTime] = useState<number | null>(null);
+  const [isHidden, setIsHidden] = useState(() => {
+    return localStorage.getItem('warcrow_hide_performance_optimizer') === 'true';
+  });
   const { cacheHealth, clearStaleAuthData, clearAllCachesAndReload, quickCacheOptimization } = useCacheDiagnostics(true);
 
   useEffect(() => {
+    // Check if optimizer should be hidden
+    if (isHidden) {
+      return;
+    }
+
     // Measure initial load performance
     const measureLoadTime = () => {
       if (performance && performance.timing) {
@@ -34,7 +42,14 @@ export const PerformanceOptimizer = () => {
       window.addEventListener('load', measureLoadTime);
       return () => window.removeEventListener('load', measureLoadTime);
     }
-  }, []);
+  }, [isHidden]);
+
+  const handleHideOptimizer = () => {
+    setIsHidden(true);
+    setShowOptimizer(false);
+    localStorage.setItem('warcrow_hide_performance_optimizer', 'true');
+    toast.success('Performance optimizer hidden permanently');
+  };
 
   const getCacheHealthColor = () => {
     switch (cacheHealth) {
@@ -51,17 +66,27 @@ export const PerformanceOptimizer = () => {
     return 'bg-red-500';
   };
 
-  if (!showOptimizer && cacheHealth === 'good' && (loadTime || 0) < 3000) {
+  if (isHidden || (!showOptimizer && cacheHealth === 'good' && (loadTime || 0) < 3000)) {
     return null;
   }
 
   return (
     <Card className="fixed bottom-4 left-4 z-50 max-w-sm bg-warcrow-background border border-warcrow-gold/40">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg text-warcrow-gold flex items-center">
-          <Gauge className="h-5 w-5 mr-2" />
-          Performance Optimizer
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg text-warcrow-gold flex items-center">
+            <Gauge className="h-5 w-5 mr-2" />
+            Performance Optimizer
+          </CardTitle>
+          <Button
+            onClick={handleHideOptimizer}
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-warcrow-text/60 hover:text-warcrow-text"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         <CardDescription className="text-warcrow-text/80">
           Improve app loading speed
         </CardDescription>
@@ -113,15 +138,6 @@ export const PerformanceOptimizer = () => {
             Nuclear Reset
           </Button>
         </div>
-
-        <Button
-          onClick={() => setShowOptimizer(false)}
-          size="sm"
-          variant="ghost"
-          className="w-full text-xs text-warcrow-text/60"
-        >
-          Hide Optimizer
-        </Button>
       </CardContent>
     </Card>
   );
