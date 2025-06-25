@@ -26,8 +26,22 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
   const [cardUrl, setCardUrl] = useState<string>("");
   
-  // Translate unit name based on the selected language for display only
-  const displayName = translateUnitName(unit.name);
+  // Get the appropriate unit name based on language - prioritize CSV data over translations
+  const getUnitName = () => {
+    if (language === 'es' && unit.name_es) {
+      return unit.name_es;
+    }
+    if (language === 'fr' && unit.name_fr) {
+      return unit.name_fr;
+    }
+    // Fallback to translation system if no CSV translation available
+    if (language !== 'en') {
+      return translateUnitName(unit.name);
+    }
+    return unit.name;
+  };
+
+  const displayName = getUnitName();
 
   // Normalize keywords to ensure they're all Keyword objects
   const normalizedUnit: Unit = {
