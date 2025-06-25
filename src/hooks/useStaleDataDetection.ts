@@ -8,7 +8,7 @@ export const useStaleDataDetection = () => {
   const [staleDataDetected, setStaleDataDetected] = useState(false);
   const [hasShownWarning, setHasShownWarning] = useState(false);
 
-  // Check for stale data periodically
+  // Check for stale data more frequently and aggressively
   useQuery({
     queryKey: ['stale-data-check'],
     queryFn: async () => {
@@ -17,16 +17,20 @@ export const useStaleDataDetection = () => {
       
       if (isStale && !hasShownWarning) {
         console.warn('[StaleDataDetection] 🚨 Stale data detected, showing warning');
-        toast.warning(
-          'Old data detected! Click "Refresh Data" to get the latest unit information.',
+        
+        // Show a more persistent toast
+        toast.error(
+          'OUTDATED DATA DETECTED! Your unit data is from an older version. Click "Refresh Data" now to fix this issue.',
           {
-            duration: 8000,
+            duration: 15000, // Longer duration
             action: {
               label: 'Refresh Data',
               onClick: async () => {
                 await cacheManager.refreshUnitData();
                 setStaleDataDetected(false);
                 setHasShownWarning(false);
+                // Force a page reload to ensure fresh data
+                window.location.reload();
               }
             }
           }
@@ -36,15 +40,29 @@ export const useStaleDataDetection = () => {
       
       return { isStale };
     },
-    refetchInterval: 30000, // Check every 30 seconds
+    refetchInterval: 10000, // Check every 10 seconds instead of 30
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
     staleTime: 0
   });
+
+  // Also check immediately when the hook mounts
+  useEffect(() => {
+    const checkImmediately = async () => {
+      const isStale = cacheManager.detectStaleData();
+      if (isStale) {
+        setStaleDataDetected(true);
+      }
+    };
+    checkImmediately();
+  }, []);
 
   const refreshData = async () => {
     await cacheManager.refreshUnitData();
     setStaleDataDetected(false);
     setHasShownWarning(false);
+    // Force reload to ensure completely fresh data
+    window.location.reload();
   };
 
   const performNuclearReset = async () => {

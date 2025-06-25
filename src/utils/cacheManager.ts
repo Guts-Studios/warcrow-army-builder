@@ -29,11 +29,13 @@ export class CacheManager {
         }
       });
 
-      // Also clear any cached unit data from localStorage
-      const unitCacheKeys = Object.keys(localStorage).filter(key => 
+      // Clear all cached unit data from localStorage more aggressively
+      const allLocalStorageKeys = Object.keys(localStorage);
+      const unitCacheKeys = allLocalStorageKeys.filter(key => 
         key.includes('unit') || 
         key.includes('army') || 
-        key.includes('faction')
+        key.includes('faction') ||
+        key.includes('warcrow') // Clear any app-specific cache
       );
       
       unitCacheKeys.forEach(key => {
@@ -41,8 +43,11 @@ export class CacheManager {
         console.log(`[CacheManager] 🗑️ Cleared cache key: ${key}`);
       });
 
+      // Clear React Query cache completely
+      queryClient.clear();
+
       console.log('[CacheManager] ✅ Unit data refresh complete');
-      toast.success('Unit data refreshed successfully');
+      toast.success('Unit data refreshed successfully - reloading page...');
       
     } catch (error) {
       console.error('[CacheManager] ❌ Error refreshing unit data:', error);
@@ -50,7 +55,7 @@ export class CacheManager {
     }
   }
 
-  // Detect if user might have stale data by checking known unit values
+  // Enhanced stale data detection with more specific checks
   detectStaleData(): boolean {
     try {
       // Check if we can access current unit data
@@ -61,10 +66,22 @@ export class CacheManager {
       // Look for signs of stale data in cached queries
       for (const [queryKey, data] of cachedQueries) {
         if (data && Array.isArray(data)) {
-          // Check for the specific Aide unit issue
+          // Check for the specific Aide unit issue (should be 25 points, 1 command)
           const aideUnit = data.find((unit: any) => unit.name === 'Aide');
           if (aideUnit && (aideUnit.pointsCost === 15 || aideUnit.command === 0)) {
-            console.warn('[CacheManager] 🚨 Detected stale Aide unit data');
+            console.warn('[CacheManager] 🚨 Detected stale Aide unit data - should be 25 points, 1 command');
+            return true;
+          }
+
+          // Check for other known stale data patterns
+          // Add more specific checks here as issues are discovered
+          const knownIssues = data.filter((unit: any) => {
+            // Add more specific stale data checks here
+            return false; // Placeholder for future checks
+          });
+
+          if (knownIssues.length > 0) {
+            console.warn('[CacheManager] 🚨 Detected other stale unit data');
             return true;
           }
         }
@@ -80,7 +97,7 @@ export class CacheManager {
   // Nuclear option - clear everything and reload
   async performNuclearReset(): Promise<void> {
     console.log('[CacheManager] 💥 Performing nuclear cache reset...');
-    toast.info('Clearing all cached data and reloading...');
+    toast.info('Clearing all cached data and reloading...', { duration: 2000 });
     
     try {
       await clearAllCachesAndSW();
