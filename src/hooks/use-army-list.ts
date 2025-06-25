@@ -78,15 +78,33 @@ export const useArmyList = (selectedFaction: string) => {
       if (error) throw error;
       
       // Convert the raw database format to SavedList format
-      return (data || []).map(list => ({
-        id: list.id,
-        name: list.name,
-        faction: list.faction,
-        units: Array.isArray(list.units) ? list.units as SelectedUnit[] : [],
-        user_id: list.user_id || undefined,
-        created_at: list.created_at,
-        wab_id: list.wab_id || undefined
-      }));
+      return (data || []).map(list => {
+        // Parse units if they're stored as a string
+        let unitsList = list.units;
+        if (typeof unitsList === 'string') {
+          try {
+            unitsList = JSON.parse(unitsList);
+          } catch (e) {
+            console.error("Error parsing units JSON:", e);
+            unitsList = [];
+          }
+        }
+
+        // Ensure units is properly typed as SelectedUnit[]
+        const typedUnits: SelectedUnit[] = Array.isArray(unitsList) 
+          ? (unitsList as unknown as SelectedUnit[])
+          : [];
+
+        return {
+          id: list.id,
+          name: list.name,
+          faction: list.faction,
+          units: typedUnits,
+          user_id: list.user_id || undefined,
+          created_at: list.created_at,
+          wab_id: list.wab_id || undefined
+        };
+      });
     },
   });
 
