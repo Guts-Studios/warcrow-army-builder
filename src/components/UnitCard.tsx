@@ -1,15 +1,16 @@
 
-import { Unit, Keyword } from "@/types/army";
-import UnitHeader from "./unit/UnitHeader";
-import UnitControls from "./unit/UnitControls";
+import { Unit } from "@/types/army";
+import UnitHeader from "@/components/unit/UnitHeader";
+import UnitControls from "@/components/unit/UnitControls";
 import { useIsMobile } from "@/hooks/use-mobile";
-import UnitCardKeywords from "./unit/card/UnitCardKeywords";
+import UnitCardKeywords from "@/components/unit/card/UnitCardKeywords";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslateKeyword } from "@/utils/translationUtils";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { useState, useEffect, memo } from "react";
-import UnitCardDialog from "./stats/unit-explorer/UnitCardDialog";
+import { generateCardUrl } from "@/utils/imageUtils";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import UnitCardDialog from "@/components/stats/unit-explorer/UnitCardDialog";
+import { Badge } from "@/components/ui/badge";
 
 interface UnitCardProps {
   unit: Unit;
@@ -18,21 +19,16 @@ interface UnitCardProps {
   onRemove: () => void;
 }
 
-// Memoize the component to prevent unnecessary re-renders
-const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
+const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isMobile = useIsMobile();
   const { language } = useLanguage();
   const { translateUnitName } = useTranslateKeyword();
   const [isCardDialogOpen, setIsCardDialogOpen] = useState<boolean>(false);
-  const [cardUrl, setCardUrl] = useState<string>("");
   
   // Get the appropriate unit name based on language - prioritize CSV data over translations
   const getUnitName = () => {
     if (language === 'es' && unit.name_es) {
       return unit.name_es;
-    }
-    if (language === 'fr' && unit.name_fr) {
-      return unit.name_fr;
     }
     // Fallback to translation system if no CSV translation available
     if (language !== 'en') {
@@ -43,71 +39,10 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
 
   const displayName = getUnitName();
 
-  // Normalize keywords to ensure they're all Keyword objects
-  const normalizedUnit: Unit = {
-    ...unit,
-    keywords: unit.keywords.map(keyword => {
-      if (typeof keyword === 'string') {
-        return { name: keyword, description: "" };
-      }
-      return keyword;
-    })
-  };
-
-  // Generate the correct card URL based on your actual file structure
-  const getCardUrl = () => {
-    console.log(`Getting card URL for: ${unit.name} (${unit.id})`);
-  
-    // Special cases mapping for units with non-standard naming
-    const specialCases: Record<string, string> = {
-      "Lady Télia": "lady_telia",
-      "Lady Telia": "lady_telia",
-      "Dragoslav Bjelogrc": "dragoslav_bjelogrc_drago_the_anvil",
-      "Mk-Os Automata": "mk-os_automata",
-      "MK-OS Automata": "mk-os_automata",
-      "Battle-Scarred": "battle-scarred",
-      "Battle Scarred": "battle-scarred",
-      "Eskold The Executioner": "eskold_the_executioner",
-      "Njord The Merciless": "njord_the_merciless",
-      "Marhael The Refused": "marhael_the_refused",
-      "Darach Wilding": "darach_wildling",
-    };
-    
-    // Check for special case mapping
-    let baseNameForUrl = specialCases[unit.name];
-    
-    // If no special mapping, create URL-friendly name from unit name
-    if (!baseNameForUrl) {
-      baseNameForUrl = unit.name
-        .toLowerCase()
-        .replace(/\s+/g, '_')
-        .replace(/[-]/g, '_')
-        .replace(/[']/g, '')
-        .replace(/[^a-z0-9_]/g, '');
-    }
-    
-    // Always use language suffixes to match your file structure
-    const langSuffix = language === 'es' ? '_sp' : (language === 'fr' ? '_fr' : '_en');
-    const fullUrl = `/art/card/${baseNameForUrl}_card${langSuffix}.jpg`;
-    
-    console.log(`Generated card URL for ${unit.name}: ${fullUrl}`);
-    return fullUrl;
-  };
-
-  // Update card URL when language changes
-  useEffect(() => {
-    if (unit) {
-      const url = getCardUrl();
-      setCardUrl(url);
-      console.log(`Updated card URL for ${unit.name}: ${url}`);
-    }
-  }, [language, unit.name, unit.id]);
-
   // Function to handle view card button click
   const handleViewCardClick = () => {
-    const url = getCardUrl();
+    const url = generateCardUrl(unit.name, language);
     console.log("Opening card dialog with URL:", url);
-    setCardUrl(url);
     setIsCardDialogOpen(true);
   };
 
@@ -116,7 +51,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex-1">
           <UnitHeader 
-            unit={normalizedUnit} 
+            unit={unit} 
             mainName={displayName}
             portraitUrl={unit.imageUrl}
           />
@@ -135,7 +70,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
       </div>
 
-      {/* Tournament Legal Status - Show for all non-tournament legal units */}
+      {/* Tournament Legal Status */}
       {unit.tournamentLegal === false && (
         <div className="flex justify-center">
           <Badge variant="destructive" className="text-xs">
@@ -146,7 +81,7 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
       )}
 
       <UnitCardKeywords 
-        unit={normalizedUnit}
+        unit={unit}
         isMobile={isMobile}
       />
       
@@ -165,13 +100,10 @@ const UnitCard = memo(({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         isOpen={isCardDialogOpen}
         onClose={() => setIsCardDialogOpen(false)}
         unitName={displayName}
-        cardUrl={cardUrl}
+        cardUrl={generateCardUrl(unit.name, language)}
       />
     </div>
   );
-});
-
-// Display name for debugging
-UnitCard.displayName = "UnitCard";
+};
 
 export default UnitCard;
