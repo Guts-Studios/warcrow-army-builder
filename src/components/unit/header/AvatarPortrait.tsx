@@ -25,13 +25,14 @@ const AvatarPortrait: React.FC<AvatarPortraitProps> = ({
   // Display properly translated name when available
   const displayName = language === 'en' ? name : translateUnitName(name, language);
   
-  // Generate and set portrait URL when component mounts or dependencies change
+  // Generate and set portrait URL when component mounts or name changes
+  // Note: Removed language dependency since portraits should be the same for all languages
   useEffect(() => {
     setImageError(false);
     const imageUrl = generatePortraitUrl(name);
     console.log(`[AvatarPortrait] Using portrait URL for ${name}: ${imageUrl}`);
     setCurrentUrl(imageUrl);
-  }, [name, portraitUrl, language]);
+  }, [name, portraitUrl]); // Removed language dependency
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     console.error(`Portrait image failed to load for ${name}:`, currentUrl);
