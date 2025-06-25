@@ -9,8 +9,6 @@ export const validateAllFactionData = async () => {
   const results: Record<string, any> = {};
   
   for (const factionId of FACTION_IDS) {
-    console.log(`\n=== VALIDATING ${factionId.toUpperCase()} ===`);
-    
     try {
       // Load CSV data
       const csvUnits = await loadFactionCsvData(factionId);
@@ -39,10 +37,13 @@ export const validateAllFactionData = async () => {
         staticUnits: staticUnitNames
       };
       
-      console.log(`CSV Units (${csvStaticUnits.length}):`, csvUnitNames);
-      console.log(`Static Units (${currentStaticUnits.length}):`, staticUnitNames);
-      console.log(`Missing in Static (${missingInStatic.length}):`, missingInStatic);
-      console.log(`Extra in Static (${extraInStatic.length}):`, extraInStatic);
+      // Only log if there are issues
+      if (missingInStatic.length > 0 || extraInStatic.length > 0) {
+        console.warn(`${factionId}: Missing in Static (${missingInStatic.length}):`, missingInStatic);
+        if (extraInStatic.length > 0) {
+          console.warn(`${factionId}: Extra in Static (${extraInStatic.length}):`, extraInStatic);
+        }
+      }
       
     } catch (error) {
       console.error(`Error validating ${factionId}:`, error);
@@ -57,13 +58,22 @@ export const validateAllFactionData = async () => {
 
 // Auto-run validation when this module loads
 validateAllFactionData().then(results => {
-  console.log('\n=== VALIDATION SUMMARY ===');
+  let totalIssues = 0;
   Object.entries(results).forEach(([faction, data]) => {
     if (data.error) {
-      console.log(`${faction}: ERROR - ${data.error}`);
+      console.error(`${faction}: ERROR - ${data.error}`);
     } else {
       const issues = data.missingInStatic.length + data.extraInStatic.length;
-      console.log(`${faction}: ${data.staticCount}/${data.csvCount} units (${issues} issues)`);
+      totalIssues += issues;
+      if (issues > 0) {
+        console.warn(`${faction}: ${data.staticCount}/${data.csvCount} units (${issues} issues)`);
+      }
     }
   });
+  
+  if (totalIssues === 0) {
+    console.log('✅ All faction data validation passed');
+  } else {
+    console.warn(`⚠️ Found ${totalIssues} total validation issues across factions`);
+  }
 });
