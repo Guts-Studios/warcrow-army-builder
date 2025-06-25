@@ -40,11 +40,13 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     setIsCardDialogOpen(true);
   };
 
-  // Add debug logging for tournament legal status
-  console.log(`Unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
-
-  // Check if unit is not tournament legal (handle both boolean false and string "false")
-  const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal) === "false";
+  // Enhanced tournament legal check with better debugging
+  const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal).toLowerCase() === "false";
+  
+  // Debug logging for production troubleshooting
+  if (process.env.NODE_ENV === 'production' || true) { // Always log for now
+    console.log(`[UnitCard] ${unit.name} - tournamentLegal value:`, unit.tournamentLegal, `(type: ${typeof unit.tournamentLegal}), isNotTournamentLegal: ${isNotTournamentLegal}`);
+  }
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">
@@ -70,10 +72,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
       </div>
 
-      {/* Tournament Legal Status - Fixed TypeScript comparison */}
+      {/* Tournament Legal Status - Enhanced visibility and debugging */}
       {isNotTournamentLegal && (
         <div className="flex justify-center">
-          <Badge variant="destructive" className="text-xs">
+          <Badge variant="destructive" className="text-xs font-semibold bg-red-600 text-white border-red-700">
             {language === 'en' ? "Not Tournament Legal" : 
              language === 'es' ? "No Legal para Torneo" : "Not Tournament Legal"}
           </Badge>

@@ -34,43 +34,50 @@ export const useArmyBuilderUnits = (factionId: string) => {
       const allUnits = normalizeUnits(units);
       console.log(`[useArmyBuilderUnits] Total units loaded: ${allUnits.length}`);
       
-      // Debug: Log all Syenann units before filtering
-      const syenannUnitsAll = allUnits.filter(unit => {
-        const unitFactionId = normalizeFactionId(unit.faction_id || unit.faction);
-        return unitFactionId === 'syenann';
+      // Enhanced processing to ensure tournament legal status is preserved
+      const processedUnits = allUnits.map(unit => {
+        // Ensure tournamentLegal property is properly set
+        let tournamentLegal = true; // Default to true if not specified
+        
+        if (unit.tournamentLegal !== undefined) {
+          // Handle various formats: boolean false, string "false", etc.
+          if (typeof unit.tournamentLegal === 'boolean') {
+            tournamentLegal = unit.tournamentLegal;
+          } else if (typeof unit.tournamentLegal === 'string') {
+            tournamentLegal = unit.tournamentLegal.toLowerCase() !== 'false' && unit.tournamentLegal.toLowerCase() !== 'no';
+          }
+        }
+        
+        return {
+          ...unit,
+          tournamentLegal
+        };
       });
-      console.log(`[useArmyBuilderUnits] All Syenann units found:`, syenannUnitsAll.map(u => ({ 
-        name: u.name, 
-        faction: u.faction, 
-        faction_id: u.faction_id 
-      })));
       
-      const factionUnits = allUnits.filter(unit => {
+      console.log(`[useArmyBuilderUnits] Processed ${processedUnits.length} units with tournament legal status`);
+      
+      // Debug: Log tournament legal status for first few units
+      const sampleUnits = processedUnits.slice(0, 3);
+      sampleUnits.forEach(unit => {
+        console.log(`[useArmyBuilderUnits] Unit ${unit.name} - tournamentLegal: ${unit.tournamentLegal} (type: ${typeof unit.tournamentLegal})`);
+      });
+      
+      const factionUnits = processedUnits.filter(unit => {
         const unitFactionId = normalizeFactionId(unit.faction_id || unit.faction);
         return unitFactionId === normalizedFactionId;
       });
       
       console.log(`[useArmyBuilderUnits] Found ${factionUnits.length} units for ${normalizedFactionId} (${isAuthenticated ? 'authenticated' : 'guest'})`);
-      console.log(`[useArmyBuilderUnits] Unit names:`, factionUnits.map(u => u.name));
       
-      // Debug: Check specifically for Mounted Hetman in Hegemony
-      if (normalizedFactionId === 'hegemony-of-embersig') {
-        const mountedHetman = factionUnits.find(u => u.name === 'Mounted Hetman');
-        console.log(`[useArmyBuilderUnits] Mounted Hetman found:`, mountedHetman ? 'YES' : 'NO');
-        if (mountedHetman) {
-          console.log(`[useArmyBuilderUnits] Mounted Hetman data:`, mountedHetman);
-        }
-        
-        // Log all high command units for debugging
-        const highCommandUnits = factionUnits.filter(u => u.highCommand);
-        console.log(`[useArmyBuilderUnits] Hegemony High Command units:`, highCommandUnits.map(u => u.name));
-      }
+      // Debug: Check for non-tournament legal units in this faction
+      const nonTournamentUnits = factionUnits.filter(unit => unit.tournamentLegal === false);
+      console.log(`[useArmyBuilderUnits] Non-tournament legal units in ${normalizedFactionId}:`, nonTournamentUnits.map(u => u.name));
       
       return removeDuplicateUnits(factionUnits);
     },
     enabled: authReady, // Only run query when auth state is ready
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes to allow proper caching
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 1 * 60 * 1000, // Reduced cache time to 1 minute for production testing
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     // Force refetch when auth state changes by including it in cache key
   });
 };
