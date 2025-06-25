@@ -71,6 +71,35 @@ export async function emergencyCacheClear(): Promise<void> {
 }
 
 /**
+ * Clear stale auth tokens (alias for emergency cache clear)
+ */
+export async function clearStaleAuthTokens(): Promise<void> {
+  console.log('[AUTH] 🧹 Clearing stale auth tokens');
+  
+  // Clear auth-specific keys
+  const authKeys = Object.keys(localStorage).filter(key => 
+    key.includes('auth') || key.includes('supabase') || key.startsWith('sb-')
+  );
+  
+  authKeys.forEach(key => {
+    localStorage.removeItem(key);
+    console.log(`[AUTH] 🗑️ Removed auth key: ${key}`);
+  });
+  
+  // Also clear session storage
+  sessionStorage.clear();
+  console.log('[AUTH] ✅ Auth tokens cleared');
+}
+
+/**
+ * Clear all caches and service workers (alias for emergency cache clear)
+ */
+export async function clearAllCachesAndSW(): Promise<void> {
+  console.log('[CACHE] 🧹 Clearing all caches and service workers');
+  await emergencyCacheClear();
+}
+
+/**
  * Add data version checking and validation
  */
 export function validateCriticalUnitData(): void {
