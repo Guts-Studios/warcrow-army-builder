@@ -1,9 +1,8 @@
-
-import { Faction } from "../types/army";
-import { northernTribesUnits } from "./factions/northern-tribes";
-import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";
-import { scionsOfYaldabaothUnits } from "./factions/scions-of-yaldabaoth";
-import { syenannUnits } from "./factions/syenann";
+import { Faction } from "@/types/army";
+import { northernTribesUnits } from "@/data/factions/northern-tribes";
+import { hegemonyOfEmbersigUnits } from "@/data/factions/hegemony-of-embersig";
+import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
+import { syenannUnits } from "@/data/factions/syenann";
 
 // Define fallback factions in case the database fetch fails
 export const factions: Faction[] = [

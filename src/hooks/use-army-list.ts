@@ -4,7 +4,7 @@ import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getAllFactionUnits } from "@/data/factions";
+import { getAllFactionUnits } from "@/data/factions/index";
 import { removeDuplicateUnits } from "@/utils/unitManagement";
 import { useEnvironment } from "@/hooks/useEnvironment";
 
@@ -17,7 +17,12 @@ export const useArmyList = (selectedFaction: string) => {
   const { useLocalContentData } = useEnvironment();
 
   // Get units for the selected faction
-  const { data: factionUnits = [], isLoading: unitsLoading } = useQuery({
+  const { 
+    data: factionUnits = [], 
+    isLoading: unitsLoading, 
+    error: unitsError,
+    refetch: refetchUnits 
+  } = useQuery({
     queryKey: ['faction-units', selectedFaction, useLocalContentData],
     queryFn: async () => {
       if (useLocalContentData) {
@@ -67,7 +72,7 @@ export const useArmyList = (selectedFaction: string) => {
   });
 
   // Fetch saved lists
-  const { data: savedLists = [] } = useQuery({
+  const { data: savedLists = [], isLoading: isLoadingLists } = useQuery({
     queryKey: ['saved-lists'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -237,5 +242,8 @@ export const useArmyList = (selectedFaction: string) => {
     handleLoadList,
     factionUnits,
     unitsLoading,
+    unitsError,
+    isLoadingLists,
+    refetchUnits
   };
 };
