@@ -118,79 +118,84 @@ const SelectedUnits = ({ selectedUnits, onRemove }: SelectedUnitsProps) => {
       <div className="flex-grow overflow-auto pr-1">
         <ScrollArea className="h-full">
           <div className="space-y-2">
-            {sortedUnits.map((unit) => (
-              <div
-                key={unit.id}
-                className="flex items-center justify-between bg-warcrow-background p-2 rounded"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="text-warcrow-text flex items-center gap-1">
-                    <span>{formatUnitDisplay(unit)}</span>
-                    {unit.command ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-0.5 text-warcrow-gold">
-                              <Diamond className="h-4 w-4" />
-                              {unit.command}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Command Points: {unit.command}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : null}
-                    {unit.highCommand && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <Check className="h-4 w-4 text-warcrow-gold" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>High Command</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                    {/* Updated tournament legal check with debug logging */}
-                    {(unit.tournamentLegal === false || unit.tournamentLegal === "false") && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <AlertTriangle className="h-4 w-4 text-red-400" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{language === 'es' ? 'No Legal para Torneo' : 'Not Tournament Legal'}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
+            {sortedUnits.map((unit) => {
+              // Check if unit is not tournament legal (handle both boolean false and string "false")
+              const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal) === "false";
+              
+              return (
+                <div
+                  key={unit.id}
+                  className="flex items-center justify-between bg-warcrow-background p-2 rounded"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="text-warcrow-text flex items-center gap-1">
+                      <span>{formatUnitDisplay(unit)}</span>
+                      {unit.command ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-0.5 text-warcrow-gold">
+                                <Diamond className="h-4 w-4" />
+                                {unit.command}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Command Points: {unit.command}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : null}
+                      {unit.highCommand && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Check className="h-4 w-4 text-warcrow-gold" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>High Command</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      {/* Fixed tournament legal check with proper TypeScript handling */}
+                      {isNotTournamentLegal && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <AlertTriangle className="h-4 w-4 text-red-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{language === 'es' ? 'No Legal para Torneo' : 'Not Tournament Legal'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
+                    <span className="text-warcrow-muted">
+                      ({unit.pointsCost * unit.quantity} pts)
+                    </span>
                   </div>
-                  <span className="text-warcrow-muted">
-                    ({unit.pointsCost * unit.quantity} pts)
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+                      onClick={() => handleViewCard(unit)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onRemove(unit.id)}
+                      className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
-                    onClick={() => handleViewCard(unit)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemove(unit.id)}
-                    className="h-8 w-8 text-warcrow-gold hover:text-warcrow-gold/80"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
         {selectedUnits.length === 0 && (

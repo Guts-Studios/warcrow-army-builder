@@ -43,6 +43,9 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Add debug logging for tournament legal status
   console.log(`Unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
 
+  // Check if unit is not tournament legal (handle both boolean false and string "false")
+  const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal) === "false";
+
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -67,8 +70,8 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
       </div>
 
-      {/* Tournament Legal Status - Updated with more explicit checking */}
-      {(unit.tournamentLegal === false || unit.tournamentLegal === "false") && (
+      {/* Tournament Legal Status - Fixed TypeScript comparison */}
+      {isNotTournamentLegal && (
         <div className="flex justify-center">
           <Badge variant="destructive" className="text-xs">
             {language === 'en' ? "Not Tournament Legal" : 

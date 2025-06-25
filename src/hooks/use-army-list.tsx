@@ -9,6 +9,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from "@/hooks/useArmyData";
 import { toast } from "sonner";
 import { validateFactionUnits, validateKeyUnits } from "@/utils/unitValidation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -18,10 +19,12 @@ export const useArmyList = (selectedFaction: string) => {
   const [savedLists, setSavedLists] = useState<SavedList[]>([]);
   const [showHighCommandAlert, setShowHighCommandAlert] = useState(false);
   const { toast: toastHook } = useToast();
-  const { isAuthenticated, isGuest } = useAuth();
+  const { isAuthenticated, isGuest, authReady } = useAuth();
   const [isLoadingLists, setIsLoadingLists] = useState(false);
+  const queryClient = useQueryClient();
 
   // Use react-query hook to fetch faction units with proper loading/error states
+  // Cache key now includes auth state to prevent cross-contamination
   const { 
     data: factionUnits = [], 
     isLoading: unitsLoading, 
@@ -30,9 +33,22 @@ export const useArmyList = (selectedFaction: string) => {
     refetch: refetchUnits
   } = useArmyBuilderUnits(selectedFaction);
 
+  // Invalidate cache when auth state changes to ensure fresh data
+  useEffect(() => {
+    if (authReady) {
+      console.log(`[useArmyList] Auth state ready, invalidating related queries for: ${isAuthenticated ? 'authenticated' : 'guest'}`);
+      queryClient.invalidateQueries({ 
+        queryKey: ['army-builder-units'] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['saved-lists'] 
+      });
+    }
+  }, [isAuthenticated, authReady, queryClient]);
+
   // Debug logging for unit loading - specifically check tournament legal status
   useEffect(() => {
-    console.log(`[useArmyList] Faction: ${selectedFaction}, Units loaded: ${factionUnits.length}, Loading: ${unitsLoading}`);
+    console.log(`[useArmyList] Faction: ${selectedFaction}, Units loaded: ${factionUnits.length}, Loading: ${unitsLoading}, Auth: ${isAuthenticated ? 'authenticated' : 'guest'}`);
     if (factionUnits.length > 0) {
       console.log(`[useArmyList] First 3 units:`, factionUnits.slice(0, 3).map(u => ({ 
         id: u.id, 
@@ -42,10 +58,10 @@ export const useArmyList = (selectedFaction: string) => {
       })));
       
       // Check if any units have tournamentLegal set to false
-      const nonTournamentUnits = factionUnits.filter(u => u.tournamentLegal === false || u.tournamentLegal === "false");
+      const nonTournamentUnits = factionUnits.filter(u => u.tournamentLegal === false || String(u.tournamentLegal) === "false");
       console.log(`[useArmyList] Non-tournament legal units found:`, nonTournamentUnits.length, nonTournamentUnits.map(u => u.name));
     }
-  }, [factionUnits, unitsLoading, selectedFaction]);
+  }, [factionUnits, unitsLoading, selectedFaction, isAuthenticated]);
 
   // Validate faction units and log any issues
   useEffect(() => {
@@ -77,9 +93,9 @@ export const useArmyList = (selectedFaction: string) => {
     const loadSavedLists = async () => {
       setIsLoadingLists(true);
       try {
-        console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest });
+        console.log("Fetching saved lists with auth state:", { isAuthenticated, isGuest, authReady });
         const lists = await fetchSavedLists();
-        console.log(`Fetched ${lists.length} saved lists`);
+        console.log(`Fetched ${lists.length} saved lists for ${isAuthenticated ? 'authenticated' : 'guest'} user`);
         // Convert the raw database format to SavedList format
         const convertedLists: SavedList[] = lists.map(list => ({
           id: list.id,
@@ -97,8 +113,11 @@ export const useArmyList = (selectedFaction: string) => {
         setIsLoadingLists(false);
       }
     };
-    loadSavedLists();
-  }, [isAuthenticated, isGuest]);
+    
+    if (authReady) {
+      loadSavedLists();
+    }
+  }, [isAuthenticated, isGuest, authReady]);
 
   // Clear state when faction changes
   useEffect(() => {
