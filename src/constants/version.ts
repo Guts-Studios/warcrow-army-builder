@@ -1,3 +1,3 @@
 
 // This file is auto-generated during build
-export const APP_VERSION = '0.5.12'; // FORCE CACHE INVALIDATION - increment version
+export const APP_VERSION = '0.5.11';

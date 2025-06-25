@@ -1,57 +1,78 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AppRoutes } from "@/components/routing/AppRoutes";
-import { useEffect } from "react";
-
-// Initialize query client with normal settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+import { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AuthProvider } from '@/components/auth/AuthProvider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ProvidersWrapper } from '@/components/providers/ProvidersWrapper';
+import { UnifiedSearchProvider } from "@/contexts/UnifiedSearchContext";
+import { checkAndPurgeIfNeeded } from '@/utils/versionPurge';
+import { AppRoutes } from '@/components/routing/AppRoutes';
+import { PWAUpdatePrompt } from '@/components/pwa/PWAUpdatePrompt';
+import { PerformanceOptimizer } from '@/components/performance/PerformanceOptimizer';
 
 function App() {
+  const [storageReady, setStorageReady] = useState(false);
+
   useEffect(() => {
-    console.log('[App] 🚀 App started successfully');
-    
-    // Only handle emergency reset if explicitly requested
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('emergencyReset') === 'true') {
-      console.log('[App] 🚨 Emergency reset requested');
-      localStorage.clear();
-      sessionStorage.clear();
-      urlParams.delete('emergencyReset');
-      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
-      window.history.replaceState({}, '', newUrl);
-    }
+    // Async function to handle storage check without blocking
+    const initializeStorage = async () => {
+      console.log('[App] 🚀 Quick storage check...');
+      
+      try {
+        // Quick storage size check - don't block on large cleanups
+        const storageSize = JSON.stringify(localStorage).length;
+        if (storageSize > 3 * 1024 * 1024) { // > 3MB
+          console.warn('[App] ⚠️ Large localStorage detected');
+          
+          // Do a quick cleanup of obvious temp data only
+          const tempKeys = Object.keys(localStorage).filter(key => 
+            key.includes('temp') || key.includes('cache') || key.includes('query')
+          );
+          
+          // Only clear if there are obvious temp keys and not too many
+          if (tempKeys.length > 0 && tempKeys.length < 20) {
+            tempKeys.forEach(key => localStorage.removeItem(key));
+            console.log(`[App] 🧹 Cleared ${tempKeys.length} temp keys`);
+          }
+        }
+        
+        // Run version check asynchronously without blocking
+        checkAndPurgeIfNeeded();
+        
+      } catch (error) {
+        console.warn('[App] ⚠️ Storage check error:', error);
+      } finally {
+        // Always mark as ready to not block the app
+        setStorageReady(true);
+      }
+    };
+
+    initializeStorage();
   }, []);
 
+  // Don't block app loading on storage check - just show a minimal loader
+  if (!storageReady) {
+    return (
+      <div className="min-h-screen bg-warcrow-background flex items-center justify-center">
+        <div className="text-warcrow-text text-sm">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+    <ProvidersWrapper>
+      <LanguageProvider>
         <AuthProvider>
-          <LanguageProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <AppRoutes />
-            </TooltipProvider>
-          </LanguageProvider>
+          <UnifiedSearchProvider>
+            <AppRoutes />
+            <Toaster />
+            <PWAUpdatePrompt />
+            <PerformanceOptimizer />
+          </UnifiedSearchProvider>
         </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+      </LanguageProvider>
+    </ProvidersWrapper>
   );
 }
 

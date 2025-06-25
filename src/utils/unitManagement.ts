@@ -2,9 +2,7 @@
 import { Unit } from "@/types/army";
 
 export const normalizeUnits = (units: any[]): Unit[] => {
-  console.log('[normalizeUnits] 🔄 Starting unit normalization with', units.length, 'units');
-  
-  return units.map((unit, index) => {
+  return units.map(unit => {
     // Enhanced tournament legal processing
     let tournamentLegal = true; // Default to tournament legal
     
@@ -26,49 +24,25 @@ export const normalizeUnits = (units: any[]): Unit[] => {
       }
     }
     
-    const unitName = unit.name || unit['Unit Name EN'] || 'Unknown Unit';
-    const pointsCost = parseInt(unit.pointsCost || unit['Points Cost'] || '0');
-    const availability = parseInt(unit.availability || unit.AVB || '1');
-    const command = parseInt(unit.command || unit.Command || '0') || undefined;
-    
-    console.log(`[normalizeUnits] Processing ${unitName} - Cost: ${pointsCost}, Availability: ${availability}, Command: ${command}, Tournament Legal: ${tournamentLegal}`);
-    
-    // CRITICAL: Validate known problematic units
-    if (unitName === 'Aide') {
-      console.log(`[normalizeUnits] 🔍 AIDE UNIT VALIDATION:`, {
-        source: unit,
-        normalized: { pointsCost, availability, command, tournamentLegal }
-      });
-      
-      // Alert if Aide unit has wrong data
-      if (pointsCost !== 25) {
-        console.error(`[normalizeUnits] ❌ AIDE COST ERROR: Expected 25, got ${pointsCost}`);
-      }
-      if (availability !== 1) {
-        console.error(`[normalizeUnits] ❌ AIDE AVAILABILITY ERROR: Expected 1, got ${availability}`);
-      }
-      if (command !== 1) {
-        console.error(`[normalizeUnits] ❌ AIDE COMMAND ERROR: Expected 1, got ${command}`);
-      }
-    }
+    console.log(`[normalizeUnits] Processing ${unit.name || unit['Unit Name EN'] || 'Unknown Unit'} - Tournament Legal: ${tournamentLegal}`);
     
     const normalizedUnit: Unit = {
-      id: unit.id || `${unitName}-${unit.faction || unit.Faction}`.replace(/\s+/g, '-').toLowerCase(),
-      name: unitName,
+      id: unit.id || `${unit.name || unit['Unit Name EN']}-${unit.faction || unit.Faction}`.replace(/\s+/g, '-').toLowerCase(),
+      name: unit.name || unit['Unit Name EN'] || '',
       name_es: unit.name_es || unit['Unit Name SP'] || undefined,
       name_fr: unit.name_fr || unit['Unit Name FR'] || undefined,
       faction: unit.faction || unit.Faction || '',
       faction_id: unit.faction_id || unit['Faction ID'] || unit['faction_id'] || undefined,
-      pointsCost,
-      availability,
-      command,
+      pointsCost: parseInt(unit.pointsCost || unit['Points Cost'] || '0'),
+      availability: parseInt(unit.availability || unit.AVB || '1'),
+      command: parseInt(unit.command || unit.Command || '0') || undefined,
       keywords: Array.isArray(unit.keywords) ? unit.keywords : (unit.Keywords ? unit.Keywords.split(',').map((k: string) => k.trim()) : []),
       specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : (unit['Special Rules'] ? unit['Special Rules'].split(',').map((r: string) => r.trim()) : []),
       highCommand: unit.highCommand === true || unit['High Command'] === 'Yes' || unit['High Command'] === true,
       imageUrl: unit.imageUrl,
       companion: unit.companion || unit.Companion || undefined,
       type: unit.type || unit['Unit Type'] || undefined,
-      tournamentLegal
+      tournamentLegal // Set the normalized tournament legal status
     };
     
     return normalizedUnit;

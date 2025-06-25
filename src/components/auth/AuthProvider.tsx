@@ -1,191 +1,303 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useEnvironment } from "@/hooks/useEnvironment";
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  signOut: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
-  setIsGuest: (isGuest: boolean) => void;
-  isAuthenticated: boolean;
-  authReady: boolean;
-  isLoading: boolean;
-  userId: string | null;
-  isWabAdmin: boolean;
-  isTester: boolean;
-  isGuest: boolean;
+  isAuthenticated: boolean | null;
   isAdmin: boolean;
+  isTester: boolean;
+  isWabAdmin: boolean;
+  userId: string | null;
+  isLoading: boolean;
+  isGuest: boolean;
+  setIsGuest: (value: boolean) => void;
+  resendConfirmationEmail: (email: string) => Promise<void>;
+  authReady: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  session: null,
-  signOut: async () => {},
-  signIn: async () => ({ error: null }),
-  signUp: async () => ({ error: null }),
-  resendConfirmationEmail: async () => ({ error: null }),
-  setIsGuest: () => {},
-  isAuthenticated: false,
-  authReady: false,
-  isLoading: true,
-  userId: null,
-  isWabAdmin: false,
-  isTester: false,
-  isGuest: true,
+  isAuthenticated: null,
   isAdmin: false,
+  isTester: false,
+  isWabAdmin: false,
+  userId: null,
+  isLoading: true,
+  isGuest: false,
+  setIsGuest: () => {},
+  resendConfirmationEmail: async () => {},
+  authReady: false
 });
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [authReady, setAuthReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isWabAdmin, setIsWabAdmin] = useState(false);
-  const [isTester, setIsTester] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isTester, setIsTester] = useState<boolean>(false);
+  const [isWabAdmin, setIsWabAdmin] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+  const { isPreview, hostname, useLocalContentData } = useEnvironment();
+
+  // Calculate authReady based on loading state
+  const authReady = !isLoading && isAuthenticated !== null;
+
+  console.log("[AuthProvider] 🔍 Current state:", {
+    isLoading,
+    isAuthenticated,
+    authReady,
+    isAdmin,
+    isTester,
+    isWabAdmin,
+    userId,
+    isPreview,
+    hostname,
+    useLocalContentData,
+    authReadyStatus: authReady ? 'READY' : 'NOT_READY',
+    timestamp: new Date().toISOString()
+  });
+
+  // Function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    console.log("[AuthProvider] 📧 Resending confirmation email for:", email);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      
+      if (error) {
+        console.error('[AuthProvider] ❌ Error resending confirmation email:', error);
+        toast.error('Failed to resend confirmation email');
+        throw error;
+      }
+      
+      console.log("[AuthProvider] ✅ Confirmation email sent successfully");
+      toast.success('Confirmation email has been sent');
+    } catch (err) {
+      console.error('[AuthProvider] ❌ Exception in resendConfirmationEmail:', err);
+      toast.error('Failed to send confirmation email');
+      throw err;
+    }
+  };
+
+  // Helper function to finalize auth state
+  const finalizeAuthState = (
+    authenticated: boolean, 
+    user: string | null, 
+    admin: boolean, 
+    tester: boolean, 
+    wabAdmin: boolean, 
+    guest: boolean
+  ) => {
+    console.log("[AuthProvider] 🎯 Finalizing auth state:", {
+      authenticated,
+      user,
+      admin,
+      tester,
+      wabAdmin,
+      guest,
+      timestamp: new Date().toISOString()
+    });
+    
+    setIsAuthenticated(authenticated);
+    setUserId(user);
+    setIsAdmin(admin);
+    setIsTester(tester);
+    setIsWabAdmin(wabAdmin);
+    setIsGuest(guest);
+    setIsLoading(false);
+  };
+
+  // Simplified profile fetch with faster timeout
+  const fetchUserProfile = async (sessionUserId: string): Promise<{ wab_admin: boolean; tester: boolean }> => {
+    console.log("[AuthProvider] 👤 Fetching profile for user:", sessionUserId);
+    
+    try {
+      // Reduced timeout to 2 seconds for faster initialization
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 2000)
+      );
+      
+      const profilePromise = supabase
+        .from('profiles')
+        .select('wab_admin, tester')
+        .eq('id', sessionUserId)
+        .single();
+      
+      console.log("[AuthProvider] 📡 Executing fast profile query...");
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+      
+      if (error) {
+        console.warn("[AuthProvider] ⚠️ Profile fetch failed, using defaults:", error.message);
+        return { wab_admin: false, tester: false };
+      }
+      
+      console.log("[AuthProvider] ✅ Profile data fetched:", {
+        wabAdmin: data?.wab_admin,
+        tester: data?.tester,
+        userId: sessionUserId
+      });
+      
+      return data || { wab_admin: false, tester: false };
+    } catch (err) {
+      console.warn("[AuthProvider] ⚠️ Profile fetch exception, using defaults:", err instanceof Error ? err.message : String(err));
+      return { wab_admin: false, tester: false };
+    }
+  };
+
+  // Streamlined session restoration
+  const restoreSession = async () => {
+    console.log("[AuthProvider] 🔄 Fast session restore...");
+    
+    try {
+      // Reduced timeout to 3 seconds for faster startup
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session restore timeout')), 3000)
+      );
+      
+      console.log("[AuthProvider] ⏳ Getting session with fast timeout...");
+      const sessionPromise = supabase.auth.getSession();
+      
+      let sessionData;
+      let sessionError;
+      try {
+        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        sessionData = result.data;
+        sessionError = result.error;
+      } catch (err) {
+        console.warn("[AuthProvider] ⚠️ Session timeout, proceeding as guest");
+        finalizeAuthState(false, null, false, false, false, true);
+        return;
+      }
+      
+      if (sessionError || !sessionData?.session) {
+        console.log("[AuthProvider] ℹ️ No session, setting guest state");
+        finalizeAuthState(false, null, false, false, false, true);
+        return;
+      }
+      
+      const session = sessionData.session;
+      console.log("[AuthProvider] 🎉 Session found - authenticating user");
+      
+      // Fetch profile in parallel but don't block on it
+      const profile = await fetchUserProfile(session.user.id);
+      const isAdminUser = !!profile.wab_admin;
+      
+      finalizeAuthState(true, session.user.id, isAdminUser, !!profile.tester, isAdminUser, false);
+    } catch (error) {
+      console.warn("[AuthProvider] ⚠️ Session restore failed, using guest mode:", error instanceof Error ? error.message : String(error));
+      finalizeAuthState(false, null, false, false, false, true);
+    }
+  };
+
+  // Optimized auth change handler
+  const handleAuthChange = async (session: any) => {
+    console.log("[AuthProvider] 🔄 Auth change detected:", {
+      hasSession: !!session,
+      userId: session?.user?.id
+    });
+
+    try {
+      if (session?.user?.id) {
+        // Fetch profile quickly, don't block the UI
+        const profile = await fetchUserProfile(session.user.id);
+        const isAdminUser = !!profile.wab_admin;
+        
+        finalizeAuthState(true, session.user.id, isAdminUser, !!profile.tester, isAdminUser, false);
+      } else {
+        finalizeAuthState(false, null, false, false, false, true);
+      }
+    } catch (error) {
+      console.warn("[AuthProvider] ⚠️ Auth change error:", error instanceof Error ? error.message : String(error));
+      finalizeAuthState(false, null, false, false, false, true);
+    }
+  };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('[AuthProvider] Auth state change:', event, session?.user?.id || 'no user');
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-        setAuthReady(true);
+    let mounted = true;
+    let authSubscription: any = null;
 
-        // Check for admin/tester roles if user exists
-        if (session?.user) {
-          try {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('wab_admin, tester')
-              .eq('id', session.user.id)
-              .maybeSingle();
+    const initializeAuth = async () => {
+      console.log("[AuthProvider] 🚀 Fast auth initialization...", {
+        isPreview,
+        hostname,
+        timestamp: new Date().toISOString()
+      });
+
+      try {
+        // Set up auth listener first
+        console.log("[AuthProvider] 👂 Setting up auth listener");
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (!mounted) return;
             
-            if (!error && data) {
-              setIsWabAdmin(!!data.wab_admin);
-              setIsTester(!!data.tester);
-            } else {
-              setIsWabAdmin(false);
-              setIsTester(false);
-            }
-          } catch (error) {
-            console.error('[AuthProvider] Error fetching user roles:', error);
-            setIsWabAdmin(false);
-            setIsTester(false);
+            console.log("[AuthProvider] 🔄 Auth event:", event, {
+              hasUser: !!session?.user,
+              userId: session?.user?.id
+            });
+            
+            await handleAuthChange(session);
           }
-        } else {
-          setIsWabAdmin(false);
-          setIsTester(false);
+        );
+        
+        authSubscription = subscription;
+        
+        // Then restore session quickly
+        if (mounted) {
+          await restoreSession();
+        }
+      } catch (error) {
+        console.error("[AuthProvider] ❌ Init error:", error instanceof Error ? error.message : String(error));
+        
+        if (mounted) {
+          finalizeAuthState(false, null, false, false, false, true);
         }
       }
-    );
+    };
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[AuthProvider] Initial session check:', session?.user?.id || 'no user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-      setAuthReady(true);
-    });
+    initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("[AuthProvider] 🧹 Cleaning up");
+      mounted = false;
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
+    };
   }, []);
 
-  const signOut = async () => {
-    console.log('[AuthProvider] Signing out...');
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('[AuthProvider] Sign out error:', error);
-      throw error;
-    }
-    console.log('[AuthProvider] Sign out successful');
-  };
+  // Simplified loading state
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center text-warcrow-text">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-warcrow-gold mx-auto mb-2"></div>
+          <div className="text-sm">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
-  const signIn = async (email: string, password: string) => {
-    console.log('[AuthProvider] Signing in...');
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      console.error('[AuthProvider] Sign in error:', error);
-    }
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string) => {
-    console.log('[AuthProvider] Signing up...');
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-    if (error) {
-      console.error('[AuthProvider] Sign up error:', error);
-    }
-    return { error };
-  };
-
-  const resendConfirmationEmail = async (email: string) => {
-    console.log('[AuthProvider] Resending confirmation email...');
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`
-      }
-    });
-    if (error) {
-      console.error('[AuthProvider] Resend confirmation error:', error);
-    }
-    return { error };
-  };
-
-  const handleSetIsGuest = (guestStatus: boolean) => {
-    console.log('[AuthProvider] Setting guest status:', guestStatus);
-    setIsGuest(guestStatus);
-  };
-
-  const value: AuthContextType = {
-    user,
-    session,
-    signOut,
-    signIn,
-    signUp,
-    resendConfirmationEmail,
-    setIsGuest: handleSetIsGuest,
-    isAuthenticated: !!user,
-    authReady,
-    isLoading,
-    userId: user?.id ?? null,
-    isWabAdmin,
+  const value = {
+    isAuthenticated,
+    isAdmin,
     isTester,
-    isGuest: !user || isGuest,
-    isAdmin: isWabAdmin, // isAdmin is an alias for isWabAdmin
+    isWabAdmin,
+    userId,
+    isLoading,
+    isGuest,
+    setIsGuest,
+    resendConfirmationEmail,
+    authReady
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
