@@ -44,7 +44,12 @@ export const useArmyBuilderUnits = (factionId: string) => {
           if (typeof unit.tournamentLegal === 'boolean') {
             tournamentLegal = unit.tournamentLegal;
           } else if (typeof unit.tournamentLegal === 'string') {
-            tournamentLegal = unit.tournamentLegal.toLowerCase() !== 'false' && unit.tournamentLegal.toLowerCase() !== 'no';
+            const lowerValue = unit.tournamentLegal.toLowerCase();
+            tournamentLegal = lowerValue !== 'false' && lowerValue !== 'no';
+          } else {
+            // Handle any other type by converting to string first
+            const stringValue = String(unit.tournamentLegal).toLowerCase();
+            tournamentLegal = stringValue !== 'false' && stringValue !== 'no';
           }
         }
         
