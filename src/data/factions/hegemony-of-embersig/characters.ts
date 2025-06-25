@@ -8,7 +8,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     id: "aide",
     name: "Aide",
     name_es: "Ayudante",
-    pointsCost: 15,
+    pointsCost: 25,
     faction: "hegemony-of-embersig",
     faction_id: "hegemony-of-embersig",
     keywords: [
@@ -17,8 +17,8 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
       { name: "Join (Infantry Human)", description: "" }
     ],
     highCommand: false,
-    availability: 2,
-    command: 0,
+    availability: 1,
+    command: 1,
     specialRules: [],
     tournamentLegal: true,
     imageUrl: "/art/card/aide_card.jpg"
