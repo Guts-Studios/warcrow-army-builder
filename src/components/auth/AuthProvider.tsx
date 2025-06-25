@@ -9,6 +9,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
+  resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
+  setIsGuest: (isGuest: boolean) => void;
   isAuthenticated: boolean;
   authReady: boolean;
   isLoading: boolean;
@@ -25,6 +27,8 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
+  resendConfirmationEmail: async () => ({ error: null }),
+  setIsGuest: () => {},
   isAuthenticated: false,
   authReady: false,
   isLoading: true,
@@ -50,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [isWabAdmin, setIsWabAdmin] = useState(false);
   const [isTester, setIsTester] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -140,19 +145,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const resendConfirmationEmail = async (email: string) => {
+    console.log('[AuthProvider] Resending confirmation email...');
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`
+      }
+    });
+    if (error) {
+      console.error('[AuthProvider] Resend confirmation error:', error);
+    }
+    return { error };
+  };
+
+  const handleSetIsGuest = (guestStatus: boolean) => {
+    console.log('[AuthProvider] Setting guest status:', guestStatus);
+    setIsGuest(guestStatus);
+  };
+
   const value: AuthContextType = {
     user,
     session,
     signOut,
     signIn,
     signUp,
+    resendConfirmationEmail,
+    setIsGuest: handleSetIsGuest,
     isAuthenticated: !!user,
     authReady,
     isLoading,
     userId: user?.id ?? null,
     isWabAdmin,
     isTester,
-    isGuest: !user,
+    isGuest: !user || isGuest,
     isAdmin: isWabAdmin, // isAdmin is an alias for isWabAdmin
   };
 
