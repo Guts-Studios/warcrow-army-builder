@@ -3,7 +3,7 @@ import { Unit } from "@/types/army";
 
 export const syenannTroops: Unit[] = [
   {
-    id: "grove-curtailers",
+    id: "grove_curtailers",
     name: "Grove Curtailers",
     name_es: "Atajadores De La Algaba",
     pointsCost: 35,
@@ -23,7 +23,7 @@ export const syenannTroops: Unit[] = [
     imageUrl: "/art/card/grove_curtailers_card.jpg"
   },
   {
-    id: "protectors-of-the-forest",
+    id: "protectors_of_the_forest",
     name: "Protectors of the Forest",
     name_es: "Protectores De La Foresta",
     pointsCost: 25,
@@ -42,7 +42,7 @@ export const syenannTroops: Unit[] = [
     imageUrl: "/art/card/protectors_of_the_forest_card.jpg"
   },
   {
-    id: "shadows-of-the-yew",
+    id: "shadows_of_the_yew",
     name: "Shadows of the Yew",
     name_es: "Sombras Del Tejo",
     pointsCost: 35,

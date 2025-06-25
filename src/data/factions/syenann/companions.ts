@@ -2,5 +2,5 @@
 import { Unit } from "@/types/army";
 
 export const syenannCompanions: Unit[] = [
-  // Companion units will be added here when available
+  // No companions in the Syenann CSV data
 ];

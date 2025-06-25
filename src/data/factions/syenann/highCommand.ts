@@ -3,7 +3,7 @@ import { Unit } from "@/types/army";
 
 export const syenannHighCommand: Unit[] = [
   {
-    id: "grand-captain",
+    id: "grand_captain",
     name: "Grand Captain",
     name_es: "Gran Capitan",
     pointsCost: 30,
@@ -26,7 +26,7 @@ export const syenannHighCommand: Unit[] = [
     imageUrl: "/art/card/grand_captain_card.jpg"
   },
   {
-    id: "lioslaith-coic-caledhee",
+    id: "lioslaith_coic_caledhee",
     name: "Lioslaith Coic Caledhee",
     name_es: "Lioslaith Coic Caledhee",
     pointsCost: 30,
