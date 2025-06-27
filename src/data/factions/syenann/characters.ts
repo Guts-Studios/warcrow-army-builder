@@ -97,7 +97,7 @@ export const syenannCharacters: Unit[] = [
       { name: "Character", description: "" },
       { name: "Colossal Company", description: "" },
       { name: "Elf", description: "" },
-      { name: "Nemorous", description: "" },
+      { name: "Nemourous", description: "" },
       { name: "Syenann", description: "" },
       { name: "Intimidating (1)", description: "" },
       { name: "Spellcaster", description: "" },

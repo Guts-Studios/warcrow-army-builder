@@ -5,7 +5,7 @@ export const northernTribesTroops: Unit[] = [
   {
     id: "battle-scarred",
     name: "Battle-Scarred",
-    name_es: "Cicatrices De Batalla",
+    name_es: "Cicatrices De Batalla", 
     pointsCost: 40,
     faction: "northern-tribes",
     faction_id: "northern-tribes",
@@ -16,6 +16,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Slowed", "Vulnerable", "Frightened", "Disarmed"],
     tournamentLegal: true,
     imageUrl: "/art/card/battle-scarred_card.jpg"
@@ -26,13 +27,14 @@ export const northernTribesTroops: Unit[] = [
     name_es: "Arqueros De Hielo",
     pointsCost: 25,
     faction: "northern-tribes",
-    faction_id: "northern-tribes",
+    faction_id: "northern-tribes", 
     keywords: [
       { name: "Infantry", description: "" },
       { name: "Varank", description: "" }
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Slowed"],
     tournamentLegal: true,
     imageUrl: "/art/card/ice_archers_card.jpg"
@@ -50,13 +52,14 @@ export const northernTribesTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 3,
+    command: 0,
     specialRules: ["Vulnerable"],
     tournamentLegal: true,
     imageUrl: "/art/card/orc_hunters_card.jpg"
   },
   {
     id: "skin-changers",
-    name: "Skin Changers",
+    name: "Skin Changers", 
     name_es: "Cambiaformas",
     pointsCost: 35,
     faction: "northern-tribes",
@@ -68,6 +71,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 1,
+    command: 0,
     specialRules: ["Scout"],
     tournamentLegal: true,
     imageUrl: "/art/card/skin_changers_card.jpg"
@@ -87,6 +91,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
+    command: 0,
     specialRules: ["Displace (3)", "Rugged", "Trap"],
     tournamentLegal: true,
     imageUrl: "/art/card/tundra_marauders_card.jpg"
@@ -107,6 +112,7 @@ export const northernTribesTroops: Unit[] = [
     ],
     highCommand: false,
     availability: 2,
+    command: 0,
     specialRules: ["Vulnerable", "Repeat a Die"],
     tournamentLegal: true,
     imageUrl: "/art/card/warg_riders_card.jpg"

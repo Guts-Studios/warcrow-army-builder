@@ -1,145 +1,106 @@
 
-import { SelectedUnit, Unit } from "@/types/army";
+import { Unit } from "@/types/army";
 
-export const getUpdatedQuantities = (
-  unitId: string,
-  currentQuantities: Record<string, number>,
-  isAdding: boolean
-): Record<string, number> => {
-  const currentQuantity = currentQuantities[unitId] || 0;
-  const newQuantity = isAdding ? currentQuantity + 1 : Math.max(0, currentQuantity - 1);
+export const normalizeUnits = (units: any[]): Unit[] => {
+  return units.map(unit => {
+    // Enhanced tournament legal processing
+    let tournamentLegal = true; // Default to tournament legal
+    
+    // Handle various formats from CSV data
+    if (unit.tournamentLegal !== undefined) {
+      if (typeof unit.tournamentLegal === 'boolean') {
+        tournamentLegal = unit.tournamentLegal;
+      } else if (typeof unit.tournamentLegal === 'string') {
+        const lowerValue = unit.tournamentLegal.toLowerCase().trim();
+        tournamentLegal = lowerValue !== 'false' && lowerValue !== 'no' && lowerValue !== '0' && lowerValue !== 'n';
+      }
+    }
+    
+    // Also check for 'Tournament Legal' field (with space) which might exist in CSV
+    if (unit['Tournament Legal'] !== undefined) {
+      if (typeof unit['Tournament Legal'] === 'string') {
+        const lowerValue = unit['Tournament Legal'].toLowerCase().trim();
+        tournamentLegal = lowerValue !== 'false' && lowerValue !== 'no' && lowerValue !== '0' && lowerValue !== 'n';
+      }
+    }
+    
+    console.log(`[normalizeUnits] Processing ${unit.name || unit['Unit Name EN'] || 'Unknown Unit'} - Tournament Legal: ${tournamentLegal}`);
+    
+    const normalizedUnit: Unit = {
+      id: unit.id || `${unit.name || unit['Unit Name EN']}-${unit.faction || unit.Faction}`.replace(/\s+/g, '-').toLowerCase(),
+      name: unit.name || unit['Unit Name EN'] || '',
+      name_es: unit.name_es || unit['Unit Name SP'] || undefined,
+      name_fr: unit.name_fr || unit['Unit Name FR'] || undefined,
+      faction: unit.faction || unit.Faction || '',
+      faction_id: unit.faction_id || unit['Faction ID'] || unit['faction_id'] || undefined,
+      pointsCost: parseInt(unit.pointsCost || unit['Points Cost'] || '0'),
+      availability: parseInt(unit.availability || unit.AVB || '1'),
+      command: parseInt(unit.command || unit.Command || '0') || undefined,
+      keywords: Array.isArray(unit.keywords) ? unit.keywords : (unit.Keywords ? unit.Keywords.split(',').map((k: string) => k.trim()) : []),
+      specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : (unit['Special Rules'] ? unit['Special Rules'].split(',').map((r: string) => r.trim()) : []),
+      highCommand: unit.highCommand === true || unit['High Command'] === 'Yes' || unit['High Command'] === true,
+      imageUrl: unit.imageUrl,
+      companion: unit.companion || unit.Companion || undefined,
+      type: unit.type || unit['Unit Type'] || undefined,
+      tournamentLegal // Set the normalized tournament legal status
+    };
+    
+    return normalizedUnit;
+  });
+};
+
+export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
+  const seen = new Set<string>();
+  return units.filter(unit => {
+    const key = `${unit.name}-${unit.faction}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+};
+
+export const normalizeFactionId = (factionId: string): string => {
+  if (!factionId) return '';
+  return factionId.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+};
+
+export const getUpdatedQuantities = (unitId: string, quantities: Record<string, number>, isAdding: boolean): Record<string, number> => {
+  const newQuantities = { ...quantities };
+  const currentQuantity = newQuantities[unitId] || 0;
   
-  console.log(`[getUpdatedQuantities] ${unitId}: ${currentQuantity} -> ${newQuantity} (${isAdding ? 'adding' : 'removing'})`);
-  
-  const newQuantities = { ...currentQuantities };
-  
-  if (newQuantity === 0) {
-    delete newQuantities[unitId];
+  if (isAdding) {
+    newQuantities[unitId] = currentQuantity + 1;
   } else {
-    newQuantities[unitId] = newQuantity;
+    if (currentQuantity > 0) {
+      newQuantities[unitId] = currentQuantity - 1;
+      if (newQuantities[unitId] === 0) {
+        delete newQuantities[unitId];
+      }
+    }
   }
   
   return newQuantities;
 };
 
-export const updateSelectedUnits = (
-  currentUnits: SelectedUnit[],
-  unit: Unit | undefined,
-  isAdding: boolean
-): SelectedUnit[] => {
-  if (!unit) {
-    console.warn("[updateSelectedUnits] Unit is undefined");
-    return currentUnits;
-  }
-  
-  console.log(`[updateSelectedUnits] ${isAdding ? 'Adding' : 'Removing'} unit: ${unit.name} (${unit.id})`);
-  
-  const existingUnitIndex = currentUnits.findIndex((u) => u.id === unit.id);
-  
+export const updateSelectedUnits = (selectedUnits: any[], unit: any, isAdding: boolean): any[] => {
   if (isAdding) {
-    if (existingUnitIndex >= 0) {
-      // Unit already exists, increment quantity
-      const updatedUnits = [...currentUnits];
-      const existingUnit = updatedUnits[existingUnitIndex];
-      updatedUnits[existingUnitIndex] = {
-        ...existingUnit,
-        quantity: existingUnit.quantity + 1
-      };
-      console.log(`[updateSelectedUnits] Incremented ${unit.name} quantity to ${updatedUnits[existingUnitIndex].quantity}`);
-      return updatedUnits;
+    const existingUnit = selectedUnits.find(u => u.id === unit.id);
+    if (existingUnit) {
+      return selectedUnits.map(u => 
+        u.id === unit.id 
+          ? { ...u, quantity: u.quantity + 1 }
+          : u
+      );
     } else {
-      // New unit, add it
-      const newSelectedUnit: SelectedUnit = {
-        id: unit.id,
-        name: unit.name,
-        pointsCost: unit.pointsCost,
-        quantity: 1,
-        faction: unit.faction,
-        faction_id: unit.faction_id,
-        keywords: Array.isArray(unit.keywords) 
-          ? unit.keywords.map(k => typeof k === 'string' ? k : k.name)
-          : [],
-        highCommand: unit.highCommand || false,
-        availability: unit.availability,
-        imageUrl: unit.imageUrl,
-        specialRules: unit.specialRules || [],
-        command: unit.command || 0
-      };
-      const updatedUnits = [...currentUnits, newSelectedUnit];
-      console.log(`[updateSelectedUnits] Added new unit: ${unit.name}`);
-      return updatedUnits;
+      return [...selectedUnits, { ...unit, quantity: 1 }];
     }
   } else {
-    // Removing
-    if (existingUnitIndex >= 0) {
-      const existingUnit = currentUnits[existingUnitIndex];
-      if (existingUnit.quantity > 1) {
-        // Decrement quantity
-        const updatedUnits = [...currentUnits];
-        updatedUnits[existingUnitIndex] = {
-          ...existingUnit,
-          quantity: existingUnit.quantity - 1
-        };
-        console.log(`[updateSelectedUnits] Decremented ${unit.name} quantity to ${updatedUnits[existingUnitIndex].quantity}`);
-        return updatedUnits;
-      } else {
-        // Remove the unit entirely
-        const updatedUnits = currentUnits.filter((u) => u.id !== unit.id);
-        console.log(`[updateSelectedUnits] Removed unit: ${unit.name}`);
-        return updatedUnits;
-      }
-    }
+    return selectedUnits.map(u => 
+      u.id === unit.id 
+        ? { ...u, quantity: u.quantity - 1 }
+        : u
+    ).filter(u => u.quantity > 0);
   }
-  
-  console.log(`[updateSelectedUnits] No changes made for unit: ${unit.name}`);
-  return currentUnits;
-};
-
-export const canAddUnit = (
-  selectedUnits: SelectedUnit[],
-  unit: Unit,
-  selectedFaction: string
-): boolean => {
-  // Check if unit belongs to the selected faction
-  if (unit.faction !== selectedFaction) {
-    console.warn(`[canAddUnit] Unit ${unit.name} faction (${unit.faction}) doesn't match selected faction (${selectedFaction})`);
-    return false;
-  }
-  
-  // Check availability limit
-  const existingUnit = selectedUnits.find((u) => u.id === unit.id);
-  const currentQuantity = existingUnit ? existingUnit.quantity : 0;
-  
-  if (currentQuantity >= unit.availability) {
-    console.warn(`[canAddUnit] Unit ${unit.name} has reached availability limit (${unit.availability})`);
-    return false;
-  }
-  
-  return true;
-};
-
-// Add missing utility functions that were imported but not defined
-export const normalizeFactionId = (factionId: string): string => {
-  if (!factionId) return '';
-  return factionId.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-};
-
-export const normalizeUnits = (units: Unit[]): Unit[] => {
-  return units.map(unit => ({
-    ...unit,
-    faction: normalizeFactionId(unit.faction),
-    faction_id: unit.faction_id ? normalizeFactionId(unit.faction_id) : normalizeFactionId(unit.faction)
-  }));
-};
-
-export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
-  const seen = new Map();
-  return units.filter(unit => {
-    const key = `${unit.id}_${unit.faction}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.set(key, true);
-    return true;
-  });
 };

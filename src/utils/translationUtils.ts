@@ -174,7 +174,7 @@ export const useTranslateKeyword = () => {
         "fr": "Elfe"
       },
       "Tattooist": {
-        "es": "Tatuador",
+        "es": "Tatuadora",
         "fr": "Tatoueur"
       },
       "Fearless": {

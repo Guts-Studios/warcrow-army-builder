@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ShareDialogContent } from "./share/ShareDialogContent";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ShareExportButtonProps {
   selectedUnits: SelectedUnit[];
@@ -21,12 +22,19 @@ interface ShareExportButtonProps {
 
 const ShareExportButton = ({ selectedUnits, listName, faction }: ShareExportButtonProps) => {
   const [open, setOpen] = useState(false);
+  const { language } = useLanguage();
+  
+  // Create units with proper language names for sharing
+  const unitsWithLanguageNames = selectedUnits.map(unit => ({
+    ...unit,
+    name: language === 'es' && unit.name_es ? unit.name_es : unit.name
+  }));
   
   const tempList: SavedList = {
     id: `temp-${Date.now()}`,
     name: listName || "Untitled List",
     faction: faction,
-    units: selectedUnits,
+    units: unitsWithLanguageNames,
     created_at: new Date().toISOString()
   };
   

@@ -51,7 +51,15 @@ const SaveListSection = ({
     checkAuth();
   }, []);
   
+  const handleLocalSave = () => {
+    console.log("[SaveListSection] Local save button clicked");
+    // Only call the local save function passed from parent
+    onSaveList();
+  };
+  
   const handleCloudSave = async () => {
+    console.log("[SaveListSection] Cloud save button clicked");
+    
     if (!isAuthenticated) {
       toast.error("You must be logged in to use cloud save");
       return;
@@ -59,6 +67,11 @@ const SaveListSection = ({
 
     if (!listName.trim()) {
       toast.error("Please enter a list name before saving");
+      return;
+    }
+    
+    if (selectedUnits.length === 0) {
+      toast.error("Cannot save an empty list. Add some units first.");
       return;
     }
     
@@ -115,9 +128,6 @@ const SaveListSection = ({
       console.log("List saved successfully:", data);
       toast.success("List saved to cloud successfully!");
       
-      // Update the local state like local save does
-      onSaveList();
-      
       // Call the refreshSavedLists function if it exists to update the saved lists
       if (refreshSavedLists) {
         setTimeout(() => {
@@ -156,7 +166,7 @@ const SaveListSection = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              onClick={onSaveList}
+              onClick={handleLocalSave}
               className="bg-warcrow-gold hover:bg-warcrow-gold/80 text-black whitespace-nowrap order-3 md:order-1"
             >
               <Save className="h-4 w-4 mr-2" />

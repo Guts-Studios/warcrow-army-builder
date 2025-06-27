@@ -21,6 +21,9 @@ export const generateListText = (selectedUnits: SelectedUnit[], listName: string
     if (language === 'es' && unit.name_es) {
       return unit.name_es;
     }
+    if (language === 'fr' && unit.name_fr) {
+      return unit.name_fr;
+    }
     return unit.name;
   };
 

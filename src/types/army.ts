@@ -1,8 +1,8 @@
-
 export interface Unit {
   id: string;
   name: string;
   name_es?: string; // Spanish name
+  name_fr?: string; // French name
   faction: string;
   faction_id?: string;
   pointsCost: number;

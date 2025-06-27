@@ -40,6 +40,14 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
     setIsCardDialogOpen(true);
   };
 
+  // Enhanced tournament legal check with better debugging
+  const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal).toLowerCase() === "false";
+  
+  // Debug logging for production troubleshooting
+  if (process.env.NODE_ENV === 'production' || true) { // Always log for now
+    console.log(`[UnitCard] ${unit.name} - tournamentLegal value:`, unit.tournamentLegal, `(type: ${typeof unit.tournamentLegal}), isNotTournamentLegal: ${isNotTournamentLegal}`);
+  }
+
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -64,10 +72,10 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
         </div>
       </div>
 
-      {/* Tournament Legal Status */}
-      {unit.tournamentLegal === false && (
+      {/* Tournament Legal Status - Enhanced visibility and debugging */}
+      {isNotTournamentLegal && (
         <div className="flex justify-center">
-          <Badge variant="destructive" className="text-xs">
+          <Badge variant="destructive" className="text-xs font-semibold bg-red-600 text-white border-red-700">
             {language === 'en' ? "Not Tournament Legal" : 
              language === 'es' ? "No Legal para Torneo" : "Not Tournament Legal"}
           </Badge>

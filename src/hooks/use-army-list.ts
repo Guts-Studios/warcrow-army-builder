@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getAllFactionUnits } from "@/data/factions/index";
 import { removeDuplicateUnits } from "@/utils/unitManagement";
 import { useEnvironment } from "@/hooks/useEnvironment";
+import { saveListToStorage } from "@/utils/listManagement";
 
 export const useArmyList = (selectedFaction: string) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -176,8 +177,10 @@ export const useArmyList = (selectedFaction: string) => {
     setCurrentListName("");
   }, []);
 
-  // Handle saving list
-  const handleSaveList = useCallback(async () => {
+  // Handle saving list - LOCAL STORAGE ONLY
+  const handleSaveList = useCallback(() => {
+    console.log(`[useArmyList] Local save requested for: ${listName}`);
+    
     if (!listName.trim()) {
       toast({
         title: "Please enter a list name",
@@ -186,28 +189,57 @@ export const useArmyList = (selectedFaction: string) => {
       return;
     }
 
-    try {
-      const listData = {
-        name: listName,
-        faction: selectedFaction,
-        units: selectedUnits as any, // Cast to any to handle Json type
-      };
-
-      const { error } = await supabase
-        .from('army_lists')
-        .insert([listData]);
-
-      if (error) throw error;
-
+    if (selectedUnits.length === 0) {
       toast({
-        title: "List saved successfully",
+        title: "Cannot save an empty list",
+        description: "Add some units first.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    try {
+      // Clean and validate units data for local save
+      const validatedUnits = selectedUnits.map((unit) => {
+        const cleanUnit: SelectedUnit = {
+          id: unit.id,
+          name: unit.name,
+          name_es: unit.name_es,
+          name_fr: unit.name_fr,
+          pointsCost: unit.pointsCost,
+          quantity: Math.min(unit.quantity, unit.availability),
+          faction: unit.faction,
+          faction_id: unit.faction_id,
+          keywords: Array.isArray(unit.keywords) ? unit.keywords : [],
+          highCommand: unit.highCommand || false,
+          availability: unit.availability,
+          imageUrl: unit.imageUrl,
+          specialRules: Array.isArray(unit.specialRules) ? unit.specialRules : [],
+          command: unit.command || 0,
+          tournamentLegal: unit.tournamentLegal
+        };
+        return cleanUnit;
+      });
+
+      console.log(`[useArmyList] Saving ${validatedUnits.length} units to local storage`);
+      
+      // Save to local storage only
+      const newList = saveListToStorage(listName, selectedFaction, validatedUnits);
       
       setCurrentListName(listName);
-    } catch (error) {
-      console.error('Error saving list:', error);
+      
       toast({
-        title: "Error saving list",
+        title: "List saved locally",
+        description: `${listName} has been saved to your browser storage`,
+      });
+      
+      console.log(`[useArmyList] List saved locally: ${listName}`);
+    } catch (error) {
+      console.error("[useArmyList] Error saving list locally:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast({
+        title: "Failed to save list locally",
+        description: errorMessage,
         variant: "destructive",
       });
     }
