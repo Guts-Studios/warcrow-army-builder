@@ -2,7 +2,7 @@ faction_id,Faction,Unit Type,Unit Name EN,Unit Name SP,Command,AVB,Characteristi
 syenann,Sÿenann,Character,Alula,Alula,1,1,"[Character, Elf]",[],No,20,[Disarmed],,Yes
 syenann,Sÿenann,Character,Aoidos,Aedo,0,1,"[Chracter, Elf, Nemorous, Syenann]","[Join (Infantry Synann), Spellcaster]",No,20,"[Vulnerable, Slowed, Disarmed, Frightened]",,Yes
 syenann,Sÿenann,Named Character,Darach Wildling,Darach Brutamontes,0,1,"[Character, Elf, Colossal Company, Nemorous, Syenann]","[Aim, Ambusher]",No,35,[],,No
-syenann,Sÿenann,Character,Druid,Druida,0,1,"[Character, Elf]","[Spellcaster, Syenann]",No,25,[Slowed],,Yes
+syenann,Sÿenann,Character,Druid,Druida,0,1,"[Character, Nemorous, Elf]","[Spellcaster, Syenann]",No,25,[Slowed],,Yes
 syenann,Sÿenann,Character,Grand Captain,Gran Capitan,2,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Join (Infantry Syenann), Preferred Terrain (Rugged or Forest)]",Yes,30,[Preferred Terrain],,Yes
 syenann,Sÿenann,Troop,Grove Curtailers,Atajadores De La Algaba,0,2,"[Infantry, Elf]","[Syenann, Scout]",No,35,[Disarmed],,Yes
 syenann,Sÿenann,Named Character,Lioslaith Coic Caledhee,Lioslaith Coic Caledhee,1,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Ambusher, Elite, Join (Infantry Syenann)]",Yes,30,"[Place (3), Vulnerable]",,Yes
