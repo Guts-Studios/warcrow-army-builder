@@ -1,4 +1,3 @@
-
 import { Unit } from "@/types/army";
 
 export const syenannCharacters: Unit[] = [
@@ -75,6 +74,7 @@ export const syenannCharacters: Unit[] = [
     keywords: [
       { name: "Character", description: "" },
       { name: "Elf", description: "" },
+      { name: "Nemorous", description: "" },
       { name: "Spellcaster", description: "" },
       { name: "Syenann", description: "" }
     ],
