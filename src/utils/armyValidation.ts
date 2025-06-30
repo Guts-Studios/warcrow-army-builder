@@ -38,17 +38,13 @@ export const validateUnitAvailability = (
 
 /**
  * Comprehensive validation of unit addition to an army list
- * Checks high command restriction, faction restriction, and availability
+ * Checks faction restriction and availability (high command warning is handled separately)
  */
 export const validateUnitAddition = (
   selectedUnits: SelectedUnit[],
   unitToAdd: Unit,
   armyFaction: string
 ): boolean => {
-  // High command validation
-  const isHighCommandValid = validateHighCommandAddition(selectedUnits, unitToAdd);
-  if (!isHighCommandValid) return false;
-  
   // Faction validation
   const isFactionValid = validateFactionRestriction(armyFaction, unitToAdd.faction);
   if (!isFactionValid) return false;
@@ -58,4 +54,14 @@ export const validateUnitAddition = (
   if (!isAvailabilityValid) return false;
   
   return true;
+};
+
+/**
+ * Checks if adding a high command unit would exceed the recommended limit
+ */
+export const shouldShowHighCommandWarning = (selectedUnits: SelectedUnit[], newUnit: Unit): boolean => {
+  if (!newUnit.highCommand) return false;
+  
+  const existingHighCommandCount = selectedUnits.filter(unit => unit.highCommand).length;
+  return existingHighCommandCount >= 1;
 };

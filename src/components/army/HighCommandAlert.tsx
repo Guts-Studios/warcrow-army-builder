@@ -1,3 +1,4 @@
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -18,9 +19,9 @@ const HighCommandAlert = ({ open, onOpenChange }: HighCommandAlertProps) => {
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-h-[90vh] min-h-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>High Command Limit Reached</AlertDialogTitle>
+          <AlertDialogTitle>Multiple High Command Units</AlertDialogTitle>
           <AlertDialogDescription>
-            Your army list can only include one High Command unit.
+            You can only have 1 High Command unit in a tournament legal list. You currently have multiple High Command units selected.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

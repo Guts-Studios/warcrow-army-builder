@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useToast } from "@/hooks/use-toast";
-import { validateUnitAddition, validateHighCommandAddition } from "@/utils/armyValidation";
+import { validateUnitAddition, shouldShowHighCommandWarning } from "@/utils/armyValidation";
 import { fetchSavedLists, saveListToStorage } from "@/utils/listManagement";
 import { getUpdatedQuantities, updateSelectedUnits } from "@/utils/unitManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -145,9 +145,9 @@ export const useArmyList = (selectedFaction: string) => {
         return;
       }
 
-      if (!validateHighCommandAddition(selectedUnits, unit)) {
+      // Check if we should show high command warning (but still allow addition)
+      if (shouldShowHighCommandWarning(selectedUnits, unit)) {
         setShowHighCommandAlert(true);
-        return;
       }
 
       const newQuantities = getUpdatedQuantities(unitId, quantities, true);
