@@ -156,13 +156,13 @@ export const useArmyList = (selectedFaction: string) => {
       const currentHighCommandUnits = selectedUnits.filter(u => u.highCommand);
       console.log(`[useArmyList] Current high command units:`, currentHighCommandUnits.length, currentHighCommandUnits.map(u => u.name));
 
-      // Check if we should show high command warning (but don't prevent addition)
+      // Show high command warning if needed (but don't prevent addition)
       if (shouldShowHighCommandWarning(selectedUnits, unit)) {
         console.log(`[useArmyList] Showing high command warning for ${unit.name}`);
         setShowHighCommandAlert(true);
       }
 
-      // Always add the unit - high command warning is just informational
+      // ALWAYS add the unit regardless of high command status
       console.log(`[useArmyList] About to update quantities and selected units`);
       console.log(`[useArmyList] Current quantities before update:`, quantities);
       console.log(`[useArmyList] Current selected units before update:`, selectedUnits.length);
@@ -174,13 +174,16 @@ export const useArmyList = (selectedFaction: string) => {
       console.log(`[useArmyList] Updated selected units after update:`, updatedSelectedUnits.length);
       console.log(`[useArmyList] Unit added successfully. New quantity: ${newQuantities[unitId]}, Total units: ${updatedSelectedUnits.length}`);
       
+      // Force state update
       setQuantities(newQuantities);
       setSelectedUnits(updatedSelectedUnits);
 
       // Log the final state after setting
-      console.log(`[useArmyList] Final check - high command units after addition:`, updatedSelectedUnits.filter(u => u.highCommand).map(u => u.name));
+      setTimeout(() => {
+        console.log(`[useArmyList] Final check - high command units after state update:`, updatedSelectedUnits.filter(u => u.highCommand).map(u => u.name));
+      }, 100);
     },
-    [factionUnits, quantities, selectedUnits, selectedFaction]
+    [factionUnits, quantities, selectedUnits]
   );
 
   const handleRemove = useCallback((unitId: string) => {
