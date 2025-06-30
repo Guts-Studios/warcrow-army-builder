@@ -19,6 +19,9 @@ interface CharacteristicsSectionProps {
 // List of known characteristic types - keep this in sync with characteristicDefinitions.ts
 const characteristicTypes = Object.keys(characteristicDefinitions);
 
+// Keywords that should never be displayed as characteristics
+const keywordOnlyTerms = ["Fearless", "Elite", "Spellcaster", "Raging"];
+
 const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectionProps) => {
   const isMobile = useIsMobile();
   const [openDialogCharacteristic, setOpenDialogCharacteristic] = useState<string | null>(null);
@@ -30,8 +33,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   console.log('Keywords from unit:', keywordNames);
   
   // Filter to only show keywords that are characteristics and ensure no duplicates
+  // Exclude keywords that should only be keywords, not characteristics
   let characteristics = keywordNames.filter(name => 
-    characteristicTypes.includes(name)
+    characteristicTypes.includes(name) && !keywordOnlyTerms.includes(name)
   );
   
   // Add High Command if provided and not already included

@@ -20,10 +20,7 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Mounted": "Units that ride upon mounts such as horses or other creatures.",
   "Cavalry": "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield.",
   "Living Flesh": "Units composed of living organic material that can be affected by specific abilities.",
-  "Elite": "Units with superior training, equipment, or natural abilities compared to standard troops.",
   "Berserker Rage": "Units capable of entering a frenzied state in battle, granting increased combat prowess at the cost of control.",
   "Join": "The ability to attach to and join other units on the battlefield.",
-  "Spellcaster": "Units capable of wielding magic and casting spells.",
-  "Fearless": "Units that do not suffer from fear or morale effects.",
-  "Raging": "Units that have entered a state of battle rage, granting them enhanced combat abilities."
+  "Colossal Company": "Large, powerful units that represent significant battlefield presence and often have unique deployment rules."
 };

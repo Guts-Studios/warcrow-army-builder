@@ -11,8 +11,7 @@ export const tattooist: Unit = {
     keywords: [
       { name: "Character", description: "" },
       { name: "Varank", description: "" },
-      { name: "Join (Infantry Varank)", description: "" },
-      { name: "Elite", description: "" }
+      { name: "Join (Infantry Varank)", description: "" }
     ],
     highCommand: false,
     availability: 1,
