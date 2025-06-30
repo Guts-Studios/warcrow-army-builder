@@ -140,17 +140,22 @@ export const useArmyList = (selectedFaction: string) => {
       // Log tournament legal status when adding unit
       console.log(`[useArmyList] Adding unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
 
-      if (!validateUnitAddition(selectedUnits, unit, selectedFaction)) {
-        toast.error(`Cannot add more ${unit.name} to your list.`);
+      // Check availability limit first
+      const existingUnit = selectedUnits.find(u => u.id === unitId);
+      const currentQuantity = existingUnit ? existingUnit.quantity : 0;
+      
+      if (currentQuantity >= unit.availability) {
+        toast.error(`Cannot add more ${unit.name} to your list. Maximum ${unit.availability} allowed.`);
         return;
       }
 
-      // Check if we should show high command warning (but still allow addition)
+      // Check if we should show high command warning (but don't prevent addition)
       if (shouldShowHighCommandWarning(selectedUnits, unit)) {
+        console.log(`[useArmyList] Showing high command warning for ${unit.name}`);
         setShowHighCommandAlert(true);
       }
 
-      // Always add the unit regardless of high command warning
+      // Always add the unit - high command warning is just informational
       const newQuantities = getUpdatedQuantities(unitId, quantities, true);
       const updatedSelectedUnits = updateSelectedUnits(selectedUnits, unit, true);
       
