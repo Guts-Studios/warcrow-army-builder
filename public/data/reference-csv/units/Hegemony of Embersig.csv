@@ -22,7 +22,7 @@ hegemony-of-embersig,Hegemony of Embersig,Named Character,Naergon Caladren,Naerg
 hegemony-of-embersig,Hegemony of Embersig,Named Character,Nayra Caladren,Nayra Caladren,0,1,"[Aestari, Character, Colossal Company, Elf]","[Elite, Fearless, Spellcaster]",no,35,"[Disarmed, Slowed, Vulnerable]",,Yes
 hegemony-of-embersig,Hegemony of Embersig,Troop,Pioneers,Pioneros,0,1,"[Dwarf, Ghent, Infantry]","[Dispel (BLU), Scout]",no,35,"[Shove (3), Disarmed, Trap, Slowed]",,Yes
 hegemony-of-embersig,Hegemony of Embersig,Character,Strategos,Strategos,1,1,"[Character, Human]",[Join (Infantry)],no,20,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Trabor Slepmund,Trabor Slepmund,1,1,"[Character, Colossal Company, Dwarf, Ghent]","[Dispel (BLU), Join (War Rig)]",no,30,[Disarmed],,No
+hegemony-of-embersig,Hegemony of Embersig,Named Character,Trabor Slepmund,Trabor Slepmund,1,1,"[Character, Colossal Company, Dwarf, Ghent]","[Dispel (BLU), Join (War Rig)]",no,30,[Disarmed],,Yes
 hegemony-of-embersig,Hegemony of Embersig,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],no,30,[Place (5)],,No
 hegemony-of-embersig,Hegemony of Embersig,Character,War Surgeon,Cirujano De Guerra,0,1,"[Character, Human]",[Join (Infantry)],no,15,[],,Yes
 hegemony-of-embersig,Hegemony of Embersig,Character,Mounted Hetman,Hetman Montado,2,1,"[Cavalry, Character, High Command, Human]",[Join (Calvary)],yes,40,[],,Yes
