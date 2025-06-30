@@ -27,19 +27,19 @@ export const PageHeader = ({
   return (
     <div className="bg-black/95 border-b border-warcrow-gold/50 shadow-md p-2 md:p-4">
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-2 md:gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            <div className="flex items-center gap-6 md:gap-10">
+        <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            <div className="flex items-center gap-8 md:gap-12">
               <SupportButton className="md:static absolute top-2 left-2 z-10" />
-              <img 
-                src={logoUrl}
-                alt="Warcrow Logo" 
-                className="h-12 md:h-16"
-                width="120"
-                height="64"
-                loading="lazy"
-                decoding="async"
-              />
+              <div className="flex-shrink-0">
+                <img 
+                  src={logoUrl}
+                  alt="Warcrow Logo" 
+                  className="h-16 md:h-20 w-auto object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
             <h1 className="text-xl md:text-2xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
