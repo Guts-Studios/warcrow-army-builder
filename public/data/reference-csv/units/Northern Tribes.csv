@@ -18,7 +18,7 @@ northern-tribes,Northern Tribes,Character,Prime Warrior,Guerrero Cenit,1,1,"[Cha
 northern-tribes,Northern Tribes,Character,Revenant,Ya Muerto,0,1,"[Character, Orc]","[Elite, Fearless, Immovable, Intimidating (1)]",no,40,[Vulnerable],,Yes
 northern-tribes,Northern Tribes,Named Character,Selika,Selika,0,1,"[Character, Varank]","[Ambusher, Join (Infantry Varank)]",no,30,[],,Yes
 northern-tribes,Northern Tribes,Troop,Skin Changers,Cambiaformas,0,1,"[Infantry, Varank]",[Fearless],No,35,[Scout],,Yes
-northern-tribes,Northern Tribes,Character,Tattooist,Tatuadora,0,1,"[Character, Varank]","[Join (Infantry Varank), Elite]",no,15,[],,Yes
+northern-tribes,Northern Tribes,Character,Tattooist,Tatuadora,0,1,"[Character, Varank]",[Join (Infantry Varank)],no,15,[],,Yes
 northern-tribes,Northern Tribes,Troop,Tundra Marauders,Tundra Marauders,0,2,"[Infantry, Varank]","[Preferred Terrain (Rugged), Scout]",No,30,"[Displace (3), Rugged, Trap]",,Yes
 northern-tribes,Northern Tribes,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],no,30,[Place (5)],,No
 northern-tribes,Northern Tribes,Troop,Warg Riders,Jinetes De Huargo,0,2,"[Cavalry, Orc]","[Bloodlust, Preferred Terrain (Rugged), Raging]",no,35,"[Vulnerable, Repeat a Die]",,Yes
