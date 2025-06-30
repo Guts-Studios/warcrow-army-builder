@@ -29,7 +29,7 @@ const ArmyBuilderPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-warcrow-background">
-      <PageHeader title={t('army.armyBuilder')}>
+      <PageHeader title="Army Builder">
         <LanguageSwitcher />
         <NavDropdown />
       </PageHeader>
