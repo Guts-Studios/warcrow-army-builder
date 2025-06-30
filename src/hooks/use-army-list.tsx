@@ -139,51 +139,26 @@ export const useArmyList = (selectedFaction: string) => {
 
       // Log tournament legal status when adding unit
       console.log(`[useArmyList] Adding unit ${unit.name} - tournamentLegal:`, unit.tournamentLegal, typeof unit.tournamentLegal);
-      console.log(`[useArmyList] Unit is high command:`, unit.highCommand);
 
-      // Check availability limit first
-      const existingUnit = selectedUnits.find(u => u.id === unitId);
-      const currentQuantity = existingUnit ? existingUnit.quantity : 0;
-      
-      console.log(`[useArmyList] Current quantity of ${unit.name}:`, currentQuantity, "Availability:", unit.availability);
-      
-      if (currentQuantity >= unit.availability) {
-        toast.error(`Cannot add more ${unit.name} to your list. Maximum ${unit.availability} allowed.`);
+      if (!validateUnitAddition(selectedUnits, unit, selectedFaction)) {
+        toast.error(`Cannot add more ${unit.name} to your list.`);
         return;
       }
 
-      // Check current high command units before adding
-      const currentHighCommandUnits = selectedUnits.filter(u => u.highCommand);
-      console.log(`[useArmyList] Current high command units:`, currentHighCommandUnits.length, currentHighCommandUnits.map(u => u.name));
-
-      // Show high command warning if needed (but don't prevent addition)
+      // Check if we should show high command warning (but still allow addition)
       if (shouldShowHighCommandWarning(selectedUnits, unit)) {
-        console.log(`[useArmyList] Showing high command warning for ${unit.name}`);
         setShowHighCommandAlert(true);
       }
 
-      // ALWAYS add the unit regardless of high command status
-      console.log(`[useArmyList] About to update quantities and selected units`);
-      console.log(`[useArmyList] Current quantities before update:`, quantities);
-      console.log(`[useArmyList] Current selected units before update:`, selectedUnits.length);
-      
       const newQuantities = getUpdatedQuantities(unitId, quantities, true);
       const updatedSelectedUnits = updateSelectedUnits(selectedUnits, unit, true);
       
-      console.log(`[useArmyList] New quantities after update:`, newQuantities);
-      console.log(`[useArmyList] Updated selected units after update:`, updatedSelectedUnits.length);
       console.log(`[useArmyList] Unit added successfully. New quantity: ${newQuantities[unitId]}, Total units: ${updatedSelectedUnits.length}`);
       
-      // Force state update
       setQuantities(newQuantities);
       setSelectedUnits(updatedSelectedUnits);
-
-      // Log the final state after setting
-      setTimeout(() => {
-        console.log(`[useArmyList] Final check - high command units after state update:`, updatedSelectedUnits.filter(u => u.highCommand).map(u => u.name));
-      }, 100);
     },
-    [factionUnits, quantities, selectedUnits]
+    [factionUnits, quantities, selectedUnits, selectedFaction]
   );
 
   const handleRemove = useCallback((unitId: string) => {

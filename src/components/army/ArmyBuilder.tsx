@@ -1,9 +1,8 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
 import { SavedList } from "@/types/army";
 import FactionSelector from "@/components/FactionSelector";
-import ArmyList from "@/components/army/ArmyList";
+import ArmyList from "@/components/ArmyList";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useArmyBuilderUnits } from '@/hooks/useArmyData';

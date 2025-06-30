@@ -151,7 +151,7 @@ const SymbolExplorer = () => {
             </SelectTrigger>
             <SelectContent className="bg-warcrow-accent border-warcrow-gold/30">
               <SelectItem value="all">{t('allFactions')}</SelectItem>
-              {factions.map((faction: string) => (
+              {factions.map(faction => (
                 <SelectItem key={faction} value={faction}>
                   {formatFactionName(faction)}
                 </SelectItem>

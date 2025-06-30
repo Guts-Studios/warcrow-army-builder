@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { DataLoadingDiagnostics } from "@/components/debug/DataLoadingDiagnostics";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
-// Lazy load the heavy ArmyBuilder component - use the correct path
+// Lazy load the heavy ArmyBuilder component
 const ArmyBuilder = lazy(() => import("@/components/army/ArmyBuilder"));
 
 const Index = () => {
