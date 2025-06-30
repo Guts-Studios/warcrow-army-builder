@@ -208,7 +208,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     availability: 1,
     command: 2,
     specialRules: ["Disarmed", "Vulnerable"],
-    tournamentLegal: true,
+    tournamentLegal: false,
     imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   {
@@ -229,7 +229,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
-    tournamentLegal: true,
+    tournamentLegal: false,
     imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
   {
@@ -252,7 +252,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     availability: 1,
     command: 0,
     specialRules: ["Disarmed", "Slowed", "Vulnerable"],
-    tournamentLegal: true,
+    tournamentLegal: false,
     imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
   {
@@ -293,7 +293,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Disarmed"],
-    tournamentLegal: true,
+    tournamentLegal: false,
     imageUrl: "/art/card/trabor_slepmund_card.jpg"
   },
   {
