@@ -24,6 +24,5 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Berserker Rage": "Units capable of entering a frenzied state in battle, granting increased combat prowess at the cost of control.",
   "Join": "The ability to attach to and join other units on the battlefield.",
   "Spellcaster": "Units capable of wielding magic and casting spells.",
-  "Fearless": "Units that do not suffer from fear or morale effects.",
   "Raging": "Units that have entered a state of battle rage, granting them enhanced combat abilities."
 };

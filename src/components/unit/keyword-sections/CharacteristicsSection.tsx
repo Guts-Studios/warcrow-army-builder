@@ -1,3 +1,4 @@
+
 import { Keyword } from "@/types/army";
 import {
   Tooltip,
@@ -30,8 +31,9 @@ const CharacteristicsSection = ({ keywords, highCommand }: CharacteristicsSectio
   console.log('Keywords from unit:', keywordNames);
   
   // Filter to only show keywords that are characteristics and ensure no duplicates
+  // Exclude "Fearless" as it's a keyword, not a characteristic
   let characteristics = keywordNames.filter(name => 
-    characteristicTypes.includes(name)
+    characteristicTypes.includes(name) && name !== "Fearless"
   );
   
   // Add High Command if provided and not already included
