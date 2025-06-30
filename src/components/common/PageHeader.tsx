@@ -27,9 +27,9 @@ export const PageHeader = ({
   return (
     <div className="bg-black/95 border-b border-warcrow-gold/50 shadow-md p-2 md:p-4">
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 mx-auto md:mx-0">
-            <div className="flex items-center gap-6 md:gap-8">
+        <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-2 md:gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+            <div className="flex items-center gap-6 md:gap-10">
               <SupportButton className="md:static absolute top-2 left-2 z-10" />
               <img 
                 src={logoUrl}
@@ -41,7 +41,7 @@ export const PageHeader = ({
                 decoding="async"
               />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-2 md:mt-0">
             {shouldShowNavigation && <NavDropdown />}
