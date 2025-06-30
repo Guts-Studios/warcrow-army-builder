@@ -293,7 +293,7 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Disarmed"],
-    tournamentLegal: true,
+    tournamentLegal: false,
     imageUrl: "/art/card/trabor_slepmund_card.jpg"
   },
   {
