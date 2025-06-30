@@ -150,6 +150,7 @@ export const useArmyList = (selectedFaction: string) => {
         setShowHighCommandAlert(true);
       }
 
+      // Always add the unit regardless of high command warning
       const newQuantities = getUpdatedQuantities(unitId, quantities, true);
       const updatedSelectedUnits = updateSelectedUnits(selectedUnits, unit, true);
       
