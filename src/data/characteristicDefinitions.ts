@@ -21,6 +21,6 @@ export const characteristicDefinitions: { [key: string]: string } = {
   "Cavalry": "Units that ride upon mounts such as horses or other creatures for rapid movement on the battlefield.",
   "Living Flesh": "Units composed of living organic material that can be affected by specific abilities.",
   "Berserker Rage": "Units capable of entering a frenzied state in battle, granting increased combat prowess at the cost of control.",
-  "Join": "The ability to attach to and join other units on the battlefield."
+  "Join": "The ability to attach to and join other units on the battlefield.",
+  "Colossal Company": "Large, powerful units that represent significant battlefield presence and often have unique deployment rules."
 };
-
