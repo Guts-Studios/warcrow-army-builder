@@ -17,11 +17,11 @@ interface HighCommandAlertProps {
 const HighCommandAlert = ({ open, onOpenChange }: HighCommandAlertProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-h-[90vh] min-h-[400px]">
+      <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Multiple High Command Units</AlertDialogTitle>
+          <AlertDialogTitle>High Command Limit</AlertDialogTitle>
           <AlertDialogDescription>
-            You can only have 1 High Command unit in a tournament legal list. You currently have multiple High Command units selected.
+            Only 1 High command allowed in List.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
