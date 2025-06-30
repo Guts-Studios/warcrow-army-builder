@@ -1,3 +1,4 @@
+
 import { Unit, SelectedUnit } from "@/types/army";
 
 /**
@@ -33,6 +34,58 @@ export const removeDuplicateUnits = (units: Unit[]): Unit[] => {
   }
   
   return Array.from(unitMap.values());
+};
+
+/**
+ * Normalizes units array to ensure consistent data structure
+ */
+export const normalizeUnits = (units: any[]): Unit[] => {
+  if (!Array.isArray(units)) {
+    console.error('normalizeUnits received non-array input:', units);
+    return [];
+  }
+  
+  return units.map(unit => {
+    // Create a new unit object to avoid modifying the original
+    const normalizedUnit = { ...unit };
+    
+    // Handle empty values, null, and special string values
+    if (!normalizedUnit.faction || 
+        normalizedUnit.faction === 'null' || 
+        normalizedUnit.faction === 'undefined' || 
+        normalizedUnit.faction === '') {
+      normalizedUnit.faction = normalizedUnit.faction_id || 'unknown';
+    }
+    
+    if (!normalizedUnit.faction_id || 
+        normalizedUnit.faction_id === 'null' || 
+        normalizedUnit.faction_id === 'undefined' || 
+        normalizedUnit.faction_id === '') {
+      normalizedUnit.faction_id = normalizedUnit.faction || 'unknown';
+    }
+    
+    // Make sure faction_id exists and is normalized
+    if (normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizeFactionId(normalizedUnit.faction_id);
+    }
+    
+    // Also normalize the faction field for backwards compatibility
+    if (normalizedUnit.faction) {
+      normalizedUnit.faction = normalizeFactionId(normalizedUnit.faction);
+    } else if (normalizedUnit.faction_id) {
+      // If faction is missing but faction_id exists, use that
+      normalizedUnit.faction = normalizedUnit.faction_id;
+    }
+    
+    // Ensure both faction and faction_id are set to the same value
+    if (normalizedUnit.faction && !normalizedUnit.faction_id) {
+      normalizedUnit.faction_id = normalizedUnit.faction;
+    } else if (normalizedUnit.faction_id && !normalizedUnit.faction) {
+      normalizedUnit.faction = normalizedUnit.faction_id;
+    }
+    
+    return normalizedUnit;
+  });
 };
 
 /**
