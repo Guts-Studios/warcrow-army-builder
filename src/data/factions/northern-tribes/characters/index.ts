@@ -6,7 +6,6 @@ import { darkmaster } from "./darkmaster";
 import { eskold_the_executioner } from "./eskold_the_executioner";
 import { evoker } from "./evoker";
 import { hersir } from "./hersir";
-import { hetman } from "./hetman";
 import { iriavik_restless_pup } from "./iriavik_restless_pup";
 import { lotta } from "./lotta";
 import { njord_the_merciless } from "./njord_the_merciless";
@@ -27,7 +26,6 @@ export const northernTribesCharacters: Unit[] = [
   eskold_the_executioner,
   evoker,
   hersir,
-  hetman,
   iriavik_restless_pup,
   lotta,
   njord_the_merciless,
