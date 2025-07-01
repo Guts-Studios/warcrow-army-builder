@@ -56,7 +56,84 @@ export const missionTranslations = {
     es: 'Seleccionar Misión',
     fr: 'Sélectionner Mission'
   },
-  // New community mission translations
+  // Feats section
+  feats: {
+    en: 'Feats',
+    es: 'Proezas',
+    fr: 'Exploits'
+  },
+  loadingFeats: {
+    en: 'Loading feats...',
+    es: 'Cargando proezas...',
+    fr: 'Chargement des exploits...'
+  },
+  selectFeatToView: {
+    en: 'Select a feat to view details',
+    es: 'Selecciona una proeza para ver detalles',
+    fr: 'Sélectionnez un exploit pour voir les détails'
+  },
+  noFeatsAvailable: {
+    en: 'No feats available yet',
+    es: 'No hay proezas disponibles aún',
+    fr: 'Aucun exploit disponible pour le moment'
+  },
+  loadingFeatDetails: {
+    en: 'Loading feat details...',
+    es: 'Cargando detalles de la proeza...',
+    fr: 'Chargement des détails de l\'exploit...'
+  },
+  // Mission titles - Official
+  consolidatedProgress: {
+    en: 'Consolidated Progress',
+    es: 'Progreso Consolidado',
+    fr: 'Progrès Consolidé'
+  },
+  takePositions: {
+    en: 'Take Positions',
+    es: 'Tomar Posiciones',
+    fr: 'Prendre Position'
+  },
+  fogOfDeath: {
+    en: 'Fog of Death',
+    es: 'Niebla de la Muerte',
+    fr: 'Brouillard de la Mort'
+  },
+  influenceZones: {
+    en: 'Influence Zones',
+    es: 'Zonas de Influencia',
+    fr: 'Zones d\'Influence'
+  },
+  expanse: {
+    en: 'Expanse',
+    es: 'Extensión',
+    fr: 'Étendue'
+  },
+  loot: {
+    en: 'Loot',
+    es: 'Botín',
+    fr: 'Butin'
+  },
+  quadrants: {
+    en: 'Quadrants',
+    es: 'Cuadrantes',
+    fr: 'Quadrants'
+  },
+  treeMother: {
+    en: 'Tree Mother',
+    es: 'Árbol Madre',
+    fr: 'Arbre Mère'
+  },
+  // Mission titles - Community
+  battleLines: {
+    en: 'Battle Lines',
+    es: 'Líneas de Batalla',
+    fr: 'Lignes de Bataille'
+  },
+  breachedFront: {
+    en: 'Breached Front',
+    es: 'Frente Quebrado',
+    fr: 'Front Percé'
+  },
   ghostsFromTheMist: {
     en: 'Ghosts from the Mist',
     es: 'Fantasmas de la Niebla',
@@ -72,4 +149,30 @@ export const missionTranslations = {
     es: 'Misión de Rescate',
     fr: 'Mission de Sauvetage'
   },
+  // Feat titles
+  track: {
+    en: 'Track',
+    es: 'Rastreo',
+    fr: 'Piste'
+  },
+  decapitation: {
+    en: 'Decapitation',
+    es: 'Decapitación',
+    fr: 'Décapitation'
+  },
+  theRift: {
+    en: 'The Rift',
+    es: 'La Grieta',
+    fr: 'La Faille'
+  },
+  banner: {
+    en: 'Banner',
+    es: 'Estandarte',
+    fr: 'Bannière'
+  },
+  resources: {
+    en: 'Resources',
+    es: 'Recursos',
+    fr: 'Ressources'
+  }
 };

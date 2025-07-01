@@ -5,6 +5,7 @@ import { commonTranslations } from './common';
 import { uiTranslations } from './ui';
 import { faqTranslations } from './faq';
 import { unitsTranslations } from './units';
+import { missionTranslations } from './missions';
 import { TranslationsType } from './types';
 
 export const translations: TranslationsType = {
@@ -26,6 +27,9 @@ export const translations: TranslationsType = {
   
   // Import units translations
   ...unitsTranslations,
+  
+  // Import mission translations
+  ...missionTranslations,
   
   // Landing page translations
   ...landingTranslations,
@@ -53,11 +57,6 @@ export const translations: TranslationsType = {
     en: 'Rules',
     es: 'Reglas',
     fr: 'Règles'
-  },
-  missions: {
-    en: 'Missions',
-    es: 'Misiones',
-    fr: 'Missions'
   },
   faq: {
     en: 'FAQ',

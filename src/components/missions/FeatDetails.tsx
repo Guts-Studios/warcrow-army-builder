@@ -1,5 +1,6 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Feat {
   id: string;
@@ -13,10 +14,12 @@ interface FeatDetailsProps {
 }
 
 export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
+  const { t } = useLanguage();
+
   if (!feat) {
     return (
       <div className="text-warcrow-text text-center py-8 bg-black/50 rounded-md border border-warcrow-gold/10">
-        {isLoading ? 'Loading feat details...' : 'Select a feat to view details'}
+        {isLoading ? t('loadingFeatDetails') : t('selectFeatToView')}
       </div>
     );
   }

@@ -145,7 +145,7 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     <div className="space-y-6 bg-black/70 p-6 rounded-lg border border-warcrow-gold/20">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-          {mission.title}
+          {(mission as any).displayTitle || mission.title}
         </h2>
         <div className="flex gap-2">
           {isOfficialMission && (

@@ -43,7 +43,7 @@ export const MissionList = ({
                 } ${isCommunityMission ? "border-l-4 border-purple-600" : ""}`}
                 onClick={() => onSelectMission(mission)}
               >
-                {mission.title}
+                {(mission as any).displayTitle || mission.title}
                 <div className="ml-auto flex gap-2">
                   {isOfficialMission && (
                     <Badge variant="secondary" className="bg-warcrow-gold/20 text-warcrow-gold border-warcrow-gold/40">

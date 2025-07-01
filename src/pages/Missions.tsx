@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getMissionTitle, getFeatTitle } from "@/utils/missionTranslations";
 
 const Missions = () => {
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
@@ -99,7 +100,7 @@ const Missions = () => {
           }
         ];
 
-        // Update community missions with your provided details
+        // Community missions with your provided details
         const communityMissions = [
           {
             id: 'community-battle-lines',
@@ -143,8 +144,11 @@ const Missions = () => {
           }
         ];
 
-        // Combine all missions
-        const allMissions = [...formattedMissions, ...newOfficialMissions, ...communityMissions];
+        // Combine all missions and translate titles
+        const allMissions = [...formattedMissions, ...newOfficialMissions, ...communityMissions].map(mission => ({
+          ...mission,
+          displayTitle: getMissionTitle(mission.title, language)
+        }));
 
         console.log(`[Missions] Loaded ${allMissions.length} total missions`);
         setMissions(allMissions);
@@ -182,9 +186,15 @@ const Missions = () => {
           }
         ];
         
-        setFeats(realFeats);
-        if (realFeats.length > 0) {
-          setSelectedFeat(realFeats[0]);
+        // Translate feat titles
+        const translatedFeats = realFeats.map(feat => ({
+          ...feat,
+          displayName: getFeatTitle(feat.name, language)
+        }));
+        
+        setFeats(translatedFeats);
+        if (translatedFeats.length > 0) {
+          setSelectedFeat(translatedFeats[0]);
         }
       } catch (error) {
         console.error('[Missions] Unexpected error:', error);
@@ -195,7 +205,7 @@ const Missions = () => {
     };
 
     fetchMissions();
-  }, []);
+  }, [language]); // Add language as dependency to re-fetch when language changes
 
   // Error boundary fallback
   if (error) {

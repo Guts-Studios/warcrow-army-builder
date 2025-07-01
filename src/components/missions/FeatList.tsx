@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Feat {
   id: string;
@@ -21,12 +22,13 @@ export const FeatList = ({
   onSelectFeat, 
   isLoading 
 }: FeatListProps) => {
+  const { t } = useLanguage();
   
   return (
     <Card className="bg-warcrow-accent p-6">
-      <h2 className="text-xl font-bold text-warcrow-gold mb-4">Feats</h2>
+      <h2 className="text-xl font-bold text-warcrow-gold mb-4">{t('feats')}</h2>
       {isLoading ? (
-        <div className="text-warcrow-text text-center py-4">Loading feats...</div>
+        <div className="text-warcrow-text text-center py-4">{t('loadingFeats')}</div>
       ) : (
         <div className="space-y-2">
           {feats.map((feat) => (
@@ -45,7 +47,7 @@ export const FeatList = ({
           ))}
           {feats.length === 0 && (
             <div className="text-warcrow-text text-center py-4">
-              No feats available yet
+              {t('noFeatsAvailable')}
             </div>
           )}
         </div>
