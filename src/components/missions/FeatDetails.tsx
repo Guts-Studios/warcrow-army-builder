@@ -2,7 +2,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
-import { translateFeatDetails } from "@/utils/missionTranslations";
+import { loadFeatTranslations, getFeatTranslation } from "@/utils/missionTranslationLoader";
 
 interface Feat {
   id: string;
@@ -18,28 +18,38 @@ interface FeatDetailsProps {
 export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
   const { t, language } = useLanguage();
   const [translatedDetails, setTranslatedDetails] = useState<string>('');
-  const [isTranslating, setIsTranslating] = useState(false);
+  const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
 
   useEffect(() => {
-    const translateDetails = async () => {
-      if (!feat || language === 'en') {
-        setTranslatedDetails(feat?.details || '');
+    const loadTranslations = async () => {
+      if (!feat) {
+        setTranslatedDetails('');
         return;
       }
 
-      setIsTranslating(true);
+      if (language === 'en') {
+        setTranslatedDetails(feat.details);
+        return;
+      }
+
+      setIsLoadingTranslations(true);
       try {
-        const translated = await translateFeatDetails(feat.details, language as 'es' | 'fr');
+        await loadFeatTranslations();
+        const translated = getFeatTranslation(
+          feat.name, 
+          language as 'es' | 'fr', 
+          feat.details
+        );
         setTranslatedDetails(translated);
       } catch (error) {
-        console.error('Failed to translate feat details:', error);
+        console.error('Failed to load feat translations:', error);
         setTranslatedDetails(feat.details); // Fallback to original
       } finally {
-        setIsTranslating(false);
+        setIsLoadingTranslations(false);
       }
     };
 
-    translateDetails();
+    loadTranslations();
   }, [feat, language]);
 
   if (!feat) {
@@ -59,7 +69,7 @@ export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
       </div>
       <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
         <div className="text-warcrow-text whitespace-pre-wrap">
-          {isTranslating ? (
+          {isLoadingTranslations ? (
             <div className="text-center py-4 text-warcrow-gold">
               {t('loadingFeatDetails')}...
             </div>
