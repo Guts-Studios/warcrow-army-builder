@@ -11,6 +11,7 @@ import { TranslationPopulator } from "@/components/missions/TranslationPopulator
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const missionsData: Mission[] = [
   {
@@ -140,7 +141,12 @@ const Missions = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-warcrow-dark to-black text-warcrow-text">
-      <PageHeader title={t('missions')} />
+      <PageHeader 
+        title={t('missions')} 
+        showNavigation={true}
+      >
+        <LanguageSwitcher />
+      </PageHeader>
       
       <div className="container mx-auto px-4 py-8">
         {/* Translation Tools - Admin Section */}

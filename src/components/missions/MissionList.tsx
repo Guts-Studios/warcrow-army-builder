@@ -10,7 +10,6 @@ interface MissionListProps {
   selectedMission: Mission | null;
   onSelectMission: (mission: Mission) => void;
   isLoading: boolean;
-  language: string;
 }
 
 export const MissionList = ({ 
