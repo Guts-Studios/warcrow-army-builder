@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminOnly } from "@/utils/adminUtils";
+import { getMissionTitle, getFeatTitle } from "@/utils/missionTranslations";
 
 const missionsData: Mission[] = [
   {
@@ -134,6 +136,18 @@ const Missions = () => {
     }, 500);
   }, []);
 
+  // Create translated missions with displayTitle for current language
+  const translatedMissions = missionsData.map(mission => ({
+    ...mission,
+    displayTitle: getMissionTitle(mission.title, language)
+  }));
+
+  // Create translated feats with displayName for current language
+  const translatedFeats = featsData.map(feat => ({
+    ...feat,
+    displayName: getFeatTitle(feat.name, language)
+  }));
+
   const handleSelectMission = (mission: Mission) => {
     setSelectedMission(mission);
   };
@@ -148,7 +162,10 @@ const Missions = () => {
         title={t('missions')} 
         showNavigation={true}
       >
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <NavDropdown />
+        </div>
       </PageHeader>
       
       <div className="container mx-auto px-4 py-8">
@@ -182,7 +199,7 @@ const Missions = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
               <div className="lg:col-span-1">
                 <MissionList
-                  missions={missionsData}
+                  missions={translatedMissions}
                   selectedMission={selectedMission}
                   onSelectMission={handleSelectMission}
                   isLoading={isLoading}
@@ -201,7 +218,7 @@ const Missions = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
               <div className="lg:col-span-1">
                 <FeatList
-                  feats={featsData}
+                  feats={translatedFeats}
                   selectedFeat={selectedFeat}
                   onSelectFeat={handleSelectFeat}
                   isLoading={isLoading}

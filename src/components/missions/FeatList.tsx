@@ -1,11 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Feat {
   id: string;
   name: string;
+  displayName?: string;
   details: string;
 }
 
@@ -42,14 +44,9 @@ export const FeatList = ({
               }`}
               onClick={() => onSelectFeat(feat)}
             >
-              {feat.name}
+              {feat.displayName || feat.name}
             </Button>
           ))}
-          {feats.length === 0 && (
-            <div className="text-warcrow-text text-center py-4">
-              {t('noFeatsAvailable')}
-            </div>
-          )}
         </div>
       )}
     </Card>
