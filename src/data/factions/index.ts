@@ -1,8 +1,8 @@
 import { Faction } from "@/types/army";
 import { northernTribesUnits } from "@/data/factions/northern-tribes";
 import { hegemonyOfEmbersigUnits } from "@/data/factions/hegemony-of-embersig";
-import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
-import { syenannUnits } from "@/data/factions/syenann";
+import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth/index";
+import { syenannUnits } from "@/data/factions/syenann/index";
 
 // Define fallback factions in case the database fetch fails
 export const factions: Faction[] = [
