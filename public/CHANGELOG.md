@@ -20,6 +20,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [0.5.16] - 2025-07-01
 
+### Added
+- **Mission Generator** - AI-powered random scenario generator with custom mission names
+  - Filter options for official vs community missions
+  - Combines random mission and feat selection
+  - AI-generated thematic mission names for each scenario
+  - Mobile-optimized interface with mission map display
+  - Integration with existing mission and feat database
+
 ### Fixed
 - Army Builder routing issues causing black screen on builder page
 - Removed lazy loading for Index page to resolve dynamic import errors
