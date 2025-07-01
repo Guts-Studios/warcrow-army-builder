@@ -21,7 +21,6 @@ import { scionsOfYaldabaothHighCommand } from "@/data/factions/scions-of-yaldaba
 import { scionsOfYaldabaothTroops } from "@/data/factions/scions-of-yaldabaoth/troops";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { hegemonyCharactersElites } from "@/data/factions/hegemony-of-embersig/characters/elites";
 import { hegemonyOfEmbersigHighCommand } from "@/data/factions/hegemony-of-embersig/high-command";
 import { hegemonyOfEmbersigTroops } from "@/data/factions/hegemony-of-embersig/troops";
 import { hegemonyOfEmbersigCharacters } from "@/data/factions/hegemony-of-embersig/characters";
