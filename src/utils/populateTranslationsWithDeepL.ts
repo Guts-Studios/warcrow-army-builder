@@ -1,14 +1,9 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { populateMissionTranslations, populateFeatTranslations, downloadTranslationsAsJSON } from "@/utils/populateMissionTranslations";
-import { Loader2, Languages } from "@/components/ui/icons";
-import { DeepLTranslationButton } from "@/components/ui/deepl-translation-button";
 
-// Mission data - Updated with the correct mission content
-const MISSIONS = [
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+// Mission data to translate
+const MISSIONS_TO_TRANSLATE = [
   {
     title: "Consolidated Progress",
     details: "Preparation\n\nPlace 5 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\n\nEach round lasts for 5 turns.\n\nScoring\n\nAt the end of each round, you obtain:\n\n• 1 VP if you control the central objective\n• 1 VP if you control your opponent's objective (1)\n• 2 VPs if you control your opponent's objective (2)\n• 1 VP if your opponent controls neither of your objectives (1 and 2)\n\nEnd of the game\n\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points, the result will be a tie"
@@ -54,19 +49,19 @@ const MISSIONS = [
     details: "Preparation\n\nPlace 2 sacred altars and 3 lesser altars objective markers as shown in the diagram.\n\nRounds\n\nFirst round lasts 2 turns, Second round lasts 3 turns, Third round lasts 4 turns and Fourth round lasts 5 turns\n\nPrayers and Offerings\n\nIn this mission any unit may use special simple action Pray and special command ability Deity Offering\n\nPray: when your unit is within 3 from the lesser altar - you can use this action. Mark the unit that took this action with a Prayer token, it gets +1 to the conquest characteristic until the end of the game. This action can be used multiple times, to get multiple +1 conquest.\n\nDeity Offering: when your unit is within 3 from the sacred altar - you can use this command ability during the unit's activation.\n\nScoring\n\nAt the end of each round you score:\n\n- 1 VP if you control 2 or more lesser altars\n- 1 VP if you control 1 or more sacred altars\n- 1 VP if one or more units of your units with Prayer token is within 3 of lesser altar\n- 2 VP if one or more of your units with Prayer token are within 3 of sacred altar and they have High command characteristic or Spellcaster characteristic\n- 3 VP if you used Deity Offering on both sacred altars. You can score this 3 VPs only once per game.\n\nEnd of the Game\n\nThe game ends at the end of round 4 or when one company has no units left on the battlefield.\n\nThis Homebrew mission was created by our Community member Vladimir Sagalov aka FinalForm"
   },
   {
-    title: "Rescue Mission", 
+    title: "Rescue Mission",
     details: "Preparation\n\nPlace 6 Fallen comrade markers(represented by coloured objective markers) as shown in the diagram.\nPlace an event marker on position 5 on a dial.\n\nRounds\n\nEach round lasts 4 turns\n\nEvent\n\nWhen event is activated do the following:\n\nReplace all Fallen comrade markers with Mournful sights markers (represented by coloured objective markers of the same colour).\n\nRemove the event marker from the dial.\n\nRescuing the wounded\n\nIn this mission any unit may use special simple action Ensure survival: when your unit is within 3 from the Fallen comrade marker of your colour - you can use this action.\nYou can choose to place Survivor token on this unit or on any allied unit within 8. You can recover 1 trooper model in that unit. Remove that Fallen comrade marker from the game.\n\nIf unit with Survivor token is destroyed - discard Survivor token.\nIf an officer or support leaves the unit, you can choose which of them retains the Survivor token.\n\nAvenge the fallen\n\nIn this mission after your unit inficts any amount of damage to an enemy unit- place 1 vengeance token on that unit (you can represent it by d6 dice)\nIf your unit destroys an enemy unit- place 3 vengeance tokens on that unit instead. Your unit can never have more than 6 vengeance tokens. If you have to place any excessive vengeance tokens on a unit- discard them so there are no more than 6 vengeance tokens on your unit.\nUnit can repeat the number of dice on your attack rolls up to the number of vengeance tokens on it.\n\nScoring\n\nAt the end of each round you score:\n\n- 1 VP for each Fallen comrade token you control\n- 1 VP for each Survivor token on your units that are on the battlefield and are not engaged.\n- 1 VP for each 2 vengeance tokens on your units within 3 of Mournful sights markers of your colour. After scoring VPs this way, remove all the vengeance tokens from your units within 3 of Mournful sights markers of your colour.\n\nEnd of the Game\n\nThe game ends at the end of round 3 or when one company has no units left on the battlefield.\n\nThis Homebrew mission was created by our Community member Vladimir Sagalov aka FinalForm"
   }
 ];
 
-const FEATS = [
+const FEATS_TO_TRANSLATE = [
   {
     name: "Track",
     details: "Required material\n• 4 event tokens, numbered from 1 to 4.\n\nPreparation\n\nThe company that wins the initiative receives event tokens 1 and 3, the rival company receives event tokens 2 and 4.\n\nEach company places one of their event tokens on the \"1\" position of the turn counter (track meter).\n\nAfter deploying all units in the game preparation phase (including Scouts), each company, in deployment order, places their remaining event token on any point of the battlefield farther than 10 strides away from their deployment zone (vestige).\n\nTracking and Vestiges\n\n• Event tokens on the turn counter represent each company's track meter.\n• Event tokens on the battlefield represent vestiges.\n• Units may move through vestiges, but cannot finish their movement on them.\n• Each company has their own track meter and own vestiges.\n• Companies cannot interact with the rival's vestiges.\n\nTracking a vestige\n\nCharacter units and units with a joined Character that finish their activation adjacent to their company's vestige can track it:\n\n• The unit makes a WP test.\n• Scout and Ambusher units add ORG to their roll.\n• During the switches step of the roll, units may stress themselves to add 1 SUCCESS to their roll.\n• When a unit passes the test with 2 SUCCESS, the company advances the track meter by 1 position on the turn counter. Then, the rival company must place the vestige at 15 strides of its current position (it cannot be placed on Impassable terrain).\n\nScoring\n\nWhen a company advances their track meter to position \"4\" of the turn counter it obtains 4 AP and the rival company obtains as many AP as its current position on the track meter minus 1.\n\nAt the end of the game, if neither company got their track meter to position \"4\":\n\n• Each company obtains as many AP as the current position of their track meter."
   },
   {
     name: "Decapitation",
-    details: "Required material\n\n• 2 event tokens.\n\nCommander\n\n• Companies must deploy their commander during the deployment phase (they cannot use Scout or Ambusher).\n• If the commander is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes)\n• The commander cannot join any unit.\n\nContract\n\nAfter deploying all units in the game preparation phase (including Scouts), each company, in deployment order, chooses a unit from the rival company as their contract (place an event token on their profile card).\n\n• The contract cannot be the commander\n• If the contract is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes).\n• If the unit with the contract has a joined Character, the contract will be considered eliminated once the unit is destroyed, even if the Character survives.\n\n• A company that couldn't choose its contract (because there were no deployed enemy units) will do so at the end of the round. A demoralized unit cannot be chosen as a contract. If a company still can't choose its contract at the end of a round, it will do so at the end of the next one.\n\nScoring\n\nAt the end of the game, each company obtains:\n\n• 2 AP if they eliminated the rival's commander.\n• 1 AP if their commander hasn't been eliminated.\n• 1 AP if they eliminated their contract."
+    details: "Required material\n\n• 2 event tokens.\n\nCommander\n\n• Companies must deploy their commander during the deployment phase (they cannot use Scout or Ambusher).\n• If the commander is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes)\n• The commander cannot join any unit.\n\nContract\n\nAfter deploying all units in the game preparation phase (including Scouts), each company, in deployment order, chooses a unit from the rival company as their contract (place an event token on their profile card).\n\n• The contract cannot be the commander\n• If the contract is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes).\n• If the unit with the contract has a joined Character, the contract will be considered eliminated once the unit is destroyed, even if the Character survives.\n• A company that couldn't choose its contract (because there were no deployed enemy units) will do so at the end of the round. A demoralized unit cannot be chosen as a contract. If a company still can't choose its contract at the end of a round, it will do so at the end of the next one.\n\nScoring\n\nAt the end of the game, each company obtains:\n\n• 2 AP if they eliminated the rival's commander.\n• 1 AP if their commander hasn't been eliminated.\n• 1 AP if they eliminated their contract."
   },
   {
     name: "The Rift",
@@ -82,192 +77,108 @@ const FEATS = [
   }
 ];
 
-export const TranslationPopulator = () => {
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentItem, setCurrentItem] = useState("");
-  const { toast } = useToast();
-
-  const handleTranslateMissions = async (language: 'es' | 'fr') => {
-    setIsTranslating(true);
-    setProgress(0);
-    setCurrentItem("Starting mission translations...");
-
-    try {
-      const translations = await populateMissionTranslations(MISSIONS, language);
-      
-      // Format for the JSON structure
-      const formattedTranslations = {
-        missions: translations
+export async function populateAllTranslationsWithDeepL() {
+  console.log('Starting DeepL translation population...');
+  
+  try {
+    // Translate missions to Spanish
+    console.log('Translating missions to Spanish...');
+    const missionDetailsES = await translateTextsWithDeepL(
+      MISSIONS_TO_TRANSLATE.map(m => m.details),
+      'ES'
+    );
+    
+    // Translate missions to French
+    console.log('Translating missions to French...');
+    const missionDetailsFR = await translateTextsWithDeepL(
+      MISSIONS_TO_TRANSLATE.map(m => m.details),
+      'FR'
+    );
+    
+    // Translate feats to Spanish
+    console.log('Translating feats to Spanish...');
+    const featDetailsES = await translateTextsWithDeepL(
+      FEATS_TO_TRANSLATE.map(f => f.details),
+      'ES'
+    );
+    
+    // Translate feats to French
+    console.log('Translating feats to French...');
+    const featDetailsFR = await translateTextsWithDeepL(
+      FEATS_TO_TRANSLATE.map(f => f.details),
+      'FR'
+    );
+    
+    // Build the translation objects
+    const missionTranslations: any = { missions: {} };
+    const featTranslations: any = { feats: {} };
+    
+    // Populate mission translations
+    MISSIONS_TO_TRANSLATE.forEach((mission, index) => {
+      missionTranslations.missions[mission.title] = {
+        es: missionDetailsES[index] || mission.details,
+        fr: missionDetailsFR[index] || mission.details
       };
-
-      // Download the file
-      downloadTranslationsAsJSON(
-        formattedTranslations, 
-        `mission-translations-${language}.json`
-      );
-
-      toast({
-        title: "Success!",
-        description: `Mission translations for ${language.toUpperCase()} have been generated and downloaded.`,
-      });
-    } catch (error) {
-      console.error('Translation error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate translations. Check console for details.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTranslating(false);
-      setProgress(0);
-      setCurrentItem("");
-    }
-  };
-
-  const handleTranslateFeats = async (language: 'es' | 'fr') => {
-    setIsTranslating(true);
-    setProgress(0);
-    setCurrentItem("Starting feat translations...");
-
-    try {
-      const translations = await populateFeatTranslations(FEATS, language);
-      
-      // Format for the JSON structure
-      const formattedTranslations = {
-        feats: translations
+    });
+    
+    // Populate feat translations
+    FEATS_TO_TRANSLATE.forEach((feat, index) => {
+      featTranslations.feats[feat.name] = {
+        es: featDetailsES[index] || feat.details,
+        fr: featDetailsFR[index] || feat.details
       };
+    });
+    
+    // Download the translation files
+    downloadTranslationFile(missionTranslations, 'mission-translations.json');
+    downloadTranslationFile(featTranslations, 'feat-translations.json');
+    
+    toast.success('All translations completed and downloaded!');
+    
+    console.log('Mission translations:', missionTranslations);
+    console.log('Feat translations:', featTranslations);
+    
+    return { missionTranslations, featTranslations };
+    
+  } catch (error) {
+    console.error('Error populating translations:', error);
+    toast.error('Failed to populate translations with DeepL');
+    throw error;
+  }
+}
 
-      // Download the file
-      downloadTranslationsAsJSON(
-        formattedTranslations, 
-        `feat-translations-${language}.json`
-      );
-
-      toast({
-        title: "Success!",
-        description: `Feat translations for ${language.toUpperCase()} have been generated and downloaded.`,
-      });
-    } catch (error) {
-      console.error('Translation error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate translations. Check console for details.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTranslating(false);
-      setProgress(0);
-      setCurrentItem("");
+async function translateTextsWithDeepL(texts: string[], targetLanguage: 'ES' | 'FR'): Promise<string[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('deepl-translate', {
+      body: {
+        texts,
+        targetLanguage,
+        formality: 'more'
+      }
+    });
+    
+    if (error) {
+      console.error('DeepL translation error:', error);
+      return texts; // Return original texts as fallback
     }
-  };
+    
+    if (data?.translations) {
+      return data.translations;
+    }
+    
+    return texts; // Return original texts as fallback
+  } catch (error) {
+    console.error('Error calling DeepL function:', error);
+    return texts; // Return original texts as fallback
+  }
+}
 
-  return (
-    <div className="space-y-4">
-      <DeepLTranslationButton />
-      
-      <Card className="p-4 bg-warcrow-accent border-warcrow-gold/30">
-        <h3 className="text-lg font-semibold text-warcrow-gold mb-4">Manual Translation Tools</h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <h4 className="font-medium text-warcrow-gold mb-2">Missions</h4>
-            <div className="space-y-2">
-              <Button
-                onClick={() => handleTranslateMissions('es')}
-                disabled={isTranslating}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {isTranslating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Translating...
-                  </>
-                ) : (
-                  <>
-                    <Languages className="mr-2 h-4 w-4" />
-                    Translate to Spanish
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={() => handleTranslateMissions('fr')}
-                disabled={isTranslating}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {isTranslating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Translating...
-                  </>
-                ) : (
-                  <>
-                    <Languages className="mr-2 h-4 w-4" />
-                    Translate to French
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-          
-          <div>
-            <h4 className="font-medium text-warcrow-gold mb-2">Feats</h4>
-            <div className="space-y-2">
-              <Button
-                onClick={() => handleTranslateFeats('es')}
-                disabled={isTranslating}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {isTranslating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Translating...
-                  </>
-                ) : (
-                  <>
-                    <Languages className="mr-2 h-4 w-4" />
-                    Translate to Spanish
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={() => handleTranslateFeats('fr')}
-                disabled={isTranslating}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {isTranslating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Translating...
-                  </>
-                ) : (
-                  <>
-                    <Languages className="mr-2 h-4 w-4" />
-                    Translate to French
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {progress > 0 && (
-          <div className="mt-4">
-            <div className="flex justify-between mb-1">
-              <span className="text-sm text-warcrow-text">Translation Progress</span>
-              <span className="text-sm text-warcrow-gold">{progress}%</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
+function downloadTranslationFile(data: any, filename: string) {
+  const dataStr = JSON.stringify(data, null, 2);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', filename);
+  linkElement.click();
+}
