@@ -18,6 +18,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Game sync during play mode
 - Filter by tournament legal or not
 
+## [0.5.17] - 2025-07-01
+
+### Improved
+- **Code Architecture** - Refactored faction character file structures for better maintainability
+  - Converted all faction character definitions to use consistent file organization
+  - Created individual character files for Hegemony, Scions, and Syenann factions
+  - Standardized character imports across all factions to match Northern Tribes pattern
+  - Improved code maintainability and reduced file complexity
+
 ## [0.5.16] - 2025-07-01
 
 ### Added
