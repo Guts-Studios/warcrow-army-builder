@@ -62,6 +62,20 @@ export const useArmyBuilderUnits = (factionId: string) => {
               // Try to find corresponding local unit for tournament legal status
               const localUnit = localUnitsMap.get(dbUnit.name);
               
+              // Extract tournament legal status from database characteristics or fallback to local data
+              let tournamentLegal = true; // Default value
+              
+              // Check if tournament_legal exists in characteristics
+              if (dbUnit.characteristics && typeof dbUnit.characteristics === 'object') {
+                if ('tournament_legal' in dbUnit.characteristics) {
+                  tournamentLegal = dbUnit.characteristics.tournament_legal === true || dbUnit.characteristics.tournament_legal === 'Yes';
+                } else if (localUnit?.tournamentLegal !== undefined) {
+                  tournamentLegal = localUnit.tournamentLegal;
+                }
+              } else if (localUnit?.tournamentLegal !== undefined) {
+                tournamentLegal = localUnit.tournamentLegal;
+              }
+              
               return {
                 id: dbUnit.name.toLowerCase().replace(/\s+/g, '_'),
                 name: dbUnit.name,
@@ -75,8 +89,7 @@ export const useArmyBuilderUnits = (factionId: string) => {
                 availability: 1,
                 command: 0,
                 specialRules: Array.isArray(dbUnit.special_rules) ? dbUnit.special_rules : [],
-                // Use tournament legal status from local data if available, otherwise default to true
-                tournamentLegal: localUnit?.tournamentLegal ?? true,
+                tournamentLegal,
                 imageUrl: `/art/card/${dbUnit.name.toLowerCase().replace(/\s+/g, '_')}_card.jpg`
               };
             });
