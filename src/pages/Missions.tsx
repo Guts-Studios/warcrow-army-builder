@@ -15,7 +15,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminOnly } from "@/utils/adminUtils";
-import { getMissionTitle, getFeatTitle } from "@/utils/missionTranslations";
+import { getMissionTitleTranslation, getFeatTitleTranslation } from "@/utils/missionTitleTranslations";
 
 const missionsData: Mission[] = [
   {
@@ -139,13 +139,13 @@ const Missions = () => {
   // Create translated missions with displayTitle for current language
   const translatedMissions = missionsData.map(mission => ({
     ...mission,
-    displayTitle: getMissionTitle(mission.title, language)
+    displayTitle: getMissionTitleTranslation(mission.title, language)
   }));
 
   // Create translated feats with displayName for current language
   const translatedFeats = featsData.map(feat => ({
     ...feat,
-    displayName: getFeatTitle(feat.name, language)
+    displayName: getFeatTitleTranslation(feat.name, language)
   }));
 
   const handleSelectMission = (mission: Mission) => {

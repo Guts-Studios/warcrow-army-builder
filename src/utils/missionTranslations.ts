@@ -24,22 +24,23 @@ export const loadTranslations = async () => {
   }
 };
 
-export const getMissionTitle = (originalTitle: string, language: string): string => {
+// These functions are for content translations, not titles
+export const getMissionContentTranslation = (originalTitle: string, language: string, fallbackContent: string): string => {
   if (language === 'en' || !missionTranslations?.missions[originalTitle]) {
-    return originalTitle;
+    return fallbackContent;
   }
   
   const translation = missionTranslations.missions[originalTitle][language];
-  return translation || originalTitle;
+  return translation || fallbackContent;
 };
 
-export const getFeatTitle = (originalName: string, language: string): string => {
+export const getFeatContentTranslation = (originalName: string, language: string, fallbackContent: string): string => {
   if (language === 'en' || !featTranslations?.feats[originalName]) {
-    return originalName;
+    return fallbackContent;
   }
   
   const translation = featTranslations.feats[originalName][language];
-  return translation || originalName;
+  return translation || fallbackContent;
 };
 
 // Load translations on module import
