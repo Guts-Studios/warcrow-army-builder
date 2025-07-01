@@ -1,301 +1,37 @@
 
 import { Unit } from "@/types/army";
-import { vercana } from "./vercana";
+import { aide } from "./aide";
+import { ansera_noighman } from "./ansera_noighman";
+import { corporal } from "./corporal";
+import { engineer } from "./engineer";
+import { frostfire_herald } from "./frostfire_herald";
+import { gale_falchion } from "./gale_falchion";
+import { gunnery_corporal } from "./gunnery_corporal";
+import { lady_telia } from "./lady_telia";
+import { marhael_the_refused } from "./marhael_the_refused";
 import { nadezhda_lazard } from "./nadezhda_lazard";
+import { naergon_caladren } from "./naergon_caladren";
+import { nayra_caladren } from "./nayra_caladren";
+import { strategos } from "./strategos";
+import { trabor_slepmund } from "./trabor_slepmund";
+import { vercana } from "./vercana";
+import { war_surgeon } from "./war_surgeon";
 
 export const hegemonyOfEmbersigCharacters: Unit[] = [
-  vercana,
+  aide,
+  ansera_noighman,
+  corporal,
+  engineer,
+  frostfire_herald,
+  gale_falchion,
+  gunnery_corporal,
+  lady_telia,
+  marhael_the_refused,
   nadezhda_lazard,
-  {
-    id: "aide",
-    name: "Aide",
-    name_es: "Legado",
-    pointsCost: 25,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Place (10)"],
-    tournamentLegal: true,
-    imageUrl: "/art/card/aide_card.jpg"
-  },
-  {
-    id: "ansera-noighman",
-    name: "Ansera Noighman",
-    name_es: "Ansera Noighman",
-    pointsCost: 20,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Ghent", description: "" },
-      { name: "Dwarf", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Join (Infantry)", description: "" },
-      { name: "Join (War Machine)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/ansera_noighman_card.jpg"
-  },
-  {
-    id: "corporal",
-    name: "Corporal",
-    name_es: "Cabo",
-    pointsCost: 15,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Human Infantry)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/corporal_card.jpg"
-  },
-  {
-    id: "engineer",
-    name: "Engineer",
-    name_es: "Ingeniera",
-    pointsCost: 15,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Ghent", description: "" },
-      { name: "Dwarf", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Join (Infantry)", description: "" },
-      { name: "Join (War Machine)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/engineer_card.jpg"
-  },
-  {
-    id: "frostfire-herald",
-    name: "Frostfire Herald",
-    name_es: "Heraldo Del Fuego Gelido",
-    pointsCost: 25,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Slowed", "Impassable"],
-    tournamentLegal: true,
-    imageUrl: "/art/card/frostfire_herald_card.jpg"
-  },
-  {
-    id: "gale-falchion",
-    name: "Gale Falchion",
-    name_es: "Alfanje Del Vendaval",
-    pointsCost: 25,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/gale_falchion_card.jpg"
-  },
-  {
-    id: "gunnery-corporal",
-    name: "Gunnery Corporal",
-    name_es: "Cabo Tirador",
-    pointsCost: 20,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Arquebusiers)", description: "" },
-      { name: "Join (Pioneers)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Repeat a die"],
-    tournamentLegal: true,
-    imageUrl: "/art/card/gunnery_corporal_card.jpg"
-  },
-  {
-    id: "lady-télia",
-    name: "Lady Télia",
-    name_es: "Lady Télia",
-    pointsCost: 25,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Scout", description: "" },
-      { name: "Join (Arquebusiers)", description: "" },
-      { name: "Join (Pioneers)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: ["Frightened", "Aim", "Repeat a Die"],
-    tournamentLegal: true,
-    imageUrl: "/art/card/lady_telia_card.jpg"
-  },
-  {
-    id: "marhael-the-refused",
-    name: "Marhael the Refused",
-    name_es: "Marhael El Rehusado",
-    pointsCost: 35,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Place (11)"],
-    tournamentLegal: true,
-    imageUrl: "/art/card/marhael_the_refused_card.jpg"
-  },
-  {
-    id: "naergon-caladren",
-    name: "Naergon Caladren",
-    name_es: "Naergon Caladren",
-    pointsCost: 15,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Colossal Company", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
-    tournamentLegal: false,
-    imageUrl: "/art/card/naergon_caladren_card.jpg"
-  },
-  {
-    id: "nayra-caladren",
-    name: "Nayra Caladren",
-    name_es: "Nayra Caladren",
-    pointsCost: 35,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Aestari", description: "" },
-      { name: "Character", description: "" },
-      { name: "Colossal Company", description: "" },
-      { name: "Elf", description: "" },
-      { name: "Elite", description: "" },
-      { name: "Fearless", description: "" },
-      { name: "Spellcaster", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: ["Disarmed", "Slowed", "Vulnerable"],
-    tournamentLegal: false,
-    imageUrl: "/art/card/nayra_caladren_card.jpg"
-  },
-  {
-    id: "strategos",
-    name: "Strategos",
-    name_es: "Strategos",
-    pointsCost: 20,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Infantry)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/strategos_card.jpg"
-  },
-  {
-    id: "trabor-slepmund",
-    name: "Trabor Slepmund",
-    name_es: "Trabor Slepmund",
-    pointsCost: 30,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Colossal Company", description: "" },
-      { name: "Dwarf", description: "" },
-      { name: "Ghent", description: "" },
-      { name: "Dispel (BLU)", description: "" },
-      { name: "Join (War Rig)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 1,
-    specialRules: ["Disarmed"],
-    tournamentLegal: false,
-    imageUrl: "/art/card/trabor_slepmund_card.jpg"
-  },
-  {
-    id: "war-surgeon",
-    name: "War Surgeon",
-    name_es: "Cirujano De Guerra",
-    pointsCost: 15,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Infantry)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 0,
-    specialRules: [],
-    tournamentLegal: true,
-    imageUrl: "/art/card/war_surgeon_card.jpg"
-  }
+  naergon_caladren,
+  nayra_caladren,
+  strategos,
+  trabor_slepmund,
+  vercana,
+  war_surgeon
 ];
