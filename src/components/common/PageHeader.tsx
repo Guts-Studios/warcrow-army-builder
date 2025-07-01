@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { SupportButton } from "@/components/landing/SupportButton";
-import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { useEnvironment } from "@/hooks/useEnvironment";
 
@@ -44,7 +43,6 @@ export const PageHeader = ({
             <h1 className="text-lg md:text-xl font-bold text-warcrow-gold text-center md:text-left">{title}</h1>
           </div>
           <div className="flex items-center gap-3 md:gap-4 mt-2 md:mt-0">
-            {shouldShowNavigation && <NavDropdown />}
             {children}
           </div>
         </div>
