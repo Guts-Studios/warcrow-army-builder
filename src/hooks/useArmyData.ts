@@ -52,23 +52,34 @@ export const useArmyBuilderUnits = (factionId: string) => {
           
           if (data && data.length > 0) {
             console.log(`[useArmyBuilderUnits] 📊 Retrieved ${data.length} units from database`);
+            
+            // Get local units for tournament legal status fallback
+            const localUnits = normalizeUnits(units);
+            const localUnitsMap = new Map(localUnits.map(unit => [unit.name, unit]));
+            
             // Convert database units to local Unit format
-            allUnits = data.map(dbUnit => ({
-              id: dbUnit.name.toLowerCase().replace(/\s+/g, '_'),
-              name: dbUnit.name,
-              name_es: dbUnit.name_es || dbUnit.name,
-              name_fr: dbUnit.name_fr || dbUnit.name,
-              pointsCost: dbUnit.points || 0,
-              faction: dbUnit.faction,
-              faction_id: dbUnit.faction,
-              keywords: Array.isArray(dbUnit.keywords) ? dbUnit.keywords.map(kw => ({ name: kw, description: '' })) : [],
-              highCommand: dbUnit.type === 'High Command',
-              availability: 1,
-              command: 0,
-              specialRules: Array.isArray(dbUnit.special_rules) ? dbUnit.special_rules : [],
-              tournamentLegal: true, // Database units are tournament legal by default
-              imageUrl: `/art/card/${dbUnit.name.toLowerCase().replace(/\s+/g, '_')}_card.jpg`
-            }));
+            allUnits = data.map(dbUnit => {
+              // Try to find corresponding local unit for tournament legal status
+              const localUnit = localUnitsMap.get(dbUnit.name);
+              
+              return {
+                id: dbUnit.name.toLowerCase().replace(/\s+/g, '_'),
+                name: dbUnit.name,
+                name_es: dbUnit.name_es || dbUnit.name,
+                name_fr: dbUnit.name_fr || dbUnit.name,
+                pointsCost: dbUnit.points || 0,
+                faction: dbUnit.faction,
+                faction_id: dbUnit.faction,
+                keywords: Array.isArray(dbUnit.keywords) ? dbUnit.keywords.map(kw => ({ name: kw, description: '' })) : [],
+                highCommand: dbUnit.type === 'High Command',
+                availability: 1,
+                command: 0,
+                specialRules: Array.isArray(dbUnit.special_rules) ? dbUnit.special_rules : [],
+                // Use tournament legal status from local data if available, otherwise default to true
+                tournamentLegal: localUnit?.tournamentLegal ?? true,
+                imageUrl: `/art/card/${dbUnit.name.toLowerCase().replace(/\s+/g, '_')}_card.jpg`
+              };
+            });
           } else {
             console.warn('[useArmyBuilderUnits] ⚠️ No units found in database, falling back to local data');
             allUnits = normalizeUnits(units);
