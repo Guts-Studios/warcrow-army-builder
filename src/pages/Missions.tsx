@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { useAuth } from "@/hooks/useAuth";
+import { AdminOnly } from "@/utils/adminUtils";
 
 const missionsData: Mission[] = [
   {
@@ -122,6 +124,7 @@ const Missions = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showTranslationTools, setShowTranslationTools] = useState(false);
   const { t, language } = useLanguage();
+  const { isAuthenticated, isWabAdmin } = useAuth();
 
   useEffect(() => {
     setIsLoading(true);
@@ -149,20 +152,25 @@ const Missions = () => {
       </PageHeader>
       
       <div className="container mx-auto px-4 py-8">
-        {/* Translation Tools - Admin Section */}
-        <div className="mb-6">
-          <Collapsible open={showTranslationTools} onOpenChange={setShowTranslationTools}>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="mb-4">
-                <Settings className="h-4 w-4 mr-2" />
-                Translation Tools
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <TranslationPopulator />
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+        {/* Translation Tools - Admin Only Section */}
+        <AdminOnly 
+          isAuthenticated={isAuthenticated} 
+          isWabAdmin={isWabAdmin}
+        >
+          <div className="mb-6">
+            <Collapsible open={showTranslationTools} onOpenChange={setShowTranslationTools}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="mb-4">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Translation Tools
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <TranslationPopulator />
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        </AdminOnly>
 
         <Tabs defaultValue="missions" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-warcrow-accent">
