@@ -29,6 +29,9 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
         return;
       }
 
+      // Reset the content first to prevent overlapping
+      setTranslatedDetails('');
+
       if (language === 'en') {
         setTranslatedDetails(mission.details);
         return;
@@ -87,7 +90,9 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
               {t('loadingMissionDetails')}...
             </div>
           ) : (
-            translatedDetails
+            <div key={`${mission.id}-${language}`}>
+              {translatedDetails}
+            </div>
           )}
         </div>
       </ScrollArea>

@@ -27,6 +27,9 @@ export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
         return;
       }
 
+      // Reset the content first to prevent overlapping
+      setTranslatedDetails('');
+
       if (language === 'en') {
         setTranslatedDetails(feat.details);
         return;
@@ -74,7 +77,9 @@ export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
               {t('loadingFeatDetails')}...
             </div>
           ) : (
-            translatedDetails
+            <div key={`${feat.id}-${language}`}>
+              {translatedDetails}
+            </div>
           )}
         </div>
       </ScrollArea>
