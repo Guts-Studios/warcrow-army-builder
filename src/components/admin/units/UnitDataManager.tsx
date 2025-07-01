@@ -14,6 +14,7 @@ import DeepLUsageStats from "../units/DeepLUsageStats";
 import PopulateDataButton from "../units/PopulateDataButton";
 import UnitDataTable from "../units/UnitDataTable";
 import DataSyncManager from "../units/DataSyncManager";
+import AllFactionsSyncButton from "../units/AllFactionsSyncButton";
 
 const UnitDataManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState("units");
@@ -115,6 +116,7 @@ const UnitDataManager: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="sync" className="space-y-4">
+          <AllFactionsSyncButton />
           <DataSyncManager />
         </TabsContent>
       </Tabs>
