@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
 import { loadMissionTranslations, getMissionTranslation } from "@/utils/missionTranslationLoader";
+import { getMissionTitleTranslation } from "@/utils/missionTitleTranslations";
 
 interface Mission {
   id: string;
   title: string;
   details: string;
   isHomebrew: boolean;
+  displayTitle?: string;
 }
 
 interface MissionDetailsProps {
@@ -65,11 +67,14 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
     );
   }
 
+  // Get the translated title for the current language
+  const translatedTitle = getMissionTitleTranslation(mission.title, language);
+
   return (
     <div className="space-y-6 bg-black/70 p-6 rounded-lg border border-warcrow-gold/20">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-          {mission.title}
+          {translatedTitle}
         </h2>
         <div className="flex gap-2">
           {!mission.isHomebrew ? (

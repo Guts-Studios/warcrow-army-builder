@@ -3,11 +3,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
 import { loadFeatTranslations, getFeatTranslation } from "@/utils/missionTranslationLoader";
+import { getFeatTitleTranslation } from "@/utils/missionTitleTranslations";
 
 interface Feat {
   id: string;
   name: string;
   details: string;
+  displayName?: string;
 }
 
 interface FeatDetailsProps {
@@ -63,11 +65,14 @@ export const FeatDetails = ({ feat, isLoading }: FeatDetailsProps) => {
     );
   }
 
+  // Get the translated title for the current language
+  const translatedTitle = getFeatTitleTranslation(feat.name, language);
+
   return (
     <div className="space-y-6 bg-black/70 p-6 rounded-lg border border-warcrow-gold/20">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-warcrow-gold mb-4">
-          {feat.name}
+          {translatedTitle}
         </h2>
       </div>
       <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
