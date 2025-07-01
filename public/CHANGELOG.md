@@ -25,6 +25,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Removed lazy loading for Index page to resolve dynamic import errors
 - Restored full Army Builder functionality after loading issues
 
+## [0.5.15.1] - 2025-06-30
+
+### Added
+- New Homebrew Missions by community creators:
+  - **Battle Lines** - Supply chest mechanics with special activation rules (by Anthony Pham/Viridian)
+  - **Breached Front** - Central objective control mission (by Anthony Pham/Viridian)
+  - **Ghosts from the Mist** - Dynamic ghost markers with event triggers (by Vladimir Sagalov/FinalForm)
+  - **Sacred Land** - Prayer and offering mechanics with escalating rounds (by Vladimir Sagalov/FinalForm)
+  - **Rescue Mission** - Wounded recovery and vengeance token system (by Vladimir Sagalov/FinalForm)
+- Expanded mission translations (Spanish and French) for all new missions
+- Mission selector improvements with new homebrew mission categories
+
 ## [0.5.15] - 2025-06-23
 
 ### Added
