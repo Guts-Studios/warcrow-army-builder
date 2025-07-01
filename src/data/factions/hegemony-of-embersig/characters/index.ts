@@ -1,9 +1,11 @@
 
 import { Unit } from "@/types/army";
 import { vercana } from "./vercana";
+import { nadezhda_lazard } from "./nadezhda_lazard";
 
 export const hegemonyOfEmbersigCharacters: Unit[] = [
   vercana,
+  nadezhda_lazard,
   {
     id: "aide",
     name: "Aide",
@@ -191,25 +193,6 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     specialRules: ["Place (11)"],
     tournamentLegal: true,
     imageUrl: "/art/card/marhael_the_refused_card.jpg"
-  },
-  {
-    id: "nadezhda-lazard-champion-of-embersig",
-    name: "Nadezhda Lazard, Champion of Embersig",
-    name_es: "Nadezhda Lazard, Campeona De Embersig",
-    pointsCost: 30,
-    faction: "hegemony-of-embersig",
-    faction_id: "hegemony-of-embersig",
-    keywords: [
-      { name: "Character", description: "" },
-      { name: "Human", description: "" },
-      { name: "Join (Infantry)", description: "" }
-    ],
-    highCommand: false,
-    availability: 1,
-    command: 2,
-    specialRules: ["Disarmed", "Vulnerable"],
-    tournamentLegal: false,
-    imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   {
     id: "naergon-caladren",
