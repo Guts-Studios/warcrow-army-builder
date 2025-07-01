@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { populateMissionTranslations, populateFeatTranslations, downloadTranslationsAsJSON } from "@/utils/populateMissionTranslations";
-import { Loader2, Languages } from "@/components/ui/icons";
-import { DeepLTranslationButton } from "@/components/ui/deepl-translation-button";
+import { Loader2, Languages } from "lucide-react";
+import { DeepLTranslationButton } from "./DeepLTranslationButton";
 
 // Mission data - Updated with the correct mission content
 const MISSIONS = [
