@@ -5,6 +5,7 @@ import { Unit } from '@/types/army';
 import { removeDuplicateUnits, normalizeUnits, normalizeFactionId } from '@/utils/unitManagement';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useArmyBuilderUnits = (factionId: string) => {
   const { authReady, isAuthenticated } = useAuth();
@@ -30,8 +31,58 @@ export const useArmyBuilderUnits = (factionId: string) => {
     queryFn: async () => {
       console.log(`[useArmyBuilderUnits] Loading units for faction: ${normalizedFactionId}, auth: ${isAuthenticated ? 'authenticated' : 'guest'}, ready: ${authReady}`);
       
-      // Get all units and filter by faction
-      const allUnits = normalizeUnits(units);
+      let allUnits: Unit[] = [];
+      
+      // For authenticated users, try to fetch from database first
+      if (isAuthenticated) {
+        try {
+          console.log(`[useArmyBuilderUnits] 🚀 Fetching from database for authenticated user`);
+          let query = supabase.from('unit_data').select('*');
+          
+          if (normalizedFactionId) {
+            query = query.eq('faction', normalizedFactionId);
+          }
+          
+          const { data, error } = await query;
+          
+          if (error) {
+            console.error('[useArmyBuilderUnits] ❌ Database error:', error);
+            throw error;
+          }
+          
+          if (data && data.length > 0) {
+            console.log(`[useArmyBuilderUnits] 📊 Retrieved ${data.length} units from database`);
+            // Convert database units to local Unit format
+            allUnits = data.map(dbUnit => ({
+              id: dbUnit.name.toLowerCase().replace(/\s+/g, '_'),
+              name: dbUnit.name,
+              name_es: dbUnit.name_es || dbUnit.name,
+              name_fr: dbUnit.name_fr || dbUnit.name,
+              pointsCost: dbUnit.points || 0,
+              faction: dbUnit.faction,
+              faction_id: dbUnit.faction,
+              keywords: Array.isArray(dbUnit.keywords) ? dbUnit.keywords.map(kw => ({ name: kw, description: '' })) : [],
+              highCommand: dbUnit.type === 'High Command',
+              availability: 1,
+              command: 0,
+              specialRules: Array.isArray(dbUnit.special_rules) ? dbUnit.special_rules : [],
+              tournamentLegal: true, // Database units are tournament legal by default
+              imageUrl: `/art/card/${dbUnit.name.toLowerCase().replace(/\s+/g, '_')}_card.jpg`
+            }));
+          } else {
+            console.warn('[useArmyBuilderUnits] ⚠️ No units found in database, falling back to local data');
+            allUnits = normalizeUnits(units);
+          }
+        } catch (error) {
+          console.error('[useArmyBuilderUnits] ❌ Error fetching from database, falling back to local data:', error);
+          allUnits = normalizeUnits(units);
+        }
+      } else {
+        // For guest users, use local data
+        console.log(`[useArmyBuilderUnits] 📁 Using local data for guest user`);
+        allUnits = normalizeUnits(units);
+      }
+      
       console.log(`[useArmyBuilderUnits] Total units loaded: ${allUnits.length}`);
       
       // Enhanced processing to ensure tournament legal status is preserved
