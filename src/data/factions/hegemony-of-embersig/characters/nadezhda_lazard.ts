@@ -17,5 +17,6 @@ export const nadezhda_lazard: Unit = {
   availability: 1,
   command: 2,
   specialRules: [],
+  tournamentLegal: true,
   imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
 };
