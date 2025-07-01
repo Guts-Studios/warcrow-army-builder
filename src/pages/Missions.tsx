@@ -47,6 +47,38 @@ const Missions = () => {
           isOfficial: true
         }));
 
+        // Add missing official missions that aren't in the database yet
+        const additionalOfficialMissions = [
+          {
+            id: 'official-influence-zones',
+            title: 'Influence Zones',
+            details: 'Required material\n\n• 2 red objective markers.\n• 2 blue objective markers.\n• 1 brown objective marker.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 1 MP if they control more objectives than their rival.\n• 1 MP if they control at least one objective of their rival\'s color.\n• 1 MP if they control at least 2 objectives.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nStrategic domain\n\n• All units that are not demoralized have their conquest value increased by 1.\n• Conquest modifiers are not increased.\n\nInfluence zones\n\nUnits may contest control of objectives at 7 strides instead of 3.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-expanse',
+            title: 'Expanse',
+            details: 'Required material\n\n• 4 brown objective markers.\n• 1 blue objective marker.\n\nPreparation\n\nBrown objective markers start the game controlled by the company that has their deployment zone adjacent to them.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 2 MP if they control more brown objectives than their rival.\n• 1 MP if they control the same amount of brown objectives as their rival.\n• 1 MP if they control the central objective (blue).\n\nEnd of the game\n\nThe game ends at the end of round 3.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-loot',
+            title: 'Loot',
+            details: 'Required material\n\n• 2 red objective markers.\n• 2 blue objective markers.\n• 1 brown objective marker.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 1 MP if they have at least 1 loot.\n• 1 MP if they have more loot than their rival.\n• 1 MP if their rival has no loot.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nLoot\n\nObjective markers are used to represent loot.\n\nThey use the following rules instead of those from the rulebook:\n\n• A unit adjacent to an objective marker may stress itself to pick it up (placing it on their profile card).\n• Units may move through an objective marker but cannot end their movement on one.\n• Units cannot pick up objective markers of their rival\'s color.\n• Units cannot carry more than 1 objective marker at the same time.\n• When a unit carrying loot is destroyed, the company controlling it places the loot adjacent to their leader before removing it from the battlefield. If the unit has an Officer Character joined, it may instead give the loot to the Character.\n• When a unit carrying loot becomes demoralized, place the objective marker adjacent to their leader before fleeing.\n• If a Character leaves a unit carrying loot, it can choose to take the loot or leave it in the unit.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-quadrants',
+            title: 'Quadrants',
+            details: 'Rounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company gets:\n\n• 2 MP if they control more quadrants than their rival.\n• 1 MP if they control the same amount of quadrants as their rival.\n• 1 MP if they control at least 1 quadrant adjacent to their rival\'s deployment zone.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nStrategic domain\n\n• All units that are not demoralized have their conquest value increased by 1.\n• Conquest value modifiers (from skills and effects) are not increased.\n\nQuadrants\n\nThe battlefield (not including deployment zones) is divided into four quadrants, which can be controlled as if they were objectives although no objective markers are used.\n\nUnits can contest control of a quadrant if their leader is within the quadrant (a leader whose base is in contact with more than one quadrant is not within any quadrant, so their unit cannot control or contest any quadrant).\n\nAlthough no objective markers are used, a conquest marker is placed in each quadrant to indicate which company controls it.',
+            isHomebrew: false,
+            isOfficial: true
+          }
+        ];
+
         // Community missions with your provided details
         const communityMissions = [
           {
@@ -91,8 +123,8 @@ const Missions = () => {
           }
         ];
 
-        // Combine missions and translate titles (removed duplicate official missions)
-        const allMissions = [...formattedMissions, ...communityMissions].map(mission => ({
+        // Combine all missions and translate titles
+        const allMissions = [...formattedMissions, ...additionalOfficialMissions, ...communityMissions].map(mission => ({
           ...mission,
           displayTitle: getMissionTitle(mission.title, language)
         }));
