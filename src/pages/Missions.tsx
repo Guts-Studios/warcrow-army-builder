@@ -1,16 +1,22 @@
+
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { MissionList } from "@/components/missions/MissionList";
 import { MissionDetails } from "@/components/missions/MissionDetails";
+import { FeatList } from "@/components/missions/FeatList";
+import { FeatDetails } from "@/components/missions/FeatDetails";
 import type { Mission } from "@/components/missions/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PageHeader } from "@/components/common/PageHeader";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { NavDropdown } from "@/components/ui/NavDropdown";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Missions = () => {
   const [selectedMission, setSelectedMission] = React.useState<Mission | null>(null);
+  const [selectedFeat, setSelectedFeat] = React.useState<any | null>(null);
   const [missions, setMissions] = React.useState<Mission[]>([]);
+  const [feats, setFeats] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const { language, t } = useLanguage();
@@ -147,6 +153,19 @@ const Missions = () => {
         if (allMissions.length > 0) {
           setSelectedMission(allMissions[0]);
         }
+
+        // Mock feats data for now - you can replace this with actual data later
+        const mockFeats = [
+          {
+            id: 'feat-1',
+            name: 'Sample Feat',
+            details: 'This is a sample feat with detailed rules and mechanics.'
+          }
+        ];
+        setFeats(mockFeats);
+        if (mockFeats.length > 0) {
+          setSelectedFeat(mockFeats[0]);
+        }
       } catch (error) {
         console.error('[Missions] Unexpected error:', error);
         setError('An unexpected error occurred while loading missions');
@@ -190,18 +209,41 @@ const Missions = () => {
       </PageHeader>
       
       <div className="container mx-auto py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <MissionList
-            missions={missions}
-            selectedMission={selectedMission}
-            onSelectMission={setSelectedMission}
-            isLoading={isLoading}
-            language={language}
-          />
-          <div className="md:col-span-2">
-            <MissionDetails mission={selectedMission} isLoading={isLoading} language={language} />
-          </div>
-        </div>
+        <Tabs defaultValue="missions" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="missions">{t('missions')}</TabsTrigger>
+            <TabsTrigger value="feats">Feats</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="missions">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <MissionList
+                missions={missions}
+                selectedMission={selectedMission}
+                onSelectMission={setSelectedMission}
+                isLoading={isLoading}
+                language={language}
+              />
+              <div className="md:col-span-2">
+                <MissionDetails mission={selectedMission} isLoading={isLoading} language={language} />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="feats">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <FeatList
+                feats={feats}
+                selectedFeat={selectedFeat}
+                onSelectFeat={setSelectedFeat}
+                isLoading={isLoading}
+              />
+              <div className="md:col-span-2">
+                <FeatDetails feat={selectedFeat} isLoading={isLoading} />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
