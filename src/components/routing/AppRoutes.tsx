@@ -6,9 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Core pages that should load immediately
 import Landing from '@/pages/Landing';
-
-// Lazy load heavy pages
-const Index = lazy(() => import('@/pages/Index'));
+import Index from '@/pages/Index';
 const Play = lazy(() => import('@/pages/Play'));
 const SharedList = lazy(() => import('@/pages/SharedList'));
 const Setup = lazy(() => import('@/pages/Setup'));
