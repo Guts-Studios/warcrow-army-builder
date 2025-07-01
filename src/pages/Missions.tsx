@@ -8,6 +8,7 @@ import { Mission, Feat } from "@/components/missions/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TranslationPopulator } from "@/components/missions/TranslationPopulator";
+import { MissionGenerator } from "@/components/missions/MissionGenerator";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -188,6 +189,11 @@ const Missions = () => {
             </Collapsible>
           </div>
         </AdminOnly>
+
+        {/* Mission Generator Button */}
+        <div className="mb-6 flex justify-center">
+          <MissionGenerator missions={translatedMissions} feats={translatedFeats} />
+        </div>
 
         <Tabs defaultValue="missions" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-warcrow-accent">
