@@ -47,7 +47,7 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [includeOfficial, setIncludeOfficial] = useState(true);
-  const [includeCommunity, setIncludeCommunity] = useState(true);
+  const [includeCommunity, setIncludeCommunity] = useState(false);
   const [generatedScenario, setGeneratedScenario] = useState<GeneratedScenario | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
