@@ -2,8 +2,9 @@
 import { Unit } from "@/types/army";
 
 export const iriavik_restless_pup: Unit = {
-  id: "iriavik_restless_pup",
+  id: "iriavik-restless-pup",
   name: "Iriavik Restless Pup",
+  name_es: "Iriavik Cachorro Impaciente",
   pointsCost: 30,
   faction: "northern-tribes",
   faction_id: "northern-tribes",
@@ -20,5 +21,6 @@ export const iriavik_restless_pup: Unit = {
   availability: 1,
   command: 1,
   specialRules: ["Slowed", "Place (3)", "Immune to State", "Frightened"],
+  tournamentLegal: false,
   imageUrl: "/art/card/iriavik_restless_pup_card.jpg"
 };

@@ -4,6 +4,7 @@ import { Unit } from "@/types/army";
 export const ormuk: Unit = {
   id: "ormuk",
   name: "Ormuk",
+  name_es: "Ormuk",
   pointsCost: 35,
   faction: "northern-tribes",
   faction_id: "northern-tribes",
@@ -21,5 +22,6 @@ export const ormuk: Unit = {
   availability: 1,
   command: 1,
   specialRules: [],
+  tournamentLegal: false,
   imageUrl: "/art/card/ormuk_card.jpg"
 };
