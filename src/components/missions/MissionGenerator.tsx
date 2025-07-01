@@ -149,7 +149,7 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
                     </CardHeader>
                     <CardContent>
                       <div className="text-warcrow-text text-sm max-h-48 overflow-y-auto whitespace-pre-wrap">
-                        {generatedScenario.mission.details.substring(0, 300)}...
+                        {generatedScenario.mission.details}
                       </div>
                     </CardContent>
                   </Card>
@@ -163,7 +163,7 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
                     </CardHeader>
                     <CardContent>
                       <div className="text-warcrow-text text-sm max-h-48 overflow-y-auto whitespace-pre-wrap">
-                        {generatedScenario.feat.details.substring(0, 300)}...
+                        {generatedScenario.feat.details}
                       </div>
                     </CardContent>
                   </Card>
