@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { MissionList } from "@/components/missions/MissionList";
@@ -33,7 +32,7 @@ const Missions = () => {
           return;
         }
 
-        // Format official missions
+        // Format official missions from database
         const formattedMissions = data.map(mission => ({
           id: mission.id,
           title: mission.title,
@@ -42,29 +41,73 @@ const Missions = () => {
           isOfficial: true
         }));
 
-        // Add the Tree Mother official mission with updated details
-        formattedMissions.push({
-          id: 'official-tree-mother',
-          title: 'Tree Mother',
-          details: 'Preparation\nThe battlefield is 60x60 strides in size.\nGame size: 205 points.\n• Blue deployment zone: Sÿenann (defending side)\n• Red deployment zone: Raiders (attacking side)\nBefore starting the game, randomly place one of the\nfollowing tokens on each of the objectives:\n• Tinge token.\n• Damage token.\n• Command token.\n• Activation token.\nPlace Event 1 token in position 1 on the turn counter.\n\nThe Tree Mother\nTo represent the Tree Mother, use a 60mm base.\n\nRounds\n• The first round lasts 5 turns.\n• The second round lasts 4 turns.\n• The third round lasts 3 turns.\n• The fourth round lasts 2 turns.\n\nEvent 1: The Tree Mother\nWhen this event is triggered do the following:\n• Forest Protectors. A Nemorous Sÿenann Character\ncan be stressed so that the Mother Tree is considered\nan ally of the Sÿenann during its activation.\n• The Tree Mother is activated (use the behavior on\nits profile).\n• Advance the Event 1 token 3 positions (Mother Tree\nhas INI 3).\n\nScoring\nAt the end of the scenario:\n• Sÿenann (defending side):\n» 1 VP for each sÿena sprout that isn\'t destroyed\n» 1 VP if the Tree Mother has not been destroyed\n• Raiders (attacking side):\n» 1 VP for each sÿena sprout destroyed\n» 1 VP if the Tree Mother has been destroyed\n\nEnd of the game\nThe game ends when any of the following conditions are\nmet; at the end of round 4, when one of the companies\nhas no units on the battlefield, when all units of one of\nthe companies are demoralized, or if the Mother Tree\nand all 4 sÿena sprouts have been destroyed.\n\nWoods\nWoods in the blue deployment zone have the keywords:\nBlock LoS and Cover (BLK).\n\nSÿena sprouts\nEach brown objective represents a sÿena sprout.\n\nDestroy a sprout\nAny unit of the raiding faction can destroy a sprout by\nperforming the simple action destroy sprout. To do so,\nthe unit must meet the following requirements:\n• The raiding unit must be adjacent to the sÿena sprout.\n• The raiding unit cannot be locked in combat.\n• The Tree Mother must not be adjacent to the sprout.\nTo resolve the action:\n• The raiding unit must face off its attack (without\nactivating switches or adding modifiers) at the defense\nvalue [d9][d7][d7] If the Sÿenann control the target\n(sprout), they add [d7][d7] to the defense roll.\n• If the raiding unit rolls at least 1 uncanceled [d1], during\nresolution, destroy the sprout (flip the objective\nmarker so its brown side is not showing).\n\nReturn home\nWhen a Sÿenann unit is required to flee, it will do so by\nmoving towards the nearest battlefield edge (ignoring\nthe deployment zone condition).',
-          isHomebrew: false,
-          isOfficial: true
-        });
+        // Add the new official missions from your data
+        const newOfficialMissions = [
+          {
+            id: 'official-consolidated-progress',
+            title: 'Consolidated Progress',
+            details: 'Preparation\n\nPlace 5 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\n\nEach round lasts for 5 turns.\n\nScoring\n\nAt the end of each round, you obtain:\n\n• 1 VP if you control the central objective\n• 1 VP if you control your opponent\'s objective (1)\n• 2 VPs if you control your opponent\'s objective (2)\n• 1 VP if your opponent controls neither of your objectives (1 and 2)\n\nEnd of the game\n\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points, the result will be a tie.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-take-positions',
+            title: 'Take Positions',
+            details: 'Preparation\n\nPlace 4 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\n\nEach round lasts for 5 turns.\n\nScoring\n\nAt the end of each round, you obtain:\n\n• 1 VP for each objective you control with your opponent\'s color.\n• 1 VP if your opponent doesn\'t control any of the objectives of your color.\n\nEnd of the game\n\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield. If you have more Victory Points than your opponent at the end of the game, you win.\n\nIf you and your opponent have the same number of Victory Points, the result will be a tie.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-fog-of-death',
+            title: 'Fog of Death',
+            details: 'Preparation\n\nPlace an objective marker in the center of the battlefield, as shown in the diagram. This marker represents an ancient and powerful arcane artifact capable of manipulating the fog that surrounds the companies.\n\nThe player who deploys first must place a conquest marker (showing its color) adjacent to the objective marker. This marker indicates which side controls the artifact at all times, so it begins under the control of the first company to deploy.\n\nPlace the four Fog markers each in one corner of the battlefield, as shown in the diagram.\n\nPlace an event token on position 3 of the turn counter.\n\nRounds\n\nEach round lasts for 4 turns.\n\nEvent\n\nWhen the event is activated do the following:\n\n• Displace all Fog markers Displace 10 strides in the direction of the conquest marker.\n• All units within 8 strides of any of the Fog markers must resolve a "Fog Effects" roll for each Fog marker within 8 strides of them. Whoever has the initiative decides which side resolves all their rolls first.\n• Advance the event token 3 positions on the turn counter.\n\nArcane artefact\n\nCompany units in control of the objective, which are within 3 strides of it, can perform the action:\n\nControl energy. Take a WP test. If you succeed, move the conquest marker in the desired direction 5 strides for each Success obtained.\n\nConquest marker\n\nThe conquest marker must always show the color of the side that controls the objective.\n\nAt the end of each turn, whoever controls the artifact (target) can move the conquest marker 2 strides in any direction. This marker can never end on units or terrain elements.\n\nFog effects\n\nWhen the event is activated, units within 8 strides of a Fog marker must roll ORG and apply the effects from the following table according to the result obtained. Units must resolve as many rolls as there are Fog markers within 8 strides.\n\nResult       Effect\n\nSuccess - The unit must face to face roll its defense roll against as many Success as there are troops in it and suffers as much damage as Success not canceled.\n\nSuccess, Special -  The unit must face to face roll its defense roll at 2 Success for each troop that is part of it and suffers as much damage as Success not canceled.\n\nSuccess, Hollow Special - The unit must face to face roll its defense roll against as many Success as there are troops in it and suffers as much damage as Success not canceled. The unit is stressed.\n\nHollow Success, Special -  The unit must face to face roll its defense roll at 4 Success and takes as much damage as Success not canceled.\n\nSpecial - The unit must face to face roll its defense roll at 6 Success and takes as much damage as Success not canceled. The unit becomes stressed.\n\nHollow Special -  Disoriented. The unit must make a move using its first MOV value in the direction indicated by its opponent.\n\nScoring\n\nYou gain 1 VP if you control the artifact (objective) and a Fog marker comes into contact with the conquest marker. In this case, remove the Fog marker from the game.\n\nAt the end of each round, you get:\n• 2 VPs if you control the artifact (objective)\n\nEnd of the game\n\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points, the result will be a tie.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-influence-zones',
+            title: 'Influence Zones',
+            details: 'Required material\n\n• 2 red objective markers.\n• 2 blue objective markers.\n• 1 brown objective marker.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 1 MP if they control more objectives than their rival.\n• 1 MP if they control at least one objective of their rival\'s color.\n• 1 MP if they control at least 2 objectives.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nStrategic domain\n\n• All units that are not demoralized have their conquest value increased by 1.\n• Conquest modifiers are not increased.\n\nInfluence zones\n\nUnits may contest control of objectives at 7 strides instead of 3.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-expanse',
+            title: 'Expanse',
+            details: 'Required material\n\n• 4 brown objective markers.\n• 1 blue objective marker.\n\nPreparation\n\nBrown objective markers start the game controlled by the company that has their deployment zone adjacent to them.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 2 MP if they control more brown objectives than their rival.\n• 1 MP if they control the same amount of brown objectives as their rival.\n• 1 MP if they control the central objective (blue).\n\nEnd of the game\n\nThe game ends at the end of round 3.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-loot',
+            title: 'Loot',
+            details: 'Required material\n\n• 2 red objective markers.\n• 2 blue objective markers.\n• 1 brown objective marker.\n\nRounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company obtains:\n\n• 1 MP if they have at least 1 loot.\n• 1 MP if they have more loot than their rival.\n• 1 MP if their rival has no loot.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nLoot\n\nObjective markers are used to represent loot.\n\nThey use the following rules instead of those from the rulebook:\n\n• A unit adjacent to an objective marker may stress itself to pick it up (placing it on their profile card).\n• Units may move through an objective marker but cannot end their movement on one.\n• Units cannot pick up objective markers of their rival\'s color.\n• Units cannot carry more than 1 objective marker at the same time.\n• When a unit carrying loot is destroyed, the company controlling it places the loot adjacent to their leader before removing it from the battlefield. If the unit has an Officer Character joined, it may instead give the loot to the Character.\n• When a unit carrying loot becomes demoralized, place the objective marker adjacent to their leader before fleeing.\n• If a Character leaves a unit carrying loot, it can choose to take the loot or leave it in the unit.',
+            isHomebrew: false,
+            isOfficial: true
+          },
+          {
+            id: 'official-quadrants',
+            title: 'Quadrants',
+            details: 'Rounds\n\nEach round has a duration of 5 turns.\n\nScoring\n\nAt the end of each round, each company gets:\n\n• 2 MP if they control more quadrants than their rival.\n• 1 MP if they control the same amount of quadrants as their rival.\n• 1 MP if they control at least 1 quadrant adjacent to their rival\'s deployment zone.\n\nEnd of the game\n\nThe game ends at the end of round 3.\n\nStrategic domain\n\n• All units that are not demoralized have their conquest value increased by 1.\n• Conquest value modifiers (from skills and effects) are not increased.\n\nQuadrants\n\nThe battlefield (not including deployment zones) is divided into four quadrants, which can be controlled as if they were objectives although no objective markers are used.\n\nUnits can contest control of a quadrant if their leader is within the quadrant (a leader whose base is in contact with more than one quadrant is not within any quadrant, so their unit cannot control or contest any quadrant).\n\nAlthough no objective markers are used, a conquest marker is placed in each quadrant to indicate which company controls it.',
+            isHomebrew: false,
+            isOfficial: true
+          }
+        ];
 
-        // Add community missions
+        // Update community missions with your provided details
         const communityMissions = [
           {
-            id: 'community-breached-front',
-            title: 'Breached Front',
-            details: 'Preparation\nPlace 4 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling the center neutral objective (1).\n• 1 VP for controlling East neutral objective (2).\n• 1 VP for controlling your color objective.\n• 1 VP for controlling your opponent\'s color objective.\n\nEnd of the game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nThis mission was created by our Community member Anthony Pham, aka Viridian',
+            id: 'community-battle-lines',
+            title: 'Battle Lines',
+            details: 'Preparation\nPlace 6 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n    • 2 VP for controlling your opponent\'s color objective (A).\n    • 1 VP for controlling your color objective (A).\n    • 1 VP for controlling each neutral objective (B or C).\n    • 1 VP for controlling both neutral objectives (B and C)\n\nEnd of game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nSpecial Rules\nThe Supply Chest– Use a 30mm objective marker to represent the Supply Chest. Place the Supply chest as indicated by the Objective S on the map. The Supply Chest behaves like an objective, but the players start the game controlling their color supply chest. While you control your Supply Chest, once per Round after a unit activates, choose another unit within 20 strides of one of your color objectives that you control. This unit may activate and perform only one action, and it does not receive stress or an activation token. If your opponent controls a Supply Chest at the end of any round, remove the Supply Chest from the game.\n\nThis Homebrew mission was created by our Community member Anthony Pham, aka Viridian',
             isHomebrew: true,
             isOfficial: false,
             communityCreator: 'Anthony Pham, aka Viridian'
           },
           {
-            id: 'community-battle-lines',
-            title: 'Battle Lines',
-            details: 'Preparation\nPlace 6 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling your opponent\'s color objective (A).\n• 1 VP for controlling your color objective (A).\n• 1 VP for controlling each neutral objective (B or C).\n• 1 VP for controlling both neutral objectives (B and C).\n\nEnd of game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield.\n\nIf you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nSpecial Rules\nThe Supply Chest– Use a 30mm objective marker to represent the Supply Chest. Place the Supply chest as indicated by the Objective S on the map. The Supply Chest behaves like an objective, but the players start the game controlling their color supply chest. While you control your Supply Chest, once per Round after a unit activates, choose another unit within 20 strides of one of your color objectives that you control. This unit may activate and perform only one action, and it does not receive stress or an activation token. If your opponent controls a Supply Chest at the end of any round, remove the Supply Chest from the game.\n\nThis mission was created by our Community member Anthony Pham, aka Viridian',
+            id: 'community-breached-front',
+            title: 'Breached Front',
+            details: 'Preparation\nPlace 4 objective markers on the battlefield with the colors shown in the diagram.\n\nRounds\nEach round lasts 5 turns.\n\nScoring\nAt the end of each round, you obtain:\n• 2 VP for controlling the center neutral objective (1).\n• 1 VP for controlling East neutral objective (2).\n• 1 VP for controlling your color objective\n• 1 VP for controlling your opponent\'s color objective\n\nEnd of the game\nThe game ends at the end of round 3 or when one of the companies has no units left on the battlefield. If you have more Victory Points than your opponent at the end of the game, you win. If you and your opponent have the same number of Victory Points the result will be a tie.\n\nThis Homebrew mission was created by our Community member Anthony Pham, aka Viridian',
             isHomebrew: true,
             isOfficial: false,
             communityCreator: 'Anthony Pham, aka Viridian'
@@ -95,14 +138,14 @@ const Missions = () => {
           }
         ];
 
-        // Add the community missions to the formatted missions
-        formattedMissions.push(...communityMissions);
+        // Combine all missions
+        const allMissions = [...formattedMissions, ...newOfficialMissions, ...communityMissions];
 
-        console.log(`[Missions] Loaded ${formattedMissions.length} total missions`);
-        setMissions(formattedMissions);
+        console.log(`[Missions] Loaded ${allMissions.length} total missions`);
+        setMissions(allMissions);
         
-        if (formattedMissions.length > 0) {
-          setSelectedMission(formattedMissions[0]);
+        if (allMissions.length > 0) {
+          setSelectedMission(allMissions[0]);
         }
       } catch (error) {
         console.error('[Missions] Unexpected error:', error);
