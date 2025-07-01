@@ -9,6 +9,26 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Mission, Feat } from "./types";
 import { getMissionTitleTranslation, getFeatTitleTranslation } from "@/utils/missionTitleTranslations";
 
+// Helper function to get mission image path
+const getMissionImagePath = (missionTitle: string): string => {
+  const titleToImage: Record<string, string> = {
+    "Consolidated Progress": "/art/missions/consolidated_progress.jpg",
+    "Take Positions": "/art/missions/take_positions.jpg",
+    "Fog of Death": "/art/missions/fog_of_death.jpg",
+    "Influence Zones": "/art/missions/influence_zones.jpg",
+    "Expanse": "/art/missions/expanse.jpg",
+    "Loot": "/art/missions/loot.jpg",
+    "Quadrants": "/art/missions/quadrants.jpg",
+    "Battle Lines": "/art/missions/battle_lines.jpg",
+    "Breached Front": "/art/missions/breached_front.jpg",
+    "Ghosts from the Mist": "/art/missions/ghosts_from_the_mist.jpg",
+    "Sacred Land": "/art/missions/sacred_lands.jpg",
+    "Rescue Mission": "/art/missions/rescue_mission.jpg",
+  };
+  
+  return titleToImage[missionTitle] || "";
+};
+
 interface MissionGeneratorProps {
   missions: Mission[];
   feats: Feat[];
@@ -126,6 +146,15 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
                     </div>
                   </CardHeader>
                   <CardContent>
+                    {getMissionImagePath(generatedScenario.mission.title) && (
+                      <div className="mb-4">
+                        <img 
+                          src={getMissionImagePath(generatedScenario.mission.title)}
+                          alt={getMissionTitleTranslation(generatedScenario.mission.title, language)}
+                          className="w-full h-32 object-cover rounded-md border border-warcrow-gold/20"
+                        />
+                      </div>
+                    )}
                     <div className="text-warcrow-text text-sm max-h-48 overflow-y-auto whitespace-pre-wrap">
                       {generatedScenario.mission.details.substring(0, 300)}...
                     </div>
