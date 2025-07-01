@@ -17,8 +17,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Playmode
 - Game sync during play mode
 - Filter by tournament legal or not
-- 
-## [0.5.15] - 2025-06-23 
+
+## [0.5.16] - 2025-07-01
+
+### Fixed
+- Army Builder routing issues causing black screen on builder page
+- Removed lazy loading for Index page to resolve dynamic import errors
+- Restored full Army Builder functionality after loading issues
+
+## [0.5.15] - 2025-06-23
 
 ### Added
 - Syenann Captain
