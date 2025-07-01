@@ -254,9 +254,11 @@ export function checkAndPurgeIfNeeded(): void {
     const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     
     console.log(`[Storage] 🔍 Version check (${ENV_PREFIX}): stored=${storedVersion}, current=${APP_VERSION}`);
+    console.log(`[Storage] 🔐 Cache purge runs for ALL users (authenticated and guest)`);
     
     if (storedVersion !== APP_VERSION) {
       console.log(`[Storage] 🔄 Version change detected: ${storedVersion} → ${APP_VERSION}`);
+      console.log(`[Storage] 🧹 Purging cache for ALL users regardless of auth status`);
       purgeStaleAppCache();
       
       // Also clear any potential stale caches
