@@ -202,6 +202,71 @@ export const hegemonyOfEmbersigCharacters: Unit[] = [
     imageUrl: "/art/card/nadezhda_lazard_champion_of_embersig_card.jpg"
   },
   {
+    id: "naergon-caladren",
+    name: "Naergon Caladren",
+    name_es: "Naergon Caladren",
+    pointsCost: 15,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Aestari", description: "" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Spellcaster", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/naergon_caladren_card.jpg"
+  },
+  {
+    id: "nayra-caladren",
+    name: "Nayra Caladren",
+    name_es: "Nayra Caladren",
+    pointsCost: 35,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Aestari", description: "" },
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Elf", description: "" },
+      { name: "Elite", description: "" },
+      { name: "Fearless", description: "" },
+      { name: "Spellcaster", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    specialRules: ["Disarmed", "Slowed", "Vulnerable"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/nayra_caladren_card.jpg"
+  },
+  {
+    id: "trabor-slepmund",
+    name: "Trabor Slepmund",
+    name_es: "Trabor Slepmund",
+    pointsCost: 30,
+    faction: "hegemony-of-embersig",
+    faction_id: "hegemony-of-embersig",
+    keywords: [
+      { name: "Character", description: "" },
+      { name: "Colossal Company", description: "" },
+      { name: "Dwarf", description: "" },
+      { name: "Ghent", description: "" },
+      { name: "Dispel (BLU)", description: "" },
+      { name: "Join (War Rig)", description: "" }
+    ],
+    highCommand: false,
+    availability: 1,
+    command: 1,
+    specialRules: ["Disarmed"],
+    tournamentLegal: false,
+    imageUrl: "/art/card/trabor_slepmund_card.jpg"
+  },
+  {
     id: "strategos",
     name: "Strategos",
     name_es: "Strategos",
