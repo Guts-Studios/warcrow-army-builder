@@ -43,10 +43,12 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   // Enhanced tournament legal check with better debugging
   const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal).toLowerCase() === "false";
   
-  // Debug logging for production troubleshooting
-  if (process.env.NODE_ENV === 'production' || true) { // Always log for now
-    console.log(`[UnitCard] ${unit.name} - tournamentLegal value:`, unit.tournamentLegal, `(type: ${typeof unit.tournamentLegal}), isNotTournamentLegal: ${isNotTournamentLegal}`);
-  }
+  // Debug logging for production troubleshooting - Always log to help with cache issues
+  console.log(`[UnitCard DEBUG] ${unit.name}:`);
+  console.log(`  - tournamentLegal value:`, unit.tournamentLegal);
+  console.log(`  - tournamentLegal type:`, typeof unit.tournamentLegal);
+  console.log(`  - isNotTournamentLegal:`, isNotTournamentLegal);
+  console.log(`  - unit object:`, unit);
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">
