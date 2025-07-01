@@ -692,6 +692,7 @@ export type Database = {
           options: Json
           points: number
           special_rules: string[]
+          tournament_legal: boolean | null
           type: string
           updated_at: string | null
         }
@@ -710,6 +711,7 @@ export type Database = {
           options?: Json
           points?: number
           special_rules?: string[]
+          tournament_legal?: boolean | null
           type: string
           updated_at?: string | null
         }
@@ -728,6 +730,7 @@ export type Database = {
           options?: Json
           points?: number
           special_rules?: string[]
+          tournament_legal?: boolean | null
           type?: string
           updated_at?: string | null
         }
