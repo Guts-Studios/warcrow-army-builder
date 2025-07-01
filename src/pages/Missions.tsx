@@ -97,27 +97,27 @@ const featsData: Feat[] = [
   {
     id: "1",
     name: "Track",
-    details: "Your opponent must reveal which Mission they have chosen before you choose yours.",
+    details: "Required material\n• 4 event tokens, numbered from 1 to 4.\n\nPreparation\n\nThe company that wins the initiative receives event tokens 1 and 3, the rival company receives event tokens 2 and 4.\n\nEach company places one of their event tokens on the \"1\" position of the turn counter (track meter).\n\nAfter deploying all units in the game preparation phase (including Scouts), each company, in deployment order, places their remaining event token on any point of the battlefield farther than 10 strides away from their deployment zone (vestige).\n\nTracking and Vestiges\n\n• Event tokens on the turn counter represent each company's track meter.\n• Event tokens on the battlefield represent vestiges.\n• Units may move through vestiges, but cannot finish their movement on them.\n• Each company has their own track meter and own vestiges.\n• Companies cannot interact with the rival's vestiges.\n\nTracking a vestige\n\nCharacter units and units with a joined Character that finish their activation adjacent to their company's vestige can track it:\n\n• The unit makes a WP test.\n• Scout and Ambusher units add ORG to their roll.\n• During the switches step of the roll, units may stress themselves to add 1 SUCCESS to their roll.\n• When a unit passes the test with 2 SUCCESS, the company advances the track meter by 1 position on the turn counter. Then, the rival company must place the vestige at 15 strides of its current position (it cannot be placed on Impassable terrain).\n\nScoring\n\nWhen a company advances their track meter to position \"4\" of the turn counter it obtains 4 AP and the rival company obtains as many AP as its current position on the track meter minus 1.\n\nAt the end of the game, if neither company got their track meter to position \"4\":\n\n• Each company obtains as many AP as the current position of their track meter.",
   },
   {
     id: "2",
     name: "Decapitation",
-    details: "Eliminate an enemy High Command Character to score 3 additional Objective points at the end of the game.",
+    details: "Required material\n\n• 2 event tokens.\n\nCommander\n\n• Companies must deploy their commander during the deployment phase (they cannot use Scout or Ambusher).\n• If the commander is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes)\n• The commander cannot join any unit.\n\nContract\n\nAfter deploying all units in the game preparation phase (including Scouts), each company, in deployment order, chooses a unit from the rival company as their contract (place an event token on their profile card).\n\n• The contract cannot be the commander\n• If the contract is removed from the battlefield by any effect it will be considered eliminated (for scoring purposes).\n• If the unit with the contract has a joined Character, the contract will be considered eliminated once the unit is destroyed, even if the Character survives.\n• A company that couldn't choose its contract (because there were no deployed enemy units) will do so at the end of the round. A demoralized unit cannot be chosen as a contract. If a company still can't choose its contract at the end of a round, it will do so at the end of the next one.\n\nScoring\n\nAt the end of the game, each company obtains:\n\n• 2 AP if they eliminated the rival's commander.\n• 1 AP if their commander hasn't been eliminated.\n• 1 AP if they eliminated their contract.",
   },
   {
     id: "3",
     name: "The Rift",
-    details: "At the start of Round 2, place a Rift marker anywhere on the battlefield. All miniatures within 6\" of the Rift have -1 to all dice rolls.",
+    details: "Required material\n\n• 2 fog markers.\n• 2 event tokens.\n\nFog\n\nAfter deploying all units in the preparation phase (including Scouts), each company, in deployment order, must place a fog marker further than 20 strides from their deployment zone.\n\nThese fog markers cannot be moved.\n\nCharacter units and units with a joined Character that finish their activation adjacent to one of the fog markers may begin sealing the rift.\n\nSealing the Rift\n\nThe unit performs a WP test, using the Character's WP. The company places an event token on the turn counter, 6 positions ahead of the current turn, and then moves it back 1 position for each SUCCESS they got in the test.\n\n• Spellcaster Characters add ORG to their roll.\n\nIf the unit sealing the rift is no longer adjacent to the fog marker or if it activates, the event token is removed.\n\nA unit cannot begin sealing a rift that is already being sealed by another unit.\n\nWhen the event token is activated, the company sealing the rift obtains the fog marker (and removes it from the battlefield).\n\nScoring\n\nAt the end of the game, each company gets 2 AP for each fog marker it obtained.",
   },
   {
     id: "4",
     name: "Banner",
-    details: "Choose one of your Characters at the start of the game. That Character becomes a Banner Bearer and gains +2\" Movement and Fearless.",
+    details: "Required material\n\n• 4 event tokens, numbered from 1 to 4.\n\nPreparation\n\nThe company that wins the initiative receives event tokens 1 and 3, the rival company receives event tokens 2 and 4.\n\nEach company places one of their event tokens on the \"1\" position of the turn counter (glory meter).\n\nAfter deploying all units in the game preparation phase (including Scouts and Ambushers), each company, in deployment order, chooses one of their deployed units to carry the banner, placing an event token on their profile card.\n\n• Characters carrying the banner cannot join a unit\n• A unit carrying the banner cannot have a joined Character.\n\nBanner\n\nFor each WOUND inflicted by the unit carrying the banner, its company advances their glory meter 1 position on the turn counter. If the glory meter is on position \"10\", move the rival company's glory meter back (to a minimum of 1).\n\nLost banner\n\nIf the unit carrying the banner flees, is destroyed or leaves the battlefield, the company controlling it places the banner on the battlefield, adjacent to its leader, before removing the unit from the battlefield or fleeing.\n\nPick up the banner\n\nIf a company's banner is on the battlefield, any adjacent allied unit may pick it up performing the Pick up banner simple action.\n\nScoring\n\nAt the end of the game, each company gets:\n\n• 1 AP if their rival lost its banner at any point.\n• 1 AP if they didn't lose their own banner\n• 1 AP if their glory meter is on the same position as their rivals.\n• 2 AP if their glory meter is higher on the turn counter than their rivals.",
   },
   {
     id: "5",
     name: "Resources",
-    details: "You may spend 5 additional points when building your army list.",
+    details: "Required material\n\n• 2 event tokens.\n\nPreparation\n\nThe company that wins the initiative receives event token 1, the rival company receives event token 2.\n\nEach company places their event token on position \"1\" of the turn counter (resource meter).\n\nResources\n\nUnits further than 12 strides from their deployment zone that are not engaged in combat may stress themselves at the end of their activation to obtain resources.\n\nObtain resources\n\nThe unit performs a simple roll, the dice of which will depend on the amount of troops in the unit (Support counts when calculating the number of troops for this action). The unit's company advances their resource meter 1 position for each SUCCESS they got. If the resource meter is on position \"10\", instead of advancing the resource meter, move the rival company's resource meter back (to a minimum of 1).\n\nA company cannot obtain resources more than once per turn.\n\nDice rolled:\n• 1 Troop: YLW\n• 2-3 Troops: YLW ORG\n• 4+ Troops: YLW ORG RED\n\nScoring\n\nAt the end of the game, each company obtains:\n\n• 1 AP if their resource meter is on position 4 or higher.\n• 1 AP if their resource meter is on position 7 or higher.\n• 1 AP if their resource meter is on position 10.\n• 1 AP if their resource meter is higher on the turn counter than their rival's",
   },
 ];
 
@@ -146,10 +146,7 @@ const Missions = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-warcrow-dark to-black text-warcrow-text">
-      <PageHeader 
-        title={t('missions')} 
-        subtitle={t('missionsSubtitle')}
-      />
+      <PageHeader title={t('missions')} />
       
       <div className="container mx-auto px-4 py-8">
         {/* Translation Tools - Admin Section */}
