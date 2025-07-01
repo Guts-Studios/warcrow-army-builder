@@ -64,6 +64,7 @@ const ArmyBuilder = ({ session }: ArmyBuilderProps) => {
     localStorage.setItem("warcrow_last_faction", factionId);
   }, []);
 
+  // Component render
   return (
     <div className="space-y-4 md:space-y-8 px-2 md:px-4">
       <div className="hidden md:block">
