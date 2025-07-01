@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Mission, Feat } from "./types";
 import { getMissionTitleTranslation, getFeatTitleTranslation } from "@/utils/missionTitleTranslations";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 // Helper function to get mission image path
 const getMissionImagePath = (missionTitle: string): string => {
@@ -40,6 +41,7 @@ interface MissionGeneratorProps {
 interface GeneratedScenario {
   mission: Mission;
   feat: Feat;
+  missionName?: string;
 }
 
 export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => {
@@ -50,8 +52,31 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
   const [includeCommunity, setIncludeCommunity] = useState(false);
   const [generatedScenario, setGeneratedScenario] = useState<GeneratedScenario | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [isGeneratingName, setIsGeneratingName] = useState(false);
 
-  const generateScenario = () => {
+  const generateMissionName = async (mission: Mission, feat: Feat) => {
+    setIsGeneratingName(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-mission-name', {
+        body: {
+          missionTitle: mission.title,
+          missionDetails: mission.details,
+          featName: feat.name,
+          featDetails: feat.details,
+        },
+      });
+
+      if (error) throw error;
+      return data.missionName;
+    } catch (error) {
+      console.error('Error generating mission name:', error);
+      return null;
+    } finally {
+      setIsGeneratingName(false);
+    }
+  };
+
+  const generateScenario = async () => {
     // Filter missions based on selected options
     const filteredMissions = missions.filter(mission => {
       if (mission.isHomebrew && !includeCommunity) return false;
@@ -67,9 +92,20 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
     const randomMission = filteredMissions[Math.floor(Math.random() * filteredMissions.length)];
     const randomFeat = feats[Math.floor(Math.random() * feats.length)];
 
+    // First set the scenario without the mission name
     setGeneratedScenario({
       mission: randomMission,
       feat: randomFeat
+    });
+
+    // Then generate the AI mission name
+    const generatedName = await generateMissionName(randomMission, randomFeat);
+    
+    // Update with the generated name
+    setGeneratedScenario({
+      mission: randomMission,
+      feat: randomFeat,
+      missionName: generatedName || undefined
     });
   };
 
@@ -103,7 +139,19 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
         </Trigger>
         <Content {...contentProps}>
           <Header>
-            <Title className="text-warcrow-gold text-xl">The Scenario</Title>
+            <div className="text-center space-y-2">
+              <Title className="text-warcrow-gold text-xl">The Scenario</Title>
+              {generatedScenario?.missionName && (
+                <div className="text-warcrow-gold/80 text-lg font-semibold italic">
+                  "{generatedScenario.missionName}"
+                </div>
+              )}
+              {generatedScenario && isGeneratingName && (
+                <div className="text-warcrow-gold/60 text-sm animate-pulse">
+                  Forging mission name...
+                </div>
+              )}
+            </div>
           </Header>
           
           <ScrollArea className={isMobile ? "h-[80vh]" : "max-h-full"}>
