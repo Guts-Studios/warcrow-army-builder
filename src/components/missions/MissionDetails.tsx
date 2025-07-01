@@ -3,10 +3,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mission } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ZoomIn } from "lucide-react";
 import { GameSymbol } from "@/components/stats/GameSymbol";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { translateMissionDetails } from "@/utils/missionTranslations";
 
 const MISSION_IMAGES: Record<string, string> = {
   'Consolidated Progress': '/art/missions/consolidated_progress.jpg',
@@ -68,7 +69,31 @@ interface MissionDetailsProps {
 
 export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
   const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
-  const { t } = useLanguage();
+  const [translatedDetails, setTranslatedDetails] = useState<string>('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const { t, language } = useLanguage();
+
+  useEffect(() => {
+    const translateDetails = async () => {
+      if (!mission || language === 'en') {
+        setTranslatedDetails(mission?.details || '');
+        return;
+      }
+
+      setIsTranslating(true);
+      try {
+        const translated = await translateMissionDetails(mission.details, language as 'es' | 'fr');
+        setTranslatedDetails(translated);
+      } catch (error) {
+        console.error('Failed to translate mission details:', error);
+        setTranslatedDetails(mission.details); // Fallback to original
+      } finally {
+        setIsTranslating(false);
+      }
+    };
+
+    translateDetails();
+  }, [mission, language]);
 
   if (!mission) {
     return (
@@ -162,7 +187,13 @@ export const MissionDetails = ({ mission, isLoading }: MissionDetailsProps) => {
       </div>
       <ScrollArea className="h-[calc(100vh-32rem)] pr-4">
         <div className="text-warcrow-text whitespace-pre-wrap">
-          {renderTextWithDice(mission.details)}
+          {isTranslating ? (
+            <div className="text-center py-4 text-warcrow-gold">
+              {t('loadingMissionDetails')}...
+            </div>
+          ) : (
+            renderTextWithDice(translatedDetails)
+          )}
         </div>
       </ScrollArea>
       <div className="w-full mt-6">
