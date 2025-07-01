@@ -146,15 +146,6 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {getMissionImagePath(generatedScenario.mission.title) && (
-                      <div className="mb-4">
-                        <img 
-                          src={getMissionImagePath(generatedScenario.mission.title)}
-                          alt={getMissionTitleTranslation(generatedScenario.mission.title, language)}
-                          className="w-full h-32 object-cover rounded-md border border-warcrow-gold/20"
-                        />
-                      </div>
-                    )}
                     <div className="text-warcrow-text text-sm max-h-48 overflow-y-auto whitespace-pre-wrap">
                       {generatedScenario.mission.details.substring(0, 300)}...
                     </div>
@@ -175,6 +166,22 @@ export const MissionGenerator = ({ missions, feats }: MissionGeneratorProps) => 
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Mission Image Card */}
+              {getMissionImagePath(generatedScenario.mission.title) && (
+                <Card className="bg-black/70 border-warcrow-gold/20">
+                  <CardHeader>
+                    <CardTitle className="text-warcrow-gold text-center">Mission Map</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex justify-center">
+                    <img 
+                      src={getMissionImagePath(generatedScenario.mission.title)}
+                      alt={getMissionTitleTranslation(generatedScenario.mission.title, language)}
+                      className="max-w-full h-auto rounded-md border border-warcrow-gold/20"
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
               <div className="flex gap-2">
                 <Button onClick={generateScenario} variant="outline">
