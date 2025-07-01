@@ -19,6 +19,7 @@ export const hegemonyCharactersElites: Unit[] = [
     highCommand: false,
     availability: 1,
     specialRules: ["Disarmed", "Slowed", "Vulnerable"],
+    tournamentLegal: false,
     imageUrl: "/art/card/nayra_caladren_card.jpg"
   },
   {
@@ -37,6 +38,7 @@ export const hegemonyCharactersElites: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Place (5)", "Disarmed", "Displace (5)", "Frightened"],
+    tournamentLegal: false,
     imageUrl: "/art/card/naergon_caladren_card.jpg"
   },
   {
@@ -56,6 +58,7 @@ export const hegemonyCharactersElites: Unit[] = [
     availability: 1,
     command: 1,
     specialRules: ["Disarmed"],
+    tournamentLegal: false,
     imageUrl: "/art/card/trabor_slepmund_card.jpg"
   }
 ];
