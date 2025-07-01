@@ -1,6 +1,5 @@
 
 import * as React from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { NavDropdown } from "@/components/ui/NavDropdown";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,22 +9,16 @@ import { DataLoadingDiagnostics } from "@/components/debug/DataLoadingDiagnostic
 import ArmyBuilder from "@/components/army/ArmyBuilder";
 
 const Index = () => {
-  const [session, setSession] = React.useState(null);
   const { t } = useLanguage();
+  const { userId, isAuthenticated } = useAuth();
   
-  React.useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  // Create a session-like object for backward compatibility with ArmyBuilder
+  const session = React.useMemo(() => {
+    if (isAuthenticated && userId) {
+      return { user: { id: userId } } as any;
+    }
+    return null;
+  }, [isAuthenticated, userId]);
 
   return (
     <div className="min-h-screen bg-warcrow-background">
