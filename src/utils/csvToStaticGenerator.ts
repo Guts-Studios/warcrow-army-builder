@@ -156,7 +156,7 @@ export const csvUnitToStaticUnit = (csvUnit: CsvUnit): StaticUnit => {
     pointsCost: parseInt(csvUnit['Points Cost']) || 0,
     availability: parseInt(csvUnit.AVB) || 0,
     command: parseInt(csvUnit.Command) || 0,
-    keywords: parseKeywords(csvUnit.Keywords || csvUnit.Characteristics || ''),
+    keywords: parseKeywords(csvUnit.Characteristics || ''),
     specialRules: parseSpecialRules(csvUnit['Special Rules'] || ''),
     highCommand: csvUnit['High Command']?.toLowerCase().trim() === 'yes',
     tournamentLegal,
