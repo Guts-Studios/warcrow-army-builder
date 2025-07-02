@@ -84,9 +84,17 @@ export const loadUnits = async (): Promise<Unit[]> => {
 export let units: Unit[] = [];
 
 // Initialize units on module load
+console.log('[factions.ts] Starting unit initialization...');
 loadUnits().then(loadedUnits => {
+  console.log(`[factions.ts] Loaded ${loadedUnits.length} units successfully`);
   units.length = 0; // Clear array
   units.push(...loadedUnits); // Add loaded units
+  
+  // Log Northern Tribes units specifically
+  const northernTribesUnits = loadedUnits.filter(u => u.faction === 'northern-tribes' || u.faction_id === 'northern-tribes');
+  console.log(`[factions.ts] Northern Tribes units: ${northernTribesUnits.length}`);
+  const mountedWrathmane = northernTribesUnits.find(u => u.name.toLowerCase().includes('mounted wrathmane'));
+  console.log(`[factions.ts] Found Mounted Wrathmane:`, mountedWrathmane);
 }).catch(error => {
   console.error('Failed to initialize units:', error);
 });
