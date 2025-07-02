@@ -1,30 +1,32 @@
+
 faction_id,Faction,Unit Type,Unit Name EN,Unit Name SP,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion,Tournament Legal
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Anointed,Ungidos,0,1,"[Human, Infantry, Living Flesh]","[Fearless, Intimidating (1)]",No,45,[],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Aodharu,Aodharu,0,1,"[Dead Flesh, Risen]","[Bloodlust, Dispel (BLK BLK), Golem, Intimidating (2)]",No,30,[Frightened],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Bugbowls,Bichos Bola,0,1,"[Infantry, Projectile, Red Cap]",[Cover (BLU)],No,30,"[Shove (2), Slowed, Displace (8)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Crucible,Crisol,0,1,[Red Cap],"[Dispel (BLU), Golem, Intimidating (1), Large]",No,55,"[Vulnerable, Place (10)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Echoes,Ecos,1,1,"[Elf, Infantry]","[Elite, Golem, Intimidating (1)]",No,40,"[Impassable, Immovable]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Feadhalu,Feadhalu,0,1,[Living Flesh],"[Ambusher, Dispel (BLK), Golem]",No,30,"[Frightened, Place (7)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Flamecobs,Llameantes,0,1,"[Infantry, Projectile, Red Cap]",[],No,20,[],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Gobblers,Engullidores,0,1,"[Infantry, Projectile, Red Cap]","[Fearless, Scout]",No,30,"[Slowed, Diplsace (8)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Harvester,Segador,1,1,"[Dead Flesh, Risen, Elf]","[Dispel (BLK), Golem, Intimidating (2)]",No,40,[Frightened],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Husks,Cascaras,0,2,"[Dead Flesh, Risen]",[Golem],No,15,[Slowed],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Intact,Intactos,0,2,"[Human, Infantry, Living Flesh]",[],no,25,"[Frightened, Bloodlust, Repeat a Die]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Kipleacht,Kipleacht,0,1,[Living Flesh],"[Ambusher, Golem, Large, Intimidating (1)]",No,30,"[Slowed, Frightened, Place, Displace, Repeat a Die]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked,Marcados,0,1,"[Human, Infantry, Living Flesh]",[],No,35,[Repeat a Die],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked Marksmen,Marcados Tiradores,0,1,"[Human, Infantry, Living Flesh]",[Scout],No,25,"[Shove (3), Displace (3), Repeat a Die]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Named Character,Master Keorl,Maestro Keorl,3,1,"[Character, Elf, Darkminded, High Command, Living Flesh]","[Intimidating (2), Spellcaster, Join (Infantry, Living Flesh)]",Yes,50,"[Frightened, Vulnerable, Dispel (GRN)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Named Character,Master Nepharim,Maestro Nepharim,3,1,"[Character, Dead Flesh, Darkminded, Elf, High Command]","[Intimidating (2), Spellcaster, Join (Infantry, Dead Flesh)]",Yes,50,[Place (5)],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Mornmab,Mornmab,0,1,[Living Flesh],"[Dispel (BLK), Golem, Large, Intimidating (2)]",No,50,"[Frightened, Shove (3), Displace (3)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Namaoin,Namaoin,0,1,"[Character, Darkminded, Elf, Fog]","[Ambusher, Dispel (BLK BLK), Spellcaster]",No,30,"[Vulnerable, Frightened, Impassable]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Support Character,Needle,Aguja,1,3,"[Character, Darkminded, Elf, Dead Flesh]","[Dispel (BLU BLK), Join (Living Flesh Dead Flesh), Spellcaster]",No,25,"[Heal, Frightened]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Named Character,Nuada,Nuada,3,1,"[Alven, Character, Elf, High Commander]",[Elite],Yes,55,"[Heal, Bloodlust, Fearless, Slowed]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Orc Husk,Cascara Orco,0,2,"[Dead Flesh, Risen]","[Golem, Join (Infantry Dead Flesh)]",no,10,"[Vulnerable, Frightened, Slowed, Disarmed]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Osseous,Huesudos,0,1,"[Infantry, Projectile, Red Cap]",[],no,20,"[Bloodlust, Shove (5), Displace (8)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Overseer,Capataz,2,1,"[Character, Red Cap]","[Join (Gobblers, Bugbowls, Osseous)]",No,25,"[Shove (4), Slowed, Place (10)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Progenitor Sculptor,Progenitor Escultor,2,1,"[Character, Elf, Darkminded, High Command, Living Flesh]","[Intimidating (2), Spellcaster, Join (Infantry Living Flesh)]",Yes,30,"[Frightened, Vulnerable, Dispel (GRN)]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Puppeteer,Titiritera,2,1,"[Character, Dead Flesh, Darkminded, Elf]","[Dispel (BLU), Spellcaster, Join (Risen)]",no,30,[Place (5)],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Rumpy Ride,Cabalgachepas,2,1,"[Character, Red Cap]","[Dispel (BLU BLK) Elite, Join (Red Caps Infantry Spellcaster)]",No,45,[],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Sightless,Cegaton,0,3,"[Character, Red Cap]","[Dispel (BLU), Join (Red Cap, Infantry)]",No,15,[],,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Stompers,Pisadores,0,1,"[Infantry, Projectile, Red Cap]","[Favorable Terrain (Rugged), Intimidating (1)]",No,25,"[Frightened, Slowed]",,Yes
-scions-of-yaldabaoth,Scions of Yaldabaoth,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],no,30,[Place (5)],,No
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Aide,Ayudante,0,1,"[Character, Orc]","[Join (Infantry Orc)]",No,15,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Alborc,Alborc,0,1,"[Character, Orc, Mercenary]","[Elite, Scout]",No,30,[],[],No
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Anointed,Ungido,2,1,"[Character, Orc, High Command]","[Elite, Spellcaster]",Yes,40,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Ansera Noighman,Ansera Noighman,1,1,"[Character, Human, High Command]","[Elite, Spellcaster]",Yes,35,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Darkmaster,Maestro Oscuro,0,1,"[Character, Orc]","[Spellcaster]",No,25,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Evoker,Evocador,0,1,"[Character, Orc]","[Spellcaster]",No,20,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Master Nepharim,Maestro Nepharim,2,1,"[Character, Nepharim, High Command]","[Elite, Spellcaster]",Yes,45,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Naergon Caladren,Naergon Caladren,0,1,"[Character, Elf, Mercenary]","[Elite, Ambusher]",No,35,[],[],No
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Nayra Caladren,Nayra Caladren,0,1,"[Character, Elf, Mercenary]","[Elite, Scout]",No,30,[],[],No
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Ormuk,Ormuk,0,1,"[Character, Orc, Mercenary]","[Elite, Intimidating (1)]",No,25,[],[],No
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Overseer,Supervisor,1,1,"[Character, Orc]","[Join (Infantry Orc), Elite]",No,25,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Prime Warrior,Guerrero Primario,1,1,"[Character, Orc]","[Join (Infantry Orc), Elite]",No,30,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Progenitor Sculptor,Escultor Progenitor,0,1,"[Character, Nepharim]","[Spellcaster]",No,30,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Puppeteer,Titiritero,0,1,"[Character, Nepharim]","[Spellcaster]",No,25,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Character,Tattooist,Tatuador,0,1,"[Character, Orc]","[Medic, Join (Infantry Orc)]",No,20,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Bugbowls,Cuencoinsecto,0,2,"[Infantry, Orc]",[],No,20,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Echoes,Ecos,0,1,"[Infantry, Nepharim]","[Elite, Ambusher]",No,40,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Flamecobs,Mazorcallamas,0,1,"[Artillery, Construct]",[],No,35,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Gobblers,Tragones,0,2,"[Infantry, Orc]","[Scout]",No,25,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Harvester,Cosechador,0,1,"[Artillery, Construct]","[Elite]",No,45,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Husks,Cascaras,0,3,"[Infantry, Undead]",[],No,15,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Intact,Intacto,0,2,"[Infantry, Undead]","[Elite]",No,25,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked,Marcados,0,2,"[Infantry, Orc]","[Elite]",No,30,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Marked Marksmen,Tiradores Marcados,0,2,"[Infantry, Orc]","[Elite]",No,35,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Needle,Aguja,0,1,"[Artillery, Construct]",[],No,30,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Orc Hunters,Cazadores Orcos,0,2,"[Infantry, Orc]","[Scout]",No,30,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Orc Husk,Cascara Orca,0,2,"[Infantry, Orc, Undead]",[],No,20,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Osseous,Oseo,0,1,"[Infantry, Undead]","[Elite, Intimidating (1)]",No,35,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Rumpy Ride,Paseo Arrugado,0,1,"[Cavalry, Orc, Beast]","[Scout]",No,40,[],[],Yes
+scions-of-yaldabaoth,Scions of Yaldabaoth,Troop,Sightless,Sin Vista,0,2,"[Infantry, Undead]","[Ambusher]",No,25,[],[],Yes

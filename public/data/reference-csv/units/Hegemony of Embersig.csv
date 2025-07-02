@@ -1,28 +1,21 @@
+
 faction_id,Faction,Unit Type,Unit Name EN,Unit Name SP,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion,Tournament Legal
-hegemony-of-embersig,Hegemony of Embersig,Troop,Aggressors,Acometedores,0,1,"[Human, Infantry]",[],no,40,"[Cancel a symbol, Disarmed, Shove (2), Displace (4)]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Aide,Legado,1,1,"[Aestari, Character, Elf]","[Fearless, Spellcaster]",no,25,[Place (10)],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Amelia Hellbroth,Amelia Hellbroth,3,1,"[Character, Colossal Company, High Command, Human]","[Elite, Join (Infantry)]",yes,40,"[Vulnerable, Disarmed]",,No
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Ansera Noighman,Ansera Noighman,0,1,"[Character, Ghent, Dwarf]","[Dispel (BLU), Join (Infantry), Join (War Machine)]",no,20,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Troop,Black Angels,Angeles Negros,0,1,"[Cavalry, Human]",[Preferred Terrain (Rugged)],no,30,[Intimidating (2)],,Yes
-hegemony-of-embersig,hegemony of Embersig,Troop,Black Legion Arquebusiers,Arcabuceros De La Legion Negra,0,2,"[Human, Infantry]",[Cover (BLK)],no,30,[Frightened],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Troop,Black Legion Bucklermen,Rodeleros De La Legion Negra,0,3,"[Human, Infantry]",[],no,20,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Troop,Bulwarks,Baluartes,0,2,"[Human, Infantry]","[Cover (BLK), Immovable]",no,35,[Shove (3)],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Corporal,Cabo,2,1,"[Character, Human]",[Join (Human Infantry)],no,15,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,"Dragoslav Bjelogríc, Drago the Anvil","Dragoslav Bjelogríc, Drago El Yunque",3,1,"[Character, High Command, Human]","[Bloodlust (Varank), Elite, Join (Bucklermen), Join (Bulwark)]",Yes,40,"[Vulnerable, Elite, Bloodlust (Varank), Repeat a Die]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Engineer,Ingeniero,0,1,"[Character, Ghent, Dwarf]","[Dispel (BLU), Join (Infantry), Join (War Machine)]",no,15,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Frostfire Herald,Heraldo Del Fuego Gelido,0,1,"[Aestari, Character, Elf]","[Aestari, Character, Elf, Fearless, Spellcaster]",no,25,"[Slowed, Impassable]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Gale Falchion,Alfanje Del Vendaval,0,1,"[Aestari, Character, Elf]",[Spellcaster],no,25,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Gunnery Corporal,Cabo Tirador,1,1,"[Character, Human]","[Join (Arquebusiers), Join (Pioneers)]",no,20,[Repeat a die],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Hetman,Hetman,3,1,"[Chracter, High Command, Human]",[Join (Infantry)],Yes,25,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Lady Télia,Lady Télia,2,1,"[Chracter, Human]","[Elite, Scout, Join (Arquebusiers), Join (Pioneers)]",no,25,"[Frightened, Aim, Repeat a Die]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Marhael the Refused,Marhael El Rehusado,1,1,"[Aestari, Character, Elf]","[Fearless, Spellcaster]",no,35,[Place (11)],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Companion,MK-OS Automata,MK-OS Automata,0,3,[],[],no,0,[],trabor slepmund,No
-hegemony-of-embersig,Hegemony of Embersig,Named Character,"Nadezhda Lazard, Champion of Embersig","Nadezhda Lazard, Campeona De Embersig",2,1,"[Character, Human]",[Join (Infantry)],no,30,"[Disarmed, Vulnerable]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Naergon Caladren,Naergon Caladren,1,1,"[Aestari, Character, Colossal Company, Elf]",[Spellcaster],no,15,"[Place (5), Disarmed, Displace (5), Frightened]",,No
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Nayra Caladren,Nayra Caladren,0,1,"[Aestari, Character, Colossal Company, Elf]","[Elite, Fearless, Spellcaster]",no,35,"[Disarmed, Slowed, Vulnerable]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Troop,Pioneers,Pioneros,0,1,"[Dwarf, Ghent, Infantry]","[Dispel (BLU), Scout]",no,35,"[Shove (3), Disarmed, Trap, Slowed]",,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Strategos,Strategos,1,1,"[Character, Human]",[Join (Infantry)],no,20,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Trabor Slepmund,Trabor Slepmund,1,1,"[Character, Colossal Company, Dwarf, Ghent]","[Dispel (BLU), Join (War Rig)]",no,30,[Disarmed],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],no,30,[Place (5)],,No
-hegemony-of-embersig,Hegemony of Embersig,Character,War Surgeon,Cirujano De Guerra,0,1,"[Character, Human]",[Join (Infantry)],no,15,[],,Yes
-hegemony-of-embersig,Hegemony of Embersig,Character,Mounted Hetman,Hetman Montado,2,1,"[Cavalry, Character, High Command, Human]",[Join (Calvary)],yes,40,[],,Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Amelia Hellbroth,Amelia Caldoinfierno,0,1,"[Character, Human, Mercenary]","[Spellcaster]",No,25,[],[],No
+hegemony-of-embersig,Hegemony of Embersig,Character,Coal,Carbon,0,1,"[Character, Human, Mercenary]","[Elite, Scout]",No,30,[],[],No
+hegemony-of-embersig,Hegemony of Embersig,Character,Corporal,Cabo,1,1,"[Character, Human]","[Join (Infantry Human)]",No,20,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Dragoslav Bjelogrc,Dragoslav Bjelogrc,2,1,"[Character, Dwarf, High Command]","[Elite, Join (Infantry Dwarf)]",Yes,35,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Engineer,Ingeniero,0,1,"[Character, Human]","[Spellcaster]",No,25,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Gunnery Corporal,Cabo Artillero,1,1,"[Character, Human]","[Join (Artillery Human)]",No,25,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Lady Télia,Dama Télia,2,1,"[Character, Human, High Command]","[Elite, Spellcaster]",Yes,45,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Nadezhda Lazard,Nadezhda Lazard,1,1,"[Character, Human, High Command]","[Elite, Mounted]",Yes,40,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Character,Revenant,Aparecido,0,1,"[Character, Undead, Mercenary]","[Elite]",No,35,[],[],No
+hegemony-of-embersig,Hegemony of Embersig,Character,Strategos,Estratego,2,1,"[Character, Human, High Command]","[Elite, Join (Infantry Human)]",Yes,35,[],[],No
+hegemony-of-embersig,Hegemony of Embersig,Character,War Surgeon,Cirujano de Guerra,0,1,"[Character, Human]","[Medic]",No,20,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Aggressors,Agresores,0,2,"[Infantry, Human]","[Elite]",No,35,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Black Angels,Angeles Negros,0,1,"[Infantry, Human]","[Elite, Scout]",No,45,[],[],No
+hegemony-of-embersig,Hegemony of Embersig,Troop,Black Legion Arquebusiers,Arcabuceros Legion Negra,0,2,"[Infantry, Human]",[],No,25,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Black Legion Bucklermen,Escuderos Legion Negra,0,3,"[Infantry, Human]",[],No,20,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Bulwarks,Baluartes,0,2,"[Infantry, Dwarf]","[Elite]",No,30,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Contender,Contendiente,0,1,"[Artillery, Construct]",[],No,40,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,Crucible,Crisol,0,1,"[Artillery, Construct]","[Elite]",No,50,[],[],Yes
+hegemony-of-embersig,Hegemony of Embersig,Troop,MK-OS Automata,Automata MK-OS,0,1,"[Infantry, Construct]","[Elite]",No,45,[],[],No

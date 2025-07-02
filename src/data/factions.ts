@@ -1,132 +1,88 @@
 
-import { Faction } from "../types/army";
-import { northernTribesUnits } from "./factions/northern-tribes";
-import { hegemonyOfEmbersigUnits } from "./factions/hegemony-of-embersig";
-import { scionsOfYaldabaothUnits } from "./factions/scions-of-yaldabaoth";
-import { syenannUnits } from "./factions/syenann";
+import { Unit, Faction } from '@/types/army';
+import { loadAllFactionData } from '@/utils/csvToStaticGenerator';
 
-// Define fallback factions in case the database fetch fails
+// Faction definitions
 export const factions: Faction[] = [
-  { id: "northern-tribes", name: "Northern Tribes" },
-  { id: "hegemony-of-embersig", name: "Hegemony of Embersig" },
-  { id: "scions-of-yaldabaoth", name: "Scions of Yaldabaoth" },
-  { id: "syenann", name: "Sÿenann" }
+  {
+    id: "syenann",
+    name: "Sÿenann",
+    name_es: "Sÿenann",
+    name_fr: "Sÿenann"
+  },
+  {
+    id: "northern-tribes",
+    name: "Northern Tribes",
+    name_es: "Tribus del Norte",
+    name_fr: "Tribus du Nord"
+  },
+  {
+    id: "hegemony-of-embersig",
+    name: "Hegemony of Embersig",
+    name_es: "Hegemonía de Embersig",
+    name_fr: "Hégémonie d'Embersig"
+  },
+  {
+    id: "scions-of-yaldabaoth",
+    name: "Scions of Yaldabaoth",
+    name_es: "Vástagos de Yaldabaoth",
+    name_fr: "Rejetons de Yaldabaoth"
+  }
 ];
 
-// Expanded map for normalizing faction names with more variations
-export const factionNameMap: Record<string, string> = {
-  // Display names to IDs
-  'Hegemony of Embersig': 'hegemony-of-embersig',
-  'Northern Tribes': 'northern-tribes',
-  'Scions of Yaldabaoth': 'scions-of-yaldabaoth',
-  'Sÿenann': 'syenann',
-  'Syenann': 'syenann',
-  
-  // Short names and common variations
-  'hegemony': 'hegemony-of-embersig',
-  'tribes': 'northern-tribes',
-  'northern': 'northern-tribes',
-  'scions': 'scions-of-yaldabaoth',
-  'yaldabaoth': 'scions-of-yaldabaoth',
-  
-  // Handle potential database inconsistencies
-  'hegemony-embersig': 'hegemony-of-embersig',
-  'hegemony_of_embersig': 'hegemony-of-embersig',
-  'northern_tribes': 'northern-tribes',
-  'scions_of_yaldabaoth': 'scions-of-yaldabaoth',
-  'syenann_': 'syenann'
-};
+// Load units from CSV files
+let unitsCache: Unit[] | null = null;
 
-// Fixed normalize function to properly assign faction IDs
-const normalizeUnits = () => {
-  console.log('Starting unit normalization with explicit faction assignment...');
-  
-  // Explicitly assign correct faction IDs to each unit collection
-  const factionUnitsMap = [
-    { units: northernTribesUnits, factionId: 'northern-tribes', name: 'Northern Tribes' },
-    { units: hegemonyOfEmbersigUnits, factionId: 'hegemony-of-embersig', name: 'Hegemony' },
-    { units: scionsOfYaldabaothUnits, factionId: 'scions-of-yaldabaoth', name: 'Scions' },
-    { units: syenannUnits, factionId: 'syenann', name: 'Syenann' }
-  ];
-  
-  const allUnits = [];
-  const seen = new Set();
-  const factionCounts = {
-    'northern-tribes': 0,
-    'hegemony-of-embersig': 0,
-    'scions-of-yaldabaoth': 0,
-    'syenann': 0,
-    'unknown': 0
-  };
-  
-  // Process each faction's units with explicit faction assignment
-  for (const factionGroup of factionUnitsMap) {
-    console.log(`Processing ${factionGroup.name} units: ${factionGroup.units.length} units`);
+export const loadUnits = async (): Promise<Unit[]> => {
+  if (unitsCache) {
+    return unitsCache;
+  }
+
+  try {
+    console.log('[loadUnits] Loading units from CSV files...');
+    const staticUnits = await loadAllFactionData();
     
-    for (const unit of factionGroup.units) {
-      // Skip units without an ID
-      if (!unit.id) {
-        console.warn(`Found unit without ID in ${factionGroup.name}:`, unit.name);
-        continue;
-      }
-      
-      // Check for duplicates
-      if (seen.has(unit.id)) {
-        console.warn(`Found duplicate unit ID: ${unit.name} with ID ${unit.id}`);
-        continue;
-      }
-      
-      // Create normalized unit with explicit faction assignment
-      const normalizedUnit = {
-        ...unit,
-        faction: factionGroup.factionId,
-        faction_id: factionGroup.factionId
-      };
-      
-      seen.add(unit.id);
-      allUnits.push(normalizedUnit);
-      factionCounts[factionGroup.factionId]++;
-    }
+    // Convert to Unit format
+    const convertedUnits: Unit[] = staticUnits.map(staticUnit => ({
+      id: staticUnit.id,
+      name: staticUnit.name,
+      name_es: staticUnit.name_es,
+      name_fr: staticUnit.name_fr,
+      faction: staticUnit.faction,
+      faction_id: staticUnit.faction_id,
+      pointsCost: staticUnit.pointsCost,
+      availability: staticUnit.availability,
+      command: staticUnit.command,
+      keywords: staticUnit.keywords,
+      specialRules: staticUnit.specialRules,
+      highCommand: staticUnit.highCommand,
+      tournamentLegal: staticUnit.tournamentLegal,
+      imageUrl: staticUnit.imageUrl
+    }));
+
+    // Log tournament legal status for debugging
+    const tournamentIllegalUnits = convertedUnits.filter(u => !u.tournamentLegal);
+    console.log(`[loadUnits] Loaded ${convertedUnits.length} total units`);
+    console.log(`[loadUnits] Found ${tournamentIllegalUnits.length} tournament illegal units:`);
+    tournamentIllegalUnits.forEach(unit => {
+      console.log(`  - ${unit.name} (${unit.faction}): ${unit.tournamentLegal}`);
+    });
+
+    unitsCache = convertedUnits;
+    return convertedUnits;
+  } catch (error) {
+    console.error('[loadUnits] Error loading units:', error);
+    return [];
   }
-  
-  // Log final faction distribution
-  console.log('Final faction distribution:');
-  Object.entries(factionCounts).forEach(([faction, count]) => {
-    console.log(`- ${faction}: ${count} units`);
-  });
-  
-  console.log(`Total normalized units: ${allUnits.length}`);
-  return allUnits;
 };
 
-// Export normalized and deduplicated units
-export const units = normalizeUnits();
+// Export units - this will be populated by the loadUnits function
+export let units: Unit[] = [];
 
-// Add a helper function to normalize faction IDs (can be used throughout the app)
-export const normalizeFactionId = (factionId: string): string => {
-  if (!factionId) return 'northern-tribes'; // Default faction
-  
-  // Handle direct match in map
-  if (factionNameMap[factionId]) {
-    return factionNameMap[factionId];
-  }
-  
-  // Handle case insensitive match
-  const lowercaseFactionId = factionId.toLowerCase();
-  for (const [key, value] of Object.entries(factionNameMap)) {
-    if (key.toLowerCase() === lowercaseFactionId) {
-      return value;
-    }
-  }
-  
-  // If no match found, attempt to normalize kebab-case
-  if (factionId.includes(' ')) {
-    const kebabFactionId = factionId.toLowerCase().replace(/\s+/g, '-');
-    if (factionNameMap[kebabFactionId]) {
-      return factionNameMap[kebabFactionId];
-    }
-  }
-  
-  // If all else fails, return the original (but ensure it's lowercase and kebab-case)
-  return factionId.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
-};
+// Initialize units on module load
+loadUnits().then(loadedUnits => {
+  units.length = 0; // Clear array
+  units.push(...loadedUnits); // Add loaded units
+}).catch(error => {
+  console.error('Failed to initialize units:', error);
+});
