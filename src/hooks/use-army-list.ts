@@ -4,7 +4,7 @@ import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { units as allUnits } from "@/data/factions";
+import { loadAllFactionData } from "@/utils/csvToStaticGenerator";
 import { removeDuplicateUnits } from "@/utils/unitManagement";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { saveListToStorage } from "@/utils/listManagement";
@@ -24,58 +24,52 @@ export const useArmyList = (selectedFaction: string) => {
     error: unitsError,
     refetch: refetchUnits 
   } = useQuery({
-    queryKey: ['faction-units', selectedFaction, useLocalContentData],
+    queryKey: ['faction-units', selectedFaction],
     queryFn: async () => {
-      if (useLocalContentData) {
-        // Use local data - get all units for the faction from CSV data
-        const factionUnits = allUnits.filter(unit => 
-          unit.faction === selectedFaction || unit.faction_id === selectedFaction
-        );
-        console.log(`[useArmyList] Filtered ${factionUnits.length} units for faction ${selectedFaction}`);
-        return removeDuplicateUnits(factionUnits);
-      } else {
-        // Try to fetch from database, fall back to local data
-        try {
-          const { data, error } = await supabase
-            .from('unit_data')
-            .select('*')
-            .eq('faction', selectedFaction);
-          
-          if (error) throw error;
-          
-          if (!data || data.length === 0) {
-            // Fall back to local data
-            const factionUnits = allUnits.filter(unit => 
-              unit.faction === selectedFaction || unit.faction_id === selectedFaction
-            );
-            return removeDuplicateUnits(factionUnits);
-          }
-          
-          // Convert database format to Unit format
-          return data.map(unit => ({
-            id: unit.id,
-            name: unit.name,
-            name_es: unit.name_es,
-            faction: unit.faction,
-            faction_id: unit.faction,
-            pointsCost: unit.points || 0,
-            availability: (unit.characteristics as any)?.availability || 1,
-            command: (unit.characteristics as any)?.command || 0,
-            keywords: (unit.keywords || []).map((k: string) => ({ name: k })),
-            specialRules: unit.special_rules || [],
-            highCommand: (unit.characteristics as any)?.highCommand || false,
-            tournamentLegal: (unit.characteristics as any)?.tournamentLegal !== false, // Default to true if not specified
-            imageUrl: (unit.characteristics as any)?.imageUrl
-          }));
-        } catch (error) {
-          console.error('Failed to fetch from database, using local data:', error);
-          const factionUnits = allUnits.filter(unit => 
-            unit.faction === selectedFaction || unit.faction_id === selectedFaction
-          );
-          return removeDuplicateUnits(factionUnits);
-        }
+      console.log(`[useArmyList] Loading fresh CSV data for faction: ${selectedFaction}`);
+      
+      // Always load fresh data directly from CSV files
+      const staticUnits = await loadAllFactionData();
+      
+      // Convert to Unit format
+      const allUnits: Unit[] = staticUnits.map(staticUnit => ({
+        id: staticUnit.id,
+        name: staticUnit.name,
+        name_es: staticUnit.name_es,
+        name_fr: staticUnit.name_fr,
+        faction: staticUnit.faction,
+        faction_id: staticUnit.faction_id,
+        pointsCost: staticUnit.pointsCost,
+        availability: staticUnit.availability,
+        command: staticUnit.command,
+        keywords: staticUnit.keywords,
+        specialRules: staticUnit.specialRules,
+        highCommand: staticUnit.highCommand,
+        tournamentLegal: staticUnit.tournamentLegal,
+        imageUrl: staticUnit.imageUrl
+      }));
+
+      // Filter for the selected faction
+      const factionUnits = allUnits.filter(unit => 
+        unit.faction === selectedFaction || unit.faction_id === selectedFaction
+      );
+      
+      console.log(`[useArmyList] Total units loaded from CSV: ${allUnits.length}`);
+      console.log(`[useArmyList] Filtered ${factionUnits.length} units for faction ${selectedFaction}`);
+      
+      // Log specific units for debugging
+      if (selectedFaction === 'northern-tribes') {
+        const mountedWrathmane = factionUnits.find(u => u.name.toLowerCase().includes('mounted wrathmane'));
+        const tattooist = factionUnits.find(u => u.name.toLowerCase().includes('tattooist'));
+        const hersir = factionUnits.find(u => u.name.toLowerCase().includes('hersir'));
+        console.log(`[useArmyList] Mounted Wrathmane found:`, mountedWrathmane);
+        console.log(`[useArmyList] Tattooist keywords:`, tattooist?.keywords);
+        console.log(`[useArmyList] Hersir keywords:`, hersir?.keywords);
       }
+      
+      return removeDuplicateUnits(factionUnits);
     },
+    staleTime: 0, // Always fetch fresh data
     enabled: !!selectedFaction,
   });
 
