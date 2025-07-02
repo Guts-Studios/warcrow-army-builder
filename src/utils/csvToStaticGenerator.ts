@@ -51,7 +51,8 @@ export const loadFactionCsvData = async (factionId: string): Promise<CsvUnit[]> 
   }
 
   try {
-    const response = await fetch(`/data/reference-csv/units/${fileName}`);
+    console.log(`[loadFactionCsvData] Loading CSV for faction: ${factionId}, file: ${fileName}`);
+    const response = await fetch(`/data/reference-csv/units/${fileName}?t=${Date.now()}`); // Add cache busting
     if (!response.ok) {
       console.warn(`Failed to load CSV for faction ${factionId}: ${response.status}`);
       return [];

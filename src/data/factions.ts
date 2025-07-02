@@ -34,6 +34,9 @@ export const factions: Faction[] = [
 let unitsCache: Unit[] | null = null;
 
 export const loadUnits = async (): Promise<Unit[]> => {
+  // Clear cache to force fresh data load
+  unitsCache = null;
+  
   if (unitsCache) {
     return unitsCache;
   }
