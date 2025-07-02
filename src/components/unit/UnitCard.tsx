@@ -44,11 +44,11 @@ const UnitCard = ({ unit, quantity, onAdd, onRemove }: UnitCardProps) => {
   const isNotTournamentLegal = unit.tournamentLegal === false || String(unit.tournamentLegal).toLowerCase() === "false";
   
   // Debug logging for production troubleshooting - Always log to help with cache issues
-  console.log(`[UnitCard DEBUG] ${unit.name}:`);
+  console.log(`[UnitCard DEBUG v2] ${unit.name}:`);
   console.log(`  - tournamentLegal value:`, unit.tournamentLegal);
   console.log(`  - tournamentLegal type:`, typeof unit.tournamentLegal);
   console.log(`  - isNotTournamentLegal:`, isNotTournamentLegal);
-  console.log(`  - unit object:`, unit);
+  console.log(`  - unit data source check:`, unit);
 
   return (
     <div className="bg-warcrow-accent rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 relative flex flex-col">

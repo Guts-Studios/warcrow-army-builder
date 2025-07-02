@@ -29,7 +29,7 @@ export const factions: Faction[] = [
   }
 ];
 
-// Static unit data generated from CSV files
+// Static unit data generated from CSV files - Updated with correct tournament legal status
 export const units: Unit[] = [
   // Northern Tribes
   {
