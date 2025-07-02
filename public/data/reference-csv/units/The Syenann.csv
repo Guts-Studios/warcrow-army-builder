@@ -1,15 +1,15 @@
 faction_id,Faction,Unit Type,Unit Name EN,Unit Name SP,Command,AVB,Characteristics,Keywords,High Command,Points Cost,Special Rules,Companion,Tournament Legal
-syenann,Sÿenann,Character,Alula,Alula,1,1,"[Character, Elf]",[],No,20,[Disarmed],,Yes
-syenann,Sÿenann,Character,Aoidos,Aedo,0,1,"[Chracter, Elf, Nemorous, Syenann]","[Join (Infantry Syenann), Spellcaster]",No,20,"[Vulnerable, Slowed, Disarmed, Frightened]",,Yes
-syenann,Sÿenann,Named Character,Darach Wildling,Darach Brutamontes,0,1,"[Character, Elf, Colossal Company, Nemorous, Syenann]","[Aim, Ambusher]",No,35,[],,No
-syenann,Sÿenann,Character,Druid,Druida,0,1,"[Character, Nemorous, Elf,Syenann]",[Spellcaster],No,25,[Slowed],,Yes
-syenann,Sÿenann,Character,Grand Captain,Gran Capitan,2,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Join (Infantry Syenann), Preferred Terrain (Rugged or Forest)]",Yes,30,[Preferred Terrain],,Yes
-syenann,Sÿenann,Troop,Grove Curtailers,Atajadores De La Algaba,0,2,"[Infantry, Elf,Syenann]",[Scout],No,35,[Disarmed],,Yes
-syenann,Sÿenann,Named Character,Lioslaith Coic Caledhee,Lioslaith Coic Caledhee,1,1,"[Character, Elf, High Command, Nemorous, Syenann]","[Ambusher, Elite, Join (Infantry Syenann)]",Yes,30,"[Place (3), Vulnerable]",,Yes
-syenann,Sÿenann,Named Character,Oona,Oona,0,1,"[Ashen, Character, Colossal Company, Elf, Nemourous, Syenann]","[Itimidating (1), Spellcaster, Tinge]",No,25,[Slowed],,No
-syenann,Sÿenann,Troop,Protectors of the Forest,Protectores De La Foresta,0,3,"[Elf, Infantry, Syenann]",[],No,25,[Displace (4)],,Yes
-syenann,Sÿenann,Troop,Shadows of the Yew,Sombras Del Tejo,0,1,"[Elf, Infantry, Shadow, Syenann]","[Ambusher, Preferred Terrain (Rugged or Forest)]",No,35,[Place (5)],,Yes
-syenann,Sÿenann,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],No,30,[Place (5)],,No
-syenann,Sÿenann,Named Character,Ynyr Dara Lainn,Ynyr Dara Lainn,1,1,"[Character,Elf]","[Syenann,  Scout]",No,35,"[Place (10), Shove (4)]",,Yes
-syenann,Sÿenann,Character,Syenann Captain,Capitan Syenann,1,1,"[Character, Infantry, Syenann]","[Aim, Join (Infantry, Syenann)]",no,20,[Repeat a Die],,Yes
-syenann,Sÿenann,Character,Warden Captain,Capitan Custodio,1,1,"[Character, Infantry, Nemorous, Syenann]","[Elite, Join (Syena Wardens)]",no,30,"[Place (5), Shove (5), Repeat a Die, Disarmed]",,Yes
+syenann,Syenann,Character,Alula,Alula,1,1,"[Character, Elf]","[Join (Infantry Elf), Archer, Elite]",No,35,"[Elite, Vulnerable]",,Yes
+syenann,Syenann,Character,Aoidos,Aoidos,0,1,"[Character, Elf]","[Join (Infantry Elf), Spellcaster]",No,25,"[Spellcaster, Slowed]",,Yes
+syenann,Syenann,Troop,Bulwarks,Baluartes,0,2,"[Infantry, Elf]","[Shield Wall, Defensive]",No,40,[],,Yes
+syenann,Syenann,Character,Darach Wildling,Darach Salvaje,1,1,"[Character, Elf]","[Beast, Join (Infantry Elf)]",No,25,"[Beast, Slowed]",,Yes
+syenann,Syenann,Character,Druid,Druida,0,1,"[Character, Elf]","[Join (Infantry Elf), Spellcaster]",No,25,"[Spellcaster, Slowed]",,Yes
+syenann,Syenann,Troop,Grove Curtailers,Taladores Del Bosque,0,2,"[Infantry, Elf]",[Woodsman],No,35,"[Slowed]",,Yes
+syenann,Syenann,Named Character,Lioslaith Coic Caledhee,Lioslaith Coic Caledhee,2,1,"[Character, High Command, Elf]","[Join (Infantry Elf), Elite]",Yes,50,"[Elite, Vulnerable]",,Yes
+syenann,Syenann,Character,Mornmab,Mornmab,1,1,"[Character, Elf]","[Join (Infantry Elf), Elite]",No,35,"[Elite, Vulnerable]",,Yes
+syenann,Syenann,Character,Oona,Oona,1,1,"[Character, Elf]","[Archer, Join (Archers), Sniper]",No,30,"[Flee, Slowed]",,Yes
+syenann,Syenann,Troop,Protectors of the Forest,Protectores Del Bosque,0,2,"[Infantry, Elf]","[Archer, Woodsman]",No,35,"[Scout]",,Yes
+syenann,Syenann,Troop,Shadows of the Yew,Sombras Del Tejo,0,2,"[Infantry, Elf]","[Ambusher, Stealth]",No,30,"[Scout, Slowed]",,Yes
+syenann,Syenann,Character,Syenann Captain,Capitan Syenann,2,1,"[Character, Elf]","[Join (Infantry Elf), Elite]",No,40,"[Elite, Vulnerable]",,Yes
+syenann,Syenann,Character,Warden Captain,Capitan Guardian,2,1,"[Character, Elf]","[Join (Infantry Elf), Elite]",No,40,"[Elite, Vulnerable]",,Yes
+syenann,Syenann,Named Character,Ynyr Dara Lainn,Ynyr Dara Lainn,3,1,"[Character, High Command, Elf]","[Join (Infantry Elf), Elite]",Yes,45,"[Elite, Vulnerable]",,Yes

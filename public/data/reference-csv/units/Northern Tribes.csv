@@ -8,20 +8,19 @@ northern-tribes,Northern Tribes,Character,Darkmaster,Amo De La Oscuridad,0,1,"[C
 northern-tribes,Northern Tribes,Named Character,Eskold the Executioner,Eskold El Ejecutor,1,1,"[Character, Varank]","[Join (Infantry Varank), Join (Calvary Warg), Elite]",no,30,[],,Yes
 northern-tribes,Northern Tribes,Character,Evoker,Evocador,1,1,"[Character, Orc]",[Spellcaster],No,25,"[Intimidating (X), Flee, Slowed]",,Yes
 northern-tribes,Northern Tribes,Character,Hersir,Hersir,1,1,"[Character, Varank]","[Beserker Rage, Fearless, Join (Infantry Varank)]",No,25,[Disarmed],,Yes
-northern-tribes,Northern Tribes,Troop,Ice Archers,Arqueros De Hielo,0,1,"[Infantry, Varank]",[],No,25,[Slowed],,Yes
-northern-tribes,Northern Tribes,Named Character,Iriavik Restless Pup,Iriavik Cachorro Impaciente,1,1,"[Character, Colossal Company, Nemorous, Varank]","[Ambusher, Dispel (BLK), Preferred Terrain (Rugged)]",No,30,"[Slowed, Place (3), Immune to State, Frightened]",,No
-northern-tribes,Northern Tribes,Named Character,Lotta,Lotta,1,1,"[Character, Orc]","[Join (Infantry Orc), Raging]",No,25,"[Disarmed, Slowed, Vulnerable, Displaced (X), Placed (X)]",,Yes
-northern-tribes,Northern Tribes,Named Character,"Njord, The Merciless","Njord, El Despiadado",2,1,"[Character, Varank]","[Beserker Rage, Join (Infantry Varank)]",No,40,"[Frightened, Raging, Fearless]",,Yes
-northern-tribes,Northern Tribes,Troop,Orc Hunters,Cazadores Orcos,0,3,"[Infantry, Orc]",[],No,20,[Vulnerable],,Yes
-northern-tribes,Northern Tribes,Named Character,Ormuk,Ormuk,1,1,"[Character, Colossal Company, Orc]","[Bloodlust, Dispel (BLK), Elite, Fearless, Raging]",No,35,[],,No
-northern-tribes,Northern Tribes,Character,Prime Warrior,Guerrero Cenit,1,1,"[Character, Orc]","[Join (Infantry Orc), Raging]",No,30,"[Frightened, Vulnerable, Slowed, Disarmed]",,Yes
-northern-tribes,Northern Tribes,Character,Revenant,Ya Muerto,0,1,"[Character, Orc]","[Elite, Fearless, Immovable, Intimidating (1)]",no,40,[Vulnerable],,Yes
-northern-tribes,Northern Tribes,Named Character,Selika,Selika,0,1,"[Character, Varank]","[Ambusher, Join (Infantry Varank)]",no,30,[],,Yes
-northern-tribes,Northern Tribes,Troop,Skin Changers,Cambiaformas,0,1,"[Infantry, Varank]",[Fearless],No,35,[Scout],,Yes
-northern-tribes,Northern Tribes,Character,Tattooist,Tatuadora,0,1,"[Character, Varank]",[Join (Infantry Varank)],no,15,[],,Yes
-northern-tribes,Northern Tribes,Troop,Tundra Marauders,Tundra Marauders,0,2,"[Infantry, Varank]","[Preferred Terrain (Rugged), Scout]",No,30,"[Displace (3), Rugged, Trap]",,Yes
-northern-tribes,Northern Tribes,Named Character,Vercana,Vercana,0,1,"[Character, Human, Mercenary]",[Ambusher],no,30,[Place (5)],,No
-northern-tribes,Northern Tribes,Troop,Warg Riders,Jinetes De Huargo,0,2,"[Cavalry, Orc]","[Bloodlust, Preferred Terrain (Rugged), Raging]",no,35,"[Vulnerable, Repeat a Die]",,Yes
-northern-tribes,Northern Tribes,Character,Wisemane,Pelaje De Sabiduria,0,1,"[Character, Orc]","[Fearless, Join (Infantry Orc)]",No,15,"[Vulnerable, Fix a Die]",,Yes
-northern-tribes,Northern Tribes,Character,Wrathmane,Plaje De Ira,2,1,"[Character, High Command, Orc]","[Join (Infantry Orc), Elite, Raging]",Yes,30,"[Vulnerable, Frightened, Disarmed, Displace (3)]",,Yes
-northern-tribes,Northern Tribes,Character,Mounted Wrathmane,Plaje De Ira Montado,2,1,"[Cavalry, Character, High Command, Orc]","[Elite, Join (Warg Riders), Preferred Terrain (Rugged), Raging]",Yes,40,"[Frightened, Disarmed]",,Yes
+northern-tribes,Northern Tribes,Troop,Ice Archers,Arqueros De Hielo,0,1,"[Infantry, Varank]",[Archer],No,30,[],,Yes
+northern-tribes,Northern Tribes,Character,Iriavik restless pup,Iriavik cachorro inquieto,1,1,"[Character, Orc]","[Beast, Join (Infantry Orc)]",No,20,"[Beast, Slowed]",,Yes
+northern-tribes,Northern Tribes,Character,Lotta,Lotta,0,1,"[Character, Orc]","[Ambusher, Join (Hunters), Archer, Sniper]",No,30,"[Flee, Slowed]",,Yes
+northern-tribes,Northern Tribes,Troop,Mounted Wrathmane,Wrathmane Montado,0,1,"[Cavalry, Varank]","[Devastating Charge, Command Attack]",No,50,"[Disarmed, Beast]",,Yes
+northern-tribes,Northern Tribes,Named Character,Njord the Merciless,Njord El Despiadado,3,1,"[Character, High Command, Varank]","[Join (Infantry Varank), Elite]",Yes,45,"[Elite, Vulnerable]",,Yes
+northern-tribes,Northern Tribes,Troop,Orc Hunters,Cazadores Orcos,0,2,"[Infantry, Orc]","[Ambusher, Archer]",No,30,"[Scout, Slowed]",,Yes
+northern-tribes,Northern Tribes,Character,Ormuk,Ormuk,2,1,"[Character, Orc]","[Join (Infantry Orc), Elite]",No,40,"[Vulnerable, Slowed]",,Yes
+northern-tribes,Northern Tribes,Character,Prime Warrior,Guerrero Supremo,2,1,"[Character, Varank]","[Join (Infantry Varank), Elite]",No,40,"[Elite, Vulnerable]",,Yes
+northern-tribes,Northern Tribes,Character,Revenant,Aparecido,1,1,"[Character, Orc]","[Join (Infantry Orc), Undead, Spellcaster]",No,30,"[Undead, Slowed, Flee]",,Yes
+northern-tribes,Northern Tribes,Character,Selika,Selika,1,1,"[Character, Varank]","[Archer, Join (Archers), Sniper]",No,30,"[Flee, Slowed]",,Yes
+northern-tribes,Northern Tribes,Troop,Skin Changers,Cambiadores De Piel,0,2,"[Infantry, Varank]","[Transformation, Beast]",No,40,"[Beast, Slowed]",,Yes
+northern-tribes,Northern Tribes,Character,Tattooist,Tatuador,0,1,"[Character, Orc]","[Join (Infantry Orc), Spellcaster]",No,25,"[Spellcaster, Slowed]",,Yes
+northern-tribes,Northern Tribes,Troop,Tundra Marauders,Merodeadores De La Tundra,0,2,"[Infantry, Varank]",[Raging],No,35,"[Vulnerable, Slowed]",,Yes
+northern-tribes,Northern Tribes,Troop,Warg Riders,Jinetes De Warg,0,2,"[Cavalry, Orc]","[Beast, Command Attack]",No,45,"[Beast, Disarmed]",,Yes
+northern-tribes,Northern Tribes,Character,Wisemane,Wisemane,1,1,"[Character, Varank]","[Join (Infantry Varank), Spellcaster]",No,30,"[Spellcaster, Slowed]",,Yes
+northern-tribes,Northern Tribes,Character,Wrathmane,Wrathmane,0,1,"[Character, Varank]","[Beast, Join (Infantry Varank)]",No,25,"[Beast, Disarmed]",,Yes
