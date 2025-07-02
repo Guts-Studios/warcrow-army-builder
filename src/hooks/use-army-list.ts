@@ -4,7 +4,18 @@ import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { units as allUnits } from "@/data/factions";
+import { northernTribesUnits } from "@/data/factions/northern-tribes";
+import { hegemonyOfEmbersigUnits } from "@/data/factions/hegemony-of-embersig";
+import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
+import { syenannUnits } from "@/data/factions/syenann";
+
+// Combine all faction units from individual faction files (more reliable than CSV)
+const allUnits = [
+  ...northernTribesUnits,
+  ...hegemonyOfEmbersigUnits,
+  ...scionsOfYaldabaothUnits,
+  ...syenannUnits
+];
 import { removeDuplicateUnits } from "@/utils/unitManagement";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { saveListToStorage } from "@/utils/listManagement";
