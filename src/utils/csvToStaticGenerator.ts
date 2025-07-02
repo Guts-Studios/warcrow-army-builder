@@ -184,3 +184,113 @@ export const loadAllFactionData = async (): Promise<StaticUnit[]> => {
   console.log(`[loadAllFactionData] Total units loaded: ${allUnits.length}`);
   return allUnits;
 };
+
+// Generate TypeScript file content for units
+export const generateUnitFileContent = (units: StaticUnit[], factionId: string, type: string): string => {
+  const factionName = factionId.replace(/-/g, '');
+  const content = `import { Unit } from "@/types/army";
+
+export const ${factionName}${type.charAt(0).toUpperCase() + type.slice(1)}: Unit[] = [
+${units.map(unit => `  {
+    id: "${unit.id}",
+    name: "${unit.name}",
+    ${unit.name_es ? `name_es: "${unit.name_es}",` : ''}
+    ${unit.name_fr ? `name_fr: "${unit.name_fr}",` : ''}
+    faction: "${unit.faction}",
+    faction_id: "${unit.faction_id}",
+    pointsCost: ${unit.pointsCost},
+    availability: ${unit.availability},
+    command: ${unit.command},
+    keywords: ${JSON.stringify(unit.keywords, null, 2).replace(/\n/g, '\n    ')},
+    specialRules: ${JSON.stringify(unit.specialRules)},
+    highCommand: ${unit.highCommand},
+    tournamentLegal: ${unit.tournamentLegal},
+    imageUrl: "${unit.imageUrl}"
+  }`).join(',\n')}
+];
+`;
+  return content;
+};
+
+// Generate all faction files
+export const generateFactionFiles = async (factionId: string) => {
+  const csvUnits = await loadFactionCsvData(factionId);
+  const staticUnits = csvUnits.map(csvUnitToStaticUnit);
+  
+  // Categorize units
+  const troops = staticUnits.filter(unit => 
+    !unit.keywords.some(k => 
+      (typeof k === 'string' ? k : k.name).toLowerCase() === 'character'
+    ) && !unit.highCommand
+  );
+  
+  const characters = staticUnits.filter(unit => 
+    unit.keywords.some(k => 
+      (typeof k === 'string' ? k : k.name).toLowerCase() === 'character'
+    ) && !unit.highCommand
+  );
+  
+  const highCommand = staticUnits.filter(unit => unit.highCommand);
+  
+  const companions = staticUnits.filter(unit => 
+    unit.keywords.some(k => 
+      (typeof k === 'string' ? k : k.name).toLowerCase() === 'companion'
+    )
+  );
+
+  return {
+    troops: generateUnitFileContent(troops, factionId, 'troops'),
+    characters: generateUnitFileContent(characters, factionId, 'characters'), 
+    highCommand: generateUnitFileContent(highCommand, factionId, 'highCommand'),
+    companions: generateUnitFileContent(companions, factionId, 'companions'),
+    index: `import { ${factionId.replace(/-/g, '')}Troops } from "./troops";
+import { ${factionId.replace(/-/g, '')}Characters } from "./characters";
+import { ${factionId.replace(/-/g, '')}HighCommand } from "./highCommand";
+
+export const ${factionId.replace(/-/g, '')}Units = [
+  ...${factionId.replace(/-/g, '')}Troops,
+  ...${factionId.replace(/-/g, '')}Characters,
+  ...${factionId.replace(/-/g, '')}HighCommand
+];
+`
+  };
+};
+
+// Validate CSV vs static data sync
+export const validateCsvStaticSync = async (factionId: string, staticUnits: any[]) => {
+  const csvUnits = await loadFactionCsvData(factionId);
+  const csvStaticUnits = csvUnits.map(csvUnitToStaticUnit);
+  
+  const missingInStatic = csvStaticUnits.filter(csvUnit => 
+    !staticUnits.find(staticUnit => staticUnit.id === csvUnit.id)
+  );
+  
+  const extraInStatic = staticUnits.filter(staticUnit => 
+    !csvStaticUnits.find(csvUnit => csvUnit.id === staticUnit.id)
+  );
+  
+  const mismatches: any[] = [];
+  csvStaticUnits.forEach(csvUnit => {
+    const staticUnit = staticUnits.find(u => u.id === csvUnit.id);
+    if (staticUnit) {
+      if (staticUnit.pointsCost !== csvUnit.pointsCost) {
+        mismatches.push({
+          unit: csvUnit.name,
+          field: 'pointsCost',
+          csvValue: csvUnit.pointsCost,
+          staticValue: staticUnit.pointsCost
+        });
+      }
+      if (staticUnit.tournamentLegal !== csvUnit.tournamentLegal) {
+        mismatches.push({
+          unit: csvUnit.name,
+          field: 'tournamentLegal',
+          csvValue: csvUnit.tournamentLegal,
+          staticValue: staticUnit.tournamentLegal
+        });
+      }
+    }
+  });
+  
+  return { missingInStatic, extraInStatic, mismatches };
+};
