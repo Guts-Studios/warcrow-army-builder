@@ -1,8 +1,4 @@
 import { Faction } from "@/types/army";
-import { northernTribesUnits } from "@/data/factions/northern-tribes";
-import { hegemonyOfEmbersigUnits } from "@/data/factions/hegemony-of-embersig";
-import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth/index";
-import { syenannUnits } from "@/data/factions/syenann/index";
 
 // Define fallback factions in case the database fetch fails
 export const factions: Faction[] = [
@@ -35,87 +31,6 @@ export const factionNameMap: Record<string, string> = {
   'scions_of_yaldabaoth': 'scions-of-yaldabaoth',
   'syenann_': 'syenann'
 };
-
-// Function to get all units for a faction
-export const getAllFactionUnits = (factionId: string) => {
-  switch (factionId) {
-    case 'northern-tribes':
-      return northernTribesUnits;
-    case 'hegemony-of-embersig':
-      return hegemonyOfEmbersigUnits;
-    case 'scions-of-yaldabaoth':
-      return scionsOfYaldabaothUnits;
-    case 'syenann':
-      return syenannUnits;
-    default:
-      return [];
-  }
-};
-
-// Fixed normalize function to properly assign faction IDs
-const normalizeUnits = () => {
-  console.log('Starting unit normalization with explicit faction assignment...');
-  
-  // Explicitly assign correct faction IDs to each unit collection
-  const factionUnitsMap = [
-    { units: northernTribesUnits, factionId: 'northern-tribes', name: 'Northern Tribes' },
-    { units: hegemonyOfEmbersigUnits, factionId: 'hegemony-of-embersig', name: 'Hegemony' },
-    { units: scionsOfYaldabaothUnits, factionId: 'scions-of-yaldabaoth', name: 'Scions' },
-    { units: syenannUnits, factionId: 'syenann', name: 'Syenann' }
-  ];
-  
-  const allUnits = [];
-  const seen = new Set();
-  const factionCounts = {
-    'northern-tribes': 0,
-    'hegemony-of-embersig': 0,
-    'scions-of-yaldabaoth': 0,
-    'syenann': 0,
-    'unknown': 0
-  };
-  
-  // Process each faction's units with explicit faction assignment
-  for (const factionGroup of factionUnitsMap) {
-    console.log(`Processing ${factionGroup.name} units: ${factionGroup.units.length} units`);
-    
-    for (const unit of factionGroup.units) {
-      // Skip units without an ID
-      if (!unit.id) {
-        console.warn(`Found unit without ID in ${factionGroup.name}:`, unit.name);
-        continue;
-      }
-      
-      // Check for duplicates
-      if (seen.has(unit.id)) {
-        console.warn(`Found duplicate unit ID: ${unit.name} with ID ${unit.id}`);
-        continue;
-      }
-      
-      // Create normalized unit with explicit faction assignment
-      const normalizedUnit = {
-        ...unit,
-        faction: factionGroup.factionId,
-        faction_id: factionGroup.factionId
-      };
-      
-      seen.add(unit.id);
-      allUnits.push(normalizedUnit);
-      factionCounts[factionGroup.factionId]++;
-    }
-  }
-  
-  // Log final faction distribution
-  console.log('Final faction distribution:');
-  Object.entries(factionCounts).forEach(([faction, count]) => {
-    console.log(`- ${faction}: ${count} units`);
-  });
-  
-  console.log(`Total normalized units: ${allUnits.length}`);
-  return allUnits;
-};
-
-// Export normalized and deduplicated units
-export const units = normalizeUnits();
 
 // Add a helper function to normalize faction IDs (can be used throughout the app)
 export const normalizeFactionId = (factionId: string): string => {

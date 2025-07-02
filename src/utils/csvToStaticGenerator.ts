@@ -69,6 +69,7 @@ export const loadFactionCsvData = async (factionId: string): Promise<CsvUnit[]> 
     }
 
     console.log(`[loadFactionCsvData] Loaded ${parsed.data.length} units for ${factionId}`);
+    console.log(`[loadFactionCsvData] First few units:`, parsed.data.slice(0, 3).map(u => ({ name: u['Unit Name EN'], tournamentLegal: u['Tournament Legal'] })));
     return parsed.data.filter(unit => unit['Unit Name EN']?.trim());
   } catch (error) {
     console.error(`Error loading CSV for faction ${factionId}:`, error);

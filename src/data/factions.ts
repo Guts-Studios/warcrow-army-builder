@@ -40,6 +40,7 @@ export const loadUnits = async (): Promise<Unit[]> => {
 
   try {
     console.log('[loadUnits] Loading units from CSV files...');
+    console.log('[loadUnits] Tournament legal debug mode enabled');
     const staticUnits = await loadAllFactionData();
     
     // Convert to Unit format

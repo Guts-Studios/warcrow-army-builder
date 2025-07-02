@@ -10,39 +10,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { northernTribesHighCommand } from "@/data/factions/northern-tribes/highCommand";
-import { northernTribesTroops } from "@/data/factions/northern-tribes/troops";
-import { northernTribesCharacters } from "@/data/factions/northern-tribes/characters";
-import { syenannCharacters } from "@/data/factions/syenann/characters";
-import { syenannTroops } from "@/data/factions/syenann/troops";
-import { scionsOfYaldabaothUnits } from "@/data/factions/scions-of-yaldabaoth";
-import { scionsOfYaldabaothCharacters } from "@/data/factions/scions-of-yaldabaoth/characters";
-import { scionsOfYaldabaothHighCommand } from "@/data/factions/scions-of-yaldabaoth/highCommand";
-import { scionsOfYaldabaothTroops } from "@/data/factions/scions-of-yaldabaoth/troops";
+import { units } from "@/data/factions";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { hegemonyOfEmbersigHighCommand } from "@/data/factions/hegemony-of-embersig/high-command";
-import { hegemonyOfEmbersigTroops } from "@/data/factions/hegemony-of-embersig/troops";
-import { hegemonyOfEmbersigCharacters } from "@/data/factions/hegemony-of-embersig/characters";
 
-// Combine all portrait sources
+// Get all unit portraits from CSV data
 const getAllUnitPortraits = () => {
-  const allUnits = [
-    ...northernTribesHighCommand,
-    ...northernTribesTroops,
-    ...northernTribesCharacters,
-    ...syenannCharacters,
-    ...syenannTroops,
-    ...scionsOfYaldabaothUnits,
-    ...scionsOfYaldabaothCharacters,
-    ...scionsOfYaldabaothHighCommand,
-    ...scionsOfYaldabaothTroops,
-    ...hegemonyOfEmbersigHighCommand,
-    ...hegemonyOfEmbersigTroops,
-    ...hegemonyOfEmbersigCharacters,
-  ];
-  
-  return allUnits
+  return units
     .filter(unit => unit.imageUrl) // Only include units with images
     .map(unit => ({
       id: unit.id,

@@ -4,7 +4,7 @@ import { Unit, SelectedUnit, SavedList } from "@/types/army";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getAllFactionUnits } from "@/data/factions/index";
+import { units as allUnits } from "@/data/factions";
 import { removeDuplicateUnits } from "@/utils/unitManagement";
 import { useEnvironment } from "@/hooks/useEnvironment";
 import { saveListToStorage } from "@/utils/listManagement";
@@ -27,9 +27,12 @@ export const useArmyList = (selectedFaction: string) => {
     queryKey: ['faction-units', selectedFaction, useLocalContentData],
     queryFn: async () => {
       if (useLocalContentData) {
-        // Use local data - get all units for the faction without filtering by tournament status
-        const allUnits = getAllFactionUnits(selectedFaction);
-        return removeDuplicateUnits(allUnits);
+        // Use local data - get all units for the faction from CSV data
+        const factionUnits = allUnits.filter(unit => 
+          unit.faction === selectedFaction || unit.faction_id === selectedFaction
+        );
+        console.log(`[useArmyList] Filtered ${factionUnits.length} units for faction ${selectedFaction}`);
+        return removeDuplicateUnits(factionUnits);
       } else {
         // Try to fetch from database, fall back to local data
         try {
@@ -42,8 +45,10 @@ export const useArmyList = (selectedFaction: string) => {
           
           if (!data || data.length === 0) {
             // Fall back to local data
-            const allUnits = getAllFactionUnits(selectedFaction);
-            return removeDuplicateUnits(allUnits);
+            const factionUnits = allUnits.filter(unit => 
+              unit.faction === selectedFaction || unit.faction_id === selectedFaction
+            );
+            return removeDuplicateUnits(factionUnits);
           }
           
           // Convert database format to Unit format
@@ -64,8 +69,10 @@ export const useArmyList = (selectedFaction: string) => {
           }));
         } catch (error) {
           console.error('Failed to fetch from database, using local data:', error);
-          const allUnits = getAllFactionUnits(selectedFaction);
-          return removeDuplicateUnits(allUnits);
+          const factionUnits = allUnits.filter(unit => 
+            unit.faction === selectedFaction || unit.faction_id === selectedFaction
+          );
+          return removeDuplicateUnits(factionUnits);
         }
       }
     },
