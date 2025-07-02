@@ -43,32 +43,19 @@ const UnitDataManager: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-warcrow-gold">Unit Data Management</h1>
+        <h1 className="text-2xl font-semibold text-warcrow-gold">Unit Reference Data Management</h1>
         <div className="flex gap-3">
-          <PopulateDataButton />
           <DeepLUsageStats />
         </div>
       </div>
 
       <Tabs
-        defaultValue="units"
+        defaultValue="keywords"
         className="w-full"
         value={activeTab}
         onValueChange={handleTabChange}
       >
-        <TabsList className="grid grid-cols-6 mb-4 bg-black/80 border border-warcrow-gold/30">
-          <TabsTrigger 
-            value="units" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
-          >
-            Units
-          </TabsTrigger>
-          <TabsTrigger 
-            value="unittable" 
-            className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
-          >
-            Unit Table
-          </TabsTrigger>
+        <TabsList className="grid grid-cols-4 mb-4 bg-black/80 border border-warcrow-gold/30">
           <TabsTrigger 
             value="keywords" 
             className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
@@ -88,20 +75,12 @@ const UnitDataManager: React.FC = () => {
             Characteristics
           </TabsTrigger>
           <TabsTrigger 
-            value="sync" 
+            value="translations" 
             className="text-xs sm:text-sm text-warcrow-text data-[state=active]:bg-warcrow-gold/90 data-[state=active]:text-black font-medium"
           >
-            Data Sync
+            Translations
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="units" className="space-y-4">
-          <UnitDataUploader />
-        </TabsContent>
-
-        <TabsContent value="unittable" className="space-y-4">
-          <UnitDataTable />
-        </TabsContent>
 
         <TabsContent value="keywords" className="space-y-4">
           <UnitKeywordsManager />
@@ -115,9 +94,8 @@ const UnitDataManager: React.FC = () => {
           <UnitCharacteristicsManager />
         </TabsContent>
         
-        <TabsContent value="sync" className="space-y-4">
-          <AllFactionsSyncButton />
-          <DataSyncManager />
+        <TabsContent value="translations" className="space-y-4">
+          <PopulateDataButton />
         </TabsContent>
       </Tabs>
 
