@@ -35,7 +35,7 @@ export const useArmyList = (selectedFaction: string) => {
     error: unitsError,
     refetch: refetchUnits 
   } = useQuery({
-    queryKey: ['faction-units', selectedFaction, useLocalContentData, 'v2'], // Force cache refresh
+    queryKey: ['faction-units', selectedFaction, useLocalContentData, 'v3-individual-files'], // Force cache refresh with new data source
     queryFn: async () => {
       if (useLocalContentData) {
         // Use local data - get all units for the faction from CSV data
